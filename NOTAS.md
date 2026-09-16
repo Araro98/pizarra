@@ -4041,6 +4041,14 @@ Tres cosas de Aaron a la vez:
 Y la lista de Jugadores y la reserva del Team builder se recargan solas al
 fichar o borrar (antes habia que pasar por Inicio).
 
+Comprobado contra inazumo.es/tecnicas (su `data/supertecnicas-completas.json`,
+786 sin contar despertares; regla de Aaron: cuando una tecnica sale dos veces,
+la legal es la de menos potencia y la otra es la de override). En las 58 que
+salen repetidas la de menos potencia es siempre la que aqui es `personaje` o
+`tienda`, y ninguna de las excluidas esta en su lista. Las 63 que ofrece el
+editor y alli no aparecen son del DLC posterior a su exportacion (enero 2026)
+o cambian de nombre en su traduccion ("Remate halcon" / Hawk Shot).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
