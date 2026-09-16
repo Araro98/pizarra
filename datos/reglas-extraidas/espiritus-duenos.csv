@@ -1,0 +1,414 @@
+# De quien es cada armadura y cada mixi max (NOTAS O-172): solo ese personaje
+# (por nombre, en cualquiera de sus versiones) puede llevarlo.
+# Lo genera herramientas/construir_duenos_espiritus.py.
+id,nombre,familia,identidad,personaje,fuente
+ED0A6E85,Alfil blanco,armadura,17305E01,Federigo Cinco,change
+ED0A6E85,Alfil blanco,armadura,50F81E4B,Federigo Cinco,col13
+7B3A69F2,Alfil blanco,armadura,0E2B6F40,Pentra Chek,change
+7B3A69F2,Alfil blanco,armadura,F68F15FF,Pentra Chek,col13
+CAF7F1A5,Alfil negro,armadura,12D010F2,Tynan Crowe,col13
+90F8A2F4,Amaterasu,armadura,B0DD6F1B,Goldie Lemmon,cp19
+90F8A2F4,Amaterasu,armadura,DF1FD8BC,Goldie Lemmon,col13
+0CF136D4,Amorosa,armadura,7800CB40,Chitoh,col13
+A42955FC,Apolo,armadura,A9AD6367,Redd Hazzard,change
+A42955FC,Apolo,armadura,CA847E78,Redd Hazzard,col13
+3219528B,Apolo,armadura,491353CE,Sol Daystar,col13
+3219528B,Apolo,armadura,DEAE22C0,Sol Daystar,change
+AC3155C6,Archipegaso,armadura,48C1FA6A,Arion Sherwind,col13
+F05C2D31,Archipegaso rojo,armadura,4903905D,Arion Sherwind,col13
+8607F429,Argentia,armadura,72C5C259,Nora Flexion,col13
+4BA2066B,Arges,armadura,3A25CC3D,Hippos Kohlt,col13
+CAFDD1FF,Arturo,armadura,09C752C2,Bai Long,col13
+D13FA5A8,Arturo,armadura,09C752C2,Bai Long,col13
+6B6EAC31,Arturo,armadura,09C752C2,Bai Long,col13
+5BD74A52,Arturo,armadura,09C752C2,Bai Long,col13
+CAFDD1FF,Arturo,armadura,6F08BCC1,Bai Long,change
+D13FA5A8,Arturo,armadura,D1B08725,Bai Long,change
+5BD74A52,Arturo,armadura,E39C587C,Bai Long,change
+6B6EAC31,Arturo,armadura,F87833D7,Bai Long,change
+5CCDD688,Arturo,armadura,4A203F88,Tezcat,col13
+B4581910,Arturo,armadura,4A203F88,Tezcat,col13
+0E091089,Arturo,armadura,4A203F88,Tezcat,col13
+3EB0F6EA,Arturo,armadura,4A203F88,Tezcat,col13
+5CCDD688,Arturo,armadura,6C8C68AF,Tezcat,change
+B4581910,Arturo,armadura,D234534B,Tezcat,change
+3EB0F6EA,Arturo,armadura,E0188C12,Tezcat,change
+0E091089,Arturo,armadura,FBFCE7B9,Tezcat,change
+7E71AEAF,Astaroth,armadura,A559B616,Aster,col13
+082A77B7,Asura,armadura,30E0C524,Luke Kayon,col13
+6B92902E,Atenea,armadura,2772BDE3,Bestia Negra,change
+B2C6A839,Atenea,armadura,1C36A471,Beta,change
+382E47C3,Atenea,armadura,2E1A7B28,Beta,change
+0897A1A0,Atenea,armadura,35FE1083,Beta,change
+D1C399B7,Atenea,armadura,8842AB42,Beta,change
+47F39EC0,Atenea,armadura,A28E9F95,Beta,change
+FDA29759,Atenea,armadura,B0069AEE,Beta,change
+47F39EC0,Atenea,armadura,ED3FF528,Beta,col13
+B2C6A839,Atenea,armadura,ED3FF528,Beta,col13
+0897A1A0,Atenea,armadura,ED3FF528,Beta,col13
+382E47C3,Atenea,armadura,ED3FF528,Beta,col13
+D1C399B7,Atenea,armadura,ED3FF528,Beta,col13
+6B92902E,Atenea,armadura,ED3FF528,Beta,col13
+FDA29759,Atenea,armadura,ED3FF528,Beta,col13
+82DCB54A,Atlanticus,armadura,A914D684,Feduhm,col13
+EB7C487E,Atlas,armadura,2A924FC4,Jean-Pierre Lapin,col13
+EA7437E8,Ave de fuego,armadura,00AD1DDF,Dasan,change
+EA7437E8,Ave de fuego,armadura,1E16EDA2,Dasan,col13
+7C44309F,Ave de fuego,armadura,C363768D,Nobby Naga,col13
+7C44309F,Ave de fuego,armadura,DF9E9165,Nobby Naga,change
+50826324,Azote negro,armadura,4BE255BF,Tezcat,col13
+1814E08D,Baihu,armadura,D643CF9C,Chell,col13
+0995EF3D,Barius,armadura,1501A534,Dakkar Nemo,change
+0995EF3D,Barius,armadura,7E033F09,Dakkar Nemo,col13
+9FA5E84A,Barius,armadura,0060C7F1,Lima,col13
+9FA5E84A,Barius,armadura,F692864A,Lima,change
+DFA79F2C,Barron,armadura,B9D3108D,Hotel,change
+DFA79F2C,Barron,armadura,C5C7F97F,Hotel,col13
+4997985B,Barron,armadura,B20E442C,Strom Boojum,col13
+4997985B,Barron,armadura,CBE0FC60,Strom Boojum,change
+DD14D5B3,Berserker,armadura,04646742,Iggie Loo,col13
+DD14D5B3,Berserker,armadura,AC08ED0A,Iggie Loo,change
+4B24D2C4,Berserker,armadura,8C4FEF53,Yurkeh,col13
+4B24D2C4,Berserker,armadura,C803D2BB,Yurkeh,change
+E2661788,Brunilda,armadura,49427AFE,Gabriel García,col13
+AA1C497E,Brunilda,armadura,49427AFE,Gabriel García,col13
+104D40E7,Brunilda,armadura,49427AFE,Gabriel García,col13
+20F4A684,Brunilda,armadura,49427AFE,Gabriel García,col13
+E2661788,Brunilda,armadura,505B8207,Gabriel García,change
+104D40E7,Brunilda,armadura,C72B0D11,Gabriel García,change
+20F4A684,Brunilda,armadura,DCCF66BA,Gabriel García,change
+AA1C497E,Brunilda,armadura,EEE3B9E3,Gabriel García,change
+745610FF,Brunilda,armadura,A9544B42,Sting Xiang,col13
+745610FF,Brunilda,armadura,FFF7C4E1,Sting Xiang,change
+78815CFB,Bufón,armadura,B8CB4D35,Pocus Sesame,col13
+DE3D3948,Caballo blanco,armadura,3C1D0DC2,Ferdinand Delafünfe,change
+DE3D3948,Caballo blanco,armadura,611004D6,Ferdinand Delafünfe,col13
+646C30D1,Caballo blanco,armadura,9758743F,Fivier Saviola,col13
+646C30D1,Caballo blanco,armadura,BB85110D,Fivier Saviola,change
+480D3E3F,Caballo blanco,armadura,D339A716,Langford Ash,change
+480D3E3F,Caballo blanco,armadura,D9112531,Langford Ash,col13
+BCA608E7,Caballo negro,armadura,E498601B,Shady Shwartz,col13
+A866E050,Chione,armadura,9AF6487B,Njord Snio,col13
+A866E050,Chione,armadura,D0BD7378,Njord Snio,change
+3E56E727,Chione,armadura,ADAD7D88,Yuh,change
+3E56E727,Chione,armadura,B4AACBDE,Yuh,col13
+60A7CBFB,Comadreja,armadura,3C2BE8EC,Taian Inaba,col13
+2E5363F4,Cuervo,armadura,119C665F,Garreau,change
+2E5363F4,Cuervo,armadura,65BED61A,Garreau,col13
+B8636483,Cuervo,armadura,47297877,Rex Remington,col13
+B8636483,Cuervo,armadura,D89739B9,Rex Remington,change
+E2C5FDC9,Cychr,armadura,3B4DD475,Zhuge Liang,col13
+0A931D72,Daji,armadura,ECB341FC,Daisy Fields,col13
+282F6555,Demogorgo,armadura,BE6FC2C7,Vince Sizor,col13
+58029AB6,Drake,armadura,BA6B6274,Dracon Yale,col13
+58029AB6,Drake,armadura,F278004D,Dracon Yale,change
+CE329DC1,Drake,armadura,6BD5D493,Kym Errer,col13
+CE329DC1,Drake,armadura,9950DDE1,Kym Errer,change
+A97A929B,Eris,armadura,32C6A73F,Flora,col13
+8E8D2DE1,Evera,armadura,50F8C717,Simeon Ayp,col13
+C591A8F2,Fénix,armadura,AF1AF255,Alfa,col13
+32B09890,Garas,armadura,07B40ADA,Harrold Houdini,change
+32B09890,Garas,armadura,478E03CC,Harrold Houdini,col13
+A4809FE7,Garas,armadura,63BF356B,Terri Ann Thrope,change
+A4809FE7,Garas,armadura,CFA58BDD,Terri Ann Thrope,col13
+9A53E851,Gargantúa,armadura,1AC02162,Bhufa,change
+9A53E851,Gargantúa,armadura,BC9EC4B6,Bhufa,col13
+0C63EF26,Gargantúa,armadura,23CE58E4,Ringo Saturn,col13
+0C63EF26,Gargantúa,armadura,C67779B6,Ringo Saturn,change
+2037656F,Gigante,armadura,0FC97613,Alessandro il Grande,col13
+2037656F,Gigante,armadura,DE5CFB52,Alessandro il Grande,change
+B6076218,Gigante,armadura,016F77E8,Eka,change
+B6076218,Gigante,armadura,D2BCED3C,Eka,col13
+EC2D0FA7,Glenr,armadura,8D808CA0,Desmodus Drakul,col13
+71912357,Goliat,armadura,C9A67F94,Aum Nirvana,col13
+6AAF6B1F,Grandius,armadura,0F2340F6,Goldus Janque,col13
+6AAF6B1F,Grandius,armadura,E6ECF5A0,Goldus Janque,change
+FC9F6C68,Grandius,armadura,3055CF22,Mark Evans,change
+FC9F6C68,Grandius,armadura,467E1CC7,Mark Evans,col13
+FC9F6C68,Grandius,armadura,8EEDF4C6,Mark Evans,change
+FC9F6C68,Grandius,armadura,A7254034,Mark Evans,change
+FC9F6C68,Grandius,armadura,BCC12B9F,Mark Evans,change
+D12DC52E,Grifo,armadura,0D176028,Arion Sherwind,change
+6B7CCCB7,Grifo,armadura,24DFD4DA,Arion Sherwind,change
+5BC52AD4,Grifo,armadura,3F3BBF71,Arion Sherwind,change
+6F6278ED,Grifo,armadura,4A874433,Arion Sherwind,col13
+D12DC52E,Grifo,armadura,4A874433,Arion Sherwind,col13
+6B7CCCB7,Grifo,armadura,4A874433,Arion Sherwind,col13
+5BC52AD4,Grifo,armadura,4A874433,Arion Sherwind,col13
+6F6278ED,Grifo,armadura,B3AF5BCC,Arion Sherwind,change
+B44A7996,Grifo,armadura,140C5169,Riccardo Di Rigo,change
+5BC52AD4,Grifo,armadura,26208E30,Riccardo Di Rigo,change
+E0B4C51D,Grifo,armadura,3DC4E59B,Riccardo Di Rigo,change
+F9527F9A,Grifo,armadura,AAB46A8D,Riccardo Di Rigo,change
+F9527F9A,Grifo,armadura,ECF04F87,Riccardo Di Rigo,col13
+B44A7996,Grifo,armadura,ECF04F87,Riccardo Di Rigo,col13
+E0B4C51D,Grifo,armadura,ECF04F87,Riccardo Di Rigo,col13
+D00D237E,Grifo,armadura,ECF04F87,Riccardo Di Rigo,col13
+43037603,Grifo,armadura,7AB4BBF3,Victor Blade,change
+43037603,Grifo,armadura,B5C20ACA,Victor Blade,col13
+3F82703C,Grifo,armadura,B5C20ACA,Victor Blade,col13
+85D379A5,Grifo,armadura,B5C20ACA,Victor Blade,col13
+B56A9FC6,Grifo,armadura,B5C20ACA,Victor Blade,col13
+3F82703C,Grifo,armadura,C40C8017,Victor Blade,change
+85D379A5,Grifo,armadura,EDC434E5,Victor Blade,change
+B56A9FC6,Grifo,armadura,F6205F4E,Victor Blade,change
+11B3783D,Guiverno blanco,armadura,080538F5,Bai Long,col13
+059C89E8,Guiverno blanco,armadura,080538F5,Bai Long,col13
+BFCD8071,Guiverno blanco,armadura,080538F5,Bai Long,col13
+8F746612,Guiverno blanco,armadura,080538F5,Bai Long,col13
+00AF952C,Guiverno blanco,armadura,080538F5,Bai Long,col13
+11B3783D,Guiverno blanco,armadura,6F08BCC1,Bai Long,change
+00AF952C,Guiverno blanco,armadura,6F08BCC1,Bai Long,change
+059C89E8,Guiverno blanco,armadura,D1B08725,Bai Long,change
+8F746612,Guiverno blanco,armadura,E39C587C,Bai Long,change
+BFCD8071,Guiverno blanco,armadura,F87833D7,Bai Long,change
+87837F4A,Guiverno blanco,armadura,3ECB5A6B,Silvain Hache,col13
+87837F4A,Guiverno blanco,armadura,CDC1A663,Silvain Hache,change
+83D4CADC,Halcón de trueno,armadura,C89F4EEC,Zaphod Riker,col13
+2F7E228C,Huargo,armadura,9697CE90,Wolfram Vulpeen,col13
+D1C9B9ED,Jaguar,armadura,7968D308,Sor,col13
+9A76D6BF,Jmet,armadura,F68FCCA3,Kyon Canis,col13
+9349B7A7,Juez,armadura,581BAC15,Tulip,col13
+2B9E7006,Kraon,armadura,FC4AC5BA,Lee Canthrup,col13
+6EECD3D4,Kukulkán,armadura,CDA2DF27,Gerald Fuss,col13
+228E0FAA,Lancelot,armadura,47436172,Impostor de Victor,col13
+228E0FAA,Lancelot,armadura,CEE7150E,Impostor de Victor,change
+B4BE08DD,Lancelot,armadura,B40060FD,Victor Blade,col13
+B4BE08DD,Lancelot,armadura,C40C8017,Victor Blade,change
+B4BE08DD,Lancelot,armadura,EDC434E5,Victor Blade,change
+B4BE08DD,Lancelot,armadura,F6205F4E,Victor Blade,change
+87B86CA3,León,armadura,03397668,Bay Laurel,change
+87B86CA3,León,armadura,81E10A4B,Bay Laurel,col13
+11886BD4,León,armadura,5581B7A5,Tzeikh,change
+11886BD4,León,armadura,7939FA38,Tzeikh,col13
+6CE87E57,Licaón,armadura,341FE784,Gamma,col13
+BB40A822,Los enamorados ♀,armadura,29068165,Mehr,col13
+B16D3628,Los enamorados ♂,armadura,8F718AD1,Ghiris,col13
+A6903F39,Lot,armadura,74614DAB,Abram Cadabra,col13
+A6903F39,Lot,armadura,CF6D80D2,Abram Cadabra,change
+30A0384E,Lot,armadura,0666DF34,Norimaru Gazen,change
+30A0384E,Lot,armadura,56F6E3C6,Norimaru Gazen,col13
+F58F13C4,Magister,armadura,ED3225B0,Riccardo Di Rigo,col13
+491B6CAE,Metis,armadura,3838474F,Maddie Moonlight,col13
+E5184EE5,Musashi,armadura,3197A515,Kevin Dragonfly,change
+E5184EE5,Musashi,armadura,8AD41C59,Kevin Dragonfly,col13
+73284992,Musashi,armadura,2CEE1C75,Ryoma Nishiki,change
+73284992,Musashi,armadura,D7D055C7,Ryoma Nishiki,col13
+AF804095,Neptuno,armadura,EF64587A,Triton Nettuno,col13
+887DDFB5,Oneiros,armadura,1F7E2CB6,Hocus Sesame,col13
+887DDFB5,Oneiros,armadura,D7B4DBA4,Hocus Sesame,change
+1E4DD8C2,Oneiros,armadura,B03B307B,Woodrow Stake,change
+1E4DD8C2,Oneiros,armadura,D4B2C9ED,Woodrow Stake,col13
+3DF9DF73,Papelín,armadura,1AA952C4,Mecamark,col13
+972F3182,Pegaso,armadura,4B452E04,Arion Sherwind,col13
+D9DB998D,Pendragón,armadura,5043C37D,Vladimir Blade,cp11
+D9DB998D,Pendragón,armadura,BCCFED86,Vladimir Blade,col13
+7FCE3625,Peón blanco,armadura,344E17E8,Bob Sled,col13
+7FCE3625,Peón blanco,armadura,8725BEC9,Bob Sled,change
+C59F3FBC,Peón blanco,armadura,6B85C073,David Quintola,change
+C59F3FBC,Peón blanco,armadura,CE6A3172,David Quintola,col13
+F03A5C55,Peón blanco,armadura,681D3AC6,Erik Pentona,col13
+F03A5C55,Peón blanco,armadura,729EF132,Erik Pentona,change
+53AF38CB,Peón blanco,armadura,312F7F8B,Jacques Cinquini,col13
+53AF38CB,Peón blanco,armadura,A29E204C,Jacques Cinquini,change
+E9FE3152,Peón blanco,armadura,7DC601C4,Octavus Kraken,col13
+E9FE3152,Peón blanco,armadura,F6F57CFF,Octavus Kraken,change
+660A5B22,Peón blanco,armadura,25063C83,Quinque Flores,change
+660A5B22,Peón blanco,armadura,C7670F62,Quinque Flores,col13
+A7040E13,Peón negro,armadura,00CA6CD2,Dawntavius Spectrum,col13
+A7040E13,Peón negro,armadura,218B4031,Dawntavius Spectrum,change
+54D5D6B2,Poseidón,armadura,27317A44,Davy Jones,col13
+54D5D6B2,Poseidón,armadura,C501744A,Davy Jones,change
+C2E5D1C5,Poseidón,armadura,3C8C9357,Rodh,col13
+C2E5D1C5,Poseidón,armadura,C19CB721,Rodh,change
+5925FB94,Qinglong,armadura,12DDC06A,Dekih,col13
+18B70ACC,Raiden,armadura,8F87D85A,Ron Innwater,col13
+4C5A8BA9,Reina blanca,armadura,5871C8C6,Aimé Quintet,change
+4C5A8BA9,Reina blanca,armadura,955F20C5,Aimé Quintet,col13
+DA6A8CDE,Reina blanca,armadura,02ECD795,Gentian,col13
+DA6A8CDE,Reina blanca,armadura,3E691489,Gentian,change
+6DDB1228,Rey blanco,armadura,A575506F,Quentin Cinquedea,col13
+356D2BBC,Robin,armadura,8D27F71B,Fei Rune,col13
+AB452CF1,Roc,armadura,C9B6FDE0,Navan,change
+AB452CF1,Roc,armadura,E153A35B,Navan,col13
+3D752B86,Roc,armadura,65147D39,Robert Lee,col13
+3D752B86,Roc,armadura,C685A024,Robert Lee,change
+A9FC4634,Serendipity,armadura,A6A761B2,Janison Veteran,col13
+CD2062D3,Sirena,armadura,E0AA5516,Katya Felis,change
+CD2062D3,Sirena,armadura,FF82F2B3,Katya Felis,col13
+5B1065A4,Sirena,armadura,22F7699C,Rae Godmother,col13
+5B1065A4,Sirena,armadura,3F99D9AC,Rae Godmother,change
+84AA93B1,Sombra de plasma DF,armadura,128CE95A,Ayt Bee,col13
+84AA93B1,Sombra de plasma DF,armadura,3A43EC0E,Ayt Bee,change
+74F5C844,Sombra de plasma DF,armadura,E9804A4E,Ayt Bee,col13
+129A94C6,Sombra de plasma DF,armadura,2358DD4F,Dee Vee,change
+439F0A45,Sombra de plasma DF,armadura,4FF741FA,Dee Vee,col13
+129A94C6,Sombra de plasma DF,armadura,B4FBE2EE,Dee Vee,col13
+2D4B8E46,Sombra de plasma DF,armadura,2C2774C0,En Sicks,col13
+3EFB9A28,Sombra de plasma DF,armadura,75027AC9,En Sicks,change
+3EFB9A28,Sombra de plasma DF,armadura,D72BD7D4,En Sicks,col13
+1A214C47,Sombra de plasma DF,armadura,252A4AD0,Faiv Ess,col13
+A8CB9D5F,Sombra de plasma DF,armadura,3B818639,Faiv Ess,change
+A8CB9D5F,Sombra de plasma DF,armadura,DE26E9C4,Faiv Ess,col13
+5118C540,Sombra de plasma PA,armadura,229AB778,Jay Yuu,change
+5118C540,Sombra de plasma PA,armadura,7851E270,Jay Yuu,col13
+D8E7E89D,Sombra de plasma PA,armadura,835D4164,Jay Yuu,col13
+C728C237,Sombra de plasma PA,armadura,08758E8C,Vee Wai,change
+EF8D2A9C,Sombra de plasma PA,armadura,7E1F5B67,Vee Wai,col13
+C728C237,Sombra de plasma PA,armadura,8513F873,Vee Wai,col13
+4C3D261A,Sombra de plasma RE,armadura,4DF01500,Ar Ecks,col13
+4C3D261A,Sombra de plasma RE,armadura,9C9ABBD0,Ar Ecks,cp11
+4C3D261A,Sombra de plasma RE,armadura,B4BEB26A,Ar Ecks,cp11
+6B3B5A35,Sombra de plasma RE,armadura,B6FCB614,Ar Ecks,col13
+6B3B5A35,Sombra de plasma RE,armadura,C0AC0484,Ar Ecks,change
+FD0B5D42,Sombra de plasma RE,armadura,108BBDA0,Cee Eff,col13
+FD0B5D42,Sombra de plasma RE,armadura,D9B735C5,Cee Eff,change
+7B57E41B,Sombra de plasma RE,armadura,EB871EB4,Cee Eff,col13
+FE41AB1E,Sombra de plasma RE,armadura,1DCF6E5D,Kay Zirro,col13
+5E9E39DC,Sombra de plasma RE,armadura,5E2F290A,Kay Zirro,change
+5E9E39DC,Sombra de plasma RE,armadura,E6C3CD49,Kay Zirro,col13
+C8AE3EAB,Sombra de plasma RE,armadura,1B81D74A,Tu Eigh,col13
+C8AE3EAB,Sombra de plasma RE,armadura,74C010FE,Tu Eigh,change
+C92B691F,Sombra de plasma RE,armadura,E08D745E,Tu Eigh,col13
+D16A53AC,Sombra de plasma RE,armadura,6C194B88,Wun Ell,change
+D16A53AC,Sombra de plasma RE,armadura,715CDC60,Wun Ell,col13
+15836018,Sombra de plasma RE,armadura,8A507F74,Wun Ell,col13
+475A54DB,Sombra de plasma RE,armadura,40B4C6FD,Zed Kyu,col13
+475A54DB,Sombra de plasma RE,armadura,4734184B,Zed Kyu,change
+22E9A219,Sombra de plasma RE,armadura,BBB865E9,Zed Kyu,col13
+1F73F030,Sombra de plasma TI,armadura,46FA7FEA,Aye Nort,col13
+1DC94936,Sombra de plasma TI,armadura,6DDB21BF,Aye Nort,change
+1DC94936,Sombra de plasma TI,armadura,BDF6DCFE,Aye Nort,col13
+31A847D8,Sombra de plasma TI,armadura,10ACD5FA,Em Tee,change
+71A77433,Sombra de plasma TI,armadura,14C2504D,Em Tee,col13
+31A847D8,Sombra de plasma TI,armadura,EFCEF359,Em Tee,col13
+8BF94E41,Sombra de plasma TI,armadura,46F6727C,Ji Tenn,change
+8BF94E41,Sombra de plasma TI,armadura,8C1EC663,Ji Tenn,col13
+A79840AF,Sombra de plasma TI,armadura,09B7E4BB,Ough Cee,change
+A79840AF,Sombra de plasma TI,armadura,49B9F8ED,Ough Cee,col13
+46CDB632,Sombra de plasma TI,armadura,B2B55BF9,Ough Cee,col13
+2DD7F200,Surtur,armadura,288C9454,Axel Blaze,change
+2DD7F200,Surtur,armadura,2CA317ED,Axel Blaze,col13
+2DD7F200,Surtur,armadura,9634AFB0,Axel Blaze,change
+2DD7F200,Surtur,armadura,A41870E9,Axel Blaze,change
+2DD7F200,Surtur,armadura,BFFC1B42,Axel Blaze,change
+9786FB99,Surtur,armadura,72C812C1,Cronus Fourseasons,col13
+9786FB99,Surtur,armadura,A11AF422,Cronus Fourseasons,change
+01B6FCEE,Surtur,armadura,1B024B55,Zetoh,change
+01B6FCEE,Surtur,armadura,7034C428,Zetoh,col13
+023CFA54,Tachión,armadura,7BC8FC49,Dave Walker,col13
+023CFA54,Tachión,armadura,E7A3FDCA,Dave Walker,change
+940CFD23,Tachión,armadura,2682E8ED,Hyperion Wise,change
+940CFD23,Tachión,armadura,84806228,Hyperion Wise,col13
+BCAC28BD,Tirador,armadura,ADBADD14,Djung Hamstah,col13
+3A0B72EB,Torre blanca,armadura,33282B71,Eljas Viisi,col13
+8BC6EABC,Torre negra,armadura,ED955E0B,Yang,col13
+934397FD,Trickster,armadura,9B9E6D9E,Maddie Moonlight,change
+934397FD,Trickster,armadura,A42234DF,Maddie Moonlight,col13
+0573908A,Trickster,armadura,A37B74BE,Maxim Millennium,col13
+0573908A,Trickster,armadura,C208DC96,Maxim Millennium,change
+554F70D6,Vega,armadura,4B48FE9C,Romeo,col13
+554F70D6,Vega,armadura,BB95AED4,Romeo,change
+C37F77A1,Vega,armadura,1ABAF6D6,William Glass,change
+C37F77A1,Vega,armadura,BB3C06C4,William Glass,col13
+C9C03059,Vritrá,armadura,CF84BD3C,Lotus,col13
+F63426CD,Xuan-Wu,armadura,0AA5CEE8,Cao Cao,col13
+F63426CD,Xuan-Wu,armadura,F3DD90CF,Cao Cao,change
+4C652F54,Xuan-Wu,armadura,6CF375CC,Venom Braggard,col13
+4C652F54,Xuan-Wu,armadura,B0B65226,Venom Braggard,change
+600421BA,Xuan-Wu,armadura,19B62C9E,Zanark Avalonic,change
+701E809D,Xuan-Wu,armadura,8EC6A388,Zanark Avalonic,change
+40A766FE,Xuan-Wu,armadura,9522C823,Zanark Avalonic,change
+CA4F8904,Xuan-Wu,armadura,A70E177A,Zanark Avalonic,change
+600421BA,Xuan-Wu,armadura,B9A38C21,Zanark Avalonic,col13
+CA4F8904,Xuan-Wu,armadura,B9A38C21,Zanark Avalonic,col13
+701E809D,Xuan-Wu,armadura,B9A38C21,Zanark Avalonic,col13
+40A766FE,Xuan-Wu,armadura,B9A38C21,Zanark Avalonic,col13
+E4043C2E,Zhuque,armadura,98FCCC19,Tsync,col13
+CD1B713A,Zodíaco,armadura,B861E616,Zanark Avalonic,col13
+14C5B618,Miximax Trans: <FLC:KIRINO>,mixi,07C34FB6,Aitor Cazador,change
+BC469BD6,Miximax Trans: <FLC:KIRINO>,mixi,140C5169,Riccardo Di Rigo,change
+36AE742C,Miximax Trans: <FLC:KIRINO>,mixi,26208E30,Riccardo Di Rigo,change
+0617924F,Miximax Trans: <FLC:KIRINO>,mixi,3DC4E59B,Riccardo Di Rigo,change
+55F4AD01,Miximax Trans: <FLC:KIRINO>,mixi,AAB46A8D,Riccardo Di Rigo,change
+2F721847,Miximax Trans: <FLC:OKITA>,mixi,7AB4BBF3,Victor Blade,cp21+cp27
+E06E80C0,Miximax Trans: <FLC:SAKAMOTO>,mixi,2CEE1C75,Ryoma Nishiki,cp21+cp27
+CCC97B1E,Miximax Trans: <FLC:TSURUGI>,mixi,0D176028,Arion Sherwind,change
+76987287,Miximax Trans: <FLC:TSURUGI>,mixi,24DFD4DA,Arion Sherwind,change
+462194E4,Miximax Trans: <FLC:TSURUGI>,mixi,3F3BBF71,Arion Sherwind,change
+1000DA7C,Miximax Trans: <FLC:TSURUGI>,mixi,B3AF5BCC,Arion Sherwind,change
+9262EC4E,Miximax Trans: <FLC:TSURUGI>,mixi,6F08BCC1,Bai Long,change
+AC9ABB64,Miximax Trans: <FLC:TSURUGI>,mixi,D1B08725,Bai Long,change
+2672549E,Miximax Trans: <FLC:TSURUGI>,mixi,E39C587C,Bai Long,change
+16CBB2FD,Miximax Trans: <FLC:TSURUGI>,mixi,F87833D7,Bai Long,change
+BD877354,Miximax Trans: <FLC:TSURUGI>,mixi,5043C37D,Vladimir Blade,cp15
+2BB77423,Miximax Trans: <FLC:TSURUGI>,mixi,943581A5,Vladimir Blade,change+cp21+cp27
+BD877354,Miximax Trans: <FLC:TSURUGI>,mixi,943581A5,Vladimir Blade,change
+4563F020,Miximax Trans: <FST:TENMA>,mixi,3055CF22,Mark Evans,change
+79D467E1,Miximax Trans: <FST:TENMA>,mixi,8EEDF4C6,Mark Evans,change
+C3856E78,Miximax Trans: <FST:TENMA>,mixi,A7254034,Mark Evans,change
+F33C881B,Miximax Trans: <FST:TENMA>,mixi,BCC12B9F,Mark Evans,change
+8630DD0B,Miximax Trans: <FST:TENMA>,mixi,7AB4BBF3,Victor Blade,change
+A9AEC7A6,Miximax Trans: <FST:TENMA>,mixi,C40C8017,Victor Blade,change
+13FFCE3F,Miximax Trans: <FST:TENMA>,mixi,EDC434E5,Victor Blade,change
+2346285C,Miximax Trans: <FST:TENMA>,mixi,F6205F4E,Victor Blade,change
+8EBA04C3,Miximax Trans: <FUL:G GENE>,mixi,B3BFE415,Wolfram Vulpeen,cp21+cp27
+D7969B33,Miximax Trans: <FUL:HAKURYU>,mixi,6C8C68AF,Tezcat,change
+DC155BAC,Miximax Trans: <FUL:HAKURYU>,mixi,D234534B,Tezcat,change
+56FDB456,Miximax Trans: <FUL:HAKURYU>,mixi,E0188C12,Tezcat,change
+66445235,Miximax Trans: <FUL:HAKURYU>,mixi,FBFCE7B9,Tezcat,change
+0452EB39,Miximax Trans: <FUL:HAKURYU>,mixi,7AB4BBF3,Victor Blade,change
+C9FD07DC,Miximax Trans: <FUL:HAKURYU>,mixi,C40C8017,Victor Blade,change
+73AC0E45,Miximax Trans: <FUL:HAKURYU>,mixi,EDC434E5,Victor Blade,change
+4315E826,Miximax Trans: <FUL:HAKURYU>,mixi,F6205F4E,Victor Blade,change
+C25CCF91,Miximax Trans: <FUL:SYU>,mixi,0D176028,Arion Sherwind,change
+780DC608,Miximax Trans: <FUL:SYU>,mixi,24DFD4DA,Arion Sherwind,change
+48B4206B,Miximax Trans: <FUL:SYU>,mixi,3F3BBF71,Arion Sherwind,change
+6A866F3A,Miximax Trans: <FUL:SYU>,mixi,B3AF5BCC,Arion Sherwind,change
+41A69C44,Miximax Trans: <FUL:SYU>,mixi,6F08BCC1,Bai Long,change
+B972E714,Miximax Trans: <FUL:SYU>,mixi,D1B08725,Bai Long,change
+339A08EE,Miximax Trans: <FUL:SYU>,mixi,E39C587C,Bai Long,change
+0323EE8D,Miximax Trans: <FUL:SYU>,mixi,F87833D7,Bai Long,change
+F06B0413,Miximax Trans: <FUL:V GENE>,mixi,603BE105,Desmodus Drakul,cp21+cp27
+6E43035E,Miximax Trans: Big,mixi,01A0E982,Fei Rune,cp21
+6E43035E,Miximax Trans: Big,mixi,28685D70,Fei Rune,cp21
+6E43035E,Miximax Trans: Big,mixi,338C36DB,Fei Rune,cp21+cp27
+6E43035E,Miximax Trans: Big,mixi,BF18D266,Fei Rune,cp21+cp27
+963559D8,Miximax Trans: Gen S,mixi,098AA343,Simeon Ayp,cp21
+963559D8,Miximax Trans: Gen S,mixi,204217B1,Simeon Ayp,cp21
+963559D8,Miximax Trans: Gen S,mixi,3BA67C1A,Simeon Ayp,cp21+cp27
+963559D8,Miximax Trans: Gen S,mixi,B73298A7,Simeon Ayp,cp21+cp27
+DF8E9B09,Miximax Trans: Juana,mixi,505B8207,Gabriel García,cp21+cp27
+DF8E9B09,Miximax Trans: Juana,mixi,C72B0D11,Gabriel García,cp21
+DF8E9B09,Miximax Trans: Juana,mixi,DCCF66BA,Gabriel García,cp21+cp27
+DF8E9B09,Miximax Trans: Juana,mixi,EEE3B9E3,Gabriel García,cp21
+DB4BF76D,Miximax Trans: Liu Bei,mixi,06012581,Jean-Pierre Lapin,cp21+cp27
+DB4BF76D,Miximax Trans: Liu Bei,mixi,8A95C13C,Jean-Pierre Lapin,cp21+cp27
+DB4BF76D,Miximax Trans: Liu Bei,mixi,9171AA97,Jean-Pierre Lapin,cp21
+DB4BF76D,Miximax Trans: Liu Bei,mixi,B8B91E65,Jean-Pierre Lapin,cp21
+AD102E75,Miximax Trans: Nobunaga,mixi,AAB46A8D,Riccardo Di Rigo,cp21+cp27
+9A7AEC74,Miximax Trans: Papá,mixi,DB741762,Sor,cp21+cp27
+1CDDB622,Miximax Trans: R. dragones,mixi,4EFBC29E,Goldie Lemmon,cp21+cp27
+1CDDB622,Miximax Trans: R. dragones,mixi,551FA935,Goldie Lemmon,cp21
+1CDDB622,Miximax Trans: R. dragones,mixi,7CD71DC7,Goldie Lemmon,cp21
+1CDDB622,Miximax Trans: R. dragones,mixi,B0DD6F1B,Goldie Lemmon,cp15
+1CDDB622,Miximax Trans: R. dragones,mixi,C26F2623,Goldie Lemmon,cp21+cp27
+F2E895EF,Miximax Trans: Raika,mixi,00B5CE9C,Cade Shelby,cp21
+F2E895EF,Miximax Trans: Raika,mixi,1B51A537,Cade Shelby,cp15
+F2E895EF,Miximax Trans: Raika,mixi,97C5418A,Cade Shelby,cp15
+F2E895EF,Miximax Trans: Raika,mixi,AEDD5F0D,Cade Shelby,cp21
+9EBF8010,Miximax Trans: Rey Arturo,mixi,B3AF5BCC,Arion Sherwind,cp21+cp27
+B15A1F0A,Miximax Trans: Rosa negra,mixi,1544474A,Flora,cp21+cp27
+E8E45908,Miximax Trans: Tiranosaurio,mixi,0EDEBDDD,Fei Rune,cp15
+A15F9BD9,Miximax Trans: Zeta,mixi,19B62C9E,Zanark Avalonic,cp21+cp27
+A15F9BD9,Miximax Trans: Zeta,mixi,79D7E1C7,Zanark Avalonic,cp21+cp27
+A15F9BD9,Miximax Trans: Zeta,mixi,8EC6A388,Zanark Avalonic,cp21
+A15F9BD9,Miximax Trans: Zeta,mixi,9522C823,Zanark Avalonic,cp21+cp27
+A15F9BD9,Miximax Trans: Zeta,mixi,A70E177A,Zanark Avalonic,cp21
+A15F9BD9,Miximax Trans: Zeta,mixi,A8704325,Zanark Avalonic,cp15
+63D55F1C,Miximax Trans: Zhuge Liang,mixi,6F08BCC1,Bai Long,change
+EC21356C,Miximax Trans: Zhuge Liang,mixi,6F08BCC1,Bai Long,cp21+cp27
+50595129,Miximax Trans: Zhuge Liang,mixi,D1B08725,Bai Long,change
+DAB1BED3,Miximax Trans: Zhuge Liang,mixi,E39C587C,Bai Long,change
+EA0858B0,Miximax Trans: Zhuge Liang,mixi,F87833D7,Bai Long,change
+EC21356C,Miximax Trans: Zhuge Liang,mixi,DEAE22C0,Sol Daystar,change+cp21+cp27

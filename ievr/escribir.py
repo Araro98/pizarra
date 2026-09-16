@@ -441,6 +441,12 @@ def poner_tecnica(plain, fila, ranura, nombre):
     if admite != "LIBRE" and categoria != admite:
         raise Ilegal("la ranura %d de %s solo admite tecnicas de %s, y %r es de %s"
                      % (ranura, ficha["nombre"], admite, nombre, categoria))
+    from ievr import opciones as O
+    if categoria == "Hipertecnica" and not O.espiritu_permitido(id_hex, "%08X" % identidad):
+        # armaduras y mixi max: solo su personaje (regla de Aaron, O-172)
+        de = sorted(O.duenos_de_espiritu(id_hex)["nombres"])
+        raise Ilegal("%s es solo de %s; %s no puede llevarlo"
+                     % (nombre, ", ".join(de) or "otro personaje", ficha["nombre"]))
     if admite == "?":
         raise Ilegal("la ranura %d de %s no existe en su arbol" % (ranura, ficha["nombre"]))
 

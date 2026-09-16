@@ -334,9 +334,11 @@ def tecnicas(plain, fila, ranura):
         # por su familia (kenshin, alma, armadura, mixi), que es justo por lo que
         # Aaron quiere poder filtrar.
         esp = _espiritus()
+        identidad_hex = "%08X" % J.array(plain, J.ARRAY_IDENTIDAD)[fila]
         for f in _nombres_por_categoria().get("aura", []):
             idh = f["id"].upper()
-            if idh in poseidas:
+            # las armaduras y los mixi max solo se ofrecen a su personaje (O-172)
+            if idh in poseidas and espiritu_permitido(idh, identidad_hex):
                 e = esp.get(idh) or {}
                 fuera.append({"id": idh,
                               "nombre": _limpio(f.get("nombre_es") or f.get("nombre_en")),
@@ -836,6 +838,36 @@ def _iconos_de_objeto():
                   for f in reglas._tabla("iconos-objeto.csv") if f.get("icono")})
         return d
     return _indice("iconos_objeto", construir)
+
+
+def duenos_de_espiritu(id_hex):
+    """{"nombres": {nombres de personaje}, "identidades": {identidades}} de
+    quien puede llevar esa armadura o ese mixi max; vacio si no tiene dueno
+    (kenshin, alma) o no se conoce (NOTAS O-172)."""
+    def construir():
+        d = {}
+        for f in reglas._tabla("espiritus-duenos.csv"):
+            e = d.setdefault(f["id"].upper(), {"nombres": set(), "identidades": set()})
+            e["identidades"].add(f["identidad"].upper())
+            if f.get("personaje"):
+                e["nombres"].add(f["personaje"])
+        return d
+    return _indice("duenos_espiritu", construir).get(id_hex.upper(), {"nombres": set(), "identidades": set()})
+
+
+def espiritu_permitido(id_hex, identidad_hex):
+    """Si ese jugador puede llevar ese espiritu. Las armaduras y los mixi max
+    son de un personaje concreto (regla de Aaron: la armadura del Pegaso solo
+    la lleva Arion); se compara por nombre para que valgan todas sus versiones.
+    Los que no tienen dueno conocido se dejan a cualquiera."""
+    d = duenos_de_espiritu(id_hex)
+    if not d["identidades"]:
+        return True
+    ident = (identidad_hex or "").upper()
+    if ident in d["identidades"]:
+        return True
+    nombre = (reglas.personajes().get(ident) or {}).get("nombre_es") or ""
+    return bool(nombre) and nombre in d["nombres"]
 
 
 def _espiritus():

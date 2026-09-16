@@ -4049,6 +4049,29 @@ salen repetidas la de menos potencia es siempre la que aqui es `personaje` o
 editor y alli no aparecen son del DLC posterior a su exportacion (enero 2026)
 o cambian de nombre en su traduccion ("Remate halcon" / Hawk Shot).
 
+### O-172 · Las armaduras y los mixi max son de un personaje
+
+Aaron: "no todos los personajes pueden tener armaduras y mixi max, solo los que
+lo permitan: solo Arion puede tener la armadura del Pegaso, y solo Arion el mixi
+con el Rey Arturo". En los datos del juego el dueno sale de tres sitios:
+
+- `aura_skill_config` / `AURA_CMD_INFO_LIST` col 13: para una armadura, la
+  identidad del personaje con la armadura puesta (para un mixi es el companero:
+  Rey Arturo, Raika... y no sirve).
+- `change_aura_skill_config` / `m_ChangeAuraSkillDataList`: pares (espiritu,
+  identidad) de quien puede cambiar a el.
+- `chara_param` cols 11, 15, 19, 21 y 27: la armadura o el mixi propio de
+  algunas versiones del personaje.
+
+`espiritus-duenos.csv` (`construir_duenos_espiritus.py`) junta las tres. Un
+personaje tiene muchas identidades, asi que se compara por nombre. De los 258
+(189 armaduras + 69 mixi), 249 tienen dueno; los 9 sin dueno (mixi con
+Shindo/Kariya/Endo/Goenji/Fudo/Fubuki/Yuto, Cao Cao y una Raika) se dejan a
+cualquiera hasta que Aaron diga. Comprobado con su partida: de 35 mixi puestos
+por el juego, 34 cuadran con el dueno (el otro es el Cao Cao de Zanark, sin
+dueno en los datos). El editor solo ofrece al jugador sus armaduras y mixis, y
+`poner_tecnica` se niega con los ajenos.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
