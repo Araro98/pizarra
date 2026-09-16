@@ -120,6 +120,7 @@ py herramientas\construir_rareza_pasivas.py
 py herramientas\construir_cuerpos.py
 py herramientas\construir_hombros.py
 py herramientas\construir_formaciones.py
+py herramientas\construir_pasivas_fijas.py
 ```
 
 Y para volver a hacer el `.exe` (solo si cambia el codigo):

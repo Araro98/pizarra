@@ -449,6 +449,7 @@ def pasivas_de_equipo(plain, i):
     e = EQ.leer(plain, i)
     valores = {f["id"].upper(): f for f in reglas._tabla("pasivas-valor.csv")}
     iconos = O.iconos_de_pasiva()
+    identidades = J.array(plain, J.ARRAY_IDENTIDAD)
     grupos = {}
     for m in e["miembros"]:
         if not m["jugador"]:
@@ -460,9 +461,15 @@ def pasivas_de_equipo(plain, i):
         except E.Ilegal:
             continue
         quien = EQ._nombre_de_slot(plain, m["jugador"]) or "fila %d" % fila
+        # las fijas de un Idolo o Diamante nativo (campo a cero): las del tablero
+        fijas = []
+        if not any(plain[off:off + 20]):
+            fijas = O.pasivas_fijas("%08X" % identidades[fila], _rama_abierta(plain, fila).get("cual", 1))
         for k in range(5):
             idh = plain[offh + 4 * k:offh + 4 * k + 4].hex().upper()
             idn = plain[off + 4 * k:off + 4 * k + 4].hex().upper()
+            if idn == "00000000" and k < len(fijas):
+                idn = fijas[k]
             pid = idh if idh != "00000000" else idn
             f = valores.get(pid)
             if not f:
@@ -735,12 +742,21 @@ def detalle_jugador(plain, fila):
 
     off, _ = E._campo(plain, fila, J.F_PASIVAS)
     offh, _ = E._campo(plain, fila, J.F_HEREDADAS)
+    # Un Idolo o Diamante nativo lleva el campo a cero y el juego ensena las de
+    # su tablero (NOTAS O-162): aqui se ensenan esas mismas
+    fijas = O.pasivas_fijas("%08X" % ident[fila], rama.get("cual", 1))
+    if fijas and not any(plain[off:off + 20]):
+        fijas = fijas + [""] * 5
+    else:
+        fijas = []
     pasivas = []
     for k in range(5):
         idn = plain[off + 4 * k:off + 4 * k + 4].hex().upper()
+        if idn == "00000000" and fijas and fijas[k]:
+            idn = fijas[k]
         idh = plain[offh + 4 * k:offh + 4 * k + 4].hex().upper()
         iconos_p = O.iconos_de_pasiva()
-        pasivas.append({"ranura": k + 1,
+        pasivas.append({"ranura": k + 1, "fija": bool(fijas),
                         # con su numero puesto: cada version por rareza es un id (O-46)
                         "normal": O.nombre_pasiva(idn, todos.get(idn, "")) if idn != "00000000" else "",
                         "heredada": O.nombre_pasiva(idh, todos.get(idh, "")) if idh != "00000000" else "",
@@ -778,7 +794,8 @@ def detalle_jugador(plain, fila):
         "partidos": struct.unpack_from("<H", plain, offp)[0], "partidos_limites": O.partidos(),
         "rol": _rol_de_la_ficha(plain, fila),
         "pasivas_bloqueadas": rareza[fila] >= 5,
-        "motivo_pasivas": ("son fijas y las pone el juego"
+        "motivo_pasivas": (("fija: la pone el juego desde su tablero" if fijas
+                            else "son fijas y las pone el juego")
                            if rareza[fila] >= 5 else ""),
         "stats": ST.de_jugador(plain, fila),
         "equipacion": equipacion, "rama": rama, "tecnicas": arbol, "pasivas": pasivas,

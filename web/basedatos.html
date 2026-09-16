@@ -274,6 +274,27 @@ async function abrePersonaje(p) {
   caja.appendChild(tecs);
 
   // --- pasivas
+  if (d.pasivas.fijas && d.pasivas.fijas.length) {
+    // Idolo o Diamante nativo: siempre las mismas, las de su tablero (NOTAS O-162)
+    caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Pasivas fijas (siempre sale con estas)"})]));
+    const pf = el("div", {class:"pasivas-lista"});
+    for (const x of d.pasivas.fijas)
+      pf.appendChild(el("div", {class:"pasiva"}, [
+        el("span", {class:"chip", text:"ranura " + x.ranura}),
+        x.icono ? el("img", {class:"ico-pasiva", loading:"lazy", alt:"", src:"/icono/" + x.icono}) : null,
+        el("span", {text:x.texto, title:x.plantilla || ""})]));
+    caja.appendChild(pf);
+    if (d.pasivas.fijas_rama2 && d.pasivas.fijas_rama2.length) {
+      caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Si elige la rama 2, las tres ultimas cambian por estas"})]));
+      const pr = el("div", {class:"pasivas-lista"});
+      for (const x of d.pasivas.fijas_rama2)
+        pr.appendChild(el("div", {class:"pasiva"}, [
+          x.icono ? el("img", {class:"ico-pasiva", loading:"lazy", alt:"", src:"/icono/" + x.icono}) : null,
+          el("span", {text:x.texto, title:x.plantilla || ""})]));
+      caja.appendChild(pr);
+    }
+    return;
+  }
   caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Pasivas que le pueden salir (ranuras 1 y 2)"})]));
   const pl = el("div", {class:"pasivas-lista"});
   for (const x of d.pasivas.propias)

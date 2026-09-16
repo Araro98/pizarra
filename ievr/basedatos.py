@@ -206,8 +206,24 @@ def _pasiva_con_valores(pid):
 
 
 def _pasivas_de(ident, resumen):
-    """Las pasivas que le pueden salir: 1-2 del personaje, 3-5 por arquetipo."""
+    """Las pasivas que le pueden salir: 1-2 del personaje, 3-5 por arquetipo.
+    Un Idolo o Diamante nativo no sortea: van las 5 fijas de su tablero (O-162)."""
     iconos = O.iconos_de_pasiva()
+    fijas = O.pasivas_fijas(ident, 1)
+    if fijas:
+        lista = []
+        for ranura, pid in enumerate(fijas, 1):
+            x = {"id": pid, "ranura": ranura, "icono": iconos.get(pid, ""), "fija": True}
+            x.update(_pasiva_con_valores(pid))
+            lista.append(x)
+        # un Diamante tiene otras tres en la rama 2
+        rama2 = [pid for pid in O.pasivas_fijas(ident, 2) if pid not in fijas]
+        otras = []
+        for pid in rama2:
+            x = {"id": pid, "icono": iconos.get(pid, ""), "fija": True}
+            x.update(_pasiva_con_valores(pid))
+            otras.append(x)
+        return {"propias": [], "por_arquetipo": {}, "fijas": lista, "fijas_rama2": otras}
     propias, vistas = [], set()
     for f in _pool().get(ident, []):
         pid = f["pasiva_id"].upper()

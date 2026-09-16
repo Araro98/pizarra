@@ -575,6 +575,40 @@ def objetos_creables(plain):
     return sorted(fuera, key=lambda x: (x["categoria"], x["nombre"]))
 
 
+def _variante_maxima():
+    """{id: id de la version mas alta de su grupo} (`pasivas-rareza.csv`). Un
+    Idolo o Diamante ensena cada pasiva con el numero de la version mas alta
+    (Axel Nv.14 guarda "disputa +8 %" y ensena "+13 %"; NOTAS O-162)."""
+    def construir():
+        grupos = {}
+        for f in reglas._tabla("pasivas-rareza.csv"):
+            grupos.setdefault(f["grupo"], []).append((int(f["rareza"]), f["id"].upper()))
+        d = {}
+        for lista in grupos.values():
+            alta = max(lista)[1]
+            for _, pid in lista:
+                d[pid] = alta
+        return d
+    return _indice("variante_maxima", construir)
+
+
+def pasivas_fijas(identidad_hex, rama=1):
+    """Las 5 pasivas fijas de un Idolo o Diamante nativo, en el orden de la
+    pantalla: las del tronco y las de la rama elegida (1 o 2), cada una con el
+    id de la version mas alta, que es la que ensena el juego (`pasivas-fijas.csv`,
+    de su tablero; NOTAS O-162). [] si el personaje no las tiene."""
+    def construir():
+        d = {}
+        for f in reglas._tabla("pasivas-fijas.csv"):
+            d.setdefault(f["identidad"].upper(), []).append(
+                (int(f["casilla"]), f["tramo"], f["pasiva_id"].upper()))
+        return {k: sorted(v) for k, v in d.items()}
+    filas = _indice("pasivas_fijas", construir).get(identidad_hex.upper(), [])
+    quiero = ("tronco", "rama%d" % (2 if rama == 2 else 1))
+    alta = _variante_maxima()
+    return [alta.get(pid, pid) for _, tramo, pid in filas if tramo in quiero]
+
+
 def iconos_de_pasiva():
     """{id: ruta del dibujo} de `pasivas-icono.csv`.
 

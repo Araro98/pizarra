@@ -3757,6 +3757,45 @@ las tablas del juego dicen lo mismo que las copias:
 `escribir.crear_jugador` usa la copia si la hay y si no estas tablas; Fichar ya
 no pone a nadie en gris.
 
+### O-162 · Idolos y Diamantes: que escribe el juego al invocarlos, y sus pasivas fijas
+
+Aaron borro sus Sonny Wright e invoco dos rojos (Tension) y dos plateados
+(Afinidad) con las capsulas, guardo, y se leyo la partida de Steam sin tocarla.
+Con eso queda cerrado lo que O-67 y O-161 dejaban a medias:
+
+- **Lo que escribe el juego**: ficha con las pasivas (`0x66B81DAF`) **a cero**,
+  heredadas a cero, tablero con la casilla 0, y en `0x45E2D879` (en que casilla
+  del arbol va cada tecnica) `00 02 04 08 0a 0c ff ff ff`. Y en las ranuras de
+  tecnica **seis** referencias (tronco + su unica rama), no tres. Medido en
+  todos los de nivel 1 hechos por el juego: normal `00 02 04 ff...` y 3 tecnicas;
+  Idolo `08 0a 0c` y 6; Diamante `09 0b 0d 13 15 17` y 9.
+  `escribir.anadir_jugador` escribe eso por familia; el Sonny del editor y el
+  del juego ya no se distinguen en nada mas que sus numeros de serie.
+- **Los Sonny "invocados" del dia anterior no venian de las capsulas**: llevaban
+  pasivas sorteadas como un normal y `ff ff ff`; por eso se veian distintos.
+  El juego ensena las pasivas **guardadas** (Axel Nv.14 las tiene sorteadas y
+  ensena esas, subidas al valor de su rareza), y las fijas solo cuando el campo
+  esta a cero.
+- **De donde salen las fijas**: `chara_param` col 10 (solo Idolos y Diamantes
+  nativos la tienen) es la clave de `ABILITY_LEARNING_BOARD_INFO_LIST`
+  (skill/ability_learning_config), que da el tramo de
+  `ABILITY_LEARNING_BOARD_EFFECT_LIST` con las 17 casillas de **su propio
+  tablero**: 6 tecnicas, 5 pasivas y 6 subidas de stats. Las 5 pasivas, en
+  orden, son las de la pantalla "Pasivas de equipo": cuadran con las fotos de
+  Sonny rojo, Sonny plateado y Axel plateado, y dos copias del mismo salen
+  iguales (Aaron). `construir_pasivas_fijas.py` -> `pasivas-fijas.csv`
+  (186 personajes: los 147 Idolos y 39 Diamantes nativos; los normales que
+  acaban de Diamante conservan sus sorteadas). El editor, la base de datos y
+  las sumas del equipo ensenan esas cuando el campo esta a cero, cada una con
+  el numero de su version mas alta, que es como las ensena el juego.
+- **El tablero de un Diamante** tiene 28 casillas: tronco (0-7, con 2
+  pasivas), rama 1 (8-17, 3 pasivas) y rama 2 (18-27, otras 3); la segunda
+  columna de cada casilla es el nivel al que se abre. Se ensenan tronco + rama
+  elegida. Los 33 Diamantes **sin** tablero propio son los que solo existen
+  como version Diamante de un normal; el unico visto salir del juego (Cedric
+  Freud, en la partida del 16-9) llevaba dos pasivas de su sorteo y tres a
+  cero, y asi los crea el editor. **Por confirmar** con una foto de Aaron.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

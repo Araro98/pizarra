@@ -931,7 +931,15 @@ def _siguiente_serie(plain):
                for i in range(6000)) + 1
 
 FAMILIAS_DE_RAREZA = {"normal": (0, 1, 2, 3, 4), "hero": (5, 6, 7), "fabled": (8,)}
-TECNICAS_DE_SALIDA = 3      # con las que aparece un jugador de nivel 1 (NOTAS O-65)
+TECNICAS_DE_SALIDA = 3      # con las que aparece un jugador normal de nivel 1 (NOTAS O-65)
+# Con cuantas tecnicas sale cada familia y como deja el juego el campo de las
+# nueve ranuras (0x45E2D879: en que casilla del arbol va cada tecnica; ff = aun
+# no hay). Medido en jugadores de nivel 1 hechos por el juego (NOTAS O-162):
+# un normal sale con 3 (las ramas se eligen despues), un Idolo con 6 (su unica
+# rama) y un Diamante con las 9.
+TECNICAS_DE_SALIDA_POR_FAMILIA = {"normal": 3, "hero": 6, "fabled": 9}
+RANURAS_NIVEL_1 = {"normal": "000204ffffffffffff", "hero": "000204080a0cffffff",
+                   "fabled": "000204090b0d131517"}
 
 
 def _campo_en(plain, ancla_off, fhash):
@@ -1035,6 +1043,13 @@ def _bloques_de_aspecto(plain, identidad, modelo_fila):
 # El arquetipo que llevan los Diamantes en la partida: no es ninguno de los
 # seis con nombre. Los 58 de la partida de Aaron van con este (NOTAS O-161).
 ARQUETIPO_DIAMANTE = 6
+
+
+def _tiene_tablero_propio(identidad_hex):
+    """Si ese Idolo o Diamante tiene tablero propio con sus pasivas fijas
+    (`pasivas-fijas.csv`, NOTAS O-162)."""
+    return any(f["identidad"].upper() == identidad_hex.upper()
+               for f in reglas._tabla("pasivas-fijas.csv"))
 
 
 def _copia_existente(plain, identidad):
@@ -1237,6 +1252,15 @@ def anadir_jugador(plain, nombre, rareza=None, arquetipo=None, nivel=1):
                              "(falta en personajes.csv). No escribo nada."
                              % ficha_base.get("nombre"))
             pasivas, de_quien = bytes(20), None
+            if familia == "fabled" and not _tiene_tablero_propio(identidad_hex):
+                # Un Diamante sin tablero propio (los 33 que solo existen como
+                # version Diamante de un normal): el unico que se ha visto salir
+                # del juego (Cedric Freud, NOTAS O-162) llevaba dos pasivas de su
+                # sorteo y el resto a cero. Se hace igual; queda por confirmar.
+                pool = _pool_del_personaje(identidad)
+                if len(pool) >= 2:
+                    pasivas = (bytes.fromhex(pool[0]["pasiva_id"]) + bytes.fromhex(pool[1]["pasiva_id"])
+                               + bytes(12))
         arquetipo = J.ARQUETIPOS.get(arquetipo_valor, "sin arquetipo")
     else:
         if rareza is None:
@@ -1279,7 +1303,7 @@ def anadir_jugador(plain, nombre, rareza=None, arquetipo=None, nivel=1):
     # nombre no esta entre las "supertecnica" (Miximax Trans: Raika es un
     # "aura") y con el nombre no se podia fichar a quien las lleva (NOTAS O-161).
     ficha_juego = reglas.personajes().get(identidad_hex) or {}
-    for k in range(1, TECNICAS_DE_SALIDA + 1):
+    for k in range(1, TECNICAS_DE_SALIDA_POR_FAMILIA.get(familia, TECNICAS_DE_SALIDA) + 1):
         nom_tec = (ficha_base.get("r%d_tecnica" % k) or "").strip()
         id_tec = (ficha_juego.get("tec%d" % k) or "").strip().upper() or None
         if not nom_tec and not id_tec:
@@ -1334,6 +1358,7 @@ def anadir_jugador(plain, nombre, rareza=None, arquetipo=None, nivel=1):
     cop, _ = J._campos_de(plain, fichas[modelo], {0x45E2D879, 0xBB459017})
     bloque_a, bloque_b, de_donde_aspecto = _bloques_de_aspecto(plain, identidad, modelo)
     cop[0x3CAEA0BD], cop[0x38AFC2B8] = bloque_a, bloque_b
+    cop[0x45E2D879] = bytes.fromhex(RANURAS_NIVEL_1.get(familia, RANURAS_NIVEL_1["normal"]))
     for fhash in (0x3CAEA0BD, 0x38AFC2B8, 0x45E2D879, 0xBB459017):
         off, n = _campo(plain, fila, fhash)
         d = cop.get(fhash, b"")
