@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculadora · Pizarra</title>
+<link rel="icon" type="image/png" href="/ui/pizarra-icono-64">
+<link rel="stylesheet" href="/web/comun.css">
+<style>
+  .tres { display:grid; gap:14px; grid-template-columns:1fr 1fr; align-items:start; }
+  @media (max-width:1000px) { .tres { grid-template-columns:1fr; } }
+  .lado h2 { font-style:italic; color:var(--azul-osc); font-size:var(--t-lg); margin-bottom:6px; }
+  .lado.rival h2 { color:#a8202e; }
+  .origen { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px; }
+  .origen button { border:2px solid var(--azul-marco); background:#fff; border-radius:7px;
+    padding:4px 10px; font-weight:800; font-size:var(--t-sm); cursor:pointer; color:var(--azul-osc); }
+  .origen button[aria-selected="true"] { background:var(--azul-marco); color:#fff; }
+  /* el jugador elegido: su tarjeta del editor, grande, y al lado quien es */
+  .quien { display:flex; gap:12px; align-items:center; margin:10px 0; }
+  .quien .ficha-mini { width:96px; flex:none; cursor:default; }
+  .quien .ficha-mini:hover { transform:none; filter:none; box-shadow:0 3px 0 rgba(8,28,60,.45); }
+  .quien b { font-size:var(--t-lg); display:block; }
+  .quien .sub { display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:4px; }
+  /* los resultados de la busqueda: tarjetas, como en el editor */
+  .resultados-busca { margin-top:6px; max-height:260px; overflow:auto; padding:3px; }
+  .resultados-busca .rejilla { grid-template-columns:repeat(auto-fill,minmax(76px,1fr)); gap:6px; }
+  .resultados-busca .ficha-mini .nombre-mini { font-size:var(--t-xxs); }
+  /* los siete stats con su icono del juego, grande */
+  .stats7 { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-top:8px; }
+  .stats7 label { display:flex; flex-direction:column; align-items:center; gap:3px; font-size:var(--t-xxs);
+    font-weight:800; color:var(--azul-osc); text-transform:uppercase; letter-spacing:.03em; }
+  .stats7 .ico-caja { width:44px; height:44px; border-radius:9px; display:flex; align-items:center;
+    justify-content:center; background:linear-gradient(180deg,#2f6fd0,#143f80);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.35), 0 2px 0 rgba(10,30,60,.35); }
+  .stats7 .ico-caja img { width:32px; height:32px; margin:0; }
+  .stats7 input { width:100%; text-align:center; padding:5px 2px; font-weight:800; font-size:var(--t-md); }
+  .tecs { display:flex; flex-direction:column; gap:5px; margin-top:6px; }
+  .tecs .tec-barra { cursor:pointer; }
+  .tecs .tec-barra.elegida { outline:3px solid var(--cian); outline-offset:-3px; }
+  /* el equipo: su nombre, sus jugadores para elegir y sus pasivas sumadas */
+  .equipo-elige { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:6px 0; }
+  .equipo-elige select { max-width:100%; }
+  .miembros .rejilla { grid-template-columns:repeat(auto-fill,minmax(64px,1fr)); gap:5px; }
+  .miembros .ficha-mini .nombre-mini { font-size:var(--t-xxs); }
+  .miembros .ficha-mini .nv { font-size:var(--t-md); }
+  .bonif-lista { display:flex; flex-direction:column; gap:4px; margin-top:6px; }
+  .bonif-fila { display:flex; align-items:center; gap:8px; color:#fff; border-radius:7px;
+    padding:3px 9px 3px 4px; font-size:var(--t-sm); font-weight:700; cursor:pointer;
+    background:linear-gradient(90deg,#1b4a8f,#2f6fd0);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.3), 0 1px 0 rgba(10,30,60,.3); }
+  .bonif-fila.apagada { background:linear-gradient(90deg,#6f7f96,#98a7bb); }
+  .bonif-fila input { margin:0; width:16px; height:16px; flex:none; }
+  .bonif-fila .ico-pasiva { width:28px; height:28px; padding:3px; background:rgba(255,255,255,.18); }
+  .bonif-fila .texto { flex:1 1 auto; min-width:0; text-shadow:0 1px 1px rgba(0,0,0,.4); }
+  .bonif-fila .cuantos { flex:none; font-size:var(--t-sm); font-weight:800; background:rgba(0,0,0,.3);
+    border-radius:4px; padding:1px 6px; }
+  .bonif-fila .fam { flex:none; font-size:var(--t-xxs); text-transform:uppercase; letter-spacing:.05em;
+    opacity:.85; }
+  .resultados { margin-top:14px; }
+  .duelo { display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:center;
+    background:#f5f9fe; border:1px solid var(--linea); border-radius:10px; padding:10px 12px;
+    margin-bottom:8px; }
+  .duelo .lado-v { text-align:center; }
+  .duelo .lado-v b { display:block; font-size:var(--t-3xl); font-weight:900; font-style:italic; }
+  .duelo .lado-v span { font-size:var(--t-sm); color:var(--suave); display:block; }
+  .duelo .vs { font-weight:900; font-style:italic; color:var(--suave); text-align:center; }
+  .duelo .vs small { display:block; font-size:var(--t-sm); font-weight:700; }
+  .gana { color:#17734b; } .pierde { color:#a8202e; }
+  .factores { display:grid; gap:8px; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); }
+  .factores label { display:flex; flex-direction:column; gap:2px; font-size:var(--t-sm); font-weight:800;
+    color:var(--azul-osc); text-transform:uppercase; letter-spacing:.04em; }
+  .factores small { font-weight:600; text-transform:none; letter-spacing:0; color:var(--suave); }
+  .desglose { font-size:var(--t-sm); color:var(--suave); }
+  .aviso-formula { background:#fff7e6; border:2px solid #f0c060; border-radius:9px; padding:8px 12px;
+    font-size:var(--t-md); margin-top:10px; }
+</style>
+</head>
+<body>
+<header class="cabecera">
+  <div class="fila">
+    <a class="titulo" href="/">Calculadora de poder <small>cuanto saca cada jugada</small></a>
+    <nav class="tabs">
+      <a href="/editor"><span>Editor</span></a>
+      <a href="/bd"><span>Base de datos</span></a>
+      <a href="/"><span>Inicio</span></a>
+    </nav>
+  </div>
+</header>
+
+<main class="contenido">
+  <div class="tres">
+    <div class="marco lado" id="lado-a"></div>
+    <div class="marco lado rival" id="lado-b"></div>
+  </div>
+
+  <div class="marco resultados">
+    <div class="seccion-nav"><h4>Bonificaciones a mano</h4></div>
+    <div class="factores" id="factores"></div>
+    <div class="seccion-nav"><h4>Resultado</h4></div>
+    <div id="duelos"></div>
+    <div class="aviso-formula" id="aviso-formula"></div>
+  </div>
+</main>
+
+<script src="/web/comun.js"></script>
+<script>
+/* Lo que se sabe de como calcula el juego, con sus palabras (textos de ayuda del
+   propio juego, NOTAS O-142):
+     AT de tiro    = Potencia + Control            (+ AT de la supertecnica de tiro)
+     AT de foco    = Tecnica + Control + Potencia  (+ AT de la de regate)
+     DF de foco    = Tecnica + Inteligencia + Agilidad  (+ DF de la de defensa)
+     AT de disputa = Inteligencia + Fisico
+     DF de disputa = Presion + Inteligencia
+     DF del muro   = Presion + Fisico              (+ DF de la de defensa)
+     PP (portero)  = Fisico + Agilidad + Presion   (+ DF de la de parada)
+   Lo que ensenan las capturas de partido de Aaron (NOTAS O-150):
+     - la supertecnica no suma su poder entero: suma una parte que CRECE CON EL
+       NIVEL del jugador: a Nv. 22 un tiro de 640 sale como "AT 215" (x 0,33)
+       y a Nv. 40 como "AT 314" (x 0,49). Cuadra con poder x (nivel + 16) / 115,
+       que llega al poder entero a Nv. 99 (O-156);
+     - la supertecnica del propio elemento del jugador suma un 15 % mas;
+     - las pasivas de AT de tiro multiplican base y tecnica; el "poder de
+       afinidad" (pases seguidos) se suma al final como % de todo eso;
+     - la "tasa de brecha" NO suma AT: es la probabilidad de brecha;
+     - el PP del portero es 3 x (Fisico + Agilidad + Presion);
+     - "Efectos elementales +20 %" en la parada cuando el elemento del tiro
+       gana al del portero (viento > montana > fuego > bosque > viento);
+     - y "Atenuacion de distancia": un tiro lejano resta AT (14 y 53 vistos).
+   Todo medido en la Bahia de Batalla, con los dos equipos conocidos (O-157).
+   Las pasivas de un equipo de la partida se suman solas (NOTAS O-145). */
+const STATS = ["Potencia", "Control", "Tecnica", "Presion", "Fisico", "Agilidad", "Inteligencia"];
+const I = Object.fromEntries(STATS.map((s, i) => [s, i]));
+const CICLO = {Viento:"Montana", Montana:"Fuego", Fuego:"Bosque", Bosque:"Viento"};  // gana a
+const ELEMENTOS = ["Fuego", "Bosque", "Viento", "Montana"];
+/* a que jugada afecta cada familia de pasiva (la familia la pone
+   herramientas/construir_valores_pasivas.py leyendo el texto) */
+const FAMILIA_NOMBRE = {at_tiro:"AT de tiro", df_muro:"DF del muro", foco:"foco", at_foco:"AT de foco",
+  df_foco:"DF de foco", disputa:"disputa", at_disputa:"AT de disputa", df_disputa:"DF de disputa",
+  pp:"PP", afinidad:"afinidad", brecha:"brecha", tension:"tension", faltas:"faltas",
+  obtencion:"obtencion", otra:"otra"};
+const FAMILIAS_QUE_CUENTAN = {at_tiro:1, df_muro:1, foco:1, at_foco:1, df_foco:1, disputa:1,
+                              at_disputa:1, df_disputa:1, pp:1, afinidad:1};
+/* una pasiva "condicional" (cuando, tras, hasta, en campo contrario, del mismo
+   elemento...) sale apagada: se enciende a mano si se cumple en la jugada */
+const CONDICION = /cuando|tras |hasta |durante|si el|si la|en campo|mismo elemento|misma posici|distint|otro elemento|para jugadores|cerca|con la tensi|falta|desventaja|ventaja|por cada|fuera del|dentro del|juego sucio/i;
+
+const lados = {a: nuevoLado("Atacante", "a"), b: nuevoLado("Defensor / rival", "b")};
+const factores = {afinidad: 0, mismoElemento: 15, ventaja: 20, desventaja: -20, pasivasA: 0, pasivasB: 0,
+                  distancia: 0};
+/* lo que suma la supertecnica segun el nivel del jugador (O-156) */
+function factorTecnica(nivel) { return Math.min(1, (Number(nivel || 99) + 15) / 112); }
+let bd = null, guardados = null, equipos = null, tecnicasBD = null;
+
+function nuevoLado(titulo, clave) {
+  return {clave, titulo, origen:"partida", quien:null, stats:[0,0,0,0,0,0,0],
+          tecnicas:[], tecnica:null, elemento:"", nivel:99, rareza:0, identidad:null, fila:null,
+          equipo:"", equipoNombre:"", miembros:[], pasivasEquipo:[], busca:""};
+}
+
+/* ---------- pintar un lado ---------- */
+function pintaLado(L) {
+  const caja = $("#lado-" + L.clave); caja.textContent = "";
+  caja.appendChild(el("h2", {text:L.titulo}));
+  const origen = el("div", {class:"origen"});
+  for (const [k, t] of [["partida", "De mi partida"], ["bd", "De la base de datos"], ["manual", "A mano"]])
+    origen.appendChild(el("button", {"aria-selected":String(L.origen === k), text:t,
+      onclick:() => { L.origen = k; L.quien = null; L.busca = ""; pintaLado(L); }}));
+  caja.appendChild(origen);
+
+  // de la partida: primero el equipo (sus pasivas se suman solas), luego el jugador
+  if (L.origen === "partida") caja.appendChild(bloqueEquipo(L));
+
+  if (L.origen !== "manual") {
+    const busca = el("input", {type:"search", value:L.busca, placeholder:L.origen === "partida"
+      ? "...o busca cualquier jugador de tu partida" : "Busca un personaje del juego..."});
+    const res = el("div", {class:"resultados-busca"});
+    busca.oninput = async () => {
+      L.busca = busca.value;
+      const q = busca.value.trim().toLowerCase();
+      res.textContent = "";
+      if (q.length < 2) return;
+      const lista = L.origen === "partida" ? await cargaGuardados() : await cargaBD();
+      const ves = lista.filter(p => p.nombre.toLowerCase().includes(q)).slice(0, 48);
+      const rej = el("div", {class:"rejilla"});
+      for (const p of ves) rej.appendChild(fichaMini(p, () => { L.busca = ""; eligeQuien(L, p); }));
+      res.appendChild(ves.length ? rej : el("div", {class:"vacio", text:"nadie se llama asi"}));
+    };
+    caja.appendChild(el("div", {class:"buscador"}, [busca, res]));
+    if (L.busca) busca.oninput();
+  }
+
+  if (L.quien) {
+    const q = el("div", {class:"quien"});
+    q.appendChild(fichaMini(Object.assign({}, L.quien, {nivel:L.nivel, elemento:L.elemento})));
+    const t = el("div", {});
+    t.appendChild(el("b", {text:L.quien.nombre}));
+    const sub = el("div", {class:"sub"});
+    if (L.elemento) sub.appendChild(iconoElemento(L.elemento, 20));
+    if (L.quien.posicion) sub.appendChild(el("span", {class:"chip", text:L.quien.posicion}));
+    sub.appendChild(el("span", {class:"chip gris", text:"Nv. " + L.nivel}));
+    if (L.quien.rareza_nombre) sub.appendChild(el("span", {class:"chip naranja", text:L.quien.rareza_nombre}));
+    if (L.quien.equipo) sub.appendChild(el("small", {text:L.quien.equipo}));
+    t.appendChild(sub);
+    q.appendChild(t);
+    caja.appendChild(q);
+    if (L.origen === "bd") {
+      const fila = el("div", {style:"display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0"});
+      const niv = el("input", {type:"number", min:"1", max:"99", value:String(L.nivel), style:"width:70px"});
+      niv.onchange = () => { L.nivel = Math.max(1, Math.min(99, Number(niv.value) || 99)); recargaBase(L); };
+      fila.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Nivel"}), niv]));
+      const rar = el("select");
+      for (const r of (L.quien.rarezas || [0]))
+        rar.appendChild(el("option", {value:String(r), text:NOMBRE_RAREZA[r] || ("rareza " + r)}));
+      rar.value = String(L.rareza);
+      rar.onchange = () => { L.rareza = Number(rar.value); L.quien.rareza_valor = L.rareza;
+                             L.quien.rareza_nombre = NOMBRE_RAREZA[L.rareza] || ""; recargaBase(L); };
+      fila.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Rareza"}), rar]));
+      const arb = el("input", {type:"checkbox", checked:L.conArbol !== false});
+      arb.onchange = () => { L.conArbol = arb.checked; recargaBase(L); };
+      fila.appendChild(el("label", {class:"filtro", style:"flex-direction:row;align-items:center;gap:6px"}, [arb, el("span", {text:"con el arbol (tronco + rama 1)"})]));
+      caja.appendChild(fila);
+      caja.appendChild(el("p", {class:"nota", text:"Sin judias ni equipacion: si quieres, cambia los numeros a mano abajo."}));
+    }
+  }
+
+  // elemento (para los manuales, o por si se quiere probar otro)
+  const fe = el("div", {style:"display:flex;gap:8px;align-items:center;margin:6px 0;flex-wrap:wrap"});
+  const selE = el("select");
+  selE.appendChild(el("option", {value:"", text:"sin afinidad"}));
+  for (const e of ELEMENTOS) selE.appendChild(el("option", {value:e, text:e}));
+  selE.value = L.elemento || "";
+  selE.onchange = () => { L.elemento = selE.value; pintaLado(L); calcula(); };
+  fe.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Afinidad del jugador"}), selE]));
+  caja.appendChild(fe);
+
+  // los siete stats, editables, con el icono del juego
+  const s7 = el("div", {class:"stats7"});
+  STATS.forEach((n, i) => {
+    const inp = el("input", {type:"number", min:"0", max:"9999", value:String(L.stats[i])});
+    inp.onchange = () => { L.stats[i] = Number(inp.value) || 0; calcula(); };
+    s7.appendChild(el("label", {title:n}, [el("span", {class:"ico-caja"}, [iconoStat(n, 32, 2)]),
+      el("span", {text:n.slice(0, 4)}), inp]));
+  });
+  caja.appendChild(s7);
+
+  // tecnicas: las suyas, o elegir cualquiera
+  caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Supertecnica"})]));
+  const tecs = el("div", {class:"tecs"});
+  const ninguna = el("div", {class:"tec-barra" + (L.tecnica ? "" : " elegida"),
+    style:"background:" + fondoBarra("", ""), onclick:() => { L.tecnica = null; pintaLado(L); calcula(); }},
+    [el("span", {class:"nom", text:"Sin supertecnica"})]);
+  tecs.appendChild(ninguna);
+  for (const t of L.tecnicas) {
+    const b = barraTecnica(t);
+    if (L.tecnica && L.tecnica.id === t.id) b.classList.add("elegida");
+    b.onclick = () => { L.tecnica = t; pintaLado(L); calcula(); };
+    tecs.appendChild(b);
+  }
+  const otra = el("input", {type:"search", placeholder:"...o busca cualquier supertecnica del juego"});
+  const sugT = el("div", {class:"tecs"});
+  otra.oninput = async () => {
+    const q = otra.value.trim().toLowerCase();
+    sugT.textContent = "";
+    if (q.length < 2) return;
+    const lista = await cargaTecnicas();
+    for (const t of lista.filter(t => t.nombre.toLowerCase().includes(q)).slice(0, 30)) {
+      const b = barraTecnica(t);
+      b.onclick = () => { if (!L.tecnicas.some(x => x.id === t.id)) L.tecnicas.push(t);
+                          L.tecnica = t; pintaLado(L); calcula(); };
+      sugT.appendChild(b);
+    }
+  };
+  tecs.appendChild(el("div", {class:"buscador"}, [otra, sugT]));
+  caja.appendChild(tecs);
+
+  // las pasivas del equipo elegido, sumadas, con su interruptor
+  if (L.pasivasEquipo.length) {
+    caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Pasivas de " + L.equipoNombre})]));
+    const lista = el("div", {class:"bonif-lista"});
+    for (const g of L.pasivasEquipo) {
+      const chk = el("input", {type:"checkbox", checked:g.activa});
+      const fila = el("div", {class:"bonif-fila" + (g.activa ? "" : " apagada"),
+        title:"La llevan: " + g.quienes.join(", ")
+              + (g.cuenta ? "" : "\nEsta familia no entra en ninguna de las jugadas de abajo.")}, [
+        chk,
+        g.icono ? el("img", {class:"ico-pasiva", loading:"lazy", alt:"", src:"/icono/" + g.icono}) : null,
+        el("span", {class:"texto", text:g.texto_con_valor}),
+        el("span", {class:"fam", text:FAMILIA_NOMBRE[g.familia] || g.familia}),
+        el("span", {class:"cuantos", text:"×" + g.cuantos})]);
+      const cambia = () => { g.activa = chk.checked; fila.classList.toggle("apagada", !g.activa); calcula(); };
+      chk.onchange = cambia;
+      fila.onclick = ev => { if (ev.target !== chk) { chk.checked = !chk.checked; cambia(); } };
+      lista.appendChild(fila);
+    }
+    caja.appendChild(lista);
+    caja.appendChild(el("p", {class:"nota", text:"Las que dependen de algo (cuando, tras, en campo contrario, del mismo elemento...) salen apagadas: enciendelas si se cumple en la jugada que calculas."}));
+  }
+}
+
+/* el desplegable de equipos de la partida, sus jugadores y sus pasivas */
+function bloqueEquipo(L) {
+  const caja = el("div", {});
+  const fila = el("div", {class:"equipo-elige"});
+  const sel = el("select");
+  sel.appendChild(el("option", {value:"", text:"Elige un equipo de tu partida..."}));
+  for (const e of (equipos || []))
+    sel.appendChild(el("option", {value:String(e.hueco), text:e.nombre + "  (" + e.cuantos + ")"}));
+  sel.value = L.equipo;
+  sel.onchange = () => eligeEquipo(L, sel.value);
+  fila.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Equipo (sus pasivas se suman solas)"}), sel]));
+  caja.appendChild(fila);
+  if (L.miembros.length) {
+    const rej = el("div", {class:"rejilla"});
+    for (const m of L.miembros) {
+      const t = fichaMini(m, () => eligeQuien(L, m));
+      if (L.quien && L.quien.fila === m.fila) t.setAttribute("aria-current", "true");
+      rej.appendChild(t);
+    }
+    caja.appendChild(el("div", {class:"miembros"}, [rej]));
+  }
+  return caja;
+}
+
+async function eligeEquipo(L, hueco) {
+  L.equipo = hueco; L.miembros = []; L.pasivasEquipo = []; L.equipoNombre = "";
+  if (hueco !== "") {
+    try {
+      const [d, p] = await Promise.all([pedir("/api/equipo/" + hueco), pedir("/api/equipo/" + hueco + "/pasivas")]);
+      L.equipoNombre = d.nombre || p.equipo;
+      L.miembros = d.miembros.filter(m => m.jugador && m.puesto < 16).map(m => m.jugador);
+      L.pasivasEquipo = p.pasivas.map(g => Object.assign({}, g, {
+        cuenta: !!FAMILIAS_QUE_CUENTAN[g.familia],
+        activa: !!FAMILIAS_QUE_CUENTAN[g.familia] && !CONDICION.test(g.texto)}));
+    } catch (e) { avisa(e.message, "mal"); }
+  }
+  pintaLado(L); calcula();
+}
+
+const NOMBRE_RAREZA = {0:"Futbolista comun", 1:"Futbolista emergente", 2:"Futbolista de elite",
+  3:"Futbolista estrella", 4:"Leyenda del futbol", 5:"Idolo (roja)", 6:"Idolo (plateada)",
+  7:"Idolo (rosa)", 8:"Diamante"};
+
+async function cargaGuardados() {
+  if (!guardados) {
+    try { guardados = (await pedir("/api/jugadores?cuantos=0")).jugadores; }
+    catch (e) { guardados = []; }
+  }
+  return guardados;
+}
+async function cargaBD() {
+  if (!bd) bd = (await pedir("/api/bd/personajes")).personajes;
+  return bd;
+}
+async function cargaTecnicas() {
+  if (!tecnicasBD) tecnicasBD = (await pedir("/api/bd/tecnicas")).tecnicas;
+  return tecnicasBD;
+}
+async function cargaEquipos() {
+  try { equipos = await pedir("/api/equipos"); } catch (e) { equipos = []; }
+}
+
+async function eligeQuien(L, p) {
+  L.quien = p; L.tecnica = null;
+  if (L.origen === "partida") {
+    const d = await pedir("/api/jugador/" + p.fila);
+    L.fila = p.fila; L.nivel = d.nivel; L.elemento = d.elemento || "";
+    L.stats = d.stats && d.stats.hay ? d.stats.total.slice() : [0,0,0,0,0,0,0];
+    L.tecnicas = d.tecnicas.filter(t => t.puesta && t.abierta).map(t => ({
+      id:t.ranura, nombre:t.puesta, tipo:t.tipo, elemento:t.elemento, poder:t.poder, tp:t.tp, icono:t.icono}));
+    L.quien = {fila:p.fila, nombre:d.nombre, cara:d.cara, posicion:d.posicion, rareza_valor:d.rareza_valor,
+               rareza_nombre:d.rareza, equipo:d.equipo, poder:p.poder};
+  } else {
+    const d = await pedir("/api/bd/personaje/" + p.identidad);
+    L.identidad = p.identidad; L.elemento = d.elemento || ""; L.nivel = 99;
+    L.rareza = d.stats.length ? d.stats[d.stats.length - 1].rareza : 0;
+    L.quien = {nombre:d.nombre, cara:d.cara, posicion:d.posicion, rareza_valor:L.rareza,
+               rareza_nombre:NOMBRE_RAREZA[L.rareza] || "", equipo:p.equipo, poder:p.poder,
+               rarezas:d.stats.map(s => s.rareza), arbol:d.arbol, arbol_conocido:d.arbol_conocido};
+    L.tecnicas = d.tecnicas.filter(t => t.tipo && t.tipo !== "Hipertecnica");
+    await recargaBase(L);
+    return;
+  }
+  pintaLado(L); calcula();
+}
+async function recargaBase(L) {
+  try {
+    const b = await pedir("/api/bd/stats/" + L.identidad + "?nivel=" + L.nivel + "&rareza=" + L.rareza);
+    L.stats = b.base.slice();
+    if (L.conArbol !== false && L.quien.arbol_conocido) {
+      for (const parte of ["tronco", "rama1"])
+        for (const x of L.quien.arbol[parte]) L.stats[I[x.stat]] += x.suma;
+    }
+  } catch (e) { /* sin base: se dejan los numeros que haya */ }
+  pintaLado(L); calcula();
+}
+
+/* ---------- factores a mano ---------- */
+function pintaFactores() {
+  const caja = $("#factores"); caja.textContent = "";
+  const def = [
+    ["afinidad", "Poder de afinidad (%)", "los pases seguidos antes del tiro; en pantalla sale el % y se suma al final", 0, 100],
+    ["distancia", "Atenuacion de distancia (AT que resta)", "un tiro lejano resta AT; vistos 14 y 53", 0, 500],
+    ["mismoElemento", "Supertecnica del elemento del jugador (% sobre la tecnica)", "medido: +15 % sobre lo que suma la tecnica (O-157)", -50, 100],
+    ["ventaja", "Elemento del tiro con ventaja sobre el portero (%)", "medido: +20 % (viento > montana > fuego > bosque > viento)", -50, 100],
+    ["desventaja", "Elemento en desventaja (%)", "por confirmar; se supone el espejo del +20", -100, 50],
+    ["pasivasA", "Otras pasivas del atacante (%)", "lo que no venga del equipo elegido", -100, 200],
+    ["pasivasB", "Otras pasivas del defensor (%)", "lo que no venga del equipo elegido", -100, 200],
+  ];
+  for (const [k, t, nota, min, max] of def) {
+    const inp = el("input", {type:"number", min:String(min), max:String(max), step:"1", value:String(factores[k])});
+    inp.onchange = () => { factores[k] = Number(inp.value) || 0; calcula(); };
+    caja.appendChild(el("label", {}, [el("span", {text:t}), inp, el("small", {text:nota})]));
+  }
+}
+
+/* ---------- el calculo ---------- */
+function elementoFactor(L, R) {
+  // que le pasa a la tecnica de L segun su elemento, el del jugador y el del rival
+  const t = L.tecnica;
+  let pct = 0, por = [];
+  if (t && t.elemento && L.elemento && t.elemento === L.elemento) por.push("tecnica de su elemento +" + factores.mismoElemento + "% (en la tecnica)");
+  const e = (t && t.elemento) || L.elemento;
+  if (e && R.elemento) {
+    if (CICLO[e] === R.elemento) { pct += factores.ventaja; por.push("ventaja sobre " + R.elemento + " " + signo(factores.ventaja) + ", se aplica en la parada"); }
+    else if (CICLO[R.elemento] === e) { pct += factores.desventaja; por.push("desventaja ante " + R.elemento + " " + signo(factores.desventaja)); }
+  }
+  return {pct, por};
+}
+/* la suma de las pasivas encendidas del equipo de L que tocan esas familias */
+function pasivasDe(L, familias) {
+  let pct = 0;
+  for (const g of L.pasivasEquipo) if (g.activa && familias.includes(g.familia)) pct += g.valor;
+  return Math.round(pct * 100) / 100;
+}
+function signo(n) { return (n >= 0 ? "+" : "") + n + "%"; }
+function valor(L, cuales) { return cuales.reduce((a, s) => a + (L.stats[I[s]] || 0), 0); }
+function conTecnica(L, tipos) {
+  // la supertecnica suma una parte de su poder que crece con el nivel (O-156),
+  // y un 15 % mas si es del elemento del jugador (O-157)
+  const t = L.tecnica;
+  if (!t || !tipos.includes(t.tipo)) return 0;
+  const propia = t.elemento && L.elemento && t.elemento === L.elemento;
+  return Math.round(t.poder * factorTecnica(L.nivel) * (propia ? 1 + factores.mismoElemento / 100 : 1));
+}
+
+function calcula() {
+  const A = lados.a, B = lados.b;
+  const caja = $("#duelos"); caja.textContent = "";
+  // el elemento solo cuenta en el que ataca: el juego lo ensena en la parada como
+  // "Efectos elementales +20 %" del tiro, y el PP del portero no cambia (O-157)
+  const fa = elementoFactor(A, B), fb = {pct:0, por:[]};
+  // la afinidad del tiro solo existe si hubo pases: entonces las pasivas de afinidad la suben
+  const afinidad = factores.afinidad ? factores.afinidad + pasivasDe(A, ["afinidad"]) : 0;
+  const lado = (L, base, tec, familias, extraMas, que, por) => {
+    const eq = pasivasDe(L, familias);
+    const manual = L === A ? factores.pasivasA : factores.pasivasB;
+    const p = por.slice();
+    if (eq) p.push("pasivas del equipo " + signo(eq));
+    if (manual) p.push("otras pasivas " + signo(manual));
+    return {base, tec, extra:extraMas + eq + manual, que, por:p, factor:factorTecnica(L.nivel)};
+  };
+  const porTiro = (afinidad ? ["afinidad " + signo(afinidad)] : []).concat(fa.por);
+  const tiro = afinidad + fa.pct;
+  const duelos = [
+    {nombre:"Tiro contra el portero",
+     a:lado(A, valor(A, ["Potencia", "Control"]) - factores.distancia, conTecnica(A, ["Tiro"]), ["at_tiro"], tiro,
+            "AT de tiro = Potencia + Control" + (factores.distancia ? " - distancia" : ""), porTiro),
+     b:lado(B, 3 * valor(B, ["Fisico", "Agilidad", "Presion"]), conTecnica(B, ["Parada"]), ["pp"], fb.pct,
+            "PP = 3 x (Fisico + Agilidad + Presion)", fb.por)},
+    {nombre:"Batalla de foco (regate contra defensa)",
+     a:lado(A, valor(A, ["Tecnica", "Control", "Potencia"]), conTecnica(A, ["Regate"]), ["foco", "at_foco"], fa.pct,
+            "AT de foco = Tecnica + Control + Potencia", fa.por),
+     b:lado(B, valor(B, ["Tecnica", "Inteligencia", "Agilidad"]), conTecnica(B, ["Defensa"]), ["foco", "df_foco"], fb.pct,
+            "DF de foco = Tecnica + Inteligencia + Agilidad", fb.por)},
+    {nombre:"Disputa (lucha por el balon)",
+     a:lado(A, valor(A, ["Inteligencia", "Fisico"]), 0, ["disputa", "at_disputa"], 0, "AT de disputa = Inteligencia + Fisico", []),
+     b:lado(B, valor(B, ["Presion", "Inteligencia"]), 0, ["disputa", "df_disputa"], 0, "DF de disputa = Presion + Inteligencia", [])},
+    {nombre:"Tiro contra el muro (bloqueo)",
+     a:lado(A, valor(A, ["Potencia", "Control"]) - factores.distancia, conTecnica(A, ["Tiro"]), ["at_tiro"], tiro,
+            "AT de tiro = Potencia + Control" + (factores.distancia ? " - distancia" : ""), porTiro),
+     b:lado(B, valor(B, ["Presion", "Fisico"]), conTecnica(B, ["Defensa"]), ["df_muro"], fb.pct,
+            "DF del muro = Presion + Fisico", fb.por)},
+  ];
+  for (const d of duelos) {
+    const ta = Math.round((d.a.base + d.a.tec) * (1 + d.a.extra / 100));
+    const tb = Math.round((d.b.base + d.b.tec) * (1 + d.b.extra / 100));
+    caja.appendChild(el("div", {class:"duelo"}, [
+      el("div", {class:"lado-v"}, [el("b", {class:ta > tb ? "gana" : ta < tb ? "pierde" : "", text:String(ta)}),
+        el("span", {text:d.a.que}), el("span", {class:"desglose", text:desglose(d.a)})]),
+      el("div", {class:"vs"}, [document.createTextNode("VS"), el("small", {text:d.nombre})]),
+      el("div", {class:"lado-v"}, [el("b", {class:tb > ta ? "gana" : tb < ta ? "pierde" : "", text:String(tb)}),
+        el("span", {text:d.b.que}), el("span", {class:"desglose", text:desglose(d.b)})])]));
+  }
+  $("#aviso-formula").textContent = "El tiro y el PP del portero estan medidos en la Bahia de Batalla con los "
+    + "dos equipos conocidos (NOTAS O-157): base x pasivas + tecnica (x nivel, x 1,15 si es de su elemento) x "
+    + "pasivas + afinidad. Lo que sigue por confirmar: la desventaja de elemento, la atenuacion por distancia "
+    + "(cambia con cada tiro) y los duelos de foco y disputa, donde la afinidad ganada o perdida cambia mucho el numero.";
+}
+function desglose(x) {
+  const partes = [String(x.base)];
+  if (x.tec) partes.push("+ " + x.tec + " de la supertecnica (poder x " + x.factor.toFixed(2) + " por el nivel)");
+  if (x.extra) partes.push("x " + String(Math.round((1 + x.extra / 100) * 1000) / 1000)
+                            + (x.por.length ? " (" + x.por.join(", ") + ")" : ""));
+  return partes.join(" ");
+}
+
+pintaLado(lados.a); pintaLado(lados.b); pintaFactores(); calcula();
+cargaEquipos().then(() => { pintaLado(lados.a); pintaLado(lados.b); });
+</script>
+</body>
+</html>

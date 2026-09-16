@@ -1,0 +1,1296 @@
+# Extraido de la tabla de Cheat Engine de EasyGameCheatEngine para la
+# version 7.1.1 del juego. Los identificadores se usan como datos; el
+# credito es suyo. Los ids estan tal y como los muestra Cheat Engine.
+id_ce,id_partida,nombre,clase
+016DEA27,27EA6D01,Accelerator Gears,supertecnica
+4E5B398C,8C395B4E,Acrobat Bomber,supertecnica
+A43085DD,DD8530A4,Almighty Cannon,supertecnica
+1879C284,84C27918,Arced Diamond Ray,supertecnica
+A5777314,147377A5,Assault Shot,supertecnica
+D0AF516E,6E51AFD0,Asteride,supertecnica
+7C6D5B0E,0E5B6D7C,Astro Break,supertecnica
+97C48D68,688DC497,Astro Gate,supertecnica
+9DA879F0,F079A89D,Athenian Assault,supertecnica
+1697534C,4C539716,Atomic Harmonic,supertecnica
+AE2B3429,29342BAE,Atomic Flare,supertecnica
+D32B8500,00852BD3,Atomic Spin,supertecnica
+0E394D56,564D390E,Avenging Eagle,supertecnica
+4F9953BB,BB53994F,Baby Corodragon,supertecnica
+4AD6453E,3E45D64A,Back Tornado,supertecnica
+7432B8E0,E0B83274,Bahamut Crash,supertecnica
+72E7A603,03A6E772,Bald Eagle Glide,supertecnica
+A0BDF96F,6FF9BDA0,Ballista Barrage,supertecnica
+BEAF60F2,F260AFBE,Banana Shot,supertecnica
+4C1D87D5,D5871D4C,Bed of Roses,supertecnica
+90D115FF,FF15D190,Begiran Whip,supertecnica
+E7D62569,6925D6E7,Belion Whip,supertecnica
+2690CAFB,FBCA9026,Beyond the Sambadrome,supertecnica
+A108D634,34D608A1,Beyond the Death Zone,supertecnica
+1F7F73BA,BA737F1F,Bicycle Slash,supertecnica
+9C6A13C7,C7136A9C,Big Bang Slash,supertecnica
+DAC3A5F6,F6A5C3DA,Big Bang,supertecnica
+9B63BB1B,1BBB639B,Black Dawn,supertecnica
+EC78BBC6,C6BB78EC,Black Ash,supertecnica
+D2E9EF37,37EFE9D2,Bloodsucker Bite,supertecnica
+240BEDF2,F2ED0B24,Bounce Shot,supertecnica
+A9A7000B,0B00A7A9,Bouncing Bunny,supertecnica
+DDCA0D2A,2A0DCADD,Bouncing Bomb,supertecnica
+A5F2EFEA,EAEFF2A5,Brave Shot,supertecnica
+1564C24E,4EC26415,Brawl of the Wild,supertecnica
+EDBAD1F1,F1D1BAED,Brimstone Rain,supertecnica
+FD49C046,46C049FD,Bubble Trouble,supertecnica
+6B97E265,65E2976B,Bull Rush,supertecnica
+734EB913,13B94E73,Bullseye Blaze,supertecnica
+EA39FC31,31FC39EA,Bushin Blades,supertecnica
+54C4DCA3,A3DCC454,Butterfly Trance,supertecnica
+1DCB1471,7114CB1D,Caliburn,supertecnica
+A0CABC03,03BCCAA0,Cannonball,supertecnica
+2752A0CC,CCA05227,Capoeira Kick,supertecnica
+C6655BA0,A05B65C6,Celestial Saw,supertecnica
+EE3E059F,9F053EEE,Celestial Smash,supertecnica
+88E6A750,50A7E688,Centrifugal Blast,supertecnica
+BCE9DEAB,ABDEE9BC,Chaos Break,supertecnica
+119C17D3,D3179C11,Cheat Blaster,supertecnica
+FFFDA78D,8DA7FDFF,Checkmate,supertecnica
+163D8F70,708F3D16,Chip Shot,supertecnica
+E11DE782,82E71DE1,Chrysanthemum Katana,supertecnica
+2D3E5454,54543E2D,Clone Shot,supertecnica
+A17F9358,58937FA1,Clone Death Zone,supertecnica
+B864A219,19A264B8,Clone Penguin,supertecnica
+BB97331B,1B3397BB,Cold Snap,supertecnica
+F4533922,223953F4,Cold Front,supertecnica
+1F0836D6,D636081F,Comet Shot,supertecnica
+1D4E888F,8F884E1D,Condor Dive,supertecnica
+1B854A64,644A851B,Cosmic Blast,supertecnica
+17A7E0E9,E9E0A717,Cosmic Blaster,supertecnica
+17227C17,177C2217,Crack Shot,supertecnica
+5863EAD0,D0EA6358,Crescent Kick,supertecnica
+1A30653F,3F65301A,Crimson Prison,supertecnica
+60397CCA,CA7C3960,Cross Drive,supertecnica
+6F1A9ED7,D79E1A6F,Cross Fire (Blue),supertecnica
+0800562F,2F560008,Cross Fire (Red),supertecnica
+86F5F6E8,E8F6F586,Cupid's Arrow,supertecnica
+3D10DCB3,B3DC103D,Curve Shot,supertecnica
+1755397B,7B395517,Dark Energy Star,supertecnica
+BD2BB49C,9CB42BBD,Dark Matter,supertecnica
+E6E696CC,CC96E6E6,Dark Reaver,supertecnica
+22EF6FDB,DB6FEF22,Dark Phoenix,supertecnica
+568262FA,FA628256,Dark Tornado,supertecnica
+BAD0C5D2,D2C5D0BA,Daruma Boomer,supertecnica
+32EEA7FE,FEA7EE32,Death Zone 2,supertecnica
+B27F13ED,ED137FB2,Death Zone,supertecnica
+D4D0F44E,4EF4D0D4,Destrier Charge,supertecnica
+0DBD9938,3899BD0D,Diamond Cutter,supertecnica
+6813360B,0B361368,Diamond Ray,supertecnica
+E29933EC,EC3399E2,Dimensional Deluge,supertecnica
+C6978232,328297C6,Dinosaur Roar,supertecnica
+2EBA803A,3A80BA2E,Dirt Ball,supertecnica
+1876DB66,66DB7618,Disaster Strike,supertecnica
+0C7FF30F,0FF37F0C,Divine Drive,supertecnica
+61FB16FD,FD16FB61,Divine Arrows,supertecnica
+0C08B663,63B6080C,Doom Dive Drive,supertecnica
+119EFB90,90FB9E11,Doom Rain,supertecnica
+C513565C,5C5613C5,Doom Spear,supertecnica
+DC08671D,1D6708DC,Doom Break,supertecnica
+8A52C09B,9BC0528A,Doomsword Slash,supertecnica
+BBFC463C,3C46FCBB,Doruga Assault,supertecnica
+1A472053,5320471A,Double Wrath Shot,supertecnica
+8EDFBC29,29BCDF8E,Double Jaw,supertecnica
+18019E0A,0A9E0118,Double Grenade,supertecnica
+B7300568,680530B7,Double Tornado,supertecnica
+F9C4BCF4,F4BCC4F9,Double Helix,supertecnica
+3F8BFBBA,BAFB8B3F,Double-Trouble,supertecnica
+B7474004,044047B7,Dough Ray Me,supertecnica
+3BEE26C7,C726EE3B,Dragnova Strike,supertecnica
+1C097E46,467E091C,Dragon Drive,supertecnica
+2CFC3E63,633EFC2C,Dragon Crash,supertecnica
+0597D3F9,F9D39705,Dragon Tornado,supertecnica
+B4B4D106,06D1B4B4,Dragon Cannon,supertecnica
+E937AD43,43AD37E9,Dragon Slayer,supertecnica
+BA221C40,401C22BA,Dragon's Tail,supertecnica
+81FC5E34,345EFC81,Driving Header,supertecnica
+ADAFE047,47E0AFAD,Dual Strike,supertecnica
+E452F107,07F152E4,Dust Javelin,supertecnica
+34256515,15652534,Dynamite Shot,supertecnica
+4DDFEDE2,E2EDDF4D,Eagle Buster,supertecnica
+0947A0E6,E6A04709,Eiffel Tower,supertecnica
+F5638A87,878A63F5,Elemental Destroyer,supertecnica
+0DCADC54,54DCCA0D,Emperor Penguin 7,supertecnica
+6730D416,16D43067,Emperor Penguin No. 1,supertecnica
+7DAF3139,3931AF7D,Emperor Penguin No. 2,supertecnica
+BF6D0AC5,C50A6DBF,Emperor Penguin No. 3,supertecnica
+D9477198,987147D9,Emperor Penguin X,supertecnica
+F4A1E0B0,B0E0A1F4,Entropic Arrows,supertecnica
+B4C3946A,6A94C3B4,Ephemeral Boost,supertecnica
+19C3F43D,3DF4C319,Eternal Blizzard,supertecnica
+3A3634AD,AD34363A,Excalibur,supertecnica
+04D02530,3025D004,Executioner's Axe,supertecnica
+05E09695,9596E005,Falcon Glide,supertecnica
+C8760A18,180A76C8,Falling Planet,supertecnica
+AE5C7145,45715CAE,Fangtasmagoria,supertecnica
+C9B4602F,2F60B4C9,Final Death Zone,supertecnica
+09C23C18,183CC209,Fire Blizzard (Blue),supertecnica
+111B676E,6E671B11,Fire Blizzard (Red),supertecnica
+A3CBF493,93F4CBA3,Fire Lemonade,supertecnica
+37A1B17B,7BB1A137,Fire Rooster,supertecnica
+518BCA26,26CA8B51,Fire Tornado,supertecnica
+A897B3AE,AEB397A8,Fire Tornado A,supertecnica
+910F4F83,834F0F91,Fire Tornado DD,supertecnica
+9E2CAD9E,9EAD2C9E,Fire Tornado TC,supertecnica
+87379CDF,DF9C3787,Fire Tornado TC,supertecnica
+0B011EBF,BF1E010B,Fireball Screw,supertecnica
+00D8C57C,7CC5D800,Fireball Storm,supertecnica
+88147EC2,C27E1488,Fireball Storm (Summon),supertecnica
+84B348B1,B148B384,Firebird Flight,supertecnica
+05124F07,074F1205,Fission and Fusion,supertecnica
+728CD324,24D38C72,Fizzy Fire Lemonade,supertecnica
+CDCBC50F,0FC5CBCD,Flamberge,supertecnica
+B813E775,75E713B8,Flaming Firebird,supertecnica
+DEBC00D6,D600BCDE,Flash Dance,supertecnica
+AC1ACF1C,1CCF1AAC,Flower Plower,supertecnica
+3DCD45E3,E345CD3D,Flurry-Go-Round,supertecnica
+3B732E27,272E733B,Flying Marlin,supertecnica
+A2FB4736,3647FBA2,Flying Fish,supertecnica
+F5915315,155391F5,Flying Colours,supertecnica
+23AA7551,5175AA23,Force Flash,supertecnica
+8B90AAAC,ACAA908B,Fortissimo,supertecnica
+79224D8B,8B4D2279,Freeze Shot,supertecnica
+D7A6F9B2,B2F9A6D7,Full Moon Fever,supertecnica
+029E7B25,257B9E02,Gaia Break,supertecnica
+FF0F7E1F,1F7E0FFF,Galactic GigaFall,supertecnica
+7FE98F60,608FE97F,Ganymede Ray,supertecnica
+FB8202AD,AD0282FB,Gaussian Goal,supertecnica
+AB1367C0,C06713AB,Giant Beanstalk,supertecnica
+9FEEC7A9,A9C7EE9F,Gigaton Head,supertecnica
+A6763B84,843B76A6,Gladius Arch,supertecnica
+1C8CE2B8,B8E28C1C,God Knows,supertecnica
+7577A26A,6AA27775,God Break,supertecnica
+DF7E6AE1,E16A7EDF,God Alone Knows,supertecnica
+CF7FA2C4,C4A27FCF,Gold Rush,supertecnica
+83BAE06D,6DE0BA83,Golden Gull,supertecnica
+22F51786,8617F522,Goliger Assault,supertecnica
+B18C82EF,EF828CB1,Gooma Inferno,supertecnica
+94405906,06594094,Grand Fenrir,supertecnica
+EAB3792D,2D79B3EA,Grand Fire,supertecnica
+19B4B151,51B1B419,Great Blaster,supertecnica
+35E70F22,220FE735,Grenade Shot,supertecnica
+035C1112,12115C03,Gungnir,supertecnica
+8C990270,7002998C,Gunshot,supertecnica
+066442FB,FB426406,Gusher Crusher,supertecnica
+011AAF4B,4BAF1A01,Gyro Head,supertecnica
+7B64F3D2,D2F3647B,Hawk Shot,supertecnica
+F6E75EE9,E95EE7F6,Headbanger,supertecnica
+E5909B30,309B90E5,Heart's Desire,supertecnica
+0AC37488,8874C30A,Heavenly Drive,supertecnica
+0EBCD1A8,A8D1BC0E,Heavenly Tianlong,supertecnica
+6D2989A1,A189296D,Heavenly Thunder,supertecnica
+332CCDC9,C9CD2C33,Heel Kick,supertecnica
+BDAE2862,6228AEBD,Hellfire,supertecnica
+6A558852,5288556A,Hollow Blare,supertecnica
+B501FE5D,5DFE01B5,Holy Roller,supertecnica
+EC8A6254,54628AEC,Hot Head,supertecnica
+B6852A33,332A85B6,I Am the Almighty,supertecnica
+E724FCFB,FBFC24E7,Icicle Road,supertecnica
+8EDD506A,6A50DD8E,Inazuma Break,supertecnica
+63BDA8A4,A4A8BD63,Inazuma Drop,supertecnica
+A28C025A,5A028CA2,Inazuma Break CG,supertecnica
+B039ADB4,B4AD39B0,Inazuma Break,supertecnica
+07D16DA0,A06DD107,Inazuma-1,supertecnica
+AFE95E1E,1E5EE9AF,Inazuma-1 Drop,supertecnica
+FECD1428,2814CDFE,Ixaal Canon,supertecnica
+F3A8486C,6C48A8F3,Jet Stream,supertecnica
+14D1ED15,15EDD114,Jumping Jack,supertecnica
+9B916289,8962919B,Jurassic Jaws,supertecnica
+D4222DDC,DC2D22D4,Kabuki Break,supertecnica
+C4D13C6B,6B3CD1C4,Katana Kick,supertecnica
+574008CD,CD084057,Kung Fu Fighting,supertecnica
+A8E0F6C2,C2F6E0A8,Kung Fu Header,supertecnica
+0F8C620D,0D628C0F,Lancelot Lunge,supertecnica
+316A7390,90736A31,Land Dragon,supertecnica
+24D674A2,A274D624,Last Resort,supertecnica
+A34E686D,6D684EA3,Last Resort E,supertecnica
+BA55592C,2C5955BA,Last Resort D,supertecnica
+66F2BE21,21BEF266,Leaping Thunder,supertecnica
+7E2BE557,57E52B7E,Legendary Wolf,supertecnica
+09454CA5,A54C4509,Legendary Silver Wolf,supertecnica
+CCFB76AA,AA76FBCC,Lion Assault,supertecnica
+72514A74,744A5172,Low Drive,supertecnica
+CD391C9D,9D1C39CD,Loyal Heart Shot,supertecnica
+4442643B,3B644244,Luminous Orb,supertecnica
+1EBD198D,8D19BD1E,Magic Amp,supertecnica
+D5129E79,799E12D5,Magician's Box,supertecnica
+85712286,86227185,Majestic Radiance,supertecnica
+ADD8A52B,2BA5D8AD,Matchlock Bullet,supertecnica
+8F1DD61E,1ED61D8F,Maximum Fire,supertecnica
+E8F5C774,74C7F5E8,Megalodon,supertecnica
+6C6C932B,2B936C6C,Megaton Head,supertecnica
+AAD10DF7,F70DD1AA,Mermaid Splash,supertecnica
+1D39CDE3,E3CD391D,Meteor Strike,supertecnica
+627FC293,93C27F62,Meteor Attack,supertecnica
+7601AF96,96AF0176,Meteor Blade A,supertecnica
+65766A4F,4F6A7665,Meteor Blade,supertecnica
+5F1FEB23,23EB1F5F,Meteoric Fire Tornado,supertecnica
+105E7DE4,E47D5E10,Meteoric Fire Tornado V,supertecnica
+121A2FFE,FE2F1A12,Mirage Shot,supertecnica
+CEBDC8F3,F3C8BDCE,Mortal Smash,supertecnica
+BC6C4255,55426CBC,Neo Galaxy,supertecnica
+0422FCA2,A2FC2204,Ninja Toad,supertecnica
+E0DF8DB5,B58DDFE0,No Future,supertecnica
+CBF2DE76,76DEF2CB,Nocturne,supertecnica
+5E5AF1A9,A9F15A5E,Northern Impact,supertecnica
+8D5B6847,47685B8D,Odin Sword,supertecnica
+433E65C8,C8653E43,Off-Balance Pisa Kick,supertecnica
+1BF20F08,080FF21B,Omega Assault,supertecnica
+5BE73EBE,BE3EE75B,One for All,supertecnica
+928B9BED,ED9B8B92,Optimal Trajectory,supertecnica
+E6144F5E,5E4F14E6,Orbital Drive,supertecnica
+3E49918D,8D91493E,Orion's Shade,supertecnica
+803E3403,03343E80,Overclock Spiral,supertecnica
+A7B451B3,B351B4A7,Paladin Strike,supertecnica
+B3CA3CB6,B63CCAB3,Parkour Power,supertecnica
+B3BD79DA,DA79BDB3,Patriot Shot,supertecnica
+C19E2AEE,EE2A9EC1,Pegasus Shot,supertecnica
+FE3FCDBA,BACD3FFE,Pegasus Punch,supertecnica
+09D84445,4544D809,Pelion Whip,supertecnica
+16E01620,2016E016,Penguin Reckoning,supertecnica
+91FD9611,1196FD91,Penguin Volley (Red),supertecnica
+E197629E,9E6297E1,Penguin Volley (Green),supertecnica
+16658ADE,DE8A6516,Perfect Penguin,supertecnica
+0FFB2761,6127FB0F,Perseus Strike,supertecnica
+AB6422AC,AC2264AB,Phantom Shot,supertecnica
+828A53C8,C8538A82,Plasma Ball,supertecnica
+9AA1D12C,2CD1A19A,Polar Bear No. 2,supertecnica
+C7A73197,9731A7C7,Polar Pike,supertecnica
+6B4A7B35,357B4A6B,Power Shot,supertecnica
+0885CAD1,D1CA8508,Prime Legend,supertecnica
+520F1E48,481E0F52,Psycho Shot,supertecnica
+BB12AFE5,E5AF12BB,Rabbit Run,supertecnica
+A3392D01,012D39A3,Rainbow Bubble Burst,supertecnica
+AC6D8A70,708A6DAC,Rainbow Arc,supertecnica
+98E76F75,756FE798,Rapid Fire,supertecnica
+F26A225B,5B226AF2,RC Shot,supertecnica
+B1FBC783,83C7FBB1,Reflect Buster,supertecnica
+14A6A879,79A8A614,Regal Eagle,supertecnica
+2A37FC88,88FC372A,Revolution V,supertecnica
+A8656A3C,3C6A65A8,Roc and Roll,supertecnica
+06130797,97071306,Rolling Kick,supertecnica
+0F7EBB9F,9FBB7E0F,Royal Lancer,supertecnica
+4604DA62,62DA0446,Royal Penguin Parade,supertecnica
+0455B9CE,CEB95504,Run Ball Run,supertecnica
+13D845C9,C945D813,Samba Strike,supertecnica
+B04EE8D8,D8E84EB0,Scream of Eden,supertecnica
+74B5C85D,5DC8B574,Security Shot,supertecnica
+032B547E,7E542B03,Shadow Kick,supertecnica
+59A180E7,E780A159,Shadow Swarm,supertecnica
+9606E75F,5FE70696,Shadow Ray,supertecnica
+96040B1C,1C0B0496,Shadow Empress,supertecnica
+F72534DE,DE3425F7,Shadow Ray,supertecnica
+69D15C3C,3C5CD169,Shark Shooter,supertecnica
+F806D6C3,C3D606F8,Shell Burst,supertecnica
+78E027BC,BC27E078,Shine Drive,supertecnica
+BBE07677,7776E0BB,Sidewinder,supertecnica
+A2E7777D,7D77E7A2,Silver Wolf Strike,supertecnica
+105C91A7,A7915C10,Slingshot,supertecnica
+49529150,50915249,Snake Shot,supertecnica
+8F1F3A5D,5D3A1F8F,Sniper Shot,supertecnica
+DE4ED944,44D94EDE,Snowstorm Leopard,supertecnica
+9A5308BE,BE08539A,Solar Flare,supertecnica
+B9D18D42,428DD1B9,Solar Flex,supertecnica
+FA40689A,9A6840FA,Solar Nexus,supertecnica
+22681F66,661F6822,Solution Boost,supertecnica
+DF8CB373,73B38CDF,Sonic Shot,supertecnica
+4683AADF,DFAA8346,Space Penguin,supertecnica
+29B328E6,E628B329,Spectacle Crash,supertecnica
+B0BC314A,4A31BCB0,Spin Meister,supertecnica
+5049A011,11A04950,Spinning Shot,supertecnica
+AAA6489B,9B48A6AA,Spiral Shot,supertecnica
+00AF8010,1080AF00,Splitting Hares,supertecnica
+5EDD8114,1481DD5E,Spring Thunderclap,supertecnica
+07A628CC,CC28A607,Stargazer,supertecnica
+40BAB1A6,A6B1BA40,Starstriker,supertecnica
+4741C0E8,E8C04147,Steeple Shot,supertecnica
+82788A5A,5A8A7882,Straight Counter,supertecnica
+75F0D2D7,D7D2F075,Sunshine Splitter,supertecnica
+70CA6D7D,7D6DCA70,Super Megaton Head,supertecnica
+D16D3B59,593B6DD1,Supermassive Shot,supertecnica
+90CD25B4,B425CD90,Supernatural Strike,supertecnica
+6DAEF91C,1CF9AE6D,Supernova,supertecnica
+C05C40D9,D9405CC0,Sweet Deal,supertecnica
+3AB14410,1044B13A,Swirly Shot,supertecnica
+53CD747F,7F74CD53,Tarzan Kick,supertecnica
+4B142F09,092F144B,Teleport Shot,supertecnica
+64B40078,7800B464,The Phoenix,supertecnica
+8924CD67,67CD2489,The Detonator,supertecnica
+95823331,31338295,The Tube,supertecnica
+A4B51923,2319B5A4,The Typhoon,supertecnica
+A955D999,99D955A9,The Earth:Infinity,supertecnica
+A9229CF5,F59C22A9,The Galaxy,supertecnica
+B576BB31,31BB76B5,The Earth,supertecnica
+C3D894B7,B794D8C3,The Dawn,supertecnica
+F1EEF635,35F6EEF1,The Hurricane,supertecnica
+DB01CFC1,C1CF01DB,Thunder Beast,supertecnica
+CC09AF38,38AF09CC,Thunderclaw,supertecnica
+CA30B441,41B430CA,Thundertaker,supertecnica
+232D05EC,EC052D23,Tiger Drive,supertecnica
+F02C9C02,029C2CF0,Tiger Storm,supertecnica
+42FC0FFF,FF0FFC42,Time Trance,supertecnica
+2F78EA0D,0DEA782F,Triangle Z,supertecnica
+B9A6C82E,2EC8A6B9,Triangle ZZ,supertecnica
+B17E5B7D,7D5B7EB1,Trident Torpedo,supertecnica
+3BF45E9A,9A5EF43B,Triple Boost,supertecnica
+5A255489,8954255A,Triple G Strike,supertecnica
+A2099EA4,A49E09A2,Triple Blizzard,supertecnica
+C755E805,05E855C7,Triple Threat,supertecnica
+B6F26F5F,5F6FF2B6,Tri-Pegasus,supertecnica
+2BF596BF,BF96F52B,Tsunami Boost,supertecnica
+D6649385,859364D6,Tusk Force,supertecnica
+30A819A7,A719A830,Twin Boost F,supertecnica
+4890FB67,67FB9048,Twin Boost,supertecnica
+25141E95,951E1425,Twin Gallop,supertecnica
+E35B59DB,DB595BE3,Twin Sun Smash,supertecnica
+1CFBA7D4,D4A7FB1C,Twister Tornado,supertecnica
+AF9E1B72,721B9EAF,Ultimate Eleven Assault,supertecnica
+D8851BAF,AF1B85D8,Unicorn Boost,supertecnica
+6CEBE396,96E3EB6C,Unify,supertecnica
+ED480863,630848ED,Ursa Rager,supertecnica
+3663DB4C,4CDB6336,Utter Gutsiness Bat,supertecnica
+5506B694,94B60655,Utter Gutsiness Club,supertecnica
+89CA24BE,BE24CA89,Vairaas Canon,supertecnica
+99250542,42052599,Volcanic Lightning,supertecnica
+B2085681,815608B2,Volcanic Rock,supertecnica
+EFFC6FA8,A86FFCEF,Warhead,supertecnica
+02E93E49,493EE902,Werewolf Howl,supertecnica
+C21AFE80,80FE1AC2,Whirlwind Drop,supertecnica
+89D614F5,F514D689,White Hurricane,supertecnica
+834839FF,FF394883,White Breath,supertecnica
+D12E6608,08662ED1,White Hurricane,supertecnica
+15138722,22871315,Will-o'-the-Wisp Shot,supertecnica
+D5E047EB,EB47E0D5,Wolf Strike,supertecnica
+1ECA5CE1,E15CCA1E,Wrath Shot,supertecnica
+5F989B9E,9E9B985F,Wyvern Crash,supertecnica
+10D90D59,590DD910,Wyvern Blizzard,supertecnica
+EB71131A,1A1371EB,X Blast,supertecnica
+9349F1DA,DAF14993,Zephyr Shot,supertecnica
+0E4E083A,3A084E0E,Zero Magnum,supertecnica
+903FFC26,26FC3F90,Zigzag Zoom,supertecnica
+4FE09C7A,7A9CE04F,Acrobatic Keep,supertecnica
+592A96B4,B4962A59,Afterimage,supertecnica
+C42D6F54,546F2DC4,Aikido,supertecnica
+7ED7B668,68B6D77E,Air Cut,supertecnica
+D9BB22A7,A722BBD9,Air Ride,supertecnica
+245D62F1,F1625D24,Attack Scan,supertecnica
+7D518E45,458E517D,Amp Beat,supertecnica
+6E53E2B3,B3E2536E,Angel Ball,supertecnica
+68982058,58209868,Armadillo Circus,supertecnica
+7DD6FEF8,F8FED67D,Athena's Anthem,supertecnica
+7D536206,0662537D,Atlas Sword,supertecnica
+DCF43422,2234F4DC,Aurora Dribble,supertecnica
+0163608A,8A606301,Back Slash,supertecnica
+00A10ABD,BD0AA100,Ball Lightning,supertecnica
+1162A8AF,AFA86211,Bewilder Blast,supertecnica
+6B1CF436,36F41C6B,Bewildered,supertecnica
+DBFD9CFE,FE9CFDDB,Big Ball Trick,supertecnica
+74CC079C,9C07CC74,Big Fan,supertecnica
+D163B1F4,F4B163D1,Black Briars,supertecnica
+0F703132,3231700F,Black Magic,supertecnica
+84385EE2,E25E3884,Black Tide Ride,supertecnica
+C324C788,88C724C3,Blast Mine,supertecnica
+5DA7EA06,06EAA75D,Boomerang Bluff,supertecnica
+7207C577,77C50772,Boost Glider,supertecnica
+3E2A2611,11262A3E,Brachias Radiance,supertecnica
+3EC287DE,DE87C23E,Bubble Gum,supertecnica
+E75D333A,3A335DE7,Bull Steam Ahead,supertecnica
+D0A1DBC3,C3DBA1D0,Bungee Ball Burst,supertecnica
+E196F1D1,D1F196E1,Burning Bomb,supertecnica
+85FA34D5,D534FA85,Burning Claws,supertecnica
+6C155CEA,EA5C156C,Card-Slap,supertecnica
+17A96A44,446AA917,Clone Faker,supertecnica
+128D09E6,E6098D12,Crimson Pegasus Charge,supertecnica
+DA3FF6C9,C9F63FDA,Criss-Cross,supertecnica
+49041E53,531E0449,Crosscut Feint,supertecnica
+19BA3BFC,FC3BBA19,Dance on Air,supertecnica
+09BBF3D9,D9F3BB09,Dark Whirlwind,supertecnica
+3F00EDE9,E9ED003F,Dash Storm,supertecnica
+73C5AF40,40AFC573,Dash Accelerator,supertecnica
+01E41037,3710E401,Dazzling Carnival,supertecnica
+2D68DB57,57DB682D,Deceptive Step,supertecnica
+70417B2E,2E7B4170,Deceptor Dribble,supertecnica
+F94FAAA7,A7AA4FF9,Decoy Deploy,supertecnica
+9CE10594,9405E19C,Demon's Bolt,supertecnica
+7F15DC5F,5FDC157F,Desert Drift,supertecnica
+7748D3F2,F2D34877,Devil Ball,supertecnica
+AD53B378,78B353AD,Diffusal Chord,supertecnica
+8331F63E,3EF63183,Divine Dummy,supertecnica
+132416F6,F6162413,Dog Run,supertecnica
+FB0914FE,FE1409FB,Dohma Driller,supertecnica
+0CF4E55C,5CE5F40C,Double Touch,supertecnica
+39CB2F02,022FCB39,Dragster,supertecnica
+15EFD41D,1DD4EF15,Dual Pass,supertecnica
+62294D90,904D2962,Dust Kick,supertecnica
+6F918884,8488916F,Easy Breezy,supertecnica
+E0549BE6,E69B54E0,Easy Breezy Kid,supertecnica
+47380F29,290F3847,Echo Ball,supertecnica
+57BEB7B1,B1B7BE57,Endeavor Rush,supertecnica
+C9BAEA82,82EABAC9,Eye of the Storm,supertecnica
+00267A00,007A2600,Falcon Counter,supertecnica
+06458894,94884506,Feint Dash,supertecnica
+C16279D1,D17962C1,Field of Force,supertecnica
+5FE1545F,5F54E15F,Flame Veil,supertecnica
+B10794BC,BC9407B1,Flash Dash,supertecnica
+3C843987,8739843C,Flurry Dash,supertecnica
+B7CC5657,5756CCB7,Forked Edge,supertecnica
+D262F964,64F962D2,Format Disk,supertecnica
+142DBE2A,2ABE2D14,Foul Offence,supertecnica
+71831119,19118371,Foul Offence 2,supertecnica
+0A3F27B7,B7273F0A,Foul Offence 3,supertecnica
+193D4B41,414B3D19,Frost Finesse,supertecnica
+768AB9C5,C5B98A76,Frosticle,supertecnica
+2B8C597E,7E598C2B,Fugue Wave,supertecnica
+12E67CC1,C17CE612,Future Eye,supertecnica
+427719AC,AC197742,Gale Dash,supertecnica
+7C93E472,72E4937C,Ghoulish Glare,supertecnica
+0BFD4D80,804DFD0B,Grand Slam,supertecnica
+4EA586F0,F086A54E,Grand Glow,supertecnica
+C93F767C,7C763FC9,Grizzly Smash,supertecnica
+27311750,50173127,Gryphbang Smash,supertecnica
+5739C70C,0CC73957,Guided Collide,supertecnica
+7C910831,3108917C,Gusfii Bomb,supertecnica
+2A4E3349,49334E2A,Heart Beat,supertecnica
+0D368F6B,6B8F360D,Heaven's Time,supertecnica
+501F2F12,122F1F50,Heel Flick,supertecnica
+087999EE,EE997908,Heel Drop,supertecnica
+20D01E43,431ED020,Hey Presto,supertecnica
+C8FD1C4B,4B1CFDC8,Holograb,supertecnica
+D3A09353,5393A0D3,Hoopsie-Daisy,supertecnica
+567CDD86,86DD7C56,Hoopsie-Loop,supertecnica
+9F65D1FA,FAD1659F,Horse Sprint,supertecnica
+87BC8A8C,8C8ABC87,Hydro Flow,supertecnica
+C87880B5,B58078C8,Hyperdrive,supertecnica
+6ADE9E01,019EDE6A,Illusory Ball,supertecnica
+5B6C28ED,ED286C5B,Invisible Fake,supertecnica
+CB79C825,25C879CB,In-Line Stampede,supertecnica
+E3D04F88,884FD0E3,Jackknife,supertecnica
+D8794890,904879D8,Kangaroo Kick,supertecnica
+C0A013E6,E613A0C0,Liar Shot,supertecnica
+43B5739B,9B73B543,Lightning Bolt,supertecnica
+C2E6ADBF,BFADE6C2,Log Roll,supertecnica
+644ABF04,04BF4A64,Look! A Rice Ball,supertecnica
+B4488239,398248B4,Look! UFO,supertecnica
+660EED1E,1EED0E66,Low Scythe Slice,supertecnica
+695A4A6F,6F4A5A69,Magic,supertecnica
+9EA7BBCD,CDBBA79E,Magmire,supertecnica
+AC91D94F,4FD991AC,Major Miner,supertecnica
+FB0BF8BD,BDF80BFB,Marshal's Light,supertecnica
+750E6DAB,AB6D0E75,Matador Feint,supertecnica
+2B0B29C3,C3290B2B,Matrix Eye,supertecnica
+CABBA212,12A2BBCA,Menacing Glare,supertecnica
+3B8D915B,5B918D3B,Meteor Shower,supertecnica
+4031A7F5,F5A73140,Mole Fake,supertecnica
+DD365E15,155E36DD,Mole Shuffle,supertecnica
+DEB28A7B,7B8AB2DE,Monkey Turn,supertecnica
+BE3846EA,EA4638BE,Moon Bear Smash,supertecnica
+261BDCA8,A8DC1B26,Moonsault,supertecnica
+D1E62D0A,0A2DE6D1,Mushroom Hop,supertecnica
+6588D533,33D58865,Niagara Falls,supertecnica
+1F5EB9D5,D5B95E1F,Nutmeg,supertecnica
+0C1C4493,93441C0C,Pamerio Cabriole,supertecnica
+D024473D,3D4724D0,Peacock Radiance,supertecnica
+32101882,82181032,Peaky Breezy,supertecnica
+658A3970,70398A65,Pegasus Charge,supertecnica
+33550208,08025533,Pegasus Bolt,supertecnica
+4F67ECC7,C7EC674F,Phantasm Dribble,supertecnica
+A72377AB,AB7723A7,Phoenichias Radiance,supertecnica
+B60E3C60,603C0EB6,Plasma Cut,supertecnica
+3D4653B0,B053463D,Poison Fog,supertecnica
+27D9B69F,9FB6D927,Prima Donna,supertecnica
+64485347,47534864,Psi Arrow,supertecnica
+44BCDB47,47DBBC44,Pyroclastic,supertecnica
+457EB170,70B17E45,Pyrokinetic,supertecnica
+187851CB,CB517818,Rat-a-Tat Pass,supertecnica
+95151529,29151595,Redio Cabriole,supertecnica
+6DD736DD,DD36D76D,Ribbon Shower,supertecnica
+64CDCFB9,B9CFCD64,Rising Dragon,supertecnica
+DF70E04C,4CE070DF,Rodeo Clown,supertecnica
+58E8FC83,83FCE858,Rolling Hell,supertecnica
+41F3CDC2,C2CDF341,Scorching Tackle,supertecnica
+56FBAD3B,3BADFB56,Seal Matrix,supertecnica
+E21225BF,BF2512E2,Serow Cabriole,supertecnica
+AED76716,1667D7AE,Shadow Sword,supertecnica
+FACB7EC9,C97ECBFA,Shiny Feathers,supertecnica
+FE46027B,7B0246FE,Short Circuit,supertecnica
+B58AE80E,0EE88AB5,Silk Road,supertecnica
+2296A01A,1AA09622,Southern Cross,supertecnica
+A81CA5FD,FDA51CA8,Sparky Spin,supertecnica
+650FA58E,8EA50F65,Spin Out,supertecnica
+CC7060F9,F96070CC,Starstruck,supertecnica
+38094535,35450938,Sub-Terfuge,supertecnica
+5E233E68,683E235E,Super Elastico,supertecnica
+166B0073,73006B16,Super Armadillo,supertecnica
+AF150D21,210D15AF,Swallow Counter,supertecnica
+9D236FA3,A36F239D,Sword of the King,supertecnica
+3A4FFB6C,6CFB4F3A,The Ikaros,supertecnica
+67CC8729,2987CC67,The Tempest,supertecnica
+C5EF0563,6305EFC5,Three-Legged Rush,supertecnica
+7C1494CF,CF94147C,Tornado Tunnel,supertecnica
+4E22F64D,4DF6224E,Transporter Device,supertecnica
+5AAE42DA,DA42AE5A,Triple Dash,supertecnica
+21127474,74741221,Ultra Moon,supertecnica
+E862E16C,6CE162E8,Univolt Sprint,supertecnica
+867EE0BB,BBE07E86,Verdure Vortex,supertecnica
+10A0C298,98C2A010,Warp Drive,supertecnica
+3297683F,3F689732,Warp Step,supertecnica
+46FA651E,1E65FA46,Water Veil,supertecnica
+C7A9BB3A,3ABBA9C7,Whirlwind Cut,supertecnica
+259F08C6,C6089F25,Whirlwind Twister,supertecnica
+2354CA2D,2DCA5423,Wind God's Dance,supertecnica
+F88DC090,90C08DF8,Z Slash,supertecnica
+C66BD10D,0DD16BC6,Zigzag Spark,supertecnica
+8C0E2468,68240E8C,Zooma Driller,supertecnica
+55C71D2A,2A1DC755,About Face,supertecnica
+C41097D5,D59710C4,Acrobotics,supertecnica
+B37CD264,64D27CB3,Am-Bush,supertecnica
+B8A509A7,A709A5B8,Asterocks,supertecnica
+514A6198,98614A51,Asteroid Belt,supertecnica
+924A3053,53304A92,Aurora Arrow,supertecnica
+2AF65736,3657F62A,Bamboo Pattern,supertecnica
+34E4CEAB,ABCEE434,Barbarian Shield,supertecnica
+F5A22139,3921A2F5,Bindweed,supertecnica
+7EEA4EE9,E94EEA7E,Blade Attack,supertecnica
+485150D9,D9505148,Body Shield,supertecnica
+F0ED37BC,BC37EDF0,Buffalo Crusher,supertecnica
+37601AC5,C51A6037,Card Shark,supertecnica
+179492C5,C5929417,Center Scythe Slice,supertecnica
+31ABD82E,2ED8AB31,Circus Block,supertecnica
+1A868BED,ED8B861A,Clone Defence,supertecnica
+4F58F805,05F8584F,Coil Turn,supertecnica
+0A02DF36,36DF020A,Containment Field,supertecnica
+A23AEC88,88EC3AA2,Copy Cut,supertecnica
+75994916,16499975,Cunning Pull,supertecnica
+3AD8DFD1,D1DFD83A,Curving Cut,supertecnica
+2B343D01,013D342B,Cyclone,supertecnica
+A9E3374B,4B37E3A9,Cyclone Sprint,supertecnica
+1EE35690,9056E31E,Dandrol Crusher,supertecnica
+3DFE37CF,CF37FE3D,Dark Space,supertecnica
+6AE18AC3,C38AE16A,Dark Mist,supertecnica
+613ABD43,43BD3A61,Dawnrise,supertecnica
+3D794772,7247793D,Deep Diver,supertecnica
+01DB04F5,F504DB01,Defence Scan,supertecnica
+ED7B7A4F,4F7A7BED,Defence Equation,supertecnica
+AA67E325,25E367AA,Desert Blast,supertecnica
+06D2AC29,29ACD206,Diabolical Cut,supertecnica
+B4757AB8,B87A75B4,Divine Stamp,supertecnica
+BFACA17B,7BA1ACBF,Dolphanus Splash,supertecnica
+33ED6677,7766ED33,Doppelganger,supertecnica
+B7F1AED6,D6AEF1B7,Double Cyclone,supertecnica
+5992F2CB,CBF29259,Dragon Storm,supertecnica
+73FABB82,82BBFA73,Dramatic Swipe,supertecnica
+7F2824DE,DE24287F,Dual Storm,supertecnica
+78218C02,028C2178,Duskfall,supertecnica
+00196EC2,C26E1900,Earthquake,supertecnica
+E8346CCA,CA6C34E8,Easter Island Header,supertecnica
+F626F557,57F526F6,Electric Impedance,supertecnica
+ACAC21CE,CE21ACAC,Fake Ball,supertecnica
+4D1E465C,5C461E4D,Fake Bomber,supertecnica
+F4604B0E,0E4B60F4,Fancy-Footwork,supertecnica
+DF4D18CD,CD184DDF,Feather Duster,supertecnica
+08EEBD53,53BDEE08,Feint Play,supertecnica
+93885A64,645A8893,Fire Drill,supertecnica
+7A67325B,5B32677A,Flame Dance,supertecnica
+ACC754E9,E954C7AC,Flamey Mirage,supertecnica
+0D0B77EA,EA770B0D,Floral Fiesta,supertecnica
+7238D1B5,B5D13872,Foil Formula,supertecnica
+8C58A9CE,CEA9588C,Formidable Fortress,supertecnica
+24627633,33766224,Fortress of Despair,supertecnica
+DBC0647F,7F64C0DB,Fox Mirage,supertecnica
+24E5068E,8E06E524,Fractal Repeller,supertecnica
+C3193F09,093F19C3,Frankenstun,supertecnica
+50880BAF,AF0B8850,Frozen Steal,supertecnica
+87EA072A,2A07EA87,Gandoran Crusher,supertecnica
+A6B7903A,3A90B7A6,Garius Bounce,supertecnica
+18C035B4,B435C018,Ghost Pull,supertecnica
+8A936B25,256B938A,Goopy Gloopy Goo,supertecnica
+0FC8554D,4D55C80F,Grand Finale,supertecnica
+60F8D774,74D7F860,Gravestone,supertecnica
+6633159F,9F153366,Gravitation,supertecnica
+9481F2B8,B8F28194,Gravity Cage,supertecnica
+BBA44137,3741A4BB,Great Wall,supertecnica
+2DFFFFEA,EAFFFF2D,Ground Quake,supertecnica
+07F867D1,D167F807,Gyorom Claw,supertecnica
+D1B0A0AC,ACA0B0D1,Gyrius Bounce,supertecnica
+AD6E4BF9,F94B6EAD,Harvest,supertecnica
+28B0E96F,6FE9B028,Heavy Mettle,supertecnica
+7CACF0B0,B0F0AC7C,Horn Train,supertecnica
+B5DC65A8,A865DCB5,Horned Owl Swipe,supertecnica
+4A17EE80,80EE174A,Hunter's Net,supertecnica
+15D22C9C,9C2CD215,Hunter's Spear,supertecnica
+5781A373,73A38157,Hurricane Arrows,supertecnica
+A37D1A41,411A7DA3,Hyper-Swiper,supertecnica
+ABA58912,1289A5AB,Ignited Steal,supertecnica
+52CEB5F6,F6B5CE52,Iron Wall,supertecnica
+88D5D57C,7CD5D588,Judgement Ray,supertecnica
+17110E3B,3B0E1117,Jumbo Sandwich,supertecnica
+EEFFAE21,21AEFFEE,Jungle Jam,supertecnica
+6A66FA7E,7EFA666A,Killer Whale,supertecnica
+5643C944,44C94356,Killer Slide,supertecnica
+91CC087E,7E08CC91,Kraken Seaquake,supertecnica
+9EF1366B,6B36F19E,Kulupe Claw,supertecnica
+A1BE38E6,E638BEA1,La Flamme,supertecnica
+039DBAAC,ACBA9D03,Land of Ice,supertecnica
+0BC0B501,01B5C00B,Last Lion of Defence,supertecnica
+0F4DC9B3,B3C94D0F,Logicstical Sync,supertecnica
+7BA5586C,6C58A57B,Mad Express,supertecnica
+900C8E0A,0A8E0C90,Maestro's Call,supertecnica
+F7E49F60,609FE4F7,Magnetism,supertecnica
+3C3C5DF8,F85D3C3C,Master Stroke,supertecnica
+67F17FA8,A87FF167,Mega Quake,supertecnica
+1E0BF75F,5FF70B1E,Mega Wall,supertecnica
+41CCD900,00D9CC41,Metal Hammer,supertecnica
+6BA49049,4990A46B,Mystic Mist,supertecnica
+530CDFC1,C1DF0C53,Mystifying Mist,supertecnica
+637C031A,1A037C63,No Escape,supertecnica
+C5D2FDE2,E2FDD2C5,Oglitteration,supertecnica
+DD0BA694,94A60BDD,Okehazama Ravine,supertecnica
+141046AB,AB461014,Overnight Fortress,supertecnica
+C2DB553E,3E55DBC2,Owl Swipe,supertecnica
+B0F8060A,0A06F8B0,Ozone Flayer,supertecnica
+737DCB3F,3FCB7D73,Pancake Defence,supertecnica
+B9676390,906367B9,Particle Accelerator,supertecnica
+49933AEE,EE3A9349,Perfect Tower,supertecnica
+0710C61E,1EC61007,Perimeter Zone,supertecnica
+91CEE43D,3DE4CE91,Phalanx,supertecnica
+B633C4E1,E1C433B6,Photon Crash,supertecnica
+414BA9BD,BDA94B41,Pincer Pinch,supertecnica
+29728358,58837229,Planet Shield,supertecnica
+4BD584B7,B784D54B,Power Charge,supertecnica
+1656F8F2,F2F85616,Psychic Lift,supertecnica
+BA662B00,002B66BA,Pterrordactyl Swoop,supertecnica
+19025F83,835F0219,Quick Draw,supertecnica
+79E3E635,35E6E379,Racing Flame,supertecnica
+E9F606FD,FD06F6E9,Ratel Claw,supertecnica
+12DB8440,4084DB12,Red Hot Shower,supertecnica
+3526A49C,9CA42635,Road Roller,supertecnica
+A3F886BF,BF86F8A3,Rock Hammer,supertecnica
+6C827857,5778826C,Rolling Steal,supertecnica
+36A270F2,F270A236,Rolling Slide,supertecnica
+58D7E841,41E8D758,Runaway Bull,supertecnica
+05567847,47785605,Runaway Train,supertecnica
+16D3640C,0C64D316,Scattershot,supertecnica
+0CC91DDD,DD1DC90C,Shadow Guard,supertecnica
+B5B7108F,8F10B7B5,Shadow Stitch,supertecnica
+4CDC2C6B,6B2CDC4C,Shooting Star,supertecnica
+23C3EE90,90EEC323,Shoulder Tackle,supertecnica
+DA020E48,480E02DA,Shoulder Tackle,supertecnica
+A2BF7076,7670BFA2,Side Swipe,supertecnica
+AEEA9F97,979FEAAE,Sigma Zone,supertecnica
+EF3DC416,16C43DEF,Skytree Hop,supertecnica
+2C3D95DD,DD953D2C,Sleeping Dust,supertecnica
+585098FC,FC985058,Slice and Dice,supertecnica
+1FC99D68,689DC91F,Snow Angel,supertecnica
+25276CB9,B96C2725,Solar Surprise,supertecnica
+C656298C,8C2956C6,Sordid Thorns,supertecnica
+0E0A3F7A,7A3F0A0E,Spatial Portal,supertecnica
+322F0C40,400C2F32,Spider Web,supertecnica
+4E9A9232,32929A4E,Spinning Cut,supertecnica
+BAE3B7FE,FEB7E3BA,Stealth Step,supertecnica
+2FB941B3,B341B92F,Stone Prison,supertecnica
+1B44E1DA,DAE1441B,Stone Wall,supertecnica
+65B7C1F1,F1C1B765,Sumo Stomp,supertecnica
+3069B219,19B26930,Super Sumo Stomp,supertecnica
+5405771D,1D770554,Supreme Spin,supertecnica
+DCC9CCA3,A3CCC9DC,Tesla Coil,supertecnica
+0F4F25F0,F0254F0F,The Stronghold,supertecnica
+7D6E9A87,879A6E7D,The Wall,supertecnica
+A8215D7C,7C5D21A8,The Mountain,supertecnica
+AF28F5A0,A0F528AF,The Tower,supertecnica
+2E7B2B84,842B7B2E,Thief's Eye,supertecnica
+4089C38A,8AC38940,Titanic Slam,supertecnica
+9543988F,8F984395,Tornado Barrier,supertecnica
+8B510112,1201518B,Tortoise Shield,supertecnica
+BB21DDC9,C9DD21BB,Trina Tumble,supertecnica
+400EB337,37B30E40,Twirling Turtle,supertecnica
+8D9AC3F9,F9C39A8D,Twister Trap,supertecnica
+DE8F72FA,FA728FDE,Under Miner,supertecnica
+BE6ECB4C,4CCB6EBE,Ursa Binder,supertecnica
+04941270,70129404,Vac Attack,supertecnica
+A07C52D1,D1527CA0,Valkyrie's Signal,supertecnica
+88D7393F,3F39D788,Vigorous Stomp,supertecnica
+ECB91078,7810B9EC,Volcanic Flight,supertecnica
+025FD09B,9BD05F02,Volcano Cut,supertecnica
+72BFA108,08A1BF72,Wall of Atlantis,supertecnica
+F12F5D8B,8B5D2FF1,Wall for One,supertecnica
+0E8FA384,84A38F0E,Warsaw,supertecnica
+C79443BB,BB4394C7,Waterfall,supertecnica
+B2BEB853,53B8BEB2,Whale Guard,supertecnica
+1C4D4906,06494D1C,Whirlpool,supertecnica
+62BE692D,2D69BE62,Whirlwind Force,supertecnica
+8917BF4B,4BBF1789,Willy-Willy,supertecnica
+1D8F2331,31238F1D,Yo-Yo Ball,supertecnica
+B13A6C3D,3D6C3AB1,Zigzag Flame,supertecnica
+CD6AEF2D,2DEF6ACD,All-Star,supertecnica
+F400CA92,92CA00F4,Anchors Aweigh,supertecnica
+FE1B7B66,667B1BFE,Angydra Combo,supertecnica
+D9E65BBA,BA5BE6D9,Aurora Curtain,supertecnica
+422A60B1,B1602A42,Barrier Reef,supertecnica
+2FD9C02F,2FC0D92F,Bastion Block,supertecnica
+9765A74A,4AA76597,Beast Fang,supertecnica
+66539403,03945366,Behind Bars,supertecnica
+023F5107,07513F02,Bigman's Hammer,supertecnica
+46A71C03,031CA746,Black Hole,supertecnica
+8FBCFC3C,3CFCBC8F,Blazing Knuckle,supertecnica
+615A3CDF,DF3C5A61,Bounce Handler,supertecnica
+2D9F7E76,767E9F2D,Breath Taker,supertecnica
+4AF2F3E2,E2F3F24A,Bridge to Nowhere,supertecnica
+FA9607D4,D40796FA,Burning Bulwark,supertecnica
+37009B59,599B0037,Burnout Burst,supertecnica
+EF5D458A,8A455DEF,Burnout,supertecnica
+53E9C2A3,A3C2E953,Capable Hands,supertecnica
+F5C2A0A5,A5A0C2F5,Capoeira Grab,supertecnica
+DEEFF366,66F3EFDE,Card Protector,supertecnica
+89773ED7,D73E7789,Celestial Zone,supertecnica
+10151A4A,4A1A1510,Cerbegyra Combo,supertecnica
+BC48F489,89F448BC,Claw Slash,supertecnica
+E6C22010,1020C2E6,Claw de Force,supertecnica
+A553C5C8,C8C553A5,Clone Block,supertecnica
+DF2D9951,51992DDF,Close Counter,supertecnica
+A3980723,230798A3,Colosseum Guard,supertecnica
+C636A810,10A836C6,Combustion Catch,supertecnica
+C379BE95,95BE79C3,Counter Strike,supertecnica
+35462500,00254635,Crescent Cross,supertecnica
+D5B3B45B,5BB4B3D5,Crimson Sphere,supertecnica
+2E1BAA18,18AA1B2E,Crocodile Crush,supertecnica
+FE9EE798,98E79EFE,Crown Fire,supertecnica
+41AEB4DF,DFB4AE41,Crystal Barrier,supertecnica
+9A755221,2152759A,Cyber Realm,supertecnica
+25A904FC,FC04A925,Dalphonus Sonar,supertecnica
+36C2F16E,6EF1C236,Dark Reversal,supertecnica
+52AE346A,6A34AE52,Delpinus Sonar,supertecnica
+57E122EF,EF22E157,Desecrater,supertecnica
+7D0E1B1B,1B1B0E7D,Diamond Hand,supertecnica
+28D068F3,F368D028,Diamond Arm,supertecnica
+562348D8,D8482356,Diamond Knuckle,supertecnica
+93E8DBF8,F8DBE893,Dimensional Hand,supertecnica
+79818BEA,EA8B8179,Divine Deflectors,supertecnica
+A5BB6407,0764BBA5,Dolmega Stomp,supertecnica
+EA12530F,0F5312EA,Double Rocket,supertecnica
+FC5DC53F,3FC55DFC,Double God Hand,supertecnica
+04F493EC,EC93F404,Dragon Rage Dunk,supertecnica
+8E7E960B,0B967E8E,Drill Smasher,supertecnica
+F309624E,4E6209F3,Dual Smash,supertecnica
+E546F47E,7EF446E5,Dust Devil,supertecnica
+906C0F96,960F6C90,Electric Trap,supertecnica
+F8D0B98D,8DB9D0F8,Fantastic Save,supertecnica
+F7841EFC,FC1E84F7,Fiend Hand,supertecnica
+ED1BFBD3,D3FB1BED,Fingers of Gaia,supertecnica
+BE0E4AD0,D04A0EBE,Fireball Knuckle,supertecnica
+C0FD6AFB,FB6AFDC0,Fireball Head,supertecnica
+50E88A33,338AE850,Fist Beam,supertecnica
+F64674CB,CB7446F6,Fist of Justice,supertecnica
+47657634,34766547,Flame Breath,supertecnica
+DCA94D3F,3F4DA9DC,Flash Upper,supertecnica
+01BB8569,6985BB01,Flood of Feels,supertecnica
+C13F00CC,CC003FC1,Flower Power,supertecnica
+324F8DDC,DC8D4F32,Force Shield,supertecnica
+A6D711A6,A611D7A6,Full Power Shield,supertecnica
+4EFA13AE,AE13FA4E,Fur Trapper,supertecnica
+88B554E0,E054B588,Galatyn,supertecnica
+91AE65A1,A165AE91,Giant Spider,supertecnica
+B1DF715F,5F71DFB1,Giga Knuckle Sandwich,supertecnica
+512AE004,04E02A51,Gigabite Geyser,supertecnica
+DBA0E5E3,E3E5A0DB,Gigant Wall,supertecnica
+E7004A27,274A00E7,Gigiras Shield,supertecnica
+FFD91151,5111D9FF,Goal Gobbler,supertecnica
+EE9F2FBD,BD2F9FEE,God Catch,supertecnica
+9EF5DB32,32DBF59E,God Catch FT,supertecnica
+43E80A86,860AE843,God Hand EV,supertecnica
+5AF33BC7,C73BF35A,God Hand (Green),supertecnica
+8C382852,5228388C,God Hand (Yellow),supertecnica
+31CB59B2,B259CB31,God Hand (Red),supertecnica
+E1CB88CC,CC88CBE1,God Hand of Friendship,supertecnica
+E647BCEE,EEBC47E6,God Hand V,supertecnica
+B8C5883B,3B88C5B8,God Hand X,supertecnica
+798367A9,A9678379,Gorius Swing,supertecnica
+65D7406D,6D40D765,Grabber Arm,supertecnica
+9AF2229C,9C22F29A,Gravity Point,supertecnica
+CC2FF5A7,A7F52FCC,Gravity Dune,supertecnica
+90077AB1,B17A0790,Grimron Shield,supertecnica
+18A0B428,28B4A018,Gutsy Grit Punch,supertecnica
+06B22DB5,B52DB206,Gyro-Blocker,supertecnica
+8AF3EAB9,B9EAF38A,Hammer of Fury,supertecnica
+5977EFA9,A9EF7759,High Voltage,supertecnica
+4A776F1C,1C6F774A,Hydro Breath,supertecnica
+C4701649,491670C4,Ice Block,supertecnica
+B15801E2,E20158B1,Icy Grace,supertecnica
+E785D6D9,D9D685E7,Inferno Fist,supertecnica
+BD8A9EBE,BE9E8ABD,Infinite Wall,supertecnica
+62DEE8B1,B1E8DE62,Jumping Whack,supertecnica
+4523C86D,6DC82345,Killer Blade,supertecnica
+179F667E,7E669F17,Kosfii Burst,supertecnica
+CCA8851A,1A85A8CC,Lucky Dice,supertecnica
+7CCC712C,2C71CC7C,Lunar Eclipse,supertecnica
+2A96D6AA,AAD6962A,Maelstrom the Hand,supertecnica
+3CB235BD,BD35B23C,Magnatas Stomp,supertecnica
+1B246046,4660241B,Majin the Wave,supertecnica
+83E913DD,DD13E983,Majin the Hand,supertecnica
+522BA894,94A82B52,Majin the Great,supertecnica
+1962DE1F,1FDE6219,Majin Merge,supertecnica
+A491AFFF,FFAF91A4,Majin the Hand,supertecnica
+DD6B2708,08276BDD,Majin the Hand,supertecnica
+4BB5052B,2B05B54B,Mammoth Stomp,supertecnica
+30093385,85330930,Marinara Barrier,supertecnica
+4D7EC7C0,C0C77E4D,Maw-Ment of Truth,supertecnica
+7F48A542,42A5487F,Mega Majin Trio,supertecnica
+FB546DE3,E36D54FB,Mega Majin,supertecnica
+1C2DC89A,9AC82D1C,Menace Elbow,supertecnica
+338DE7EB,EBE78D33,Mermaid's Veil,supertecnica
+CB8E6D04,046D8ECB,Mighty Save,supertecnica
+BA833662,623683BA,Million Hands,supertecnica
+5C38F92C,2CF9385C,Mistral,supertecnica
+609856E8,E8569860,Mossfii Burst,supertecnica
+F2CB0879,7908CBF2,Mugen the Hand,supertecnica
+BB415C55,555C41BB,Needle Hammer,supertecnica
+1FA91CF4,F41CA91F,Negative Feedback,supertecnica
+5B3151F0,F051315B,Nitro Slap,supertecnica
+406CDEE8,E8DE6C40,Omega Hand,supertecnica
+1E6B76C3,C3766B1E,Penguin the Hand,supertecnica
+64152A5A,5A2A1564,Pinch and Save,supertecnica
+A7157B91,917B15A7,Power Shield,supertecnica
+B01D1B68,681B1DB0,Power Spike,supertecnica
+D2955C45,455C95D2,Power Catch,supertecnica
+44E1A25A,5AA2E144,Pressure Punch,supertecnica
+B907E20C,0CE207B9,Procyon Net,supertecnica
+49F3BB72,72BBF349,Psychlone,supertecnica
+5465F681,81F66554,Raiser Blade,supertecnica
+07704782,82477007,Rejection,supertecnica
+E9968761,618796E9,Rocket Kobushi,supertecnica
+7BC5D9F0,F0D9C57B,Rotary Sander,supertecnica
+FE199725,259719FE,Royal Shield,supertecnica
+609ABAAB,ABBA9A60,Sacred Embrace,supertecnica
+922AB1CF,CFB12A92,Safety First,supertecnica
+0536F9DB,DBF93605,Sand Blaster,supertecnica
+891C4BF0,F04B1C89,Saranarja Combo,supertecnica
+4063C70A,0AC76340,Sauced-up Marinara Barrier,supertecnica
+E24F5CA2,A25C4FE2,Savage Beast Fang,supertecnica
+9B3048AB,AB48309B,Shadow Catch,supertecnica
+4831D145,45D13148,Shadow Hand,supertecnica
+291202C4,C4021229,Shadow Shield,supertecnica
+C7F4C227,27C2F4C7,Shot Trap,supertecnica
+F14FDC17,17DC4FF1,Shot Pocket,supertecnica
+FF5C8DAF,AF8D5CFF,Shot Stopper,supertecnica
+D534C4E6,E6C434D5,Silent Inkstroke,supertecnica
+DA628FD4,D48F62DA,Sliding Goal,supertecnica
+D471DE6C,6CDE71D4,Snakebite,supertecnica
+822B79EA,EA792B82,Somersault Stamp,supertecnica
+2C5D1441,41145D2C,Song of the Three Kingdoms,supertecnica
+A1DEB97A,7AB9DEA1,Soul Hand,supertecnica
+836E6360,60636E83,Stillness Drip,supertecnica
+4B3099D5,D599304B,Stomper Stopper,supertecnica
+7A07B3C7,C7B3077A,Stop it Poppet,supertecnica
+C5B27C7E,7E7CB2C5,Storm Rider,supertecnica
+F9B80F86,860FB8F9,Strong Punch,supertecnica
+4F387999,9979384F,Sun Block,supertecnica
+1AE60A71,710AE61A,Super God Hand,supertecnica
+631C8286,86821C63,Superior Crayon Power,supertecnica
+D824318D,8D3124D8,Swan Dive,supertecnica
+5E7E4775,75477E5E,Table-Turner,supertecnica
+A01CD34D,4DD31CA0,Temporal Wall,supertecnica
+A25A6D14,146D5AA2,The End,supertecnica
+ECD991E4,E491D9EC,The Stinger,supertecnica
+E702A664,64A602E7,Tiger God Hand,supertecnica
+A8C4401E,1E40C4A8,Titanic Shield,supertecnica
+94E17324,2473E194,Tornado Catch,supertecnica
+8DFA4265,6542FA8D,Toughness Block,supertecnica
+E38D3695,95368DE3,Tricera Stops,supertecnica
+5DFA931B,1B93FA5D,Triple Defence,supertecnica
+5FBC2D42,422DBC5F,Triple God Hand,supertecnica
+96A7CD7D,7DCDA796,Tsunami Wall,supertecnica
+FD9FAF08,08AF9FFD,Twist 'n' Clout,supertecnica
+A9062A29,292A06A9,Ultrasonic,supertecnica
+EBD03938,3839D0EB,Utter Gutsiness Catch,supertecnica
+78410D9E,9E0D4178,Venus Balltrap,supertecnica
+536C5E5D,5D5E6C53,Volcano Head,supertecnica
+E854ED56,56ED54E8,Warp Space,supertecnica
+1DEFA2AD,ADA2EF1D,We Have Liftoff!,supertecnica
+0079EF5E,5EEF7900,Wetsuit,supertecnica
+58B5859E,9E85B558,Whip Crack,supertecnica
+F08DB620,20B68DF0,Whirlwind,supertecnica
+34844F37,374F8434,White Hole,supertecnica
+C2BBD4A2,A2D4BBC2,Wild Claw,supertecnica
+E4849E49,499E84E4,Wild Dunk,supertecnica
+BFCC20E7,E720CCBF,Wood Chopper,supertecnica
+8B31808E,8E80318B,Wormhole,supertecnica
+347FC964,64C97F34,Armoured Cavalry Black Knight,supertecnica
+9B4E5206,06524E9B,Armoured Cavalry White Knight,supertecnica
+EEC583CC,CC83C5EE,Barbaric Beast of the Abyss Atlanticus,supertecnica
+7046AE42,42AE4670,Bob-Tailed Bombshell Loverette,supertecnica
+3639773D,3D773936,Brave Samurai Musashi,supertecnica
+66A81250,5012A866,Bringer of Dreams Sand Man,supertecnica
+9036A3E7,E7A33690,Capricious Trickster Serendipity,supertecnica
+0BDE2E30,302EDE0B,Crown Prince of Chaos Ashtaroth,supertecnica
+F30EB722,22B70EF3,Cursed Wolf Lycaon,supertecnica
+8013DD1E,1EDD1380,Dark Demigod Black Butcher,supertecnica
+DA3823A5,A52338DA,Defender of Earth Atlas,supertecnica
+EA48FF7E,7EFF48EA,Dicey Dicer Lot,supertecnica
+3FE225E7,E725E23F,Discordian Witch Eris,supertecnica
+0181A884,84A88101,Divine Messenger Black Bishop,supertecnica
+56196535,35651956,Divine Messenger White Bishop,supertecnica
+65ED6D80,806DED65,Drake Chevalier Dragoon,supertecnica
+F1157066,667015F1,Duke of Doom Demogorgon,supertecnica
+BE7EDAD0,D0DA7EBE,Entertainer,supertecnica
+F08A634C,4C638AF0,Faster Than Light Tachyon,supertecnica
+4C472BA4,A42B474C,Feathers of Flames Firebird,supertecnica
+77127F83,837F1277,Femme Fatale Sirena,supertecnica
+555C1AE5,E51A5C55,Ferocious Bird of Fable Roc,supertecnica
+28522161,61215228,Fiery Hellhound Dire Wolf,supertecnica
+4A8CE94F,4FE98C4A,Fire Jotun Surtr,supertecnica
+D66DCC44,44CC6DD6,Foxy Mischief-Maker Daji,supertecnica
+60A27B05,057BA260,Frenzied Fighter Berserker,supertecnica
+59703AC5,C53A7059,Front-Line Fighter Black Pawn,supertecnica
+F641A1A7,A7A141F6,Front-Line Fighter White Pawn,supertecnica
+BC1258F8,F85812BC,Giant Usurper Gigante,supertecnica
+F5980CD4,D40C98F5,Gigantic Garrison Gargantua,supertecnica
+64EEAC09,09ACEE64,Goddess of Just Warfare Athene,supertecnica
+03C716DD,DD16C703,Grand Inquisitor Judge,supertecnica
+62256EE2,E26E2562,Heavenly Horse Arch Pegasus,supertecnica
+955D03BE,BE035D95,Heavenly Horse Arch Pegasus Red,supertecnica
+7978E1FA,FAE17879,Heroic Swordsman Lancelot,supertecnica
+7200101B,1B100072,High Roller Las Vega,supertecnica
+2CA69212,1292A62C,Holy Sword Paladin Arthur,supertecnica
+13077546,46750713,Hunter of Glory Asura,supertecnica
+EE98FAD1,D1FA98EE,Hypersonic Fighter Scramjet,supertecnica
+A200C165,65C100A2,Infernal Dragon Lord Koro-Koro-Gon,supertecnica
+F61CD8BA,BAD81CF6,Jewelled Dragon Cychr,supertecnica
+701BD75F,5FD71B70,King of Beasts Leon,supertecnica
+0A1C4407,07441C0A,Lady of Artifice Metis,supertecnica
+1BA629D4,D429A61B,Leonine Warlord Khmet,supertecnica
+185B327B,7B325B18,Light-Speed Knight Sir Rabby,supertecnica
+9C30BFB6,B6BF309C,Light-Speed Paladin Sir Rabby,supertecnica
+43EFDFEA,EADFEF43,Living Nightmare Phantasma,supertecnica
+455DD2C0,C0D25D45,Lord of Daemons Evera,supertecnica
+3130DFE1,E1DF3031,Lord of All Waters Neptune,supertecnica
+49083D21,213D0849,Lord of Birds and Beasts Griffin,supertecnica
+0ABB2633,3326BB0A,Man-Made Monster Plasma Shadow GK,supertecnica
+7C37F77F,7FF7377C,Man-Made Monster Plasma Shadow SH,supertecnica
+7F240509,0905247F,Man-Made Monster Plasma Shadow AT,supertecnica
+8CEAA470,70A4EA8C,Man-Made Monster Plasma Shadow DF,supertecnica
+2EE02C4B,4B2CE02E,Master Magician Trickster,supertecnica
+6063D0BB,BBD06360,Master Conductor Maestro,supertecnica
+88EFF891,91F8EF88,Metal Mammoth Behemoth,supertecnica
+037F72A2,A2727F03,Midnight Sun-Bringer Glenr,supertecnica
+D7AFA673,73A6AFD7,Patron Saint of Swots The Stationer,supertecnica
+49C9969F,9F96C949,Prehistoric Chieftain Jagwarrior,supertecnica
+9E014483,8344019E,Prince of the Astral Plane Zodiac,supertecnica
+D70F1F1E,1E1F0FD7,Proto-Entertainer,supertecnica
+50130C60,600C1350,Raven Wings Corvus,supertecnica
+81D1B729,29B7D181,Royal Enchantress Black Queen,supertecnica
+7AFC3594,9435FC7A,Royal Enchantress White Queen,supertecnica
+61A1BA8C,8CBAA161,Ruler of the Seven Seas Poseidon,supertecnica
+9908EC5F,5FEC0899,Sacred Serpent White Wyvern,supertecnica
+D3712971,712971D3,Sacred Lance Clearbunny,supertecnica
+1958F3F2,F2F35819,Shadow Shooter Trigger,supertecnica
+8D8458C8,C858848D,Silver-Tempered Queen Argentia,supertecnica
+83970970,70099783,Snow Nymph Chione,supertecnica
+50D2A7DE,DEA7D250,Sorceress of the Dawn Amaterasu,supertecnica
+56D8CE8B,8BCED856,Sovereign of the Skies Feng-Huang,supertecnica
+2C6739AC,AC39672C,Standard-Bearer Brynhildr,supertecnica
+8C4632FF,FF32468C,Star-Crossed Souls The Lovers Male,supertecnica
+86D81FF5,F51FD886,Star-Crossed Souls The Lovers Female,supertecnica
+687AE856,56E87A68,Storm-Bringer Raiden,supertecnica
+2F22467C,7C46222F,Sun Deity Apollo,supertecnica
+78BA8BCD,CD8BBA78,Supernatural Wingman Thunderbird,supertecnica
+29E98497,9784E929,Supreme War Chief Pendragon,supertecnica
+BB1BF024,24F01BBB,The Great Genie Majin,supertecnica
+F85C7AB2,B27A5CF8,The Triumph Goddess Victoria,supertecnica
+CF76FD05,05FD76CF,The Undying Warden Arges,supertecnica
+B71DEC75,75EC1DB7,The Victory Genie Majin,supertecnica
+5FBBF82E,2EF8BB5F,Thin Air Slasher Sickle Weasel,supertecnica
+F353CE3F,3FCE53F3,Tin Titan Goliath,supertecnica
+FD409F87,879F40FD,Volcanic Wyrm Vritra,supertecnica
+9BF8BCD4,D4BCF89B,Wall Titan Warborg,supertecnica
+308B7A17,177A8B30,Warrior of the East Qinglong,supertecnica
+1E515B2E,2E5B511E,Warrior of the North Xuanwu,supertecnica
+8A4C5BAA,AA5B4C8A,Warrior of the South Zhuque,supertecnica
+29904B56,564B9029,Warrior of the West Baihu,supertecnica
+189A99C5,C5999A18,Watchtower Sentinel Black Rook,supertecnica
+4F025474,7454024F,Watchtower Sentinel White Rook,supertecnica
+70A3B320,20B3A370,Winged Serpent Kukulkan,supertecnica
+264170D9,D9704126,Winged Steed Pegasus,supertecnica
+774F069E,9E064F77,Wise Monarch Black King,supertecnica
+8C628423,2384628C,Wise Monarch White King,supertecnica
+282BEEA0,A0EE2B28,Wisecracking Whiz Jester,supertecnica
+925B9AA5,A59A5B92,All Out Mode,supertecnica
+74E055EB,EB55E074,Aspect A Mode,supertecnica
+0312FC4D,4DFC1203,Brutal Persona Mode,supertecnica
+2B663F07,073F662B,Burning Rage Mode,supertecnica
+E820D133,33D120E8,Graceful Guise Mode,supertecnica
+03D98821,2188D903,Lord Aphrody Mode,supertecnica
+74FBBD29,29BDFB74,Queen Mode,supertecnica
+D1B66D0A,0A6DB6D1,Sweet Mask Mode,supertecnica
+03204C39,394C2003,Wild Lion Mode,supertecnica
+3F3E0D48,480D3E3F,Armoured Cavalry White Knight,supertecnica
+48393DDE,DE3D3948,Armoured Cavalry White Knight,supertecnica
+D1306C64,646C30D1,Armoured Cavalry White Knight,supertecnica
+E708A6BC,BCA608E7,Armoured Cavalry Black Knight,supertecnica
+4AB5DC82,82DCB54A,Barbaric Beast of the Abyss Atlanticus,supertecnica
+D436F10C,0CF136D4,Bob-Tailed Bombshell Loverette,supertecnica
+92492873,73284992,Brave Samurai Musashi,supertecnica
+E54E18E5,E5184EE5,Brave Samurai Musashi,supertecnica
+B5DF7D88,887DDFB5,Bringer of Dreams Sand Man,supertecnica
+C2D84D1E,1E4DD8C2,Bringer of Dreams Sand Man,supertecnica
+3446FCA9,A9FC4634,Capricious Trickster Serendipity,supertecnica
+AFAE717E,7E71AEAF,Crown Prince of Chaos Ashtaroth,supertecnica
+577EE86C,6CE87E57,Cursed Wolf Lycaon,supertecnica
+24638250,50826324,Dark Demigod Black Butcher,supertecnica
+7E487CEB,EB7C487E,Defender of Earth Atlas,supertecnica
+4E38A030,30A0384E,Dicey Dicer Lot,supertecnica
+393F90A6,A6903F39,Dicey Dicer Lot,supertecnica
+9B927AA9,A97A929B,Discordian Witch Eris,supertecnica
+A5F1F7CA,CAF7F1A5,Divine Messenger Black Bishop,supertecnica
+856E0AED,ED0A6E85,Divine Messenger White Bishop,supertecnica
+F2693A7B,7B3A69F2,Divine Messenger White Bishop,supertecnica
+B69A0258,58029AB6,Drake Chevalier Dragoon,supertecnica
+C19D32CE,CE329DC1,Drake Chevalier Dragoon,supertecnica
+55652F28,282F6555,Duke of Doom Demogorgon,supertecnica
+23FD0C94,940CFD23,Faster Than Light Tachyon,supertecnica
+54FA3C02,023CFA54,Faster Than Light Tachyon,supertecnica
+9F30447C,7C44309F,Feathers of Flames Firebird,supertecnica
+E83774EA,EA7437E8,Feathers of Flames Firebird,supertecnica
+A465105B,5B1065A4,Femme Fatale Sirena,supertecnica
+D36220CD,CD2062D3,Femme Fatale Sirena,supertecnica
+862B753D,3D752B86,Ferocious Bird of Fable Roc,supertecnica
+F12C45AB,AB452CF1,Ferocious Bird of Fable Roc,supertecnica
+8C227E2F,2F7E228C,Fiery Hellhound Dire Wolf,supertecnica
+00F2D72D,2DD7F200,Fire Jotun Surtr,supertecnica
+99FB8697,9786FB99,Fire Jotun Surtr,supertecnica
+EEFCB601,01B6FCEE,Fire Jotun Surtr,supertecnica
+721D930A,0A931D72,Foxy Mischief-Maker Daji,supertecnica
+B3D514DD,DD14D5B3,Frenzied Fighter Berserker,supertecnica
+C4D2244B,4B24D2C4,Frenzied Fighter Berserker,supertecnica
+130E04A7,A7040E13,Front-Line Fighter Black Pawn,supertecnica
+225B0A66,660A5B22,Front-Line Fighter White Pawn,supertecnica
+555C3AF0,F03A5C55,Front-Line Fighter White Pawn,supertecnica
+2536CE7F,7FCE3625,Front-Line Fighter White Pawn,supertecnica
+5231FEE9,E9FE3152,Front-Line Fighter White Pawn,supertecnica
+BC3F9FC5,C59F3FBC,Front-Line Fighter White Pawn,supertecnica
+CB38AF53,53AF38CB,Front-Line Fighter White Pawn,supertecnica
+6F653720,2037656F,Giant Usurper Gigante,supertecnica
+186207B6,B6076218,Giant Usurper Gigante,supertecnica
+26EF630C,0C63EF26,Gigantic Garrison Gargantua,supertecnica
+51E8539A,9A53E851,Gigantic Garrison Gargantua,supertecnica
+2E90926B,6B92902E,Goddess of Just Warfare Athene,supertecnica
+39A8C6B2,B2C6A839,Goddess of Just Warfare Athene,supertecnica
+5997A2FD,FDA29759,Goddess of Just Warfare Athene,supertecnica
+A0A19708,0897A1A0,Goddess of Just Warfare Athene,supertecnica
+B799C3D1,D1C399B7,Goddess of Just Warfare Athene,supertecnica
+C09EF347,47F39EC0,Goddess of Just Warfare Athene,supertecnica
+C3472E38,382E47C3,Goddess of Just Warfare Athene,supertecnica
+A7B74993,9349B7A7,Grand Inquisitor Judge,supertecnica
+312D5CF0,F05C2D31,Heavenly Horse Arch Pegasus Red,supertecnica
+C65531AC,AC3155C6,Heavenly Horse Arch Pegasus,supertecnica
+AA0F8E22,228E0FAA,Heroic Swordsman Lancelot,supertecnica
+DD08BEB4,B4BE08DD,Heroic Swordsman Lancelot,supertecnica
+A1777FC3,C37F77A1,High Roller Las Vega,supertecnica
+D6704F55,554F70D6,High Roller Las Vega,supertecnica
+31AC6E6B,6B6EAC31,Holy Sword Paladin Arthur,supertecnica
+88D6CD5C,5CCDD688,Holy Sword Paladin Arthur,supertecnica
+524AD75B,5BD74A52,Holy Sword Paladin Arthur,supertecnica
+101958B4,B4581910,Holy Sword Paladin Arthur,supertecnica
+8910090E,0E091089,Holy Sword Paladin Arthur,supertecnica
+A8A53FD1,D13FA5A8,Holy Sword Paladin Arthur,supertecnica
+EAF6B03E,3EB0F6EA,Holy Sword Paladin Arthur,supertecnica
+FFD1FDCA,CAFDD1FF,Holy Sword Paladin Arthur,supertecnica
+B7772A08,082A77B7,Hunter of Glory Asura,supertecnica
+3DEF9509,0995EF3D,Hypersonic Fighter Scramjet,supertecnica
+4AE8A59F,9FA5E84A,Hypersonic Fighter Scramjet,supertecnica
+06709E2B,2B9E7006,Infernal Dragon Lord Koro-Koro-Gon,supertecnica
+C9FDC5E2,E2C5FDC9,Jewelled Dragon Cychr,supertecnica
+A36CB887,87B86CA3,King of Beasts Leon,supertecnica
+D46B8811,11886BD4,King of Beasts Leon,supertecnica
+AE6C1B49,491B6CAE,Lady of Artifice Metis,supertecnica
+BFD6769A,9A76D6BF,Leonine Warlord Khmet,supertecnica
+BC2B6D35,356D2BBC,Light-Speed Knight Sir Rabby,supertecnica
+9098B032,32B09890,Living Nightmare Phantasma,supertecnica
+E79F80A4,A4809FE7,Living Nightmare Phantasma,supertecnica
+954080AF,AF804095,Lord of All Waters Neptune,supertecnica
+ED78626F,6F6278ED,Lord of Birds and Beasts Griffin,supertecnica
+9A7F52F9,F9527F9A,Lord of Birds and Beasts Griffin,supertecnica
+03760343,43037603,Lord of Birds and Beasts Griffin,supertecnica
+2EC52DD1,D12DC52E,Lord of Birds and Beasts Griffin,supertecnica
+B7CC7C6B,6B7CCCB7,Lord of Birds and Beasts Griffin,supertecnica
+D42AC55B,5BC52AD4,Lord of Birds and Beasts Griffin,supertecnica
+96794AB4,B44A7996,Lord of Birds and Beasts Griffin,supertecnica
+1DC5B4E0,E0B4C51D,Lord of Birds and Beasts Griffin,supertecnica
+7E230DD0,D00D237E,Lord of Birds and Beasts Griffin,supertecnica
+3C70823F,3F82703C,Lord of Birds and Beasts Griffin,supertecnica
+A579D385,85D379A5,Lord of Birds and Beasts Griffin,supertecnica
+C69F6AB5,B56A9FC6,Lord of Birds and Beasts Griffin,supertecnica
+E12D8D8E,8E8D2DE1,Lord of Daemons Evera,supertecnica
+D847A831,31A847D8,Man-Made Monster Plasma Shadow SH (1),supertecnica
+AF4098A7,A79840AF,Man-Made Monster Plasma Shadow SH (2),supertecnica
+3649C91D,1DC94936,Man-Made Monster Plasma Shadow SH (3),supertecnica
+414EF98B,8BF94E41,Man-Made Monster Plasma Shadow SH (4),supertecnica
+AC536AD1,D16A53AC,Man-Made Monster Plasma Shadow AT (1),supertecnica
+DB545A47,475A54DB,Man-Made Monster Plasma Shadow AT (2),supertecnica
+425D0BFD,FD0B5D42,Man-Made Monster Plasma Shadow AT (3),supertecnica
+355A3B6B,6B3B5A35,Man-Made Monster Plasma Shadow AT (4),supertecnica
+AB3EAEC8,C8AE3EAB,Man-Made Monster Plasma Shadow AT (5),supertecnica
+DC399E5E,5E9E39DC,Man-Made Monster Plasma Shadow AT (6),supertecnica
+C6949A12,129A94C6,Man-Made Monster Plasma Shadow DF (1),supertecnica
+B193AA84,84AA93B1,Man-Made Monster Plasma Shadow DF (2),supertecnica
+289AFB3E,3EFB9A28,Man-Made Monster Plasma Shadow DF (3),supertecnica
+5F9DCBA8,A8CB9D5F,Man-Made Monster Plasma Shadow DF (4),supertecnica
+37C228C7,C728C237,Man-Made Monster Plasma Shadow GK (1),supertecnica
+40C51851,5118C540,Man-Made Monster Plasma Shadow GK (2),supertecnica
+8A907305,0573908A,Master Magician Trickster,supertecnica
+C4138FF5,F58F13C4,Master Conductor Maestro,supertecnica
+FD974393,934397FD,Master Magician Trickster,supertecnica
+2C9FA7DF,DFA79F2C,Metal Mammoth Behemoth,supertecnica
+5B989749,4997985B,Metal Mammoth Behemoth,supertecnica
+A70F2DEC,EC2D0FA7,Midnight Sun-Bringer Glenr,supertecnica
+73DFF93D,3DF9DF73,Patron Saint of Swots The Stationer,supertecnica
+EDB9C9D1,D1C9B9ED,Prehistoric Chieftain Jagwarrior,supertecnica
+3A711BCD,CD1B713A,Prince of the Astral Plane Zodiac,supertecnica
+836463B8,B8636483,Raven Wings Corvus,supertecnica
+F463532E,2E5363F4,Raven Wings Corvus,supertecnica
+A98B5A4C,4C5A8BA9,Royal Enchantress White Queen,supertecnica
+DE8C6ADA,DA6A8CDE,Royal Enchantress White Queen,supertecnica
+B2D6D554,54D5D6B2,Ruler of the Seven Seas Poseidon,supertecnica
+C5D1E5C2,C2E5D1C5,Ruler of the Seven Seas Poseidon,supertecnica
+3D78B311,11B3783D,Sacred Serpent White Wyvern,supertecnica
+4A7F8387,87837F4A,Sacred Serpent White Wyvern,supertecnica
+7180CDBF,BFCD8071,Sacred Serpent White Wyvern,supertecnica
+1266748F,8F746612,Sacred Serpent White Wyvern,supertecnica
+E8899C05,059C89E8,Sacred Serpent White Wyvern,supertecnica
+BD28ACBC,BCAC28BD,Shadow Shooter Trigger,supertecnica
+29F40786,8607F429,Silver-Tempered Queen Argentia,supertecnica
+27E7563E,3E56E727,Snow Nymph Chione,supertecnica
+50E066A8,A866E050,Snow Nymph Chione,supertecnica
+F4A2F890,90F8A2F4,Sorceress of the Dawn Amaterasu,supertecnica
+F2A891C5,C591A8F2,Sovereign of the Skies Feng-Huang,supertecnica
+7E491CAA,AA1C497E,Standard-Bearer Brynhildr,supertecnica
+84A6F420,20F4A684,Standard-Bearer Brynhildr,supertecnica
+881766E2,E2661788,Standard-Bearer Brynhildr,supertecnica
+E7404D10,104D40E7,Standard-Bearer Brynhildr,supertecnica
+FF105674,745610FF,Standard-Bearer Brynhildr,supertecnica
+22A840BB,BB40A822,Star-Crossed Souls The Lovers Female,supertecnica
+28366DB1,B16D3628,Star-Crossed Souls The Lovers Male,supertecnica
+CC0AB718,18B70ACC,Storm-Bringer Raiden,supertecnica
+8B521932,3219528B,Sun Deity Apollo,supertecnica
+FC5529A4,A42955FC,Sun Deity Apollo,supertecnica
+DCCAD483,83D4CADC,Supernatural Wingman Thunderbird,supertecnica
+8D99DBD9,D9DB998D,Supreme War Chief Pendragon,supertecnica
+1F6BAF6A,6AAF6B1F,The Great Genie Majin,supertecnica
+6B06A24B,4BA2066B,The Undying Warden Arges,supertecnica
+686C9FFC,FC9F6C68,The Great Genie Majin,supertecnica
+FBCBA760,60A7CBFB,Thin Air Slasher Sickle Weasel,supertecnica
+57239171,71912357,Tin Titan Goliath,supertecnica
+5930C0C9,C9C03059,Volcanic Wyrm Vritra,supertecnica
+94FB2559,5925FB94,Warrior of the East Qinglong,supertecnica
+9D801E70,701E809D,Warrior of the North Xuanwu,supertecnica
+542F654C,4C652F54,Warrior of the North Xuanwu,supertecnica
+04894FCA,CA4F8904,Warrior of the North Xuanwu,supertecnica
+BA210460,600421BA,Warrior of the North Xuanwu,supertecnica
+CD2634F6,F63426CD,Warrior of the North Xuanwu,supertecnica
+FE66A740,40A766FE,Warrior of the North Xuanwu,supertecnica
+2E3C04E4,E4043C2E,Warrior of the South Zhuque,supertecnica
+8DE01418,1814E08D,Warrior of the West Baihu,supertecnica
+BCEAC68B,8BC6EABC,Watchtower Sentinel Black Rook,supertecnica
+EB720B3A,3A0B72EB,Watchtower Sentinel White Rook,supertecnica
+82312F97,972F3182,Winged Steed Pegasus,supertecnica
+D4D3EC6E,6EECD3D4,Winged Serpent Kukulkan,supertecnica
+2812DB6D,6DDB1228,Wise Monarch White King,supertecnica
+FB5C8178,78815CFB,Wisecracking Whiz Jester,supertecnica
+6FB1F582,82F5B16F,Mix 'n' Match Aitor,supertecnica
+0BDD3086,8630DD0B,Mix 'n' Match Arion,supertecnica
+2A80A796,96A7802A,Mix 'n' Match Axel,supertecnica
+39EB5204,0452EB39,Mix 'n' Match Bailong,supertecnica
+5E03436E,6E43035E,Mix 'n' Match Big,supertecnica
+0A1F5AB1,B15A1F0A,Mix 'n' Match Black Rose,supertecnica
+AD18BB59,59BB18AD,Mix 'n' Match Caleb,supertecnica
+3BADEC5D,5DECAD3B,Mix 'n' Match Cao Cao,supertecnica
+01ADF455,55F4AD01,Mix 'n' Match Gabriel,supertecnica
+099B8EDF,DF8E9B09,Mix 'n' Match Joan,supertecnica
+DA1F8BCF,CF8B1FDA,Mix 'n' Match Jude,supertecnica
+1080BF9E,9EBF8010,Mix 'n' Match King Arthur,supertecnica
+6DF74BDB,DB4BF76D,Mix 'n' Match Liu Bei,supertecnica
+57F753D3,D353F757,Mix 'n' Match Mark,supertecnica
+752E10AD,AD102E75,Mix 'n' Match Nobunaga,supertecnica
+74EC7A9A,9A7AEC74,Mix 'n' Match Pa,supertecnica
+22B6DD1C,1CDDB622,Mix 'n' Match Q. Dragons,supertecnica
+EF95E8F2,F2E895EF,Mix 'n' Match Raika,supertecnica
+76AAC4C3,C3C4AA76,Mix 'n' Match Riccardo,supertecnica
+C0806EE0,E06E80C0,Mix 'n' Match Ryoma,supertecnica
+D8593596,963559D8,Mix 'n' Match S Gene,supertecnica
+5D879700,0097875D,Mix 'n' Match Shawn,supertecnica
+4718722F,2F721847,Mix 'n' Match Soji,supertecnica
+3A6F866A,6A866F3A,Mix 'n' Match Tezcat,supertecnica
+0859E4E8,E8E45908,Mix 'n' Match T-Rex,supertecnica
+13046BF0,F06B0413,Mix 'n' Match V Gene,supertecnica
+547387BD,BD877354,Mix 'n' Match Victor (1),supertecnica
+2374B72B,2BB77423,Mix 'n' Match Victor (2),supertecnica
+C304BA8E,8EBA04C3,Mix 'n' Match W Gene,supertecnica
+D99B5FA1,A15F9BD9,Mix 'n' Match Zeta,supertecnica
+1C5FD563,63D55F1C,Mix 'n' Match Zhuge Liang (1),supertecnica
+6C3521EC,EC21356C,Mix 'n' Match Zhuge Liang (2),supertecnica
+2FD2B0B0,B0B0D22F,Angydra Totem,supertecnica
+0219EAEE,EEEA1902,Bald Eagle Totem,supertecnica
+49D5009B,9B00D549,Begiran Totem,supertecnica
+62F85358,5853F862,Belion Totem,supertecnica
+C60BD950,50D90BC6,Brachias Totem,supertecnica
+BFB0BB04,04BBB0BF,Buffalo Totem,supertecnica
+33869774,74978633,Cerbegyra Totem,supertecnica
+DED28226,2682D2DE,Crimson Pegasus Totem,supertecnica
+4EF16331,3163F14E,Dalphonus Totem,supertecnica
+EA6EC8EC,ECC86EEA,Dandrol Totem,supertecnica
+50E3FAAC,ACFAE350,Delpinus Totem,supertecnica
+F334130E,0E1334F3,Dohma Totem,supertecnica
+57EA5270,7052EA57,Dolmega Totem,supertecnica
+76AB5B3B,3B5BAB76,Dolphanus Totem,supertecnica
+1F8FA71D,1DA78F1F,Doruga Totem,supertecnica
+7A21082E,2E08217A,Dragnova Totem,supertecnica
+2E3D11F1,F1113D2E,Falcon Totem,supertecnica
+8E020DE8,E80D028E,Flamey Totem,supertecnica
+C3052576,762505C3,Fox Totem,supertecnica
+E9EA1C82,821CEAE9,Gandoran Totem,supertecnica
+7769310C,0C316977,Garius Totem,supertecnica
+53672EC2,C22E6753,Gigiras Totem,supertecnica
+510C5BED,ED5B0C51,Goliger Totem,supertecnica
+4A51D4F5,F5D4514A,Gooma Totem,supertecnica
+52A544F5,F544A552,Gorius Totem,supertecnica
+7CC701B3,B301C77C,Grimron Totem,supertecnica
+D9DB2AFA,FA2ADBD9,Grizzly Totem,supertecnica
+BE333B90,903B33BE,Gryphbang Totem,supertecnica
+94DC0264,6402DC94,Gusfii Totem,supertecnica
+68B9C2A6,A6C2B968,Gyorom Totem,supertecnica
+71A2F3E7,E7F3A271,Gyrius Totem,supertecnica
+6FB06A7A,7A6AB06F,Horned Owl Totem,supertecnica
+BC7585C9,C98575BC,Horse Totem,supertecnica
+50CE31DA,DA31CE50,Ixaal Totem,supertecnica
+65DC30F2,F230DC65,Kosfii Totem,supertecnica
+752F8F55,558F2F75,Kulupe Totem,supertecnica
+7867B677,77B66778,Lion Totem,supertecnica
+370BEBC6,C6EB0B37,Magnatas Totem,supertecnica
+7BCEA96F,6FA9CE7B,Mammoth Totem,supertecnica
+DF10E811,11E810DF,Moon Bear Totem,supertecnica
+79881736,36178879,Mossfii Totem,supertecnica
+EF21DE69,69DE21EF,Owl Totem,supertecnica
+894A4F97,974F4A89,Pamerio Totem,supertecnica
+969ABC3D,3DBC9A96,Peacock Totem,supertecnica
+F5FFD1E5,E5D1FFF5,Pegasus Totem,supertecnica
+1B02DBAF,AFDB021B,Pelion Totem,supertecnica
+6C7554B7,B754756C,Phoenichias Totem,supertecnica
+F0F12DC3,C32DF1F0,Ratel Totem,supertecnica
+6E33EAEE,EEEA336E,Redio Totem,supertecnica
+9BBEA4CA,CAA4BE9B,Saranarja Totem,supertecnica
+C0C01BBB,BB1BC0C0,Serow Totem,supertecnica
+D6944722,224794D6,Silver Wolf Totem,supertecnica
+951E6853,53681E95,Univolt Totem,supertecnica
+302F886C,6C882F30,Vairaas Totem,supertecnica
+372620B0,B0202637,Wolf Totem,supertecnica
+F43DBBD2,D2BB3DF4,Zooma Totem,supertecnica
+4F508281,8182504F,Bond Transform,supertecnica
+DD2E7375,75732EDD,Bond Transform,supertecnica
+A611F96B,6BF911A6,Burning Overdrive,supertecnica
+D67B0DE4,E40D7BD6,Elemental Catalyst,supertecnica
+A17C3D72,723D7CA1,Instant Burst,supertecnica
+481F9847,47981F48,Ironclad Guardian,supertecnica
+3F18A8D1,D1A8183F,Keeper's Grit,supertecnica

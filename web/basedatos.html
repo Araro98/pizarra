@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Base de datos · Pizarra</title>
+<link rel="icon" type="image/png" href="/ui/pizarra-icono-64">
+<link rel="stylesheet" href="/web/comun.css">
+<style>
+  .lista-personajes { max-height:72vh; overflow:auto; padding:4px; }
+  .cabecera-ficha { display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+  .cara-grande { width:96px; height:96px; border-radius:12px; border:3px solid var(--azul-marco);
+    object-fit:cover; background:#5d7590; flex:none; }
+  .cabecera-ficha h2 { font-size:var(--t-2xl); font-weight:900; font-style:italic; color:var(--azul-osc); }
+  .cabecera-ficha .sub { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:4px; }
+  .frase { font-style:italic; color:var(--suave); margin:8px 0 0; }
+  .stats-tabla td:first-child { font-weight:800; }
+  .rareza-tabs { display:flex; gap:6px; flex-wrap:wrap; margin:6px 0; }
+  .rareza-tabs button { border:2px solid var(--azul-marco); background:#fff; border-radius:7px;
+    padding:4px 10px; font-weight:800; font-size:var(--t-sm); cursor:pointer; color:var(--azul-osc); }
+  .rareza-tabs button[aria-selected="true"] { background:var(--azul-marco); color:#fff; }
+  .arbol { display:grid; gap:8px; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); }
+  .arbol .trozo { background:#eef5fc; border:1px solid var(--linea); border-radius:9px; padding:8px 10px; }
+  .arbol .trozo b { display:block; font-size:var(--t-sm); text-transform:uppercase; letter-spacing:.05em;
+    color:var(--azul-osc); margin-bottom:4px; }
+  .arbol .trozo span { display:flex; align-items:center; gap:4px; font-size:var(--t-md); }
+  .tecs { display:flex; flex-direction:column; gap:6px; }
+  .pasivas-lista { display:flex; flex-direction:column; gap:4px; }
+  .pasiva { display:flex; align-items:center; gap:10px; padding:5px 8px; background:#f5f9fe;
+    border:1px solid var(--linea); border-radius:8px; font-size:var(--t-md); }
+  .pasiva .fija { margin-left:auto; }
+  .arq-tabs { display:flex; gap:6px; flex-wrap:wrap; margin:6px 0; }
+  .arq-tabs button { border:2px solid var(--azul-marco); background:#fff; border-radius:7px;
+    padding:4px 10px; font-weight:800; font-size:var(--t-sm); cursor:pointer; color:var(--azul-osc); }
+  .arq-tabs button[aria-selected="true"] { background:var(--naranja); border-color:#9c5208; color:#fff; }
+  .variantes { display:flex; gap:6px; flex-wrap:wrap; }
+  .variantes .ficha-mini { width:64px; }
+  details.plegado { margin-top:12px; border-top:2px solid var(--linea); padding-top:8px; }
+  details.plegado > summary { cursor:pointer; font-size:var(--t-sm); font-weight:800; color:var(--azul-osc);
+    text-transform:uppercase; letter-spacing:.05em; }
+  .contador { font-size:var(--t-sm); color:var(--suave); display:flex; gap:8px; align-items:center;
+    flex-wrap:wrap; margin:6px 0; }
+  .obj-rejilla { display:grid; gap:8px; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); }
+  .obj { background:linear-gradient(180deg,#fff,#eaf3fd); border:2px solid #cfdcea; border-radius:9px;
+    padding:8px; display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center; }
+  .obj img { width:56px; height:56px; object-fit:contain; }
+  .obj .n { font-size:var(--t-sm); font-weight:700; line-height:1.2; }
+  .obj .b { font-size:var(--t-xs); color:#17734b; font-weight:700; }
+</style>
+</head>
+<body>
+<header class="cabecera">
+  <div class="fila">
+    <a class="titulo" href="/">Base de datos <small>del juego, sin tocar tu partida</small></a>
+    <nav class="tabs" id="tabs">
+      <button data-p="personajes" aria-selected="true"><span>Personajes</span></button>
+      <button data-p="tecnicas"><span>Supertecnicas</span></button>
+      <button data-p="espiritus"><span>Espiritus</span></button>
+      <button data-p="pasivas"><span>Pasivas</span></button>
+      <button data-p="objetos"><span>Objetos</span></button>
+      <a href="/"><span>Inicio</span></a>
+    </nav>
+  </div>
+</header>
+
+<main class="contenido">
+  <section id="p-personajes" class="dos">
+    <div class="marco">
+      <h2 class="titulo-seccion">Personajes</h2>
+      <input type="search" id="buscar-per" placeholder="Buscar personaje, equipo, posicion...">
+      <div class="filtros" id="filtros-per"></div>
+      <div class="contador" id="contador-per"></div>
+      <div class="rejilla lista-personajes" id="lista-per"></div>
+    </div>
+    <div class="marco" id="ficha-per"><p class="vacio">Elige un personaje de la izquierda.</p></div>
+  </section>
+
+  <section id="p-tecnicas" hidden class="marco">
+    <h2 class="titulo-seccion">Supertecnicas</h2>
+    <input type="search" id="buscar-tec" placeholder="Buscar supertecnica...">
+    <div class="filtros" id="filtros-tec"></div>
+    <div class="contador" id="contador-tec"></div>
+    <div class="tecs" id="lista-tec"></div>
+  </section>
+
+  <section id="p-espiritus" hidden class="marco">
+    <h2 class="titulo-seccion">Espiritus</h2>
+    <input type="search" id="buscar-esp" placeholder="Buscar espiritu...">
+    <div class="filtros" id="filtros-esp"></div>
+    <div class="contador" id="contador-esp"></div>
+    <div class="obj-rejilla" id="lista-esp"></div>
+  </section>
+
+  <section id="p-pasivas" hidden class="marco">
+    <h2 class="titulo-seccion">Pasivas</h2>
+    <input type="search" id="buscar-pas" placeholder="Buscar en el texto de la pasiva...">
+    <div class="filtros" id="filtros-pas"></div>
+    <label class="filtro"><span>Ver los numeros de la rareza</span>
+      <select id="rareza-pas">
+        <option value="0">Futbolista comun</option><option value="1">Futbolista emergente</option>
+        <option value="2">Futbolista de elite</option><option value="3">Futbolista estrella</option>
+        <option value="4" selected>Leyenda del futbol</option>
+      </select></label>
+    <div class="contador" id="contador-pas"></div>
+    <div class="pasivas-lista" id="lista-pas"></div>
+    <p class="nota">Los dibujos son los del juego, pero el juego no dice cual va con cada pasiva:
+      se elige por lo que hace cada una (tiro, muro, foco...).</p>
+  </section>
+
+  <section id="p-objetos" hidden class="marco">
+    <h2 class="titulo-seccion">Objetos</h2>
+    <input type="search" id="buscar-obj" placeholder="Buscar objeto...">
+    <div class="filtros" id="filtros-obj"></div>
+    <div class="contador" id="contador-obj"></div>
+    <div class="obj-rejilla" id="lista-obj"></div>
+  </section>
+</main>
+
+<script src="/web/comun.js"></script>
+<script>
+const NOMBRE_CAT = {"equipo-1-botas":"Botas", "equipo-2-brazalete":"Brazaletes",
+  "equipo-3-colgante":"Colgantes", "equipo-4-especial":"Especiales", "consumible":"Consumibles",
+  "tactica":"Tacticas", "escudo":"Escudos", "emblema-jugador":"Emblemas", "formacion":"Formaciones",
+  "equipacion-equipo":"Equipaciones", "tactica-objeto":"Tacticas de equipo",
+  "supertactica":"Supertacticas", "kizuna":"Vinculos", "placa":"Placas", "material":"Materiales"};
+const NOMBRE_FAMILIA = {kenshin:"Kenshin", alma:"Alma", armadura:"Armadura", mixi:"Mixi", especial:"Especial"};
+const datos = {};
+let pantalla = "personajes";
+
+for (const b of document.querySelectorAll("#tabs button"))
+  b.onclick = () => abre(b.dataset.p);
+
+async function abre(p) {
+  pantalla = p;
+  for (const b of document.querySelectorAll("#tabs button"))
+    b.setAttribute("aria-selected", String(b.dataset.p === p));
+  for (const s of document.querySelectorAll("main > section")) s.hidden = s.id !== "p-" + p;
+  if (p === "personajes") await cargaPersonajes();
+  if (p === "tecnicas") await cargaTecnicas();
+  if (p === "espiritus") await cargaEspiritus();
+  if (p === "pasivas") await cargaPasivas();
+  if (p === "objetos") await cargaObjetos();
+}
+
+/* ---------------- personajes ---------------- */
+const FILTROS_PER = [
+  {campo:"posicion", etiqueta:"Posicion"},
+  {campo:"posicion_alt", etiqueta:"Secundaria"},
+  {campo:"elemento", etiqueta:"Afinidad"},
+  {campo:"rareza_nombre", etiqueta:"Rareza"},
+  {campo:"arquetipo", etiqueta:"Arquetipo"},
+  {campo:"equipo", etiqueta:"Equipo"},
+  {campo:"apt", etiqueta:"Aptitud"},
+  {campo:"cuerpo_tipo", etiqueta:"Cuerpo"},
+];
+const estadoPer = {};
+let abierto = null;
+
+async function cargaPersonajes() {
+  if (!datos.personajes) {
+    datos.personajes = (await pedir("/api/bd/personajes")).personajes;
+    montaFiltros($("#filtros-per"), datos.personajes, FILTROS_PER, estadoPer, pintaPersonajes);
+    $("#buscar-per").oninput = pintaPersonajes;
+  }
+  pintaPersonajes();
+}
+function pintaPersonajes() {
+  const q = $("#buscar-per").value.trim().toLowerCase();
+  const ves = datos.personajes.filter(p => pasaFiltros(p, FILTROS_PER, estadoPer)
+    && (!q || (p.nombre + " " + p.equipo + " " + p.posicion + " " + p.elemento).toLowerCase().includes(q)));
+  const r = $("#lista-per"); r.textContent = "";
+  for (const p of ves.slice(0, 600)) {
+    const t = fichaMini(p, abrePersonaje);
+    if (abierto === p.identidad) t.setAttribute("aria-current", "true");
+    r.appendChild(t);
+  }
+  $("#contador-per").textContent = ves.length + " personajes" + (ves.length > 600 ? " (se ensenan 600; afina la busqueda)" : "");
+}
+
+async function abrePersonaje(p) {
+  abierto = p.identidad;
+  pintaPersonajes();
+  const caja = $("#ficha-per"); caja.textContent = "";
+  caja.appendChild(el("p", {class:"vacio", text:"Cargando..."}));
+  let d;
+  try { d = await pedir("/api/bd/personaje/" + p.identidad); }
+  catch (e) { caja.textContent = ""; caja.appendChild(el("p", {class:"vacio", text:e.message})); return; }
+  caja.textContent = "";
+
+  const cab = el("div", {class:"cabecera-ficha"});
+  if (d.cara) {
+    const retrato = el("div", {class:"retrato"});
+    for (const c of capasRetrato(d)) retrato.appendChild(c);
+    cab.appendChild(retrato);
+  }
+  const t = el("div", {});
+  t.appendChild(el("h2", {text:d.nombre}));
+  const sub = el("div", {class:"sub"});
+  if (d.elemento) sub.appendChild(iconoElemento(d.elemento, 20));
+  if (d.posicion) sub.appendChild(el("span", {class:"chip", text:d.posicion + (d.posicion_alt ? " / " + d.posicion_alt : "")}));
+  sub.appendChild(el("span", {class:"chip naranja", text:d.rareza_nombre || d.rareza}));
+  if (d.arquetipo) sub.appendChild(el("span", {class:"chip gris", text:d.arquetipo}));
+  if (d.apt !== "jugador") sub.appendChild(el("span", {class:"chip gris", text:d.apt + " de fabrica"}));
+  if (d.equipo) sub.appendChild(el("span", {text:d.equipo, style:"font-size:var(--t-md);color:var(--suave)"}));
+  t.appendChild(sub);
+  if (d.descripcion) t.appendChild(el("p", {class:"frase", text:d.descripcion}));
+  cab.appendChild(t);
+  caja.appendChild(cab);
+
+  // --- stats
+  caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Stats"})]));
+  let rarezaVista = d.stats.length ? d.stats[d.stats.length - 1].rareza : null;
+  const textosPasivas = [];   // (nodo, pasiva): se repintan al cambiar la rareza
+  const tabsR = el("div", {class:"rareza-tabs"});
+  const tabla = el("table", {class:"tabla stats-tabla"});
+  function pintaStats() {
+    tabsR.textContent = "";
+    for (const s of d.stats)
+      tabsR.appendChild(el("button", {"aria-selected":String(s.rareza === rarezaVista),
+        text:s.nombre + " x" + s.multiplicador, onclick:() => { rarezaVista = s.rareza; pintaStats();
+          for (const [nodo, x] of textosPasivas) nodo.textContent = textoPasiva(x, rarezaVista); }}));
+    tabla.textContent = "";
+    const s = d.stats.find(x => x.rareza === rarezaVista);
+    if (!s) return;
+    const niveles = Object.keys(s.niveles).map(Number).sort((a, b) => a - b);
+    const cab = el("tr", {}, [el("th", {text:"Stat"})]);
+    for (const n of niveles) cab.appendChild(el("th", {class:"num", text:"Nv. " + n}));
+    cab.appendChild(el("th", {class:"num", text:"Nv. 99 + arbol"}));
+    tabla.appendChild(cab);
+    const arbol = {};
+    for (const parte of ["tronco", "rama1"]) for (const x of d.arbol[parte]) arbol[x.stat] = (arbol[x.stat] || 0) + x.suma;
+    for (const parte of ["rama2"]) for (const x of d.arbol[parte]) arbol[x.stat] = (arbol[x.stat] || 0) + x.suma;
+    d.nombres_stats.forEach((nombre, i) => {
+      const fila = el("tr", {}, [el("td", {}, [iconoStat(nombre, 18), document.createTextNode(nombre)])]);
+      for (const n of niveles) fila.appendChild(el("td", {class:"num", text:String(s.niveles[n][i])}));
+      const v99 = s.niveles[99] ? s.niveles[99][i] : null;
+      fila.appendChild(el("td", {class:"num", text:v99 === null ? "—"
+        : String(v99 + (d.arbol_conocido ? (arbol[nombre] || 0) : 0)) + (d.arbol_conocido && arbol[nombre] ? " (+" + arbol[nombre] + ")" : "")}));
+      tabla.appendChild(fila);
+    });
+    const tot = el("tr", {}, [el("td", {text:"Total"})]);
+    for (const n of niveles) tot.appendChild(el("td", {class:"num", text:String(s.niveles[n].reduce((a, b) => a + b, 0))}));
+    tot.appendChild(el("td", {class:"num", text:s.niveles[99] ? String(s.niveles[99].reduce((a, b) => a + b, 0)
+      + (d.arbol_conocido ? Object.values(arbol).reduce((a, b) => a + b, 0) : 0)) : "—"}));
+    tabla.appendChild(tot);
+  }
+  pintaStats();
+  caja.appendChild(tabsR);
+  caja.appendChild(el("div", {style:"overflow-x:auto"}, [tabla]));
+  caja.appendChild(el("p", {class:"nota", text:"Sin judias ni equipacion. Rango " + d.rango
+    + ", patron de crecimiento " + d.patron + ". La ultima columna suma el arbol entero"
+    + (d.arbol_conocido ? " (tronco, rama 1 y rama 2; en el juego solo se juega una rama)." : "; el arbol de Idolos y Diamantes no esta descifrado, asi que aqui no se suma.")}));
+
+  // --- arbol
+  caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Arbol de habilidades: que stat sube"})]));
+  const ar = el("div", {class:"arbol"});
+  for (const [parte, titulo] of [["tronco", "Tronco (siempre)"], ["rama1", "Rama 1"], ["rama2", "Rama 2"]]) {
+    const caja2 = el("div", {class:"trozo"}, [el("b", {text:titulo})]);
+    for (const x of d.arbol[parte])
+      caja2.appendChild(el("span", {}, [iconoStat(x.stat, 16), document.createTextNode(x.stat + " +" + x.suma)]));
+    if (!d.arbol[parte].length) caja2.appendChild(el("span", {text:"—"}));
+    ar.appendChild(caja2);
+  }
+  caja.appendChild(ar);
+
+  // --- tecnicas
+  caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Supertecnicas"})]));
+  const tecs = el("div", {class:"tecs"});
+  let ultimo = "";
+  for (const t of d.tecnicas) {
+    if (t.trozo !== ultimo) { ultimo = t.trozo; tecs.appendChild(el("div", {class:"nota", text:t.trozo.toUpperCase()})); }
+    tecs.appendChild(barraTecnica(t));
+  }
+  caja.appendChild(tecs);
+
+  // --- pasivas
+  caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Pasivas que le pueden salir (ranuras 1 y 2)"})]));
+  const pl = el("div", {class:"pasivas-lista"});
+  for (const x of d.pasivas.propias)
+    pl.appendChild(el("div", {class:"pasiva"}, [
+      x.icono ? el("img", {class:"ico-pasiva", loading:"lazy", alt:"", src:"/icono/" + x.icono}) : null,
+      nodoPasiva(x),
+      x.fija ? el("span", {class:"chip gris fija", text:"fija en la historia"}) : null]));
+  function nodoPasiva(x) {
+    const n = el("span", {text:textoPasiva(x, rarezaVista), title:pistaValores(x)});
+    textosPasivas.push([n, x]);
+    return n;
+  }
+  if (!d.pasivas.propias.length) pl.appendChild(el("p", {class:"vacio", text:"No hay datos de sorteo para este personaje."}));
+  caja.appendChild(pl);
+
+  const arqs = Object.keys(d.pasivas.por_arquetipo).sort();
+  if (arqs.length) {
+    caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Pasivas de las ranuras 3, 4 y 5 (por arquetipo)"})]));
+    let arqVisto = arqs.includes(d.arquetipo) ? d.arquetipo : arqs[0];
+    const tabsA = el("div", {class:"arq-tabs"});
+    const lista = el("div", {class:"pasivas-lista"});
+    function pintaArq() {
+      tabsA.textContent = "";
+      for (const a of arqs)
+        tabsA.appendChild(el("button", {"aria-selected":String(a === arqVisto), text:a,
+          onclick:() => { arqVisto = a; pintaArq(); }}));
+      lista.textContent = "";
+      for (const x of d.pasivas.por_arquetipo[arqVisto])
+        lista.appendChild(el("div", {class:"pasiva"}, [
+          el("span", {class:"chip", text:"ranura " + x.ranura}),
+          x.icono ? el("img", {class:"ico-pasiva", loading:"lazy", alt:"", src:"/icono/" + x.icono}) : null,
+          nodoPasiva(x)]));
+    }
+    pintaArq();
+    caja.appendChild(tabsA); caja.appendChild(lista);
+    caja.appendChild(el("p", {class:"nota", text:"El arquetipo se puede cambiar en el juego, asi que aqui estan los seis. Se marca el suyo de fabrica. Los numeros son los de la rareza elegida arriba en los stats."}));
+  }
+
+  if (d.variantes.length) {
+    const det = el("details", {class:"plegado"}, [el("summary", {text:"Otras versiones de " + d.nombre + " (" + d.variantes.length + ")"})]);
+    const v = el("div", {class:"variantes"});
+    for (const x of d.variantes) v.appendChild(fichaMini(x, abrePersonaje));
+    det.appendChild(v); caja.appendChild(det);
+  }
+}
+
+/* ---------------- supertecnicas ---------------- */
+const FILTROS_TEC = [
+  {campo:"tipo", etiqueta:"Tipo"}, {campo:"subtipo", etiqueta:"Clase"}, {campo:"elemento", etiqueta:"Afinidad"},
+];
+const estadoTec = {};
+async function cargaTecnicas() {
+  if (!datos.tecnicas) {
+    datos.tecnicas = (await pedir("/api/bd/tecnicas")).tecnicas;
+    montaFiltros($("#filtros-tec"), datos.tecnicas, FILTROS_TEC, estadoTec, pintaTecnicas);
+    $("#buscar-tec").oninput = pintaTecnicas;
+  }
+  pintaTecnicas();
+}
+function pintaTecnicas() {
+  const q = $("#buscar-tec").value.trim().toLowerCase();
+  const ves = datos.tecnicas.filter(t => pasaFiltros(t, FILTROS_TEC, estadoTec) && (!q || t.nombre.toLowerCase().includes(q)));
+  const r = $("#lista-tec"); r.textContent = "";
+  for (const t of ves.slice(0, 500)) r.appendChild(barraTecnica(t, el("span", {class:"tp", text:t.subtipo})));
+  $("#contador-tec").textContent = ves.length + " supertecnicas" + (ves.length > 500 ? " (se ensenan 500)" : "");
+}
+
+/* ---------------- espiritus ---------------- */
+const FILTROS_ESP = [
+  {campo:"familia", etiqueta:"Familia", nombre:v => NOMBRE_FAMILIA[v] || v},
+  {campo:"rango", etiqueta:"Rango", numerico:true, nombre:v => "★" + v},
+];
+const estadoEsp = {};
+async function cargaEspiritus() {
+  if (!datos.espiritus) {
+    datos.espiritus = (await pedir("/api/bd/espiritus")).espiritus;
+    montaFiltros($("#filtros-esp"), datos.espiritus, FILTROS_ESP, estadoEsp, pintaEspiritus);
+    $("#buscar-esp").oninput = pintaEspiritus;
+  }
+  pintaEspiritus();
+}
+function pintaEspiritus() {
+  const q = $("#buscar-esp").value.trim().toLowerCase();
+  const ves = datos.espiritus.filter(e => pasaFiltros(e, FILTROS_ESP, estadoEsp) && (!q || e.nombre.toLowerCase().includes(q)));
+  const r = $("#lista-esp"); r.textContent = "";
+  for (const e of ves) r.appendChild(el("div", {class:"obj"}, [
+    el("img", {loading:"lazy", alt:"", src:e.icono ? "/espiritu/" + e.icono : "/categoria/aura"}),
+    el("div", {class:"n", text:e.nombre}),
+    el("div", {class:"b", text:(NOMBRE_FAMILIA[e.familia] || e.familia || "") + (e.rango ? "  ★" + e.rango : "")})]));
+  $("#contador-esp").textContent = ves.length + " espiritus";
+}
+
+/* ---------------- pasivas ---------------- */
+const NOMBRES_RAREZA = ["Futbolista comun", "Futbolista emergente", "Futbolista de elite",
+                        "Futbolista estrella", "Leyenda del futbol", "(sexta columna)"];
+/* el texto de un grupo de pasivas con el numero de esa rareza; si no cambia
+   con la rareza, con sus valores fijos (+3 / +5 / +7) */
+function textoGrupoPasiva(p, rareza) {
+  if (p.por_rareza && p.por_rareza[rareza])
+    return p.texto.replace("<VALUE>", String(Number(p.por_rareza[rareza].valor)));
+  if (p.valores && p.valores.length)
+    return p.texto.replace("<VALUE>", p.valores.map(v => String(Number(v))).join(" / "));
+  return p.texto.replace("<VALUE>", "?");
+}
+/* la pista con todos los valores por rareza, para el raton encima */
+function pistaValores(p) {
+  if (!p.por_rareza) return p.valores && p.valores.length > 1 ? "Valores: " + p.valores.join(" / ") : "";
+  return Object.keys(p.por_rareza).sort().map(r => (NOMBRES_RAREZA[r] || r) + ": " + Number(p.por_rareza[r].valor)).join("\n");
+}
+const FILTROS_PAS = [{campo:"clase", etiqueta:"Clase", nombre:v => v === "hero" ? "de Idolo" : v}];
+const estadoPas = {};
+async function cargaPasivas() {
+  if (!datos.pasivas) {
+    datos.pasivas = (await pedir("/api/bd/pasivas")).pasivas;
+    montaFiltros($("#filtros-pas"), datos.pasivas, FILTROS_PAS, estadoPas, pintaPasivas);
+    $("#buscar-pas").oninput = pintaPasivas;
+  }
+  pintaPasivas();
+}
+function pintaPasivas() {
+  const q = $("#buscar-pas").value.trim().toLowerCase();
+  const ves = datos.pasivas.filter(p => pasaFiltros(p, FILTROS_PAS, estadoPas) && (!q || p.texto.toLowerCase().includes(q)));
+  const r = $("#lista-pas"); r.textContent = "";
+  const rar = Number($("#rareza-pas").value);
+  for (const p of ves.slice(0, 500)) r.appendChild(el("div", {class:"pasiva", title:pistaValores(p)}, [
+    p.icono ? el("img", {class:"ico-pasiva", loading:"lazy", alt:"", src:"/icono/" + p.icono}) : null,
+    el("span", {text:textoGrupoPasiva(p, rar)}),
+    p.por_rareza ? el("span", {class:"chip gris", text:"por rareza"}) : null,
+    p.clase === "hero" ? el("span", {class:"chip naranja fija", text:"de Idolo"}) : null]));
+  $("#rareza-pas").onchange = pintaPasivas;
+  $("#contador-pas").textContent = ves.length + " pasivas" + (ves.length > 500 ? " (se ensenan 500)" : "");
+}
+
+/* ---------------- objetos ---------------- */
+const FILTROS_OBJ = [{campo:"categoria", etiqueta:"Familia", nombre:v => NOMBRE_CAT[v] || v}];
+const estadoObj = {};
+async function cargaObjetos() {
+  if (!datos.objetos) {
+    datos.objetos = (await pedir("/api/bd/objetos")).objetos;
+    montaFiltros($("#filtros-obj"), datos.objetos, FILTROS_OBJ, estadoObj, pintaObjetos);
+    $("#buscar-obj").oninput = pintaObjetos;
+  }
+  pintaObjetos();
+}
+function pintaObjetos() {
+  const q = $("#buscar-obj").value.trim().toLowerCase();
+  const ves = datos.objetos.filter(o => pasaFiltros(o, FILTROS_OBJ, estadoObj) && (!q || o.nombre.toLowerCase().includes(q)));
+  const r = $("#lista-obj"); r.textContent = "";
+  for (const o of ves.slice(0, 600)) r.appendChild(el("div", {class:"obj"}, [
+    el("img", {loading:"lazy", alt:"", src:o.icono ? "/icono/" + o.icono : "/categoria/" + encodeURIComponent(o.categoria)}),
+    el("div", {class:"n", text:o.nombre}),
+    el("div", {class:"b", text:o.bonus_texto || (NOMBRE_CAT[o.categoria] || o.categoria)})]));
+  $("#contador-obj").textContent = ves.length + " objetos" + (ves.length > 600 ? " (se ensenan 600)" : "");
+}
+
+// la direccion puede decir la pestana: /bd?p=tecnicas (desde el menu de inicio)
+const pedida = new URLSearchParams(location.search).get("p");
+abre(["personajes", "tecnicas", "espiritus", "pasivas", "objetos"].includes(pedida) ? pedida : "personajes");
+</script>
+</body>
+</html>

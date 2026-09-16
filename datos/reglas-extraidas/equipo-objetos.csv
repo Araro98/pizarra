@@ -1,0 +1,611 @@
+# Que objeto de la mochila da cada escudo, equipacion o tactica.
+# id_objeto = como esta en la mochila (4 bytes tal cual).
+# valor_equipo = lo que guarda el equipo, en hexadecimal.
+# Lo genera herramientas/construir_equipo_objetos.py (NOTAS O-124).
+tipo,id_objeto,valor_equipo,nombre,icono
+escudo,9ACA020B,0B02CA9A,Génesis,01_icon_emblem/em020002.png
+escudo,F0E1ABD5,D5ABE1F0,Raimon,01_icon_emblem/em010001.png
+escudo,4AB0A24C,4CA2B04A,Royal Academy,01_icon_emblem/em010002.png
+escudo,DC80A53B,3BA580DC,Occult,01_icon_emblem/em010003.png
+escudo,7F15C1A5,A5C1157F,Wild,01_icon_emblem/em010004.png
+escudo,E925C6D2,D2C625E9,Brain,01_icon_emblem/em010005.png
+escudo,5374CF4B,4BCF7453,Otaku,01_icon_emblem/em010006.png
+escudo,C544C83C,3CC844C5,Shuriken,01_icon_emblem/em010007.png
+escudo,545977AC,AC775954,Farm,01_icon_emblem/em010008.png
+escudo,C26970DB,DB7069C2,Kirkwood,01_icon_emblem/em010009.png
+escudo,27E0B7BB,BBB7E027,Zeus,01_icon_emblem/em010010.png
+escudo,B1D0B0CC,CCB0D0B1,Inazuma Kids FC,01_icon_emblem/em010011.png
+escudo,0B81B955,55B9810B,Umbrella,01_icon_emblem/em010012.png
+escudo,9DB1BE22,22BEB19D,Sallys,01_icon_emblem/em010013.png
+escudo,3E24DABC,BCDA243E,Veteranos Inazuma,01_icon_emblem/em010014.png
+escudo,E3C826B9,B926C8E3,Tormenta de Géminis,01_icon_emblem/em020031.png
+escudo,59992F20,202F9959,Épsilon,01_icon_emblem/em020032.png
+escudo,CFA92857,5728A9CF,Génesis,01_icon_emblem/em020033.png
+escudo,6C3C4CC9,C94C3C6C,Épsilon Plus,01_icon_emblem/em020034.png
+escudo,FA0C4BBE,BE4B0CFA,Servicio Secreto,01_icon_emblem/em020035.png
+escudo,405D4227,27425D40,Alpino,01_icon_emblem/em020036.png
+escudo,D66D4550,50456DD6,Claustro Sagrado,01_icon_emblem/em020037.png
+escudo,4770FAC0,C0FA7047,Royal Academy Redux,01_icon_emblem/em020038.png
+escudo,D140FDB7,B7FD40D1,Fauxshore,01_icon_emblem/em020039.png
+escudo,B26E6081,81606EB2,Mary Times,01_icon_emblem/em020040.png
+escudo,245E67F6,F6675E24,Emperadores Oscuros,01_icon_emblem/em020041.png
+escudo,9E0F6E6F,6F6E0F9E,Triple C,01_icon_emblem/em020042.png
+escudo,ABAA0D86,860DAAAB,Mar de Árboles,01_icon_emblem/em020044.png
+escudo,3D9A0AF1,F10A9A3D,Jóvenes Inazuma,01_icon_emblem/em020045.png
+escudo,11FB041F,1F04FB11,Prominence,01_icon_emblem/em020047.png
+escudo,80E6BB8F,8FBBE680,Polvo de Diamantes,01_icon_emblem/em020048.png
+escudo,16D6BCF8,F8BCD616,Caos,01_icon_emblem/em020049.png
+escudo,C8471DB1,B11D47C8,Inazuma Japón,01_icon_emblem/em030015.png
+escudo,753BACCF,CFAC3B75,Neo Japón,01_icon_emblem/em030018.png
+escudo,E30BABB8,B8AB0BE3,Big Waves,01_icon_emblem/em030019.png
+escudo,12D05D9D,9D5DD012,Dragones de Fuego,01_icon_emblem/em030021.png
+escudo,27753E74,743E7527,Leones del Desierto,01_icon_emblem/em030027.png
+escudo,B66881E4,E48168B6,Ángel Oscuro,01_icon_emblem/em030028.png
+escudo,20588693,93865820,Equipo Ogro,01_icon_emblem/em030029.png
+escudo,43761BA5,A51B7643,Knights of Queen,01_icon_emblem/em030050.png
+escudo,D5461CD2,D21C46D5,<MNT:TEAMK>,01_icon_emblem/em030051.png
+escudo,6F17154B,4B15176F,Los Emperadores,01_icon_emblem/em030052.png
+escudo,F927123C,3C1227F9,Unicorn,01_icon_emblem/em030053.png
+escudo,5AB276A2,A276B25A,Orfeo,01_icon_emblem/em030054.png
+escudo,CC8271D5,D57182CC,Os Reis,01_icon_emblem/em030055.png
+escudo,76D3784C,4C78D376,<FST:GARCILDO> Team,01_icon_emblem/em030056.png
+escudo,E0E37F3B,3B7FE3E0,Pequeños Gigantes,01_icon_emblem/em030057.png
+escudo,71FEC0AB,ABC0FE71,Grifos de la Rosa,01_icon_emblem/em030058.png
+escudo,E7CEC7DC,DCC7CEE7,Los Rojos,01_icon_emblem/em030059.png
+escudo,8025368E,8E362580,Brocken Brigade,01_icon_emblem/em030060.png
+escudo,161531F9,F9311516,Caimanes del Cabo,01_icon_emblem/em030061.png
+escudo,AC443860,603844AC,Sky Team,01_icon_emblem/em030062.png
+escudo,3A743F17,173F743A,Dark Team,01_icon_emblem/em030063.png
+escudo,806E4B1D,1D4B6E80,Raimon revolucionario,01_icon_emblem/em040001.png
+escudo,3A3F4284,84423F3A,Caballeros Templarios,01_icon_emblem/em040002.png
+escudo,AC0F45F3,F3450FAC,Empollones,01_icon_emblem/em040003.png
+escudo,0F9A216D,6D219A0F,Vía Láctea,01_icon_emblem/em040004.png
+escudo,99AA261A,1A26AA99,Poderosa Fe,01_icon_emblem/em040005.png
+escudo,23FB2F83,832FFB23,Royal Academy (GO),01_icon_emblem/em040006.png
+escudo,B5CB28F4,F428CBB5,Cala Pirata,01_icon_emblem/em040007.png
+escudo,24D69764,6497D624,Mar de Luna,01_icon_emblem/em040008.png
+escudo,576F5773,73576F57,Alpino (GO),01_icon_emblem/em040010.png
+escudo,C15F5004,04505FC1,Kirkwood (GO),01_icon_emblem/em040011.png
+escudo,7B0E599D,9D590E7B,Espejismo,01_icon_emblem/em040012.png
+escudo,4EAB3A74,743AAB4E,Universal,01_icon_emblem/em040014.png
+escudo,D89B3D03,033D9BD8,Monte Olimpo,01_icon_emblem/em040015.png
+escudo,62CA349A,9A34CA62,Dragon Link,01_icon_emblem/em040016.png
+escudo,F4FA33ED,ED33FAF4,Luz Eterna,01_icon_emblem/em040017.png
+escudo,65E78C7D,7D8CE765,Oscuridad Ancestral,01_icon_emblem/em040018.png
+escudo,F3D78B0A,0A8BD7F3,Equipo Zero,01_icon_emblem/em040019.png
+escudo,943C7A58,587A3C94,Segundo equipo del Raimon,01_icon_emblem/em040020.png
+escudo,020C7D2F,2F7D0C02,Edad Dorada,01_icon_emblem/em040021.png
+escudo,B85D74B6,B6745DB8,Ultramegahiedra,01_icon_emblem/em040022.png
+escudo,2E6D73C1,C1736D2E,Inazuma Kids FC (GO),01_icon_emblem/em040023.png
+escudo,8DF8175F,5F17F88D,Revolucionarios,01_icon_emblem/em040024.png
+escudo,1BC81028,2810C81B,Garras del Sur,01_icon_emblem/em040025.png
+escudo,A19919B1,B11999A1,Colmillos del Norte,01_icon_emblem/em040026.png
+escudo,37A91EC6,C61EA937,Cuerno Demoníaco,01_icon_emblem/em040027.png
+escudo,5E93AF23,23AF935E,<MNT:TENMAS>,01_icon_emblem/em050201.png
+escudo,E4C2A6BA,BAA6C2E4,Protocolo Omega,01_icon_emblem/em050202.png
+escudo,D167C553,53C567D1,<MNT:SHIROSHIKA>,01_icon_emblem/em050204.png
+escudo,4757C224,24C25747,Protocolo Omega 3.0,01_icon_emblem/em050205.png
+escudo,FD06CBBD,BDCB06FD,Ejército de terracota,01_icon_emblem/em050206.png
+escudo,6B36CCCA,CACC366B,Zanark Domain,01_icon_emblem/em050207.png
+escudo,FA2B735A,5A732BFA,Cascada Perfecta,01_icon_emblem/em050208.png
+escudo,8992B34D,4DB39289,Zan,01_icon_emblem/em050210.png
+escudo,1FA2B43A,3AB4A21F,Gir,01_icon_emblem/em050211.png
+escudo,A5F3BDA3,A3BDF3A5,Gar,01_icon_emblem/em050212.png
+escudo,33C3BAD4,D4BAC333,Ragnah,01_icon_emblem/em050213.png
+escudo,9056DE4A,4ADE5690,Aullido Lunar,01_icon_emblem/em050214.png
+escudo,0666D93D,3DD96606,Nosfanáticos,01_icon_emblem/em050215.png
+escudo,BC37D0A4,A4D037BC,Criaturas de la Noche,01_icon_emblem/em050216.png
+escudo,2A07D7D3,D3D7072A,Inazuma Japón Legendario,01_icon_emblem/em050217.png
+escudo,BB1A6843,43681ABB,Desesperdidos,01_icon_emblem/em050218.png
+escudo,DCF19911,1199F1DC,Inazuma Japón Alterno,01_icon_emblem/em050221.png
+escudo,27918B91,918B9127,Star Unicorn,01_icon_emblem/em050232.png
+escudo,B1A18CE6,E68CA1B1,Clan Oda,01_icon_emblem/em050233.png
+escudo,8404EF0F,0FEF0484,Protocolo Omega 2.0,01_icon_emblem/em050235.png
+escudo,3E55E696,96E6553E,Ira de Imagawa,01_icon_emblem/em050236.png
+escudo,A865E1E1,E1E165A8,El Dorado 01,01_icon_emblem/em050237.png
+escudo,39785E71,715E7839,El Dorado 02,01_icon_emblem/em050238.png
+escudo,AF485906,065948AF,El Dorado 03,01_icon_emblem/em050239.png
+escudo,5A56C347,47C3565A,Caballeros de la Mesa Redonda,01_icon_emblem/em050241.png
+escudo,E007CADE,DECA07E0,Chrono Storm,01_icon_emblem/em050242.png
+escudo,7637CDA9,A9CD3776,Armiños Invernales,01_icon_emblem/em050243.png
+escudo,D5A2A937,37A9A2D5,Osos Dorados,01_icon_emblem/em050244.png
+escudo,4392AE40,40AE9243,Aves Acuáticas,01_icon_emblem/em050245.png
+escudo,F9C3A7D9,D9A7C3F9,Víboras Nocturnas,01_icon_emblem/em050246.png
+escudo,6FF3A0AE,AEA0F36F,Canes Escarlata,01_icon_emblem/em050247.png
+escudo,1B67D85E,5ED8671B,Equipo A-5,01_icon_emblem/em050251.png
+escudo,9ABB3E21,213EBB9A,Nuevo Inazuma Japón,01_icon_emblem/em060220.png
+escudo,B983CD65,65CD83B9,Earth Eleven,01_icon_emblem/em060301.png
+escudo,03D2C4FC,FCC4D203,Dragones de Fuego (GO 3),01_icon_emblem/em060302.png
+escudo,95E2C38B,8BC3E295,Big Waves (GO 3),01_icon_emblem/em060303.png
+escudo,3677A715,15A77736,Cimitarras,01_icon_emblem/em060304.png
+escudo,A047A062,62A047A0,Muay Tigers,01_icon_emblem/em060305.png
+escudo,1A16A9FB,FBA9161A,Storm Wolves,01_icon_emblem/em060306.png
+escudo,8C26AE8C,8CAE268C,Resistencia Japón,01_icon_emblem/em060307.png
+escudo,1D3B111C,1C113B1D,Sílice,01_icon_emblem/em060308.png
+escudo,8B0B166B,6B160B8B,Naiadi,01_icon_emblem/em060309.png
+escudo,6E82D10B,0BD1826E,Magmavís,01_icon_emblem/em060310.png
+escudo,F8B2D67C,7CD6B2F8,Fertilia,01_icon_emblem/em060311.png
+escudo,42E3DFE5,E5DFE342,Falam Medius,01_icon_emblem/em060312.png
+escudo,D4D3D892,92D8D3D4,Flota Ixar,01_icon_emblem/em060313.png
+escudo,7746BC0C,0CBC4677,Big Bang,01_icon_emblem/em060314.png
+escudo,E176BB7B,7BBB76E1,Supernova,01_icon_emblem/em060315.png
+escudo,5B27B2E2,E2B2275B,Dinastía Galáctica,01_icon_emblem/em060316.png
+escudo,CD17B595,95B517CD,Sombras,01_icon_emblem/em060317.png
+escudo,5014EB5A,5AEB1450,Raimon Isla Remota,01_icon_emblem/em070001.png
+escudo,EA45E2C3,C3E245EA,Polaris,01_icon_emblem/em070002.png
+escudo,7C75E5B4,B4E5757C,Plenilunio,01_icon_emblem/em070003.png
+escudo,DFE0812A,2A81E0DF,Bastión,01_icon_emblem/em070004.png
+escudo,49D0865D,5D86D049,Kirkwood (Ares),01_icon_emblem/em070005.png
+escudo,F3818FC4,C48F81F3,Brain (Ares),01_icon_emblem/em070006.png
+escudo,65B188B3,B388B165,Royal Academy (Ares),01_icon_emblem/em070007.png
+escudo,F4AC3723,2337ACF4,Zeus (Ares),01_icon_emblem/em070008.png
+escudo,629C3054,54309C62,Alpino (Ares),01_icon_emblem/em070009.png
+escudo,8715F734,34F71587,Academia Alia,01_icon_emblem/em070010.png
+escudo,1125F043,43F02511,Instituto Ribera,01_icon_emblem/em070011.png
+escudo,AB74F9DA,DAF974AB,Isla Remota,01_icon_emblem/em070012.png
+escudo,B2B094DD,DD94B0B2,Barcelona Orb,01_icon_emblem/em070016.png
+escudo,248093AA,AA938024,Colina Verde,01_icon_emblem/em070017.png
+escudo,8183BBD8,D8BB8381,Inazuma Japón Implacable,01_icon_emblem/em080001.png
+escudo,3BD2B241,41B2D23B,Bisonte Rojo,01_icon_emblem/em080002.png
+escudo,ADE2B536,36B5E2AD,Demonios Brillantes,01_icon_emblem/em080003.png
+escudo,0E77D1A8,A8D1770E,Bailarines Eternos,01_icon_emblem/em080004.png
+escudo,9847D6DF,DFD64798,Ejército del Fénix Árabe,01_icon_emblem/em080005.png
+escudo,2216DF46,46DF1622,Tropa Acrobática del Fútbol,01_icon_emblem/em080006.png
+escudo,B426D831,31D826B4,Gigantes Invencibles,01_icon_emblem/em080007.png
+escudo,253B67A1,A1673B25,Navy Invader,01_icon_emblem/em080008.png
+escudo,B30B60D6,D6600BB3,Chispas Perfectas,01_icon_emblem/em080009.png
+escudo,5682A7B6,B6A78256,Olé de Samba,01_icon_emblem/em080010.png
+escudo,C0B2A0C1,C1A0B2C0,Guardianes de la Reina,01_icon_emblem/em080011.png
+escudo,7AE3A958,58A9E37A,Eclipse de Orión,01_icon_emblem/em080012.png
+escudo,ECD3AE2F,2FAED3EC,Unicornios con Estrellas,01_icon_emblem/em080013.png
+escudo,4F46CAB1,B1CA464F,<MNT:KINUNS>,01_icon_emblem/em080014.png
+escudo,D976CDC6,C6CD76D9,Gatos Estrella de Shanghái,01_icon_emblem/em080015.png
+escudo,6327C45F,5FC42763,Escuadrón del Barrio,01_icon_emblem/em080016.png
+escudo,5532F71E,1EF73255,<MNT:NAGUMOHARA>,01_icon_emblem/em110001.png
+escudo,EF63FE87,87FE63EF,Campeones Raimon,01_icon_emblem/em110002.png
+escudo,7953F9F0,F0F95379,Northbright,01_icon_emblem/em110003.png
+escudo,DAC69D6E,6E9DC6DA,Club de béisbol de <MNT:NAGUMOHARA>,01_icon_emblem/em110004.png
+escudo,4CF69A19,199AF64C,West Manor,01_icon_emblem/em110005.png
+escudo,F6A79380,8093A7F6,Internacional Eastwind,01_icon_emblem/em110006.png
+escudo,609794F7,F7949760,Stormridge,01_icon_emblem/em110007.png
+escudo,F18A2B67,672B8AF1,Táctica Royal Academy,01_icon_emblem/em110008.png
+escudo,67BA2C10,102CBA67,Twinford,01_icon_emblem/em110009.png
+escudo,8233EB70,70EB3382,Crosswind-Fauxshore,01_icon_emblem/em110010.png
+escudo,1403EC07,07EC0314,Academia Orchid,01_icon_emblem/em110011.png
+escudo,AE52E59E,9EE552AE,Vendedores de <MNT:NAGUMOHARA>,01_icon_emblem/em110012.png
+escudo,3862E2E9,E9E26238,Goleadores del Callejón,01_icon_emblem/em110013.png
+escudo,9BF78677,7786F79B,Gaviotas FC,01_icon_emblem/em110014.png
+escudo,0DC78100,0081C70D,Solaria-Zeus,01_icon_emblem/em110015.png
+escudo,B7968899,998896B7,Instituto Visión Noble,01_icon_emblem/em110016.png
+escudo,21A68FEE,EE8FA621,Lawcrest,01_icon_emblem/em110017.png
+escudo,B0BB307E,7E30BBB0,Academia IA,01_icon_emblem/em110018.png
+escudo,268B3709,09378B26,Alpino (V),01_icon_emblem/em110019.png
+escudo,4160C65B,5BC66041,Mary Times (V),01_icon_emblem/em110020.png
+escudo,D750C12C,2CC150D7,Plathos,01_icon_emblem/em110021.png
+escudo,6D01C8B5,B5C8016D,Destructores,01_icon_emblem/em110022.png
+escudo,FB31CFC2,C2CF31FB,Guardianes,01_icon_emblem/em110023.png
+escudo,58A4AB5C,5CABA458,Selección de Japón (V),01_icon_emblem/em110024.png
+escudo,CE94AC2B,2BAC94CE,Zanark Outsiders,01_icon_emblem/em110025.png
+escudo,E5D81A22,221AD8E5,Tormenta cortante,01_icon_emblem/em110029.png
+escudo,0051DD42,42DD5100,Hojas espinosas,01_icon_emblem/em110030.png
+escudo,9661DA35,35DA6196,Aplastarocas,01_icon_emblem/em110031.png
+escudo,2C30D3AC,ACD3302C,Llamarada volcánica,01_icon_emblem/em110032.png
+escudo,30554BA6,A64B5530,Club de baile,01_icon_emblem/em111001.png
+escudo,8A04423F,3F42048A,Club de balonmano,01_icon_emblem/em111002.png
+escudo,1C344548,4845341C,Club de bádminton,01_icon_emblem/em111003.png
+escudo,BFA121D6,D621A1BF,Club de surf,01_icon_emblem/em111004.png
+escudo,299126A1,A1269129,Club de rugby,01_icon_emblem/em111005.png
+escudo,93C02F38,382FC093,Club de sumo,01_icon_emblem/em111006.png
+escudo,05F0284F,4F28F005,Club de kendo,01_icon_emblem/em111007.png
+escudo,94ED97DF,DF97ED94,Club de judo,01_icon_emblem/em111008.png
+escudo,02DD90A8,A890DD02,Club de artes marciales,01_icon_emblem/em111009.png
+escudo,E75457C8,C85754E7,Club de culturismo,01_icon_emblem/em111010.png
+escudo,716450BF,BF506471,Club de voleibol,01_icon_emblem/em111011.png
+escudo,CB355926,265935CB,Club de ping-pong,01_icon_emblem/em111012.png
+escudo,5D055E51,515E055D,Club de tenis,01_icon_emblem/em111013.png
+escudo,FE903ACF,CF3A90FE,Club de atletismo,01_icon_emblem/em111014.png
+escudo,68A03DB8,B83DA068,Club de baloncesto,01_icon_emblem/em111015.png
+escudo,D2F13421,2134F1D2,Club de natación,01_icon_emblem/em111016.png
+escudo,44C13356,5633C144,Club de waterpolo,01_icon_emblem/em111017.png
+escudo,D5DC8CC6,C68CDCD5,Club de ciberdeportes,01_icon_emblem/em111018.png
+escudo,43EC8BB1,B18BEC43,Club de informática,01_icon_emblem/em111019.png
+escudo,24077AE3,E37A0724,Club de investigación,01_icon_emblem/em111020.png
+escudo,B2377D94,947D37B2,Club de cartas,01_icon_emblem/em111021.png
+escudo,0866740D,0D746608,Club de go y shogi,01_icon_emblem/em111022.png
+escudo,9E56737A,7A73569E,Club de teatro,01_icon_emblem/em111023.png
+escudo,3DC317E4,E417C33D,Club de magia,01_icon_emblem/em111024.png
+escudo,ABF31093,9310F3AB,Club de danza folclórica,01_icon_emblem/em111025.png
+escudo,11A2190A,0A19A211,Club de ceremonia del té,01_icon_emblem/em111026.png
+escudo,87921E7D,7D1E9287,Club de astronomía,01_icon_emblem/em111027.png
+escudo,168FA1ED,EDA18F16,Club de arte,01_icon_emblem/em111028.png
+escudo,80BFA69A,9AA6BF80,Club de idols,01_icon_emblem/em111029.png
+escudo,653661FA,FA613665,Club de ocultismo,01_icon_emblem/em111030.png
+escudo,F306668D,8D6606F3,Banda juvenil de viento,01_icon_emblem/em111031.png
+escudo,49576F14,146F5749,Club de canto,01_icon_emblem/em111032.png
+escudo,DF676863,636867DF,Club de música moderna,01_icon_emblem/em111033.png
+escudo,7CF20CFD,FD0CF27C,Club de periodismo,01_icon_emblem/em111034.png
+escudo,EAC20B8A,8A0BC2EA,Club de metalurgia,01_icon_emblem/em111035.png
+escudo,50930213,13029350,Club de biología marina,01_icon_emblem/em111036.png
+escudo,C6A30564,6405A3C6,Club de manga,01_icon_emblem/em111037.png
+escudo,8899C4CF,CFC49988,Emblema: Juventud,01_icon_emblem/em900001.png
+escudo,32C8CD56,56CDC832,Emblema: Alas,01_icon_emblem/em900002.png
+escudo,A4F8CA21,21CAF8A4,Emblema: Flash,01_icon_emblem/em900003.png
+escudo,076DAEBF,BFAE6D07,Emblema: Lobo Negro,01_icon_emblem/em900004.png
+escudo,915DA9C8,C8A95D91,Emblema: Espada de las Espinas,01_icon_emblem/em900005.png
+escudo,2B0CA051,51A00C2B,Emblema: Hojas Duales,01_icon_emblem/em900006.png
+escudo,BD3CA726,26A73CBD,Emblema: Inazuma,01_icon_emblem/em900007.png
+escudo,2C2118B6,B618212C,Emblema: Trueno,01_icon_emblem/em900008.png
+escudo,BA111FC1,C11F11BA,Emblema: León Rojo,01_icon_emblem/em900009.png
+escudo,5F98D8A1,A1D8985F,Emblema: Gran Escudo,01_icon_emblem/em900010.png
+escudo,C9A8DFD6,D6DFA8C9,Emblema: Planeta,01_icon_emblem/em900011.png
+escudo,73F9D64F,4FD6F973,Emblema: Nova,01_icon_emblem/em900012.png
+escudo,E5C9D138,38D1C9E5,Emblema: Sapo,01_icon_emblem/em900013.png
+escudo,465CB5A6,A6B55C46,Emblema: Delfín,01_icon_emblem/em900014.png
+escudo,D06CB2D1,D1B26CD0,Emblema: Danza de las Flores,01_icon_emblem/em900015.png
+escudo,6A3DBB48,48BB3D6A,Emblema: Puño de Hierro,01_icon_emblem/em900016.png
+escudo,FC0DBC3F,3FBC0DFC,Emblema: Crepúsculo,01_icon_emblem/em900017.png
+escudo,6D1003AF,AF03106D,Emblema: Tri-Dragón,01_icon_emblem/em900018.png
+escudo,FB2004D8,D80420FB,Emblema: Pirata,01_icon_emblem/em900019.png
+escudo,9CCBF58A,8AF5CB9C,Emblema: Demonio,01_icon_emblem/em900020.png
+escudo,0AECA8F3,F3A8EC0A,<MNT:NAGUMOHARA> A,01_icon_emblem/em110001a.png
+escudo,B0BDA16A,6AA1BDB0,<MNT:NAGUMOHARA> B,01_icon_emblem/em110001b.png
+escudo,268DA61D,1DA68D26,<MNT:NAGUMOHARA> C,01_icon_emblem/em110001c.png
+escudo,8B547AAF,AF7A548B,Vendedores de <MNT:NAGUMOHARA>,
+escudo,A3048683,838604A3,Raimon Isla Remota A,01_icon_emblem/em070001a.png
+escudo,19558F1A,1A8F5519,Raimon Isla Remota B,01_icon_emblem/em070001b.png
+escudo,76B6D072,72D0B676,Inazuma Japón Implacable,01_icon_emblem/em080001a.png
+escudo,CCE7D9EB,EBD9E7CC,Inazuma Japón Implacable,01_icon_emblem/em080001b.png
+escudo,38B0A4F2,F2A4B038,Emblema de eliminatorias,01_icon_emblem/em910001.png
+escudo,82E1AD6B,6BADE182,Emblema de ronda principal,01_icon_emblem/em910002.png
+escudo,14D1AA1C,1CAAD114,Emblema de finalista,01_icon_emblem/em910003.png
+escudo,B744CE82,82CE44B7,Emblema de MEJORES 4,01_icon_emblem/em910004.png
+escudo,2174C9F5,F5C97421,Emblema de subcampeón,01_icon_emblem/em910005.png
+escudo,9B25C06C,6CC0259B,Emblema de campeón,01_icon_emblem/em910006.png
+escudo,815AAF28,28AF5A81,Raimon 1,01_icon_emblem/em530591.png
+escudo,4F9FDE41,41DE9F4F,Tarjeteros,01_icon_emblem/em530584.png
+escudo,AFC911AA,AA11C9AF,Fase previa FF A,01_icon_emblem/em520510.png
+escudo,755E5186,86515E75,Fase nacional FF B,01_icon_emblem/em520524.png
+escudo,33EA6A33,336AEA33,Ultra Zeus,01_icon_emblem/em510488.png
+escudo,0E3C1CAA,AA1C3C0E,Neo Raimon,01_icon_emblem/em530665.png
+escudo,ABCFF0CF,CFF0CFAB,Los Superadorables,01_icon_emblem/em530578.png
+escudo,FAAA3BF6,F63BAAFA,Gafitas,01_icon_emblem/em520521.png
+escudo,25E27351,5173E225,Ninjas a Gogó,01_icon_emblem/em530598.png
+escudo,39F916DD,DD16F939,Fase previa FF B,01_icon_emblem/em520511.png
+escudo,D6CB3518,1835CBD6,Fase nacional FF A,01_icon_emblem/em520523.png
+escudo,EEF80AB3,B30AF8EE,Neo Royal Academy,01_icon_emblem/em520500.png
+escudo,F73C67B4,B4673CF7,Selección nacional A,01_icon_emblem/em520504.png
+escudo,83A81F44,441FA883,Divinidades y Alienígenas,01_icon_emblem/em520512.png
+escudo,FC0F3E0C,0C3E0FFC,Nuevo Caos,01_icon_emblem/em530613.png
+escudo,CF0F581F,1F580FCF,Suplentes del Raimon,01_icon_emblem/em520527.png
+escudo,C299045D,5D0499C2,Alius A,01_icon_emblem/em520502.png
+escudo,0C5C7534,34755C0C,Selección nacional B,01_icon_emblem/em520517.png
+escudo,203D7BDA,DA7B3D20,Alius B,01_icon_emblem/em520515.png
+escudo,C06BB431,31B46BC0,Reinas del Hielo,01_icon_emblem/em530581.png
+escudo,4D6D6E2D,2D6E6D4D,Royal Claustro A,01_icon_emblem/em520507.png
+escudo,15981833,33189815,<FLA:REIJI> All Stars,01_icon_emblem/em520513.png
+escudo,A3D7F0F5,F5F0D7A3,Astros del Grupo A,01_icon_emblem/em530609.png
+escudo,B785C1B0,B0C185B7,Ángeles del Caos,01_icon_emblem/em530628.png
+escudo,EDD35331,3153D3ED,Ases Internacionales,01_icon_emblem/em530566.png
+escudo,9AAFFBF0,F0FBAF9A,Hermanas Estrelladas,01_icon_emblem/em551097.png
+escudo,02D4F453,53F4D402,Estrellas femeninas,01_icon_emblem/em530026.png
+escudo,7A3ABDA8,A8BD3A7A,Los Payasetes,01_icon_emblem/em530582.png
+escudo,808346C6,C6468380,Astros del Firm.,01_icon_emblem/em530574.png
+escudo,3B997F43,437F993B,Mega Inazuma Eleven,01_icon_emblem/em530663.png
+escudo,3173CBA7,A7CB7331,Selección CI,01_icon_emblem/em541038.png
+escudo,EE069284,849206EE,Superheroínas,01_icon_emblem/em541104.png
+escudo,26C92E61,612EC926,Superestrellas CI,01_icon_emblem/em541057.png
+escudo,783695F3,F3953678,Gerentes,01_icon_emblem/em541105.png
+escudo,910E7BBA,BA7B0E91,Última Orden,01_icon_emblem/em541071.png
+escudo,B0F92916,1629F9B0,Fuerza Elemental,01_icon_emblem/em541056.png
+escudo,35B6A7C3,C3A7B635,Rubios de Bote,01_icon_emblem/em541078.png
+escudo,073E7CCD,CD7C3E07,Ángeles del Caos Zero,01_icon_emblem/em541070.png
+escudo,6C9A3833,33389A6C,Alucinaciones,01_icon_emblem/em541089.png
+escudo,460F67D4,D4670F46,Pro Sector Quinto,01_icon_emblem/em541060.png
+escudo,1914242C,2C241419,Auténticas Leyendas,01_icon_emblem/em551052.png
+escudo,8F24235B,5B23248F,Chrono Crisis,01_icon_emblem/em551053.png
+escudo,F62607E9,E90726F6,Superestrellas de Owari,01_icon_emblem/em551060.png
+escudo,BA8140B2,B24081BA,Élite Omega,01_icon_emblem/em551055.png
+escudo,DA470907,070947DA,Invencibles de Chengdú,01_icon_emblem/em551062.png
+escudo,6016009E,9E001660,Fuerza de Orleans,01_icon_emblem/em551061.png
+escudo,07FDF1CC,CCF1FD07,Belladona,01_icon_emblem/em551058.png
+escudo,C1768451,518476C1,Hermanos del Estadio,01_icon_emblem/em561323.png
+escudo,23D2FBD6,D6FBD223,Leyendas rebeldes,01_icon_emblem/em561334.png
+escudo,9415AE0D,0DAE1594,Pimpollos Eleven,01_icon_emblem/em561312.png
+escudo,0225A97A,7AA92502,Féminas Eleven,01_icon_emblem/em561313.png
+escudo,57468326,26834657,Némesis Astrales,01_icon_emblem/em561322.png
+escudo,C825B477,77B425C8,Iridiscencia Zafiro,01_icon_emblem/em561346.png
+escudo,06E0C51E,1EC5E006,Iridiscencia Rubí,01_icon_emblem/em561353.png
+escudo,3780CA93,93CA8037,Tutores Guardianes,01_icon_emblem/em561315.png
+escudo,B874A0E3,E3A074B8,Las Galácticas,01_icon_emblem/em561310.png
+escudo,8AFC7BED,ED7BFC8A,Comando Entrenadores,01_icon_emblem/em561318.png
+escudo,BCB1CC87,87CCB1BC,Los Cósmicos,01_icon_emblem/em561350.png
+escudo,9EAE4AA8,A84AAE9E,Los Estirados,01_icon_emblem/em561339.png
+escudo,0480AC80,80AC8004,Los Princesos,01_icon_emblem/em571021.png
+escudo,BED1A519,19A5D1BE,Las Principesas,01_icon_emblem/em571022.png
+escudo,CA45DDE9,E9DD45CA,Dioses de la Dioptría,01_icon_emblem/em571034.png
+escudo,7014D470,70D41470,Llamas Glaciales,01_icon_emblem/em571037.png
+escudo,0DD39CA6,A69CD30D,Titanes de Ares,01_icon_emblem/em571044.png
+escudo,AA83945C,5C9483AA,Real Academia Plenilunio,01_icon_emblem/em571003.png
+escudo,636B5DD2,D25D6B63,Miniastros,01_icon_emblem/em571018.png
+escudo,F55B5AA5,A55A5BF5,Gigaboys,01_icon_emblem/em571019.png
+escudo,B0AF2DD8,D82DAFB0,Selección de <FUL:KINUN>,01_icon_emblem/em571049.png
+escudo,1417F1A1,A1F11714,Nuevo Inazuma Fusión,01_icon_emblem/em571040.png
+escudo,21B29248,4892B221,Selección Mundial,01_icon_emblem/em571046.png
+escudo,5526EAB8,B8EA2655,Estrellas Neo,01_icon_emblem/em571050.png
+escudo,5775CA30,30CA7557,Brigada Orión Asia,01_icon_emblem/em581001.png
+escudo,ED24C3A9,A9C324ED,Neo Japón Implacable,01_icon_emblem/em581002.png
+escudo,E624D307,07D324E6,Sombras del Crepúsculo,01_icon_emblem/em571036.png
+escudo,C316EDCF,CFED16C3,Los Estrafalarios,01_icon_emblem/em571051.png
+escudo,9BE39BD1,D19BE39B,Inazuma Bravos,01_icon_emblem/em571045.png
+escudo,B782953F,3F9582B7,Samuráis por la Libertad,01_icon_emblem/em571047.png
+escudo,7B14C4DE,DEC4147B,Familias aguerridas,01_icon_emblem/em581003.png
+escudo,D881A040,40A081D8,La Élite de Orión,01_icon_emblem/em581004.png
+escudo,E75CAA0D,0DAA5CE7,Los Gourmet,01_icon_emblem/em591001.png
+equipacion,A2E77B27,59441354,Equipación Inazuma Japón Implacable,10_icon_chr/uniform/u080101_10_00_l.png
+equipacion,AAEC5E60,ADA7D81F,Equipación Inazuma Japón Alterno,10_icon_chr/uniform/u051501_10_00_l.png
+equipacion,3F2631D7,258657A2,Equipación Génesis,10_icon_chr/uniform/u021201_10_00_l.png
+equipacion,D3856B2A,252CE113,Equipación Raimon,10_icon_chr/uniform/u010101_10_00_l.png
+equipacion,8A3B2D28,D6ABDBB4,Equipación Royal Academy,10_icon_chr/uniform/u010201_10_00_l.png
+equipacion,81881593,E17C3465,Equipación Zeus,10_icon_chr/uniform/u011001_10_00_l.png
+equipacion,2ACE6DA7,A3542F7A,Equipación Polaris,10_icon_chr/uniform/u070201_10_00_l.png
+equipacion,1DA4AFA6,6C8790DE,Equipación Plenilunio,10_icon_chr/uniform/u070301_10_00_l.png
+equipacion,FF2ED1D6,265F321A,Uniforme vendaval,10_icon_chr/uniform/u045301_10_00_l.png
+equipacion,7A389ED3,FE9DD443,Uniforme verdor,10_icon_chr/uniform/u045401_10_00_l.png
+equipacion,73702BA5,F767237F,Equipación Raimon Isla Remota,10_icon_chr/uniform/u070101_10_00_l.png
+equipacion,A30A8BE2,AECB5B3E,Equipación Raimon revolucionario,10_icon_chr/uniform/u040101_10_00_l.png
+equipacion,1323EBDF,450DA068,Equipación Protocolo Omega,10_icon_chr/uniform/u050101_10_00_l.png
+equipacion,2FE871E3,BBE7C49D,Equipación Campeones Raimon,10_icon_chr/uniform/u110201_10_00_l.png
+equipacion,BD51EF29,B590F066,Equipación Occult,10_icon_chr/uniform/u010301_10_00_l.png
+equipacion,3847A02C,911E63AC,Equipación Wild,10_icon_chr/uniform/u010401_10_00_l.png
+equipacion,0F2D622D,1BC478F3,Equipación Brain,10_icon_chr/uniform/u010501_10_00_l.png
+equipacion,5693242F,3565C492,Equipación Otaku,10_icon_chr/uniform/u010601_10_00_l.png
+equipacion,61F9E62E,EBFA8692,Equipación Shuriken,10_icon_chr/uniform/u010701_10_00_l.png
+equipacion,5CBEBA25,E251C8C6,Equipación Farm,10_icon_chr/uniform/u010801_10_00_l.png
+equipacion,6BD47824,BF8BEEE3,Equipación Kirkwood,10_icon_chr/uniform/u010901_10_00_l.png
+equipacion,B6E2D792,297C6041,Equipación Inazuma Kids FC,10_icon_chr/uniform/u011101_10_00_l.png
+equipacion,EF5C9190,7A47A6BD,Equipación Umbrella,10_icon_chr/uniform/u011201_10_00_l.png
+equipacion,D8365391,A7F271BD,Equipación Sallys,10_icon_chr/uniform/u011301_10_00_l.png
+equipacion,5D201C94,C9C2A801,Equipación Veteranos Inazuma,10_icon_chr/uniform/u011401_10_00_l.png
+equipacion,03FFCB6D,368C7CA2,Equipación Servicio Secreto,10_icon_chr/uniform/u020101_10_00_l.png
+equipacion,5A418D6F,1ED7F450,Equipación Alpino,10_icon_chr/uniform/u020201_10_00_l.png
+equipacion,6D2B4F6E,68FFB4EE,Equipación Tormenta de Géminis,10_icon_chr/uniform/u020301_10_00_l.png
+equipacion,E83D006B,D26A74D6,Equipación Claustro Sagrado,10_icon_chr/uniform/u020401_10_00_l.png
+equipacion,DF57C26A,CA2D2A5D,Equipación Royal Academy Redux,10_icon_chr/uniform/u020501_10_00_l.png
+equipacion,86E98468,00B0668A,Equipación Triple C,10_icon_chr/uniform/u020601_10_00_l.png
+equipacion,B1834669,D6227C4E,Equipación Épsilon,10_icon_chr/uniform/u020701_10_00_l.png
+equipacion,8CC41A62,037662B1,Equipación Fauxshore,10_icon_chr/uniform/u020801_10_00_l.png
+equipacion,BBAED863,B7055263,Equipación Mary Times,10_icon_chr/uniform/u020901_10_00_l.png
+equipacion,084CF3D6,95BBF710,Equipación Emperadores Oscuros,10_icon_chr/uniform/u021301_10_00_l.png
+equipacion,8D5ABCD3,7254F858,Equipación Prominence,10_icon_chr/uniform/u021401_10_00_l.png
+equipacion,BA307ED2,5F2427AB,Equipación Polvo de Diamantes,10_icon_chr/uniform/u021501_10_00_l.png
+equipacion,E38E38D0,751D47AA,Equipación Caos,10_icon_chr/uniform/u021601_10_00_l.png
+equipacion,E9A3A6DA,210F44A3,Equipación Mar de Árboles,10_icon_chr/uniform/u021801_10_00_l.png
+equipacion,B3D6AB50,C68FF352,Equipación Inazuma Japón,10_icon_chr/uniform/u030101_10_00_l.png
+equipacion,EA68ED52,3AB21E5D,Equipación Neo Japón,10_icon_chr/uniform/u030201_10_00_l.png
+equipacion,DD022F53,2351303D,Equipación Big Waves,10_icon_chr/uniform/u030301_10_00_l.png
+equipacion,58146056,F3649C58,Equipación Leones del Desierto,10_icon_chr/uniform/u030401_10_00_l.png
+equipacion,6F7EA257,1813F4FF,Equipación Dragones de Fuego,10_icon_chr/uniform/u030501_10_00_l.png
+equipacion,36C0E455,6F7F0A04,Equipación Knights of Queen,10_icon_chr/uniform/u030601_10_00_l.png
+equipacion,01AA2654,2E484920,Equipación <MNT:TEAMK>,10_icon_chr/uniform/u030701_10_00_l.png
+equipacion,3CED7A5F,76FB5C82,Equipación Emperadores,10_icon_chr/uniform/u030801_10_00_l.png
+equipacion,0B87B85E,E03C405E,Equipación Unicorn,10_icon_chr/uniform/u030901_10_00_l.png
+equipacion,E1DBD5E9,7362C53B,Equipación Equipo Ogro,10_icon_chr/uniform/u031001_10_00_l.png
+equipacion,D6B117E8,CCA74C04,Equipación Orfeo,10_icon_chr/uniform/u031101_10_00_l.png
+equipacion,8F0F51EA,F424BBEB,Equipación Os Reis,10_icon_chr/uniform/u031201_10_00_l.png
+equipacion,B86593EB,57538E36,Equipación <FST:GARCILDO> Team,10_icon_chr/uniform/u031301_10_00_l.png
+equipacion,3D73DCEE,A8764C5A,Equipación Pequeños Gigantes,10_icon_chr/uniform/u031401_10_00_l.png
+equipacion,0A191EEF,01732636,Equipación Sky Team,10_icon_chr/uniform/u031501_10_00_l.png
+equipacion,53A758ED,3C571A4D,Equipación Dark Team,10_icon_chr/uniform/u031601_10_00_l.png
+equipacion,64CD9AEC,71B22A1C,Equipación Ángel Oscuro,10_icon_chr/uniform/u031701_10_00_l.png
+equipacion,598AC6E7,368422B2,Equipación Equipo Ogro Redux,
+equipacion,6EE004E6,F3A48406,Equipación Los Rojos,10_icon_chr/uniform/u031901_10_00_l.png
+equipacion,56CA26F9,14360AD9,Equipación Grifos de la Rosa,10_icon_chr/uniform/u032301_10_00_l.png
+equipacion,61A0E4F8,96573244,Equipación Brocken Brigade,10_icon_chr/uniform/u032201_10_00_l.png
+equipacion,381EA2FA,6E49901B,Equipación Caimanes del Cabo,10_icon_chr/uniform/u032101_10_00_l.png
+equipacion,FAB4CDE0,69CD5731,Equipación Caballeros Templarios,10_icon_chr/uniform/u040201_10_00_l.png
+equipacion,CDDE0FE1,3233D2AA,Equipación Universal,10_icon_chr/uniform/u040301_10_00_l.png
+equipacion,48C840E4,6A1C4C4D,Equipación Inazuma Kids FC (GO),10_icon_chr/uniform/u040401_10_00_l.png
+equipacion,7FA282E5,5CFCAABA,Equipación Empollones,10_icon_chr/uniform/u040501_10_00_l.png
+equipacion,261CC4E7,EBA9A9C0,Equipación Vía Láctea,10_icon_chr/uniform/u040601_10_00_l.png
+equipacion,117606E6,43AA7C8A,Equipación Poderosa Fe,10_icon_chr/uniform/u040701_10_00_l.png
+equipacion,2C315AED,93FF607B,Equipación Royal Academy Reformado,10_icon_chr/uniform/u040801_10_00_l.png
+equipacion,1B5B98EC,B2AA9535,Equipación Segundo equipo del Raimon,10_icon_chr/uniform/u040901_10_00_l.png
+equipacion,F107F55B,B7FF6AAB,Equipación Cala Pirata,10_icon_chr/uniform/u041001_10_00_l.png
+equipacion,C66D375A,F56CFFFD,Equipación Edad Dorada,10_icon_chr/uniform/u041101_10_00_l.png
+equipacion,9FD37158,35A52295,Equipación Mar de Luna,10_icon_chr/uniform/u041201_10_00_l.png
+equipacion,A8B9B359,620E735A,Equipación Alpino (GO),10_icon_chr/uniform/u041301_10_00_l.png
+equipacion,2DAFFC5C,B4156579,Equipación Kirkwood (GO),10_icon_chr/uniform/u041401_10_00_l.png
+equipacion,1AC53E5D,E49F1C1B,Equipación Espejismo,10_icon_chr/uniform/u041501_10_00_l.png
+equipacion,BC1F09FE,711553F6,Equipación Revolucionarios,10_icon_chr/uniform/u041401_20_00_l.png
+equipacion,7411BA5E,3730D5DE,Equipación Monte Olimpo,10_icon_chr/uniform/u041701_10_00_l.png
+equipacion,4956E655,642805DB,Equipación Dragon Link,10_icon_chr/uniform/u041801_10_00_l.png
+equipacion,7E3C2454,169CA42F,Equipación Luz Eterna,10_icon_chr/uniform/u041901_10_00_l.png
+equipacion,1FA84049,042E6F2B,Equipación Oscuridad Ancestral,10_icon_chr/uniform/u042001_10_00_l.png
+equipacion,717CC44A,EC3BE5C1,Equipación Garra del Sur,10_icon_chr/uniform/u042201_10_00_l.png
+equipacion,4616064B,2148A698,Equipación Colmillo del Norte,
+equipacion,C300494E,16DAA0FA,Equipación Cuerno Demoníaco,10_icon_chr/uniform/u042401_10_00_l.png
+equipacion,91FA55D5,2C45E2EF,Equipación elegante,10_icon_chr/uniform/u045101_10_00_l.png
+equipacion,C84413D7,93D8A471,Equipación musical,10_icon_chr/uniform/u045201_10_00_l.png
+equipacion,4D525CD2,F6F18336,Equipación Panda,10_icon_chr/uniform/u045501_10_00_l.png
+equipacion,28C28248,0BC6B391,Equipación Equipo Zero,10_icon_chr/uniform/u042101_10_00_l.png
+equipacion,14EC1AD0,2C33D98F,Equipación Ultramegahiedra,10_icon_chr/uniform/u045601_10_00_l.png
+equipacion,4A9DADDD,63CF60EE,Equipación <MNT:TENMAS>,10_icon_chr/uniform/u050201_10_00_l.png
+equipacion,F8E120D9,F8EB9CE7,Equipación <MNT:SHIROSHIKA>,10_icon_chr/uniform/u050401_10_00_l.png
+equipacion,9635A4DA,9EE88F14,Equipación <FST:ZANARK> Domain,10_icon_chr/uniform/u050601_10_00_l.png
+equipacion,A15F66DB,91A97E62,Equipación Cascada Perfecta,10_icon_chr/uniform/u050701_10_00_l.png
+equipacion,9C183AD0,F9A783E1,Equipación Caballeros de la Mesa Redonda,
+equipacion,AB72F8D1,25CB231D,Equipación Zan,10_icon_chr/uniform/u050901_10_00_l.png
+equipacion,412E9566,B06C24C5,Equipación El Dorado,
+equipacion,76445767,DB594E63,Equipación Gir,10_icon_chr/uniform/u051101_10_00_l.png
+equipacion,2FFA1165,D54A1FDB,Equipación Gar,10_icon_chr/uniform/u051201_10_00_l.png
+equipacion,1890D364,5F983982,Equipación Ragnah,10_icon_chr/uniform/u051301_10_00_l.png
+equipacion,9D869C61,D5D90E67,Equipación Inazuma Japón Legendario,10_icon_chr/uniform/u051401_10_00_l.png
+equipacion,F3521862,77EE5F46,Equipación Desesperdidos,10_icon_chr/uniform/u051601_10_00_l.png
+equipacion,C438DA63,FC3FF7B7,Equipación Aullido Lunar,10_icon_chr/uniform/u051701_10_00_l.png
+equipacion,F97F8668,E5CDCF9A,Equipación Nosfanáticos,10_icon_chr/uniform/u051801_10_00_l.png
+equipacion,CE154469,002347BF,Equipación Criaturas de la Noche,10_icon_chr/uniform/u051901_10_00_l.png
+equipacion,AF812074,320A90FE,Equipación Procolo Omega 3.0,10_icon_chr/uniform/u052001_10_00_l.png
+equipacion,765637E1,7E51DF9E,Equipación <MNT:NAGUMOHARA>,10_icon_chr/uniform/u110101_10_00_l.png
+equipacion,F8F3405F,7D6011AF,Equipación Gaviotas FC,10_icon_chr/uniform/u111401_10_00_l.png
+equipacion,24AC2B7A,B0842F13,Equipación sencilla,10_icon_chr/uniform/u117401_10_00_l.png
+equipacion,4A8FCD5B,2A44CB89,Equipación Vendedores <MNT:NAGUMOHARA>,10_icon_chr/uniform/u111201_10_00_l.png
+equipacion,1882B3E2,6B110260,Equipación Northbright,10_icon_chr/uniform/u110301_10_00_l.png
+equipacion,9D94FCE7,83C396C9,Equipación Club de béisbol <MNT:NAGUMOHARA>,10_icon_chr/uniform/u110401_10_00_l.png
+equipacion,AAFE3EE6,4982956E,Equipación West Manor,10_icon_chr/uniform/u110501_10_00_l.png
+equipacion,F34078E4,BF00A7A0,Equipación Eastwind,10_icon_chr/uniform/u110601_10_00_l.png
+equipacion,C42ABAE5,12758922,Equipación Stormridge,10_icon_chr/uniform/u110701_10_00_l.png
+equipacion,F96DE6EE,DC35BEB6,Equipación táctica Royal,10_icon_chr/uniform/u110801_10_00_l.png
+equipacion,CE0724EF,506FA2ED,Equipación Twinford,10_icon_chr/uniform/u110901_10_00_l.png
+equipacion,245B4958,133240DC,Equipación Crosswind-Fauxshore,10_icon_chr/uniform/u111001_10_00_l.png
+equipacion,13318B59,351E1BD0,Equipación Academia Orchid,10_icon_chr/uniform/u111101_10_00_l.png
+equipacion,7DE50F5A,63BC4172,Equipación Goleadores del Callejón,10_icon_chr/uniform/u111301_10_00_l.png
+equipacion,CF99825E,5B4A7FCC,Equipación Solaria-Zeus,10_icon_chr/uniform/u111501_10_00_l.png
+equipacion,9627C45C,4F77AD1F,Equipación Instituto Visión Noble,10_icon_chr/uniform/u111601_10_00_l.png
+equipacion,A14D065D,A0E119D2,Equipación Lawcrest,10_icon_chr/uniform/u111701_10_00_l.png
+equipacion,9C0A5A56,89E6EF4E,Equipación Academia IA,10_icon_chr/uniform/u111801_10_00_l.png
+equipacion,AB609857,2DC4AD97,Equipación Alpino (V),10_icon_chr/uniform/u111901_10_00_l.png
+equipacion,FD9E3E4B,CE5DF269,Equipación Plathos,10_icon_chr/uniform/u112101_10_00_l.png
+equipacion,A4207849,D3236651,Equipación Destructores,10_icon_chr/uniform/u112201_10_00_l.png
+equipacion,934ABA48,D2B0B4E9,Equipación Guardianas,10_icon_chr/uniform/u112301_10_00_l.png
+equipacion,2136374C,2FE09427,Equipación Zanark Outsiders,10_icon_chr/uniform/u112501_10_00_l.png
+equipacion,FC193F9C,9EDB7BFC,Equipación estándar,10_icon_chr/uniform/u119101_10_00_l.png
+equipacion,20B1369B,AE9FBFCB,Equipación navideña,10_icon_chr/uniform/u119501_10_00_l.png
+equipacion,8360C326,2A44CB89,Equipación Vendedores <MNT:NAGUMOHARA>,
+equipacion,45CF2D45,109C8240,Equipación Tormenta cortante,10_icon_chr/uniform/u112901_10_00_l.png
+equipacion,AF9340F2,B2EA922F,Equipación Hojas espinosas,10_icon_chr/uniform/u113001_10_00_l.png
+equipacion,98F982F3,8E9EA3FE,Equipación Aplastarocas,10_icon_chr/uniform/u113101_10_00_l.png
+equipacion,C147C4F1,EF61CB69,Equipación Llamarada volcánica,10_icon_chr/uniform/u113201_10_00_l.png
+equipacion,14427A24,DE17975F,Equipación Earth Eleven,10_icon_chr/uniform/u061701_10_00_l.png
+equipacion,C3594B98,6A1B930E,Equipación Dragones de Fuego (GO 3),10_icon_chr/uniform/u060101_10_00_l.png
+equipacion,9AE70D9A,84325488,Equipación Big Waves (GO 3),10_icon_chr/uniform/u060201_10_00_l.png
+equipacion,AD8DCF9B,59476C43,Equipación Cimitarras,10_icon_chr/uniform/u060301_10_00_l.png
+equipacion,289B809E,3A1BB860,Equipación Muay Tigers,10_icon_chr/uniform/u060401_10_00_l.png
+equipacion,464F049D,1792BE96,Equipación Storm Wolves,10_icon_chr/uniform/u060601_10_00_l.png
+equipacion,1FF1429F,856E82A1,Equipación Resistencia Japón,10_icon_chr/uniform/u060501_10_00_l.png
+equipacion,7125C69C,EF7FF9F8,Equipación Sílice,10_icon_chr/uniform/u060701_10_00_l.png
+equipacion,4C629A97,E104B760,Equipación Naiadi,10_icon_chr/uniform/u060801_10_00_l.png
+equipacion,7B085896,A25C1538,Equipación Magmavís,10_icon_chr/uniform/u060901_10_00_l.png
+equipacion,A63EF720,EE74A4F3,Equipación Fertilia,10_icon_chr/uniform/u061101_10_00_l.png
+equipacion,FF80B122,38766052,Equipación Falam Medius,10_icon_chr/uniform/u061201_10_00_l.png
+equipacion,C8EA7323,CF14D5D8,Equipación Flota Ixar,10_icon_chr/uniform/u061301_10_00_l.png
+equipacion,4DFC3C26,88AD789E,Equipación Big Bang,10_icon_chr/uniform/u061401_10_00_l.png
+equipacion,7A96FE27,B5951732,Equipación Supernova,10_icon_chr/uniform/u061501_10_00_l.png
+equipacion,2328B825,DE5795FC,Equipación Dinastía Galáctica,10_icon_chr/uniform/u061601_10_00_l.png
+equipacion,9301D818,BB089E51,Equipación Barcelona Orb,10_icon_chr/uniform/u071601_10_00_l.png
+equipacion,98B2E0A3,559D1F1F,Equipación Bastión,10_icon_chr/uniform/u070401_10_00_l.png
+equipacion,AFD822A2,03A9BB9F,Equipación Kirkwood (Ares),10_icon_chr/uniform/u070501_10_00_l.png
+equipacion,F66664A0,C98FBA9F,Equipación Brain (Ares),10_icon_chr/uniform/u070601_10_00_l.png
+equipacion,C10CA6A1,927DBD05,Eq. Royal Academy (Ares),10_icon_chr/uniform/u070701_10_00_l.png
+equipacion,FC4BFAAA,CF536BCA,Equipación Zeus (Ares),10_icon_chr/uniform/u070801_10_00_l.png
+equipacion,CB2138AB,638CAE24,Equipación Alpino (Ares),10_icon_chr/uniform/u070901_10_00_l.png
+equipacion,217D551C,E7FF78F9,Equipación Academia Alia,10_icon_chr/uniform/u071001_10_00_l.png
+equipacion,1617971D,4FA300FF,Equipación Instituto Ribera,10_icon_chr/uniform/u071101_10_00_l.png
+equipacion,4FA9D11F,B60475A5,Equipación Isla Remota,10_icon_chr/uniform/u071201_10_00_l.png
+equipacion,A46B1A19,C84223ED,Equipación Colina Verde,10_icon_chr/uniform/u071701_10_00_l.png
+equipacion,FB593D25,7538A87F,Equipación Bisonte Rojo,10_icon_chr/uniform/u080201_10_00_l.png
+equipacion,CC33FF24,E5E12969,Equipación Demonios Brillantes,10_icon_chr/uniform/u080301_10_00_l.png
+equipacion,4925B021,19B00A61,Equipación Bailarines Eternos,10_icon_chr/uniform/u080401_10_00_l.png
+equipacion,7E4F7220,D0AAC431,Eq. Ejército del Fénix Árabe,10_icon_chr/uniform/u080501_10_00_l.png
+equipacion,27F13422,DD3EA19C,Eq. Tropa Acrobática del Fútbol,10_icon_chr/uniform/u080601_10_00_l.png
+equipacion,109BF623,A5795CD0,Equipación Gigantes Invencibles,10_icon_chr/uniform/u080701_10_00_l.png
+equipacion,2DDCAA28,3783EE34,Equipación Navy Invader,10_icon_chr/uniform/u080801_10_00_l.png
+equipacion,1AB66829,09FA75F8,Equipación Chispas Perfectas,10_icon_chr/uniform/u080901_10_00_l.png
+equipacion,F0EA059E,18DFF179,Equipación Olé de Samba,10_icon_chr/uniform/u081001_10_00_l.png
+equipacion,C780C79F,7CC937DE,Equipación G. de la Reina,10_icon_chr/uniform/u081101_10_00_l.png
+equipacion,9E3E819D,BC013A12,Equipación Eclipse de Orión,10_icon_chr/uniform/u081201_10_00_l.png
+equipacion,A954439C,C8A267B9,Eq. Unicornios con Estrellas,10_icon_chr/uniform/u081301_10_00_l.png
+equipacion,2C420C99,39BF0E54,Equipación <MNT:KINUNS>,10_icon_chr/uniform/u081401_10_00_l.png
+equipacion,1B28CE98,B4BA7736,Equipación Orión Juvenil,10_icon_chr/uniform/u081501_10_00_l.png
+equipacion,F62D06F0,420C60A0,Equipación Animador,10_icon_chr/uniform/u113301_10_00_l.png
+equipacion,CE53782D,CF6F1698,E. visitante Zeus,10_icon_chr/uniform/u011001_20_00_l.png
+equipacion,3C8CDCCE,A976A971,E. visitante Servicio Secreto,10_icon_chr/uniform/u020101_20_00_l.png
+equipacion,792829A1,04386FD4,E. visitante Flota Ixar,10_icon_chr/uniform/u061301_20_00_l.png
+equipacion,35006F6A,C470EFB8,E. visitante Alpino (Ares),10_icon_chr/uniform/u070901_20_00_l.png
+equipacion,58823C86,241A0FDB,E. visitante Raimon Isla Remota,10_icon_chr/uniform/u070101_20_00_l.png
+tactica,3229031D,43D8B1AC,Cuernos de toro,
+tactica,F17A2E36,68F5E26F,Espadón,
+tactica,B04B352F,71EED32E,Monte Fuji,
+tactica,77DD7460,3EAF45E9,Lanzas laterales,
+tactica,36EC6F79,27B474A8,Luna creciente,
+tactica,F5BF4252,0C99276B,Defensa del diamante,
+tactica,B48E594B,1582162A,Fortaleza de llamas,
+tactica,7B92C1CC,921A0AE5,Protocolo de enlace,
+tactica,3AA3DAD5,8B013BA4,Ataque en tres frentes,
+tactica,E253A35A,0478CB7C,Aislar al jugador clave,
+tactica,21008E71,2F5598BF,Potenciar al jugador clave,
+tactica,A7A7D427,790F3F39,Formación <FLC:SHINANO>,
+tactica,E696CF3E,60140E78,Vínculo invisible,
+tactica,25C5E215,4B395DBB,Empujón del quince,
+tactica,64F4F90C,52226CFA,Recorrido estelar,
+tactica,ABE8618B,D5BA7035,Rugido decisivo,
+tactica,EAD97A92,CCA14174,Muralla titánica,
+tactica,94087A42,1CA1900A,Bosque encantado,
+tactica,D539615B,05BAA14B,Carrera del dodo,
+tactica,166A4C70,2E97F288,Avance de caballería,
+tactica,D1FC0D3F,61D6644F,Supresión inquebrantable,
+tactica,12AF2014,4AFB378C,Virtuoso del éter,
+tactica,539E3B0D,53E006CD,Contra todo pronóstico,
+tactica,527AC367,3918E2CC,Bloqueo espectral,
+tactica,9129EE4C,1235B10F,Cielo infinito,
+tactica,D018F555,0B2E804E,Defensa en bloque,
+tactica,178EB41A,446F1689,Tifones gemelos,
+tactica,56BFAF03,5D7427C8,Caballeros perfectos,
+tactica,95EC8228,7659740B,Presión perfecta,
+tactica,D4DD9931,6F42454A,Lanza invencible,
+tactica,1BC101B6,E8DA5985,Trampa andina,
+tactica,5AF01AAF,F1C168C4,Trueno rodante,
+tactica,24211A7F,21C1B9BA,Contraataque catenaccio,
+tactica,65100166,38DA88FB,Ola del Amazonas,
+tactica,A6432C4D,13F7DB38,Impulso circular,
+tactica,E7723754,0AECEA79,Trueno oscuro,
+tactica,20E4761B,45AD7CBE,Virtuoso,
+tactica,61D56D02,5CB64DFF,Trueno ilimitado,
+tactica,A2864029,779B1E3C,Alas gemelas,
+tactica,E3B75B30,6E802F7D,Ataque táctico,
+tactica,2CABC3B7,E91833B2,Barrera absoluta,
+tactica,6D9AD8AE,F00302F3,Triángulo perfecto,
+tactica,7D9F5C7D,238707E3,Pases volantes,
+tactica,3CAE4764,3A9C36A2,Reflector 3D,
+tactica,FFFD6A4F,11B16561,Virtuoso volcánico,
+tactica,BECC7156,08AA5420,Formación caparazón,
+tactica,795A3019,47EBC2E7,Gran plan,
+tactica,386B2B00,5EF0F3A6,Vórtice de succión,
+tactica,FB38062B,75DDA065,Derrape arenoso,
+tactica,BA091D32,6CC69124,La Marca del Berserker,
+tactica,751585B5,EB5E8DEB,Ciclo imperial,
+tactica,34249EAC,F245BCAA,Zona crítica,
+tactica,4AF59E7C,22456DD4,Maelstrom Omega,
+tactica,0BC48565,3B5E5C95,Cuadrícula defensiva,
+tactica,C897A84E,10730F56,Ataque marioneta,
+tactica,89A6B357,09683E17,Supremacía de la espada,
+tactica,4E30F218,4629A8D0,Desvanecimiento absoluto,
+tactica,0F01E901,5F329991,Danza alineada,
+tactica,CC52C42A,741FCA52,Velo luminoso,
+tactica,8D63DF33,6D04FB13,Maelstrom Omega 2.0,
+tactica,427F47B4,EA9CE7DC,Marcaje al hombre,
+tactica,034E5CAD,F387D69D,Regate abrasador,
+tactica,CFE3D179,270A7B51,Marcaje zombi,
+tactica,8ED2CA60,3E114A10,Virtuoso imperial,
+tactica,4D81E74B,153C19D3,Cal y arena,
+tactica,0CB0FC52,0C272892,La Gran Muralla china,
+tactica,CB26BD1D,4366BE55,Espejismo Shaolin,
+tactica,8A17A604,5A7D8F14,Polvareda cegadora,
+tactica,49448B2F,7150DCD7,Campo explosivo,
+tactica,08759036,684BED96,Aurora tenebrosa,
+supertactica,D1E0C616,481D784F,Buena racha,
+supertactica,6BB1CF8F,D11429F5,Explosión,
+supertactica,FD81C8F8,A6131963,Superbarrera,
+supertactica,5E14AC66,38778CC0,Fiebre de la suerte,
+supertactica,C824AB11,4F70BC56,Portero invicto,
+supertactica,7275A288,D679EDEC,Poder directo,
+formacion,D7BFD755,2D1B1C3C,B-Raimon,
+formacion,6DEEDECC,B4124D86,B-Nagumo Hara,
+formacion,FBDED9BB,C3157D10,B-Club de Béisbol,
+formacion,A3CF4466,94116F1A,4-4-2 Diamante,
+formacion,199E4DFF,0D183EA0,4-4-2 Caja,
+formacion,8FAE4A88,7A1F0E36,3-5-2 Libertad,
+formacion,2C3B2E16,E47B9B95,4-3-3 Triángulo,
+formacion,BA0B2961,937CAB03,4-3-3 Delta,
+formacion,005A20F8,0A75FAB9,4-5-1 Equilibrio,
+formacion,966A278F,7D72CA2F,3-6-1 Hexa,
+formacion,0777981F,EDCDD7BE,5-4-1 Doble Volante,

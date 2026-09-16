@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pizarra</title>
+<link rel="icon" type="image/png" href="/ui/pizarra-icono-64">
+<link rel="stylesheet" href="/web/comun.css">
+<style>
+  /* El menu de inicio, calcado de la pantalla de titulo del juego: fondo claro
+     con hexagonos, el logo grande en el centro, dos paneles grandes y debajo
+     dos filas de fichas inclinadas azul oscuro con un icono blanco. */
+  :root { --panel:#1b2f5c; --panel-claro:#27407a; --hex:rgba(30,60,110,.11); }
+  body { min-height:100vh; display:flex; flex-direction:column; color:var(--tinta);
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.9) 0%, rgba(255,255,255,0) 60%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='84' height='146' viewBox='0 0 84 146'><path d='M42 2 80 24v44L42 90 4 68V24z M42 75 80 97v44L42 163 4 141V97z M0 -2 4 0 M84 -2' fill='none' stroke='rgba(30,60,110,.13)' stroke-width='2'/><path d='M-38 75 0 97v44l-38 22 M84 75l38 22v44l-38 22' fill='none' stroke='rgba(30,60,110,.13)' stroke-width='2'/></svg>") 0 0 / 84px 146px,
+      linear-gradient(180deg,#f4f8fd 0%,#e4edf8 100%); }
+  .arriba { display:flex; justify-content:space-between; align-items:center; padding:10px 22px 0;
+    font-size:var(--t-sm); font-weight:700; color:var(--suave); }
+  .arriba .partida { max-width:70%; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .arriba .partida > span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .portada { flex:1; display:flex; flex-direction:column; align-items:center; padding:6px 20px 30px;
+    gap:22px; }
+
+  /* el logo: el icono (la pizarra tactica en su ficha hexagonal) y el nombre en
+     letras gordas inclinadas con borde blanco y sombra azul, como el del juego */
+  .logo { display:flex; align-items:center; justify-content:center; gap:22px; flex-wrap:wrap;
+    line-height:.9; margin-top:2px; user-select:none; }
+  .logo .icono { width:clamp(96px, 13vw, 150px); height:auto; flex:none;
+    filter:drop-shadow(0 8px 14px rgba(15,53,116,.3)); }
+  .logo .letras { text-align:center; }
+  .logo .l1 { display:block; font-size:clamp(54px, 9vw, 96px); font-weight:900; font-style:italic;
+    letter-spacing:-.02em; color:#1d5fd0;
+    text-shadow:0 0 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff,
+      0 6px 0 #0f3574, 0 9px 14px rgba(15,53,116,.35); }
+  .logo .l1 em { color:var(--naranja); font-style:italic; }
+  .logo .l2 { display:block; font-size:clamp(20px, 3.4vw, 36px); font-weight:900; font-style:italic;
+    letter-spacing:.14em; color:#fff; margin-top:6px;
+    background:linear-gradient(90deg,transparent,#1b4a8f 18%,#1b4a8f 82%,transparent);
+    padding:4px 40px; text-shadow:0 2px 0 rgba(0,0,0,.35); }
+  .logo .l3 { display:block; font-size:var(--t-sm); font-weight:700; color:var(--suave); margin-top:8px;
+    letter-spacing:.04em; }
+
+  /* los dos paneles grandes */
+  .paneles { display:grid; grid-template-columns:repeat(2, minmax(260px, 430px)); gap:26px;
+    width:100%; justify-content:center; }
+  @media (max-width:720px) { .paneles { grid-template-columns:1fr; } }
+  .panel { position:relative; display:block; text-decoration:none; color:#fff; aspect-ratio:16/10;
+    border-radius:8px; overflow:hidden; background:var(--panel);
+    border:3px solid #fff; box-shadow:0 0 0 2px #9fb6d6, 0 10px 22px rgba(15,40,90,.28);
+    transform:skewX(-4deg); transition:transform .12s, box-shadow .12s; }
+  .panel > * { transform:skewX(4deg); }
+  .panel:hover { transform:skewX(-4deg) translateY(-4px); box-shadow:0 0 0 2px var(--cian), 0 16px 26px rgba(15,40,90,.35); }
+  .panel .fondo { position:absolute; inset:-6% -8%; background-size:cover; background-position:center;
+    filter:saturate(1.05); }
+  .panel.editor .fondo { background-image:linear-gradient(180deg,rgba(27,47,92,0) 45%,rgba(27,47,92,.95) 100%), url("/ui/menu-equipo"); }
+  .panel.bd .fondo { background:linear-gradient(180deg,rgba(27,47,92,0) 45%,rgba(27,47,92,.95) 100%), linear-gradient(160deg,#2f6fd0,#143f80); }
+  .panel .caras { position:absolute; left:8%; right:8%; top:9%; display:grid; gap:6px;
+    grid-template-columns:repeat(4,1fr); }
+  .panel .caras .ficha-mini { pointer-events:none; }
+  .panel .rotulo { position:absolute; left:0; right:0; bottom:0; padding:10px 18px 12px;
+    font-size:clamp(20px, 2.6vw, 30px); font-weight:900; font-style:italic; letter-spacing:.06em;
+    text-transform:uppercase; text-shadow:0 2px 0 rgba(0,0,0,.45); }
+  .panel .rotulo small { display:block; font-size:var(--t-sm); font-weight:600; font-style:normal;
+    letter-spacing:0; text-transform:none; opacity:.9; margin-top:2px; }
+
+  /* las fichas inclinadas: icono blanco arriba, nombre debajo */
+  .fichas { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; width:100%; }
+  .ficha { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+    width:118px; height:96px; text-decoration:none; color:#fff; background:var(--panel);
+    border:2px solid #fff; border-radius:6px; box-shadow:0 0 0 2px #9fb6d6, 0 6px 12px rgba(15,40,90,.25);
+    transform:skewX(-8deg); transition:transform .1s, background .1s, box-shadow .1s; }
+  .ficha > * { transform:skewX(8deg); }
+  .ficha:hover { background:var(--panel-claro); transform:skewX(-8deg) translateY(-3px);
+    box-shadow:0 0 0 2px var(--cian), 0 10px 16px rgba(15,40,90,.32); }
+  .ficha img { width:40px; height:40px; object-fit:contain; filter:drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
+  .ficha span { font-size:var(--t-sm); font-weight:800; letter-spacing:.04em; text-transform:uppercase;
+    text-align:center; line-height:1.1; padding:0 4px; }
+  .fila2 { margin-top:-6px; }
+  .pie { color:var(--suave); font-size:var(--t-sm); text-align:center; padding:10px; }
+</style>
+</head>
+<body>
+  <div class="arriba">
+    <span class="partida"><span id="partida"></span>
+      <button class="btn chico" id="cambiar-partida" title="Abrir otra partida (la tuya o la de un amigo)">Cambiar partida...</button></span>
+    <span>Pizarra · para Inazuma Eleven: Victory Road</span>
+  </div>
+  <div class="portada">
+    <div class="logo">
+      <img class="icono" src="/ui/pizarra-icono" alt="">
+      <div class="letras">
+        <span class="l1">PI<em>ZARRA</em></span>
+        <span class="l2">VICTORY ROAD</span>
+        <span class="l3">La pizarra del entrenador: editor de partidas, base de datos y calculadora · todo en tu ordenador</span>
+      </div>
+    </div>
+
+    <nav class="paneles">
+      <a class="panel editor" href="/editor">
+        <span class="fondo"></span>
+        <span class="rotulo">Editor de partida<small>Tus jugadores, tu mochila y tus equipos, con las reglas del juego.</small></span>
+      </a>
+      <a class="panel bd" href="/bd">
+        <span class="fondo"></span>
+        <span class="caras" id="caras"></span>
+        <span class="rotulo">Base de datos<small>Todos los personajes, supertecnicas, espiritus, pasivas y objetos.</small></span>
+      </a>
+    </nav>
+
+    <nav class="fichas">
+      <a class="ficha" href="/editor#jugadores"><img src="/icono/icon_list_tab/icon_list_tab_coach_chr01.png" alt=""><span>Jugadores</span></a>
+      <a class="ficha" href="/editor#mochila"><img src="/icono/icon_list_tab/icon_list_tab_equip01.png" alt=""><span>Mochila</span></a>
+      <a class="ficha" href="/editor#equipos"><img src="/icono/icon_list_tab/icon_list_tab_uniform01.png" alt=""><span>Equipos</span></a>
+      <a class="ficha" href="/editor#fichar"><img src="/icono/icon_list_tab/icon_list_tab_present01.png" alt=""><span>Fichar</span></a>
+      <a class="ficha" href="/bd?p=tecnicas"><img src="/icono/icon_list_tab/icon_list_tab_sp_area01.png" alt=""><span>Supertecnicas</span></a>
+      <a class="ficha" href="/bd?p=espiritus"><img src="/icono/icon_list_tab/icon_list_tab_spirit01.png" alt=""><span>Espiritus</span></a>
+      <a class="ficha" href="/bd?p=pasivas"><img src="/icono/icon_list_tab/icon_list_tab_sixth01.png" alt=""><span>Pasivas</span></a>
+      <a class="ficha" href="/bd?p=objetos"><img src="/icono/icon_list_tab/icon_list_tab_battle01.png" alt=""><span>Objetos</span></a>
+    </nav>
+    <nav class="fichas fila2">
+      <a class="ficha" href="/calc"><img src="/icono/icon_list_tab/icon_list_tab_power01.png" alt=""><span>Calculadora</span></a>
+      <a class="ficha" href="/editor#cambios"><img src="/icono/icon_list_tab/icon_list_tab_history01.png" alt=""><span>Cambios</span></a>
+      <a class="ficha" href="/editor#resumen"><img src="/icono/icon_list_tab/icon_list_tab_record01.png" alt=""><span>Resumen</span></a>
+    </nav>
+  </div>
+  <p class="pie">Todo funciona en tu ordenador. Nada sale de aqui.</p>
+
+<script src="/web/comun.js"></script>
+<script>
+// que partida esta cargada, arriba a la izquierda, y el boton para abrir otra
+// (la de un amigo, por ejemplo): la misma ventana de carpetas que usa el editor
+function pintaPartida() {
+  pedir("/api/estado").then(e => {
+    const ruta = (e.origen || "").replace(/\\/g, "/");
+    const partes = ruta.split("/").filter(Boolean);
+    $("#partida").textContent = partes.length ? "Partida: " + partes.slice(-2).join(" / ") : "Sin partida";
+    $("#partida").title = e.origen || "";
+  }).catch(() => { $("#partida").textContent = "Sin partida"; });
+}
+pintaPartida();
+$("#cambiar-partida").onclick = () => elegirCarpeta("Abrir una partida", async ruta => {
+  try {
+    const d = await pedir("/api/abrir", {method:"POST",
+      headers:{"Content-Type":"application/json"}, body:JSON.stringify({ruta})});
+    pintaPartida();
+    avisa("Abierta " + d.origen + ". Se trabaja sobre ella sin tocarla: al guardar sale una copia.", "bien");
+  } catch (e) { avisa(e.message, "mal"); }
+}, "Abrir esta", true);
+// ocho caras del juego, al azar, en el panel de la base de datos
+pedir("/api/bd/personajes").then(r => {
+  const con = r.personajes.filter(p => p.cara && p.rareza_valor >= 3);
+  const caja = $("#caras");
+  for (let k = 0; k < 8 && con.length; k++) {
+    const p = con.splice(Math.floor(Math.random() * con.length), 1)[0];
+    caja.appendChild(fichaMini(p));
+  }
+}).catch(() => {});
+</script>
+</body>
+</html>

@@ -1,0 +1,1009 @@
+# Todas las supertecnicas del juego, de skill_config.
+# categoria: columna 14, que separa las cuatro sin excepciones.
+# subtipo: columna 9. Los nombres los aporto Aaron.
+# poder (AT): columna 11. tp: columna 10. elemento: columna 12.
+id,nombre,categoria,subtipo,subtipo_valor,elemento,poder,tp,nombre_interno
+A4A8BD63,Inazuma Drop,Tiro,bloqueo de tiros,16,Viento,440,70,whs00010
+67FB9048,Remate combinado,Tiro,normal,0,Fuego,440,70,whs00020
+26CA8B51,Tornado de fuego,Tiro,normal (subtipo 8 sin identificar),8,Fuego,360,60,whs00030
+E15CCA1E,Chut de 100 toques,Tiro,normal (subtipo 8 sin identificar),8,Bosque,300,50,whs00040
+A06DD107,Superrelámpago,Tiro,bloqueo de tiros,16,Viento,440,70,whs00050
+633EFC2C,Remate dragón,Tiro,normal (subtipo 8 sin identificar),8,Bosque,300,50,whs00060
+220FE735,Chut granada,Tiro,normal,0,Fuego,300,50,whs00070
+ED137FB2,Triángulo letal,Tiro,normal,0,Bosque,440,70,whs00080
+AC2264AB,Tiro fantasma,Tiro,normal (subtipo 8 sin identificar),8,Bosque,300,50,whs00090
+D2F3647B,Remate halcón,Tiro,bloqueo de tiros,16,Viento,300,50,whs00100
+93C27F62,Ataque meteorito,Tiro,normal,0,Fuego,300,50,whs00110
+50915249,Remate serpiente,Tiro,normal (subtipo 8 sin identificar),8,Montana,300,50,whs00120
+11A04950,Tiro giratorio,Tiro,normal (subtipo 8 sin identificar),8,Viento,300,50,whs00130
+D636081F,Tiro del cometa,Tiro,tiro largo,4,Viento,300,50,whs00140
+97071306,Disparo rodante,Tiro,normal (subtipo 8 sin identificar),8,Bosque,300,50,whs00150
+54543E2D,Remate múltiple,Tiro,normal (subtipo 8 sin identificar),8,Bosque,300,50,whs00160
+15652534,Tiro dinamita,Tiro,normal (subtipo 8 sin identificar),8,Fuego,360,60,whs00170
+DA79BDB3,Remate misil,Tiro,tiro largo,4,Fuego,360,60,whs00180
+9B48A6AA,Remate espiral,Tiro,normal,0,Viento,300,50,whs00190
+8B4D2279,Chut congelante,Tiro,normal,0,Bosque,300,50,whs00200
+CA7C3960,Pase cruzado,Tiro,normal (subtipo 8 sin identificar),8,Viento,300,50,whs00210
+092F144B,Rapto divino,Tiro,normal (subtipo 8 sin identificar),8,Montana,360,60,whs00220
+481E0F52,Psicorremate,Tiro,normal,0,Bosque,300,50,whs00230
+8F884E1D,Ataque cóndor,Tiro,normal (subtipo 8 sin identificar),8,Viento,300,50,whs00240
+CEB95504,Balón rodante,Tiro,normal,0,Bosque,300,50,whs00250
+0DEA782F,Triángulo Z,Tiro,normal,0,Fuego,440,70,whs00260
+4CDB6336,Bateo total,Tiro,bloqueo de tiros,16,Fuego,360,60,whs00270
+83C7FBB1,Disparo con rebotes,Tiro,normal,0,Montana,360,60,whs00280
+C2F6E0A8,Cabezazo kung-fu,Tiro,normal,0,Bosque,300,50,whs00290
+BC27E078,Tiro cegador,Tiro,normal,0,Fuego,360,60,whs00300
+FD16FB61,Flecha divina,Tiro,normal,0,Viento,360,60,whs00310
+3E45D64A,Tornado inverso,Tiro,bloqueo de tiros,16,Viento,360,60,whs00320
+7F74CD53,Remate Tarzán,Tiro,normal (subtipo 8 sin identificar),8,Montana,300,50,whs00330
+B8E28C1C,Sabiduría divina,Tiro,normal,0,Viento,440,70,whs00340
+F9D39705,Tornado dragón,Tiro,normal,0,Fuego,440,70,whs00350
+3A80BA2E,Bola de fango,Tiro,normal (subtipo 8 sin identificar),8,Montana,300,50,whs00360
+7BB1A137,Pájaro de fuego,Tiro,tiro largo,4,Fuego,360,60,whs00370
+B4AD39B0,Ruptura relámpago,Tiro,normal,0,Viento,640,100,whs00380
+F59C22A9,Tiro galáctico,Tiro,normal,0,Fuego,640,100,whs00390
+3931AF7D,Pingüino emperador n.º 2,Tiro,normal (subtipo 8 sin identificar),8,Bosque,540,85,whs00400
+7800B464,Fénix,Tiro,normal,0,Fuego,540,85,whs00410
+BB53994F,Tiro dracoroniano,Tiro,normal,0,Viento,360,60,whs00420
+FA628256,Tornado oscuro,Tiro,bloqueo de tiros,16,Bosque,360,60,whs00430
+3DF4C319,Ventisca eterna,Tiro,normal,0,Viento,360,60,whs00440
+7CC5D800,Tormenta de fuego,Tiro,normal,0,Fuego,440,70,whs00450
+BF96F52B,Remate tsunami,Tiro,tiro largo,4,Viento,300,50,whs00460
+FEA7EE32,Triángulo letal 2,Tiro,normal,0,Bosque,540,85,whs00470
+31BB76B5,La Tierra,Tiro,normal,0,Montana,640,100,whs00480
+708A6DAC,Arcoíris luminoso,Tiro,tiro largo,4,Montana,300,50,whs00490
+0E5B6D7C,Astrorremate,Tiro,normal,0,Bosque,360,60,whs00500
+4F6A7665,Cañón de meteoritos,Tiro,bloqueo de tiros,16,Fuego,440,70,whs00510
+8C395B4E,Bomba acrobática,Tiro,normal (subtipo 8 sin identificar),8,Bosque,360,60,whs00520
+CD084057,Técnica kung-fu,Tiro,bloqueo de tiros,16,Montana,300,50,whs00530
+0A9E0118,Granada doble,Tiro,normal (subtipo 8 sin identificar),8,Fuego,360,60,whs00540
+4BAF1A01,Cabezazo yoyó,Tiro,normal (subtipo 8 sin identificar),8,Montana,360,60,whs00550
+88FC372A,Remate en V,Tiro,normal,0,Viento,360,60,whs00560
+C9CD2C33,Tiro pirueta,Tiro,normal (subtipo 8 sin identificar),8,Fuego,300,50,whs00570
+06D1B4B4,Cañón dragón,Tiro,bloqueo de tiros,16,Fuego,440,70,whs00580
+47E0AFAD,Zapatazo dual,Tiro,normal,0,Bosque,360,60,whs00590
+57E52B7E,Aullido de lobo,Tiro,tiro largo,4,Viento,440,70,whs00600
+16D43067,Pingüino emperador n.º1,Tiro,normal,0,Bosque,540,85,whs00610
+D5871D4C,Lecho de rosas,Tiro,normal (subtipo 8 sin identificar),8,Bosque,300,50,whs00620
+94B60655,Golf total,Tiro,tiro largo,4,Montana,440,70,whs00630
+5320471A,Chut de 200 toques,Tiro,bloqueo de tiros,16,Bosque,440,70,whs00640
+12115C03,Lanza de Odín,Tiro,tiro largo,4,Viento,360,60,whs00650
+90736A31,Dragón terrestre,Tiro,normal,0,Montana,440,70,whs00670
+5F6FF2B6,Tripegaso,Tiro,normal,0,Viento,540,85,whs00680
+1E5EE9AF,Supertrampolín relámpago,Tiro,normal,0,Viento,540,85,whs00690
+608FE97F,Rayo de Ganímedes,Tiro,bloqueo de tiros,16,Bosque,360,60,whs00700
+21BEF266,Relámpago saltón,Tiro,normal,0,Montana,360,60,whs00710
+E2EDDF4D,Remate del águila,Tiro,tiro largo,4,Montana,360,60,whs00720
+A3DCC454,Baile de mariposas,Tiro,bloqueo de tiros,16,Montana,360,60,whs00730
+644A851B,Disparo cósmico,Tiro,normal (subtipo 8 sin identificar),8,Bosque,440,70,whs00740
+257B9E02,Remate de Gaia,Tiro,normal,0,Montana,540,85,whs00750
+E628B329,Remate gafas,Tiro,normal (subtipo 8 sin identificar),8,Montana,300,50,whs00760
+A719A830,Remate combinado F,Tiro,normal,0,Fuego,540,85,whs00770
+680530B7,Tornado doble,Tiro,bloqueo de tiros,16,Bosque,540,85,whs00780
+29342BAE,Llamarada atómica,Tiro,bloqueo de tiros,16,Fuego,440,70,whs00790
+5DC8B574,Remate seguridad,Tiro,normal,0,Bosque,360,60,whs00800
+1CF9AE6D,Supernova,Tiro,normal,0,Bosque,640,100,whs00810
+DFAA8346,Pingüino espacial,Tiro,normal,0,Viento,640,100,whs00820
+9E9B985F,Remate guiverno,Tiro,normal,0,Bosque,360,60,whs00830
+590DD910,Ventisca guiverno,Tiro,normal,0,Viento,440,70,whs00840
+183CC209,Ventisca de fuego,Tiro,normal,0,Viento,540,85,whs00850
+DB6FEF22,Fénix oscuro,Tiro,normal,0,Bosque,640,100,whs00860
+9A5EF43B,Remate triple,Tiro,tiro largo,4,Fuego,540,85,whs00870
+55426CBC,Neotiro galáctico,Tiro,normal,0,Fuego,640,100,whs00880
+147377A5,Remate asalto,Tiro,tiro largo,4,Fuego,540,85,whs00890
+6AA27775,Disparo sagrado,Tiro,normal,0,Viento,540,85,whs00900
+2B936C6C,Cabezazo megatón,Tiro,bloqueo de tiros,16,Montana,440,70,whs00910
+E8C04147,Tiro torre de Osaka,Tiro,normal (subtipo 8 sin identificar),8,Fuego,360,60,whs00920
+A9F15A5E,Balón iceberg,Tiro,normal (subtipo 8 sin identificar),8,Viento,440,70,whs00930
+6E671B11,Ventisca de fuego,Tiro,normal,0,Fuego,540,85,whs00940
+2F560008,Fuego cruzado,Tiro,normal,0,Fuego,640,100,whs00950
+EC052D23,Remate del tigre,Tiro,tiro largo,4,Montana,360,60,whs00960
+AD34363A,Excalibur,Tiro,tiro largo,4,Viento,360,60,whs00970
+6228AEBD,Llamarada infernal,Tiro,normal,0,Fuego,360,60,whs00980
+2319B5A4,Gran tifón,Tiro,normal,0,Viento,360,60,whs00990
+80FE1AC2,Torbellino trampolín,Tiro,normal (subtipo 8 sin identificar),8,Viento,540,85,whs01000
+C1CF01DB,Bestia del trueno,Tiro,normal,0,Viento,440,70,whs01010
+029C2CF0,Tormenta del tigre,Tiro,normal,0,Fuego,540,85,whs01020
+43AD37E9,Megadragón,Tiro,normal (subtipo 8 sin identificar),8,Bosque,440,70,whs01030
+843B76A6,Círculo de espadas,Tiro,tiro largo,4,Montana,440,70,whs01040
+C50A6DBF,Pingüino emperador n.º 3,Tiro,normal,0,Bosque,640,100,whs01050
+06594094,Gran lobo,Tiro,normal,0,Bosque,540,85,whs01060
+47685B8D,Espada de Odín,Tiro,normal (subtipo 8 sin identificar),8,Montana,440,70,whs01070
+8874C30A,Remate celestial,Tiro,tiro largo,4,Montana,440,70,whs01080
+C945D813,Golpe de samba,Tiro,tiro largo,4,Montana,360,60,whs01090
+B794D8C3,La aurora,Tiro,normal,0,Viento,540,85,whs01100
+F6A5C3DA,Big Bang,Tiro,normal,0,Fuego,640,100,whs01110
+35F6EEF1,Huracán,Tiro,normal,0,Viento,540,85,whs01120
+74C7F5E8,Megalodón,Tiro,normal,0,Viento,360,60,whs01130
+B351B4A7,Ataque de paladín,Tiro,normal (subtipo 8 sin identificar),8,Montana,360,60,whs01140
+F260AFBE,Banana shot,Tiro,normal,0,Bosque,300,50,whs01150
+31338295,Cañón de agua,Tiro,normal,0,Viento,360,60,whs01160
+7002998C,Cañonazo,Tiro,normal,0,Fuego,300,50,whs01170
+BF1E010B,Torbellino de fuego,Tiro,normal (subtipo 8 sin identificar),8,Fuego,540,85,whs01180
+FE2F1A12,Tiro espejismo,Tiro,normal (subtipo 8 sin identificar),8,Bosque,360,60,whs01190
+EE2A9EC1,Remate Pegaso,Tiro,normal (subtipo 8 sin identificar),8,Bosque,440,70,whs01200
+AF1B85D8,Remate unicornio,Tiro,normal (subtipo 8 sin identificar),8,Montana,540,85,whs01210
+6C48A8F3,Tiro a reacción,Tiro,tiro largo,4,Montana,640,100,whs01220
+2D79B3EA,Fuego total,Tiro,tiro largo,4,Fuego,640,100,whs01230
+EAEFF2A5,Disparo valiente,Tiro,tiro largo,4,Montana,640,100,whs01240
+ABDEE9BC,Remate caótico,Tiro,normal,0,Bosque,640,100,whs01250
+688DC497,Puerta astral,Tiro,normal (subtipo 8 sin identificar),8,Bosque,360,60,whs01260
+29BCDF8E,Mandíbulas dobles,Tiro,normal,0,Fuego,360,60,whs01270
+E6A04709,Tiro torre Eiffel,Tiro,normal (subtipo 8 sin identificar),8,Montana,300,50,whs01280
+A7915C10,Tirachinas,Tiro,normal,0,Montana,540,85,whs01290
+D9405CC0,Full goleador,Tiro,normal,0,Bosque,360,60,whs01300
+987147D9,Pingüino emperador X,Tiro,normal,0,Fuego,540,85,whs01310
+5B226AF2,Tiro radiocontrol,Tiro,tiro largo,4,Fuego,360,60,whs01320
+1A1371EB,Cañón X,Tiro,normal,0,Fuego,440,70,whs01330
+DD8530A4,Cañón celestial,Tiro,normal (subtipo 8 sin identificar),8,Montana,440,70,whs01340
+9CB42BBD,Carga negativa,Tiro,bloqueo de tiros,16,Bosque,360,60,whs01350
+5FE70696,Rayo oscuro,Tiro,normal,0,Montana,440,70,whs01360
+1ED61D8F,Fuego supremo,Tiro,normal (subtipo 8 sin identificar),8,Fuego,360,60,whs01370
+D1CA8508,Cometa legendario,Tiro,normal (subtipo 8 sin identificar),8,Viento,640,100,whs01380
+90FB9E11,Diluvio letal,Tiro,tiro largo,4,Fuego,360,60,whs01390
+5C5613C5,Lanza letal,Tiro,tiro largo,4,Bosque,360,60,whs01400
+1D6708DC,Mangual letal,Tiro,normal,0,Montana,640,100,whs01410
+DE3425F7,Rayo oscuro,Tiro,normal,0,Bosque,440,70,whs01420
+9F053EEE,Descenso estelar,Tiro,normal (subtipo 8 sin identificar),8,Fuego,540,85,whs01430
+58937FA1,Triángulo múltiple,Tiro,normal,0,Bosque,440,70,whs01440
+19A264B8,Pingüino múltiple,Tiro,normal,0,Bosque,440,70,whs01450
+DAF14993,Tiro vendaval,Tiro,normal (subtipo 8 sin identificar),8,Viento,300,50,whs01460
+9BC0528A,Proyectil letal,Tiro,normal,0,Fuego,360,60,whs01470
+54DCCA0D,Pingüino emperador 7,Tiro,tiro largo,4,Viento,540,85,whs01480
+15EDD114,Salto incandescente,Tiro,bloqueo de tiros,16,Montana,300,50,whs01490
+6B3CD1C4,Chut ancestral,Tiro,normal,0,Montana,360,60,whs01500
+2A0DCADD,Bomba saltarina,Tiro,normal,0,Fuego,300,50,whs01510
+E95EE7F6,Cabezazo bazuca,Tiro,normal,0,Fuego,300,50,whs01520
+A86FFCEF,Cabezazo cohete,Tiro,normal,0,Fuego,360,60,whs01530
+6FF9BDA0,Tiro balista,Tiro,tiro largo,4,Montana,360,60,whs01540
+2EC8A6B9,Triángulo ZZ,Tiro,normal,0,Fuego,540,85,whs01550
+ED9B8B92,Trayectoria perfecta,Tiro,normal,0,Bosque,300,50,whs01560
+ACAA908B,Pentagrama,Tiro,normal (subtipo 8 sin identificar),8,Bosque,300,50,whs01570
+63B6080C,Aguijón letal,Tiro,normal (subtipo 8 sin identificar),8,Fuego,440,70,whs01580
+22871315,Tiro espectral,Tiro,normal,0,Bosque,360,60,whs01590
+328297C6,Remate dinosaurio,Tiro,normal (subtipo 8 sin identificar),8,Montana,360,60,whs01600
+73B38CDF,Tiro sónico,Tiro,normal,0,Viento,360,60,whs01610
+B0E0A1F4,Aguijones escarlata,Tiro,normal,0,,540,85,whs01620
+F1D1BAED,Lluvia de azufre,Tiro,normal,0,Bosque,440,70,whs01630
+3647FBA2,Peces voladores,Tiro,tiro largo,4,Viento,300,50,whs01640
+7776E0BB,Cascabel,Tiro,normal (subtipo 8 sin identificar),8,Montana,300,50,whs01650
+B425CD90,Tiro sobrenatural,Tiro,normal,0,Fuego,440,70,whs01660
+F514D689,Ciclón blanco,Tiro,bloqueo de tiros,16,Viento,360,60,whs01670
+3A084E0E,Zero Magnum,Tiro,bloqueo de tiros,16,,540,85,whs01680
+7B395517,Estrella oscura,Tiro,normal (subtipo 8 sin identificar),8,Bosque,440,70,whs01690
+05E855C7,Triple amenaza,Tiro,normal (subtipo 8 sin identificar),8,Montana,640,100,whs01700
+44D94EDE,Leopardo de la ventisca,Tiro,normal (subtipo 8 sin identificar),8,Viento,440,70,whs01710
+878A63F5,Furia de los elementos,Tiro,normal (subtipo 8 sin identificar),8,,540,85,whs01720
+C6BB78EC,Ceniza negra,Tiro,normal,0,Bosque,440,70,whs01730
+012D39A3,Burbujas arcoíris,Tiro,tiro largo,4,Bosque,360,60,whs01740
+401C22BA,Coletazo de dragón,Tiro,normal,0,Montana,440,70,whs01750
+834F0F91,Tornado de fuego DD,Tiro,normal,0,Fuego,540,85,whs01760
+C27E1488,Tormenta de fuego,Tiro,normal,0,Fuego,720,120,whs01770
+0D628C0F,Estocada de Lancelot,Tiro,normal,0,Fuego,800,140,whs01780
+4C539716,Movimientos armónicos,Tiro,normal,0,Bosque,720,120,whs01790
+38AF09CC,Alas de halcón,Tiro,normal,0,Viento,800,140,whs01800
+799E12D5,Caja de sorpresas,Tiro,normal,0,Bosque,800,140,whs01810
+BACD3FFE,Golpe justiciero,Tiro,normal,0,Viento,800,140,whs01820
+FBFC24E7,Lanza de carámbanos,Tiro,normal,0,Viento,800,140,whs01830
+3C6A65A8,Asalto aéreo,Tiro,normal,0,Montana,800,140,whs01840
+7D5B7EB1,Torpedo tridente,Tiro,normal,0,Viento,800,140,whs01850
+BE08539A,Llamarada solar,Tiro,normal,0,Fuego,800,140,whs01860
+31FC39EA,Estocada samurái,Tiro,normal,0,Montana,800,140,whs01865
+FF394883,Aliento blanco,Tiro,normal,0,Viento,800,140,whs01870
+3025D004,Hacha del Azote negro,Tiro,normal,0,Bosque,800,140,whs01880
+7114CB1D,Caliburn,Tiro,normal,0,,800,140,whs01890
+0FC5CBCD,Flamberge,Tiro,normal,0,Fuego,800,140,whs01900
+4EF4D0D4,Carga al galope,Tiro,normal,0,Montana,720,120,whs01910
+8DA7FDFF,Jaque mate,Tiro,normal,0,Bosque,720,120,whs01920
+CC96E6E6,Desolación eterna,Tiro,normal,0,,800,140,whs01930
+0B00A7A9,Remate rebotado,Tiro,normal,0,Bosque,360,60,whs01940
+4A31BCB0,Tiro rotativo,Tiro,normal,0,Viento,300,50,whs01950
+8962919B,Chut prehistórico,Tiro,normal,0,Montana,540,85,whs01960
+C8538A82,Balón de plasma,Tiro,tiro largo,4,Viento,300,50,whs01970
+074F1205,Disparo doble,Tiro,tiro largo,4,,360,60,whs01980
+467E091C,Rizo de dragón,Tiro,normal (subtipo 8 sin identificar),8,Viento,440,70,whs01990
+6E51AFD0,Onda chispeante,Tiro,tiro largo,4,Viento,440,70,whs02000
+2F60B4C9,Triángulo letal final,Tiro,normal,0,Bosque,640,100,whs02010
+EC3399E2,Tormenta dimensional,Tiro,bloqueo de tiros,16,Bosque,540,85,whs02020
+AD0282FB,Tiro magnético,Tiro,normal (subtipo 8 sin identificar),8,Bosque,440,70,whs02030
+6A94C3B4,Impulso efímero,Tiro,normal (subtipo 8 sin identificar),8,Bosque,540,85,whs02040
+2BA5D8AD,Tiro de arcabuz,Tiro,tiro largo,4,Fuego,360,60,whs02050
+E8F6F586,Flecha de Cupido,Tiro,tiro largo,4,Fuego,360,60,whs02060
+A9C7EE9F,Cabezazo gigatón,Tiro,normal (subtipo 8 sin identificar),8,Montana,440,70,whs02070
+66DB7618,Golpe cataclismo,Tiro,normal,0,Montana,440,70,whs02080
+27EA6D01,Engranajes aceleradores,Tiro,normal,0,Montana,360,60,whs02090
+593B6DD1,Tiro supermasivo,Tiro,bloqueo de tiros,16,Montana,640,100,whs02100
+180A76C8,Caída planetaria,Tiro,normal (subtipo 8 sin identificar),8,Montana,360,60,whs02110
+DB595BE3,Doble trallazo planetario,Tiro,bloqueo de tiros,16,Montana,440,70,whs02120
+9A6840FA,Tormenta solar,Tiro,normal (subtipo 8 sin identificar),8,Fuego,540,85,whs02130
+5DFE01B5,Viento celestial,Tiro,normal,0,Viento,440,70,whs02140
+1CCF1AAC,Polen devastador,Tiro,normal,0,Montana,540,85,whs02150
+DF9C3787,Tornado de fuego DT,Tiro,normal,0,Fuego,640,100,whs02160
+9EAD2C9E,Tornado de fuego DT,Tiro,normal,0,Fuego,640,100,whs02170
+51B1B419,Gran explosión,Tiro,normal,0,,640,100,whs02180
+1080AF00,Superremate rebotado,Tiro,normal,0,Montana,440,70,whs02190
+00852BD3,Giro atómico,Tiro,tiro largo,4,Bosque,440,70,whs02200
+41B430CA,Tormenta eléctrica,Tiro,normal,0,Viento,540,85,whs02210
+82E71DE1,Katana crisantemo,Tiro,bloqueo de tiros,16,Fuego,540,85,whs02220
+C3D606F8,Cañonazo de fragmentos,Tiro,tiro largo,4,,540,85,whs02230
+044047B7,Tiro amasado,Tiro,tiro largo,4,Fuego,440,70,whs02240
+45715CAE,Colmillo retorcido,Tiro,normal,0,Montana,540,85,whs02250
+86227185,Fulgor majestuoso,Tiro,normal,0,Viento,540,85,whs02260
+C7136A9C,Corte Big Bang,Tiro,normal,0,Bosque,640,100,whs02270
+080FF21B,Ataque Omega,Tiro,normal,0,,640,100,whs02280
+493EE902,Aullido de licántropo,Tiro,normal,0,Fuego,640,100,whs02290
+37EFE9D2,Mordisco de vampiro,Tiro,normal,0,Montana,640,100,whs02300
+76DEF2CB,Escena nocturna,Tiro,normal,0,Viento,640,100,whs02310
+B58DDFE0,Futuro negativo,Tiro,normal,0,Fuego,540,85,whs02320
+F4BCC4F9,Doble hélice,Tiro,normal,0,Bosque,360,60,whs02330
+332A85B6,Soy todopoderoso,Tiro,normal,0,Montana,540,85,whs02340
+721B9EAF,Impulso del equipo definitivo,Tiro,normal,0,Viento,640,100,whs02350
+B148B384,Vuelo de fénix,Tiro,normal,0,Fuego,800,140,whs02360
+F079A89D,Golpe de Atenea,Tiro,normal,0,Viento,800,140,whs02370
+3F65301A,Prisión escarlata,Tiro,normal,0,Montana,800,140,whs02380
+7E542B03,Tiro sombrío,Tiro,normal,0,Fuego,720,120,whs02390
+B2F9A6D7,Fiebre de luna llena,Tiro,normal,0,Bosque,800,140,whs02400
+F3C8BDCE,Asalto mortal,Tiro,normal,0,Montana,800,140,whs02410
+309B90E5,Ataque de corazón,Tiro,normal,0,Viento,800,140,whs02420
+71AA8BFC,Ataque de corazón,Tiro,normal,0,Montana,800,140,whs02430
+B63CCAB3,Taconazo parkour,Tiro,normal,0,Viento,440,70,whs02440
+F70DD1AA,Choque de sirena,Tiro,normal (subtipo 8 sin identificar),8,Viento,300,50,whs02450
+345EFC81,Cabezazo catapulta,Tiro,tiro largo,4,Montana,300,50,whs02460
+756FE798,Fuego rápido,Tiro,tiro largo,4,Fuego,300,50,whs02470
+BA737F1F,Chilena fulminante,Tiro,tiro largo,4,,440,70,whs02480
+FB426406,Balón de petróleo,Tiro,normal,0,Fuego,440,70,whs02490
+859364D6,Tiro elefantino,Tiro,normal,0,Bosque,360,60,whs02500
+C4A27FCF,Fiebre del oro,Tiro,normal,0,Montana,440,70,whs02510
+07F152E4,Misil arenoso,Tiro,normal,0,Montana,540,85,whs02520
+46C049FD,Tiro efervescente,Tiro,normal (subtipo 8 sin identificar),8,Viento,540,85,whs02530
+815608B2,Roca volcánica,Tiro,tiro largo,4,Fuego,540,85,whs02540
+C06713AB,Habichuelas mágicas,Tiro,tiro largo,4,Bosque,300,50,whs02550
+03343E80,Bota propulsora,Tiro,normal,0,Fuego,440,70,whs02560
+42052599,Relámpago volcánico,Tiro,normal (subtipo 8 sin identificar),8,Fuego,640,100,whs02570
+8D19BD1E,Amplificador mágico,Tiro,normal,0,Bosque,640,100,whs02580
+CC28A607,Tormenta estelar,Tiro,normal (subtipo 8 sin identificar),8,Viento,640,100,whs02590
+DC2D22D4,Golpe kabuki,Tiro,normal,0,Bosque,440,70,whs02600
+9D1C39CD,Tiro del corazón real,Tiro,normal,0,Fuego,640,100,whs02610
+5E4F14E6,Remate orbital,Tiro,normal,0,Viento,640,100,whs02620
+1F7E0FFF,Caída galáctica,Tiro,normal,0,,640,100,whs02630
+D8E84EB0,Grito del Edén,Tiro,normal,0,Bosque,640,100,whs02640
+99D955A9,La Tierra: Infinito,Tiro,normal,0,Montana,640,100,whs02650
+5A8A7882,Contragolpe,Tiro,bloqueo de tiros,16,Viento,440,70,whs02660
+1BBB639B,Alba oscura,Tiro,normal,0,Viento,640,100,whs02670
+D4A7FB1C,"¡Tormenta, tornado, huracán!",Tiro,bloqueo de tiros,16,Viento,640,100,whs02680
+9596E005,Vuelo de halcón,Tiro,normal,0,Viento,800,140,whs02690
+03A6E772,Vuelo de águila calva,Tiro,normal,0,Montana,800,140,whs02691
+EB47E0D5,Embate de lobo,Tiro,normal,0,Fuego,800,140,whs02700
+7D77E7A2,Embate de lobo plateado,Tiro,normal,0,Bosque,800,140,whs02701
+C726EE3B,Embate de Dragnova,Tiro,normal,0,,800,140,whs02702
+AA76FBCC,Rugido de león,Tiro,normal,0,Bosque,800,140,whs02710
+3C46FCBB,Rugido de Doruga,Tiro,normal,0,Fuego,800,140,whs02711
+8617F522,Rugido de Goliger,Tiro,normal,0,Montana,800,140,whs02712
+6925D6E7,Coletazo de Belion,Tiro,normal,0,Bosque,800,140,whs02720
+FF15D190,Coletazo de Begiran,Tiro,normal,0,,800,140,whs02721
+4544D809,Coletazo de Pelion,Tiro,normal,0,Viento,800,140,whs02722
+2814CDFE,Cañonazo de Ixaal,Tiro,normal,0,Viento,800,140,whs02730
+BE24CA89,Cañonazo de Vairaas,Tiro,normal,0,Montana,800,140,whs02731
+EF828CB1,Averno de Guma,Tiro,normal,0,Fuego,800,140,whs02740
+AEB397A8,Tornado de fuego A,Tiro,normal (subtipo 8 sin identificar),8,Fuego,360,60,whs02750
+6DE0BA83,Ave goleadora,Tiro,normal,0,Fuego,360,60,whs02760
+2CD1A19A,Oso polar n.º 2,Tiro,normal,0,Montana,440,70,whs02770
+E3CD391D,Tiro meteórico,Tiro,normal,0,Fuego,540,85,whs02780
+A2FC2204,Sapo ninja,Tiro,normal,0,Montana,440,70,whs02790
+D600BCDE,Ofensiva danzarina,Tiro,normal,0,Bosque,360,60,whs02800
+9731A7C7,Lanza polar,Tiro,tiro largo,4,Viento,540,85,whs02810
+54628AEC,Cabezazo fiero,Tiro,normal,0,Fuego,440,70,whs02820
+155391F5,Victoria tricolor,Tiro,normal,0,Viento,540,85,whs02830
+D2C5D0BA,Daruma de fuego,Tiro,normal,0,Fuego,540,85,whs02840
+93F4CBA3,Granizado de fuego,Tiro,normal,0,Bosque,440,70,whs02850
+50A7E688,Tiro centrífugo,Tiro,normal,0,Viento,300,50,whs02860
+1196FD91,Chilena de pingüino,Tiro,normal,0,Fuego,440,70,whs02870
+9E6297E1,Chilena de pingüino,Tiro,normal,0,Bosque,440,70,whs02875
+DE8A6516,Pingüino perfecto,Tiro,normal,0,Bosque,540,85,whs02880
+9FBB7E0F,Lancero real,Tiro,tiro largo,4,Montana,640,100,whs02890
+E16A7EDF,Omnisabiduría divina,Tiro,normal,0,Viento,640,100,whs02900
+A05B65C6,Sierra celestial,Tiro,tiro largo,4,Viento,440,70,whs02910
+630848ED,Remate cazaosos,Tiro,normal,0,Montana,360,60,whs02920
+223953F4,Frente frío,Tiro,normal,0,Viento,440,70,whs02930
+E5AF12BB,Liebre blanca,Tiro,normal,0,Bosque,360,60,whs02940
+A49E09A2,Ventisca triple,Tiro,normal,0,Viento,540,85,whs02950
+67CD2489,Detonador,Tiro,normal,0,Bosque,540,85,whs02960
+26FC3F90,Remate en zigzag,Tiro,normal,0,Viento,440,70,whs02970
+E9E0A717,Combo cósmico,Tiro,normal,0,Bosque,640,100,whs02980
+A8D1BC0E,Ímpetu de dragón,Tiro,normal,0,Montana,440,70,whs02990
+0B361368,Rayo de diamantes,Tiro,normal,0,Montana,540,85,whs03000
+84C27918,Rayo de diamantes curvo,Tiro,normal,0,Montana,540,85,whs03005
+8954255A,Tiro aéreo triple,Tiro,normal,0,Bosque,640,100,whs03020
+C8653E43,Desequilibrio de Pisa,Tiro,normal,0,Montana,440,70,whs03030
+0FF37F0C,Chut vitral,Tiro,normal,0,Viento,540,85,whs03040
+4EC26415,Llamada salvaje,Tiro,normal,0,Viento,540,85,whs03050
+8D91493E,Sombra de Orión,Tiro,normal,0,,640,100,whs03060
+CCA05227,Tiro capoeira,Tiro,normal,0,Bosque,440,70,whs03070
+03BCCAA0,Bala de cañón,Tiro,normal,0,Montana,360,60,whs03080
+428DD1B9,Amanecer detonante,Tiro,normal,0,Fuego,540,85,whs03090
+3C5CD169,Tiburón abisal,Tiro,normal,0,Viento,540,85,whs03100
+7D6DCA70,Cabezazo supermegatón,Tiro,normal,0,Montana,540,85,whs03110
+BE3EE75B,Uno para todos,Tiro,normal,0,Montana,540,85,whs03120
+FF0FFC42,Trance temporal,Tiro,normal,0,Montana,440,70,whs03130
+3899BD0D,Hoja diamantina,Tiro,normal,0,Montana,640,100,whs03140
+79A8A614,Águila bicéfala,Tiro,normal,0,Viento,540,85,whs03150
+BAFB8B3F,Torbellino gemelo,Tiro,normal,0,Fuego,440,70,whs03160
+FBCA9026,Samba letal,Tiro,normal,0,Bosque,440,70,whs03170
+34D608A1,Triángulo letal triturador,Tiro,normal,0,Bosque,640,100,whs03180
+75E713B8,Pájaro ardiente,Tiro,normal,0,Fuego,360,60,whs03190
+65E2976B,Cornada de bisonte,Tiro,normal,0,Fuego,360,60,whs03200
+24D38C72,Granizado de fuego alto,Tiro,normal,0,Bosque,540,85,whs03210
+E780A159,Campo umbrío,Tiro,normal,0,,540,85,whs03220
+A6B1BA40,Ruptura planetaria,Tiro,normal,0,Viento,540,85,whs03230
+6127FB0F,Orbe de Perseo,Tiro,normal,0,Bosque,640,100,whs03240
+2016E016,Pingüinos de luz y sombra,Tiro,normal,0,Bosque,640,100,whs03250
+E345CD3D,Tiro circense,Tiro,normal,0,Fuego,440,70,whs03260
+A274D624,Último recurso,Tiro,normal,0,Fuego,640,100,whs03270
+2D80BC54,Último recurso,Tiro,normal,0,Fuego,640,100,whs03275
+6D684EA3,Último recurso: Sigma,Tiro,bloqueo de tiros,16,,640,100,whs03280
+2C5955BA,Último recurso: Dragón,Tiro,bloqueo de tiros,16,,640,100,whs03290
+5288556A,Polvo de réquiem,Tiro,normal,0,Montana,360,60,whs03300
+13B94E73,Chut al rojo vivo,Tiro,normal,0,Fuego,360,60,whs03310
+D0EA6358,Chut de luna llena,Tiro,normal,0,Montana,540,85,whs03320
+91DB7841,Pingüino emperador n.º 2 + Tiburón,Tiro,normal,0,Bosque,640,100,whs03330
+564D390E,Águila implacable,Tiro,normal,0,Montana,440,70,whs03340
+177C2217,Fisura celestial,Tiro,normal,0,Montana,540,85,whs03350
+D42F0F3C,Lanza gélida,Tiro,normal,0,Viento,540,85,whs03360
+951E1425,Auriga asolador,Tiro,normal,0,Viento,440,70,whs03370
+5A028CA2,Ruptura relámpago CG,Tiro,normal,0,Viento,640,100,whs03380
+1B3397BB,Flecha de hielo,Tiro,normal,0,Viento,360,60,whs03390
+D79E1A6F,Fuego cruzado,Tiro,normal,0,Viento,640,100,whs03400
+96AF0176,Cañón de meteoritos A,Tiro,bloqueo de tiros,16,Fuego,440,70,whs03410
+1481DD5E,Trueno de primavera,Tiro,normal,0,Viento,640,100,whs10010
+D7D2F075,Espada solar,Tiro,normal,0,Fuego,360,60,whs10020
+96E3EB6C,Unificar,Tiro,normal,0,Montana,300,50,whs10030
+5175AA23,Destello de fuerza,Tiro,normal,0,Montana,360,60,whs10040
+1044B13A,Tiro rotatorio,Tiro,normal,0,Viento,300,50,whs10050
+D3179C11,Tiro tramposo,Tiro,normal,0,Fuego,440,70,whs10060
+5D3A1F8F,Tiro de francotirador,Tiro,normal,0,Montana,300,50,whs10080
+1C0B0496,Emperatriz oscura,Tiro,normal,0,Fuego,800,140,whs10090
+62DA0446,Desfile de pingüinos,Tiro,normal,0,Bosque,540,85,whs10100
+23EB1F5F,Tornado de fuego meteoro,Tiro,normal,0,Fuego,540,85,whs10110
+E0B83274,Remate Bahamut,Tiro,normal,0,Bosque,440,70,whs10120
+A189296D,Trueno celestial,Tiro,normal,0,Viento,360,60,whs10130
+661F6822,Impulso de resolución,Tiro,normal (subtipo 8 sin identificar),8,Bosque,360,60,whs10140
+272E733B,Marlín volador,Tiro,tiro largo,4,Viento,360,60,whs10150
+E47D5E10,Tornado de fuego meteoro V,Tiro,normal,0,Fuego,800,140,whs10160
+A54C4509,Aullido de lobo argénteo,Tiro,tiro largo,4,Viento,360,60,whs10170
+6A50DD8E,Ruptura relámpago,Tiro,normal,0,Viento,640,100,whs10180
+2B61C697,Tormenta de fuego,Tiro,normal,0,Fuego,440,70,whs10190
+A495ACE7,Tormenta de fuego,Tiro,normal,0,Fuego,440,70,whs10195
+3B644244,Impacto luminoso,Tiro,normal,0,Viento,800,140,whs10200
+124336FE,Tormenta de fuego,Tiro,normal,0,Fuego,800,140,whs10190_or
+20B3E8C9,Tormenta de fuego,Tiro,normal,0,Fuego,720,120,whs10195_or
+C93DA08C,Ventisca triple,Tiro,normal,0,Viento,800,140,whs02950_or
+78F93074,Combo cósmico,Tiro,normal,0,Bosque,880,160,whs02980_or
+A170143E,Triángulo letal triturador,Tiro,normal,0,Bosque,800,140,whs03180_or
+BBE00C04,Pingüino emperador n.º 2 + Tiburón,Tiro,normal,0,Bosque,880,160,whs03330_or
+CB6FECCC,Lanza gélida,Tiro,normal,0,Viento,880,160,whs03360_or
+860FA4BA,Tornado dragón,Tiro,normal,0,Fuego,720,120,whs00350_or
+3473992F,Supertrampolín relámpago,Tiro,normal,0,Viento,800,140,whs00690_or
+F01EF55B,Remate combinado F,Tiro,normal,0,Fuego,800,140,whs00770_or
+F5D603ED,Ventisca guiverno,Tiro,normal,0,Viento,720,120,whs00840_or
+2189A5D9,Tornado doble,Tiro,normal,0,Bosque,720,120,whs00780_or
+74C55327,Tornado de fuego DT,Tiro,normal,0,Fuego,900,180,whs02160_or
+97D78FD7,Remate caótico,Tiro,normal,0,Bosque,900,180,whs01250_or
+F43CE2C0,Tornado de fuego DD,Tiro,normal,0,Fuego,800,140,whs01760_or
+54C9A24F,Triple amenaza,Tiro,normal (subtipo 8 sin identificar),8,Montana,880,160,whs01700_or
+8CAA6728,Tormenta del tigre,Tiro,normal,0,Fuego,800,140,whs01020_or
+29793BE3,Huracán,Tiro,normal,0,Viento,840,150,whs01120_or
+85B709D7,Chut de 200 toques,Tiro,normal,0,Bosque,720,120,whs00640_or
+76DB1A05,Trueno de primavera,Tiro,normal,0,Viento,880,160,whs10010_or
+D90F6ACC,Oso polar n.º 2,Tiro,normal,0,Montana,800,140,whs02770_or
+69C8E003,Frente frío,Tiro,normal,0,Viento,720,120,whs02930_or
+28847536,Combo cósmico,Tiro,normal,0,Bosque,880,160,whs02980_or_02
+C1CA2F5E,Triángulo letal final,Tiro,normal,0,Bosque,880,160,whs02010_or
+40A40AFD,Ruptura relámpago,Tiro,normal,0,Viento,800,140,whs00380_mm
+327EB79D,Aullido de lobo,Tiro,tiro largo,4,Viento,640,100,whs00600_mm
+EB197925,Pingüino emperador n.º 3,Tiro,normal,0,Bosque,800,140,whs01050_mm
+FF0EB516,Torbellino de fuego,Tiro,normal (subtipo 8 sin identificar),8,Fuego,720,120,whs01180_mm
+F332D645,Chut prehistórico,Tiro,normal,0,Montana,720,120,whs01960_mm
+38DB740F,Pentagrama,Tiro,normal (subtipo 8 sin identificar),8,Bosque,440,70,whs01570_mm
+E94C248D,Aguijón letal,Tiro,normal (subtipo 8 sin identificar),8,Fuego,640,100,whs01580_mm
+96A9E089,Ciclón blanco,Tiro,bloqueo de tiros,16,Viento,540,85,whs01670_mm
+F3DC3CB7,Ceniza negra,Tiro,normal,0,Bosque,640,100,whs01730_mm
+C62AF129,Impulso efímero,Tiro,normal (subtipo 8 sin identificar),8,Bosque,720,120,whs02040_mm
+1650516E,Cabezazo gigatón,Tiro,normal (subtipo 8 sin identificar),8,Montana,640,100,whs02070_mm
+BD04D9AC,Tormenta eléctrica,Tiro,normal,0,Viento,720,120,whs02210_mm
+6D7E79EB,Katana crisantemo,Tiro,bloqueo de tiros,16,Fuego,720,120,whs02220_mm
+7DA25959,Colmillo retorcido,Tiro,normal,0,Montana,720,120,whs02250_mm
+685865AF,Soy todopoderoso,Tiro,normal,0,Montana,720,120,whs02340_mm
+23A69CF0,Triple amenaza,Tiro,normal (subtipo 8 sin identificar),8,Montana,800,140,whs01700_mm
+C112A44F,Tiro rotatorio,Tiro,normal,0,Viento,440,70,whs10050_mm
+E6CFFB5B,Llamarada atómica,Tiro,bloqueo de tiros,16,Fuego,640,100,whs00790_mm
+62145D27,Gran explosión,Tiro,normal,0,,800,140,whs02180_mm
+A35F2D17,Tiro supermasivo,Tiro,bloqueo de tiros,16,Montana,800,140,whs02100_mm
+446AA917,Regate múltiple,Regate,normal,0,Bosque,300,50,who00010
+8739843C,Entrada huracán,Regate,normal,0,Viento,360,60,who00020
+C6089F25,Torbellino dragón,Regate,normal,0,Viento,300,50,who00030
+019EDE6A,Espejismo de balón,Regate,normal,0,Bosque,360,60,who00040
+40AFC573,Acelerón,Regate,normal,0,Montana,300,50,who00050
+83FCE858,Rueda infernal,Regate,normal,0,Montana,440,70,who00060
+C2CDF341,Entrada de llamas,Regate,normal,0,Fuego,360,60,who00070
+0DD16BC6,Zigzag chispeante,Regate,normal,0,Viento,300,50,who00080
+4CE070DF,Equilibrismo,Regate,normal,0,Viento,300,50,who00090
+3231700F,Maldición,Regate,normal,0,Bosque,300,50,who00100
+73006B16,Superarmadillo,Regate,normal,0,Montana,300,50,who00110
+B053463D,Niebla venenosa,Regate,normal,0,Viento,300,50,who00120
+F1625D24,Escáner ataque,Regate,normal,0,Bosque,300,50,who00130
+36F41C6B,Confusión,Regate,normal,0,Montana,300,50,who00140
+77C50772,Remate planeador,Regate,normal,0,Fuego,440,70,who00150
+B4962A59,Imagen residual,Regate,normal,0,Bosque,360,60,who00160
+F5A73140,Regate topo,Regate,normal,0,Montana,300,50,who00170
+3ABBA9C7,Remolino cortante,Regate,normal,0,Viento,360,60,who00180
+7B8AB2DE,Giro de mono,Regate,normal,0,Montana,300,50,who00190
+6B8F360D,Hora celestial,Regate,normal,0,Viento,540,85,who00200
+2ABE2D14,Coz,Regate,normal,0,Fuego,360,60,who00210
+E9ED003F,Entrada tormentosa,Regate,normal,0,Viento,440,70,who00220
+A8DC1B26,Salto lunar,Regate,normal,0,Viento,300,50,who00230
+6F4A5A69,Truco de magia,Regate,normal,0,Bosque,300,50,who00240
+2E7B4170,Regate espejismo,Regate,normal,0,Bosque,360,60,who00250
+ED286C5B,Descodificación,Regate,normal,0,Montana,360,60,who00260
+AC197742,Avance flamígero,Regate,normal,0,Fuego,440,70,who00270
+6305EFC5,Carrera a 3 piernas,Regate,normal,0,Montana,360,60,who00280
+2234F4DC,Regate aurora,Regate,normal,0,Viento,440,70,who00290
+5CE5F40C,Pared solitaria,Regate,normal,0,Fuego,360,60,who00300
+1DD4EF15,Tuya-mía doble,Regate,normal,0,Bosque,440,70,who00310
+DE87C23E,Pompa de chicle,Regate,normal,0,Fuego,300,50,who00320
+9FB6D927,Prima donna,Regate,normal,0,Montana,360,60,who00330
+58209868,Armadillo circense,Regate,normal,0,Fuego,360,60,who00340
+19118371,Coz 2,Regate,normal,0,Fuego,360,60,who00350
+DA42AE5A,Esprint triple,Regate,normal,0,Montana,440,70,who00360
+9B73B543,Acelerrelámpago,Regate,normal,0,Fuego,440,70,who00370
+546F2DC4,Aikido,Regate,normal,0,Viento,440,70,who00380
+155E36DD,Sorteo de balón,Regate,normal,0,Montana,360,60,who00390
+D9F3BB09,Tornado venenoso,Regate,normal,0,Bosque,300,50,who00400
+98C2A010,Teleportación,Regate,normal,0,Bosque,360,60,who00410
+5B918D3B,Lluvia de meteoros,Regate,normal,0,Fuego,440,70,who00420
+1AA09622,Cruz del Sur,Regate,normal,0,Bosque,440,70,who00430
+DD36D76D,Regate rítmico,Regate,normal,0,Viento,300,50,who00440
+9C07CC74,Paipay gigante,Regate,normal,0,Viento,360,60,who00450
+5F54E15F,Pantalla ígnea,Regate,normal,0,Fuego,300,50,who00460
+1E65FA46,Pantalla acuática,Regate,normal,0,Viento,360,60,who00470
+D17962C1,Campo de fuerza,Regate,normal,0,Bosque,540,85,who00480
+904879D8,Patada canguro,Regate,normal,0,Montana,300,50,who00490
+EE997908,Tacón infernal,Regate,normal,0,Fuego,360,60,who00500
+AFA86211,Ignición,Regate,normal,0,Montana,360,60,who00510
+6CFB4F3A,Vuelo de Ícaro,Regate,normal,0,Fuego,440,70,who00520
+2DCA5423,Danza del viento,Regate,normal,0,Viento,440,70,who00530
+EA5C156C,Descarte,Regate,normal,0,Viento,360,60,who00540
+AB6D0E75,Engaño torero,Regate,normal,0,Bosque,300,50,who00550
+683E235E,Superelástico,Regate,normal,0,Montana,360,60,who00560
+290F3847,Cúpula sónica,Regate,normal,0,Bosque,360,60,who00570
+E613A0C0,Amago de tiro,Regate,normal,0,Fuego,360,60,who00580
+A722BBD9,Patín aéreo,Regate,normal,0,Viento,440,70,who00590
+B7273F0A,Coz 3,Regate,normal,0,Fuego,640,100,who00600
+F6162413,Balón galgo,Regate,normal,0,Fuego,300,50,who00610
+35450938,Inmersión,Regate,normal,0,Montana,360,60,who00620
+74741221,Ultraluna,Regate,normal,0,Bosque,440,70,who00630
+B3E2536E,Balón angelical,Regate,normal,0,Viento,440,70,who00640
+F2D34877,Balón diabólico,Regate,normal,0,Bosque,440,70,who00650
+70B17E45,Piroquinesis,Regate,normal,0,Fuego,300,50,who00670
+BFADE6C2,Remolino acuático,Regate,normal,0,Viento,300,50,who00680
+FE9CFDDB,Truco balonazo,Regate,normal,0,Bosque,300,50,who00690
+804DFD0B,Rodillazos atómicos,Regate,normal,0,Fuego,300,50,who00700
+C17CE612,Mirada al futuro,Regate,normal,0,Bosque,300,50,who00710
+022FCB39,Arrancada,Regate,normal,0,Viento,360,60,who00720
+431ED020,Visto y no visto,Regate,normal,0,Bosque,360,60,who00730
+8488916F,Brisa deslizante,Regate,normal,0,Viento,360,60,who00740
+C5B98A76,Círculo de hielo,Regate,normal,0,Viento,360,60,who00750
+06EAA75D,Finta bumerán,Regate,normal,0,Montana,300,50,who00760
+47DBBC44,Remolino ígneo,Regate,normal,0,Fuego,360,60,who00770
+88C724C3,Mina terrestre,Regate,normal,0,Montana,360,60,who00780
+C9F63FDA,Cruce explosivo,Regate,normal,0,Fuego,440,70,who00790
+BD0AA100,Esferas luminosas,Regate,normal,0,Fuego,440,70,who00800
+FC3BBA19,Pasos aéreos,Regate,normal,0,Montana,360,60,who00810
+3F689732,Regate supersónico,Regate,normal,0,,440,70,who00820
+7E598C2B,Trance melódico,Regate,normal,0,Bosque,360,60,who00830
+B9CFCD64,Dragón ascendente,Regate,normal,0,Montana,440,70,who00840
+F8FED67D,Himno de Atenea,Regate,normal,0,Bosque,440,70,who00850
+3BADFB56,Sello gigante,Regate,normal,0,Montana,300,50,who00860
+7A9CE04F,Guardia acrobática,Regate,normal,0,Montana,360,60,who00870
+B58078C8,Carga hipersónica,Regate,normal,0,Viento,800,140,who00880
+F4B163D1,Lazos de oscuridad,Regate,normal,0,Bosque,800,140,who00890
+8A606301,Zarpazo real,Regate,normal,0,Montana,800,140,who00900
+CB517818,Puño metralleta,Regate,normal,0,Fuego,720,120,who00910
+08025533,Rayo celeste,Regate,normal,0,Viento,800,140,who00920
+49334E2A,Ritmo agresivo,Regate,normal,0,Fuego,440,70,who00930
+8EA50F65,Barrena voladora,Regate,normal,0,Viento,360,60,who00940
+CF94147C,Túnel tornado,Regate,normal,0,Viento,440,70,who00950
+0CC73957,Choque directo,Regate,normal,0,Bosque,300,50,who00960
+4DF6224E,Rematerialización,Regate,normal,0,Bosque,360,60,who00970
+82EABAC9,Ojo del huracán,Regate,normal,0,Bosque,440,70,who00980
+C3DBA1D0,Salto explosivo,Regate,normal,0,Fuego,360,60,who00990
+603C0EB6,Avance chispeante,Regate,normal,0,Fuego,360,60,who01000
+210D15AF,Ataque de garza,Regate,normal,0,Fuego,360,60,who01010
+E25E3884,Corriente negra,Regate,normal,0,Montana,540,85,who01020
+A36F239D,Espada real,Regate,normal,0,Montana,540,85,who01030
+64F962D2,Formateo de disco,Regate,normal,0,,440,70,who01040
+25C879CB,Estampida en línea,Regate,normal,0,,360,60,who01050
+E69B54E0,Brisa encabritada,Regate,normal,0,Viento,440,70,who01060
+A7AA4FF9,Despliegue de señuelos,Regate,normal,0,,540,85,who01070
+68B6D77E,Hoz de remolino,Regate,normal,0,Viento,800,140,who01080
+2987CC67,La tempestad,Regate,normal,0,Bosque,800,140,who01090
+5756CCB7,Relámpago bestial,Regate,normal,0,Bosque,800,140,who01100
+1667D7AE,Espada sombría,Regate,normal,0,Montana,720,120,who01110
+D534FA85,Garras llameantes,Regate,normal,0,Fuego,800,140,who01120
+9405E19C,Rayo demoníaco,Regate,normal,0,Montana,800,140,who01130
+5393A0D3,Aro-Alehop,Regate,normal,0,Viento,300,50,who01140
+12A2BBCA,Mirada intimidante,Regate,normal,0,Montana,360,60,who01150
+D1F196E1,Bolea ígnea,Regate,normal,0,Fuego,300,50,who01160
+90C08DF8,Regate en Z,Regate,normal,0,Bosque,360,60,who01170
+5FDC157F,Deriva desértica,Regate,normal,0,Montana,440,70,who01180
+1EED0E66,Siega baja,Regate,normal,0,Bosque,440,70,who01190
+0EE88AB5,Ruta de la Seda,Regate,normal,0,Fuego,440,70,who01200
+4FD991AC,Excavación,Regate,normal,0,Montana,540,85,who01210
+8C8ABC87,Chorro rebotante,Regate,normal,0,Viento,540,85,who01220
+CDBBA79E,Lecho de lava,Regate,normal,0,Fuego,540,85,who01230
+0A2DE6D1,Salto champiñón,Regate,normal,0,Bosque,540,85,who01240
+4B1CFDC8,Bloqueo holográfico,Regate,normal,0,Montana,640,100,who01250
+884FD0E3,Bofetón látigo,Regate,normal,0,Viento,640,100,who01260
+C97ECBFA,Plumas brillantes,Regate,normal,0,Viento,540,85,who01270
+0662537D,Espada de Atlas,Regate,normal,0,Montana,640,100,who01280
+47534864,Arco psíquico,Regate,normal,0,Bosque,640,100,who01290
+398248B4,¡Hala! ¡Un ovni!,Regate,normal,0,Bosque,540,85,who01300
+78B353AD,Acorde difuso,Regate,normal,0,Fuego,640,100,who01310
+BBE07E86,Remolino de hojas,Regate,normal,0,Bosque,640,100,who01320
+FAD1659F,Galope de caballo,Regate,normal,0,Viento,800,140,who01330
+6CE162E8,Galope de Univolt,Regate,normal,0,Fuego,800,140,who01331
+3D4724D0,Fulgor de pavo real,Regate,normal,0,Bosque,800,140,who01340
+AB7723A7,Fulgor de Fenikias,Regate,normal,0,Viento,800,140,who01341
+11262A3E,Fulgor de Brakias,Regate,normal,0,Fuego,800,140,who01342
+7C763FC9,Placaje de oso pardo,Regate,normal,0,Montana,800,140,who01350
+EA4638BE,Placaje de oso lunar,Regate,normal,0,Fuego,800,140,who01351
+50173127,Placaje de grifo,Regate,normal,0,,800,140,who01352
+BF2512E2,Salto de antílope,Regate,normal,0,Viento,800,140,who01360
+29151595,Salto de antílope oscuro,Regate,normal,0,,800,140,who01361
+93441C0C,Salto de Pamerio,Regate,normal,0,Bosque,800,140,who01362
+FE1409FB,Horadador de Dohma,Regate,normal,0,Montana,800,140,who01370
+68240E8C,Horadador de Zooma,Regate,normal,0,Bosque,800,140,who01371
+3108917C,Bombas de Gusfi,Regate,normal,0,Montana,800,140,who01380
+70398A65,Carga de pegaso,Regate,normal,0,Viento,800,140,who01390
+E6098D12,Carga de pegaso rojo,Regate,normal,0,Fuego,800,140,who01391
+BC9407B1,Entrada relampagueante,Regate,normal,0,Viento,440,70,who01400
+FDA51CA8,Viento centelleante,Regate,normal,0,Fuego,540,85,who01410
+3EF63183,Regate divino,Regate,normal,0,Bosque,300,50,who01420
+F96070CC,Fulgor fugaz,Regate,normal,0,Viento,540,85,who01450
+3A335DE7,Embestida bufalina,Regate,normal,0,Montana,440,70,who01460
+7B0246FE,Laberinto,Regate,normal,0,Fuego,540,85,who01470
+3710E401,Carnaval centelleante,Regate,normal,0,Bosque,800,140,who10020
+B1B7BE57,Carrera afanosa,Regate,normal,0,Montana,300,50,who10040
+F086A54E,Resplandor cegador,Regate,normal,0,Fuego,300,50,who10050
+33D58865,Cataratas del Niágara,Regate,normal,0,Viento,360,60,who10060
+72E4937C,Mirada asesina,Regate,normal,0,Fuego,440,70,who10070
+BDF80BFB,Luz del mariscal,Regate,normal,0,Montana,540,85,who10080
+82181032,Brisa de la cúspide,Regate,normal,0,Viento,360,60,who10100
+C3290B2B,Visión de matriz,Regate,normal,0,Bosque,360,60,who10110
+007A2600,Contragolpe de halcón,Regate,normal,0,Fuego,360,60,who10120
+414B3D19,Círculo elegante,Regate,normal,0,Viento,360,60,who10130
+86DD7C56,Aro hula hoop,Regate,normal,0,Viento,360,60,who10140
+C7EC674F,Regate fantasmal,Regate,normal,0,Bosque,360,60,who10150
+04BF4A64,¡Hala! ¡Una bola de arroz!,Regate,normal,0,Bosque,360,60,who10160
+458E517D,Ritmo eléctrico,Regate,normal,0,Fuego,360,60,who10170
+33C4F0B7,Esprint triple,Regate,normal,0,Montana,800,140,who00360_or
+539730CD,Armadillo circense,Regate,normal,0,Fuego,720,120,who00340_or
+20A07D68,Coz 3,Regate,normal,0,Fuego,800,140,who00600_or
+9DB66431,Rueda infernal,Regate,normal,0,Montana,720,120,who00060_or
+F2F2F5EE,Túnel tornado,Regate,normal,0,Viento,640,100,who00950_mm
+9E74ADDD,Corriente negra,Regate,normal,0,Montana,720,120,who01020_mm
+2E5DCDE0,Espada real,Regate,normal,0,Montana,720,120,who01030_mm
+879A6E7D,El muro,Defensa,bloqueo de tiro,16,Montana,360,60,whd00010
+44C94356,Barrido defensivo,Defensa,normal,0,Bosque,300,50,whd00020
+05F8584F,Giro bobina,Defensa,normal,0,Viento,300,50,whd00030
+C26E1900,Sismo,Defensa,normal,0,Montana,300,50,whd00040
+835F0219,Robo rápido,Defensa,normal,0,Bosque,300,50,whd00050
+400C2F32,Telaraña,Defensa,normal,0,Bosque,360,60,whd00060
+013D342B,Ciclón,Defensa,normal,0,Viento,360,60,whd00070
+CE21ACAC,Bola falsa,Defensa,normal,0,Bosque,300,50,whd00080
+8F10B7B5,Ataque sombrío,Defensa,normal,0,Bosque,360,60,whd00090
+F1C1B765,Pisotón de sumo,Defensa,normal,0,Montana,300,50,whd00100
+B0F0AC7C,Embestida,Defensa,bloqueo de tiro,16,Fuego,300,50,whd00110
+73A38157,Flecha huracán,Defensa,normal,0,Viento,360,60,whd00120
+32929A4E,Corte giratorio,Defensa,bloqueo de tiro,16,Viento,300,50,whd00130
+F504DB01,Escáner defensa,Defensa,normal,0,Bosque,300,50,whd00140
+B435C018,Manos fantasmagóricas,Defensa,normal,0,Bosque,360,60,whd00150
+7766ED33,Doppelgänger,Defensa,normal,0,Bosque,300,50,whd00160
+3657F62A,Corro de la patata,Defensa,normal,0,Montana,440,70,whd00170
+F94B6EAD,Segadora,Defensa,normal,0,Bosque,360,60,whd00180
+B87A75B4,Pisotón de justicia,Defensa,bloqueo de tiro,16,Fuego,440,70,whd00190
+A87FF167,Megaterremoto,Defensa,normal,0,Montana,440,70,whd00200
+E94EEA7E,Ataque afilado,Defensa,normal,0,Viento,300,50,whd00210
+2A1DC755,Sorpresa,Defensa,normal,0,Montana,300,50,whd00220
+6B2CDC4C,Estrella fugaz,Defensa,bloqueo de tiro,16,Fuego,360,60,whd00230
+ACBA9D03,Paisaje helado,Defensa,normal,0,Viento,360,60,whd00240
+ED8B861A,Defensa múltiple,Defensa,normal,0,Bosque,360,60,whd00250
+2ED8AB31,Voltereta circense,Defensa,normal,0,Montana,360,60,whd00260
+6FE9B028,Gravedad grave,Defensa,bloqueo de tiro,16,Montana,300,50,whd00270
+A0F528AF,Torre inexpugnable,Defensa,bloqueo de tiro,16,Viento,360,60,whd00280
+E1C433B6,Flash de fotones,Defensa,normal,0,Fuego,360,60,whd00290
+9F153366,Gravitación,Defensa,bloqueo de tiro,16,Montana,440,70,whd00300
+DE24287F,Dúo magma,Defensa,normal,0,Bosque,440,70,whd00310
+1D770554,Superpeonza,Defensa,bloqueo de tiro,16,Fuego,300,50,whd00320
+5C461E4D,Bombazo,Defensa,normal,0,Fuego,360,60,whd00330
+9BD05F02,Corte volcánico,Defensa,bloqueo de tiro,16,Fuego,360,60,whd00340
+DAE1441B,Presa,Defensa,bloqueo de tiro,16,Bosque,360,60,whd00350
+19B26930,Superpisotón de sumo,Defensa,bloqueo de tiro,16,Fuego,360,60,whd00360
+58837229,Robo planetario,Defensa,normal,0,Fuego,440,70,whd00370
+979FEAAE,Zona sigma,Defensa,normal,0,Bosque,540,85,whd00380
+D6AEF1B7,Ciclón doble,Defensa,normal,0,Viento,440,70,whd00390
+1A037C63,Emboscada defensiva,Defensa,normal,0,Montana,540,85,whd00400
+5B32677A,Baile de llamas,Defensa,normal,0,Fuego,440,70,whd00410
+98614A51,Cinto astral,Defensa,bloqueo de tiro,16,Bosque,440,70,whd00420
+D9505148,Escudo corporal,Defensa,normal,0,Montana,540,85,whd00430
+1EC61007,Zona de seguridad,Defensa,normal,0,Viento,300,50,whd00440
+5FF70B1E,Gran sabio,Defensa,bloqueo de tiro,16,Montana,360,60,whd00450
+9CA42635,Aplanadora,Defensa,bloqueo de tiro,16,Montana,360,60,whd00460
+DD953D2C,Olor embriagador,Defensa,normal,0,Bosque,440,70,whd00470
+1289A5AB,Cortafuegos,Defensa,normal,0,Fuego,360,60,whd00480
+53B8BEB2,Bloqueo ballena,Defensa,normal,0,Viento,360,60,whd00490
+2D69BE62,Campo torbellino,Defensa,bloqueo de tiro,16,Viento,360,60,whd00500
+6C58A57B,Tren loco,Defensa,normal,0,Fuego,440,70,whd00510
+AF0B8850,Rompehielos,Defensa,normal,0,Viento,360,60,whd00520
+EE3A9349,Torre perfecta,Defensa,normal,0,Viento,540,85,whd00530
+29ACD206,Corte diabólico,Defensa,bloqueo de tiro,16,Bosque,440,70,whd00540
+689DC91F,Ángel de nieve,Defensa,normal,0,Viento,360,60,whd00550
+ABCEE434,Escudo bárbaro,Defensa,bloqueo de tiro,16,Montana,440,70,whd00560
+EAFFFF2D,Gran seísmo,Defensa,bloqueo de tiro,16,Montana,540,85,whd00570
+25E367AA,Tormenta de arena,Defensa,normal,0,Viento,440,70,whd00580
+64D27CB3,Emboscada,Defensa,normal,0,Bosque,360,60,whd00590
+74D7F860,Dientes de roca,Defensa,normal,0,Montana,360,60,whd00600
+35E6E379,Estela ígnea,Defensa,normal,0,Fuego,360,60,whd00610
+F6B5CE52,Muro de hierro,Defensa,bloqueo de tiro,16,Montana,440,70,whd00620
+B784D54B,Placaje extremo,Defensa,normal,0,Montana,360,60,whd00630
+70129404,Golpe de vacío,Defensa,bloqueo de tiro,16,Viento,440,70,whd00640
+31238F1D,Engaño yoyó,Defensa,normal,0,Bosque,360,60,whd00650
+F270A236,Entrada rodante,Defensa,normal,0,Fuego,360,60,whd00660
+B341B92F,Jaula de piedra,Defensa,normal,0,Montana,360,60,whd00670
+7C5D21A8,La montaña,Defensa,bloqueo de tiro,16,Montana,440,70,whd00680
+3D6C3AB1,Zigzag de fuego,Defensa,normal,0,Fuego,360,60,whd00690
+43BD3A61,Subida a los cielos,Defensa,normal,0,Viento,440,70,whd00700
+028C2178,Caída a los infiernos,Defensa,normal,0,Bosque,440,70,whd00710
+C1DF0C53,La niebla,Defensa,normal,0,Bosque,360,60,whd00720
+80EE174A,Red de caza,Defensa,bloqueo de tiro,16,Bosque,360,60,whd00730
+47785605,A todo vapor,Defensa,normal,0,Fuego,300,50,whd00740
+06494D1C,Gran torbellino,Defensa,normal,0,Viento,360,60,whd00750
+C51A6037,Coleccionista de cartas,Defensa,bloqueo de tiro,16,Fuego,300,50,whd00760
+842B7B2E,Mirada ladrona,Defensa,normal,0,Bosque,300,50,whd00770
+4B37E3A9,Fuerza centrífuga,Defensa,normal,0,Viento,300,50,whd00780
+0A06F8B0,Proyectil de ozono,Defensa,bloqueo de tiro,16,Viento,360,60,whd00790
+7EFA666A,Orca peligrosa,Defensa,normal,0,Viento,300,50,whd00800
+3FCB7D73,Defensa propulsada,Defensa,bloqueo de tiro,16,Montana,440,70,whd00810
+FC985058,Picadora,Defensa,normal,0,Fuego,360,60,whd00820
+BDA94B41,Pinzas cortantes,Defensa,normal,0,Fuego,360,60,whd00830
+7A3F0A0E,Portal dimensional,Defensa,normal,0,Bosque,360,60,whd00840
+3B0E1117,Carga de elefantes,Defensa,normal,0,Montana,440,70,whd00850
+F85D3C3C,Espectro oscuro,Defensa,normal,0,,360,60,whd00860
+B96C2725,Luz cegadora,Defensa,normal,0,Fuego,360,60,whd00870
+7670BFA2,Salto dimensional,Defensa,normal,0,,440,70,whd00880
+3741A4BB,La gran muralla,Defensa,bloqueo de tiro,16,Montana,360,60,whd00890
+4990A46B,Niebla mística,Defensa,bloqueo de tiro,16,Bosque,440,70,whd00900
+08A1BF72,Muralla de Atlantis,Defensa,bloqueo de tiro,16,Montana,440,70,whd00910
+CBF29259,Lanza tornado,Defensa,normal,0,Viento,800,140,whd00920
+8AC38940,Golpe titánico,Defensa,normal,0,Montana,800,140,whd00930
+4D55C80F,Sentencia final,Defensa,normal,0,Bosque,800,140,whd00940
+0C64D316,Ráfaga de tiros,Defensa,normal,0,Fuego,800,140,whd00950
+CF37FE3D,Espacio oscuro,Defensa,normal,0,Bosque,720,120,whd00960
+8E06E524,Presa fractal,Defensa,normal,0,Montana,440,70,whd00970
+411A7DA3,Robo fantástico,Defensa,normal,0,Viento,360,60,whd00980
+002B66BA,Caída prehistórica,Defensa,normal,0,Viento,540,85,whd00990
+A3CCC9DC,Bobina eléctrica,Defensa,normal,0,Bosque,360,60,whd01000
+E2FDD2C5,Ilusión deslumbrante,Defensa,normal,0,Bosque,540,85,whd01010
+21AEFFEE,Jungla profunda,Defensa,bloqueo de tiro,16,Bosque,640,100,whd01020
+609FE4F7,Magnetismo,Defensa,normal,0,Bosque,300,50,whd01030
+A709A5B8,Estrella de roca,Defensa,bloqueo de tiro,16,Fuego,440,70,whd01040
+E638BEA1,La flamme,Defensa,bloqueo de tiro,16,Fuego,540,85,whd01050
+256B938A,Grumo pegapasta,Defensa,bloqueo de tiro,16,Fuego,360,60,whd01060
+645A8893,Barreno de fuego,Defensa,normal,0,Fuego,360,60,whd01070
+AB461014,Fortaleza nocturna,Defensa,bloqueo de tiro,16,Fuego,540,85,whd01080
+EA770B0D,Fiesta floral,Defensa,normal,0,Montana,540,85,whd01090
+94A60BDD,Muralla de las montañas,Defensa,bloqueo de tiro,16,Montana,360,60,whd01100
+D59710C4,Acrobacia robótica,Defensa,normal,0,Montana,540,85,whd01110
+16C43DEF,Pirueta rascacielos,Defensa,normal,0,Montana,440,70,whd01120
+57F526F6,Obstrucción eléctrica,Defensa,bloqueo de tiro,16,,300,50,whd01130
+906367B9,Campo minado,Defensa,bloqueo de tiro,16,,360,60,whd01140
+D1527CA0,Estandarte de valquiria,Defensa,normal,0,Bosque,800,140,whd01150
+1201518B,Escudo caparazón,Defensa,normal,0,Montana,800,140,whd01160
+53304A92,Flecha del alba,Defensa,normal,0,Fuego,800,140,whd01170
+9C2CD215,Lanza de cazador,Defensa,normal,0,Viento,800,140,whd01180
+DD1DC90C,Guardia sombría,Defensa,normal,0,Viento,720,120,whd01190
+CD184DDF,Danza de plumas,Defensa,normal,0,Viento,800,140,whd01200
+8C2956C6,Espinas insidiosas,Defensa,normal,0,Viento,800,140,whd01210
+4F7A7BED,Ecuación defensiva,Defensa,normal,0,Viento,300,50,whd01220
+0E4B60F4,Juego de piernas,Defensa,normal,0,Fuego,440,70,whd01230
+C9DD21BB,Bola de hojas,Defensa,normal,0,Bosque,440,70,whd01240
+88EC3AA2,Robo mimético,Defensa,normal,0,Montana,300,50,whd01250
+4BBF1789,Remolino polvoriento,Defensa,normal,0,Montana,300,50,whd01260
+0A8E0C90,Clave de sol,Defensa,bloqueo de tiro,16,Bosque,360,60,whd01270
+C5929417,Siega central,Defensa,bloqueo de tiro,16,Bosque,440,70,whd01280
+84A38F0E,Defensa radial,Defensa,normal,0,Fuego,540,85,whd01290
+FA728FDE,Tuneladora,Defensa,normal,0,Montana,540,85,whd01300
+BB4394C7,Gran catarata,Defensa,bloqueo de tiro,16,Viento,540,85,whd01310
+7810B9EC,Vuelo volcánico,Defensa,normal,0,Fuego,440,70,whd01320
+3921A2F5,Presa de zarcillo,Defensa,normal,0,Bosque,640,100,whd01330
+FEB7E3BA,Robo sigiloso,Defensa,normal,0,Viento,640,100,whd01340
+BF86F8A3,Maza rocosa,Defensa,normal,0,Montana,540,85,whd01350
+7CD5D588,Rayos del juicio,Defensa,normal,0,Fuego,640,100,whd01360
+3DE4CE91,Formación defensiva,Defensa,normal,0,Montana,640,100,whd01370
+F2F85616,Bloqueo telequinético,Defensa,normal,0,Fuego,640,100,whd01380
+B3C94D0F,Lógica ganadora,Defensa,normal,0,Viento,440,70,whd01390
+7F64C0DB,Espejismo de zorro,Defensa,normal,0,Bosque,800,140,whd01400
+E954C7AC,Espejismo de Flami,Defensa,normal,0,Fuego,800,140,whd01401
+3E55DBC2,Entrada de búho,Defensa,normal,0,Montana,800,140,whd01410
+A865DCB5,Entrada de búho encornado,Defensa,normal,0,Viento,800,140,whd01411
+FD06F6E9,Garra de tejón,Defensa,normal,0,Viento,800,140,whd01420
+6B36F19E,Garra de Kúlupe,Defensa,normal,0,,800,140,whd01421
+D167F807,Garra de Giorom,Defensa,normal,0,Fuego,800,140,whd01422
+BC37EDF0,Cornada de búfalo,Defensa,normal,0,Fuego,800,140,whd01430
+2A07EA87,Cornada de Gandoran,Defensa,normal,0,Montana,800,140,whd01431
+9056E31E,Cornada de Dandor,Defensa,normal,0,Bosque,800,140,whd01432
+7BA1ACBF,Zambullida de Dolfinus,Defensa,normal,0,Viento,800,140,whd01440
+3A90B7A6,Rebote de Garius,Defensa,normal,0,Montana,800,140,whd01450
+ACA0B0D1,Rebote de Guirius,Defensa,normal,0,Bosque,800,140,whd01451
+F9C39A8D,Torbellino interceptor,Defensa,normal,0,Viento,300,50,whd01460
+B8F28194,Jaula gravitatoria,Defensa,bloqueo de tiro,16,Montana,440,70,whd01470
+36DF020A,Zona de contención,Defensa,normal,0,Bosque,540,85,whd01490
+480E02DA,Entrada deslumbrante,Defensa,normal,0,Viento,440,70,whd01500
+093F19C3,Frankendefensa,Defensa,normal,0,Fuego,300,50,whd01510
+CA6C34E8,Cabezazo moái,Defensa,normal,0,Montana,440,70,whd01520
+8B5D2FF1,Muro colectivo,Defensa,bloqueo de tiro,16,Montana,540,85,whd01530
+4CCB6EBE,Nudo atrapaosos,Defensa,bloqueo de tiro,16,Montana,440,70,whd01540
+CEA9588C,Búnker,Defensa,bloqueo de tiro,16,Montana,540,85,whd01560
+8F984395,Huracán múltiple,Defensa,bloqueo de tiro,16,Viento,540,85,whd01570
+4084DB12,Meteorito ardiente,Defensa,normal,0,Fuego,360,60,whd01580
+01B5C00B,León devorador,Defensa,bloqueo de tiro,16,Fuego,440,70,whd01590
+37B30E40,Tortuga danzarina,Defensa,normal,0,Viento,360,60,whd10010
+B5D13872,Fórmula matemática,Defensa,normal,0,Bosque,300,50,whd10030
+7247793D,Submarinismo salvaje,Defensa,normal,0,Viento,360,60,whd10040
+33766224,Fortaleza desesperada,Defensa,normal,0,Montana,800,140,whd10050
+F0254F0F,El fuerte,Defensa,normal,0,Montana,540,85,whd10060
+7E08CC91,Maremoto umibozu,Defensa,normal,0,Viento,440,70,whd10080
+3F39D788,Pisotón vigoroso,Defensa,bloqueo de tiro,16,Fuego,360,60,whd10090
+41E8D758,Toro a la fuga,Defensa,normal,0,Fuego,360,60,whd10100
+00D9CC41,Maza metálica,Defensa,normal,0,Montana,360,60,whd10110
+C38AE16A,Niebla sombría,Defensa,bloqueo de tiro,16,Bosque,360,60,whd10120
+82BBFA73,Robo teatral,Defensa,normal,0,Viento,360,60,whd10130
+373D6B8D,Muro colectivo,Defensa,bloqueo de tiro,16,Montana,720,120,whd01530_or
+3E200572,Presa,Defensa,bloqueo de tiro,16,Bosque,720,120,whd00350_or
+3FCDF5B7,Ciclón doble,Defensa,normal,0,Viento,720,120,whd00390_or
+55D20D45,Corro de la patata,Defensa,normal,0,Montana,720,120,whd00170_or
+FFF8EAD9,Red de caza,Defensa,bloqueo de tiro,16,Bosque,540,85,whd00730_mm
+5FE340A4,Niebla mística,Defensa,bloqueo de tiro,16,Bosque,640,100,whd00900_mm
+5336D8ED,La flamme,Defensa,bloqueo de tiro,16,Fuego,720,120,whd01050_mm
+93905818,Ilusión deslumbrante,Defensa,normal,0,Bosque,720,120,whd01010_mm
+3A969C9A,Portal dimensional,Defensa,normal,0,Bosque,540,85,whd00840_mm
+2E8150A9,Caída prehistórica,Defensa,normal,0,Viento,720,120,whd00990_mm
+5228388C,Mano celestial,Parada,atajo,1,Montana,360,60,whk00010
+917B15A7,Escudo de fuerza,Parada,despeje,2,Fuego,360,60,whk00020
+D04A0EBE,Despeje de fuego,Parada,despeje,2,Fuego,300,50,whk00030
+17DC4FF1,Campo de fuerza,Parada,atajo,1,Bosque,300,50,whk00040
+56ED54E8,Espiral de distorsión,Parada,atajo,1,Bosque,300,50,whk00050
+95BE79C3,Puño vengativo,Parada,despeje,2,Fuego,440,70,whk00060
+D48F62DA,Deslizamiento,Parada,atajo,1,Montana,360,60,whk00070
+1B93FA5D,Defensa triple,Parada,atajo,1,Montana,440,70,whk00080
+5AA2E144,Despeje a presión,Parada,atajo,1,Fuego,300,50,whk00090
+2473E194,Atajo tornado,Parada,atajo,1,Viento,300,50,whk00100
+6542FA8D,Bloqueo firme,Parada,atajo,1,Montana,360,60,whk00110
+A611D7A6,Escudo de fuerza total,Parada,despeje,2,Fuego,440,70,whk00120
+E720CCBF,Despeje de leñador,Parada,despeje,2,Montana,360,60,whk00130
+20B68DF0,Torbellino,Parada,atajo,1,Viento,300,50,whk00140
+618796E9,Despeje cohete,Parada,despeje,2,Fuego,360,60,whk00150
+A2D4BBC2,Garra salvaje,Parada,atajo,1,Montana,300,50,whk00160
+E3E5A0DB,Muralla gigante,Parada,atajo,1,Montana,440,70,whk00170
+2CF9385C,Hojarasca,Parada,atajo,1,Viento,300,50,whk00180
+6DC82345,Cuchilla asesina,Parada,atajo,1,Bosque,300,50,whk00190
+7DCDA796,Muralla tsunami,Parada,despeje,2,Viento,440,70,whk00200
+3CFCBC8F,Despeje explosivo,Parada,despeje,2,Fuego,360,60,whk00210
+FFAF91A4,Mano mágica,Parada,atajo,1,Montana,540,85,whk00220
+BE9E8ABD,Muralla infinita,Parada,atajo,1,Montana,540,85,whk00230
+7908CBF2,Manos infinitas,Parada,atajo,1,Bosque,540,85,whk00240
+3839D0EB,Mandril,Parada,atajo,1,Montana,300,50,whk00250
+FB6AFDC0,Cabezonería,Parada,despeje,2,Fuego,300,50,whk00260
+BA5BE6D9,Cortina aurora,Parada,atajo,1,Viento,360,60,whk00270
+75477E5E,Escudo protector,Parada,despeje,2,Montana,360,60,whk00280
+34766547,Lanzallamas,Parada,atajo,1,Fuego,300,50,whk00290
+4AA76597,Colmillo de pantera,Parada,atajo,1,Fuego,540,85,whk00300
+0B967E8E,Destrozataladros,Parada,despeje,2,Fuego,540,85,whk00310
+C8C553A5,Parada múltiple,Parada,atajo,1,Bosque,540,85,whk00320
+89F448BC,Uñas afiladas,Parada,atajo,1,Bosque,300,50,whk00330
+4E6209F3,Bloqueo doble,Parada,atajo,1,Bosque,360,60,whk00340
+0F5312EA,Puños voladores,Parada,despeje,2,Fuego,440,70,whk00350
+CC003FC1,Tormenta de pétalos,Parada,atajo,1,Viento,300,50,whk00360
+8D3124D8,Salto del cisne,Parada,atajo,1,Viento,300,50,whk00370
+422DBC5F,Trimano celestial,Parada,atajo,1,Fuego,440,70,whk00380
+031CA746,Agujero negro,Parada,atajo,1,Bosque,360,60,whk00390
+CFB12A92,Muralla de escudos,Parada,despeje,2,Viento,300,50,whk00400
+8E80318B,Agujero de gusano,Parada,atajo,1,Bosque,440,70,whk00410
+4DD31CA0,Muro dimensional,Parada,despeje,2,Viento,540,85,whk00420
+0CE207B9,Constelación estelar,Parada,atajo,1,Viento,440,70,whk00430
+CB7446F6,Superpuño invencible,Parada,despeje,2,Viento,440,70,whk00440
+8A455DEF,Combustión,Parada,atajo,1,Fuego,360,60,whk00450
+491670C4,Bloque de hielo,Parada,atajo,1,Viento,360,60,whk00460
+08276BDD,Mano mágica,Parada,atajo,1,Bosque,540,85,whk00470
+C73BF35A,Mano celestial,Parada,atajo,1,Bosque,360,60,whk00480
+860AE843,Mano celestial EV,Parada,atajo,1,Montana,540,85,whk00490
+F8DBE893,Mano ultradimensional,Parada,atajo,1,Bosque,440,70,whk00500
+B9EAF38A,Puño de furia,Parada,atajo,1,Montana,440,70,whk00510
+7AB9DEA1,Mano espiritual,Parada,atajo,1,Fuego,640,100,whk00520
+3B88C5B8,Mano celestial X,Parada,atajo,1,Fuego,540,85,whk00530
+FC1E84F7,Mano diabólica,Parada,atajo,1,Bosque,640,100,whk00540
+BD2F9FEE,Parada celestial,Parada,atajo,1,Montana,640,100,whk00550
+32DBF59E,Parada celestial TURBO,Parada,atajo,1,Montana,640,100,whk00555
+7E7CB2C5,Tormenta del desierto,Parada,atajo,1,Viento,360,60,whk00560
+3F4DA9DC,Golpes de luz,Parada,atajo,1,Montana,360,60,whk00570
+F051315B,Rechace de fuego,Parada,despeje,2,Fuego,360,60,whk00580
+B1602A42,Gran barrera de coral,Parada,atajo,1,Viento,360,60,whk00590
+A165AE91,Araña gigante,Parada,atajo,1,Bosque,360,60,whk00600
+E054B588,Espada defensora,Parada,atajo,1,Viento,360,60,whk00610
+230798A3,Guardia del coliseo,Parada,despeje,2,Montana,360,60,whk00620
+623683BA,Millón de manos,Parada,despeje,2,Fuego,440,70,whk00630
+A5A0C2F5,Parada de capoeira,Parada,atajo,1,Montana,360,60,whk00640
+E491D9EC,Aguijón,Parada,atajo,1,Bosque,360,60,whk00650
+27C2F4C7,Malla letal,Parada,atajo,1,Fuego,360,60,whk00660
+66F3EFDE,Baraja fugaz,Parada,despeje,2,Montana,360,60,whk00670
+A9EF7759,Voltaje dual,Parada,despeje,2,Viento,640,100,whk00680
+E8DE6C40,Mano omega,Parada,atajo,1,Montana,640,100,whk00690
+960F6C90,Malla eléctrica,Parada,atajo,1,Viento,360,60,whk00700
+D73E7789,Zona sagrada,Parada,atajo,1,Viento,540,85,whk00710
+146D5AA2,El olvido,Parada,atajo,1,Bosque,540,85,whk00720
+555C41BB,Martillo defensor,Parada,atajo,1,Viento,360,60,whk00730
+92CA00F4,Ancla de navío,Parada,despeje,2,Viento,300,50,whk00740
+D3FB1BED,Barrera de Gaia,Parada,despeje,2,Montana,360,60,whk00750
+10A836C6,Parada ardiente,Parada,atajo,1,Fuego,300,50,whk00760
+51992DDF,Rotación inversa,Parada,atajo,1,Fuego,360,60,whk00770
+9E85B558,Puños certeros,Parada,despeje,2,Viento,300,50,whk00780
+DFB4AE41,Barrera de cristal,Parada,atajo,1,Viento,360,60,whk00790
+AB48309B,Presa de sombras,Parada,atajo,1,Bosque,300,50,whk00800
+EA792B82,Parada en pirueta,Parada,atajo,1,Viento,300,50,whk00810
+292A06A9,Ultrasonidos,Parada,atajo,1,Bosque,300,50,whk00820
+681B1DB0,Despeje de fuerza,Parada,atajo,1,Fuego,300,50,whk00830
+AF8D5CFF,Rompetiros,Parada,despeje,2,Fuego,360,60,whk00840
+EEBC47E6,Mano celestial V,Parada,atajo,1,Montana,540,85,whk00850
+2DEF6ACD,Estrella reflectante,Parada,despeje,2,Viento,360,60,whk00860
+6CDE71D4,Mordisco de serpiente,Parada,atajo,1,Montana,440,70,whk00870
+A3C2E953,Manos liberadas,Parada,atajo,1,Fuego,440,70,whk00880
+E2F3F24A,Puente sin final,Parada,atajo,1,Viento,440,70,whk00890
+9C22F29A,Centro de gravedad,Parada,atajo,1,Bosque,440,70,whk00900
+DD13E983,Mano mágica,Parada,atajo,1,Montana,720,120,whk00910
+1E40C4A8,Escudo guardián,Parada,atajo,1,Viento,800,140,whk00920
+5F71DFB1,Presa titánica,Parada,atajo,1,Montana,800,140,whk00930
+98E79EFE,Corona de fuego,Parada,atajo,1,Fuego,800,140,whk00940
+D9D685E7,Despeje demoníaco,Parada,despeje,2,Bosque,800,140,whk00950
+1A85A8CC,Dados de la suerte,Parada,atajo,1,Bosque,800,140,whk00960
+5BB4B3D5,Cúpula carmesí,Parada,atajo,1,Fuego,800,140,whk00970
+94A82B52,Mano grandiosa,Parada,atajo,1,Montana,800,140,whk00980
+D599304B,Aplastamiento,Parada,atajo,1,Bosque,360,60,whk00990
+767E9F2D,Captura excelente,Parada,atajo,1,Montana,300,50,whk01000
+374F8434,Agujero blanco,Parada,atajo,1,Viento,640,100,whk01010
+F41CA91F,Recepción negativa,Parada,despeje,2,Viento,360,60,whk01020
+B52DB206,Giroparada,Parada,atajo,1,Bosque,360,60,whk01030
+72BBF349,Ciclón oscuro,Parada,atajo,1,Bosque,640,100,whk01040
+338AE850,Rayo de puño,Parada,despeje,2,Fuego,440,70,whk01050
+F0D9C57B,Corte de arena,Parada,atajo,1,Fuego,440,70,whk01060
+B1E8DE62,Parada en plancha,Parada,despeje,2,Montana,360,60,whk01070
+7EF446E5,Ciclón humano,Parada,despeje,2,Montana,360,60,whk01080
+3FC55DFC,Bimano celestial,Parada,atajo,1,Montana,540,85,whk01090
+41145D2C,Romance de los tres reinos,Parada,atajo,1,Montana,540,85,whk01100
+00254635,Despeje medialuna,Parada,despeje,2,,440,70,whk01110
+C3766B1E,Mano de pingüinos,Parada,atajo,1,,440,70,whk01120
+82477007,Repulsión,Parada,atajo,1,,440,70,whk01130
+45D13148,Mano sombría,Parada,atajo,1,Bosque,720,120,whk01140
+04E02A51,Géiser gigante,Parada,atajo,1,Viento,800,140,whk01150
+C7B3077A,Defensa de muñecos,Parada,atajo,1,Bosque,800,140,whk01160
+86821C63,Descarga de colores,Parada,atajo,1,Bosque,800,140,whk01170
+499E84E4,Parada mate,Parada,atajo,1,Viento,300,50,whk01180
+08AF9FFD,Despeje retorcido,Parada,despeje,2,Bosque,360,60,whk01190
+18AA1B2E,Colmillo de cocodrilo,Parada,atajo,1,Viento,360,60,whk01200
+599B0037,Golpe abrasador,Parada,atajo,1,Fuego,440,70,whk01210
+9AC82D1C,Parada de codo,Parada,atajo,1,Viento,440,70,whk01220
+DBF93605,Puño de arena,Parada,despeje,2,Montana,540,85,whk01230
+1C6F774A,Dardo acuático,Parada,despeje,2,Viento,540,85,whk01240
+5D5E6C53,Cabezazo volcánico,Parada,despeje,2,Fuego,540,85,whk01250
+9E0D4178,Trampa vegetal,Parada,atajo,1,Bosque,540,85,whk01260
+DF3C5A61,Despeje virtual,Parada,despeje,2,Bosque,640,100,whk01270
+1020C2E6,Zarpazo poderoso,Parada,despeje,2,Viento,540,85,whk01280
+5111D9FF,Cometiros,Parada,despeje,2,Montana,540,85,whk01290
+2FC0D92F,Portón del castillo,Parada,despeje,2,Fuego,640,100,whk01300
+6EF1C236,Sacrificio,Parada,despeje,2,Viento,640,100,whk01310
+ADA2EF1D,Despegue espacial,Parada,despeje,2,Bosque,640,100,whk01320
+EC93F404,Mate del dragón,Parada,atajo,1,Viento,640,100,whk01330
+2B05B54B,Pisotón de mamut,Parada,atajo,1,Viento,800,140,whk01340
+BD35B23C,Pisotón de Magnatas,Parada,atajo,1,Fuego,800,140,whk01341
+0764BBA5,Pisotón de Dolmega,Parada,atajo,1,Montana,800,140,whk01342
+6A34AE52,Eco de Delfinus,Parada,atajo,1,Bosque,800,140,whk01350
+FC04A925,Eco de Dalfonus,Parada,atajo,1,Fuego,800,140,whk01351
+A9678379,Despeje de Gorius,Parada,despeje,2,Fuego,800,140,whk01360
+E8569860,Estallido de Mosfi,Parada,atajo,1,Bosque,800,140,whk01370
+7E669F17,Estallido de Kosfi,Parada,atajo,1,Viento,800,140,whk01371
+274A00E7,Escudo de Gigiras,Parada,atajo,1,,800,140,whk01380
+B17A0790,Escudo de Grimron,Parada,atajo,1,Montana,800,140,whk01381
+667B1BFE,Sinergia de Angidra,Parada,despeje,2,Viento,800,140,whk01390
+F04B1C89,Sinergia de Saranarja,Parada,despeje,2,Bosque,800,140,whk01391
+4A1A1510,Sinergia de Cerbegira,Parada,despeje,2,Montana,800,140,whk01392
+AAD6962A,Mano oceánica,Parada,atajo,1,Viento,540,85,whk01400
+EBE78D33,Velo de sirena,Parada,atajo,1,Viento,640,100,whk01410
+28B4A018,Contragolpe férreo,Parada,sin identificar,0,Fuego,45,45,whk01420
+6985BB01,Mar de lágrimas,Parada,sin identificar,0,Fuego,45,45,whk01430
+AE13FA4E,Parada peliaguda,Parada,atajo,1,Bosque,360,60,whk01440
+EF22E157,Craterclismo,Parada,sin identificar,0,Montana,440,70,whk01450
+2C71CC7C,Escudo lunar,Parada,atajo,1,Bosque,540,85,whk01460
+6D40D765,Brazo extensible,Parada,atajo,1,Bosque,640,100,whk01470
+A25C4FE2,Colmillo salvaje,Parada,atajo,1,Fuego,440,70,whk01480
+E36D54FB,Megamanos mágicas,Parada,atajo,1,Viento,540,85,whk01490
+9DBC542B,Dimensión Kamakura,Parada,atajo,1,Bosque,640,100,whk01500
+DC8D4F32,Anillo de Artemisa,Parada,atajo,1,Bosque,540,85,whk01510
+1FDE6219,Parada de Asura,Parada,atajo,1,Fuego,640,100,whk01520
+5EEF7900,Burbuja pegajosa,Parada,atajo,1,Viento,440,70,whk01530
+9979384F,Halo solar,Parada,atajo,1,Fuego,360,60,whk01540
+D8482356,Despeje diamantino,Parada,despeje,2,Montana,540,85,whk01550
+1B1B0E7D,Mano de diamante,Parada,atajo,1,Montana,540,85,whk01560
+5A2A1564,Pellizco aplastante,Parada,atajo,1,Fuego,360,60,whk01570
+95368DE3,Escudo tricerátops,Parada,atajo,1,Bosque,440,70,whk01580
+D40796FA,Muro de fuego,Parada,atajo,1,Fuego,360,60,whk01590
+C4021229,Escudo sombrío,Parada,atajo,1,,540,85,whk01600
+85330930,Parada de espaguetis,Parada,atajo,1,Bosque,360,60,whk01610
+0AC76340,Parada de espaguetis extra,Parada,atajo,1,Bosque,440,70,whk01615
+4660241B,Ola mágica,Parada,atajo,1,Viento,640,100,whk01620
+07513F02,Paradón satelital,Parada,atajo,1,Bosque,440,70,whk01630
+C0C77E4D,Boca de la verdad,Parada,atajo,1,Montana,440,70,whk01640
+81F66554,Guillotina solar,Parada,atajo,1,Fuego,360,60,whk01650
+42A5487F,Ultramanos mágicas,Parada,atajo,1,,640,100,whk01660
+03945366,Sonata del olvido,Parada,atajo,1,Bosque,440,70,whk01670
+CC88CBE1,Mano celestial de la amistad,Parada,atajo,1,Montana,640,100,whk01680
+8DB9D0F8,Abanicos dragontinos,Parada,atajo,1,Fuego,440,70,whk01690
+F368D028,Brazo de diamante,Parada,atajo,1,Montana,640,100,whk01700
+B259CB31,Mano celestial,Parada,atajo,1,Fuego,360,60,whk01710
+710AE61A,Supermano celestial,Parada,atajo,1,Montana,440,70,whk01720
+E20158B1,Gracia glacial,Parada,atajo,1,Viento,360,60,whk10010
+74315FC6,Gracia glacial,Parada,atajo,1,Viento,360,60,whk10011
+2152759A,Extramundo,Parada,atajo,1,Bosque,440,70,whk10020
+60636E83,Gota de la quietud,Parada,atajo,1,Fuego,300,50,whk10030
+A7F52FCC,Duna gravitacional,Parada,atajo,1,Montana,360,60,whk10040
+E6C434D5,Pincelada silenciosa,Parada,atajo,1,Viento,360,60,whk10050
+259719FE,Escudo real,Parada,despeje,2,Fuego,540,85,whk10060
+64A602E7,Mano celestial del tigre,Parada,atajo,1,Montana,540,85,whk10070
+ABBA9A60,Abrazo divino,Parada,atajo,1,Bosque,640,100,whk10080
+EA8B8179,Deflectores divinos,Parada,atajo,1,Viento,640,100,whk10090
+945A81A9,Mano matriarcal,Parada,atajo,1,Montana,540,85,whk10100
+5E2B2C55,Trimano celestial,Parada,atajo,1,Fuego,720,120,whk00380_or
+56DBB26F,Parada de Asura,Parada,atajo,1,Fuego,800,140,whk01520_or
+36887215,Dimensión Kamakura,Parada,sin identificar,0,Bosque,800,140,whk01500_or
+57A5DD31,Romance de los tres reinos,Parada,atajo,1,Montana,720,120,whk01100_mm
+708F3D16,Vaselina,Tiro,normal,0,,200,30,rhs10010
+B3DC103D,Tiro con efecto,Tiro,normal,0,,200,30,rhs10020
+F2ED0B24,Tiro con rebote,Tiro,normal,0,,200,30,rhs10030
+357B4A6B,Tiro potente,Tiro,normal,0,,200,30,rhs10040
+744A5172,Tiro rasante,Tiro,normal,0,,200,30,rhs10050
+904D2962,Entrada cegadora,Regate,normal,0,,200,30,rho10010
+531E0449,Finta de pie,Regate,normal,0,,200,30,rho10020
+122F1F50,Taconazo,Regate,normal,0,,200,30,rho10030
+D5B95E1F,Caño,Regate,normal,0,,200,30,rho10040
+94884506,Amago y esprint,Regate,normal,0,,200,30,rho10050
+57DB682D,Paso engañoso,Regate,normal,0,,200,30,rho10060
+53BDEE08,Regate disimulado,Defensa,normal,0,,200,30,rhd10010
+90EEC323,Carga de hombro,Defensa,normal,0,,200,30,rhd10020
+D1DFD83A,Parada en arco,Defensa,normal,0,,200,30,rhd10030
+16499975,Jugarreta,Defensa,normal,0,,200,30,rhd10040
+5778826C,Robo rodante,Defensa,normal,0,,200,30,rhd10050
+860FB8F9,Despeje de puño,Parada,despeje,2,,200,30,rhk10010
+455C95D2,Parada poderosa,Parada,atajo,1,,200,30,rhk10020
+046D8ECB,Parada de mano firme,Parada,atajo,1,,200,30,rhk10030
+08662ED1,Ciclón blanco,Tiro,tiro largo,4,Viento,640,100,whs01670_cro
+B3F71296,Último recurso: Sigma,Tiro,bloqueo de tiros,16,,640,100,whs03280_cro
+16244E5D,Último recurso: Dragón,Tiro,tiro largo,4,,640,100,whs03290_cro
+F50EFB5B,Ensueño: Remate dragón,Tiro,normal (subtipo 8 sin identificar),8,Bosque,300,50,whs00061
+11AA690A,Ensueño: El muro,Defensa,bloqueo de tiro,16,Montana,300,50,whd00011
+C4183FFB,Ensueño: Mano celestial,Parada,atajo,1,Montana,360,60,whk00011
+4D8F335B,null,Tiro,normal,0,,0,0,swap_skill_waza_01
+F7DE3AC2,null,Tiro,normal,0,,0,0,swap_skill_waza_02
+61EE3DB5,null,Tiro,normal,0,,0,0,swap_skill_waza_03
+C27B592B,null,Tiro,normal,0,,0,0,swap_skill_waza_04
+544B5E5C,null,Tiro,normal,0,,0,0,swap_skill_waza_05
+EE1A57C5,null,Tiro,normal,0,,0,0,swap_skill_waza_06
+782A50B2,null,Tiro,normal,0,,0,0,swap_skill_waza_07
+E937EF22,null,Tiro,normal,0,,0,0,swap_skill_waza_08
+7F07E855,null,Tiro,normal,0,,0,0,swap_skill_waza_09

@@ -1,0 +1,17 @@
+{
+  "_que_es_esto": "Campos que cambian solos cada vez que guardas, aunque no toques nada. Se ignoran al comparar para que no tapen el cambio de verdad.",
+  "notas": "Aprendido de 01-base vs 02-base-repetida (2026-09-13, guardadas con 28 s de diferencia y sin tocar nada). Los dos registros implicados son el de 0x810 (fecha desglosada campo a campo) y el de 0xC03A0B (la misma fecha empaquetada en 8 bytes). Incluyo tambien los campos de fecha que esa vez no cambiaron -ano, mes, dia, hora, dia de la semana- porque cambiaran en cuanto una ronda cruce una hora o un dia.",
+  "campos": [
+    "0877F0CD",
+    "3A40C52C",
+    "408EE5AB",
+    "512F0593",
+    "604041A4",
+    "64916694",
+    "76F58F7B",
+    "77BFE5E1",
+    "98535F77",
+    "9AB367EA"
+  ],
+  "rangos": []
+}

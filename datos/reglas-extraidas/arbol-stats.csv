@@ -1,0 +1,15 @@
+# Que stats suben las casillas del arbol, segun la posicion del personaje.
+# lista = principal (tronco y rama 1) o secundaria (rama 2).
+# Cuatro niveles por lista: el 1 vale +3, el 2 +5, el 3 +7 (medidos).
+# Lo genera herramientas/construir_arbol.py (NOTAS O-140).
+lista,posicion_codigo,posicion,nivel1,nivel2,nivel3,nivel4
+principal,2,DEL,Potencia,Control,Potencia,Control
+principal,3,MED,Tecnica,Control,Inteligencia,Tecnica
+principal,4,DEF,Presion,Fisico,Inteligencia,Presion
+principal,1,POR,Agilidad,Fisico,Agilidad,Fisico
+principal,0,ninguna,Agilidad,Fisico,Agilidad,
+secundaria,2,DEL,Potencia,Control,Potencia,Control
+secundaria,3,MED,Tecnica,Control,Inteligencia,Tecnica
+secundaria,4,DEF,Presion,Fisico,Inteligencia,Presion
+secundaria,1,POR,Agilidad,Fisico,Agilidad,Fisico
+secundaria,0,ninguna,Agilidad,Fisico,Agilidad,

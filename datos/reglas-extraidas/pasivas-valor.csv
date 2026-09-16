@@ -1,0 +1,1721 @@
+# Cuanto vale cada pasiva y de que va (para sumarlas por equipo).
+# id = como esta en la partida. valor = el numero que ensena el juego.
+# familia = puesta por nosotros leyendo el texto (NOTAS O-145).
+# Lo genera herramientas/construir_valores_pasivas.py.
+id,interno,tipo_efecto,valor,familia,texto
+F4CA2B3A,ps10001,8A52A068,0.5,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+E49B5D39,ps10001_01,8A52A068,0.6,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+5ECA54A0,ps10001_02,8A52A068,0.7,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+C8FA53D7,ps10001_03,8A52A068,0.8,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+6B6F3749,ps10001_04,8A52A068,1,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+FD5F303E,ps10001_05,8A52A068,0.6,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+470E39A7,ps10001_06,8A52A068,0.7,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+D13E3ED0,ps10001_07,8A52A068,1,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+40238140,ps10001_08,8A52A068,1.2,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+D6138637,ps10001_09,8A52A068,1.5,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+4E9B22A3,ps10002,135BF1D2,0.5,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+0A34E82B,ps10002_01,135BF1D2,0.6,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+B065E1B2,ps10002_02,135BF1D2,0.7,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+2655E6C5,ps10002_03,135BF1D2,0.8,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+85C0825B,ps10002_04,135BF1D2,1,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+13F0852C,ps10002_05,135BF1D2,0.7,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+A9A18CB5,ps10002_06,135BF1D2,0.8,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+3F918BC2,ps10002_07,135BF1D2,0.9,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+AE8C3452,ps10002_08,135BF1D2,1,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+38BC3325,ps10002_09,135BF1D2,1.1,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+D8AB25D4,ps10003,645CC144,1,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+6F535493,ps10003_01,645CC144,1.2,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+D5025D0A,ps10003_02,645CC144,1.5,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+43325A7D,ps10003_03,645CC144,1.7,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+E0A73EE3,ps10003_04,645CC144,2,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+76973994,ps10003_05,645CC144,1.5,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+CCC6300D,ps10003_06,645CC144,2,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+5AF6377A,ps10003_07,645CC144,2.5,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+CBEB88EA,ps10003_08,645CC144,3.04,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+5DDB8F9D,ps10003_09,645CC144,3.5,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+7B3E414A,ps10004,FA3854E7,0.5,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+D66B830E,ps10004_01,FA3854E7,0.6,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+6C3A8A97,ps10004_02,FA3854E7,0.7,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+FA0A8DE0,ps10004_03,FA3854E7,0.8,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+599FE97E,ps10004_04,FA3854E7,1,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+CFAFEE09,ps10004_05,FA3854E7,0.7,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+75FEE790,ps10004_06,FA3854E7,0.9,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+E3CEE0E7,ps10004_07,FA3854E7,1.1,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+72D35F77,ps10004_08,FA3854E7,1.3,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+E4E35800,ps10004_09,FA3854E7,1.5,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+ED0E463D,ps10005,8D3F6471,0.5,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+B30C3FB6,ps10005_01,8D3F6471,0.6,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+095D362F,ps10005_02,8D3F6471,0.7,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+9F6D3158,ps10005_03,8D3F6471,0.8,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+3CF855C6,ps10005_04,8D3F6471,1,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+AAC852B1,ps10005_05,8D3F6471,0.7,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+10995B28,ps10005_06,8D3F6471,0.9,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+86A95C5F,ps10005_07,8D3F6471,1.1,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+17B4E3CF,ps10005_08,8D3F6471,1.3,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+8184E4B8,ps10005_09,8D3F6471,1.5,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+575F4FA4,ps10006,143635CB,0.5,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+5DA38AA4,ps10006_01,143635CB,0.6,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+E7F2833D,ps10006_02,143635CB,0.7,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+71C2844A,ps10006_03,143635CB,0.8,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+D257E0D4,ps10006_04,143635CB,1,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+4467E7A3,ps10006_05,143635CB,0.7,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+FE36EE3A,ps10006_06,143635CB,0.9,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+6806E94D,ps10006_07,143635CB,1.1,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+F91B56DD,ps10006_08,143635CB,1.3,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+6F2B51AA,ps10006_09,143635CB,1.5,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+C16F48D3,ps10007,6331055D,2,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+38C4361C,ps10007_01,6331055D,2.2,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+82953F85,ps10007_02,6331055D,2.5,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+14A538F2,ps10007_03,6331055D,2.7,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+B7305C6C,ps10007_04,6331055D,3,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+21005B1B,ps10007_05,6331055D,2.5,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+9B515282,ps10007_06,6331055D,3,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+0D6155F5,ps10007_07,6331055D,3.5,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+9C7CEA65,ps10007_08,6331055D,4,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+0A4CED12,ps10007_09,6331055D,4.5,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+5072F743,ps10008,F38E18CC,0.5,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+6ED45544,ps10008_01,F38E18CC,0.56,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+D4855CDD,ps10008_02,F38E18CC,0.7,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+42B55BAA,ps10008_03,F38E18CC,0.8,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+E1203F34,ps10008_04,F38E18CC,1,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+77103843,ps10008_05,F38E18CC,0.7,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+CD4131DA,ps10008_06,F38E18CC,0.9,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+5B7136AD,ps10008_07,F38E18CC,1.1,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+CA6C893D,ps10008_08,F38E18CC,1.3,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+5C5C8E4A,ps10008_09,F38E18CC,1.5,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+C642F034,ps10009,8489285A,1.5,at_tiro,AT de tiro +<VALUE> % para jugadores de la misma posición
+0BB3E9FC,ps10009_01,8489285A,1.7,at_tiro,AT de tiro +<VALUE> % para jugadores de la misma posición
+B1E2E065,ps10009_02,8489285A,2,at_tiro,AT de tiro +<VALUE> % para jugadores de la misma posición
+27D2E712,ps10009_03,8489285A,2.2,at_tiro,AT de tiro +<VALUE> % para jugadores de la misma posición
+8447838C,ps10009_04,8489285A,2.5,at_tiro,AT de tiro +<VALUE> % para jugadores de la misma posición
+127784FB,ps10009_05,8489285A,2,at_tiro,AT de tiro +<VALUE> % para jugadores de la misma posición
+A8268D62,ps10009_06,8489285A,2.3,at_tiro,AT de tiro +<VALUE> % para jugadores de la misma posición
+3E168A15,ps10009_07,8489285A,2.7,at_tiro,AT de tiro +<VALUE> % para jugadores de la misma posición
+AF0B3585,ps10009_08,8489285A,3.1,at_tiro,AT de tiro +<VALUE> % para jugadores de la misma posición
+393B32F2,ps10009_09,8489285A,3.5,at_tiro,AT de tiro +<VALUE> % para jugadores de la misma posición
+23CB3754,ps10010,E44EA1BF,0.5,foco,Valor de foco +<VALUE> % para jugadores de la misma posición
+31D581BC,ps10010_01,E44EA1BF,0.6,foco,Valor de foco +<VALUE> % para jugadores de la misma posición
+8B848825,ps10010_02,E44EA1BF,0.7,foco,Valor de foco +<VALUE> % para jugadores de la misma posición
+1DB48F52,ps10010_03,E44EA1BF,0.8,foco,Valor de foco +<VALUE> % para jugadores de la misma posición
+BE21EBCC,ps10010_04,E44EA1BF,1,foco,Valor de foco +<VALUE> % para jugadores de la misma posición
+2811ECBB,ps10010_05,E44EA1BF,0.7,foco,Valor de foco +<VALUE> % para jugadores de la misma posición
+9240E522,ps10010_06,E44EA1BF,0.9,foco,Valor de foco +<VALUE> % para jugadores de la misma posición
+0470E255,ps10010_07,E44EA1BF,1.1,foco,Valor de foco +<VALUE> % para jugadores de la misma posición
+956D5DC5,ps10010_08,E44EA1BF,1.3,foco,Valor de foco +<VALUE> % para jugadores de la misma posición
+035D5AB2,ps10010_09,E44EA1BF,1.5,foco,Valor de foco +<VALUE> % para jugadores de la misma posición
+B5FB3023,ps10011,93499129,6,disputa,Valor de disputa +<VALUE> % para jugadores de la misma posición
+54B23D04,ps10011_01,93499129,6.2,disputa,Valor de disputa +<VALUE> % para jugadores de la misma posición
+EEE3349D,ps10011_02,93499129,6.5,disputa,Valor de disputa +<VALUE> % para jugadores de la misma posición
+78D333EA,ps10011_03,93499129,6.7,disputa,Valor de disputa +<VALUE> % para jugadores de la misma posición
+DB465774,ps10011_04,93499129,7,disputa,Valor de disputa +<VALUE> % para jugadores de la misma posición
+4D765003,ps10011_05,93499129,6.5,disputa,Valor de disputa +<VALUE> % para jugadores de la misma posición
+F727599A,ps10011_06,93499129,7,disputa,Valor de disputa +<VALUE> % para jugadores de la misma posición
+61175EED,ps10011_07,93499129,7.5,disputa,Valor de disputa +<VALUE> % para jugadores de la misma posición
+F00AE17D,ps10011_08,93499129,8,disputa,Valor de disputa +<VALUE> % para jugadores de la misma posición
+663AE60A,ps10011_09,93499129,8.5,disputa,Valor de disputa +<VALUE> % para jugadores de la misma posición
+0FAA39BA,ps10012,E32365A6,0.5,foco,Valor de foco +<VALUE> % para jugadores de distintas posiciones
+BA1D8816,ps10012_01,E32365A6,0.6,foco,Valor de foco +<VALUE> % para jugadores de distintas posiciones
+004C818F,ps10012_02,E32365A6,0.7,foco,Valor de foco +<VALUE> % para jugadores de distintas posiciones
+967C86F8,ps10012_03,E32365A6,0.8,foco,Valor de foco +<VALUE> % para jugadores de distintas posiciones
+35E9E266,ps10012_04,E32365A6,1,foco,Valor de foco +<VALUE> % para jugadores de distintas posiciones
+A3D9E511,ps10012_05,E32365A6,0.7,foco,Valor de foco +<VALUE> % para jugadores de distintas posiciones
+1988EC88,ps10012_06,E32365A6,0.8,foco,Valor de foco +<VALUE> % para jugadores de distintas posiciones
+8FB8EBFF,ps10012_07,E32365A6,0.9,foco,Valor de foco +<VALUE> % para jugadores de distintas posiciones
+1EA5546F,ps10012_08,E32365A6,1,foco,Valor de foco +<VALUE> % para jugadores de distintas posiciones
+88955318,ps10012_09,E32365A6,1.2,foco,Valor de foco +<VALUE> % para jugadores de distintas posiciones
+999A3ECD,ps10013,94245530,2,disputa,Valor de disputa +<VALUE> % para jugadores de distintas posiciones
+DF7A34AE,ps10013_01,94245530,2.2,disputa,Valor de disputa +<VALUE> % para jugadores de distintas posiciones
+652B3D37,ps10013_02,94245530,2.5,disputa,Valor de disputa +<VALUE> % para jugadores de distintas posiciones
+F31B3A40,ps10013_03,94245530,2.7,disputa,Valor de disputa +<VALUE> % para jugadores de distintas posiciones
+508E5EDE,ps10013_04,94245530,3,disputa,Valor de disputa +<VALUE> % para jugadores de distintas posiciones
+C6BE59A9,ps10013_05,94245530,2.5,disputa,Valor de disputa +<VALUE> % para jugadores de distintas posiciones
+7CEF5030,ps10013_06,94245530,3,disputa,Valor de disputa +<VALUE> % para jugadores de distintas posiciones
+EADF5747,ps10013_07,94245530,3.5,disputa,Valor de disputa +<VALUE> % para jugadores de distintas posiciones
+7BC2E8D7,ps10013_08,94245530,4,disputa,Valor de disputa +<VALUE> % para jugadores de distintas posiciones
+EDF2EFA0,ps10013_09,94245530,4.5,disputa,Valor de disputa +<VALUE> % para jugadores de distintas posiciones
+3A0F5A53,ps10014,0D2D048A,0.5,df_muro,DF del muro +<VALUE> % para jugadores de distintas posiciones
+6642E333,ps10014_01,0D2D048A,0.71999997,df_muro,DF del muro +<VALUE> % para jugadores de distintas posiciones
+DC13EAAA,ps10014_02,0D2D048A,1,df_muro,DF del muro +<VALUE> % para jugadores de distintas posiciones
+4A23EDDD,ps10014_03,0D2D048A,1.2,df_muro,DF del muro +<VALUE> % para jugadores de distintas posiciones
+E9B68943,ps10014_04,0D2D048A,1.5,df_muro,DF del muro +<VALUE> % para jugadores de distintas posiciones
+7F868E34,ps10014_05,0D2D048A,1,df_muro,DF del muro +<VALUE> % para jugadores de distintas posiciones
+C5D787AD,ps10014_06,0D2D048A,1.2,df_muro,DF del muro +<VALUE> % para jugadores de distintas posiciones
+53E780DA,ps10014_07,0D2D048A,1.5,df_muro,DF del muro +<VALUE> % para jugadores de distintas posiciones
+C2FA3F4A,ps10014_08,0D2D048A,1.7,df_muro,DF del muro +<VALUE> % para jugadores de distintas posiciones
+54CA383D,ps10014_09,0D2D048A,2,df_muro,DF del muro +<VALUE> % para jugadores de distintas posiciones
+AC3F5D24,ps10015,7A2A341C,1,at_tiro,AT de tiro +<VALUE> % para jugadores cercanos
+03255F8B,ps10015_01,7A2A341C,1.2,at_tiro,AT de tiro +<VALUE> % para jugadores cercanos
+B9745612,ps10015_02,7A2A341C,1.5,at_tiro,AT de tiro +<VALUE> % para jugadores cercanos
+2F445165,ps10015_03,7A2A341C,1.7,at_tiro,AT de tiro +<VALUE> % para jugadores cercanos
+8CD135FB,ps10015_04,7A2A341C,2,at_tiro,AT de tiro +<VALUE> % para jugadores cercanos
+1AE1328C,ps10015_05,7A2A341C,1.5,at_tiro,AT de tiro +<VALUE> % para jugadores cercanos
+A0B03B15,ps10015_06,7A2A341C,2,at_tiro,AT de tiro +<VALUE> % para jugadores cercanos
+36803C62,ps10015_07,7A2A341C,2.5,at_tiro,AT de tiro +<VALUE> % para jugadores cercanos
+A79D83F2,ps10015_08,7A2A341C,3,at_tiro,AT de tiro +<VALUE> % para jugadores cercanos
+31AD8485,ps10015_09,7A2A341C,3.5,at_tiro,AT de tiro +<VALUE> % para jugadores cercanos
+166E54BD,ps10016,EA95298D,0.5,foco,Valor de foco +<VALUE> % para jugadores cercanos
+ED8AEA99,ps10016_01,EA95298D,0.7,foco,Valor de foco +<VALUE> % para jugadores cercanos
+57DBE300,ps10016_02,EA95298D,1,foco,Valor de foco +<VALUE> % para jugadores cercanos
+C1EBE477,ps10016_03,EA95298D,1.2,foco,Valor de foco +<VALUE> % para jugadores cercanos
+627E80E9,ps10016_04,EA95298D,1.5,foco,Valor de foco +<VALUE> % para jugadores cercanos
+F44E879E,ps10016_05,EA95298D,1,foco,Valor de foco +<VALUE> % para jugadores cercanos
+4E1F8E07,ps10016_06,EA95298D,1.2,foco,Valor de foco +<VALUE> % para jugadores cercanos
+D82F8970,ps10016_07,EA95298D,1.5,foco,Valor de foco +<VALUE> % para jugadores cercanos
+493236E0,ps10016_08,EA95298D,1.7,foco,Valor de foco +<VALUE> % para jugadores cercanos
+DF023197,ps10016_09,EA95298D,2,foco,Valor de foco +<VALUE> % para jugadores cercanos
+805E53CA,ps10017,9D92191B,6,disputa,Valor de disputa +<VALUE> % para jugadores cercanos
+88ED5621,ps10017_01,9D92191B,6.2,disputa,Valor de disputa +<VALUE> % para jugadores cercanos
+32BC5FB8,ps10017_02,9D92191B,6.5,disputa,Valor de disputa +<VALUE> % para jugadores cercanos
+A48C58CF,ps10017_03,9D92191B,6.7,disputa,Valor de disputa +<VALUE> % para jugadores cercanos
+07193C51,ps10017_04,9D92191B,7,disputa,Valor de disputa +<VALUE> % para jugadores cercanos
+91293B26,ps10017_05,9D92191B,6.5,disputa,Valor de disputa +<VALUE> % para jugadores cercanos
+2B7832BF,ps10017_06,9D92191B,7,disputa,Valor de disputa +<VALUE> % para jugadores cercanos
+BD4835C8,ps10017_07,9D92191B,7.5,disputa,Valor de disputa +<VALUE> % para jugadores cercanos
+2C558A58,ps10017_08,9D92191B,8,disputa,Valor de disputa +<VALUE> % para jugadores cercanos
+BA658D2F,ps10017_09,9D92191B,8.5,disputa,Valor de disputa +<VALUE> % para jugadores cercanos
+1143EC5A,ps10018,CF63F27C,1,df_muro,DF del muro +<VALUE> % para jugadores cercanos
+DEFD3579,ps10018_01,CF63F27C,1.2,df_muro,DF del muro +<VALUE> % para jugadores cercanos
+64AC3CE0,ps10018_02,CF63F27C,1.5,df_muro,DF del muro +<VALUE> % para jugadores cercanos
+F29C3B97,ps10018_03,CF63F27C,1.7,df_muro,DF del muro +<VALUE> % para jugadores cercanos
+51095F09,ps10018_04,CF63F27C,2,df_muro,DF del muro +<VALUE> % para jugadores cercanos
+C739587E,ps10018_05,CF63F27C,1.5,df_muro,DF del muro +<VALUE> % para jugadores cercanos
+7D6851E7,ps10018_06,CF63F27C,2,df_muro,DF del muro +<VALUE> % para jugadores cercanos
+EB585690,ps10018_07,CF63F27C,2.5,df_muro,DF del muro +<VALUE> % para jugadores cercanos
+7A45E900,ps10018_08,CF63F27C,3,df_muro,DF del muro +<VALUE> % para jugadores cercanos
+EC75EE77,ps10018_09,CF63F27C,3.5,df_muro,DF del muro +<VALUE> % para jugadores cercanos
+8773EB2D,ps10019,B864C2EA,2,at_tiro,"Cuando un jugador del mismo elemento está cerca, AT propio de tiro +<VALUE> %"
+BB9A89C1,ps10019_01,B864C2EA,3,at_tiro,"Cuando un jugador del mismo elemento está cerca, AT propio de tiro +<VALUE> %"
+01CB8058,ps10019_02,B864C2EA,4,at_tiro,"Cuando un jugador del mismo elemento está cerca, AT propio de tiro +<VALUE> %"
+97FB872F,ps10019_03,B864C2EA,5,at_tiro,"Cuando un jugador del mismo elemento está cerca, AT propio de tiro +<VALUE> %"
+346EE3B1,ps10019_04,B864C2EA,6,at_tiro,"Cuando un jugador del mismo elemento está cerca, AT propio de tiro +<VALUE> %"
+E0981A7F,ps10020,B864C2EA,4,at_tiro,"Cuando un jugador del mismo elemento está cerca, AT propio de tiro +<VALUE> %"
+E1AF21FB,ps10020_01,B864C2EA,5,at_tiro,"Cuando un jugador del mismo elemento está cerca, AT propio de tiro +<VALUE> %"
+5BFE2862,ps10020_02,B864C2EA,6,at_tiro,"Cuando un jugador del mismo elemento está cerca, AT propio de tiro +<VALUE> %"
+CDCE2F15,ps10020_03,B864C2EA,7,at_tiro,"Cuando un jugador del mismo elemento está cerca, AT propio de tiro +<VALUE> %"
+6E5B4B8B,ps10020_04,B864C2EA,8,at_tiro,"Cuando un jugador del mismo elemento está cerca, AT propio de tiro +<VALUE> %"
+76A81D08,ps10021,216D9350,3,foco,"Cuando un jugador del mismo elemento está cerca, valor propio de foco +<VALUE> %"
+84C89D43,ps10021_01,216D9350,4,foco,"Cuando un jugador del mismo elemento está cerca, valor propio de foco +<VALUE> %"
+3E9994DA,ps10021_02,216D9350,5,foco,"Cuando un jugador del mismo elemento está cerca, valor propio de foco +<VALUE> %"
+A8A993AD,ps10021_03,216D9350,6,foco,"Cuando un jugador del mismo elemento está cerca, valor propio de foco +<VALUE> %"
+0B3CF733,ps10021_04,216D9350,7,foco,"Cuando un jugador del mismo elemento está cerca, valor propio de foco +<VALUE> %"
+CCF91491,ps10022,216D9350,4,foco,"Cuando un jugador del mismo elemento está cerca, valor propio de foco +<VALUE> %"
+6A672851,ps10022_01,216D9350,5,foco,"Cuando un jugador del mismo elemento está cerca, valor propio de foco +<VALUE> %"
+D03621C8,ps10022_02,216D9350,6,foco,"Cuando un jugador del mismo elemento está cerca, valor propio de foco +<VALUE> %"
+460626BF,ps10022_03,216D9350,7,foco,"Cuando un jugador del mismo elemento está cerca, valor propio de foco +<VALUE> %"
+E5934221,ps10022_04,216D9350,8,foco,"Cuando un jugador del mismo elemento está cerca, valor propio de foco +<VALUE> %"
+5AC913E6,ps10023,566AA3C6,5,disputa,"Cuando un jugador del mismo elemento está cerca, valor propio de disputa +<VALUE> %"
+0F0094E9,ps10023_01,566AA3C6,7,disputa,"Cuando un jugador del mismo elemento está cerca, valor propio de disputa +<VALUE> %"
+B5519D70,ps10023_02,566AA3C6,10.2,disputa,"Cuando un jugador del mismo elemento está cerca, valor propio de disputa +<VALUE> %"
+23619A07,ps10023_03,566AA3C6,12,disputa,"Cuando un jugador del mismo elemento está cerca, valor propio de disputa +<VALUE> %"
+80F4FE99,ps10023_04,566AA3C6,15,disputa,"Cuando un jugador del mismo elemento está cerca, valor propio de disputa +<VALUE> %"
+F95C7778,ps10024,566AA3C6,10,disputa,"Cuando un jugador del mismo elemento está cerca, valor propio de disputa +<VALUE> %"
+B6384374,ps10024_01,566AA3C6,12,disputa,"Cuando un jugador del mismo elemento está cerca, valor propio de disputa +<VALUE> %"
+0C694AED,ps10024_02,566AA3C6,15,disputa,"Cuando un jugador del mismo elemento está cerca, valor propio de disputa +<VALUE> %"
+9A594D9A,ps10024_03,566AA3C6,17,disputa,"Cuando un jugador del mismo elemento está cerca, valor propio de disputa +<VALUE> %"
+39CC2904,ps10024_04,566AA3C6,20,disputa,"Cuando un jugador del mismo elemento está cerca, valor propio de disputa +<VALUE> %"
+6F6C700F,ps10025,C80E3665,4,df_muro,"Cuando un jugador del mismo elemento está cerca, DF propia del muro +<VALUE> %"
+D35FFFCC,ps10025_01,C80E3665,4.5,df_muro,"Cuando un jugador del mismo elemento está cerca, DF propia del muro +<VALUE> %"
+690EF655,ps10025_02,C80E3665,5,df_muro,"Cuando un jugador del mismo elemento está cerca, DF propia del muro +<VALUE> %"
+FF3EF122,ps10025_03,C80E3665,5.5,df_muro,"Cuando un jugador del mismo elemento está cerca, DF propia del muro +<VALUE> %"
+5CAB95BC,ps10025_04,C80E3665,6,df_muro,"Cuando un jugador del mismo elemento está cerca, DF propia del muro +<VALUE> %"
+D53D7996,ps10026,C80E3665,5,df_muro,"Cuando un jugador del mismo elemento está cerca, DF propia del muro +<VALUE> %"
+3DF04ADE,ps10026_01,C80E3665,5.5,df_muro,"Cuando un jugador del mismo elemento está cerca, DF propia del muro +<VALUE> %"
+87A14347,ps10026_02,C80E3665,6,df_muro,"Cuando un jugador del mismo elemento está cerca, DF propia del muro +<VALUE> %"
+11914430,ps10026_03,C80E3665,6.5,df_muro,"Cuando un jugador del mismo elemento está cerca, DF propia del muro +<VALUE> %"
+B20420AE,ps10026_04,C80E3665,7,df_muro,"Cuando un jugador del mismo elemento está cerca, DF propia del muro +<VALUE> %"
+430D7EE1,ps10027,BF0906F3,2,at_tiro,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +<VALUE> %"
+5897F666,ps10027_01,BF0906F3,3,at_tiro,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +<VALUE> %"
+E2C6FFFF,ps10027_02,BF0906F3,4,at_tiro,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +<VALUE> %"
+74F6F888,ps10027_03,BF0906F3,5,at_tiro,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +<VALUE> %"
+D7639C16,ps10027_04,BF0906F3,6,at_tiro,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +<VALUE> %"
+D210C171,ps10028,BF0906F3,4,at_tiro,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +<VALUE> %"
+0E87953E,ps10028_01,BF0906F3,5,at_tiro,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +<VALUE> %"
+B4D69CA7,ps10028_02,BF0906F3,6,at_tiro,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +<VALUE> %"
+22E69BD0,ps10028_03,BF0906F3,7,at_tiro,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +<VALUE> %"
+8173FF4E,ps10028_04,BF0906F3,8,at_tiro,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +<VALUE> %"
+4420C606,ps10029,26005749,4.5,foco,"Cuando un jugador de otro elemento está cerca, valor propio de foco +<VALUE> %"
+6BE02986,ps10029_01,26005749,4.7,foco,"Cuando un jugador de otro elemento está cerca, valor propio de foco +<VALUE> %"
+D1B1201F,ps10029_02,26005749,5,foco,"Cuando un jugador de otro elemento está cerca, valor propio de foco +<VALUE> %"
+47812768,ps10029_03,26005749,5.3,foco,"Cuando un jugador de otro elemento está cerca, valor propio de foco +<VALUE> %"
+E41443F6,ps10029_04,26005749,5.5,foco,"Cuando un jugador de otro elemento está cerca, valor propio de foco +<VALUE> %"
+A1A90166,ps10030,26005749,5,foco,"Cuando un jugador de otro elemento está cerca, valor propio de foco +<VALUE> %"
+518641C6,ps10030_01,26005749,5.5,foco,"Cuando un jugador de otro elemento está cerca, valor propio de foco +<VALUE> %"
+EBD7485F,ps10030_02,26005749,6,foco,"Cuando un jugador de otro elemento está cerca, valor propio de foco +<VALUE> %"
+7DE74F28,ps10030_03,26005749,6.5,foco,"Cuando un jugador de otro elemento está cerca, valor propio de foco +<VALUE> %"
+DE722BB6,ps10030_04,26005749,7,foco,"Cuando un jugador de otro elemento está cerca, valor propio de foco +<VALUE> %"
+37990611,ps10031,510767DF,3,df_muro,"Cuando un jugador de otro elemento está cerca, DF propia del muro +<VALUE> %"
+34E1FD7E,ps10031_01,510767DF,3.2,df_muro,"Cuando un jugador de otro elemento está cerca, DF propia del muro +<VALUE> %"
+8EB0F4E7,ps10031_02,510767DF,3.5,df_muro,"Cuando un jugador de otro elemento está cerca, DF propia del muro +<VALUE> %"
+1880F390,ps10031_03,510767DF,3.7,df_muro,"Cuando un jugador de otro elemento está cerca, DF propia del muro +<VALUE> %"
+BB15970E,ps10031_04,510767DF,4,df_muro,"Cuando un jugador de otro elemento está cerca, DF propia del muro +<VALUE> %"
+8DC80F88,ps10032,510767DF,4,df_muro,"Cuando un jugador de otro elemento está cerca, DF propia del muro +<VALUE> %"
+DA4E486C,ps10032_01,510767DF,4.2,df_muro,"Cuando un jugador de otro elemento está cerca, DF propia del muro +<VALUE> %"
+601F41F5,ps10032_02,510767DF,4.5,df_muro,"Cuando un jugador de otro elemento está cerca, DF propia del muro +<VALUE> %"
+F62F4682,ps10032_03,510767DF,4.7,df_muro,"Cuando un jugador de otro elemento está cerca, DF propia del muro +<VALUE> %"
+55BA221C,ps10032_04,510767DF,5,df_muro,"Cuando un jugador de otro elemento está cerca, DF propia del muro +<VALUE> %"
+1BF808FF,ps10033,C1B87A4E,4.5,foco,Valor propio de foco +<VALUE> % en campo propio
+BF29F4D4,ps10033_01,C1B87A4E,4.7,foco,Valor propio de foco +<VALUE> % en campo propio
+0578FD4D,ps10033_02,C1B87A4E,5,foco,Valor propio de foco +<VALUE> % en campo propio
+9348FA3A,ps10033_03,C1B87A4E,5.3,foco,Valor propio de foco +<VALUE> % en campo propio
+30DD9EA4,ps10033_04,C1B87A4E,5.5,foco,Valor propio de foco +<VALUE> % en campo propio
+B86D6C61,ps10034,C1B87A4E,5,foco,Valor propio de foco +<VALUE> % en campo propio
+06112349,ps10034_01,C1B87A4E,5.5,foco,Valor propio de foco +<VALUE> % en campo propio
+BC402AD0,ps10034_02,C1B87A4E,6,foco,Valor propio de foco +<VALUE> % en campo propio
+2A702DA7,ps10034_03,C1B87A4E,6.5,foco,Valor propio de foco +<VALUE> % en campo propio
+89E54939,ps10034_04,C1B87A4E,7,foco,Valor propio de foco +<VALUE> % en campo propio
+2E5D6B16,ps10035,B6BF4AD8,7,disputa,Valor propio de disputa +<VALUE> % en campo propio
+63769FF1,ps10035_01,B6BF4AD8,8,disputa,Valor propio de disputa +<VALUE> % en campo propio
+D9279668,ps10035_02,B6BF4AD8,9,disputa,Valor propio de disputa +<VALUE> % en campo propio
+4F17911F,ps10035_03,B6BF4AD8,10,disputa,Valor propio de disputa +<VALUE> % en campo propio
+EC82F581,ps10035_04,B6BF4AD8,12,disputa,Valor propio de disputa +<VALUE> % en campo propio
+940C628F,ps10036,B6BF4AD8,10,disputa,Valor propio de disputa +<VALUE> % en campo propio
+8DD92AE3,ps10036_01,B6BF4AD8,11,disputa,Valor propio de disputa +<VALUE> % en campo propio
+3788237A,ps10036_02,B6BF4AD8,12,disputa,Valor propio de disputa +<VALUE> % en campo propio
+A1B8240D,ps10036_03,B6BF4AD8,13,disputa,Valor propio de disputa +<VALUE> % en campo propio
+022D4093,ps10036_04,B6BF4AD8,15,disputa,Valor propio de disputa +<VALUE> % en campo propio
+023C65F8,ps10037,D678C33D,0.120000005,foco,Valor de foco del equipo +<VALUE> % en campo propio
+E8BE965B,ps10037_01,D678C33D,0.24000001,foco,Valor de foco del equipo +<VALUE> % en campo propio
+52EF9FC2,ps10037_02,D678C33D,0.36,foco,Valor de foco del equipo +<VALUE> % en campo propio
+C4DF98B5,ps10037_03,D678C33D,0.48000002,foco,Valor de foco del equipo +<VALUE> % en campo propio
+674AFC2B,ps10037_04,D678C33D,0.6,foco,Valor de foco del equipo +<VALUE> % en campo propio
+F17AFB5C,ps10037_05,D678C33D,0.2,foco,Valor de foco del equipo +<VALUE> % en campo propio
+4B2BF2C5,ps10037_06,D678C33D,0.24000001,foco,Valor de foco del equipo +<VALUE> % en campo propio
+DD1BF5B2,ps10037_07,D678C33D,0.36,foco,Valor de foco del equipo +<VALUE> % en campo propio
+4C064A22,ps10037_08,D678C33D,0.8,foco,Valor de foco del equipo +<VALUE> % en campo propio
+DA364D55,ps10037_09,D678C33D,1,foco,Valor de foco del equipo +<VALUE> % en campo propio
+9321DA68,ps10038,A17FF3AB,2,at_tiro,AT propio de tiro +<VALUE> % en campo contrario
+BEAEF503,ps10038_01,A17FF3AB,3,at_tiro,AT propio de tiro +<VALUE> % en campo contrario
+04FFFC9A,ps10038_02,A17FF3AB,4,at_tiro,AT propio de tiro +<VALUE> % en campo contrario
+92CFFBED,ps10038_03,A17FF3AB,5,at_tiro,AT propio de tiro +<VALUE> % en campo contrario
+315A9F73,ps10038_04,A17FF3AB,6,at_tiro,AT propio de tiro +<VALUE> % en campo contrario
+0511DD1F,ps10039,A17FF3AB,4,at_tiro,AT propio de tiro +<VALUE> % en campo contrario
+DBC949BB,ps10039_01,A17FF3AB,5,at_tiro,AT propio de tiro +<VALUE> % en campo contrario
+61984022,ps10039_02,A17FF3AB,6,at_tiro,AT propio de tiro +<VALUE> % en campo contrario
+F7A84755,ps10039_03,A17FF3AB,7,at_tiro,AT propio de tiro +<VALUE> % en campo contrario
+543D23CB,ps10039_04,A17FF3AB,8,at_tiro,AT propio de tiro +<VALUE> % en campo contrario
+663F4029,ps10040,3876A211,4,foco,Valor propio de foco +<VALUE> % en campo contrario
+415A6174,ps10040_01,3876A211,4.5,foco,Valor propio de foco +<VALUE> % en campo contrario
+FB0B68ED,ps10040_02,3876A211,5,foco,Valor propio de foco +<VALUE> % en campo contrario
+6D3B6F9A,ps10040_03,3876A211,5.5,foco,Valor propio de foco +<VALUE> % en campo contrario
+CEAE0B04,ps10040_04,3876A211,6,foco,Valor propio de foco +<VALUE> % en campo contrario
+F00F475E,ps10041,3876A211,5,foco,Valor propio de foco +<VALUE> % en campo contrario
+243DDDCC,ps10041_01,3876A211,5.5,foco,Valor propio de foco +<VALUE> % en campo contrario
+9E6CD455,ps10041_02,3876A211,6,foco,Valor propio de foco +<VALUE> % en campo contrario
+085CD322,ps10041_03,3876A211,6.5,foco,Valor propio de foco +<VALUE> % en campo contrario
+ABC9B7BC,ps10041_04,3876A211,7,foco,Valor propio de foco +<VALUE> % en campo contrario
+4A5E4EC7,ps10042,4F719287,6,disputa,Valor propio de disputa +<VALUE> % en campo contrario
+CA9268DE,ps10042_01,4F719287,7,disputa,Valor propio de disputa +<VALUE> % en campo contrario
+70C36147,ps10042_02,4F719287,8,disputa,Valor propio de disputa +<VALUE> % en campo contrario
+E6F36630,ps10042_03,4F719287,9,disputa,Valor propio de disputa +<VALUE> % en campo contrario
+456602AE,ps10042_04,4F719287,10,disputa,Valor propio de disputa +<VALUE> % en campo contrario
+DC6E49B0,ps10043,4F719287,9,disputa,Valor propio de disputa +<VALUE> % en campo contrario
+AFF5D466,ps10043_01,4F719287,10,disputa,Valor propio de disputa +<VALUE> % en campo contrario
+15A4DDFF,ps10043_02,4F719287,11,disputa,Valor propio de disputa +<VALUE> % en campo contrario
+8394DA88,ps10043_03,4F719287,12,disputa,Valor propio de disputa +<VALUE> % en campo contrario
+2001BE16,ps10043_04,4F719287,13,disputa,Valor propio de disputa +<VALUE> % en campo contrario
+7FFB2D2E,ps10044,D1150724,0.120000005,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+16CD03FB,ps10044_01,D1150724,0.24000001,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+AC9C0A62,ps10044_02,D1150724,0.36,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+3AAC0D15,ps10044_03,D1150724,0.48000002,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+9939698B,ps10044_04,D1150724,0.6,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+0F096EFC,ps10044_05,D1150724,0.2,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+B5586765,ps10044_06,D1150724,0.4,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+23686012,ps10044_07,D1150724,0.6,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+B275DF82,ps10044_08,D1150724,0.8,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+2445D8F5,ps10044_09,D1150724,1,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+E9CB2A59,ps10045,A61237B2,3,foco,Valor propio de foco +<VALUE> % cuando se está fuera del área
+73AABF43,ps10045_01,A61237B2,3.5,foco,Valor propio de foco +<VALUE> % cuando se está fuera del área
+C9FBB6DA,ps10045_02,A61237B2,4,foco,Valor propio de foco +<VALUE> % cuando se está fuera del área
+5FCBB1AD,ps10045_03,A61237B2,4.5,foco,Valor propio de foco +<VALUE> % cuando se está fuera del área
+FC5ED533,ps10045_04,A61237B2,5,foco,Valor propio de foco +<VALUE> % cuando se está fuera del área
+539A23C0,ps10046,A61237B2,4,foco,Valor propio de foco +<VALUE> % cuando se está fuera del área
+9D050A51,ps10046_01,A61237B2,4.5,foco,Valor propio de foco +<VALUE> % cuando se está fuera del área
+275403C8,ps10046_02,A61237B2,5,foco,Valor propio de foco +<VALUE> % cuando se está fuera del área
+B16404BF,ps10046_03,A61237B2,5.5,foco,Valor propio de foco +<VALUE> % cuando se está fuera del área
+12F16021,ps10046_04,A61237B2,6,foco,Valor propio de foco +<VALUE> % cuando se está fuera del área
+C5AA24B7,ps10047,3F1B6608,5,disputa,Valor propio de disputa +<VALUE> % cuando se está fuera del área
+F862B6E9,ps10047_01,3F1B6608,6,disputa,Valor propio de disputa +<VALUE> % cuando se está fuera del área
+4233BF70,ps10047_02,3F1B6608,7,disputa,Valor propio de disputa +<VALUE> % cuando se está fuera del área
+D403B807,ps10047_03,3F1B6608,8,disputa,Valor propio de disputa +<VALUE> % cuando se está fuera del área
+7796DC99,ps10047_04,3F1B6608,10,disputa,Valor propio de disputa +<VALUE> % cuando se está fuera del área
+54B79B27,ps10048,3F1B6608,8,disputa,Valor propio de disputa +<VALUE> % cuando se está fuera del área
+AE72D5B1,ps10048_01,3F1B6608,9,disputa,Valor propio de disputa +<VALUE> % cuando se está fuera del área
+1423DC28,ps10048_02,3F1B6608,10,disputa,Valor propio de disputa +<VALUE> % cuando se está fuera del área
+8213DB5F,ps10048_03,3F1B6608,11,disputa,Valor propio de disputa +<VALUE> % cuando se está fuera del área
+2186BFC1,ps10048_04,3F1B6608,13,disputa,Valor propio de disputa +<VALUE> % cuando se está fuera del área
+C2879C50,ps10049,481C569E,0.120000005,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+CB156909,ps10049_01,481C569E,0.24000001,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+71446090,ps10049_02,481C569E,0.36,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+E77467E7,ps10049_03,481C569E,0.48000002,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+44E10379,ps10049_04,481C569E,0.6,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+D2D1040E,ps10049_05,481C569E,0.2,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+68800D97,ps10049_06,481C569E,0.4,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+FEB00AE0,ps10049_07,481C569E,0.6,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+6FADB570,ps10049_08,481C569E,0.8,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+F99DB207,ps10049_09,481C569E,1,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+270E5B30,ps10050,D8A34B0F,2,obtencion,Tasa de obtención del equipo (comunes) +<VALUE>%
+F1730149,ps10050_01,D8A34B0F,4,obtencion,Tasa de obtención del equipo (comunes) +<VALUE>%
+4B2208D0,ps10050_02,D8A34B0F,6,obtencion,Tasa de obtención del equipo (comunes) +<VALUE>%
+DD120FA7,ps10050_03,D8A34B0F,8,obtencion,Tasa de obtención del equipo (comunes) +<VALUE>%
+7E876B39,ps10050_04,D8A34B0F,10,obtencion,Tasa de obtención del equipo (comunes) +<VALUE>%
+B13E5C47,ps10051,AFA47B99,2,obtencion,Tasa de obtención del equipo (inusuales) +<VALUE>%
+9414BDF1,ps10051_01,AFA47B99,3,obtencion,Tasa de obtención del equipo (inusuales) +<VALUE>%
+2E45B468,ps10051_02,AFA47B99,4,obtencion,Tasa de obtención del equipo (inusuales) +<VALUE>%
+B875B31F,ps10051_03,AFA47B99,5,obtencion,Tasa de obtención del equipo (inusuales) +<VALUE>%
+1BE0D781,ps10051_04,AFA47B99,7,obtencion,Tasa de obtención del equipo (inusuales) +<VALUE>%
+0B6F55DE,ps10052,993955FA,2,brecha,Tasa de brecha del equipo +<VALUE> %
+7ABB08E3,ps10052_01,993955FA,2.5,brecha,Tasa de brecha del equipo +<VALUE> %
+C0EA017A,ps10052_02,993955FA,3,brecha,Tasa de brecha del equipo +<VALUE> %
+56DA060D,ps10052_03,993955FA,3.5,brecha,Tasa de brecha del equipo +<VALUE> %
+F54F6293,ps10052_04,993955FA,4,brecha,Tasa de brecha del equipo +<VALUE> %
+9D5F52A9,ps10053,993955FA,3,brecha,Tasa de brecha del equipo +<VALUE> %
+1FDCB45B,ps10053_01,993955FA,3.5,brecha,Tasa de brecha del equipo +<VALUE> %
+A58DBDC2,ps10053_02,993955FA,4,brecha,Tasa de brecha del equipo +<VALUE> %
+33BDBAB5,ps10053_03,993955FA,4.5,brecha,Tasa de brecha del equipo +<VALUE> %
+9028DE2B,ps10053_04,993955FA,5,brecha,Tasa de brecha del equipo +<VALUE> %
+3ECA3637,ps10054,EE3E656C,1,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+A6E463C6,ps10054_01,EE3E656C,2,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+1CB56A5F,ps10054_02,EE3E656C,3,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+8A856D28,ps10054_03,EE3E656C,4,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+291009B6,ps10054_04,EE3E656C,5,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+A8FA3140,ps10055,EE3E656C,3,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+C383DF7E,ps10055_01,EE3E656C,4,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+79D2D6E7,ps10055_02,EE3E656C,5,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+EFE2D190,ps10055_03,EE3E656C,6,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+4C77B50E,ps10055_04,EE3E656C,7,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+12AB38D9,ps10056,ABE88F55,0.1,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+2D2C6A6C,ps10056_01,ABE88F55,0.2,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+977D63F5,ps10056_02,ABE88F55,0.4,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+014D6482,ps10056_03,ABE88F55,0.6,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+A2D8001C,ps10056_04,ABE88F55,0.8,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+849B3FAE,ps10057,ABE88F55,0.2,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+484BD6D4,ps10057_01,ABE88F55,0.4,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+F21ADF4D,ps10057_02,ABE88F55,0.6,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+642AD83A,ps10057_03,ABE88F55,0.8,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+C7BFBCA4,ps10057_04,ABE88F55,1,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+1586803E,ps10058,00300440,1.5,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+1E5BB58C,ps10058_01,00300440,1.7,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+A40ABC15,ps10058_02,00300440,2,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+323ABB62,ps10058_03,00300440,2.2,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+91AFDFFC,ps10058_04,00300440,2.5,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+83B68749,ps10059,00300440,2.5,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+7B3C0934,ps10059_01,00300440,2.7,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+C16D00AD,ps10059_02,00300440,3,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+575D07DA,ps10059_03,00300440,3.3,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+F4C86344,ps10059_04,00300440,3.6,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+E45D761B,ps10060,9E5491E3,10,tension,"Cuando el rival pasa durante foco, drena un <VALUE> % de tensión"
+2109A10E,ps10060_01,9E5491E3,20,tension,"Cuando el rival pasa durante foco, drena un <VALUE> % de tensión"
+9B58A897,ps10060_02,9E5491E3,30,tension,"Cuando el rival pasa durante foco, drena un <VALUE> % de tensión"
+0D68AFE0,ps10060_03,9E5491E3,40,tension,"Cuando el rival pasa durante foco, drena un <VALUE> % de tensión"
+AEFDCB7E,ps10060_04,9E5491E3,50,tension,"Cuando el rival pasa durante foco, drena un <VALUE> % de tensión"
+726D716C,ps10061,9E5491E3,15,tension,"Cuando el rival pasa durante foco, drena un <VALUE> % de tensión"
+446E1DB6,ps10061_01,9E5491E3,20,tension,"Cuando el rival pasa durante foco, drena un <VALUE> % de tensión"
+FE3F142F,ps10061_02,9E5491E3,35,tension,"Cuando el rival pasa durante foco, drena un <VALUE> % de tensión"
+680F1358,ps10061_03,9E5491E3,50,tension,"Cuando el rival pasa durante foco, drena un <VALUE> % de tensión"
+CB9A77C6,ps10061_04,9E5491E3,65,tension,"Cuando el rival pasa durante foco, drena un <VALUE> % de tensión"
+C83C78F5,ps10062,E953A175,3,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+AAC1A8A4,ps10062_01,E953A175,3.2,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+1090A13D,ps10062_02,E953A175,3.5,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+86A0A64A,ps10062_03,E953A175,3.7,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+2535C2D4,ps10062_04,E953A175,4,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+5E0C7F82,ps10063,E953A175,4,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+CFA6141C,ps10063_01,E953A175,4.5,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+75F71D85,ps10063_02,E953A175,5,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+E3C71AF2,ps10063_03,E953A175,5.5,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+40527E6C,ps10063_04,E953A175,6,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+FD991B1C,ps10064,705AF0CF,1.1,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+769EC381,ps10064_01,705AF0CF,1.2,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+CCCFCA18,ps10064_02,705AF0CF,1.3,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+5AFFCD6F,ps10064_03,705AF0CF,1.4,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+F96AA9F1,ps10064_04,705AF0CF,1.5,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+6BA91C6B,ps10065,705AF0CF,1.5,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+13F97F39,ps10065_01,705AF0CF,1.6,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+A9A876A0,ps10065_02,705AF0CF,1.7,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+3F9871D7,ps10065_03,705AF0CF,1.8,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+9C0D1549,ps10065_04,705AF0CF,2,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+D1F815F2,ps10066,075DC059,3.5,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+FD56CA2B,ps10066_01,075DC059,3.7,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+4707C3B2,ps10066_02,075DC059,4,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+D137C4C5,ps10066_03,075DC059,4.3,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+72A2A05B,ps10066_04,075DC059,4.5,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+47C81285,ps10067,075DC059,4,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+98317693,ps10067_01,075DC059,4.5,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+22607F0A,ps10067_02,075DC059,5,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+B450787D,ps10067_03,075DC059,5.5,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+17C51CE3,ps10067_04,075DC059,6,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+D6D5AD15,ps10068,97E2DDC8,2,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+CE2115CB,ps10068_01,97E2DDC8,2.2,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+74701C52,ps10068_02,97E2DDC8,2.5,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+E2401B25,ps10068_03,97E2DDC8,2.7,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+41D57FBB,ps10068_04,97E2DDC8,3,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+40E5AA62,ps10069,97E2DDC8,2.3,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+AB46A973,ps10069_01,97E2DDC8,2.5,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+1117A0EA,ps10069_02,97E2DDC8,3,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+8727A79D,ps10069_03,97E2DDC8,3.5,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+24B2C303,ps10069_04,97E2DDC8,4,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+A56C6D02,ps10070,E0E5ED5E,1,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+9120C133,ps10070_01,E0E5ED5E,1.1,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+2B71C8AA,ps10070_02,E0E5ED5E,1.2,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+BD41CFDD,ps10070_03,E0E5ED5E,1.3,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+1ED4AB43,ps10070_04,E0E5ED5E,1.5,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+335C6A75,ps10071,E0E5ED5E,1.1,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+F4477D8B,ps10071_01,E0E5ED5E,1.2,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+4E167412,ps10071_02,E0E5ED5E,1.5,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+D8267365,ps10071_03,E0E5ED5E,1.7,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+7BB317FB,ps10071_04,E0E5ED5E,2,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+890D63EC,ps10072,4C50A252,0.1,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+1AE8C899,ps10072_01,4C50A252,0.2,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+A0B9C100,ps10072_02,4C50A252,0.3,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+3689C677,ps10072_03,4C50A252,0.4,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+951CA2E9,ps10072_04,4C50A252,0.5,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+1F3D649B,ps10073,4C50A252,0.2,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+7F8F7421,ps10073_01,4C50A252,0.4,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+C5DE7DB8,ps10073_02,4C50A252,0.6,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+53EE7ACF,ps10073_03,4C50A252,0.8,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+F07B1E51,ps10073_04,4C50A252,1,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+BCA80005,ps10074,F725542D,2.5,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+C6B7A3BC,ps10074_01,F725542D,2.7,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+7CE6AA25,ps10074_02,F725542D,3,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+EAD6AD52,ps10074_03,F725542D,3.3,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+4943C9CC,ps10074_04,F725542D,3.5,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+2A980772,ps10075,F725542D,3,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+A3D01F04,ps10075_01,F725542D,3.5,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+1981169D,ps10075_02,F725542D,4,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+8FB111EA,ps10075_03,F725542D,4.5,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+2C247574,ps10075_04,F725542D,5,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+90C90EEB,ps10076,6E2C0597,3.5,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+4D7FAA16,ps10076_01,6E2C0597,3.7,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+F72EA38F,ps10076_02,6E2C0597,4,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+611EA4F8,ps10076_03,6E2C0597,4.2,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+C28BC066,ps10076_04,6E2C0597,4.5,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+06F9099C,ps10077,6E2C0597,4,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+281816AE,ps10077_01,6E2C0597,4.5,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+92491F37,ps10077_02,6E2C0597,5,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+04791840,ps10077_03,6E2C0597,5.5,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+A7EC7CDE,ps10077_04,6E2C0597,6,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+97E4B60C,ps10078,C27EF2B6,0.1,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+7E0875F6,ps10078_01,C27EF2B6,0.1,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+C4597C6F,ps10078_02,C27EF2B6,0.2,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+52697B18,ps10078_03,C27EF2B6,0.2,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+F1FC1F86,ps10078_04,C27EF2B6,0.3,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+01D4B17B,ps10079,C27EF2B6,0.1,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+1B6FC94E,ps10079_01,C27EF2B6,0.2,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+A13EC0D7,ps10079_02,C27EF2B6,0.2,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+370EC7A0,ps10079_03,C27EF2B6,0.3,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+949BA33E,ps10079_04,C27EF2B6,0.4,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+6A70F585,ps10080,DCEFBFC3,0.6,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+40B791B1,ps10080_01,DCEFBFC3,1.2,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+FAE69828,ps10080_02,DCEFBFC3,1.8,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+6CD69F5F,ps10080_03,DCEFBFC3,2.4,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+CF43FBC1,ps10080_04,DCEFBFC3,3,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+FC40F2F2,ps10081,DCEFBFC3,1,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+25D02D09,ps10081_01,DCEFBFC3,2,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+9F812490,ps10081_02,DCEFBFC3,3,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+09B123E7,ps10081_03,DCEFBFC3,4,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+AA244779,ps10081_04,DCEFBFC3,5,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+4611FB6B,ps10082,F0489034,2,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+CB7F981B,ps10082_01,F0489034,2.3,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+712E9182,ps10082_02,F0489034,2.5,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+E71E96F5,ps10082_03,F0489034,2.7,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+448BF26B,ps10082_04,F0489034,3,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+D021FC1C,ps10083,F0489034,2.3,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+AE1824A3,ps10083_01,F0489034,2.5,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+14492D3A,ps10083_02,F0489034,3,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+82792A4D,ps10083_03,F0489034,3.5,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+21EC4ED3,ps10083_04,F0489034,4,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+73B49882,ps10084,5B901B21,2,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+1720F33E,ps10084_01,5B901B21,2.5,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+AD71FAA7,ps10084_02,5B901B21,3,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+3B41FDD0,ps10084_03,5B901B21,3.5,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+98D4994E,ps10084_04,5B901B21,4,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+E5849FF5,ps10085,1E46F118,1.5,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+72474F86,ps10085_01,1E46F118,1.7,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+C816461F,ps10085_02,1E46F118,2,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+5E264168,ps10085_03,1E46F118,2.2,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+FDB325F6,ps10085_04,1E46F118,2.5,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+5FD5966C,ps10086,1E46F118,2,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+9CE8FA94,ps10086_01,1E46F118,2.2,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+26B9F30D,ps10086_02,1E46F118,2.5,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+B089F47A,ps10086_03,1E46F118,3.7,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+131C90E4,ps10086_04,1E46F118,4,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+C9E5911B,ps10087,8EF9EC89,1.5,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+F98F462C,ps10087_01,8EF9EC89,1.7,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+43DE4FB5,ps10087_02,8EF9EC89,2,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+D5EE48C2,ps10087_03,8EF9EC89,2.2,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+767B2C5C,ps10087_04,8EF9EC89,2.5,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+58F82E8B,ps10088,8EF9EC89,2,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+AF9F2574,ps10088_01,8EF9EC89,2.2,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+15CE2CED,ps10088_02,8EF9EC89,2.5,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+83FE2B9A,ps10088_03,8EF9EC89,3.7,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+206B4F04,ps10088_04,8EF9EC89,4,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+CEC829FC,ps10089,F9FEDC1F,1.5,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+CAF899CC,ps10089_01,F9FEDC1F,1.7,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+70A99055,ps10089_02,F9FEDC1F,2,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+E6999722,ps10089_03,F9FEDC1F,2.2,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+450CF3BC,ps10089_04,F9FEDC1F,2.5,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+2B41EE9C,ps10090,F9FEDC1F,2,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+F09EF18C,ps10090_01,F9FEDC1F,2.2,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+4ACFF815,ps10090_02,F9FEDC1F,2.5,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+DCFFFF62,ps10090_03,F9FEDC1F,3.7,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+7F6A9BFC,ps10090_04,F9FEDC1F,4,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+BD71E9EB,ps10091,45E6EE79,0.1,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+95F94D34,ps10091_01,45E6EE79,0.2,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+2FA844AD,ps10091_02,45E6EE79,0.4,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+B99843DA,ps10091_03,45E6EE79,0.6,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+1A0D2744,ps10091_04,45E6EE79,0.8,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+0720E072,ps10092,45E6EE79,0.2,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+7B56F826,ps10092_01,45E6EE79,0.4,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+C107F1BF,ps10092_02,45E6EE79,0.6,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+5737F6C8,ps10092_03,45E6EE79,0.8,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+F4A29256,ps10092_04,45E6EE79,1,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+9110E705,ps10093,DC0807EE,4,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+1E31449E,ps10093_01,DC0807EE,4.5,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+A4604D07,ps10093_02,DC0807EE,5,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+32504A70,ps10093_03,DC0807EE,5.5,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+91C52EEE,ps10093_04,DC0807EE,6,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+3285839B,ps10094,DC0807EE,6,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+A7099303,ps10094_01,DC0807EE,7,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+1D589A9A,ps10094_02,DC0807EE,8,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+8B689DED,ps10094_03,DC0807EE,9,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+28FDF973,ps10094_04,DC0807EE,10,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+A4B584EC,ps10095,45015654,4,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+C26E2FBB,ps10095_01,45015654,4.5,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+783F2622,ps10095_02,45015654,5,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+EE0F2155,ps10095_03,45015654,5.5,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+4D9A45CB,ps10095_04,45015654,6,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+1EE48D75,ps10096,45015654,4.5,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+2CC19AA9,ps10096_01,45015654,5,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+96909330,ps10096_02,45015654,6,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+00A09447,ps10096_03,45015654,7,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+A335F0D9,ps10096_04,45015654,8,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+88D48A02,ps10097,320666C2,1,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+49A62611,ps10097_01,320666C2,1.1,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+F3F72F88,ps10097_02,320666C2,1.2,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+65C728FF,ps10097_03,320666C2,1.3,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+C6524C61,ps10097_04,320666C2,1.5,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+19C93592,ps10098,320666C2,1.5,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+1FB64549,ps10098_01,320666C2,1.6,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+A5E74CD0,ps10098_02,320666C2,1.7,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+33D74BA7,ps10098_03,320666C2,1.8,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+90422F39,ps10098_04,320666C2,2,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+8FF932E5,ps10099,AC854B4C,0.1,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+7AD1F9F1,ps10099_01,AC854B4C,0.1,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+C080F068,ps10099_02,AC854B4C,0.2,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+56B0F71F,ps10099_03,AC854B4C,0.2,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+F5259381,ps10099_04,AC854B4C,0.3,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+5590EE4C,ps10100,AC854B4C,0.1,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+242FBD4A,ps10100_01,AC854B4C,0.2,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+9E7EB4D3,ps10100_02,AC854B4C,0.2,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+084EB3A4,ps10100_03,AC854B4C,0.3,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+ABDBD73A,ps10100_04,AC854B4C,0.4,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+C3A0E93B,ps10101,DB65C3F7,0.6,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+414801F2,ps10101_01,DB65C3F7,1.2,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+FB19086B,ps10101_02,DB65C3F7,1.8,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+6D290F1C,ps10101_03,DB65C3F7,2.4,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+CEBC6B82,ps10101_04,DB65C3F7,3,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+79F1E0A2,ps10102,DB65C3F7,1,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+AFE7B4E0,ps10102_01,DB65C3F7,2,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+15B6BD79,ps10102_02,DB65C3F7,3,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+8386BA0E,ps10102_03,DB65C3F7,4,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+2013DE90,ps10102_04,DB65C3F7,5,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+EFC1E7D5,ps10103,426C924D,0.6,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+CA800858,ps10103_01,426C924D,1.2,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+70D101C1,ps10103_02,426C924D,1.8,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+E6E106B6,ps10103_03,426C924D,2.4,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+45746228,ps10103_04,426C924D,3,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+4C54834B,ps10104,426C924D,1,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+73B8DFC5,ps10104_01,426C924D,2,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+C9E9D65C,ps10104_02,426C924D,3,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+5FD9D12B,ps10104_03,426C924D,4,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+FC4CB5B5,ps10104_04,426C924D,5,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+DA64843C,ps10105,356BA2DB,2,otra,Enfriamiento de tácticas especiales -<VALUE> %
+16DF637D,ps10105_01,356BA2DB,4,otra,Enfriamiento de tácticas especiales -<VALUE> %
+AC8E6AE4,ps10105_02,356BA2DB,6,otra,Enfriamiento de tácticas especiales -<VALUE> %
+3ABE6D93,ps10105_03,356BA2DB,8,otra,Enfriamiento de tácticas especiales -<VALUE> %
+992B090D,ps10105_04,356BA2DB,10,otra,Enfriamiento de tácticas especiales -<VALUE> %
+60358DA5,ps10106,356BA2DB,3,otra,Enfriamiento de tácticas especiales -<VALUE> %
+F870D66F,ps10106_01,356BA2DB,6,otra,Enfriamiento de tácticas especiales -<VALUE> %
+4221DFF6,ps10106_02,356BA2DB,9,otra,Enfriamiento de tácticas especiales -<VALUE> %
+D411D881,ps10106_03,356BA2DB,12,otra,Enfriamiento de tácticas especiales -<VALUE> %
+7784BC1F,ps10106_04,356BA2DB,15,otra,Enfriamiento de tácticas especiales -<VALUE> %
+F6058AD2,ps10107,A5D4BF4A,2,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+9D176AD7,ps10107_01,A5D4BF4A,4,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+2746634E,ps10107_02,A5D4BF4A,6,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+B1766439,ps10107_03,A5D4BF4A,8,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+12E300A7,ps10107_04,A5D4BF4A,10,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+67183542,ps10108,A5D4BF4A,3,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+CB07098F,ps10108_01,A5D4BF4A,6,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+71560016,ps10108_02,A5D4BF4A,9,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+E7660761,ps10108_03,A5D4BF4A,12,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+44F363FF,ps10108_04,A5D4BF4A,15,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+F1283235,ps10109,D2D38FDC,2,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+AE60B537,ps10109_01,D2D38FDC,4,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+1431BCAE,ps10109_02,D2D38FDC,6,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+8201BBD9,ps10109_03,D2D38FDC,8,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+2194DF47,ps10109_04,D2D38FDC,10,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+14A1F555,ps10110,D2D38FDC,3,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+9406DD77,ps10110_01,D2D38FDC,6,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+2E57D4EE,ps10110_02,D2D38FDC,9,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+B867D399,ps10110_03,D2D38FDC,12,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+1BF2B707,ps10110_04,D2D38FDC,15,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+38C0FBBB,ps10112,2B1D5783,1.5,pp,PP del equipo +<VALUE> %
+1FCED4DD,ps10112_01,2B1D5783,2,pp,PP del equipo +<VALUE> %
+A59FDD44,ps10112_02,2B1D5783,2.5,pp,PP del equipo +<VALUE> %
+33AFDA33,ps10112_03,2B1D5783,3,pp,PP del equipo +<VALUE> %
+903ABEAD,ps10112_04,2B1D5783,3.5,pp,PP del equipo +<VALUE> %
+AEF0FCCC,ps10113,3B5792C4,2,brecha,"Por cada rango de Conf. Brecha, tasa de Parada del equipo +<VALUE> %"
+7AA96865,ps10113_01,3B5792C4,2.5,brecha,"Por cada rango de Conf. Brecha, tasa de Parada del equipo +<VALUE> %"
+C0F861FC,ps10113_02,3B5792C4,3,brecha,"Por cada rango de Conf. Brecha, tasa de Parada del equipo +<VALUE> %"
+56C8668B,ps10113_03,3B5792C4,3.5,brecha,"Por cada rango de Conf. Brecha, tasa de Parada del equipo +<VALUE> %"
+F55D0215,ps10113_04,3B5792C4,4,brecha,"Por cada rango de Conf. Brecha, tasa de Parada del equipo +<VALUE> %"
+26292E5B,ps10118,358C1AF6,0.2,stat_tecnica,Enfriamiento de supertécnicas propias -<VALUE> %
+7B2E69B2,ps10118_01,358C1AF6,0.4,stat_tecnica,Enfriamiento de supertécnicas propias -<VALUE> %
+C17F602B,ps10118_02,358C1AF6,0.6,stat_tecnica,Enfriamiento de supertécnicas propias -<VALUE> %
+574F675C,ps10118_03,358C1AF6,0.8,stat_tecnica,Enfriamiento de supertécnicas propias -<VALUE> %
+F4DA03C2,ps10118_04,358C1AF6,1,stat_tecnica,Enfriamiento de supertécnicas propias -<VALUE> %
+B019292C,ps10119,CBC8BE9D,0.04,afinidad,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"
+1E49D50A,ps10119_01,CBC8BE9D,0.05,afinidad,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"
+A418DC93,ps10119_02,CBC8BE9D,0.06,afinidad,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"
+3228DBE4,ps10119_03,CBC8BE9D,0.07,afinidad,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"
+91BDBF7A,ps10119_04,CBC8BE9D,0.1,afinidad,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"
+7467BCE0,ps10127,2C972BB7,1.2,tension,"Por cada rango de Conf. Tensión, tensión +<VALUE> %"
+FD44AAAD,ps10127_01,2C972BB7,1.4,tension,"Por cada rango de Conf. Tensión, tensión +<VALUE> %"
+4715A334,ps10127_02,2C972BB7,1.6,tension,"Por cada rango de Conf. Tensión, tensión +<VALUE> %"
+D125A443,ps10127_03,2C972BB7,1.8,tension,"Por cada rango de Conf. Tensión, tensión +<VALUE> %"
+72B0C0DD,ps10127_04,2C972BB7,2,tension,"Por cada rango de Conf. Tensión, tensión +<VALUE> %"
+1AF12A5C,hps10001_05,8A52A068,1.5,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+2801F46B,hps10004_05,FA3854E7,1.5,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+90BE2221,hps10008_05,F38E18CC,1.5,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+BBF29428,hps10008_09,F38E18CC,1.5,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+F5D99E99,hps10009_05,8489285A,3.5,at_tiro,AT de tiro +<VALUE> % para jugadores de la misma posición
+FD4F28EE,hps10015_05,7A2A341C,3.5,at_tiro,AT de tiro +<VALUE> % para jugadores cercanos
+13E09DFC,hps10016_05,EA95298D,2,foco,Valor de foco +<VALUE> % para jugadores cercanos
+2097421C,hps10018_05,CF63F27C,3.5,df_muro,DF del muro +<VALUE> % para jugadores cercanos
+F9235A84,hps10020,B864C2EA,8,at_tiro,"Cuando un jugador del mismo elemento está cerca, AT propio de tiro +<VALUE> %"
+D542546A,hps10022,216D9350,8,foco,"Cuando un jugador del mismo elemento está cerca, valor propio de foco +<VALUE> %"
+CC86396D,hps10026,C80E3665,7,df_muro,"Cuando un jugador del mismo elemento está cerca, DF propia del muro +<VALUE> %"
+CBAB818A,hps10028,BF0906F3,8,at_tiro,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +<VALUE> %"
+B812419D,hps10030,26005749,7,foco,"Cuando un jugador de otro elemento está cerca, valor propio de foco +<VALUE> %"
+94734F73,hps10032,510767DF,5,df_muro,"Cuando un jugador de otro elemento está cerca, DF propia del muro +<VALUE> %"
+A1D62C9A,hps10034,C1B87A4E,7,foco,Valor propio de foco +<VALUE> % en campo propio
+16D4E13E,hps10037_05,D678C33D,1,foco,Valor de foco del equipo +<VALUE> % en campo propio
+8A9A9A93,hps10038,A17FF3AB,8,at_tiro,AT propio de tiro +<VALUE> % en campo contrario
+1CAA9DE4,hps10039,A17FF3AB,8,at_tiro,AT propio de tiro +<VALUE> % en campo contrario
+E9B407A5,hps10041,3876A211,8,foco,Valor propio de foco +<VALUE> % en campo contrario
+E8A7749E,hps10044_05,D1150724,1,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+357F1E6C,hps10049_05,481C569E,1,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+84E41252,hps10053,993955FA,5,brecha,Tasa de brecha del equipo +<VALUE> %
+B14171BB,hps10055,EE3E656C,7,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+47B73F79,hps10063,E953A175,6,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+A7FC640E,hps10063_04,E953A175,6,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+72125C90,hps10065,705AF0CF,2,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+7BA30F2B,hps10065_04,705AF0CF,2,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+CF6EEDEE,hps10068,97E2DDC8,4,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+595EEA99,hps10069,97E2DDC8,4,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+186FF180,hps10079,C27EF2B6,0.4,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+C99ABCE7,hps10083,F0489034,4,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+FC3FDF0E,hps10085,1E46F118,4,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+41436E70,hps10088,8EF9EC89,4,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+32FAAE67,hps10090,F9FEDC1F,4,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+9642721E,hps10099,AC854B4C,0.4,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+4C2BAEB7,hps10100,AC854B4C,0.4,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+DA1BA9C0,hps10101,CBC8BE9D,0.1,afinidad,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"
+604AA059,hps10102,45E6EE79,1,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+F67AA72E,hps10103,DCEFBFC3,5,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+55EFC3B0,hps10104,ABE88F55,1,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+C3DFC4C7,hps10105,3B5792C4,4,brecha,"Por cada rango de Conf. Brecha, tasa de Parada del equipo +<VALUE> %"
+798ECD5E,hps10106,4C50A252,1,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+EFBECA29,hps10107,2C972BB7,2,tension,"Por cada rango de Conf. Tensión, tensión +<VALUE> %"
+35815B0A,ps90001,BA22EBA9,50,otra,
+851D4A5E,ps0001,8A52A068,10,otra,
+3F4C43C7,ps0002,8A52A068,15,otra,
+A97C44B0,ps0003,8A52A068,20,otra,
+0AE9202E,ps0004,8A52A068,25,otra,
+9CD92759,ps0005,8A52A068,30,otra,
+24B08B7D,ps20001,CDF2DAB8,3,stat_potencia,Potencia +<VALUE>
+9EE182E4,ps20002,CDF2DAB8,5,stat_potencia,Potencia +<VALUE>
+08D18593,ps20003,CDF2DAB8,7,stat_potencia,Potencia +<VALUE>
+AB44E10D,ps20004,CDF2DAB8,10,stat_potencia,Potencia +<VALUE>
+3D74E67A,ps20005,CDF2DAB8,5,stat_potencia,Potencia +<VALUE>
+8725EFE3,ps20006,CDF2DAB8,6,stat_potencia,Potencia +<VALUE>
+1115E894,ps20007,CDF2DAB8,7,stat_potencia,Potencia +<VALUE>
+80085704,ps20008,CDF2DAB8,8,stat_potencia,Potencia +<VALUE>
+16385073,ps20009,CDF2DAB8,9,stat_potencia,Potencia +<VALUE>
+F3B19713,ps20010,CDF2DAB8,10,stat_potencia,Potencia +<VALUE>
+13DA497C,ps20101,54FB8B02,3,stat_control,Control +<VALUE>
+A98B40E5,ps20102,54FB8B02,5,stat_control,Control +<VALUE>
+3FBB4792,ps20103,54FB8B02,7,stat_control,Control +<VALUE>
+9C2E230C,ps20104,54FB8B02,10,stat_control,Control +<VALUE>
+0A1E247B,ps20105,54FB8B02,5,stat_control,Control +<VALUE>
+B04F2DE2,ps20106,54FB8B02,6,stat_control,Control +<VALUE>
+267F2A95,ps20107,54FB8B02,7,stat_control,Control +<VALUE>
+B7629505,ps20108,54FB8B02,8,stat_control,Control +<VALUE>
+21529272,ps20109,54FB8B02,9,stat_control,Control +<VALUE>
+C4DB5512,ps20110,54FB8B02,10,stat_control,Control +<VALUE>
+4A640F7E,ps20201,23FCBB94,3,stat_tecnica,Técnica +<VALUE>
+F03506E7,ps20202,23FCBB94,5,stat_tecnica,Técnica +<VALUE>
+66050190,ps20203,23FCBB94,7,stat_tecnica,Técnica +<VALUE>
+C590650E,ps20204,23FCBB94,10,stat_tecnica,Técnica +<VALUE>
+53A06279,ps20205,23FCBB94,5,stat_tecnica,Técnica +<VALUE>
+E9F16BE0,ps20206,23FCBB94,6,stat_tecnica,Técnica +<VALUE>
+7FC16C97,ps20207,23FCBB94,7,stat_tecnica,Técnica +<VALUE>
+EEDCD307,ps20208,23FCBB94,8,stat_tecnica,Técnica +<VALUE>
+78ECD470,ps20209,23FCBB94,9,stat_tecnica,Técnica +<VALUE>
+9D651310,ps20210,23FCBB94,10,stat_tecnica,Técnica +<VALUE>
+7D0ECD7F,ps20301,BD982E37,3,stat_presion,Presión +<VALUE>
+C75FC4E6,ps20302,BD982E37,5,stat_presion,Presión +<VALUE>
+516FC391,ps20303,BD982E37,7,stat_presion,Presión +<VALUE>
+F2FAA70F,ps20304,BD982E37,10,stat_presion,Presión +<VALUE>
+64CAA078,ps20305,BD982E37,5,stat_presion,Presión +<VALUE>
+DE9BA9E1,ps20306,BD982E37,6,stat_presion,Presión +<VALUE>
+48ABAE96,ps20307,BD982E37,7,stat_presion,Presión +<VALUE>
+D9B61106,ps20308,BD982E37,8,stat_presion,Presión +<VALUE>
+4F861671,ps20309,BD982E37,9,stat_presion,Presión +<VALUE>
+AA0FD111,ps20310,BD982E37,10,stat_presion,Presión +<VALUE>
+F818827A,ps20401,CA9F1EA1,3,stat_fisico,Físico +<VALUE>
+42498BE3,ps20402,CA9F1EA1,5,stat_fisico,Físico +<VALUE>
+D4798C94,ps20403,CA9F1EA1,7,stat_fisico,Físico +<VALUE>
+77ECE80A,ps20404,CA9F1EA1,10,stat_fisico,Físico +<VALUE>
+E1DCEF7D,ps20405,CA9F1EA1,5,stat_fisico,Físico +<VALUE>
+5B8DE6E4,ps20406,CA9F1EA1,6,stat_fisico,Físico +<VALUE>
+CDBDE193,ps20407,CA9F1EA1,7,stat_fisico,Físico +<VALUE>
+5CA05E03,ps20408,CA9F1EA1,8,stat_fisico,Físico +<VALUE>
+CA905974,ps20409,CA9F1EA1,9,stat_fisico,Físico +<VALUE>
+2F199E14,ps20410,CA9F1EA1,10,stat_fisico,Físico +<VALUE>
+CF72407B,ps20501,53964F1B,3,stat_inteligencia,Inteligencia +<VALUE>
+752349E2,ps20502,53964F1B,5,stat_inteligencia,Inteligencia +<VALUE>
+E3134E95,ps20503,53964F1B,7,stat_inteligencia,Inteligencia +<VALUE>
+40862A0B,ps20504,53964F1B,10,stat_inteligencia,Inteligencia +<VALUE>
+D6B62D7C,ps20505,53964F1B,5,stat_inteligencia,Inteligencia +<VALUE>
+6CE724E5,ps20506,53964F1B,6,stat_inteligencia,Inteligencia +<VALUE>
+FAD72392,ps20507,53964F1B,7,stat_inteligencia,Inteligencia +<VALUE>
+6BCA9C02,ps20508,53964F1B,8,stat_inteligencia,Inteligencia +<VALUE>
+FDFA9B75,ps20509,53964F1B,9,stat_inteligencia,Inteligencia +<VALUE>
+18735C15,ps20510,53964F1B,10,stat_inteligencia,Inteligencia +<VALUE>
+96CC0679,ps20601,24917F8D,3,stat_agilidad,Agilidad +<VALUE>
+2C9D0FE0,ps20602,24917F8D,5,stat_agilidad,Agilidad +<VALUE>
+BAAD0897,ps20603,24917F8D,7,stat_agilidad,Agilidad +<VALUE>
+19386C09,ps20604,24917F8D,10,stat_agilidad,Agilidad +<VALUE>
+8F086B7E,ps20605,24917F8D,5,stat_agilidad,Agilidad +<VALUE>
+355962E7,ps20606,24917F8D,6,stat_agilidad,Agilidad +<VALUE>
+A3696590,ps20607,24917F8D,7,stat_agilidad,Agilidad +<VALUE>
+3274DA00,ps20608,24917F8D,8,stat_agilidad,Agilidad +<VALUE>
+A444DD77,ps20609,24917F8D,9,stat_agilidad,Agilidad +<VALUE>
+41CD1A17,ps20610,24917F8D,10,stat_agilidad,Agilidad +<VALUE>
+F8FEB783,swap_team_passive_01,,0,otra,
+42AFBE1A,swap_team_passive_02,,0,otra,
+D49FB96D,swap_team_passive_03,,0,otra,
+770ADDF3,swap_team_passive_04,,0,otra,
+E13ADA84,swap_team_passive_05,,0,otra,
+5B6BD31D,swap_team_passive_06,,0,otra,
+CD5BD46A,swap_team_passive_07,,0,otra,
+5C466BFA,swap_team_passive_08,,0,otra,
+7ADB70BE,swap_status_passive_01,,0,otra,
+C08A7927,swap_status_passive_02,,0,otra,
+56BA7E50,swap_status_passive_03,,0,otra,
+F52F1ACE,swap_status_passive_04,,0,otra,
+631F1DB9,swap_status_passive_05,,0,otra,
+D94E1420,swap_status_passive_06,,0,otra,
+4F7E1357,swap_status_passive_07,,0,otra,
+DE63ACC7,swap_status_passive_08,,0,otra,
+897F8B89,mps10001,8A52A068,0.5,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+4199102A,mps10001_01,8A52A068,0.6,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+FBC819B3,mps10001_02,8A52A068,0.7,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+6DF81EC4,mps10001_03,8A52A068,0.8,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+CE6D7A5A,mps10001_04,8A52A068,1,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+332E8210,mps10002,135BF1D2,0.5,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+AF36A538,mps10002_01,135BF1D2,0.6,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+1567ACA1,mps10002_02,135BF1D2,0.7,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+8357ABD6,mps10002_03,135BF1D2,0.8,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+20C2CF48,mps10002_04,135BF1D2,1,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+A51E8567,mps10003,645CC144,1,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+CA511980,mps10003_01,645CC144,1.2,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+70001019,mps10003_02,645CC144,1.5,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+E630176E,mps10003_03,645CC144,1.7,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+45A573F0,mps10003_04,645CC144,2,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+068BE1F9,mps10004,FA3854E7,0.5,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+7369CE1D,mps10004_01,FA3854E7,0.6,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+C938C784,mps10004_02,FA3854E7,0.7,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+5F08C0F3,mps10004_03,FA3854E7,0.8,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+FC9DA46D,mps10004_04,FA3854E7,1,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+90BBE68E,mps10005,8D3F6471,0.5,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+160E72A5,mps10005_01,8D3F6471,0.6,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+AC5F7B3C,mps10005_02,8D3F6471,0.7,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+3A6F7C4B,mps10005_03,8D3F6471,0.8,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+99FA18D5,mps10005_04,8D3F6471,1,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+2AEAEF17,mps10006,143635CB,0.5,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+F8A1C7B7,mps10006_01,143635CB,0.6,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+42F0CE2E,mps10006_02,143635CB,0.7,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+D4C0C959,mps10006_03,143635CB,0.8,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+7755ADC7,mps10006_04,143635CB,1,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+BCDAE860,mps10007,6331055D,1,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+9DC67B0F,mps10007_01,6331055D,1.2,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+27977296,mps10007_02,6331055D,1.5,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+B1A775E1,mps10007_03,6331055D,1.7,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+1232117F,mps10007_04,6331055D,2,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+2DC757F0,mps10008,F38E18CC,0.5,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+CBD61857,mps10008_01,F38E18CC,0.6,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+718711CE,mps10008_02,F38E18CC,0.7,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+E7B716B9,mps10008_03,F38E18CC,0.8,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+44227227,mps10008_04,F38E18CC,1,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+BBF75087,mps10009,D678C33D,0.5,foco,Valor de foco del equipo +<VALUE> % en campo propio
+AEB1A4EF,mps10009_01,D678C33D,0.6,foco,Valor de foco del equipo +<VALUE> % en campo propio
+14E0AD76,mps10009_02,D678C33D,0.7,foco,Valor de foco del equipo +<VALUE> % en campo propio
+82D0AA01,mps10009_03,D678C33D,0.8,foco,Valor de foco del equipo +<VALUE> % en campo propio
+2145CE9F,mps10009_04,D678C33D,1,foco,Valor de foco del equipo +<VALUE> % en campo propio
+5E7E97E7,mps10010,D1150724,0.5,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+94D7CCAF,mps10010_01,D1150724,0.6,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+2E86C536,mps10010_02,D1150724,0.7,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+B8B6C241,mps10010_03,D1150724,0.8,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+1B23A6DF,mps10010_04,D1150724,1,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+C84E9090,mps10011,481C569E,0.5,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+F1B07017,mps10011_01,481C569E,0.6,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+4BE1798E,mps10011_02,481C569E,0.7,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+DDD17EF9,mps10011_03,481C569E,0.8,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+7E441A67,mps10011_04,481C569E,1,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+721F9909,mps10012,DB65C3F7,4,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+1F1FC505,mps10012_01,DB65C3F7,5,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+A54ECC9C,mps10012_02,DB65C3F7,6,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+337ECBEB,mps10012_03,DB65C3F7,7,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+90EBAF75,mps10012_04,DB65C3F7,8,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+E42F9E7E,mps10013,426C924D,4,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+7A7879BD,mps10013_01,426C924D,5,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+C0297024,mps10013_02,426C924D,6,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+56197753,mps10013_03,426C924D,7,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+F58C13CD,mps10013_04,426C924D,8,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+47BAFAE0,mps10014,356BA2DB,1.5,otra,Enfriamiento de tácticas especiales -<VALUE> %
+C340AE20,mps10014_01,356BA2DB,1.7,otra,Enfriamiento de tácticas especiales -<VALUE> %
+7911A7B9,mps10014_02,356BA2DB,2,otra,Enfriamiento de tácticas especiales -<VALUE> %
+EF21A0CE,mps10014_03,356BA2DB,2.2,otra,Enfriamiento de tácticas especiales -<VALUE> %
+4CB4C450,mps10014_04,356BA2DB,3,otra,Enfriamiento de tácticas especiales -<VALUE> %
+D18AFD97,mps10015,A5D4BF4A,1,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+A6271298,mps10015_01,A5D4BF4A,1.2,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+1C761B01,mps10015_02,A5D4BF4A,1.5,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+8A461C76,mps10015_03,A5D4BF4A,1.7,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+29D378E8,mps10015_04,A5D4BF4A,2,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+6BDBF40E,mps10016,D2D38FDC,1,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+4888A78A,mps10016_01,D2D38FDC,1.2,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+F2D9AE13,mps10016_02,D2D38FDC,1.5,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+64E9A964,mps10016_03,D2D38FDC,1.7,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+C77CCDFA,mps10016_04,D2D38FDC,2,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+FDEBF379,mps10017,2B1D5783,1.5,pp,PP del equipo +<VALUE> %
+2DEF1B32,mps10017_01,2B1D5783,2,pp,PP del equipo +<VALUE> %
+97BE12AB,mps10017_02,2B1D5783,2.5,pp,PP del equipo +<VALUE> %
+018E15DC,mps10017_03,2B1D5783,3,pp,PP del equipo +<VALUE> %
+A21B7142,mps10017_04,2B1D5783,3.5,pp,PP del equipo +<VALUE> %
+6CF64CE9,mps10018,358C1AF6,0.2,stat_tecnica,Enfriamiento de supertécnicas propias -<VALUE> %
+7BFF786A,mps10018_01,358C1AF6,0.4,stat_tecnica,Enfriamiento de supertécnicas propias -<VALUE> %
+C1AE71F3,mps10018_02,358C1AF6,0.6,stat_tecnica,Enfriamiento de supertécnicas propias -<VALUE> %
+579E7684,mps10018_03,358C1AF6,0.8,stat_tecnica,Enfriamiento de supertécnicas propias -<VALUE> %
+F40B121A,mps10018_04,358C1AF6,1,stat_tecnica,Enfriamiento de supertécnicas propias -<VALUE> %
+59052BCE,mps20001,993955FA,3,brecha,Tasa de brecha del equipo +<VALUE> %
+A29E9FA4,mps20001_01,993955FA,3.5,brecha,Tasa de brecha del equipo +<VALUE> %
+18CF963D,mps20001_02,993955FA,4,brecha,Tasa de brecha del equipo +<VALUE> %
+8EFF914A,mps20001_03,993955FA,4.5,brecha,Tasa de brecha del equipo +<VALUE> %
+2D6AF5D4,mps20001_04,993955FA,5,brecha,Tasa de brecha del equipo +<VALUE> %
+E3542257,mps20002,EE3E656C,3,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+4C312AB6,mps20002_01,EE3E656C,4,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+F660232F,mps20002_02,EE3E656C,5,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+60502458,mps20002_03,EE3E656C,6,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+C3C540C6,mps20002_04,EE3E656C,7,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+75642520,mps20003,ABE88F55,0.2,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+2956960E,mps20003_01,ABE88F55,0.4,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+93079F97,mps20003_02,ABE88F55,0.6,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+053798E0,mps20003_03,ABE88F55,0.8,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+A6A2FC7E,mps20003_04,ABE88F55,1,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+D6F141BE,mps20004,00300440,2,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+906E4193,mps20004_01,00300440,2.5,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+2A3F480A,mps20004_02,00300440,3,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+BC0F4F7D,mps20004_03,00300440,3.5,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+1F9A2BE3,mps20004_04,00300440,4,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+40C146C9,mps20005,E953A175,4,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+F509FD2B,mps20005_01,E953A175,4.5,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+4F58F4B2,mps20005_02,E953A175,5,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+D968F3C5,mps20005_03,E953A175,5.5,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+7AFD975B,mps20005_04,E953A175,6,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+FA904F50,mps20006,705AF0CF,1,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+1BA64839,mps20006_01,705AF0CF,1.2,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+A1F741A0,mps20006_02,705AF0CF,1.5,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+37C746D7,mps20006_03,705AF0CF,1.7,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+94522249,mps20006_04,705AF0CF,2,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+6CA04827,mps20007,075DC059,4,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+7EC1F481,mps20007_01,075DC059,4.5,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+C490FD18,mps20007_02,075DC059,5,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+52A0FA6F,mps20007_03,075DC059,5.5,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+F1359EF1,mps20007_04,075DC059,6,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+FDBDF7B7,mps20008,97E2DDC8,2.3,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+28D197D9,mps20008_01,97E2DDC8,2.5,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+92809E40,mps20008_02,97E2DDC8,3,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+04B09937,mps20008_03,97E2DDC8,3.5,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+A725FDA9,mps20008_04,97E2DDC8,4,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+6B8DF0C0,mps20009,E0E5ED5E,1,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+4DB62B61,mps20009_01,E0E5ED5E,1.2,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+F7E722F8,mps20009_02,E0E5ED5E,1.5,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+61D7258F,mps20009_03,E0E5ED5E,1.7,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+C2424111,mps20009_04,E0E5ED5E,2,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+8E0437A0,mps20010,4C50A252,0.2,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+77D04321,mps20010_01,4C50A252,0.4,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+CD814AB8,mps20010_02,4C50A252,0.6,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+5BB14DCF,mps20010_03,4C50A252,0.8,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+F8242951,mps20010_04,4C50A252,1,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+183430D7,mps20011,F725542D,3,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+12B7FF99,mps20011_01,F725542D,3.5,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+A8E6F600,mps20011_02,F725542D,4,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+3ED6F177,mps20011_03,F725542D,4.5,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+9D4395E9,mps20011_04,F725542D,5,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+A265394E,mps20012,6E2C0597,4,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+FC184A8B,mps20012_01,6E2C0597,4.5,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+46494312,mps20012_02,6E2C0597,5,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+D0794465,mps20012_03,6E2C0597,5.5,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+73EC20FB,mps20012_04,6E2C0597,6,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+34553E39,mps20013,C27EF2B6,0.1,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+997FF633,mps20013_01,C27EF2B6,0.2,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+232EFFAA,mps20013_02,C27EF2B6,0.2,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+B51EF8DD,mps20013_03,C27EF2B6,0.3,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+168B9C43,mps20013_04,C27EF2B6,0.4,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+97C05AA7,mps20014,DCEFBFC3,1,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+204721AE,mps20014_01,DCEFBFC3,2,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+9A162837,mps20014_02,DCEFBFC3,3,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+0C262F40,mps20014_03,DCEFBFC3,4,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+AFB34BDE,mps20014_04,DCEFBFC3,5,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+01F05DD0,mps20015,F0489034,2.3,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+45209D16,mps20015_01,F0489034,2.5,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+FF71948F,mps20015_02,F0489034,3,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+694193F8,mps20015_03,F0489034,3.5,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+CAD4F766,mps20015_04,F0489034,4,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+BBA15449,mps20016,5B901B21,2,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+AB8F2804,mps20016_01,5B901B21,2.5,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+11DE219D,mps20016_02,5B901B21,3,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+87EE26EA,mps20016_03,5B901B21,3.5,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+247B4274,mps20016_04,5B901B21,4,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+2D91533E,mps20017,1E46F118,2,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+CEE894BC,mps20017_01,1E46F118,2.2,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+74B99D25,mps20017_02,1E46F118,2.5,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+E2899A52,mps20017_03,1E46F118,3.7,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+411CFECC,mps20017_04,1E46F118,4,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+BC8CECAE,mps20018,8EF9EC89,2,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+98F8F7E4,mps20018_01,8EF9EC89,2.2,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+22A9FE7D,mps20018_02,8EF9EC89,2.5,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+B499F90A,mps20018_03,8EF9EC89,3.7,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+170C9D94,mps20018_04,8EF9EC89,4,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+2ABCEBD9,mps20019,F9FEDC1F,2,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+FD9F4B5C,mps20019_01,F9FEDC1F,2.2,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+47CE42C5,mps20019_02,F9FEDC1F,2.5,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+D1FE45B2,mps20019_03,F9FEDC1F,3.7,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+726B212C,mps20019_04,F9FEDC1F,4,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+4D571A8B,mps20020,45E6EE79,0.2,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+A7AAE366,mps20020_01,45E6EE79,0.4,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+1DFBEAFF,mps20020_02,45E6EE79,0.6,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+8BCBED88,mps20020_03,45E6EE79,0.8,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+285E8916,mps20020_04,45E6EE79,1,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+DB671DFC,mps20021,DC0807EE,6,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+C2CD5FDE,mps20021_01,DC0807EE,7,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+789C5647,mps20021_02,DC0807EE,8,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+EEAC5130,mps20021_03,DC0807EE,9,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+4D3935AE,mps20021_04,DC0807EE,10,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+61361465,mps20022,45015654,4.5,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+2C62EACC,mps20022_01,45015654,5,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+9633E355,mps20022_02,45015654,6,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+0003E422,mps20022_03,45015654,7,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+A39680BC,mps20022_04,45015654,8,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+F7061312,mps20023,320666C2,1,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+49055674,mps20023_01,320666C2,1.2,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+F3545FED,mps20023_02,320666C2,1.5,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+6564589A,mps20023_03,320666C2,1.7,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+C6F13C04,mps20023_04,320666C2,2,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+5493778C,mps20024,AC854B4C,0.1,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+F03D81E9,mps20024_01,AC854B4C,0.2,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+4A6C8870,mps20024_02,AC854B4C,0.2,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+DC5C8F07,mps20024_03,AC854B4C,0.3,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+7FC9EB99,mps20024_04,AC854B4C,0.4,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+C2A370FB,mps20025,3B5792C4,2,brecha,"Por cada rango de Conf. Brecha, tasa de Parada del equipo +<VALUE> %"
+955A3D51,mps20025_01,3B5792C4,2.5,brecha,"Por cada rango de Conf. Brecha, tasa de Parada del equipo +<VALUE> %"
+2F0B34C8,mps20025_02,3B5792C4,3,brecha,"Por cada rango de Conf. Brecha, tasa de Parada del equipo +<VALUE> %"
+B93B33BF,mps20025_03,3B5792C4,3.5,brecha,"Por cada rango de Conf. Brecha, tasa de Parada del equipo +<VALUE> %"
+1AAE5721,mps20025_04,3B5792C4,4,brecha,"Por cada rango de Conf. Brecha, tasa de Parada del equipo +<VALUE> %"
+0C660192,mps20030,CBC8BE9D,0.04,afinidad,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"
+1783835B,mps20030_01,CBC8BE9D,0.05,afinidad,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"
+ADD28AC2,mps20030_02,CBC8BE9D,0.06,afinidad,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"
+3BE28DB5,mps20030_03,CBC8BE9D,0.07,afinidad,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"
+9877E92B,mps20030_04,CBC8BE9D,0.1,afinidad,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"
+AFF3650C,mps20037,2C972BB7,1.2,tension,"Por cada rango de Conf. Tensión, tensión +<VALUE> %"
+AEBB54C6,mps20037_01,2C972BB7,1.4,tension,"Por cada rango de Conf. Tensión, tensión +<VALUE> %"
+14EA5D5F,mps20037_02,2C972BB7,1.6,tension,"Por cada rango de Conf. Tensión, tensión +<VALUE> %"
+82DA5A28,mps20037_03,2C972BB7,1.8,tension,"Por cada rango de Conf. Tensión, tensión +<VALUE> %"
+214F3EB6,mps20037_04,2C972BB7,2,tension,"Por cada rango de Conf. Tensión, tensión +<VALUE> %"
+E92C4BF3,mps30001,8A52A068,0.1,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+3C9E3568,mps30001_01,8A52A068,0.2,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+86CF3CF1,mps30001_02,8A52A068,0.3,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+10FF3B86,mps30001_03,8A52A068,0.4,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+B36A5F18,mps30001_04,8A52A068,0.5,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+537D426A,mps30002,135BF1D2,0.1,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+D231807A,mps30002_01,135BF1D2,0.2,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+686089E3,mps30002_02,135BF1D2,0.3,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+FE508E94,mps30002_03,135BF1D2,0.4,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+5DC5EA0A,mps30002_04,135BF1D2,0.5,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+C54D451D,mps30003,645CC144,0.1,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+B7563CC2,mps30003_01,645CC144,0.3,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+0D07355B,mps30003_02,645CC144,0.5,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+9B37322C,mps30003_03,645CC144,0.7,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+38A256B2,mps30003_04,645CC144,0.9,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+66D82183,mps30004,FA3854E7,0.1,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+0E6EEB5F,mps30004_01,FA3854E7,0.2,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+B43FE2C6,mps30004_02,FA3854E7,0.3,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+220FE5B1,mps30004_03,FA3854E7,0.4,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+819A812F,mps30004_04,FA3854E7,0.5,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+F0E826F4,mps30005,8D3F6471,0.1,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+6B0957E7,mps30005_01,8D3F6471,0.2,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+D1585E7E,mps30005_02,8D3F6471,0.3,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+47685909,mps30005_03,8D3F6471,0.4,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+E4FD3D97,mps30005_04,8D3F6471,0.5,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+4AB92F6D,mps30006,143635CB,0.1,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+85A6E2F5,mps30006_01,143635CB,0.2,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+3FF7EB6C,mps30006_02,143635CB,0.3,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+A9C7EC1B,mps30006_03,143635CB,0.4,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+0A528885,mps30006_04,143635CB,0.5,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+DC89281A,mps30007,6331055D,0.1,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+E0C15E4D,mps30007_01,6331055D,0.3,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+5A9057D4,mps30007_02,6331055D,0.5,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+CCA050A3,mps30007_03,6331055D,0.7,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+6F35343D,mps30007_04,6331055D,0.9,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+4D94978A,mps30008,F38E18CC,0.1,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+B6D13D15,mps30008_01,F38E18CC,0.2,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+0C80348C,mps30008_02,F38E18CC,0.3,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+9AB033FB,mps30008_03,F38E18CC,0.4,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+39255765,mps30008_04,F38E18CC,0.5,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+DBA490FD,mps30009,D678C33D,0.1,foco,Valor de foco del equipo +<VALUE> % en campo propio
+D3B681AD,mps30009_01,D678C33D,0.2,foco,Valor de foco del equipo +<VALUE> % en campo propio
+69E78834,mps30009_02,D678C33D,0.3,foco,Valor de foco del equipo +<VALUE> % en campo propio
+FFD78F43,mps30009_03,D678C33D,0.4,foco,Valor de foco del equipo +<VALUE> % en campo propio
+5C42EBDD,mps30009_04,D678C33D,0.5,foco,Valor de foco del equipo +<VALUE> % en campo propio
+3E2D579D,mps30010,D1150724,0.1,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+E9D0E9ED,mps30010_01,D1150724,0.2,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+5381E074,mps30010_02,D1150724,0.3,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+C5B1E703,mps30010_03,D1150724,0.4,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+6624839D,mps30010_04,D1150724,0.5,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+A81D50EA,mps30011,481C569E,0.1,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+8CB75555,mps30011_01,481C569E,0.2,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+36E65CCC,mps30011_02,481C569E,0.3,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+A0D65BBB,mps30011_03,481C569E,0.4,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+03433F25,mps30011_04,481C569E,0.5,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+124C5973,mps30012,DB65C3F7,2,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+6218E047,mps30012_01,DB65C3F7,2.5,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+D849E9DE,mps30012_02,DB65C3F7,3,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+4E79EEA9,mps30012_03,DB65C3F7,3.5,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+EDEC8A37,mps30012_04,DB65C3F7,4,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+847C5E04,mps30013,426C924D,2,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+077F5CFF,mps30013_01,426C924D,2.5,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+BD2E5566,mps30013_02,426C924D,3,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+2B1E5211,mps30013_03,426C924D,3.5,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+888B368F,mps30013_04,426C924D,4,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+27E93A9A,mps30014,356BA2DB,0.5,otra,Enfriamiento de tácticas especiales -<VALUE> %
+BE478B62,mps30014_01,356BA2DB,0.7,otra,Enfriamiento de tácticas especiales -<VALUE> %
+041682FB,mps30014_02,356BA2DB,1,otra,Enfriamiento de tácticas especiales -<VALUE> %
+9226858C,mps30014_03,356BA2DB,1.2,otra,Enfriamiento de tácticas especiales -<VALUE> %
+31B3E112,mps30014_04,356BA2DB,1.5,otra,Enfriamiento de tácticas especiales -<VALUE> %
+B1D93DED,mps30015,A5D4BF4A,0.5,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+DB2037DA,mps30015_01,A5D4BF4A,0.6,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+61713E43,mps30015_02,A5D4BF4A,0.7,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+F7413934,mps30015_03,A5D4BF4A,0.8,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+54D45DAA,mps30015_04,A5D4BF4A,1,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+0B883474,mps30016,D2D38FDC,0.5,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+358F82C8,mps30016_01,D2D38FDC,0.6,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+8FDE8B51,mps30016_02,D2D38FDC,0.7,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+19EE8C26,mps30016_03,D2D38FDC,0.8,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+BA7BE8B8,mps30016_04,D2D38FDC,1,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+F9F06B41,mps40001,993955FA,2,brecha,Tasa de brecha del equipo +<VALUE> %
+2597F062,mps40001_01,993955FA,2.5,brecha,Tasa de brecha del equipo +<VALUE> %
+9FC6F9FB,mps40001_02,993955FA,3,brecha,Tasa de brecha del equipo +<VALUE> %
+09F6FE8C,mps40001_03,993955FA,3.5,brecha,Tasa de brecha del equipo +<VALUE> %
+AA639A12,mps40001_04,993955FA,4,brecha,Tasa de brecha del equipo +<VALUE> %
+43A162D8,mps40002,EE3E656C,1,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+CB384570,mps40002_01,EE3E656C,2,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+71694CE9,mps40002_02,EE3E656C,3,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+E7594B9E,mps40002_03,EE3E656C,4,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+44CC2F00,mps40002_04,EE3E656C,5,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+D59165AF,mps40003,ABE88F55,0.1,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+AE5FF9C8,mps40003_01,ABE88F55,0.2,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+140EF051,mps40003_02,ABE88F55,0.4,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+823EF726,mps40003_03,ABE88F55,0.6,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+21AB93B8,mps40003_04,ABE88F55,0.8,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+76040131,mps40004,00300440,1,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+17672E55,mps40004_01,00300440,1.2,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+AD3627CC,mps40004_02,00300440,1.5,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+3B0620BB,mps40004_03,00300440,1.7,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+98934425,mps40004_04,00300440,2,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+E0340646,mps40005,E953A175,3,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+720092ED,mps40005_01,E953A175,3.2,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+C8519B74,mps40005_02,E953A175,3.5,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+5E619C03,mps40005_03,E953A175,3.7,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+FDF4F89D,mps40005_04,E953A175,4,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+5A650FDF,mps40006,705AF0CF,0.5,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+9CAF27FF,mps40006_01,705AF0CF,0.6,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+26FE2E66,mps40006_02,705AF0CF,0.7,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+B0CE2911,mps40006_03,705AF0CF,0.8,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+135B4D8F,mps40006_04,705AF0CF,1,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+CC5508A8,mps40007,075DC059,3.5,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+F9C89B47,mps40007_01,075DC059,3.7,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+439992DE,mps40007_02,075DC059,4,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+D5A995A9,mps40007_03,075DC059,4.3,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+763CF137,mps40007_04,075DC059,4.5,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+5D48B738,mps40008,97E2DDC8,2,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+AFD8F81F,mps40008_01,97E2DDC8,2.2,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+1589F186,mps40008_02,97E2DDC8,2.5,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+83B9F6F1,mps40008_03,97E2DDC8,2.7,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+202C926F,mps40008_04,97E2DDC8,3,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+CB78B04F,mps40009,E0E5ED5E,0.5,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+CABF44A7,mps40009_01,E0E5ED5E,0.6,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+70EE4D3E,mps40009_02,E0E5ED5E,0.7,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+E6DE4A49,mps40009_03,E0E5ED5E,0.8,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+454B2ED7,mps40009_04,E0E5ED5E,1,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+2EF1772F,mps40010,4C50A252,0.1,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+F0D92CE7,mps40010_01,4C50A252,0.2,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+4A88257E,mps40010_02,4C50A252,0.3,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+DCB82209,mps40010_03,4C50A252,0.4,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+7F2D4697,mps40010_04,4C50A252,0.5,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+B8C17058,mps40011,F725542D,1.5,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+95BE905F,mps40011_01,F725542D,1.7,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+2FEF99C6,mps40011_02,F725542D,2,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+B9DF9EB1,mps40011_03,F725542D,2.2,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+1A4AFA2F,mps40011_04,F725542D,2.5,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+029079C1,mps40012,6E2C0597,1.5,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+7B11254D,mps40012_01,6E2C0597,1.8,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+C1402CD4,mps40012_02,6E2C0597,2.2,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+57702BA3,mps40012_03,6E2C0597,2.6,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+F4E54F3D,mps40012_04,6E2C0597,3,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+94A07EB6,mps40013,C27EF2B6,0.1,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+1E7699F5,mps40013_01,C27EF2B6,0.1,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+A427906C,mps40013_02,C27EF2B6,0.2,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+3217971B,mps40013_03,C27EF2B6,0.2,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+9182F385,mps40013_04,C27EF2B6,0.3,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+37351A28,mps40014,DCEFBFC3,0.6,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+A74E4E68,mps40014_01,DCEFBFC3,1.2,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+1D1F47F1,mps40014_02,DCEFBFC3,1.8,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+8B2F4086,mps40014_03,DCEFBFC3,2.4,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+28BA2418,mps40014_04,DCEFBFC3,3,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+A1051D5F,mps40015,F0489034,2,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+C229F2D0,mps40015_01,F0489034,2.3,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+7878FB49,mps40015_02,F0489034,2.5,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+EE48FC3E,mps40015_03,F0489034,2.7,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+4DDD98A0,mps40015_04,F0489034,3,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+1B5414C6,mps40016,5B901B21,1,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+2C8647C2,mps40016_01,5B901B21,1.5,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+96D74E5B,mps40016_02,5B901B21,2,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+00E7492C,mps40016_03,5B901B21,2.5,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+A3722DB2,mps40016_04,5B901B21,3,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+8D6413B1,mps40017,1E46F118,1.5,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+49E1FB7A,mps40017_01,1E46F118,1.7,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+F3B0F2E3,mps40017_02,1E46F118,2,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+6580F594,mps40017_03,1E46F118,2.2,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+C615910A,mps40017_04,1E46F118,2.5,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+1C79AC21,mps40018,8EF9EC89,1.5,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+1FF19822,mps40018_01,8EF9EC89,1.7,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+A5A091BB,mps40018_02,8EF9EC89,2,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+339096CC,mps40018_03,8EF9EC89,2.2,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+9005F252,mps40018_04,8EF9EC89,2.5,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+8A49AB56,mps40019,F9FEDC1F,1.5,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+7A96249A,mps40019_01,F9FEDC1F,1.7,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+C0C72D03,mps40019_02,F9FEDC1F,2,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+56F72A74,mps40019_03,F9FEDC1F,2.2,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+F5624EEA,mps40019_04,F9FEDC1F,2.5,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+EDA25A04,mps40020,45E6EE79,0.1,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+20A38CA0,mps40020_01,45E6EE79,0.2,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+9AF28539,mps40020_02,45E6EE79,0.4,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+0CC2824E,mps40020_03,45E6EE79,0.6,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+AF57E6D0,mps40020_04,45E6EE79,0.8,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+7B925D73,mps40021,DC0807EE,4,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+45C43018,mps40021_01,DC0807EE,4.5,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+FF953981,mps40021_02,DC0807EE,5,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+69A53EF6,mps40021_03,DC0807EE,5.5,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+CA305A68,mps40021_04,DC0807EE,6,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+C1C354EA,mps40022,45015654,4,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+AB6B850A,mps40022_01,45015654,4.5,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+113A8C93,mps40022_02,45015654,5,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+870A8BE4,mps40022_03,45015654,5.5,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+249FEF7A,mps40022_04,45015654,6,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+57F3539D,mps40023,320666C2,0.5,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+CE0C39B2,mps40023_01,320666C2,0.6,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+745D302B,mps40023_02,320666C2,0.7,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+E26D375C,mps40023_03,320666C2,0.8,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+41F853C2,mps40023_04,320666C2,1,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+F4663703,mps40024,AC854B4C,0.1,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+7734EE2F,mps40024_01,AC854B4C,0.1,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+CD65E7B6,mps40024_02,AC854B4C,0.2,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+5B55E0C1,mps40024_03,AC854B4C,0.2,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+F8C0845F,mps40024_04,AC854B4C,0.3,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+6C1D3578,bmps10001,EE3E656C,14,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+D64C3CE1,bmps10002,993955FA,10,brecha,Tasa de brecha del equipo +<VALUE> %
+407C3B96,bmps10003,E953A175,12,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+E3E95F08,bmps10004,075DC059,12,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+75D9587F,bmps10005,F725542D,10,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+CF8851E6,bmps10006,97E2DDC8,8,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+59B85691,bmps10007,8EF9EC89,8,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+C8A5E901,bmps10008,F9FEDC1F,8,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+5E95EE76,bmps10009,320666C2,4,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+BB1C2916,bmps10010,AC854B4C,0.8,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+2D2C2E61,bmps10011,C27EF2B6,0.8,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+977D27F8,bmps10012,CBC8BE9D,0.2,afinidad,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"
+BB6D019C,cps10001,8A52A068,4,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+47B26678,cps10001_01,8A52A068,4.5,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+FDE36FE1,cps10001_02,8A52A068,5,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+6BD36896,cps10001_03,8A52A068,5.5,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+C8460C08,cps10001_04,8A52A068,6,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+013C0805,cps10002,135BF1D2,1.5,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+A91DD36A,cps10002_01,135BF1D2,1.8,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+134CDAF3,cps10002_02,135BF1D2,2.2,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+857CDD84,cps10002_03,135BF1D2,2.6,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+26E9B91A,cps10002_04,135BF1D2,3,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+970C0F72,cps10003,645CC144,10,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+CC7A6FD2,cps10003_01,645CC144,12,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+762B664B,cps10003_02,645CC144,14,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+E01B613C,cps10003_03,645CC144,16,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+438E05A2,cps10003_04,645CC144,18,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+34996BEC,cps10004,FA3854E7,4,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+7542B84F,cps10004_01,FA3854E7,4.5,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+CF13B1D6,cps10004_02,FA3854E7,5,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+5923B6A1,cps10004_03,FA3854E7,5.5,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+FAB6D23F,cps10004_04,FA3854E7,6,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+A2A96C9B,cps10005,8D3F6471,4,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+102504F7,cps10005_01,8D3F6471,4.5,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+AA740D6E,cps10005_02,8D3F6471,5,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+3C440A19,cps10005_03,8D3F6471,5.5,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+9FD16E87,cps10005_04,8D3F6471,6,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+18F86502,cps10006,143635CB,1.5,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+FE8AB1E5,cps10006_01,143635CB,1.8,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+44DBB87C,cps10006_02,143635CB,2.2,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+D2EBBF0B,cps10006_03,143635CB,2.6,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+717EDB95,cps10006_04,143635CB,3,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+8EC86275,cps10007,6331055D,10,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+9BED0D5D,cps10007_01,6331055D,12,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+21BC04C4,cps10007_02,6331055D,14,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+B78C03B3,cps10007_03,6331055D,16,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+1419672D,cps10007_04,6331055D,18,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+1FD5DDE5,cps10008,F38E18CC,4,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+CDFD6E05,cps10008_01,F38E18CC,4.5,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+77AC679C,cps10008_02,F38E18CC,5,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+E19C60EB,cps10008_03,F38E18CC,5.5,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+42090475,cps10008_04,F38E18CC,6,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+89E5DA92,cps10009,D678C33D,1.5,foco,Valor de foco del equipo +<VALUE> % en campo propio
+A89AD2BD,cps10009_01,D678C33D,1.8,foco,Valor de foco del equipo +<VALUE> % en campo propio
+12CBDB24,cps10009_02,D678C33D,2.2,foco,Valor de foco del equipo +<VALUE> % en campo propio
+84FBDC53,cps10009_03,D678C33D,2.6,foco,Valor de foco del equipo +<VALUE> % en campo propio
+276EB8CD,cps10009_04,D678C33D,3,foco,Valor de foco del equipo +<VALUE> % en campo propio
+6C6C1DF2,cps10010,D1150724,1.5,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+92FCBAFD,cps10010_01,D1150724,1.8,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+28ADB364,cps10010_02,D1150724,2.2,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+BE9DB413,cps10010_03,D1150724,2.6,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+1D08D08D,cps10010_04,D1150724,3,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+FA5C1A85,cps10011,481C569E,1.5,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+F79B0645,cps10011_01,481C569E,1.8,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+4DCA0FDC,cps10011_02,481C569E,2.2,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+DBFA08AB,cps10011_03,481C569E,2.6,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+786F6C35,cps10011_04,481C569E,3,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+400D131C,cps10012,DB65C3F7,15,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+1934B357,cps10012_01,DB65C3F7,17,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+A365BACE,cps10012_02,DB65C3F7,20,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+3555BDB9,cps10012_03,DB65C3F7,22,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+96C0D927,cps10012_04,DB65C3F7,25,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+D63D146B,cps10013,426C924D,15,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+7C530FEF,cps10013_01,426C924D,17,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+C6020676,cps10013_02,426C924D,20,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+50320101,cps10013_03,426C924D,22,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+F3A7659F,cps10013_04,426C924D,25,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+75A870F5,cps10014,356BA2DB,5,otra,Enfriamiento de tácticas especiales -<VALUE> %
+C56BD872,cps10014_01,356BA2DB,6,otra,Enfriamiento de tácticas especiales -<VALUE> %
+7F3AD1EB,cps10014_02,356BA2DB,7,otra,Enfriamiento de tácticas especiales -<VALUE> %
+E90AD69C,cps10014_03,356BA2DB,8,otra,Enfriamiento de tácticas especiales -<VALUE> %
+4A9FB202,cps10014_04,356BA2DB,9,otra,Enfriamiento de tácticas especiales -<VALUE> %
+E3987782,cps10015,A5D4BF4A,4,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+A00C64CA,cps10015_01,A5D4BF4A,4.5,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+1A5D6D53,cps10015_02,A5D4BF4A,5,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+8C6D6A24,cps10015_03,A5D4BF4A,5.5,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+2FF80EBA,cps10015_04,A5D4BF4A,6,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+59C97E1B,cps10016,D2D38FDC,4,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+4EA3D1D8,cps10016_01,D2D38FDC,4.5,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+F4F2D841,cps10016_02,D2D38FDC,5,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+62C2DF36,cps10016_03,D2D38FDC,5.5,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+C157BBA8,cps10016_04,D2D38FDC,6,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+6B17A1DB,cps20001,993955FA,9,brecha,Tasa de brecha del equipo +<VALUE> %
+A4B5E9F6,cps20001_01,993955FA,10.5,brecha,Tasa de brecha del equipo +<VALUE> %
+1EE4E06F,cps20001_02,993955FA,12,brecha,Tasa de brecha del equipo +<VALUE> %
+88D4E718,cps20001_03,993955FA,13.5,brecha,Tasa de brecha del equipo +<VALUE> %
+2B418386,cps20001_04,993955FA,15,brecha,Tasa de brecha del equipo +<VALUE> %
+D146A842,cps20002,EE3E656C,9,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+4A1A5CE4,cps20002_01,EE3E656C,12,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+F04B557D,cps20002_02,EE3E656C,15,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+667B520A,cps20002_03,EE3E656C,18,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+C5EE3694,cps20002_04,EE3E656C,21,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+4776AF35,cps20003,ABE88F55,1,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+2F7DE05C,cps20003_01,ABE88F55,1.5,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+952CE9C5,cps20003_02,ABE88F55,2,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+031CEEB2,cps20003_03,ABE88F55,2.5,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+A0898A2C,cps20003_04,ABE88F55,3,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+E4E3CBAB,cps20004,00300440,4,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+964537C1,cps20004_01,00300440,6,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+2C143E58,cps20004_02,00300440,8,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+BA24392F,cps20004_03,00300440,10,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+19B15DB1,cps20004_04,00300440,12,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+72D3CCDC,cps20005,E953A175,10,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+F3228B79,cps20005_01,E953A175,12,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+497382E0,cps20005_02,E953A175,14,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+DF438597,cps20005_03,E953A175,16,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+7CD6E109,cps20005_04,E953A175,18,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+C882C545,cps20006,705AF0CF,4,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+1D8D3E6B,cps20006_01,705AF0CF,4.5,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+A7DC37F2,cps20006_02,705AF0CF,5,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+31EC3085,cps20006_03,705AF0CF,5.5,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+9279541B,cps20006_04,705AF0CF,6,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+5EB2C232,cps20007,075DC059,10,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+78EA82D3,cps20007_01,075DC059,12,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+C2BB8B4A,cps20007_02,075DC059,14,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+548B8C3D,cps20007_03,075DC059,16,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+F71EE8A3,cps20007_04,075DC059,18,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+CFAF7DA2,cps20008,97E2DDC8,4,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+2EFAE18B,cps20008_01,97E2DDC8,6,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+94ABE812,cps20008_02,97E2DDC8,8,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+029BEF65,cps20008_03,97E2DDC8,10,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+A10E8BFB,cps20008_04,97E2DDC8,12,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+599F7AD5,cps20009,E0E5ED5E,4,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+4B9D5D33,cps20009_01,E0E5ED5E,4.5,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+F1CC54AA,cps20009_02,E0E5ED5E,5,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+67FC53DD,cps20009_03,E0E5ED5E,5.5,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+C4693743,cps20009_04,E0E5ED5E,6,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+BC16BDB5,cps20010,4C50A252,1.8,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+71FB3573,cps20010_01,4C50A252,2.1,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+CBAA3CEA,cps20010_02,4C50A252,2.4,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+5D9A3B9D,cps20010_03,4C50A252,2.7,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+FE0F5F03,cps20010_04,4C50A252,3,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+2A26BAC2,cps20011,F725542D,10,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+149C89CB,cps20011_01,F725542D,11,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+AECD8052,cps20011_02,F725542D,12,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+38FD8725,cps20011_03,F725542D,13,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+9B68E3BB,cps20011_04,F725542D,15,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+9077B35B,cps20012,6E2C0597,10,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+FA333CD9,cps20012_01,6E2C0597,12,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+40623540,cps20012_02,6E2C0597,14,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+D6523237,cps20012_03,6E2C0597,16,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+75C756A9,cps20012_04,6E2C0597,18,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+0647B42C,cps20013,C27EF2B6,0.8,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+9F548061,cps20013_01,C27EF2B6,0.9,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+250589F8,cps20013_02,C27EF2B6,1,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+B3358E8F,cps20013_03,C27EF2B6,1.1,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+10A0EA11,cps20013_04,C27EF2B6,1.2,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+A5D2D0B2,cps20014,DCEFBFC3,7,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+266C57FC,cps20014_01,DCEFBFC3,9,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+9C3D5E65,cps20014_02,DCEFBFC3,11,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+0A0D5912,cps20014_03,DCEFBFC3,13,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+A9983D8C,cps20014_04,DCEFBFC3,15,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+33E2D7C5,cps20015,F0489034,4,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+430BEB44,cps20015_01,F0489034,6,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+F95AE2DD,cps20015_02,F0489034,8,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+6F6AE5AA,cps20015_03,F0489034,10,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+CCFF8134,cps20015_04,F0489034,12,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+89B3DE5C,cps20016,5B901B21,8,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+ADA45E56,cps20016_01,5B901B21,9,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+17F557CF,cps20016_02,5B901B21,10,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+81C550B8,cps20016_03,5B901B21,11,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+22503426,cps20016_04,5B901B21,12,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+1F83D92B,cps20017,1E46F118,8,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+C8C3E2EE,cps20017_01,1E46F118,9,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+7292EB77,cps20017_02,1E46F118,10,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+E4A2EC00,cps20017_03,1E46F118,11,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+4737889E,cps20017_04,1E46F118,12,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+8E9E66BB,cps20018,8EF9EC89,8,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+9ED381B6,cps20018_01,8EF9EC89,9,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+2482882F,cps20018_02,8EF9EC89,10,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+B2B28F58,cps20018_03,8EF9EC89,11,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+1127EBC6,cps20018_04,8EF9EC89,12,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+18AE61CC,cps20019,F9FEDC1F,8,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+FBB43D0E,cps20019_01,F9FEDC1F,9,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+41E53497,cps20019_02,F9FEDC1F,10,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+D7D533E0,cps20019_03,F9FEDC1F,11,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+7440577E,cps20019_04,F9FEDC1F,12,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+7F45909E,cps20020,45E6EE79,1,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+A1819534,cps20020_01,45E6EE79,1.5,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+1BD09CAD,cps20020_02,45E6EE79,2,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+8DE09BDA,cps20020_03,45E6EE79,2.5,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+2E75FF44,cps20020_04,45E6EE79,3,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+E97597E9,cps20021,DC0807EE,12,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+C4E6298C,cps20021_01,DC0807EE,15,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+7EB72015,cps20021_02,DC0807EE,20,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+E8872762,cps20021_03,DC0807EE,25,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+4B1243FC,cps20021_04,DC0807EE,30,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+53249E70,cps20022,45015654,20,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+2A499C9E,cps20022_01,45015654,22,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+90189507,cps20022_02,45015654,23,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+06289270,cps20022_03,45015654,24,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+A5BDF6EE,cps20022_04,45015654,25,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+C5149907,cps20023,320666C2,4,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+4F2E2026,cps20023_01,320666C2,4.5,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+F57F29BF,cps20023_02,320666C2,5,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+634F2EC8,cps20023_03,320666C2,5.5,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+C0DA4A56,cps20023_04,320666C2,6,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+6681FD99,cps20024,AC854B4C,0.6,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+F616F7BB,cps20024_01,AC854B4C,0.8,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+4C47FE22,cps20024_02,AC854B4C,1,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+DA77F955,cps20024_03,AC854B4C,1.1,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+79E29DCB,cps20024_04,AC854B4C,1.2,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+F0B1FAEE,cps20025,3B5792C4,8,brecha,"Por cada rango de Conf. Brecha, tasa de Parada del equipo +<VALUE> %"
+93714B03,cps20025_01,3B5792C4,9,brecha,"Por cada rango de Conf. Brecha, tasa de Parada del equipo +<VALUE> %"
+2920429A,cps20025_02,3B5792C4,10,brecha,"Por cada rango de Conf. Brecha, tasa de Parada del equipo +<VALUE> %"
+BF1045ED,cps20025_03,3B5792C4,11,brecha,"Por cada rango de Conf. Brecha, tasa de Parada del equipo +<VALUE> %"
+1C852173,cps20025_04,3B5792C4,12,brecha,"Por cada rango de Conf. Brecha, tasa de Parada del equipo +<VALUE> %"
+3E748B87,cps20030,CBC8BE9D,0.120000005,afinidad,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"
+11A8F509,cps20030_01,CBC8BE9D,0.15,afinidad,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"
+ABF9FC90,cps20030_02,CBC8BE9D,0.18,afinidad,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"
+3DC9FBE7,cps20030_03,CBC8BE9D,0.21000001,afinidad,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"
+9E5C9F79,cps20030_04,CBC8BE9D,0.3,afinidad,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"
+9DE1EF19,cps20037,2C972BB7,2,tension,"Por cada rango de Conf. Tensión, tensión +<VALUE> %"
+A8902294,cps20037_01,2C972BB7,3,tension,"Por cada rango de Conf. Tensión, tensión +<VALUE> %"
+12C12B0D,cps20037_02,2C972BB7,4,tension,"Por cada rango de Conf. Tensión, tensión +<VALUE> %"
+84F12C7A,cps20037_03,2C972BB7,5,tension,"Por cada rango de Conf. Tensión, tensión +<VALUE> %"
+276448E4,cps20037_04,2C972BB7,6,tension,"Por cada rango de Conf. Tensión, tensión +<VALUE> %"
+DB3EC1E6,cps30001,8A52A068,1.5,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+3AB5433A,cps30001_01,8A52A068,1.8,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+80E44AA3,cps30001_02,8A52A068,2.2,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+16D44DD4,cps30001_03,8A52A068,2.6,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+B541294A,cps30001_04,8A52A068,3,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+616FC87F,cps30002,135BF1D2,0.5,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+D41AF628,cps30002_01,135BF1D2,0.7,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+6E4BFFB1,cps30002_02,135BF1D2,1,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+F87BF8C6,cps30002_03,135BF1D2,1.2,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+5BEE9C58,cps30002_04,135BF1D2,1.5,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+F75FCF08,cps30003,645CC144,5,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+B17D4A90,cps30003_01,645CC144,6,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+0B2C4309,cps30003_02,645CC144,7,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+9D1C447E,cps30003_03,645CC144,8,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+3E8920E0,cps30003_04,645CC144,9,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+54CAAB96,cps30004,FA3854E7,1.5,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+08459D0D,cps30004_01,FA3854E7,1.8,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+B2149494,cps30004_02,FA3854E7,2.2,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+242493E3,cps30004_03,FA3854E7,2.6,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+87B1F77D,cps30004_04,FA3854E7,3,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+C2FAACE1,cps30005,8D3F6471,1.5,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+6D2221B5,cps30005_01,8D3F6471,1.8,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+D773282C,cps30005_02,8D3F6471,2.2,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+41432F5B,cps30005_03,8D3F6471,2.6,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+E2D64BC5,cps30005_04,8D3F6471,3,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+78ABA578,cps30006,143635CB,0.5,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+838D94A7,cps30006_01,143635CB,0.7,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+39DC9D3E,cps30006_02,143635CB,1,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+AFEC9A49,cps30006_03,143635CB,1.2,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+0C79FED7,cps30006_04,143635CB,1.5,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+EE9BA20F,cps30007,6331055D,5,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+E6EA281F,cps30007_01,6331055D,6,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+5CBB2186,cps30007_02,6331055D,7,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+CA8B26F1,cps30007_03,6331055D,8,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+691E426F,cps30007_04,6331055D,9,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+7F861D9F,cps30008,F38E18CC,1.5,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+B0FA4B47,cps30008_01,F38E18CC,1.8,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+0AAB42DE,cps30008_02,F38E18CC,2.2,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+9C9B45A9,cps30008_03,F38E18CC,2.6,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+3F0E2137,cps30008_04,F38E18CC,3,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+E9B61AE8,cps30009,D678C33D,0.5,foco,Valor de foco del equipo +<VALUE> % en campo propio
+D59DF7FF,cps30009_01,D678C33D,0.7,foco,Valor de foco del equipo +<VALUE> % en campo propio
+6FCCFE66,cps30009_02,D678C33D,1,foco,Valor de foco del equipo +<VALUE> % en campo propio
+F9FCF911,cps30009_03,D678C33D,1.2,foco,Valor de foco del equipo +<VALUE> % en campo propio
+5A699D8F,cps30009_04,D678C33D,1.5,foco,Valor de foco del equipo +<VALUE> % en campo propio
+0C3FDD88,cps30010,D1150724,0.5,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+EFFB9FBF,cps30010_01,D1150724,0.7,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+55AA9626,cps30010_02,D1150724,1,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+C39A9151,cps30010_03,D1150724,1.2,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+600FF5CF,cps30010_04,D1150724,1.5,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+9A0FDAFF,cps30011,481C569E,0.5,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+8A9C2307,cps30011_01,481C569E,0.7,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+30CD2A9E,cps30011_02,481C569E,1,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+A6FD2DE9,cps30011_03,481C569E,1.2,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+05684977,cps30011_04,481C569E,1.5,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+205ED366,cps30012,DB65C3F7,4,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+64339615,cps30012_01,DB65C3F7,6,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+DE629F8C,cps30012_02,DB65C3F7,8,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+485298FB,cps30012_03,DB65C3F7,10,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+EBC7FC65,cps30012_04,DB65C3F7,12,otra,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+B66ED411,cps30013,426C924D,4,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+01542AAD,cps30013_01,426C924D,6,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+BB052334,cps30013_02,426C924D,8,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+2D352443,cps30013_03,426C924D,10,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+8EA040DD,cps30013_04,426C924D,12,otra,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+15FBB08F,cps30014,356BA2DB,2.5,otra,Enfriamiento de tácticas especiales -<VALUE> %
+B86CFD30,cps30014_01,356BA2DB,3,otra,Enfriamiento de tácticas especiales -<VALUE> %
+023DF4A9,cps30014_02,356BA2DB,3.5,otra,Enfriamiento de tácticas especiales -<VALUE> %
+940DF3DE,cps30014_03,356BA2DB,4,otra,Enfriamiento de tácticas especiales -<VALUE> %
+37989740,cps30014_04,356BA2DB,4.5,otra,Enfriamiento de tácticas especiales -<VALUE> %
+83CBB7F8,cps30015,A5D4BF4A,1.5,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+DD0B4188,cps30015_01,A5D4BF4A,1.8,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+675A4811,cps30015_02,A5D4BF4A,2.2,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+F16A4F66,cps30015_03,A5D4BF4A,2.6,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+52FF2BF8,cps30015_04,A5D4BF4A,3,otra,"Durante la primera mitad, AT del equipo +<VALUE> %"
+399ABE61,cps30016,D2D38FDC,1.5,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+33A4F49A,cps30016_01,D2D38FDC,1.8,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+89F5FD03,cps30016_02,D2D38FDC,2.2,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+1FC5FA74,cps30016_03,D2D38FDC,2.6,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+BC509EEA,cps30016_04,D2D38FDC,3,otra,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+CBE2E154,cps40001,993955FA,6,brecha,Tasa de brecha del equipo +<VALUE> %
+23BC8630,cps40001_01,993955FA,7.5,brecha,Tasa de brecha del equipo +<VALUE> %
+99ED8FA9,cps40001_02,993955FA,9,brecha,Tasa de brecha del equipo +<VALUE> %
+0FDD88DE,cps40001_03,993955FA,10.5,brecha,Tasa de brecha del equipo +<VALUE> %
+AC48EC40,cps40001_04,993955FA,12,brecha,Tasa de brecha del equipo +<VALUE> %
+71B3E8CD,cps40002,EE3E656C,3,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+CD133322,cps40002_01,EE3E656C,6,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+77423ABB,cps40002_02,EE3E656C,9,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+E1723DCC,cps40002_03,EE3E656C,12,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+42E75952,cps40002_04,EE3E656C,15,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+E783EFBA,cps40003,ABE88F55,0.9,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+A8748F9A,cps40003_01,ABE88F55,1.2,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+12258603,cps40003_02,ABE88F55,1.5,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+84158174,cps40003_03,ABE88F55,1.8,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+2780E5EA,cps40003_04,ABE88F55,2,brecha,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+44168B24,cps40004,00300440,4,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+114C5807,cps40004_01,00300440,4.5,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+AB1D519E,cps40004_02,00300440,5,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+3D2D56E9,cps40004_03,00300440,5.5,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+9EB83277,cps40004_04,00300440,6,brecha,Tensión necesaria para brecha del equipo -<VALUE> %
+D2268C53,cps40005,E953A175,8,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+742BE4BF,cps40005_01,E953A175,9,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+CE7AED26,cps40005_02,E953A175,10,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+584AEA51,cps40005_03,E953A175,11,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+FBDF8ECF,cps40005_04,E953A175,12,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+687785CA,cps40006,705AF0CF,1.5,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+9A8451AD,cps40006_01,705AF0CF,1.8,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+20D55834,cps40006_02,705AF0CF,2.2,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+B6E55F43,cps40006_03,705AF0CF,2.6,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+15703BDD,cps40006_04,705AF0CF,3,foco,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+FE4782BD,cps40007,075DC059,9.5,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+FFE3ED15,cps40007_01,075DC059,10.5,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+45B2E48C,cps40007_02,075DC059,11.5,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+D382E3FB,cps40007_03,075DC059,12.5,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+70178765,cps40007_04,075DC059,13.5,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+6F5A3D2D,cps40008,97E2DDC8,3,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+A9F38E4D,cps40008_01,97E2DDC8,4.5,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+13A287D4,cps40008_02,97E2DDC8,6,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+859280A3,cps40008_03,97E2DDC8,7.5,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+2607E43D,cps40008_04,97E2DDC8,9,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+F96A3A5A,cps40009,E0E5ED5E,1.5,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+CC9432F5,cps40009_01,E0E5ED5E,1.8,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+76C53B6C,cps40009_02,E0E5ED5E,2.2,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+E0F53C1B,cps40009_03,E0E5ED5E,2.6,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+43605885,cps40009_04,E0E5ED5E,3,df_foco,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+1CE3FD3A,cps40010,4C50A252,0.4,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+F6F25AB5,cps40010_01,4C50A252,0.8,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+4CA3532C,cps40010_02,4C50A252,1.2,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+DA93545B,cps40010_03,4C50A252,1.6,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+790630C5,cps40010_04,4C50A252,2,foco,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+8AD3FA4D,cps40011,F725542D,5,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+9395E60D,cps40011_01,F725542D,5.5,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+29C4EF94,cps40011_02,F725542D,6,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+BFF4E8E3,cps40011_03,F725542D,6.5,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+1C618C7D,cps40011_04,F725542D,7.5,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+3082F3D4,cps40012,6E2C0597,5,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+7D3A531F,cps40012_01,6E2C0597,6,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+C76B5A86,cps40012_02,6E2C0597,7,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+515B5DF1,cps40012_03,6E2C0597,8,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+F2CE396F,cps40012_04,6E2C0597,9,otra,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+A6B2F4A3,cps40013,C27EF2B6,0.5,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+185DEFA7,cps40013_01,C27EF2B6,0.6,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+A20CE63E,cps40013_02,C27EF2B6,0.7,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+343CE149,cps40013_03,C27EF2B6,0.8,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+97A985D7,cps40013_04,C27EF2B6,0.9,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+0527903D,cps40014,DCEFBFC3,6,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+A165383A,cps40014_01,DCEFBFC3,7,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+1B3431A3,cps40014_02,DCEFBFC3,8,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+8D0436D4,cps40014_03,DCEFBFC3,9,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+2E91524A,cps40014_04,DCEFBFC3,10,disputa,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+9317974A,cps40015,F0489034,3,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+C4028482,cps40015_01,F0489034,4.5,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+7E538D1B,cps40015_02,F0489034,6,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+E8638A6C,cps40015_03,F0489034,7.5,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+4BF6EEF2,cps40015_04,F0489034,9,at_tiro,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+29469ED3,cps40016,5B901B21,6,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+2AAD3190,cps40016_01,5B901B21,7,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+90FC3809,cps40016_02,5B901B21,8,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+06CC3F7E,cps40016_03,5B901B21,9,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+A5595BE0,cps40016_04,5B901B21,10,afinidad,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+BF7699A4,cps40017,1E46F118,5.5,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+4FCA8D28,cps40017_01,1E46F118,6,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+F59B84B1,cps40017_02,1E46F118,6.5,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+63AB83C6,cps40017_03,1E46F118,7,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+C03EE758,cps40017_04,1E46F118,7.5,faltas,Tasa de faltas del equipo -<VALUE> % al esprintar
+2E6B2634,cps40018,8EF9EC89,5.5,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+19DAEE70,cps40018_01,8EF9EC89,6,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+A38BE7E9,cps40018_02,8EF9EC89,6.5,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+35BBE09E,cps40018_03,8EF9EC89,7,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+962E8400,cps40018_04,8EF9EC89,7.5,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+B85B2143,cps40019,F9FEDC1F,5.5,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+7CBD52C8,cps40019_01,F9FEDC1F,6,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+C6EC5B51,cps40019_02,F9FEDC1F,6.5,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+50DC5C26,cps40019_03,F9FEDC1F,7,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+F34938B8,cps40019_04,F9FEDC1F,7.5,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+DFB0D011,cps40020,45E6EE79,0.3,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+2688FAF2,cps40020_01,45E6EE79,0.5,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+9CD9F36B,cps40020_02,45E6EE79,1,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+0AE9F41C,cps40020_03,45E6EE79,1.5,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+A97C9082,cps40020_04,45E6EE79,2,otra,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+4980D766,cps40021,DC0807EE,10,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+43EF464A,cps40021_01,DC0807EE,12,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+F9BE4FD3,cps40021_02,DC0807EE,14,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+6F8E48A4,cps40021_03,DC0807EE,16,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+CC1B2C3A,cps40021_04,DC0807EE,18,afinidad,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+F3D1DEFF,cps40022,45015654,10,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+AD40F358,cps40022_01,45015654,12,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+1711FAC1,cps40022_02,45015654,14,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+8121FDB6,cps40022_03,45015654,16,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+22B49928,cps40022_04,45015654,18,afinidad,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+65E1D988,cps40023,320666C2,1.5,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+C8274FE0,cps40023_01,320666C2,1.8,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+72764679,cps40023_02,320666C2,2.2,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+E446410E,cps40023_03,320666C2,2.6,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+47D32590,cps40023_04,320666C2,3,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+C674BD16,cps40024,AC854B4C,0.5,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+711F987D,cps40024_01,AC854B4C,0.6,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+CB4E91E4,cps40024_02,AC854B4C,0.7,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+5D7E9693,cps40024_03,AC854B4C,0.8,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+FEEBF20D,cps40024_04,AC854B4C,0.9,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+5E0FBF6D,bcps10001,EE3E656C,28,brecha,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+E45EB6F4,bcps10002,993955FA,20,brecha,Tasa de brecha del equipo +<VALUE> %
+726EB183,bcps10003,E953A175,24,tension,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+D1FBD51D,bcps10004,075DC059,24,at_tiro,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+47CBD26A,bcps10005,F725542D,20,pp,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+FD9ADBF3,bcps10006,97E2DDC8,16,at_tiro,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+6BAADC84,bcps10007,8EF9EC89,16,faltas,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+FAB76314,bcps10008,F9FEDC1F,16,tension,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+6C876463,bcps10009,320666C2,8,df_muro,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+890EA303,bcps10010,AC854B4C,1.6,otra,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+1F3EA474,bcps10011,C27EF2B6,1.6,afinidad,"Al hacer un pase, poder de afinidad +<VALUE> %"
+A56FADED,bcps10012,CBC8BE9D,0.4,afinidad,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"
+DDFB1BE9,ss_ps50001,8A52A068,1,at_tiro,AT de tiro +<VALUE> % para jugadores del mismo elemento
+67AA1270,ss_ps50002,135BF1D2,1,foco,Valor de foco +<VALUE> % para jugadores del mismo elemento
+F19A1507,ss_ps50003,645CC144,1.5,disputa,Valor de disputa +<VALUE> % para jugadores del mismo elemento
+520F7199,ss_ps50004,FA3854E7,1,df_muro,DF del muro +<VALUE> % para jugadores del mismo elemento
+C43F76EE,ss_ps50005,8D3F6471,1,at_tiro,AT de tiro +<VALUE> % para jugadores de distintos elementos
+7E6E7F77,ss_ps50006,143635CB,1,foco,Valor de foco +<VALUE> % para jugadores de distintos elementos
+E85E7800,ss_ps50007,6331055D,1.5,disputa,Valor de disputa +<VALUE> % para jugadores de distintos elementos
+7943C790,ss_ps50008,F38E18CC,1,df_muro,DF del muro +<VALUE> % para jugadores de distintos elementos
+EF73C0E7,ss_ps50009,8489285A,1,at_tiro,AT de tiro +<VALUE> % para jugadores de la misma posición
+0AFA0787,ss_ps50010,E44EA1BF,1,foco,Valor de foco +<VALUE> % para jugadores de la misma posición
+9CCA00F0,ss_ps50011,93499129,1.5,disputa,Valor de disputa +<VALUE> % para jugadores de la misma posición
+269B0969,ss_ps50012,E32365A6,1,foco,Valor de foco +<VALUE> % para jugadores de distintas posiciones
+B0AB0E1E,ss_ps50013,94245530,1.5,disputa,Valor de disputa +<VALUE> % para jugadores de distintas posiciones
+133E6A80,ss_ps50014,0D2D048A,1,df_muro,DF del muro +<VALUE> % para jugadores de distintas posiciones
+850E6DF7,ss_ps50015,7A2A341C,1.5,at_tiro,AT de tiro +<VALUE> % para jugadores cercanos
+3F5F646E,ss_ps50016,EA95298D,1.5,foco,Valor de foco +<VALUE> % para jugadores cercanos
+A96F6319,ss_ps50017,9D92191B,2,disputa,Valor de disputa +<VALUE> % para jugadores cercanos
+3872DC89,ss_ps50018,CF63F27C,1.5,df_muro,DF del muro +<VALUE> % para jugadores cercanos
+AE42DBFE,ss_ps50019,B864C2EA,1.5,at_tiro,"Cuando un jugador del mismo elemento está cerca, AT propio de tiro +<VALUE> %"
+C9A92AAC,ss_ps50020,216D9350,1.5,foco,"Cuando un jugador del mismo elemento está cerca, valor propio de foco +<VALUE> %"
+5F992DDB,ss_ps50021,566AA3C6,2,disputa,"Cuando un jugador del mismo elemento está cerca, valor propio de disputa +<VALUE> %"
+E5C82442,ss_ps50022,C80E3665,1.5,df_muro,"Cuando un jugador del mismo elemento está cerca, DF propia del muro +<VALUE> %"
+73F82335,ss_ps50023,BF0906F3,1.5,at_tiro,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +<VALUE> %"
+D06D47AB,ss_ps50024,26005749,1.5,foco,"Cuando un jugador de otro elemento está cerca, valor propio de foco +<VALUE> %"
+465D40DC,ss_ps50025,510767DF,1.5,df_muro,"Cuando un jugador de otro elemento está cerca, DF propia del muro +<VALUE> %"
+FC0C4945,ss_ps50026,C1B87A4E,1.5,foco,Valor propio de foco +<VALUE> % en campo propio
+6A3C4E32,ss_ps50027,B6BF4AD8,2,disputa,Valor propio de disputa +<VALUE> % en campo propio
+FB21F1A2,ss_ps50028,D678C33D,0.5,foco,Valor de foco del equipo +<VALUE> % en campo propio
+6D11F6D5,ss_ps50029,A17FF3AB,1.5,at_tiro,AT propio de tiro +<VALUE> % en campo contrario
+889831B5,ss_ps50030,3876A211,1.5,foco,Valor propio de foco +<VALUE> % en campo contrario
+1EA836C2,ss_ps50031,4F719287,2,disputa,Valor propio de disputa +<VALUE> % en campo contrario
+A4F93F5B,ss_ps50032,D1150724,0.5,foco,Valor de foco del equipo +<VALUE> % en campo contrario
+32C9382C,ss_ps50033,A61237B2,1.5,foco,Valor propio de foco +<VALUE> % cuando se está fuera del área
+915C5CB2,ss_ps50034,3F1B6608,2,disputa,Valor propio de disputa +<VALUE> % cuando se está fuera del área
+076C5BC5,ss_ps50035,481C569E,0.5,foco,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+BD3D525C,ss_ps50036,D8A34B0F,10,obtencion,Tasa de obtención del equipo (comunes) +<VALUE>%
+2B0D552B,ss_ps50037,AFA47B99,5,obtencion,Tasa de obtención del equipo (inusuales) +<VALUE>%

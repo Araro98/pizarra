@@ -1,0 +1,23 @@
+# Como se llaman la formacion, el escudo y la equipacion de cada id.
+# Lo dijo Aaron mirando sus equipos en el juego (2026-09-15); el juego no tiene
+# estos nombres en ninguna tabla que se haya encontrado, asi que esta es la
+# fuente. Cuando diga mas, se anaden aqui.
+tipo,id,nombre
+formacion,7A1F0E36,3-5-2 Libertad
+formacion,0A75FAB9,4-5-1 Equilibrio
+formacion,7D72CA2F,3-6-1 Hexa
+formacion,0D183EA0,4-4-2 Caja
+formacion,EDCDD7BE,5-4-1 Doble Volante
+formacion,94116F1A,4-4-2 Diamante
+formacion,E47B9B95,4-3-3 Triangulo
+formacion,937CAB03,4-3-3 Delta
+escudo,8AF5CB9C,Demonio
+escudo,4FD6F973,Nova
+escudo,B1CA464F,Equipo Mister Yi
+escudo,DCC7CEE7,Los Rojos
+escudo,BBB7E027,Zeus
+equipacion,368C7CA2,Servicio Secreto
+equipacion,6B110260,Northbright
+equipacion,BC013A12,Eclipse de Orion
+equipacion,F3A48406,Los Rojos
+equipacion,E17C3465,Zeus

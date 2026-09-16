@@ -1,0 +1,964 @@
+# Que pasivas puede sacar un jugador, por ranura.
+# Observado en la partida de Aaron (574 jugadores), no leido de una
+# tabla del juego. Las ranuras 1-2 estan contrastadas con inazumo.es
+# y coinciden exactamente; las demas son lo visto hasta ahora.
+# Lo genera herramientas/construir_pasivas_jugador.py.
+grupo,id,nombre,familia,alcance,veces_visto
+Afinidad (ranura 3),D53D7996,"Cuando un jugador del mismo elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,9
+Afinidad (ranura 3),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,9
+Afinidad (ranura 3),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,3
+Afinidad (ranura 4),D021FC1C,"Si el poder de afinidad es 20 % o más, \\nAT de tiro directo del equipo [CPASSIVE01]+<VALUE> %[C]",Tiro,equipo,6
+Afinidad (ranura 4),01D4B17B,"Al hacer un pase, poder de afinidad [CPASSIVE01]+<VALUE> %[C]",otra,equipo,6
+Afinidad (ranura 4),FC40F2F2,"Por cada rango de Conf. Vínculo, \\nvalor de disputa del equipo [CPASSIVE01]+<VALUE> %[C]",Disputa,equipo,5
+Afinidad (ranura 4),73B49882,"Por cada rango de Conf. Vínculo,\\npérdida de poder de afinidad [CPASSIVE01]－<VALUE> ％[C]",otra,equipo,4
+Afinidad (ranura 5),FC40F2F2,"Por cada rango de Conf. Vínculo, \\nvalor de disputa del equipo [CPASSIVE01]+<VALUE> %[C]",Disputa,equipo,7
+Afinidad (ranura 5),01D4B17B,"Al hacer un pase, poder de afinidad [CPASSIVE01]+<VALUE> %[C]",otra,equipo,6
+Afinidad (ranura 5),D021FC1C,"Si el poder de afinidad es 20 % o más, \\nAT de tiro directo del equipo [CPASSIVE01]+<VALUE> %[C]",Tiro,equipo,6
+Afinidad (ranura 5),73B49882,"Por cada rango de Conf. Vínculo,\\npérdida de poder de afinidad [CPASSIVE01]－<VALUE> ％[C]",otra,equipo,2
+Brecha (ranura 3),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,17
+Brecha (ranura 3),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,9
+Brecha (ranura 3),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,6
+Brecha (ranura 4),849B3FAE,"Por cada rango de Conf. Brecha,\\ntasa de perforación de muro [CPASSIVE01]+<VALUE> ％[C]",Muro,equipo,10
+Brecha (ranura 4),83B68749,Tensión necesaria para brecha del equipo [CPASSIVE01]-<VALUE> %[C],otra,equipo,8
+Brecha (ranura 4),A8FA3140,"Cuando se tienen los mismos goles o menos, \\ntasa de brecha del equipo [CPASSIVE01]+<VALUE> %[C]",otra,equipo,7
+Brecha (ranura 4),9D5F52A9,Tasa de brecha del equipo [CPASSIVE01]+<VALUE> %[C],otra,equipo,6
+Brecha (ranura 4),AEF0FCCC,"Por cada rango de Conf. Brecha, \\ntasa de Parada del equipo [CPASSIVE01]+<VALUE> %[C]",otra,equipo,1
+Brecha (ranura 5),9D5F52A9,Tasa de brecha del equipo [CPASSIVE01]+<VALUE> %[C],otra,equipo,11
+Brecha (ranura 5),A8FA3140,"Cuando se tienen los mismos goles o menos, \\ntasa de brecha del equipo [CPASSIVE01]+<VALUE> %[C]",otra,equipo,9
+Brecha (ranura 5),83B68749,Tensión necesaria para brecha del equipo [CPASSIVE01]-<VALUE> %[C],otra,equipo,7
+Brecha (ranura 5),849B3FAE,"Por cada rango de Conf. Brecha,\\ntasa de perforación de muro [CPASSIVE01]+<VALUE> ％[C]",Muro,equipo,5
+Contra (ranura 3),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,70
+Contra (ranura 3),F95C7778,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de disputa [CPASSIVE01]+<VALUE> %[C]",Disputa,propio,36
+Contra (ranura 3),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,33
+Contra (ranura 3),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,7
+Contra (ranura 4),2A980772,"Tras recuperar el balón sin una captura directa, durante los \\npróximos 15 segundos PP aumenta [CPASSIVE01]+<VALUE> %[C]",otra,equipo,78
+Contra (ranura 4),40E5AA62,"Tras recuperar el balón sin una captura directa, durante los \\npróximos 30 segundos AT de tiro del equipo [CPASSIVE01]+<VALUE> %[C]",Tiro,equipo,32
+Contra (ranura 4),335C6A75,"Tras recuperar el balón sin una captura directa, durante los \\npróximos 30 segundos AT y DF de foco de MC [CPASSIVE01]+<VALUE> %[C]",Foco,equipo,16
+Contra (ranura 4),06F9099C,"Tras recuperar el balón sin una captura directa, durante los \\npróximos 30 segundos AT y DF de ataque duro (equipo) [CPASSIVE01]+<VALUE> %[C]",otra,equipo,10
+Contra (ranura 4),1F3D649B,"Por cada rango de Conf. Contraataque, \\nvalor de foco del equipo [CPASSIVE01]+<VALUE> %[C]",Foco,equipo,9
+Contra (ranura 4),5E0C7F82,"Cuando el equipo gana en foco o disputa, \\ntensión [CPASSIVE01]+<VALUE> %[C]",Foco,equipo,1
+Contra (ranura 5),2A980772,"Tras recuperar el balón sin una captura directa, durante los \\npróximos 15 segundos PP aumenta [CPASSIVE01]+<VALUE> %[C]",otra,equipo,79
+Contra (ranura 5),40E5AA62,"Tras recuperar el balón sin una captura directa, durante los \\npróximos 30 segundos AT de tiro del equipo [CPASSIVE01]+<VALUE> %[C]",Tiro,equipo,38
+Contra (ranura 5),335C6A75,"Tras recuperar el balón sin una captura directa, durante los \\npróximos 30 segundos AT y DF de foco de MC [CPASSIVE01]+<VALUE> %[C]",Foco,equipo,15
+Contra (ranura 5),06F9099C,"Tras recuperar el balón sin una captura directa, durante los \\npróximos 30 segundos AT y DF de ataque duro (equipo) [CPASSIVE01]+<VALUE> %[C]",otra,equipo,7
+Contra (ranura 5),1F3D649B,"Por cada rango de Conf. Contraataque, \\nvalor de foco del equipo [CPASSIVE01]+<VALUE> %[C]",Foco,equipo,6
+Contra (ranura 5),5E0C7F82,"Cuando el equipo gana en foco o disputa, \\ntensión [CPASSIVE01]+<VALUE> %[C]",Foco,equipo,1
+DEF (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,30
+DEF (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,15
+DEF (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,14
+DEF (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,14
+DEF (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,10
+DEF (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,9
+DEF (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,9
+DEF (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,9
+DEF (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,8
+DEF (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,8
+DEF (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,8
+DEF (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,7
+DEF (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,7
+DEF (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,7
+DEF (ranuras 1-2),8DC80F88,"Cuando un jugador de otro elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,7
+DEF (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,6
+DEF (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,6
+DEF (ranuras 1-2),FD5F303E,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Tiro,equipo,4
+DEF (ranuras 1-2),F00F475E,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,propio,4
+DEF (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,4
+DEF (ranuras 1-2),F95C7778,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de disputa [CPASSIVE01]+<VALUE> %[C]",Disputa,propio,3
+DEF (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,2
+DEF (ranuras 1-2),D53D7996,"Cuando un jugador del mismo elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,2
+DEF (ranuras 1-2),1AE1328C,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Tiro,equipo,2
+DEF (ranuras 1-2),940C628F,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] en campo propio,Disputa,propio,1
+DEF (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,1
+DEF (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,1
+DEF (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,1
+DEF (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,1
+DEF (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,1
+DEF (ranuras 1-2),21005B1B,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Disputa,equipo,1
+DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,53
+DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,43
+DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,41
+DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,29
+DEL (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,24
+DEL (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,12
+DEL (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,12
+DEL (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,9
+DEL (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,8
+DEL (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,8
+DEL (ranuras 1-2),127784FB,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Tiro,equipo,7
+DEL (ranuras 1-2),FD5F303E,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Tiro,equipo,7
+DEL (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,6
+DEL (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,5
+DEL (ranuras 1-2),F00F475E,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,propio,5
+DEL (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,3
+DEL (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,3
+DEL (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,2
+DEL (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,2
+DEL (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,2
+DEL (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,2
+DEL (ranuras 1-2),1AE1328C,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Tiro,equipo,2
+DEL (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,2
+DEL (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,1
+Juego sucio (ranura 3),F00F475E,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,propio,26
+Juego sucio (ranura 3),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,9
+Juego sucio (ranura 3),8DC80F88,"Cuando un jugador de otro elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,6
+Juego sucio (ranura 4),5FD5966C,Tasa de faltas del equipo [CPASSIVE01]-<VALUE> %[C] al esprintar,otra,equipo,15
+Juego sucio (ranura 4),58F82E8B,Tasa de faltas del equipo [CPASSIVE01]-<VALUE> %[C] cuando se está \\nfuera del área,otra,equipo,15
+Juego sucio (ranura 4),0720E072,"Por cada rango de Conf. Juego sucio, \\nAT/DF de Ataque duro [CPASSIVE01]+<VALUE> %[C]",otra,equipo,7
+Juego sucio (ranura 4),2B41EE9C,"Juego sucio: Al ser derribado en esprint,\\ntensión [CPASSIVE01]+<VALUE> %[C]",otra,equipo,4
+Juego sucio (ranura 5),58F82E8B,Tasa de faltas del equipo [CPASSIVE01]-<VALUE> %[C] cuando se está \\nfuera del área,otra,equipo,17
+Juego sucio (ranura 5),5FD5966C,Tasa de faltas del equipo [CPASSIVE01]-<VALUE> %[C] al esprintar,otra,equipo,14
+Juego sucio (ranura 5),0720E072,"Por cada rango de Conf. Juego sucio, \\nAT/DF de Ataque duro [CPASSIVE01]+<VALUE> %[C]",otra,equipo,9
+Juego sucio (ranura 5),2B41EE9C,"Juego sucio: Al ser derribado en esprint,\\ntensión [CPASSIVE01]+<VALUE> %[C]",otra,equipo,1
+Justicia (ranura 3),DC6E49B0,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] en campo contrario,Disputa,propio,37
+Justicia (ranura 3),940C628F,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] en campo propio,Disputa,propio,28
+Justicia (ranura 3),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,12
+Justicia (ranura 4),5590EE4C,"Por cada rango de Conf. Justicia, \\nAT y DF del equipo [CPASSIVE01]+<VALUE> %[C]",otra,equipo,42
+Justicia (ranura 4),19C93592,"Hasta que el equipo reciba una falta, \\nDF del muro [CPASSIVE01]+<VALUE> %[C]",Muro,equipo,15
+Justicia (ranura 4),3285839B,"Al recibir marcajes o bloqueos en esprint, \\npoder de afinidad [CPASSIVE01]+<VALUE> %[C]",otra,equipo,11
+Justicia (ranura 4),1EE48D75,"Cuando el rival comete una falta, \\npoder de afinidad [CPASSIVE01]+<VALUE> %[C]",otra,equipo,9
+Justicia (ranura 5),5590EE4C,"Por cada rango de Conf. Justicia, \\nAT y DF del equipo [CPASSIVE01]+<VALUE> %[C]",otra,equipo,35
+Justicia (ranura 5),1EE48D75,"Cuando el rival comete una falta, \\npoder de afinidad [CPASSIVE01]+<VALUE> %[C]",otra,equipo,18
+Justicia (ranura 5),19C93592,"Hasta que el equipo reciba una falta, \\nDF del muro [CPASSIVE01]+<VALUE> %[C]",Muro,equipo,15
+Justicia (ranura 5),3285839B,"Al recibir marcajes o bloqueos en esprint, \\npoder de afinidad [CPASSIVE01]+<VALUE> %[C]",otra,equipo,9
+MED (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,25
+MED (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,21
+MED (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,18
+MED (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,18
+MED (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,17
+MED (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,12
+MED (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,10
+MED (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,9
+MED (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,8
+MED (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,6
+MED (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,6
+MED (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,5
+MED (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,5
+MED (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,4
+MED (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,4
+MED (ranuras 1-2),1AE1328C,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Tiro,equipo,3
+MED (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,3
+MED (ranuras 1-2),127784FB,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Tiro,equipo,2
+MED (ranuras 1-2),F00F475E,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,propio,1
+MED (ranuras 1-2),FD5F303E,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Tiro,equipo,1
+MED (ranuras 1-2),7F868E34,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Muro,equipo,1
+MED (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,1
+POR (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,61
+POR (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,30
+POR (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,26
+POR (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,14
+POR (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,12
+POR (ranuras 1-2),21005B1B,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Disputa,equipo,12
+POR (ranuras 1-2),38C0FBBB,PP del equipo [CPASSIVE01]+<VALUE> %[C],Muro,equipo,4
+POR (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,3
+POR (ranuras 1-2),8DC80F88,"Cuando un jugador de otro elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,2
+POR (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,2
+POR (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,2
+POR (ranuras 1-2),F95C7778,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de disputa [CPASSIVE01]+<VALUE> %[C]",Disputa,propio,2
+POR (ranuras 1-2),DC6E49B0,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] en campo contrario,Disputa,propio,2
+POR (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,2
+POR (ranuras 1-2),7F868E34,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Muro,equipo,1
+POR (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,1
+POR (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,1
+POR (ranuras 1-2),1AE1328C,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Tiro,equipo,1
+POR (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+POR (ranuras 1-2),D53D7996,"Cuando un jugador del mismo elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,1
+Tension (ranura 3),F00F475E,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,propio,41
+Tension (ranura 3),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,34
+Tension (ranura 3),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,16
+Tension (ranura 4),726D716C,"Cuando el rival pasa durante foco,\\ndrena un [CPASSIVE01]<VALUE> %[C] de tensión",Foco,equipo,26
+Tension (ranura 4),47C81285,"Cuando la tensión está al 100 %, \\nAT de tiro del equipo [CPASSIVE01]+<VALUE> %[C]",Tiro,equipo,21
+Tension (ranura 4),6BA91C6B,"Cuando la tensión está al 50 % o más, \\nvalor de foco del equipo [CPASSIVE01]+<VALUE> %[C]",Foco,equipo,16
+Tension (ranura 4),7467BCE0,"Por cada rango de Conf. Tensión, \\ntensión [CPASSIVE01]+<VALUE> %[C]",otra,equipo,15
+Tension (ranura 4),5E0C7F82,"Cuando el equipo gana en foco o disputa, \\ntensión [CPASSIVE01]+<VALUE> %[C]",Foco,equipo,13
+Tension (ranura 5),47C81285,"Cuando la tensión está al 100 %, \\nAT de tiro del equipo [CPASSIVE01]+<VALUE> %[C]",Tiro,equipo,26
+Tension (ranura 5),726D716C,"Cuando el rival pasa durante foco,\\ndrena un [CPASSIVE01]<VALUE> %[C] de tensión",Foco,equipo,25
+Tension (ranura 5),5E0C7F82,"Cuando el equipo gana en foco o disputa, \\ntensión [CPASSIVE01]+<VALUE> %[C]",Foco,equipo,15
+Tension (ranura 5),7467BCE0,"Por cada rango de Conf. Tensión, \\ntensión [CPASSIVE01]+<VALUE> %[C]",otra,equipo,15
+Tension (ranura 5),6BA91C6B,"Cuando la tensión está al 50 % o más, \\nvalor de foco del equipo [CPASSIVE01]+<VALUE> %[C]",Foco,equipo,10
+equipo <FST:ZANARK> Domain / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,1
+equipo <FST:ZANARK> Domain / DEL (ranuras 1-2),FD5F303E,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Tiro,equipo,1
+equipo <FST:ZANARK> Outsiders / DEF (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,12
+equipo <FST:ZANARK> Outsiders / DEF (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,8
+equipo <FST:ZANARK> Outsiders / DEF (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,8
+equipo <FST:ZANARK> Outsiders / DEF (ranuras 1-2),FD5F303E,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Tiro,equipo,4
+equipo <FST:ZANARK> Outsiders / DEF (ranuras 1-2),F00F475E,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,propio,4
+equipo <FST:ZANARK> Outsiders / DEF (ranuras 1-2),8DC80F88,"Cuando un jugador de otro elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,4
+equipo <FST:ZANARK> Outsiders / DEF (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,4
+equipo <FST:ZANARK> Outsiders / DEF (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo <FST:ZANARK> Outsiders / DEF (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+equipo <FST:ZANARK> Outsiders / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,10
+equipo <FST:ZANARK> Outsiders / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,5
+equipo <FST:ZANARK> Outsiders / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+equipo <FST:ZANARK> Outsiders / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo <FST:ZANARK> Outsiders / DEL (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+equipo <FST:ZANARK> Outsiders / DEL (ranuras 1-2),127784FB,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Tiro,equipo,1
+equipo <MNT:NAGUMOHARA> / DEF (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,1
+equipo <MNT:NAGUMOHARA> / DEF (ranuras 1-2),1AE1328C,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Tiro,equipo,1
+equipo <MNT:NAGUMOHARA> / DEF (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,1
+equipo <MNT:NAGUMOHARA> / DEF (ranuras 1-2),21005B1B,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Disputa,equipo,1
+equipo <MNT:NAGUMOHARA> / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,5
+equipo <MNT:NAGUMOHARA> / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,5
+equipo <MNT:NAGUMOHARA> / DEL (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,4
+equipo <MNT:NAGUMOHARA> / DEL (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,3
+equipo <MNT:NAGUMOHARA> / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,3
+equipo <MNT:NAGUMOHARA> / DEL (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,2
+equipo <MNT:NAGUMOHARA> / DEL (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,1
+equipo <MNT:NAGUMOHARA> / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo <MNT:NAGUMOHARA> / MED (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,6
+equipo <MNT:NAGUMOHARA> / MED (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,6
+equipo <MNT:NAGUMOHARA> / MED (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,6
+equipo <MNT:NAGUMOHARA> / MED (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,6
+equipo <MNT:NAGUMOHARA> / MED (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,4
+equipo <MNT:NAGUMOHARA> / MED (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,2
+equipo <MNT:NAGUMOHARA> / MED (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+equipo <MNT:NAGUMOHARA> / MED (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,1
+equipo <MNT:NAGUMOHARA> / MED (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,1
+equipo <MNT:NAGUMOHARA> / MED (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,1
+equipo <MNT:NAGUMOHARA> / POR (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,2
+equipo <MNT:TENMAS> / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+equipo <MNT:TENMAS> / DEL (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,2
+equipo <MNT:TENMAS> / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,2
+equipo ? / DEF (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,2
+equipo ? / DEF (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,2
+equipo ? / DEF (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,2
+equipo ? / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,6
+equipo ? / DEL (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,5
+equipo ? / DEL (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,2
+equipo ? / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+equipo ? / DEL (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,2
+equipo ? / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,2
+equipo ? / DEL (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,1
+equipo ? / DEL (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo ? / DEL (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+equipo ? / DEL (ranuras 1-2),F00F475E,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,propio,1
+equipo ? / DEL (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,1
+equipo ? / MED (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,3
+equipo ? / MED (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,3
+equipo ? / MED (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,2
+equipo ? / MED (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,2
+equipo ? / MED (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,1
+equipo ? / MED (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+equipo ? / MED (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo ? / MED (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+equipo ? / MED (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,1
+equipo ? / MED (ranuras 1-2),127784FB,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Tiro,equipo,1
+equipo ? / MED (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,1
+equipo ? / MED (ranuras 1-2),1AE1328C,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Tiro,equipo,1
+equipo ? / POR (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,17
+equipo ? / POR (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,9
+equipo ? / POR (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,7
+equipo ? / POR (ranuras 1-2),7F868E34,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Muro,equipo,1
+equipo Academia Alia / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,6
+equipo Academia Alia / DEL (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,4
+equipo Academia Alia / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,3
+equipo Academia Alia / DEL (ranuras 1-2),127784FB,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Tiro,equipo,2
+equipo Academia Alia / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,2
+equipo Academia Alia / DEL (ranuras 1-2),F00F475E,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,propio,1
+equipo Academia Alia / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo Academia Alia / DEL (ranuras 1-2),FD5F303E,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Tiro,equipo,1
+equipo Academia Alia / MED (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,2
+equipo Academia IA / POR (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,1
+equipo Academia IA / POR (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,1
+equipo Academia Orchid / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,3
+equipo Academia Orchid / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo Academia Orchid / MED (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,1
+equipo Academia Orchid / MED (ranuras 1-2),F00F475E,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,propio,1
+equipo Academia Orchid / MED (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Academia Orchid / MED (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Academia Orchid / POR (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,1
+equipo Academia Orchid / POR (ranuras 1-2),8DC80F88,"Cuando un jugador de otro elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,1
+equipo Academia Orchid / POR (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,1
+equipo Academia Orchid / POR (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,1
+equipo Academia Plenilunio / DEF (ranuras 1-2),D53D7996,"Cuando un jugador del mismo elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,1
+equipo Academia Plenilunio / DEF (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+equipo Academia Plenilunio / DEL (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,2
+equipo Academia Plenilunio / DEL (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,2
+equipo Academia Plenilunio / DEL (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,2
+equipo Academia Plenilunio / DEL (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,1
+equipo Academia Plenilunio / DEL (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,1
+equipo Academia Plenilunio / POR (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,3
+equipo Academia Plenilunio / POR (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,3
+equipo Academia Plenilunio / POR (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,3
+equipo Academia Plenilunio / POR (ranuras 1-2),DC6E49B0,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] en campo contrario,Disputa,propio,1
+equipo Academia Polaris / MED (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,3
+equipo Academia Polaris / MED (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,2
+equipo Academia Polaris / MED (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,2
+equipo Academia Polaris / MED (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Alpino / DEL (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,2
+equipo Alpino / DEL (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,2
+equipo Alpino / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,2
+equipo Alpino / DEL (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,1
+equipo Alpino / DEL (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,1
+equipo Alpino / DEL (ranuras 1-2),FD5F303E,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Tiro,equipo,1
+equipo Alpino / DEL (ranuras 1-2),1AE1328C,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Tiro,equipo,1
+equipo Alpino / MED (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Alpino / MED (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Alpino / MED (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,1
+equipo Alpino / MED (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,1
+equipo Barcelona Orb / DEL (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Barcelona Orb / DEL (ranuras 1-2),F00F475E,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,propio,1
+equipo Barcelona Orb / MED (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,1
+equipo Barcelona Orb / MED (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Big Bang / DEL (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+equipo Big Bang / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo Brain / MED (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,2
+equipo Cascada Perfecta / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,4
+equipo Cascada Perfecta / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,2
+equipo Cascada Perfecta / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+equipo Cascada Perfecta / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+equipo Cascada Perfecta / DEL (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+equipo Cascada Perfecta / DEL (ranuras 1-2),FD5F303E,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Tiro,equipo,1
+"equipo Club de \""idols\"" / DEF (ranuras 1-2)",D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,1
+"equipo Club de \""idols\"" / DEF (ranuras 1-2)",C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,1
+"equipo Club de \""idols\"" / DEL (ranuras 1-2)",A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+"equipo Club de \""idols\"" / DEL (ranuras 1-2)",F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Club de kendo / MED (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,1
+equipo Club de kendo / MED (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,1
+equipo Club de periodismo / MED (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Club de periodismo / MED (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,1
+equipo Club de tenis / DEF (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,1
+equipo Club de tenis / DEF (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,1
+equipo Club de tenis / DEL (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,1
+equipo Club de tenis / DEL (ranuras 1-2),1AE1328C,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Tiro,equipo,1
+equipo Colmillo del Norte / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Colmillo del Norte / DEL (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+equipo Comité disciplinario / MED (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,1
+equipo Comité disciplinario / MED (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,1
+equipo Crosswind-Fauxshore / DEF (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,1
+equipo Crosswind-Fauxshore / DEF (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+equipo Crosswind-Fauxshore / DEF (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Crosswind-Fauxshore / DEF (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Dark Team / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+equipo Desesperdidos / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+equipo Earth Eleven / DEF (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,2
+equipo Earth Eleven / DEF (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,2
+equipo Earth Eleven / DEF (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Earth Eleven / DEF (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Earth Eleven / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,4
+equipo Earth Eleven / POR (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,8
+equipo Earth Eleven / POR (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,4
+equipo Earth Eleven / POR (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,2
+equipo Earth Eleven / POR (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+equipo Earth Eleven / POR (ranuras 1-2),DC6E49B0,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] en campo contrario,Disputa,propio,1
+equipo Eastwind / POR (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,6
+equipo Eastwind / POR (ranuras 1-2),21005B1B,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Disputa,equipo,5
+equipo Eastwind / POR (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,5
+equipo Eastwind / POR (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,2
+equipo Eclipse de Orión / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo Eclipse de Orión / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,1
+equipo Ejército de terracota / DEF (ranuras 1-2),8DC80F88,"Cuando un jugador de otro elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,2
+equipo El Dorado 03 / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo El Dorado 03 / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo El Dorado 03 / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,1
+equipo El Dorado 03 / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo Emperadores Oscuros / DEF (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,5
+equipo Emperadores Oscuros / DEF (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Emperadores Oscuros / MED (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,2
+equipo Equipo Ogro / DEF (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+equipo Equipo Ogro / DEF (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,1
+equipo Equipo Ogro / POR (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,1
+equipo Equipo Ogro / POR (ranuras 1-2),8DC80F88,"Cuando un jugador de otro elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,1
+equipo Equipo Zero / DEF (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,1
+equipo Equipo Zero / DEF (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+equipo Equipo Zero / DEL (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+equipo Equipo Zero / DEL (ranuras 1-2),127784FB,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Tiro,equipo,1
+equipo Farm / MED (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Farm / MED (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,1
+equipo Farm / POR (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,1
+equipo Farm / POR (ranuras 1-2),21005B1B,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Disputa,equipo,1
+equipo Fauxshore / POR (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,9
+equipo Fauxshore / POR (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,2
+equipo Fauxshore / POR (ranuras 1-2),38C0FBBB,PP del equipo [CPASSIVE01]+<VALUE> %[C],Muro,equipo,1
+equipo Fertilia / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,3
+equipo Fertilia / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,2
+equipo Fertilia / DEL (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+equipo Flota Ixar / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Flota Ixar / DEL (ranuras 1-2),127784FB,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Tiro,equipo,1
+equipo Gaviotas FC / DEL (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Gaviotas FC / DEL (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,1
+equipo Gaviotas FC / MED (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,1
+equipo Gaviotas FC / MED (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Gigantes Invencibles / DEF (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,1
+equipo Gigantes Invencibles / DEF (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,1
+equipo Gigantes Invencibles / DEF (ranuras 1-2),8DC80F88,"Cuando un jugador de otro elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,1
+equipo Gigantes Invencibles / DEF (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+equipo Gigantes Invencibles / DEL (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,1
+equipo Gigantes Invencibles / DEL (ranuras 1-2),FD5F303E,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Tiro,equipo,1
+equipo Gigantes Invencibles / DEL (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Gigantes Invencibles / DEL (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,1
+equipo Gigantes Invencibles / MED (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,2
+equipo Gigantes Invencibles / MED (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Gigantes Invencibles / MED (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,1
+equipo Gigantes Invencibles / MED (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Gigantes Invencibles / MED (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+equipo Gigantes Invencibles / POR (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,1
+equipo Gigantes Invencibles / POR (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,1
+equipo Gir / MED (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,3
+equipo Gir / MED (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,2
+equipo Gir / MED (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Gir / MED (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Gir / MED (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Grifos de Rosa / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo Grifos de Rosa / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Guardianas / DEF (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,10
+equipo Guardianas / POR (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,1
+equipo Guardianas / POR (ranuras 1-2),1AE1328C,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Tiro,equipo,1
+equipo Guardianes de la Reina / POR (ranuras 1-2),38C0FBBB,PP del equipo [CPASSIVE01]+<VALUE> %[C],Muro,equipo,1
+equipo Guardianes de la Reina / POR (ranuras 1-2),F95C7778,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de disputa [CPASSIVE01]+<VALUE> %[C]",Disputa,propio,1
+equipo Génesis / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+equipo Inazuma Japón / MED (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+equipo Inazuma Japón / MED (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,1
+equipo Inazuma Japón Legendario / DEF (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,1
+equipo Inazuma Japón Legendario / DEF (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,1
+equipo Inazuma Japón Legendario / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+equipo Inazuma Japón Legendario / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo Inazuma Japón Legendario / DEL (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+equipo Instituto Ribera / POR (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,2
+equipo Instituto Ribera / POR (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,1
+equipo Instituto Ribera / POR (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,1
+equipo Kirkwood / DEF (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Kirkwood / DEF (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Kirkwood / MED (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+equipo Kirkwood / MED (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,1
+equipo Los Emperadores / DEF (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,5
+equipo Los Emperadores / DEF (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,2
+equipo Los Emperadores / DEF (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,2
+equipo Los Emperadores / DEF (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Los Rojos / DEF (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,2
+equipo Los Rojos / DEF (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Los Rojos / DEF (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Los Rojos / DEL (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,2
+equipo Los Rojos / DEL (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,2
+equipo Los Rojos / DEL (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,1
+equipo Los Rojos / DEL (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,1
+equipo Los Rojos / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Los Rojos / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo Los Rojos / MED (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,2
+equipo Los Rojos / MED (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,2
+equipo Los Rojos / POR (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,1
+equipo Los Rojos / POR (ranuras 1-2),38C0FBBB,PP del equipo [CPASSIVE01]+<VALUE> %[C],Muro,equipo,1
+equipo Luz Eterna / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,3
+equipo Luz Eterna / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,2
+equipo Luz Eterna / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,2
+equipo Luz Eterna / DEL (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+equipo Luz Eterna / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo Luz Eterna / DEL (ranuras 1-2),127784FB,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Tiro,equipo,1
+equipo Monte Olimpo / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo Monte Olimpo / DEL (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+equipo No afiliados / DEF (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,3
+equipo No afiliados / DEF (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,3
+equipo No afiliados / DEF (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,2
+equipo No afiliados / DEF (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,2
+equipo No afiliados / DEF (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,2
+equipo No afiliados / DEF (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo No afiliados / DEF (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,1
+equipo No afiliados / DEL (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,4
+equipo No afiliados / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,4
+equipo No afiliados / DEL (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,3
+equipo No afiliados / DEL (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,2
+equipo No afiliados / DEL (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,2
+equipo No afiliados / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,2
+equipo No afiliados / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+equipo No afiliados / DEL (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,1
+equipo No afiliados / MED (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,2
+equipo No afiliados / MED (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,2
+equipo No afiliados / MED (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,1
+equipo No afiliados / MED (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+equipo No afiliados / POR (ranuras 1-2),21005B1B,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Disputa,equipo,3
+equipo No afiliados / POR (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,3
+equipo No afiliados / POR (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,1
+equipo No afiliados / POR (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,1
+equipo Northbright / MED (ranuras 1-2),7F868E34,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Muro,equipo,1
+equipo Northbright / MED (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,1
+equipo Nosfanáticos / MED (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,2
+equipo Occult / POR (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,4
+equipo Occult / POR (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,4
+equipo Occult / POR (ranuras 1-2),21005B1B,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Disputa,equipo,3
+equipo Occult / POR (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Oscuridad Ancestral / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,2
+equipo Oscuridad Ancestral / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+equipo Oscuridad Ancestral / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Oscuridad Ancestral / DEL (ranuras 1-2),127784FB,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Tiro,equipo,1
+equipo Oscuridad Ancestral / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo Oscuridad Ancestral / DEL (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+equipo Oscuridad Ancestral / MED (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Oscuridad Ancestral / MED (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,1
+equipo Otaku / DEF (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,2
+equipo Otaku / DEF (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Otaku / DEF (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Otaku / MED (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,1
+equipo Otaku / MED (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Pequeños Gigantes / DEF (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,2
+equipo Personajes secundarios / DEF (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,2
+equipo Personajes secundarios / DEF (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,2
+equipo Personajes secundarios / DEF (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,2
+equipo Personajes secundarios / DEF (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,2
+equipo Personajes secundarios / DEF (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,2
+equipo Personajes secundarios / DEF (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,1
+equipo Personajes secundarios / DEF (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Personajes secundarios / DEF (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Personajes secundarios / DEF (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,1
+equipo Personajes secundarios / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,2
+equipo Personajes secundarios / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,2
+equipo Personajes secundarios / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo Personajes secundarios / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo Personajes secundarios / MED (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,4
+equipo Personajes secundarios / MED (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,1
+equipo Personajes secundarios / MED (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,1
+equipo Personajes secundarios / POR (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,4
+equipo Personajes secundarios / POR (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,2
+equipo Personajes secundarios / POR (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,1
+equipo Personajes secundarios / POR (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,1
+equipo Plathos / DEL (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Plathos / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Polvo de Diamantes / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+equipo Primer equipo del Raimon / DEF (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,7
+equipo Primer equipo del Raimon / DEF (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,2
+equipo Primer equipo del Raimon / DEF (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+equipo Primer equipo del Raimon / DEF (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Primer equipo del Raimon / DEF (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,1
+equipo Primer equipo del Raimon / MED (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,3
+equipo Primer equipo del Raimon / MED (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,3
+equipo Primer equipo del Raimon / MED (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,2
+equipo Primer equipo del Raimon / MED (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Primer equipo del Raimon / MED (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,1
+equipo Primer equipo del Raimon / MED (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,1
+equipo Primer equipo del Raimon / MED (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Primer equipo del Raimon / POR (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,3
+equipo Primer equipo del Raimon / POR (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,1
+equipo Prominence / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,3
+equipo Prominence / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Protocolo Omega / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Protocolo Omega / DEL (ranuras 1-2),F00F475E,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,propio,1
+equipo Protocolo Omega 2.0 / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo Protocolo Omega 2.0 / DEL (ranuras 1-2),FD5F303E,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Tiro,equipo,1
+equipo Protocolo Omega 3.0 / DEL (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,3
+equipo Protocolo Omega 3.0 / DEL (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+equipo Protocolo Omega 3.0 / DEL (ranuras 1-2),F00F475E,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,propio,1
+equipo Protocolo Omega 3.0 / DEL (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+equipo Protocolo Omega 3.0 / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,1
+equipo Protocolo Omega 3.0 / DEL (ranuras 1-2),FD5F303E,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Tiro,equipo,1
+equipo Ragnah / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+equipo Reinas / DEL (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+equipo Reinas / DEL (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Royal Academy / DEF (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,2
+equipo Royal Academy / DEF (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,2
+equipo Royal Academy / DEF (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,2
+equipo Royal Academy / DEF (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,2
+equipo Royal Academy / DEF (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Royal Academy / DEF (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,1
+equipo Royal Academy / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,5
+equipo Royal Academy / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,3
+equipo Royal Academy / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+equipo Royal Academy / DEL (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+equipo Royal Academy / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Royal Academy / MED (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,2
+equipo Royal Academy / MED (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,1
+equipo Royal Academy / MED (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,1
+equipo Royal Academy / POR (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,10
+equipo Royal Academy / POR (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,2
+equipo Royal Academy / POR (ranuras 1-2),38C0FBBB,PP del equipo [CPASSIVE01]+<VALUE> %[C],Muro,equipo,1
+equipo Royal Academy / POR (ranuras 1-2),D53D7996,"Cuando un jugador del mismo elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,1
+equipo Royal Academy Redux / DEL (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+equipo Royal Academy Redux / DEL (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,1
+equipo Royal Academy Redux / POR (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,1
+equipo Royal Academy Redux / POR (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,1
+equipo Royal Academy Redux / POR (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,1
+equipo Royal Academy Redux / POR (ranuras 1-2),F95C7778,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de disputa [CPASSIVE01]+<VALUE> %[C]",Disputa,propio,1
+equipo Shuriken / DEF (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,4
+equipo Shuriken / DEF (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,2
+equipo Shuriken / DEF (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Shuriken / DEF (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,1
+equipo Shuriken / DEL (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,1
+equipo Shuriken / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Shuriken / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo Shuriken / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo Shuriken / MED (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,2
+equipo Shuriken / MED (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+equipo Shuriken / MED (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,1
+equipo Shuriken / POR (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,2
+equipo Sky Team / DEL (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+equipo Solaria-Zeus / DEF (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,2
+equipo Solaria-Zeus / DEF (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,1
+equipo Solaria-Zeus / DEF (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,1
+equipo Solaria-Zeus / DEL (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+equipo Solaria-Zeus / DEL (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,1
+equipo Solaria-Zeus / DEL (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Solaria-Zeus / DEL (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,1
+equipo Solaria-Zeus / MED (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,3
+equipo Solaria-Zeus / MED (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,2
+equipo Solaria-Zeus / MED (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,2
+equipo Solaria-Zeus / MED (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Solaria-Zeus / MED (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+equipo Solaria-Zeus / MED (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,1
+equipo Solaria-Zeus / POR (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,3
+equipo Solaria-Zeus / POR (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,1
+equipo Solaria-Zeus / POR (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+equipo Solaria-Zeus / POR (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,1
+equipo Stormridge / DEF (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,2
+equipo Stormridge / DEF (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,2
+equipo Stormridge / DEF (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Stormridge / DEF (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+equipo Triple C / POR (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,1
+equipo Triple C / POR (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+equipo Tropa Acrobática del Fútbol / MED (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Tropa Acrobática del Fútbol / MED (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Tropa Acrobática del Fútbol / MED (ranuras 1-2),127784FB,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Tiro,equipo,1
+equipo Tropa Acrobática del Fútbol / MED (ranuras 1-2),FD5F303E,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Tiro,equipo,1
+equipo Vendedores de <MNT:NAGUMOHARA> / DEL (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,2
+equipo Vendedores de <MNT:NAGUMOHARA> / DEL (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,1
+equipo Vendedores de <MNT:NAGUMOHARA> / DEL (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Zeus / DEF (ranuras 1-2),F95C7778,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de disputa [CPASSIVE01]+<VALUE> %[C]",Disputa,propio,3
+equipo Zeus / DEF (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,2
+equipo Zeus / DEF (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,2
+equipo Zeus / DEF (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+equipo Zeus / DEF (ranuras 1-2),D53D7996,"Cuando un jugador del mismo elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,1
+equipo Zeus / DEF (ranuras 1-2),940C628F,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] en campo propio,Disputa,propio,1
+equipo Zeus / DEF (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+equipo Zeus / DEF (ranuras 1-2),1AE1328C,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Tiro,equipo,1
+equipo Zeus / DEL (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,1
+equipo Zeus / DEL (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+equipo Zeus / DEL (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+equipo Zeus / DEL (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+equipo Zeus / MED (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,6
+equipo Zeus / MED (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,4
+equipo Zeus / MED (ranuras 1-2),1AE1328C,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Tiro,equipo,2
+equipo Zeus / MED (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,2
+equipo Zeus / MED (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,2
+equipo Zeus / MED (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+equipo Zeus / MED (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,1
+equipo Zeus / POR (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,1
+equipo Zeus / POR (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,1
+equipo Zeus / POR (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,1
+equipo Zeus / POR (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,1
+equipo Épsilon / POR (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,2
+tablero DEF-DEL-r0 (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,2
+tablero DEF-DEL-r0 (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,2
+tablero DEF-DEL-r0 (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+tablero DEF-DEL-r0 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+tablero DEF-DEL-r1 (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,1
+tablero DEF-DEL-r1 (ranuras 1-2),1AE1328C,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Tiro,equipo,1
+tablero DEF-DEL-r1 (ranuras 1-2),8DC80F88,"Cuando un jugador de otro elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,1
+tablero DEF-DEL-r1 (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+tablero DEF-DEL-r3 (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,12
+tablero DEF-DEL-r3 (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,8
+tablero DEF-DEL-r3 (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,8
+tablero DEF-DEL-r3 (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,7
+tablero DEF-DEL-r3 (ranuras 1-2),FD5F303E,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Tiro,equipo,4
+tablero DEF-DEL-r3 (ranuras 1-2),F00F475E,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,propio,4
+tablero DEF-DEL-r3 (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,2
+tablero DEF-DEL-r3 (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+tablero DEF-DEL-r3 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+tablero DEF-DEL-r3 (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+tablero DEF-DEL-r3 (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+tablero DEF-DEL-r3 (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,1
+tablero DEF-MED-r0 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,8
+tablero DEF-MED-r0 (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,6
+tablero DEF-MED-r0 (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,4
+tablero DEF-MED-r0 (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,3
+tablero DEF-MED-r0 (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,2
+tablero DEF-MED-r0 (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+tablero DEF-MED-r0 (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,1
+tablero DEF-MED-r0 (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+tablero DEF-MED-r0 (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,1
+tablero DEF-MED-r0 (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,1
+tablero DEF-MED-r1 (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,5
+tablero DEF-MED-r1 (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,3
+tablero DEF-MED-r1 (ranuras 1-2),F95C7778,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de disputa [CPASSIVE01]+<VALUE> %[C]",Disputa,propio,3
+tablero DEF-MED-r1 (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,3
+tablero DEF-MED-r1 (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,2
+tablero DEF-MED-r1 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,2
+tablero DEF-MED-r1 (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,2
+tablero DEF-MED-r1 (ranuras 1-2),D53D7996,"Cuando un jugador del mismo elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,2
+tablero DEF-MED-r1 (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,1
+tablero DEF-MED-r1 (ranuras 1-2),940C628F,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] en campo propio,Disputa,propio,1
+tablero DEF-MED-r1 (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+tablero DEF-MED-r1 (ranuras 1-2),1AE1328C,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Tiro,equipo,1
+tablero DEF-MED-r1 (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,1
+tablero DEF-MED-r1 (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,1
+tablero DEF-MED-r1 (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,1
+tablero DEF-MED-r1 (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+tablero DEF-MED-r2 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,11
+tablero DEF-MED-r2 (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,6
+tablero DEF-MED-r2 (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,6
+tablero DEF-MED-r2 (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,4
+tablero DEF-MED-r2 (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,4
+tablero DEF-MED-r2 (ranuras 1-2),8DC80F88,"Cuando un jugador de otro elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,4
+tablero DEF-MED-r2 (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,4
+tablero DEF-MED-r2 (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,2
+tablero DEF-MED-r2 (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,2
+tablero DEF-MED-r2 (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+tablero DEF-MED-r2 (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+tablero DEF-MED-r2 (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,1
+tablero DEF-MED-r2 (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,1
+tablero DEF-MED-r2 (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+tablero DEF-MED-r2 (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,1
+tablero DEF-MED-r2 (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,1
+tablero DEF-MED-r3 (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,2
+tablero DEF-MED-r3 (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,2
+tablero DEF-MED-r3 (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,1
+tablero DEF-MED-r3 (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+tablero DEF-MED-r3 (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,1
+tablero DEF-MED-r3 (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,1
+tablero DEF-MED-r5 (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,2
+tablero DEF-POR-r0 (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,2
+tablero DEF-POR-r0 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,2
+tablero DEF-POR-r0 (ranuras 1-2),8DC80F88,"Cuando un jugador de otro elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,2
+tablero DEF-POR-r0 (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,1
+tablero DEF-POR-r0 (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+tablero DEF-POR-r0 (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,1
+tablero DEF-POR-r0 (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,1
+tablero DEF-POR-r0 (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+tablero DEF-POR-r0 (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+tablero DEF-POR-r0 (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,1
+tablero DEF-POR-r0 (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,1
+tablero DEF-POR-r1 (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,1
+tablero DEF-POR-r1 (ranuras 1-2),21005B1B,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Disputa,equipo,1
+tablero DEF-POR-r2 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,5
+tablero DEF-POR-r2 (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,2
+tablero DEF-POR-r2 (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+tablero DEL-DEF-r0 (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,3
+tablero DEL-DEF-r0 (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,2
+tablero DEL-DEF-r0 (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,2
+tablero DEL-DEF-r0 (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,2
+tablero DEL-DEF-r0 (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,1
+tablero DEL-DEF-r0 (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+tablero DEL-DEF-r0 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+tablero DEL-DEF-r1 (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+tablero DEL-DEF-r1 (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,2
+tablero DEL-DEF-r1 (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+tablero DEL-DEF-r1 (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+tablero DEL-DEF-r1 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+tablero DEL-DEF-r2 (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+tablero DEL-DEF-r3 (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,8
+tablero DEL-DEF-r3 (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,5
+tablero DEL-DEF-r3 (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,3
+tablero DEL-DEF-r3 (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,3
+tablero DEL-DEF-r3 (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,2
+tablero DEL-DEF-r3 (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,2
+tablero DEL-DEF-r3 (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,2
+tablero DEL-DEF-r3 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+tablero DEL-DEF-r3 (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,1
+tablero DEL-DEF-r3 (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,1
+tablero DEL-DEF-r5 (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+tablero DEL-DEF-r5 (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+tablero DEL-MED-r0 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,6
+tablero DEL-MED-r0 (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,5
+tablero DEL-MED-r0 (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,4
+tablero DEL-MED-r0 (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,4
+tablero DEL-MED-r0 (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,3
+tablero DEL-MED-r0 (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,3
+tablero DEL-MED-r0 (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,3
+tablero DEL-MED-r0 (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,3
+tablero DEL-MED-r0 (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+tablero DEL-MED-r0 (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,2
+tablero DEL-MED-r0 (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+tablero DEL-MED-r0 (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,1
+tablero DEL-MED-r0 (ranuras 1-2),F00F475E,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,propio,1
+tablero DEL-MED-r0 (ranuras 1-2),127784FB,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Tiro,equipo,1
+tablero DEL-MED-r0 (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,1
+tablero DEL-MED-r0 (ranuras 1-2),1AE1328C,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Tiro,equipo,1
+tablero DEL-MED-r1 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,5
+tablero DEL-MED-r1 (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,3
+tablero DEL-MED-r1 (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,3
+tablero DEL-MED-r1 (ranuras 1-2),FD5F303E,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Tiro,equipo,2
+tablero DEL-MED-r1 (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,2
+tablero DEL-MED-r1 (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+tablero DEL-MED-r1 (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,1
+tablero DEL-MED-r1 (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+tablero DEL-MED-r1 (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+tablero DEL-MED-r1 (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+tablero DEL-MED-r1 (ranuras 1-2),F00F475E,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,propio,1
+tablero DEL-MED-r2 (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,3
+tablero DEL-MED-r2 (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,2
+tablero DEL-MED-r2 (ranuras 1-2),F00F475E,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,propio,2
+tablero DEL-MED-r2 (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,2
+tablero DEL-MED-r2 (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,1
+tablero DEL-MED-r2 (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+tablero DEL-MED-r2 (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+tablero DEL-MED-r2 (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,1
+tablero DEL-MED-r2 (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+tablero DEL-MED-r2 (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,1
+tablero DEL-MED-r2 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+tablero DEL-MED-r3 (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,31
+tablero DEL-MED-r3 (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,27
+tablero DEL-MED-r3 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,24
+tablero DEL-MED-r3 (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,12
+tablero DEL-MED-r3 (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,10
+tablero DEL-MED-r3 (ranuras 1-2),127784FB,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Tiro,equipo,5
+tablero DEL-MED-r3 (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,2
+tablero DEL-MED-r3 (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,2
+tablero DEL-MED-r3 (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,1
+tablero DEL-MED-r3 (ranuras 1-2),F00F475E,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,propio,1
+tablero DEL-MED-r3 (ranuras 1-2),FD5F303E,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Tiro,equipo,1
+tablero DEL-MED-r3 (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+tablero DEL-MED-r3 (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+tablero DEL-MED-r5 (ranuras 1-2),FD5F303E,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Tiro,equipo,3
+tablero DEL-MED-r5 (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,3
+tablero DEL-MED-r5 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,2
+tablero DEL-MED-r5 (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,2
+tablero DEL-MED-r5 (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,2
+tablero DEL-MED-r5 (ranuras 1-2),D210C171,"Cuando un jugador de otro elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+tablero DEL-MED-r5 (ranuras 1-2),127784FB,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Tiro,equipo,1
+tablero DEL-POR-r0 (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,3
+tablero DEL-POR-r0 (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+tablero DEL-POR-r1 (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,1
+tablero DEL-POR-r1 (ranuras 1-2),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,1
+tablero DEL-POR-r2 (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,3
+tablero DEL-POR-r2 (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,2
+tablero DEL-POR-r2 (ranuras 1-2),0511DD1F,AT propio de tiro [CPASSIVE01]+<VALUE> %[C] en campo contrario,Tiro,propio,2
+tablero DEL-POR-r2 (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,2
+tablero DEL-POR-r2 (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,1
+tablero DEL-POR-r2 (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+tablero DEL-POR-r2 (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,1
+tablero DEL-POR-r2 (ranuras 1-2),FD5F303E,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Tiro,equipo,1
+tablero DEL-POR-r2 (ranuras 1-2),1AE1328C,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Tiro,equipo,1
+tablero DEL-POR-r3 (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,2
+tablero DEL-POR-r3 (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+tablero DEL-POR-r3 (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,1
+tablero MED-DEF-r0 (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,4
+tablero MED-DEF-r0 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,4
+tablero MED-DEF-r0 (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,3
+tablero MED-DEF-r0 (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,2
+tablero MED-DEF-r0 (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,2
+tablero MED-DEF-r0 (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,2
+tablero MED-DEF-r0 (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,2
+tablero MED-DEF-r0 (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,1
+tablero MED-DEF-r0 (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,1
+tablero MED-DEF-r0 (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+tablero MED-DEF-r0 (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,1
+tablero MED-DEF-r0 (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+tablero MED-DEF-r0 (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,1
+tablero MED-DEF-r0 (ranuras 1-2),1AE1328C,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Tiro,equipo,1
+tablero MED-DEF-r1 (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,2
+tablero MED-DEF-r1 (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,2
+tablero MED-DEF-r1 (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,1
+tablero MED-DEF-r1 (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,1
+tablero MED-DEF-r1 (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,1
+tablero MED-DEF-r1 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,1
+tablero MED-DEF-r2 (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,4
+tablero MED-DEF-r2 (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,3
+tablero MED-DEF-r2 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,3
+tablero MED-DEF-r2 (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,2
+tablero MED-DEF-r2 (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,1
+tablero MED-DEF-r2 (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+tablero MED-DEF-r2 (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+tablero MED-DEF-r2 (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,1
+tablero MED-DEF-r3 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,4
+tablero MED-DEF-r3 (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,4
+tablero MED-DEF-r3 (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,3
+tablero MED-DEF-r3 (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,3
+tablero MED-DEF-r3 (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,2
+tablero MED-DEF-r3 (ranuras 1-2),127784FB,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Tiro,equipo,1
+tablero MED-DEF-r3 (ranuras 1-2),FD5F303E,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Tiro,equipo,1
+tablero MED-DEF-r3 (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,1
+tablero MED-DEF-r3 (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+tablero MED-DEL-r0 (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,2
+tablero MED-DEL-r0 (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,2
+tablero MED-DEL-r0 (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,1
+tablero MED-DEL-r0 (ranuras 1-2),F00F475E,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,propio,1
+tablero MED-DEL-r0 (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+tablero MED-DEL-r0 (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+tablero MED-DEL-r1 (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,8
+tablero MED-DEL-r1 (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,6
+tablero MED-DEL-r1 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,6
+tablero MED-DEL-r1 (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,6
+tablero MED-DEL-r1 (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,5
+tablero MED-DEL-r1 (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,3
+tablero MED-DEL-r1 (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,1
+tablero MED-DEL-r1 (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+tablero MED-DEL-r2 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,4
+tablero MED-DEL-r2 (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,3
+tablero MED-DEL-r2 (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,3
+tablero MED-DEL-r2 (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,2
+tablero MED-DEL-r2 (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,2
+tablero MED-DEL-r2 (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,1
+tablero MED-DEL-r2 (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+tablero MED-DEL-r2 (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,1
+tablero MED-DEL-r2 (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+tablero MED-DEL-r2 (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,1
+tablero MED-DEL-r2 (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,1
+tablero MED-DEL-r3 (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,7
+tablero MED-DEL-r3 (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,6
+tablero MED-DEL-r3 (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,3
+tablero MED-DEL-r3 (ranuras 1-2),F44E879E,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Foco,equipo,3
+tablero MED-DEL-r3 (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,2
+tablero MED-DEL-r3 (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,2
+tablero MED-DEL-r3 (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,2
+tablero MED-DEL-r3 (ranuras 1-2),76973994,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Disputa,equipo,2
+tablero MED-DEL-r3 (ranuras 1-2),1AE1328C,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Tiro,equipo,2
+tablero MED-DEL-r3 (ranuras 1-2),2811ECBB,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Foco,equipo,2
+tablero MED-DEL-r3 (ranuras 1-2),B86D6C61,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+tablero MED-DEL-r5 (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+tablero MED-DEL-r5 (ranuras 1-2),13F0852C,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Foco,equipo,1
+tablero MED-DEL-r5 (ranuras 1-2),0F096EFC,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo contrario,Foco,equipo,1
+tablero MED-DEL-r5 (ranuras 1-2),127784FB,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Tiro,equipo,1
+tablero MED-DEL-r5 (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+tablero MED-DEL-r5 (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,1
+tablero MED-POR-r0 (ranuras 1-2),CCF91491,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+tablero MED-POR-r0 (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,1
+tablero MED-POR-r0 (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+tablero MED-POR-r0 (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,1
+tablero MED-POR-r0 (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,1
+tablero MED-POR-r0 (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,1
+tablero MED-POR-r1 (ranuras 1-2),7F868E34,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Muro,equipo,1
+tablero MED-POR-r1 (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,1
+tablero POR-DEF-r0 (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,2
+tablero POR-DEF-r0 (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,1
+tablero POR-DEF-r0 (ranuras 1-2),91293B26,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Disputa,equipo,1
+tablero POR-DEF-r0 (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,1
+tablero POR-DEF-r0 (ranuras 1-2),1AE1328C,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Tiro,equipo,1
+tablero POR-DEF-r0 (ranuras 1-2),38C0FBBB,PP del equipo [CPASSIVE01]+<VALUE> %[C],Muro,equipo,1
+tablero POR-DEF-r0 (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,1
+tablero POR-DEF-r1 (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,1
+tablero POR-DEF-r1 (ranuras 1-2),21005B1B,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Disputa,equipo,1
+tablero POR-DEF-r2 (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,1
+tablero POR-DEF-r2 (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,1
+tablero POR-DEF-r3 (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,5
+tablero POR-DEF-r3 (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,5
+tablero POR-DEF-r3 (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,3
+tablero POR-DEF-r3 (ranuras 1-2),7F868E34,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Muro,equipo,1
+tablero POR-DEF-r5 (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,1
+tablero POR-DEF-r5 (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,1
+tablero POR-DEL-r1 (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,2
+tablero POR-DEL-r2 (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,2
+tablero POR-DEL-r2 (ranuras 1-2),AAC852B1,AT de tiro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Tiro,equipo,2
+tablero POR-DEL-r3 (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,13
+tablero POR-DEL-r3 (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,6
+tablero POR-DEL-r3 (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,5
+tablero POR-DEL-r3 (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,2
+tablero POR-DEL-r5 (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,1
+tablero POR-DEL-r5 (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,1
+tablero POR-MED-r0 (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,8
+tablero POR-MED-r0 (ranuras 1-2),21005B1B,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Disputa,equipo,5
+tablero POR-MED-r0 (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,5
+tablero POR-MED-r0 (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,3
+tablero POR-MED-r0 (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,1
+tablero POR-MED-r0 (ranuras 1-2),8DC80F88,"Cuando un jugador de otro elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,1
+tablero POR-MED-r0 (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,1
+tablero POR-MED-r0 (ranuras 1-2),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,1
+tablero POR-MED-r0 (ranuras 1-2),A3D9E511,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Foco,equipo,1
+tablero POR-MED-r1 (ranuras 1-2),4467E7A3,Valor de foco [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Foco,equipo,7
+tablero POR-MED-r1 (ranuras 1-2),21005B1B,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Disputa,equipo,6
+tablero POR-MED-r1 (ranuras 1-2),C6BE59A9,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintas posiciones,Disputa,equipo,5
+tablero POR-MED-r1 (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,2
+tablero POR-MED-r1 (ranuras 1-2),4D765003,Valor de disputa [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de la misma posición,Disputa,equipo,2
+tablero POR-MED-r1 (ranuras 1-2),8DC80F88,"Cuando un jugador de otro elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,1
+tablero POR-MED-r1 (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,1
+tablero POR-MED-r2 (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,11
+tablero POR-MED-r2 (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,4
+tablero POR-MED-r2 (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,3
+tablero POR-MED-r2 (ranuras 1-2),38C0FBBB,PP del equipo [CPASSIVE01]+<VALUE> %[C],Muro,equipo,2
+tablero POR-MED-r2 (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+tablero POR-MED-r2 (ranuras 1-2),F95C7778,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de disputa [CPASSIVE01]+<VALUE> %[C]",Disputa,propio,1
+tablero POR-MED-r3 (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,21
+tablero POR-MED-r3 (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,9
+tablero POR-MED-r3 (ranuras 1-2),C739587E,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores cercanos,Muro,equipo,6
+tablero POR-MED-r3 (ranuras 1-2),54B79B27,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Disputa,propio,1
+tablero POR-MED-r3 (ranuras 1-2),DC6E49B0,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] en campo contrario,Disputa,propio,1
+tablero POR-MED-r3 (ranuras 1-2),38C0FBBB,PP del equipo [CPASSIVE01]+<VALUE> %[C],Muro,equipo,1
+tablero POR-MED-r3 (ranuras 1-2),F95C7778,"Cuando un jugador del mismo elemento está cerca, \\nvalor propio de disputa [CPASSIVE01]+<VALUE> %[C]",Disputa,propio,1
+tablero POR-MED-r5 (ranuras 1-2),77103843,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores de distintos elementos,Muro,equipo,2
+tablero POR-MED-r5 (ranuras 1-2),CFAFEE09,DF del muro [CPASSIVE01]+<VALUE> %[C]\\npara jugadores del mismo elemento,Muro,equipo,2
+tablero POR-MED-r5 (ranuras 1-2),DC6E49B0,Valor propio de disputa [CPASSIVE01]+<VALUE> %[C] en campo contrario,Disputa,propio,1
+tablero POR-MED-r5 (ranuras 1-2),D53D7996,"Cuando un jugador del mismo elemento está cerca, \\nDF propia del muro [CPASSIVE01]+<VALUE> %[C]",Muro,propio,1

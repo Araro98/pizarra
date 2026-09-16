@@ -1,0 +1,23 @@
+partidas/
+informes/
+__pycache__/
+*.plain
+*.bak
+referencia/
+datos/juego/
+
+# Las laminas en crudo del juego pesan 82 MB y ya estan dentro de datos/juego/,
+# que se ignora entero. Los RECORTES (datos/iconos/recortes/laminas) si hacen
+# falta: son los dibujos que ensena el editor.
+
+# lo que deja PyInstaller al hacer el .exe
+construccion/
+Pizarra-portable.zip
+publicar/
+version.txt.bak
+
+# no van al repositorio: los dibujos del juego (van en el zip portable y en las releases),
+# el programa construido y lo personal
+datos/iconos/
+Pizarra.exe
+CONTEXTO.md
