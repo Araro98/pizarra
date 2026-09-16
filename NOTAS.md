@@ -3687,6 +3687,15 @@ Aaron quiere pasarle el programa a un amigo y que se actualice solo.
   la version. Para publicar otra: `py herramientas\publicar.py VERSION "notas"`
   con `gh` en el PATH (`C:\Program Files\GitHub CLI`).
 
+### O-159 · Ordenar la equipacion por lo que sube
+
+Aaron pidio poder ordenar botas, brazaletes, colgantes y especiales por el stat
+que suben, para encontrar las mejores. `opciones._stats_de` da a cada objeto
+de equipacion sus siete numeros (`stats`, de `bonus-objeto.csv`) y el `total`;
+en la mochila, en esas cuatro pestanas, hay un desplegable "Ordenar por"
+(nombre, total, +Potencia, +Control, ... +Inteligencia), y el selector de
+equipacion de la ficha del jugador lleva las mismas opciones en su "Ordenar".
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

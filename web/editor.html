@@ -1246,16 +1246,23 @@ function seccionTecnicas(d) {
   return caja;
 }
 
+/* Ordenar la equipacion por lo que sube: por nombre, por el total, o por cada
+   stat (lo pidio Aaron para encontrar las mejores botas y colgantes rapido). */
+const NOMBRES_STAT_CORTO = ["Potencia", "Control", "Tecnica", "Presion", "Fisico", "Agilidad", "Inteligencia"];
+const ORDENES_EQUIPO = [{campo:"etiqueta", etiqueta:"nombre"}, {campo:"total", etiqueta:"total que sube", mayor:true}]
+  .concat(NOMBRES_STAT_CORTO.map((n, i) => ({campo:"s" + i, etiqueta:"+" + n, mayor:true})));
+
 function seccionEquipacion(d) {
   const caja = el("div", {});
   d.equipacion.forEach(e => caja.appendChild(ranura(
     String(e.ranura), e.puesto || "vacio",
     e.etiqueta.replace(/^\d+\s*/, ""),
     () => pedir(`/api/opciones?tipo=equipacion&fila=${d.fila}&ranura=${e.ranura}`)
-            .then(r => ({...r, ordenes:[{campo:"etiqueta", etiqueta:"nombre"}],
+            .then(r => ({...r, ordenes:ORDENES_EQUIPO,
               opciones:r.opciones.map(o => ({valor:o.nombre, etiqueta:o.nombre,
                                              icono200:o.icono200 || "",
-                                             extra:o.bonus}))})),
+                                             extra:o.bonus, total:o.total || 0,
+                                             ...Object.fromEntries((o.stats || []).map((v, i) => ["s" + i, v]))}))})),
     v => manda({tipo:"equipacion", fila:d.fila, ranura:e.ranura, nombre:v}),
     false, e.etiqueta.replace(/^\d+\s*/, "").replace(/^./, c => c.toUpperCase()),
     e.icono200 ? el("img", {class:"mini-icono grande", loading:"lazy", alt:"",
@@ -1690,6 +1697,7 @@ const FILTROS_OBJ = [
   {campo:"bonus",   etiqueta:"Sube", valor:o => (o.bonus || "").split(" ")[0]},
 ];
 const estadoObj = {};
+let ordenObj = "etiqueta";
 const NOMBRE_CAT = {"equipo-1-botas":"Botas", "equipo-2-brazalete":"Brazaletes",
   "equipo-3-colgante":"Colgantes", "equipo-4-especial":"Especiales",
   "consumible":"Consumibles", "aura":"Espiritus", "supertecnica":"Supertecnicas",
@@ -1721,8 +1729,21 @@ function pintaInventario() {
   // los filtros se montan sobre lo que hay en ESTA pestana, no sobre todo
   const deLaPestana = inventario.filter(o => o.categoria === categoria);
   montaFiltros($("#filtros-obj"), deLaPestana, FILTROS_OBJ, estadoObj, pintaInventario);
-  const ves = deLaPestana.filter(o => pasaFiltros(o, FILTROS_OBJ, estadoObj) &&
+  let ves = deLaPestana.filter(o => pasaFiltros(o, FILTROS_OBJ, estadoObj) &&
     (!q || o.nombre.toLowerCase().includes(q)));
+  // en botas, brazaletes, colgantes y especiales se puede ordenar por lo que suben
+  if (deLaPestana.some(o => o.stats)) {
+    const sel = el("select");
+    for (const o of ORDENES_EQUIPO) sel.appendChild(el("option", {value:o.campo, text:o.etiqueta}));
+    sel.value = ordenObj;
+    sel.onchange = () => { ordenObj = sel.value; pintaInventario(); };
+    $("#filtros-obj").prepend(el("label", {class:"filtro"}, [el("span", {text:"Ordenar por"}), sel]));
+    const cual = ORDENES_EQUIPO.find(x => x.campo === ordenObj);
+    if (cual && cual.mayor) {
+      const de = o => cual.campo === "total" ? (o.total || 0) : ((o.stats || [])[Number(cual.campo.slice(1))] || 0);
+      ves = ves.slice().sort((a, b) => de(b) - de(a) || a.nombre.localeCompare(b.nombre));
+    }
+  }
   for (const o of ves.slice(0, 600))
     r.appendChild(el("button", {class:"obj" + (o.tengo ? "" : " no-tengo"),
       title:o.lleva_cantidad === false

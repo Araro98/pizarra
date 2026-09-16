@@ -242,6 +242,13 @@ NOMBRES_STAT = ["Potencia", "Control", "Tecnica", "Presion", "Fisico",
                 "Agilidad", "Inteligencia"]
 
 
+def _stats_de(id_hex):
+    """Los siete numeros que suma un objeto (o ceros), y el total, para poder
+    ordenar la mochila y el selector de equipacion por lo que sube."""
+    b = _bonus_objetos().get(id_hex) or [0] * 7
+    return {"stats": b, "total": sum(b)}
+
+
 def _bonus_de(id_hex):
     """Lo que suma un objeto, en texto corto: "Potencia +6  Control +5"."""
     b = _bonus_objetos().get(id_hex)
@@ -272,7 +279,7 @@ def equipacion(plain, ranura):
                           # cada bota, brazalete, colgante y especial tiene su
                           # propio dibujo en el juego (NOTAS O-137)
                           "icono200": _iconos_de_objeto().get(idh, ""),
-                          "bonus": _bonus_de(idh)})
+                          "bonus": _bonus_de(idh), **_stats_de(idh)})
     return sorted(fuera, key=lambda x: x["nombre"])
 
 
@@ -561,6 +568,7 @@ def objetos_creables(plain):
                       "poder": int(tec.get("poder") or 0),
                       "tp": int(tec.get("tp") or 0),
                       "bonus": _bonus_de(idh), "tengo": idh in poseidas,
+                      **(_stats_de(idh) if categoria.startswith("equipo-") else {}),
                       "icono": esp["icono"] if esp else "",
                       "icono200": propio,
                       "familia": esp["familia"] if esp else "",
