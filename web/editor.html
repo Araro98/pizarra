@@ -924,7 +924,7 @@ function fichaMini(j) {
   t.style.background = FONDO_RAREZA[j.rareza_valor] || "#5d7590";
   if (j.cara) for (const c of capasRetrato(j, true)) t.appendChild(c);
   t.appendChild(el("div", {class:"nv", html:"<small>Nv.</small> " + j.nivel}));
-  if (orden === "llegada" && j.serie)
+  if (((modo === "equipos" ? ordenRes : orden) === "llegada") && j.serie)
     t.appendChild(el("div", {class:"serie-mini", text:"nº " + j.serie,
                             title:"Numero de llegada: cuanto mas bajo, antes llego a la partida"}));
   const abajo = el("div", {class:"abajo"});
@@ -1893,6 +1893,28 @@ let marcado = null;        // {de:"equipo"|"reserva", hueco?, fila?, nombre}
 let reservas = null, desdeRes = 0;
 const POR_PAGINA_RES = 60;
 const estadoRes = {};
+// Orden de la reserva del Team builder: como en Jugadores, con "llegada" para
+// encontrar rapido a los ultimos fichados (lo pidio Aaron)
+let ordenRes = "nivel", sentidoRes = "asc";
+try {
+  const g = JSON.parse(localStorage.getItem("ievr-res") || "{}");
+  if (g.orden) ordenRes = g.orden;
+  if (g.sentido) sentidoRes = g.sentido;
+} catch (e) {}
+const CLAVES_ORDEN_RES = {
+  nivel: j => [-(j.nivel || 0), j.nombre.toLowerCase()],
+  poder: j => [-(j.poder || 0), j.nombre.toLowerCase()],
+  nombre: j => [j.nombre.toLowerCase(), -(j.nivel || 0)],
+  rareza: j => [-(j.rareza_valor || 0), -(j.nivel || 0), j.nombre.toLowerCase()],
+  llegada: j => [j.serie || 0, j.fila],
+};
+function comparaClaves(a, b) {
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] < b[i]) return -1;
+    if (a[i] > b[i]) return 1;
+  }
+  return 0;
+}
 const FILTROS_RES = [
   {campo:"rol",      etiqueta:"Rol", nombre:v => ({jugador:"Jugadores",
       gerente:"Gerentes", entrenador:"Entrenadores"}[v] || v)},
@@ -1943,6 +1965,18 @@ async function cargaReservas(recargar) {
   }
   montaFiltros($("#filtros-res"), reservas.jugadores, FILTROS_RES, estadoRes,
                () => { desdeRes = 0; pintaReservas(); });
+  const caja = $("#filtros-res");
+  const guarda = () => { try { localStorage.setItem("ievr-res", JSON.stringify({orden:ordenRes, sentido:sentidoRes})); } catch (e) {} };
+  const so = el("select", {onchange:e => { ordenRes = e.target.value; desdeRes = 0; guarda(); cargaReservas(); }});
+  for (const [v, t] of [["nivel","Por nivel"],["poder","Por poder"],["nombre","Por nombre"],["rareza","Por rareza"],["llegada","Por orden de llegada"]])
+    so.appendChild(el("option", {value:v, text:t, selected:ordenRes === v}));
+  caja.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Orden"}), so]));
+  const ss = el("select", {onchange:e => { sentidoRes = e.target.value; desdeRes = 0; guarda(); pintaReservas(); }});
+  const SENT = ordenRes === "llegada"
+    ? [["asc","Los primeros que llegaron"],["desc","Los ultimos que llegaron"]]
+    : [["asc","Normal"],["desc","Al reves"]];
+  for (const [v, t] of SENT) ss.appendChild(el("option", {value:v, text:t, selected:sentidoRes === v}));
+  caja.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Sentido"}), ss]));
   pintaReservas();
 }
 
@@ -1955,6 +1989,9 @@ function pintaReservas() {
   const q = $("#buscar-res").value.trim().toLowerCase();
   const ves = reservas.jugadores.filter(j => pasaFiltros(j, FILTROS_RES, estadoRes) &&
     (!q || (j.nombre + " " + j.equipo + " " + j.posicion).toLowerCase().includes(q)));
+  const clave = CLAVES_ORDEN_RES[ordenRes] || CLAVES_ORDEN_RES.nivel;
+  ves.sort((a, b) => comparaClaves(clave(a), clave(b)));
+  if (sentidoRes === "desc") ves.reverse();
   if (desdeRes >= ves.length) desdeRes = 0;
   const r = $("#lista-res"); r.textContent = "";
   for (const j of ves.slice(desdeRes, desdeRes + POR_PAGINA_RES)) {
