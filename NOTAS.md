@@ -3676,8 +3676,16 @@ Aaron quiere pasarle el programa a un amigo y que se actualice solo.
   cierre, cambia el .exe y lo vuelve a abrir. Sin red o sin fichero de
   direccion, no hace nada y el programa abre normal. `herramientas/publicar.py
   VERSION "notas"` construye y deja (o sube con `gh`) los tres ficheros.
-  Falta lo que solo Aaron puede hacer: la cuenta de GitHub y el repositorio;
-  entonces se rellena `actualizaciones.url` y se publica la primera version.
+  Hecho el mismo dia: Aaron creo `https://github.com/Araro98/pizarra`, se
+  instalo `gh` (winget), inicio sesion con el codigo de un solo uso, se subio
+  el codigo (sin `datos/iconos`, sin el .exe, sin `CONTEXTO.md`) y se publico
+  la release `v2026.09.16` con `Pizarra.exe`, `pizarra-datos.zip` (58 MB) y
+  `version.json`. `actualizaciones.url` apunta a
+  `.../releases/latest/download/version.json`, asi que cada release nueva es
+  la que ven los .exe repartidos. Probado el actualizador contra la release
+  real en una carpeta aparte con version vieja: baja el zip, lo extrae y sube
+  la version. Para publicar otra: `py herramientas\publicar.py VERSION "notas"`
+  con `gh` en el PATH (`C:\Program Files\GitHub CLI`).
 
 ## SUPUESTO
 
