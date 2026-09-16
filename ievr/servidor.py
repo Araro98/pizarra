@@ -251,6 +251,8 @@ def _ficha_corta(plain, fila, ident, nivel, rareza, arq, jugadores):
         "fila": fila,
         "nombre": _nombre_de(clave, f),
         "nivel": nivel[fila],
+        # numero de serie de adquisicion (0x90F47C83): cuanto mas bajo, antes llego
+        "serie": J.array(plain, (0x90F47C83, 24000, "I", 4))[fila],
         "rareza": J.RAREZAS.get(rareza[fila], "?"),
         "rareza_valor": rareza[fila],
         "arquetipo": J.ARQUETIPOS.get(arq[fila], "?"),
@@ -280,6 +282,8 @@ ORDENES = {
     "equipo": lambda d: (d["equipo"].lower(), d["nombre"].lower()),
     "fila": lambda d: d["fila"],
     "poder": lambda d: (-d.get("poder", 0), d["nombre"].lower()),
+    # el numero de serie de adquisicion: el orden en que fueron llegando
+    "llegada": lambda d: (d.get("serie", 0), d["fila"]),
 }
 
 
@@ -651,7 +655,7 @@ def _nombre_de_valor(plain, cual, valor_hex):
 
 
 def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
-                     desde=0, cuantos=120):
+                     desde=0, cuantos=120, sentido="asc"):
     """La plantilla, filtrada y por paginas.
 
     Devuelve tambien **de que se puede filtrar y cuantos hay de cada cosa**,
@@ -691,6 +695,8 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
 
     filtrados = [d for d in todos if pasa(d)]
     filtrados.sort(key=ORDENES.get(orden, ORDENES["nivel"]))
+    if sentido == "desc":
+        filtrados.reverse()
     trozo = filtrados[desde:desde + cuantos] if cuantos else filtrados[desde:]
     return {
         "total": len(todos), "encajan": len(filtrados), "desde": desde,
@@ -1041,7 +1047,8 @@ class Manejador(BaseHTTPRequestHandler):
                         sesion.plain, (q.get("q") or [""])[0], filtros,
                         (q.get("orden") or ["nivel"])[0],
                         int((q.get("desde") or ["0"])[0]),
-                        int((q.get("cuantos") or ["120"])[0])))
+                        int((q.get("cuantos") or ["120"])[0]),
+                        (q.get("sentido") or ["asc"])[0]))
             if u.path.startswith("/api/jugador/"):
                 fila = int(u.path.rsplit("/", 1)[1])
                 with sesion.lock:

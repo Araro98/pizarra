@@ -445,6 +445,8 @@
     color:#fff; font-weight:800; font-size:var(--t-sm); opacity:0; transition:opacity .1s; }
   .sitio:hover .quitar-sitio { opacity:1; }
   .sitio.marcado { outline:3px solid var(--cian); outline-offset:-3px; }
+  .serie-mini { position:absolute; right:3px; top:2px; font-size:var(--t-xxs); font-weight:800;
+    color:#fff; background:rgba(5,25,50,.6); border-radius:4px; padding:0 4px; }
   .sitio.roto { outline:3px solid #d8323f; outline-offset:-3px; }
   .sitio.roto::before { content:"!"; position:absolute; left:2px; top:1px; z-index:3;
     background:#d8323f; color:#fff; font-weight:800; font-size:var(--t-sm);
@@ -879,10 +881,10 @@ const CAMPOS_FILTRO = [["elemento","Afinidad"],["posicion","Posicion"],
   // lo que hace falta para buscar "a quien le queda algo por terminar".
   ["nivel_grupo","Nivel"],["judias","Judias"],["heredadas","Heredadas"],
   ["equipacion","Equipacion"],["cuerpo_tipo","Cuerpo"]];
-let filtros = {}, orden = "nivel", desde = 0, porPagina = 120, ultima = null;
+let filtros = {}, orden = "nivel", sentido = "asc", desde = 0, porPagina = 120, ultima = null;
 
 function recuerda() {
-  try { localStorage.setItem("ievr", JSON.stringify({filtros, orden, porPagina})); }
+  try { localStorage.setItem("ievr", JSON.stringify({filtros, orden, sentido, porPagina})); }
   catch (e) {}
 }
 function recupera() {
@@ -890,6 +892,7 @@ function recupera() {
     const d = JSON.parse(localStorage.getItem("ievr") || "{}");
     if (d.filtros) filtros = d.filtros;
     if (d.orden) orden = d.orden;
+    if (d.sentido) sentido = d.sentido;
     if (d.porPagina) porPagina = d.porPagina;
   } catch (e) {}
 }
@@ -897,7 +900,7 @@ function recupera() {
 function trabajando(si) { document.body.style.cursor = si ? "progress" : ""; }
 
 async function cargaLista() {
-  const p = new URLSearchParams({q:$("#buscar").value.trim(), orden,
+  const p = new URLSearchParams({q:$("#buscar").value.trim(), orden, sentido,
     desde:String(desde), cuantos:String(porPagina)});
   for (const [c] of CAMPOS_FILTRO) if (filtros[c]) p.set(c, filtros[c]);
   trabajando(true);
@@ -921,6 +924,9 @@ function fichaMini(j) {
   t.style.background = FONDO_RAREZA[j.rareza_valor] || "#5d7590";
   if (j.cara) for (const c of capasRetrato(j, true)) t.appendChild(c);
   t.appendChild(el("div", {class:"nv", html:"<small>Nv.</small> " + j.nivel}));
+  if (orden === "llegada" && j.serie)
+    t.appendChild(el("div", {class:"serie-mini", text:"nº " + j.serie,
+                            title:"Numero de llegada: cuanto mas bajo, antes llego a la partida"}));
   const abajo = el("div", {class:"abajo"});
   if (j.elemento) abajo.appendChild(iconoElemento(j.elemento));
   if (j.posicion) {
@@ -951,9 +957,18 @@ function pintaFiltros(d) {
   }
   const so = el("select", {id:"f-orden", onchange:e => {
     orden = e.target.value; desde = 0; recuerda(); cargaLista(); }});
-  for (const o of ["nivel","poder","nombre","rareza","equipo","fila"])
-    so.appendChild(el("option", {value:o, text:"Por " + o, selected:orden === o}));
+  // "llegada": el orden en que fueron llegando a la partida (lo pidio Aaron)
+  const NOMBRE_ORDEN = {llegada:"Por orden de llegada"};
+  for (const o of ["nivel","poder","nombre","rareza","equipo","fila","llegada"])
+    so.appendChild(el("option", {value:o, text:NOMBRE_ORDEN[o] || ("Por " + o), selected:orden === o}));
   caja.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Orden"}), so]));
+  const ss = el("select", {id:"f-sentido", onchange:e => {
+    sentido = e.target.value; desde = 0; recuerda(); cargaLista(); }});
+  const SENTIDOS = orden === "llegada"
+    ? [["asc","Los primeros que llegaron"],["desc","Los ultimos que llegaron"]]
+    : [["asc","Normal"],["desc","Al reves"]];
+  for (const [v, t] of SENTIDOS) ss.appendChild(el("option", {value:v, text:t, selected:sentido === v}));
+  caja.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Sentido"}), ss]));
 
   const sp = el("select", {id:"f-pag", onchange:e => {
     porPagina = Number(e.target.value); desde = 0; recuerda(); cargaLista(); }});
