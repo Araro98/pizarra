@@ -842,6 +842,7 @@ function cambiaModo(id) {
   modo = id; pintaModos();
   history.replaceState(null, "", "#" + id);   // para poder enlazar cada pestana
   for (const m of MODOS) $("#p-" + m.id).classList.toggle("oculto", m.id !== id);
+  if (id === "jugadores") cargaLista();   // por si se ficho o se borro alguien
   if (id === "mochila") cargaInventario();
   if (id === "equipos") cargaEquipos();
   if (id === "fichar") cargaPersonajes();
@@ -1291,11 +1292,12 @@ function seccionTecnicas(d) {
                     ordenes:[{campo:"poder", etiqueta:"mas poder", mayor:true},
                              {campo:"etiqueta", etiqueta:"nombre"},
                              {campo:"tp", etiqueta:"menos TP"}],
-                    opciones:r.opciones.map(o => ({valor:o.nombre, etiqueta:o.nombre,
+                    opciones:r.opciones.map(o => ({valor:o.id, etiqueta:o.nombre,
                       extra:(o.poder ? "AT " + o.poder + "   TP " + o.tp : ""),
                       categoria:o.categoria, subtipo:o.subtipo, elemento:o.elemento,
                       icono:o.icono || "", poder:o.poder, tp:o.tp}))})),
-          v => manda({tipo:"tecnica", fila:d.fila, ranura:t.ranura, nombre:v}),
+          // se manda el codigo, no el nombre: hay hipertecnicas con el nombre repetido
+          v => manda({tipo:"tecnica", fila:d.fila, ranura:t.ranura, id:v}),
           "Tecnica de la ranura " + t.ranura)
       : ranura(String(t.ranura), "no existe en su arbol", null, null, null, true);
     if (t.abierta === false) fila.classList.add("cerrada");
@@ -1645,6 +1647,18 @@ async function pintaResumen() {
   c.appendChild(cajas);
 
   // Arreglos: solo salen si de verdad hay algo que arreglar.
+  if (d.tecnicas_rotas) {
+    const g = el("div", {class:"grupo-resumen"});
+    g.appendChild(el("h3", {text:"Arreglos"}));
+    g.appendChild(el("p", {text:d.tecnicas_rotas + " ranuras de tecnica apuntan a un monton de manuales "
+      + "en vez de a una tecnica aprendida (las puso una version anterior del editor). "
+      + "En el juego esas tecnicas no se ven hasta entrar en el arbol."}));
+    g.appendChild(el("button", {class:"btn", text:"Arreglar las tecnicas",
+      onclick:async () => { if (await confirma("Arreglar las tecnicas", "Se apuntan esas ranuras a tecnicas "
+        + "aprendidas, como las deja el juego. Se puede deshacer."))
+        manda({tipo:"arreglar_tecnicas"}); }}));
+    c.appendChild(g);
+  }
   const rotos = d.jugadores.filter(j => (j.heredadas || "").startsWith("4") ||
                                         (j.heredadas || "").startsWith("5")).length;
   if (rotos) {
@@ -1733,6 +1747,7 @@ async function manda(cambio) {
       pintaReservas();
       return;
     }
+    if (cambio.tipo === "jugador" || cambio.tipo === "borrar_jugador") reservas = null;
     if (cambio.tipo === "borrar_jugador") {
       // la ficha abierta ya no existe
       jugadorAbierto = null; detalle = null;

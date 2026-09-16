@@ -1,0 +1,1007 @@
+# De donde sale cada supertecnica y si se le puede dar a un jugador (NOTAS O-171).
+# Lo genera herramientas/construir_tecnicas_origen.py.
+id,nombre,origen,obtenible
+47785605,A todo vapor,personaje,si
+8DB9D0F8,Abanicos dragontinos,personaje,si
+ABBA9A60,Abrazo divino,personaje,si
+9B73B543,Acelerrelámpago,personaje,si
+40AFC573,Acelerón,personaje,si
+78B353AD,Acorde difuso,personaje,si
+D59710C4,Acrobacia robótica,personaje,si
+B0E0A1F4,Aguijones escarlata,personaje,si
+E491D9EC,Aguijón,personaje,si
+63B6080C,Aguijón letal,personaje,si
+E94C248D,Aguijón letal,kenshin,no
+374F8434,Agujero blanco,personaje,si
+8E80318B,Agujero de gusano,personaje,si
+031CA746,Agujero negro,personaje,si
+546F2DC4,Aikido,personaje,si
+38AF09CC,Alas de halcón,kenshin,no
+1BBB639B,Alba oscura,personaje,si
+FF394883,Aliento blanco,kenshin,no
+E613A0C0,Amago de tiro,personaje,si
+94884506,Amago y esprint,personaje,si
+428DD1B9,Amanecer detonante,personaje,si
+8D19BD1E,Amplificador mágico,personaje,si
+92CA00F4,Ancla de navío,personaje,si
+DC8D4F32,Anillo de Artemisa,personaje,si
+9CA42635,Aplanadora,personaje,si
+D599304B,Aplastamiento,personaje,si
+A165AE91,Araña gigante,personaje,si
+47534864,Arco psíquico,personaje,si
+708A6DAC,Arcoíris luminoso,personaje,si
+58209868,Armadillo circense,personaje,si
+539730CD,Armadillo circense,override,no
+86DD7C56,Aro hula hoop,personaje,si
+5393A0D3,Aro-Alehop,personaje,si
+022FCB39,Arrancada,personaje,si
+3C6A65A8,Asalto aéreo,kenshin,no
+F3C8BDCE,Asalto mortal,kenshin,no
+0E5B6D7C,Astrorremate,personaje,si
+2473E194,Atajo tornado,tienda,si
+E94EEA7E,Ataque afilado,personaje,si
+8F884E1D,Ataque cóndor,personaje,si
+309B90E5,Ataque de corazón,kenshin,no
+71AA8BFC,Ataque de corazón,kenshin,no
+210D15AF,Ataque de garza,personaje,si
+B351B4A7,Ataque de paladín,personaje,si
+93C27F62,Ataque meteorito,personaje,si
+080FF21B,Ataque Omega,personaje,si
+8F10B7B5,Ataque sombrío,personaje,si
+493EE902,Aullido de licántropo,personaje,si
+57E52B7E,Aullido de lobo,personaje,si
+327EB79D,Aullido de lobo,kenshin,no
+A54C4509,Aullido de lobo argénteo,personaje,si
+951E1425,Auriga asolador,personaje,si
+603C0EB6,Avance chispeante,personaje,si
+AC197742,Avance flamígero,personaje,si
+6DE0BA83,Ave goleadora,personaje,si
+EF828CB1,Averno de Guma,kenshin,no
+5B32677A,Baile de llamas,personaje,si
+A3DCC454,Baile de mariposas,personaje,si
+03BCCAA0,Bala de cañón,personaje,si
+B3E2536E,Balón angelical,personaje,si
+FB426406,Balón de petróleo,personaje,si
+C8538A82,Balón de plasma,personaje,si
+F2D34877,Balón diabólico,personaje,si
+F6162413,Balón galgo,personaje,si
+A9F15A5E,Balón iceberg,personaje,si
+CEB95504,Balón rodante,personaje,si
+F260AFBE,Banana shot,personaje,si
+66F3EFDE,Baraja fugaz,tienda,si
+8EA50F65,Barrena voladora,personaje,si
+645A8893,Barreno de fuego,personaje,si
+DFB4AE41,Barrera de cristal,personaje,si
+D3FB1BED,Barrera de Gaia,personaje,si
+44C94356,Barrido defensivo,personaje,si
+4CDB6336,Bateo total,personaje,si
+C1CF01DB,Bestia del trueno,personaje,si
+F6A5C3DA,Big Bang,personaje,si
+3FC55DFC,Bimano celestial,personaje,si
+491670C4,Bloque de hielo,personaje,si
+53B8BEB2,Bloqueo ballena,personaje,si
+4E6209F3,Bloqueo doble,personaje,si
+6542FA8D,Bloqueo firme,personaje,si
+4B1CFDC8,Bloqueo holográfico,personaje,si
+F2F85616,Bloqueo telequinético,personaje,si
+A3CCC9DC,Bobina eléctrica,personaje,si
+C0C77E4D,Boca de la verdad,personaje,si
+884FD0E3,Bofetón látigo,personaje,si
+3A80BA2E,Bola de fango,personaje,si
+C9DD21BB,Bola de hojas,personaje,si
+CE21ACAC,Bola falsa,personaje,si
+D1F196E1,Bolea ígnea,personaje,si
+8C395B4E,Bomba acrobática,personaje,si
+2A0DCADD,Bomba saltarina,personaje,si
+3108917C,Bombas de Gusfi,kenshin,no
+5C461E4D,Bombazo,personaje,si
+03343E80,Bota propulsora,tienda,si
+F368D028,Brazo de diamante,tienda,si
+6D40D765,Brazo extensible,personaje,si
+82181032,Brisa de la cúspide,personaje,si
+8488916F,Brisa deslizante,personaje,si
+E69B54E0,Brisa encabritada,personaje,si
+5EEF7900,Burbuja pegajosa,personaje,si
+012D39A3,Burbujas arcoíris,personaje,si
+CEA9588C,Búnker,personaje,si
+E95EE7F6,Cabezazo bazuca,personaje,si
+345EFC81,Cabezazo catapulta,personaje,si
+A86FFCEF,Cabezazo cohete,personaje,si
+54628AEC,Cabezazo fiero,ninguna,no
+A9C7EE9F,Cabezazo gigatón,personaje,si
+1650516E,Cabezazo gigatón,kenshin,no
+C2F6E0A8,Cabezazo kung-fu,personaje,si
+2B936C6C,Cabezazo megatón,personaje,si
+CA6C34E8,Cabezazo moái,personaje,si
+7D6DCA70,Cabezazo supermegatón,tienda,si
+5D5E6C53,Cabezazo volcánico,personaje,si
+4BAF1A01,Cabezazo yoyó,personaje,si
+FB6AFDC0,Cabezonería,tienda,si
+799E12D5,Caja de sorpresas,kenshin,no
+7114CB1D,Caliburn,kenshin,no
+D17962C1,Campo de fuerza,personaje,si
+17DC4FF1,Campo de fuerza,personaje,si
+906367B9,Campo minado,personaje,si
+2D69BE62,Campo torbellino,personaje,si
+E780A159,Campo umbrío,personaje,si
+767E9F2D,Captura excelente,personaje,si
+4EF4D0D4,Carga al galope,kenshin,no
+3B0E1117,Carga de elefantes,personaje,si
+90EEC323,Carga de hombro,personaje,si
+70398A65,Carga de pegaso,kenshin,no
+E6098D12,Carga de pegaso rojo,kenshin,no
+B58078C8,Carga hipersónica,kenshin,no
+9CB42BBD,Carga negativa,personaje,si
+3710E401,Carnaval centelleante,kenshin,no
+6305EFC5,Carrera a 3 piernas,personaje,si
+B1B7BE57,Carrera afanosa,personaje,si
+7776E0BB,Cascabel,personaje,si
+33D58865,Cataratas del Niágara,personaje,si
+028C2178,Caída a los infiernos,personaje,si
+1F7E0FFF,Caída galáctica,personaje,si
+180A76C8,Caída planetaria,personaje,si
+002B66BA,Caída prehistórica,personaje,si
+2E8150A9,Caída prehistórica,kenshin,no
+D5B95E1F,Caño,personaje,si
+7002998C,Cañonazo,personaje,si
+C3D606F8,Cañonazo de fragmentos,personaje,si
+2814CDFE,Cañonazo de Ixaal,kenshin,no
+BE24CA89,Cañonazo de Vairaas,kenshin,no
+DD8530A4,Cañón celestial,personaje,si
+31338295,Cañón de agua,personaje,si
+4F6A7665,Cañón de meteoritos,personaje,si
+96AF0176,Cañón de meteoritos A,tienda,si
+06D1B4B4,Cañón dragón,personaje,si
+1A1371EB,Cañón X,personaje,si
+C6BB78EC,Ceniza negra,personaje,si
+F3DC3CB7,Ceniza negra,kenshin,no
+9C22F29A,Centro de gravedad,personaje,si
+1196FD91,Chilena de pingüino,personaje,si
+9E6297E1,Chilena de pingüino,tienda,si
+BA737F1F,Chilena fulminante,personaje,si
+F70DD1AA,Choque de sirena,personaje,si
+0CC73957,Choque directo,personaje,si
+8C8ABC87,Chorro rebotante,personaje,si
+13B94E73,Chut al rojo vivo,personaje,si
+6B3CD1C4,Chut ancestral,personaje,si
+8B4D2279,Chut congelante,personaje,si
+E15CCA1E,Chut de 100 toques,personaje,si
+5320471A,Chut de 200 toques,personaje,si
+85B709D7,Chut de 200 toques,override,no
+D0EA6358,Chut de luna llena,tienda,si
+220FE735,Chut granada,personaje,si
+8962919B,Chut prehistórico,personaje,si
+F332D645,Chut prehistórico,kenshin,no
+0FF37F0C,Chut vitral,personaje,si
+013D342B,Ciclón,personaje,si
+F514D689,Ciclón blanco,personaje,si
+96A9E089,Ciclón blanco,kenshin,no
+08662ED1,Ciclón blanco,ninguna,no
+D6AEF1B7,Ciclón doble,personaje,si
+3FCDF5B7,Ciclón doble,override,no
+7EF446E5,Ciclón humano,personaje,si
+72BBF349,Ciclón oscuro,personaje,si
+98614A51,Cinto astral,personaje,si
+0A8E0C90,Clave de sol,personaje,si
+C51A6037,Coleccionista de cartas,personaje,si
+FF15D190,Coletazo de Begiran,kenshin,no
+6925D6E7,Coletazo de Belion,kenshin,no
+401C22BA,Coletazo de dragón,personaje,si
+4544D809,Coletazo de Pelion,kenshin,no
+18AA1B2E,Colmillo de cocodrilo,tienda,si
+4AA76597,Colmillo de pantera,personaje,si
+45715CAE,Colmillo retorcido,personaje,si
+7DA25959,Colmillo retorcido,kenshin,no
+A25C4FE2,Colmillo salvaje,personaje,si
+E9E0A717,Combo cósmico,ninguna,no
+78F93074,Combo cósmico,override,no
+28847536,Combo cósmico,override,no
+8A455DEF,Combustión,personaje,si
+D1CA8508,Cometa legendario,personaje,si
+5111D9FF,Cometiros,tienda,si
+36F41C6B,Confusión,personaje,si
+0CE207B9,Constelación estelar,personaje,si
+5A8A7882,Contragolpe,personaje,si
+007A2600,Contragolpe de halcón,personaje,si
+28B4A018,Contragolpe férreo,ninguna,no
+65E2976B,Cornada de bisonte,personaje,si
+BC37EDF0,Cornada de búfalo,kenshin,no
+9056E31E,Cornada de Dandor,kenshin,no
+2A07EA87,Cornada de Gandoran,kenshin,no
+98E79EFE,Corona de fuego,kenshin,no
+E25E3884,Corriente negra,personaje,si
+9E74ADDD,Corriente negra,kenshin,no
+3657F62A,Corro de la patata,personaje,si
+55D20D45,Corro de la patata,override,no
+1289A5AB,Cortafuegos,personaje,si
+C7136A9C,Corte Big Bang,tienda,si
+F0D9C57B,Corte de arena,personaje,si
+29ACD206,Corte diabólico,personaje,si
+32929A4E,Corte giratorio,personaje,si
+9BD05F02,Corte volcánico,personaje,si
+BA5BE6D9,Cortina aurora,personaje,si
+2ABE2D14,Coz,personaje,si
+19118371,Coz 2,tienda,si
+B7273F0A,Coz 3,personaje,si
+20A07D68,Coz 3,override,no
+EF22E157,Craterclismo,personaje,si
+C9F63FDA,Cruce explosivo,personaje,si
+1AA09622,Cruz del Sur,personaje,si
+6DC82345,Cuchilla asesina,personaje,si
+843B76A6,Círculo de espadas,personaje,si
+C5B98A76,Círculo de hielo,personaje,si
+414B3D19,Círculo elegante,personaje,si
+5BB4B3D5,Cúpula carmesí,kenshin,no
+290F3847,Cúpula sónica,personaje,si
+1A85A8CC,Dados de la suerte,kenshin,no
+CD184DDF,Danza de plumas,kenshin,no
+2DCA5423,Danza del viento,personaje,si
+1C6F774A,Dardo acuático,personaje,si
+D2C5D0BA,Daruma de fuego,personaje,si
+C7B3077A,Defensa de muñecos,kenshin,no
+ED8B861A,Defensa múltiple,personaje,si
+3FCB7D73,Defensa propulsada,personaje,si
+84A38F0E,Defensa radial,personaje,si
+1B93FA5D,Defensa triple,personaje,si
+EA8B8179,Deflectores divinos,personaje,si
+5FDC157F,Deriva desértica,personaje,si
+86821C63,Descarga de colores,kenshin,no
+EA5C156C,Descarte,tienda,si
+9F053EEE,Descenso estelar,personaje,si
+ED286C5B,Descodificación,personaje,si
+C8653E43,Desequilibrio de Pisa,personaje,si
+62DA0446,Desfile de pingüinos,personaje,si
+D48F62DA,Deslizamiento,personaje,si
+CC96E6E6,Desolación eterna,kenshin,no
+ADA2EF1D,Despegue espacial,personaje,si
+5AA2E144,Despeje a presión,personaje,si
+618796E9,Despeje cohete,personaje,si
+D04A0EBE,Despeje de fuego,personaje,si
+681B1DB0,Despeje de fuerza,personaje,si
+A9678379,Despeje de Gorius,kenshin,no
+E720CCBF,Despeje de leñador,personaje,si
+860FB8F9,Despeje de puño,personaje,si
+D9D685E7,Despeje demoníaco,kenshin,no
+D8482356,Despeje diamantino,tienda,si
+3CFCBC8F,Despeje explosivo,personaje,si
+00254635,Despeje medialuna,personaje,si
+08AF9FFD,Despeje retorcido,personaje,si
+DF3C5A61,Despeje virtual,personaje,si
+A7AA4FF9,Despliegue de señuelos,personaje,si
+5175AA23,Destello de fuerza,personaje,si
+0B967E8E,Destrozataladros,personaje,si
+67CD2489,Detonador,personaje,si
+74D7F860,Dientes de roca,personaje,si
+90FB9E11,Diluvio letal,personaje,si
+9DBC542B,Dimensión Kamakura,ninguna,no
+36887215,Dimensión Kamakura,override,no
+83C7FBB1,Disparo con rebotes,personaje,si
+644A851B,Disparo cósmico,personaje,si
+074F1205,Disparo doble,personaje,si
+97071306,Disparo rodante,personaje,si
+6AA27775,Disparo sagrado,personaje,si
+EAEFF2A5,Disparo valiente,personaje,si
+F4BCC4F9,Doble hélice,personaje,si
+DB595BE3,Doble trallazo planetario,personaje,si
+7766ED33,Doppelgänger,personaje,si
+B9CFCD64,Dragón ascendente,personaje,si
+90736A31,Dragón terrestre,personaje,si
+A7F52FCC,Duna gravitacional,personaje,si
+DE24287F,Dúo magma,personaje,si
+FC04A925,Eco de Dalfonus,kenshin,no
+6A34AE52,Eco de Delfinus,kenshin,no
+4F7A7BED,Ecuación defensiva,personaje,si
+F0254F0F,El fuerte,personaje,si
+879A6E7D,El muro,personaje,si
+146D5AA2,El olvido,personaje,si
+C726EE3B,Embate de Dragnova,kenshin,no
+EB47E0D5,Embate de lobo,kenshin,no
+7D77E7A2,Embate de lobo plateado,kenshin,no
+B0F0AC7C,Embestida,personaje,si
+3A335DE7,Embestida bufalina,tienda,si
+64D27CB3,Emboscada,personaje,si
+1A037C63,Emboscada defensiva,personaje,si
+1C0B0496,Emperatriz oscura,kenshin,no
+AB6D0E75,Engaño torero,personaje,si
+31238F1D,Engaño yoyó,personaje,si
+27EA6D01,Engranajes aceleradores,personaje,si
+11AA690A,Ensueño: El muro,ninguna,no
+C4183FFB,Ensueño: Mano celestial,ninguna,no
+F50EFB5B,Ensueño: Remate dragón,ninguna,no
+904D2962,Entrada cegadora,personaje,si
+3E55DBC2,Entrada de búho,kenshin,no
+A865DCB5,Entrada de búho encornado,kenshin,no
+C2CDF341,Entrada de llamas,personaje,si
+480E02DA,Entrada deslumbrante,ninguna,no
+8739843C,Entrada huracán,personaje,si
+BC9407B1,Entrada relampagueante,personaje,si
+F270A236,Entrada rodante,personaje,si
+E9ED003F,Entrada tormentosa,personaje,si
+4CE070DF,Equilibrismo,personaje,si
+76DEF2CB,Escena nocturna,personaje,si
+ABCEE434,Escudo bárbaro,personaje,si
+1201518B,Escudo caparazón,kenshin,no
+D9505148,Escudo corporal,personaje,si
+917B15A7,Escudo de fuerza,personaje,si
+A611D7A6,Escudo de fuerza total,personaje,si
+274A00E7,Escudo de Gigiras,kenshin,no
+B17A0790,Escudo de Grimron,kenshin,no
+1E40C4A8,Escudo guardián,kenshin,no
+2C71CC7C,Escudo lunar,personaje,si
+75477E5E,Escudo protector,personaje,si
+259719FE,Escudo real,personaje,si
+C4021229,Escudo sombrío,personaje,si
+95368DE3,Escudo tricerátops,personaje,si
+F1625D24,Escáner ataque,personaje,si
+F504DB01,Escáner defensa,personaje,si
+BD0AA100,Esferas luminosas,personaje,si
+CF37FE3D,Espacio oscuro,kenshin,no
+0662537D,Espada de Atlas,personaje,si
+47685B8D,Espada de Odín,personaje,si
+E054B588,Espada defensora,personaje,si
+A36F239D,Espada real,personaje,si
+2E5DCDE0,Espada real,kenshin,no
+D7D2F075,Espada solar,personaje,si
+1667D7AE,Espada sombría,kenshin,no
+F85D3C3C,Espectro oscuro,tienda,si
+019EDE6A,Espejismo de balón,personaje,si
+E954C7AC,Espejismo de Flami,kenshin,no
+7F64C0DB,Espejismo de zorro,kenshin,no
+8C2956C6,Espinas insidiosas,kenshin,no
+56ED54E8,Espiral de distorsión,personaje,si
+DA42AE5A,Esprint triple,personaje,si
+33C4F0B7,Esprint triple,override,no
+7E669F17,Estallido de Kosfi,kenshin,no
+E8569860,Estallido de Mosfi,kenshin,no
+25C879CB,Estampida en línea,personaje,si
+D1527CA0,Estandarte de valquiria,kenshin,no
+35E6E379,Estela ígnea,personaje,si
+0D628C0F,Estocada de Lancelot,kenshin,no
+31FC39EA,Estocada samurái,kenshin,no
+A709A5B8,Estrella de roca,personaje,si
+6B2CDC4C,Estrella fugaz,personaje,si
+7B395517,Estrella oscura,personaje,si
+2DEF6ACD,Estrella reflectante,personaje,si
+AD34363A,Excalibur,personaje,si
+4FD991AC,Excavación,personaje,si
+2152759A,Extramundo,personaje,si
+B2F9A6D7,Fiebre de luna llena,kenshin,no
+C4A27FCF,Fiebre del oro,personaje,si
+EA770B0D,Fiesta floral,personaje,si
+06EAA75D,Finta bumerán,personaje,si
+531E0449,Finta de pie,personaje,si
+177C2217,Fisura celestial,personaje,si
+0FC5CBCD,Flamberge,kenshin,no
+E1C433B6,Flash de fotones,personaje,si
+E8F6F586,Flecha de Cupido,personaje,si
+1B3397BB,Flecha de hielo,personaje,si
+53304A92,Flecha del alba,kenshin,no
+FD16FB61,Flecha divina,personaje,si
+73A38157,Flecha huracán,personaje,si
+3DE4CE91,Formación defensiva,personaje,si
+64F962D2,Formateo de disco,personaje,si
+33766224,Fortaleza desesperada,kenshin,no
+AB461014,Fortaleza nocturna,personaje,si
+093F19C3,Frankendefensa,personaje,si
+223953F4,Frente frío,personaje,si
+69C8E003,Frente frío,override,no
+2F560008,Fuego cruzado,tienda,si
+D79E1A6F,Fuego cruzado,personaje,si
+756FE798,Fuego rápido,personaje,si
+1ED61D8F,Fuego supremo,personaje,si
+2D79B3EA,Fuego total,personaje,si
+4B37E3A9,Fuerza centrífuga,personaje,si
+11262A3E,Fulgor de Brakias,kenshin,no
+AB7723A7,Fulgor de Fenikias,kenshin,no
+3D4724D0,Fulgor de pavo real,kenshin,no
+F96070CC,Fulgor fugaz,personaje,si
+86227185,Fulgor majestuoso,tienda,si
+D9405CC0,Full goleador,tienda,si
+878A63F5,Furia de los elementos,personaje,si
+B58DDFE0,Futuro negativo,personaje,si
+7800B464,Fénix,personaje,si
+DB6FEF22,Fénix oscuro,personaje,si
+B5D13872,Fórmula matemática,personaje,si
+FAD1659F,Galope de caballo,kenshin,no
+6CE162E8,Galope de Univolt,kenshin,no
+D167F807,Garra de Giorom,kenshin,no
+6B36F19E,Garra de Kúlupe,kenshin,no
+FD06F6E9,Garra de tejón,kenshin,no
+A2D4BBC2,Garra salvaje,tienda,si
+D534FA85,Garras llameantes,kenshin,no
+00852BD3,Giro atómico,personaje,si
+05F8584F,Giro bobina,personaje,si
+7B8AB2DE,Giro de mono,personaje,si
+B52DB206,Giroparada,personaje,si
+94B60655,Golf total,personaje,si
+599B0037,Golpe abrasador,personaje,si
+66DB7618,Golpe cataclismo,personaje,si
+F079A89D,Golpe de Atenea,kenshin,no
+C945D813,Golpe de samba,personaje,si
+70129404,Golpe de vacío,personaje,si
+BACD3FFE,Golpe justiciero,kenshin,no
+DC2D22D4,Golpe kabuki,personaje,si
+8AC38940,Golpe titánico,kenshin,no
+3F4DA9DC,Golpes de luz,personaje,si
+60636E83,Gota de la quietud,tienda,si
+E20158B1,Gracia glacial,personaje,si
+74315FC6,Gracia glacial,ninguna,no
+B1602A42,Gran barrera de coral,personaje,si
+BB4394C7,Gran catarata,personaje,si
+51B1B419,Gran explosión,personaje,si
+62145D27,Gran explosión,kenshin,no
+06594094,Gran lobo,personaje,si
+5FF70B1E,Gran sabio,personaje,si
+EAFFFF2D,Gran seísmo,personaje,si
+2319B5A4,Gran tifón,personaje,si
+06494D1C,Gran torbellino,personaje,si
+0A9E0118,Granada doble,personaje,si
+93F4CBA3,Granizado de fuego,personaje,si
+24D38C72,Granizado de fuego alto,personaje,si
+6FE9B028,Gravedad grave,personaje,si
+9F153366,Gravitación,personaje,si
+D8E84EB0,Grito del Edén,personaje,si
+256B938A,Grumo pegapasta,personaje,si
+7A9CE04F,Guardia acrobática,personaje,si
+230798A3,Guardia del coliseo,personaje,si
+DD1DC90C,Guardia sombría,personaje,si
+81F66554,Guillotina solar,personaje,si
+04E02A51,Géiser gigante,kenshin,no
+C06713AB,Habichuelas mágicas,tienda,si
+3025D004,Hacha del Azote negro,kenshin,no
+9979384F,Halo solar,personaje,si
+F8FED67D,Himno de Atenea,personaje,si
+3899BD0D,Hoja diamantina,personaje,si
+2CF9385C,Hojarasca,personaje,si
+6B8F360D,Hora celestial,personaje,si
+FE1409FB,Horadador de Dohma,kenshin,no
+68240E8C,Horadador de Zooma,kenshin,no
+68B6D77E,Hoz de remolino,kenshin,no
+35F6EEF1,Huracán,personaje,si
+29793BE3,Huracán,override,no
+8F984395,Huracán múltiple,personaje,si
+AFA86211,Ignición,personaje,si
+E2FDD2C5,Ilusión deslumbrante,personaje,si
+93905818,Ilusión deslumbrante,kenshin,no
+B4962A59,Imagen residual,personaje,si
+3B644244,Impacto luminoso,kenshin,no
+661F6822,Impulso de resolución,personaje,si
+721B9EAF,Impulso del equipo definitivo,personaje,si
+6A94C3B4,Impulso efímero,personaje,si
+C62AF129,Impulso efímero,kenshin,no
+A4A8BD63,Inazuma Drop,personaje,si
+35450938,Inmersión,personaje,si
+8DA7FDFF,Jaque mate,kenshin,no
+B341B92F,Jaula de piedra,personaje,si
+B8F28194,Jaula gravitatoria,personaje,si
+0E4B60F4,Juego de piernas,personaje,si
+16499975,Jugarreta,personaje,si
+21AEFFEE,Jungla profunda,personaje,si
+82E71DE1,Katana crisantemo,personaje,si
+6D7E79EB,Katana crisantemo,kenshin,no
+B794D8C3,La aurora,personaje,si
+E638BEA1,La flamme,personaje,si
+5336D8ED,La flamme,kenshin,no
+3741A4BB,La gran muralla,personaje,si
+7C5D21A8,La montaña,personaje,si
+C1DF0C53,La niebla,personaje,si
+2987CC67,La tempestad,kenshin,no
+31BB76B5,La Tierra,personaje,si
+99D955A9,La Tierra: Infinito,tienda,si
+7B0246FE,Laberinto,personaje,si
+9FBB7E0F,Lancero real,personaje,si
+FBFC24E7,Lanza de carámbanos,kenshin,no
+9C2CD215,Lanza de cazador,kenshin,no
+12115C03,Lanza de Odín,personaje,si
+D42F0F3C,Lanza gélida,ninguna,no
+CB6FECCC,Lanza gélida,override,no
+5C5613C5,Lanza letal,personaje,si
+9731A7C7,Lanza polar,tienda,si
+CBF29259,Lanza tornado,kenshin,no
+34766547,Lanzallamas,personaje,si
+F4B163D1,Lazos de oscuridad,kenshin,no
+CDBBA79E,Lecho de lava,personaje,si
+D5871D4C,Lecho de rosas,personaje,si
+44D94EDE,Leopardo de la ventisca,personaje,si
+01B5C00B,León devorador,personaje,si
+E5AF12BB,Liebre blanca,personaje,si
+4EC26415,Llamada salvaje,personaje,si
+29342BAE,Llamarada atómica,personaje,si
+E6CFFB5B,Llamarada atómica,kenshin,no
+6228AEBD,Llamarada infernal,personaje,si
+BE08539A,Llamarada solar,kenshin,no
+F1D1BAED,Lluvia de azufre,personaje,si
+5B918D3B,Lluvia de meteoros,personaje,si
+B96C2725,Luz cegadora,personaje,si
+BDF80BFB,Luz del mariscal,personaje,si
+B3C94D0F,Lógica ganadora,personaje,si
+609FE4F7,Magnetismo,personaje,si
+3231700F,Maldición,personaje,si
+960F6C90,Malla eléctrica,personaje,si
+27C2F4C7,Malla letal,personaje,si
+3839D0EB,Mandril,personaje,si
+29BCDF8E,Mandíbulas dobles,personaje,si
+1D6708DC,Mangual letal,personaje,si
+5228388C,Mano celestial,personaje,si
+C73BF35A,Mano celestial,personaje,si
+B259CB31,Mano celestial,tienda,si
+CC88CBE1,Mano celestial de la amistad,tienda,si
+64A602E7,Mano celestial del tigre,personaje,si
+860AE843,Mano celestial EV,tienda,si
+EEBC47E6,Mano celestial V,personaje,si
+3B88C5B8,Mano celestial X,personaje,si
+1B1B0E7D,Mano de diamante,tienda,si
+C3766B1E,Mano de pingüinos,personaje,si
+FC1E84F7,Mano diabólica,personaje,si
+7AB9DEA1,Mano espiritual,personaje,si
+94A82B52,Mano grandiosa,kenshin,no
+945A81A9,Mano matriarcal,ninguna,no
+FFAF91A4,Mano mágica,personaje,si
+08276BDD,Mano mágica,personaje,si
+DD13E983,Mano mágica,kenshin,no
+AAD6962A,Mano oceánica,personaje,si
+E8DE6C40,Mano omega,personaje,si
+45D13148,Mano sombría,kenshin,no
+F8DBE893,Mano ultradimensional,personaje,si
+B435C018,Manos fantasmagóricas,personaje,si
+7908CBF2,Manos infinitas,personaje,si
+A3C2E953,Manos liberadas,personaje,si
+6985BB01,Mar de lágrimas,ninguna,no
+7E08CC91,Maremoto umibozu,personaje,si
+272E733B,Marlín volador,personaje,si
+555C41BB,Martillo defensor,personaje,si
+EC93F404,Mate del dragón,personaje,si
+00D9CC41,Maza metálica,personaje,si
+BF86F8A3,Maza rocosa,personaje,si
+43AD37E9,Megadragón,personaje,si
+74C7F5E8,Megalodón,personaje,si
+E36D54FB,Megamanos mágicas,personaje,si
+A87FF167,Megaterremoto,personaje,si
+4084DB12,Meteorito ardiente,personaje,si
+623683BA,Millón de manos,personaje,si
+88C724C3,Mina terrestre,personaje,si
+C17CE612,Mirada al futuro,personaje,si
+72E4937C,Mirada asesina,personaje,si
+12A2BBCA,Mirada intimidante,personaje,si
+842B7B2E,Mirada ladrona,personaje,si
+07F152E4,Misil arenoso,personaje,si
+6CDE71D4,Mordisco de serpiente,personaje,si
+37EFE9D2,Mordisco de vampiro,personaje,si
+4C539716,Movimientos armónicos,kenshin,no
+08A1BF72,Muralla de Atlantis,personaje,si
+CFB12A92,Muralla de escudos,personaje,si
+94A60BDD,Muralla de las montañas,personaje,si
+E3E5A0DB,Muralla gigante,personaje,si
+BE9E8ABD,Muralla infinita,personaje,si
+7DCDA796,Muralla tsunami,personaje,si
+8B5D2FF1,Muro colectivo,ninguna,no
+373D6B8D,Muro colectivo,override,no
+D40796FA,Muro de fuego,personaje,si
+F6B5CE52,Muro de hierro,personaje,si
+4DD31CA0,Muro dimensional,personaje,si
+55426CBC,Neotiro galáctico,personaje,si
+4990A46B,Niebla mística,personaje,si
+5FE340A4,Niebla mística,kenshin,no
+C38AE16A,Niebla sombría,personaje,si
+B053463D,Niebla venenosa,tienda,si
+4CCB6EBE,Nudo atrapaosos,personaje,si
+4D8F335B,null,rara,no
+F7DE3AC2,null,rara,no
+61EE3DB5,null,rara,no
+C27B592B,null,rara,no
+544B5E5C,null,rara,no
+EE1A57C5,null,rara,no
+782A50B2,null,rara,no
+E937EF22,null,rara,no
+7F07E855,null,rara,no
+57F526F6,Obstrucción eléctrica,personaje,si
+D600BCDE,Ofensiva danzarina,personaje,si
+82EABAC9,Ojo del huracán,personaje,si
+4660241B,Ola mágica,personaje,si
+DD953D2C,Olor embriagador,personaje,si
+E16A7EDF,Omnisabiduría divina,personaje,si
+6E51AFD0,Onda chispeante,personaje,si
+6127FB0F,Orbe de Perseo,personaje,si
+7EFA666A,Orca peligrosa,personaje,si
+2CD1A19A,Oso polar n.º 2,personaje,si
+D90F6ACC,Oso polar n.º 2,ninguna,no
+9C07CC74,Paipay gigante,personaje,si
+ACBA9D03,Paisaje helado,personaje,si
+1E65FA46,Pantalla acuática,personaje,si
+5F54E15F,Pantalla ígnea,personaje,si
+10A836C6,Parada ardiente,personaje,si
+BD2F9FEE,Parada celestial,personaje,si
+32DBF59E,Parada celestial TURBO,ninguna,no
+1FDE6219,Parada de Asura,ninguna,no
+56DBB26F,Parada de Asura,override,no
+A5A0C2F5,Parada de capoeira,personaje,si
+9AC82D1C,Parada de codo,personaje,si
+85330930,Parada de espaguetis,personaje,si
+0AC76340,Parada de espaguetis extra,personaje,si
+046D8ECB,Parada de mano firme,personaje,si
+D1DFD83A,Parada en arco,personaje,si
+EA792B82,Parada en pirueta,personaje,si
+B1E8DE62,Parada en plancha,personaje,si
+499E84E4,Parada mate,personaje,si
+C8C553A5,Parada múltiple,personaje,si
+AE13FA4E,Parada peliaguda,personaje,si
+455C95D2,Parada poderosa,personaje,si
+07513F02,Paradón satelital,personaje,si
+5CE5F40C,Pared solitaria,personaje,si
+CA7C3960,Pase cruzado,personaje,si
+57DB682D,Paso engañoso,personaje,si
+FC3BBA19,Pasos aéreos,personaje,si
+904879D8,Patada canguro,personaje,si
+A722BBD9,Patín aéreo,personaje,si
+3647FBA2,Peces voladores,personaje,si
+5A2A1564,Pellizco aplastante,personaje,si
+ACAA908B,Pentagrama,personaje,si
+38DB740F,Pentagrama,kenshin,no
+FC985058,Picadora,personaje,si
+E6C434D5,Pincelada silenciosa,personaje,si
+54DCCA0D,Pingüino emperador 7,personaje,si
+3931AF7D,Pingüino emperador n.º 2,personaje,si
+91DB7841,Pingüino emperador n.º 2 + Tiburón,ninguna,no
+BBE00C04,Pingüino emperador n.º 2 + Tiburón,override,no
+C50A6DBF,Pingüino emperador n.º 3,personaje,si
+EB197925,Pingüino emperador n.º 3,kenshin,no
+16D43067,Pingüino emperador n.º1,personaje,si
+987147D9,Pingüino emperador X,personaje,si
+DFAA8346,Pingüino espacial,personaje,si
+19A264B8,Pingüino múltiple,tienda,si
+DE8A6516,Pingüino perfecto,personaje,si
+2016E016,Pingüinos de luz y sombra,tienda,si
+BDA94B41,Pinzas cortantes,personaje,si
+70B17E45,Piroquinesis,personaje,si
+16C43DEF,Pirueta rascacielos,tienda,si
+0764BBA5,Pisotón de Dolmega,kenshin,no
+B87A75B4,Pisotón de justicia,personaje,si
+BD35B23C,Pisotón de Magnatas,kenshin,no
+2B05B54B,Pisotón de mamut,kenshin,no
+F1C1B765,Pisotón de sumo,personaje,si
+3F39D788,Pisotón vigoroso,personaje,si
+50173127,Placaje de grifo,kenshin,no
+EA4638BE,Placaje de oso lunar,kenshin,no
+7C763FC9,Placaje de oso pardo,kenshin,no
+B784D54B,Placaje extremo,personaje,si
+C97ECBFA,Plumas brillantes,personaje,si
+1CCF1AAC,Polen devastador,personaje,si
+5288556A,Polvo de réquiem,personaje,si
+DE87C23E,Pompa de chicle,personaje,si
+7A3F0A0E,Portal dimensional,personaje,si
+3A969C9A,Portal dimensional,kenshin,no
+2FC0D92F,Portón del castillo,personaje,si
+DAE1441B,Presa,personaje,si
+3E200572,Presa,override,no
+AB48309B,Presa de sombras,personaje,si
+3921A2F5,Presa de zarcillo,personaje,si
+8E06E524,Presa fractal,personaje,si
+5F71DFB1,Presa titánica,kenshin,no
+9FB6D927,Prima donna,personaje,si
+3F65301A,Prisión escarlata,kenshin,no
+0A06F8B0,Proyectil de ozono,personaje,si
+9BC0528A,Proyectil letal,personaje,si
+481E0F52,Psicorremate,personaje,si
+E2F3F24A,Puente sin final,personaje,si
+688DC497,Puerta astral,personaje,si
+DBF93605,Puño de arena,personaje,si
+B9EAF38A,Puño de furia,personaje,si
+CB517818,Puño metralleta,kenshin,no
+95BE79C3,Puño vengativo,tienda,si
+9E85B558,Puños certeros,personaje,si
+0F5312EA,Puños voladores,personaje,si
+75E713B8,Pájaro ardiente,personaje,si
+7BB1A137,Pájaro de fuego,personaje,si
+092F144B,Rapto divino,personaje,si
+08025533,Rayo celeste,kenshin,no
+0B361368,Rayo de diamantes,personaje,si
+84C27918,Rayo de diamantes curvo,personaje,si
+608FE97F,Rayo de Ganímedes,personaje,si
+338AE850,Rayo de puño,personaje,si
+9405E19C,Rayo demoníaco,kenshin,no
+5FE70696,Rayo oscuro,personaje,si
+DE3425F7,Rayo oscuro,tienda,si
+7CD5D588,Rayos del juicio,personaje,si
+3A90B7A6,Rebote de Garius,kenshin,no
+ACA0B0D1,Rebote de Guirius,kenshin,no
+F41CA91F,Recepción negativa,personaje,si
+F051315B,Rechace de fuego,personaje,si
+80EE174A,Red de caza,personaje,si
+FFF8EAD9,Red de caza,kenshin,no
+2234F4DC,Regate aurora,personaje,si
+53BDEE08,Regate disimulado,personaje,si
+3EF63183,Regate divino,personaje,si
+90C08DF8,Regate en Z,personaje,si
+2E7B4170,Regate espejismo,personaje,si
+C7EC674F,Regate fantasmal,personaje,si
+446AA917,Regate múltiple,personaje,si
+DD36D76D,Regate rítmico,personaje,si
+3F689732,Regate supersónico,personaje,si
+F5A73140,Regate topo,personaje,si
+5756CCB7,Relámpago bestial,kenshin,no
+21BEF266,Relámpago saltón,personaje,si
+42052599,Relámpago volcánico,personaje,si
+147377A5,Remate asalto,personaje,si
+E0B83274,Remate Bahamut,personaje,si
+630848ED,Remate cazaosos,personaje,si
+ABDEE9BC,Remate caótico,personaje,si
+97D78FD7,Remate caótico,override,no
+8874C30A,Remate celestial,personaje,si
+67FB9048,Remate combinado,personaje,si
+A719A830,Remate combinado F,personaje,si
+F01EF55B,Remate combinado F,override,no
+257B9E02,Remate de Gaia,personaje,si
+EC052D23,Remate del tigre,personaje,si
+E2EDDF4D,Remate del águila,personaje,si
+328297C6,Remate dinosaurio,personaje,si
+633EFC2C,Remate dragón,personaje,si
+88FC372A,Remate en V,personaje,si
+26FC3F90,Remate en zigzag,personaje,si
+9B48A6AA,Remate espiral,personaje,si
+E628B329,Remate gafas,personaje,si
+9E9B985F,Remate guiverno,personaje,si
+D2F3647B,Remate halcón,personaje,si
+DA79BDB3,Remate misil,personaje,si
+54543E2D,Remate múltiple,personaje,si
+5E4F14E6,Remate orbital,personaje,si
+EE2A9EC1,Remate Pegaso,personaje,si
+77C50772,Remate planeador,personaje,si
+0B00A7A9,Remate rebotado,personaje,si
+5DC8B574,Remate seguridad,personaje,si
+50915249,Remate serpiente,personaje,si
+7F74CD53,Remate Tarzán,personaje,si
+9A5EF43B,Remate triple,personaje,si
+BF96F52B,Remate tsunami,personaje,si
+AF1B85D8,Remate unicornio,personaje,si
+4DF6224E,Rematerialización,personaje,si
+BFADE6C2,Remolino acuático,personaje,si
+3ABBA9C7,Remolino cortante,personaje,si
+BBE07E86,Remolino de hojas,personaje,si
+4BBF1789,Remolino polvoriento,personaje,si
+47DBBC44,Remolino ígneo,personaje,si
+82477007,Repulsión,personaje,si
+F086A54E,Resplandor cegador,personaje,si
+49334E2A,Ritmo agresivo,personaje,si
+458E517D,Ritmo eléctrico,personaje,si
+467E091C,Rizo de dragón,personaje,si
+411A7DA3,Robo fantástico,personaje,si
+88EC3AA2,Robo mimético,personaje,si
+58837229,Robo planetario,personaje,si
+5778826C,Robo rodante,personaje,si
+835F0219,Robo rápido,personaje,si
+FEB7E3BA,Robo sigiloso,personaje,si
+82BBFA73,Robo teatral,personaje,si
+815608B2,Roca volcánica,personaje,si
+804DFD0B,Rodillazos atómicos,personaje,si
+41145D2C,Romance de los tres reinos,personaje,si
+57A5DD31,Romance de los tres reinos,kenshin,no
+AF0B8850,Rompehielos,personaje,si
+AF8D5CFF,Rompetiros,personaje,si
+51992DDF,Rotación inversa,personaje,si
+83FCE858,Rueda infernal,personaje,si
+9DB66431,Rueda infernal,override,no
+3C46FCBB,Rugido de Doruga,kenshin,no
+8617F522,Rugido de Goliger,kenshin,no
+AA76FBCC,Rugido de león,kenshin,no
+A6B1BA40,Ruptura planetaria,personaje,si
+B4AD39B0,Ruptura relámpago,personaje,si
+6A50DD8E,Ruptura relámpago,ninguna,no
+40A40AFD,Ruptura relámpago,kenshin,no
+5A028CA2,Ruptura relámpago CG,tienda,si
+0EE88AB5,Ruta de la Seda,personaje,si
+0C64D316,Ráfaga de tiros,kenshin,no
+B8E28C1C,Sabiduría divina,personaje,si
+6EF1C236,Sacrificio,personaje,si
+0A2DE6D1,Salto champiñón,personaje,si
+BF2512E2,Salto de antílope,kenshin,no
+29151595,Salto de antílope oscuro,kenshin,no
+93441C0C,Salto de Pamerio,kenshin,no
+8D3124D8,Salto del cisne,tienda,si
+7670BFA2,Salto dimensional,personaje,si
+C3DBA1D0,Salto explosivo,personaje,si
+15EDD114,Salto incandescente,personaje,si
+A8DC1B26,Salto lunar,personaje,si
+FBCA9026,Samba letal,personaje,si
+A2FC2204,Sapo ninja,personaje,si
+F94B6EAD,Segadora,personaje,si
+3BADFB56,Sello gigante,personaje,si
+4D55C80F,Sentencia final,kenshin,no
+1EED0E66,Siega baja,personaje,si
+C5929417,Siega central,personaje,si
+A05B65C6,Sierra celestial,personaje,si
+667B1BFE,Sinergia de Angidra,kenshin,no
+4A1A1510,Sinergia de Cerbegira,kenshin,no
+F04B1C89,Sinergia de Saranarja,kenshin,no
+C26E1900,Sismo,personaje,si
+8D91493E,Sombra de Orión,personaje,si
+03945366,Sonata del olvido,personaje,si
+2A1DC755,Sorpresa,personaje,si
+155E36DD,Sorteo de balón,personaje,si
+332A85B6,Soy todopoderoso,personaje,si
+685865AF,Soy todopoderoso,kenshin,no
+43BD3A61,Subida a los cielos,personaje,si
+7247793D,Submarinismo salvaje,personaje,si
+73006B16,Superarmadillo,personaje,si
+683E235E,Superelástico,personaje,si
+710AE61A,Supermano celestial,tienda,si
+1CF9AE6D,Supernova,personaje,si
+1D770554,Superpeonza,personaje,si
+19B26930,Superpisotón de sumo,personaje,si
+CB7446F6,Superpuño invencible,personaje,si
+A06DD107,Superrelámpago,personaje,si
+1080AF00,Superremate rebotado,personaje,si
+1E5EE9AF,Supertrampolín relámpago,personaje,si
+3473992F,Supertrampolín relámpago,override,no
+122F1F50,Taconazo,personaje,si
+B63CCAB3,Taconazo parkour,personaje,si
+EE997908,Tacón infernal,personaje,si
+400C2F32,Telaraña,personaje,si
+98C2A010,Teleportación,personaje,si
+3C5CD169,Tiburón abisal,tienda,si
+A7915C10,Tirachinas,personaje,si
+6C48A8F3,Tiro a reacción,personaje,si
+044047B7,Tiro amasado,personaje,si
+8954255A,Tiro aéreo triple,tienda,si
+6FF9BDA0,Tiro balista,personaje,si
+CCA05227,Tiro capoeira,personaje,si
+BC27E078,Tiro cegador,personaje,si
+50A7E688,Tiro centrífugo,personaje,si
+E345CD3D,Tiro circense,tienda,si
+B3DC103D,Tiro con efecto,personaje,si
+F2ED0B24,Tiro con rebote,personaje,si
+2BA5D8AD,Tiro de arcabuz,personaje,si
+5D3A1F8F,Tiro de francotirador,personaje,si
+D636081F,Tiro del cometa,personaje,si
+9D1C39CD,Tiro del corazón real,personaje,si
+15652534,Tiro dinamita,personaje,si
+BB53994F,Tiro dracoroniano,personaje,si
+46C049FD,Tiro efervescente,personaje,si
+859364D6,Tiro elefantino,personaje,si
+22871315,Tiro espectral,personaje,si
+FE2F1A12,Tiro espejismo,personaje,si
+AC2264AB,Tiro fantasma,personaje,si
+F59C22A9,Tiro galáctico,personaje,si
+11A04950,Tiro giratorio,personaje,si
+AD0282FB,Tiro magnético,personaje,si
+E3CD391D,Tiro meteórico,personaje,si
+C9CD2C33,Tiro pirueta,personaje,si
+357B4A6B,Tiro potente,personaje,si
+5B226AF2,Tiro radiocontrol,personaje,si
+744A5172,Tiro rasante,personaje,si
+4A31BCB0,Tiro rotativo,personaje,si
+1044B13A,Tiro rotatorio,personaje,si
+C112A44F,Tiro rotatorio,kenshin,no
+B425CD90,Tiro sobrenatural,personaje,si
+7E542B03,Tiro sombrío,kenshin,no
+593B6DD1,Tiro supermasivo,tienda,si
+A35F2D17,Tiro supermasivo,kenshin,no
+73B38CDF,Tiro sónico,personaje,si
+E8C04147,Tiro torre de Osaka,personaje,si
+E6A04709,Tiro torre Eiffel,tienda,si
+D3179C11,Tiro tramposo,personaje,si
+DAF14993,Tiro vendaval,personaje,si
+20B68DF0,Torbellino,personaje,si
+BF1E010B,Torbellino de fuego,personaje,si
+FF0EB516,Torbellino de fuego,kenshin,no
+C6089F25,Torbellino dragón,personaje,si
+BAFB8B3F,Torbellino gemelo,personaje,si
+F9C39A8D,Torbellino interceptor,personaje,si
+80FE1AC2,Torbellino trampolín,personaje,si
+25E367AA,Tormenta de arena,personaje,si
+7CC5D800,Tormenta de fuego,personaje,si
+C27E1488,Tormenta de fuego,kenshin,no
+2B61C697,Tormenta de fuego,ninguna,no
+A495ACE7,Tormenta de fuego,ninguna,no
+124336FE,Tormenta de fuego,override,no
+20B3E8C9,Tormenta de fuego,override,no
+CC003FC1,Tormenta de pétalos,personaje,si
+7E7CB2C5,Tormenta del desierto,personaje,si
+029C2CF0,Tormenta del tigre,personaje,si
+8CAA6728,Tormenta del tigre,override,no
+EC3399E2,Tormenta dimensional,personaje,si
+41B430CA,Tormenta eléctrica,personaje,si
+BD04D9AC,Tormenta eléctrica,kenshin,no
+CC28A607,Tormenta estelar,personaje,si
+9A6840FA,Tormenta solar,personaje,si
+26CA8B51,Tornado de fuego,personaje,si
+AEB397A8,Tornado de fuego A,personaje,si
+834F0F91,Tornado de fuego DD,personaje,si
+F43CE2C0,Tornado de fuego DD,override,no
+DF9C3787,Tornado de fuego DT,personaje,si
+9EAD2C9E,Tornado de fuego DT,ninguna,no
+74C55327,Tornado de fuego DT,override,no
+23EB1F5F,Tornado de fuego meteoro,personaje,si
+E47D5E10,Tornado de fuego meteoro V,kenshin,no
+680530B7,Tornado doble,personaje,si
+2189A5D9,Tornado doble,override,no
+F9D39705,Tornado dragón,personaje,si
+860FA4BA,Tornado dragón,ninguna,no
+3E45D64A,Tornado inverso,personaje,si
+FA628256,Tornado oscuro,personaje,si
+D9F3BB09,Tornado venenoso,personaje,si
+41E8D758,Toro a la fuga,personaje,si
+7D5B7EB1,Torpedo tridente,kenshin,no
+A0F528AF,Torre inexpugnable,personaje,si
+EE3A9349,Torre perfecta,personaje,si
+37B30E40,Tortuga danzarina,personaje,si
+9E0D4178,Trampa vegetal,personaje,si
+7E598C2B,Trance melódico,personaje,si
+FF0FFC42,Trance temporal,personaje,si
+ED9B8B92,Trayectoria perfecta,personaje,si
+6C58A57B,Tren loco,tienda,si
+422DBC5F,Trimano celestial,tienda,si
+5E2B2C55,Trimano celestial,override,no
+5F6FF2B6,Tripegaso,personaje,si
+05E855C7,Triple amenaza,personaje,si
+54C9A24F,Triple amenaza,override,no
+23A69CF0,Triple amenaza,kenshin,no
+ED137FB2,Triángulo letal,personaje,si
+FEA7EE32,Triángulo letal 2,personaje,si
+2F60B4C9,Triángulo letal final,personaje,si
+C1CA2F5E,Triángulo letal final,override,no
+34D608A1,Triángulo letal triturador,ninguna,no
+A170143E,Triángulo letal triturador,override,no
+58937FA1,Triángulo múltiple,personaje,si
+0DEA782F,Triángulo Z,personaje,si
+2EC8A6B9,Triángulo ZZ,personaje,si
+FE9CFDDB,Truco balonazo,personaje,si
+6F4A5A69,Truco de magia,personaje,si
+A189296D,Trueno celestial,personaje,si
+1481DD5E,Trueno de primavera,personaje,si
+76DB1A05,Trueno de primavera,ninguna,no
+FA728FDE,Tuneladora,personaje,si
+1DD4EF15,Tuya-mía doble,personaje,si
+CD084057,Técnica kung-fu,personaje,si
+CF94147C,Túnel tornado,personaje,si
+F2F2F5EE,Túnel tornado,kenshin,no
+74741221,Ultraluna,personaje,si
+42A5487F,Ultramanos mágicas,personaje,si
+292A06A9,Ultrasonidos,personaje,si
+96E3EB6C,Unificar,personaje,si
+BE3EE75B,Uno para todos,personaje,si
+89F448BC,Uñas afiladas,personaje,si
+708F3D16,Vaselina,personaje,si
+EBE78D33,Velo de sirena,personaje,si
+183CC209,Ventisca de fuego,personaje,si
+6E671B11,Ventisca de fuego,personaje,si
+3DF4C319,Ventisca eterna,personaje,si
+590DD910,Ventisca guiverno,personaje,si
+F5D603ED,Ventisca guiverno,override,no
+A49E09A2,Ventisca triple,ninguna,no
+C93DA08C,Ventisca triple,override,no
+155391F5,Victoria tricolor,personaje,si
+5DFE01B5,Viento celestial,personaje,si
+FDA51CA8,Viento centelleante,personaje,si
+C3290B2B,Visión de matriz,personaje,si
+431ED020,Visto y no visto,personaje,si
+A9EF7759,Voltaje dual,personaje,si
+2ED8AB31,Voltereta circense,personaje,si
+B148B384,Vuelo de fénix,kenshin,no
+9596E005,Vuelo de halcón,kenshin,no
+03A6E772,Vuelo de águila calva,kenshin,no
+6CFB4F3A,Vuelo de Ícaro,personaje,si
+7810B9EC,Vuelo volcánico,personaje,si
+7BA1ACBF,Zambullida de Dolfinus,kenshin,no
+47E0AFAD,Zapatazo dual,personaje,si
+1020C2E6,Zarpazo poderoso,personaje,si
+8A606301,Zarpazo real,kenshin,no
+3A084E0E,Zero Magnum,personaje,si
+0DD16BC6,Zigzag chispeante,personaje,si
+3D6C3AB1,Zigzag de fuego,personaje,si
+36DF020A,Zona de contención,personaje,si
+1EC61007,Zona de seguridad,personaje,si
+D73E7789,Zona sagrada,personaje,si
+979FEAAE,Zona sigma,personaje,si
+398248B4,¡Hala! ¡Un ovni!,personaje,si
+04BF4A64,¡Hala! ¡Una bola de arroz!,personaje,si
+D4A7FB1C,"¡Tormenta, tornado, huracán!",personaje,si
+79A8A614,Águila bicéfala,personaje,si
+564D390E,Águila implacable,personaje,si
+689DC91F,Ángel de nieve,personaje,si
+A8D1BC0E,Ímpetu de dragón,personaje,si
+A274D624,Último recurso,personaje,si
+2D80BC54,Último recurso,ninguna,no
+2C5955BA,Último recurso: Dragón,personaje,si
+16244E5D,Último recurso: Dragón,ninguna,no
+6D684EA3,Último recurso: Sigma,personaje,si
+B3F71296,Último recurso: Sigma,ninguna,no

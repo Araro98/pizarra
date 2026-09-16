@@ -311,10 +311,15 @@ def tecnicas(plain, fila, ranura):
         return {"admite": None, "opciones": []}
 
     poseidas = inventario.filas_poseidas(plain)
+    # solo las que se pueden dar de verdad: las que aprende algun personaje o
+    # se consiguen en la tienda. Las de los kenshin, los resultados de una
+    # combinacion en el partido y las versiones de la historia, no (O-171).
+    obtenibles = _indice("tecnicas_obtenibles", lambda: {
+        f["id"].upper() for f in reglas._tabla("tecnicas-origen.csv") if f.get("obtenible") == "si"})
     fuera = []
     for f in reglas._tabla("tecnicas.csv"):
         idh = f["id"].upper()
-        if idh not in poseidas:
+        if idh not in poseidas or (obtenibles and idh not in obtenibles):
             continue
         if admite != "LIBRE" and f.get("categoria") != admite:
             continue

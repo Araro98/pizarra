@@ -4017,6 +4017,30 @@ banquillo o cuerpo tecnico: `equipos_del_jugador`, que recorre las
 alineaciones). La ficha lleva el boton "Borrar jugador" con confirmacion, y
 sale vetado con el nombre del equipo si esta metido en uno. Se puede deshacer.
 
+### O-171 · Que tecnicas se pueden dar, y a que fila tienen que apuntar
+
+Tres cosas de Aaron a la vez:
+
+- **Las tecnicas puestas con el editor no se ven en el juego hasta entrar en
+  el arbol** (Marvin Murdock). Es O-168 otra vez: `poner_tecnica` apuntaba la
+  ranura a la primera fila poseida, que era el monton de 99 manuales de la
+  mochila. Ahora apunta a una fila de tecnica aprendida (una unidad), la que
+  ya use alguien o una nueva, igual que al fichar. "Arreglar las tecnicas"
+  (pestana Resumen) repasa las ranuras que apuntan a montones y las cambia.
+- **Hay tecnicas que el juego no deja dar**: las 151 que son la tecnica de un
+  espiritu (aura_skill_config las referencia: Carga de pegaso rojo...), los 32
+  resultados de combinar dos en el partido (override_skill_config), 29
+  versiones de la historia ("Ensueno: ...", "... EV", "... de la amistad") y 9
+  de prueba. Se dan las 738 que aprende algun personaje y las 45 que estan en
+  la tienda, objetos comunes o trofeos. `tecnicas-origen.csv`
+  (`construir_tecnicas_origen.py`); el editor solo ofrece las `obtenible`.
+- **No podia cambiar un kenshin por otro**: hay hipertecnicas con el nombre
+  repetido (dos "Archipegaso rojo") y el editor mandaba el nombre; ahora manda
+  el codigo y `poner_tecnica` lo acepta.
+
+Y la lista de Jugadores y la reserva del Team builder se recargan solas al
+fichar o borrar (antes habia que pasar por Inicio).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

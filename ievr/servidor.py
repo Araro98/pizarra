@@ -700,6 +700,8 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
     trozo = filtrados[desde:desde + cuantos] if cuantos else filtrados[desde:]
     return {
         "total": len(todos), "encajan": len(filtrados), "desde": desde,
+        # para el Resumen (que pide todos): ranuras que apuntan a montones (O-171)
+        "tecnicas_rotas": len(E.tecnicas_rotas(plain)) if not cuantos else 0,
         "jugadores": trozo,
         "filtros": {c: [{"valor": v, "cuantos": n}
                         for v, n in sorted(cuentas[c].items(),
@@ -1151,7 +1153,9 @@ class Manejador(BaseHTTPRequestHandler):
         if t == "equipacion":
             return sesion.aplicar(E.poner_equipacion, fila, int(c["ranura"]), c["nombre"])
         if t == "tecnica":
-            return sesion.aplicar(E.poner_tecnica, fila, int(c["ranura"]), c["nombre"])
+            return sesion.aplicar(E.poner_tecnica, fila, int(c["ranura"]), c.get("id") or c["nombre"])
+        if t == "arreglar_tecnicas":
+            return sesion.aplicar(E.arreglar_tecnicas)
         if t == "pasiva":
             return sesion.aplicar(E.poner_pasiva, fila, int(c["ranura"]), c["nombre"])
         if t == "quitar_heredada":

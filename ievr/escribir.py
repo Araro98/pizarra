@@ -311,6 +311,37 @@ def _buscar_por_nombre(texto, categorias):
     return list(hallados)[0]
 
 
+def _es_fila_aprendida(f):
+    """Una fila de tecnica APRENDIDA: kind 3, sub 10 (o 9) y una sola unidad.
+    Los montones de manuales (sub 1 y 2, o 99 unidades) no valen: si una
+    ranura apunta a uno, el juego no ensena la tecnica hasta pasar por el
+    arbol (Marvin Murdock, NOTAS O-171) y trata al jugador como del universo
+    (O-168)."""
+    return (f is not None and f.get("kind") == inventario.KIND_REAL
+            and f.get("sub") in (9, 10) and f.get("cantidad") == 1)
+
+
+def _fila_tecnica_aprendida(plain, id_hex, que):
+    """(plain, slot, creada) de una fila aprendida de esa tecnica: la que ya use
+    algun jugador, o una nueva. Para crearla hay que tenerla (un manual en la
+    mochila o una fila aprendida)."""
+    id_hex = id_hex.upper()
+    bib = _biblioteca_de_tecnicas(plain)
+    if id_hex in bib:
+        return plain, bib[id_hex][0], False
+    poseidas = inventario.filas_poseidas(plain).get(id_hex)
+    if not poseidas:
+        raise Ilegal("no tienes ningun/a %s en la mochila, asi que no se puede "
+                     "equipar: la partida guarda una referencia a TU copia, y sin "
+                     "copia no hay a que apuntar" % que)
+    modelo = next((f for _v, f in bib.values()), None)
+    if modelo is None:
+        raise Ilegal("no hay en la partida ninguna fila de tecnica aprendida de la "
+                     "que copiar la forma")
+    plain, slot = _meter_en_biblioteca(plain, id_hex, modelo)
+    return plain, slot, True
+
+
 def _una_fila_poseida(plain, id_hex, que):
     poseidas = inventario.filas_poseidas(plain).get(id_hex.upper())
     if not poseidas:
@@ -386,15 +417,26 @@ def poner_tecnica(plain, fila, ranura, nombre):
 
     tec = {f["id"].upper(): f for f in reglas._tabla("tecnicas.csv")}
     id_hex = None
-    for k, f in tec.items():
-        if (f["nombre"] or "").strip().lower() == nombre.strip().lower():
-            id_hex = k
-            break
+    texto = nombre.strip()
+    if len(texto) == 8 and all(c in "0123456789abcdefABCDEF" for c in texto):
+        # el editor manda el codigo, no el nombre: hay hipertecnicas con el
+        # nombre repetido (dos "Archipegaso rojo", NOTAS O-171)
+        id_hex = texto.upper()
+        if id_hex not in tec:
+            id_hex = _buscar_por_nombre(texto, {"aura"})
+    else:
+        for k, f in tec.items():
+            if (f["nombre"] or "").strip().lower() == nombre.strip().lower():
+                id_hex = k
+                break
     if id_hex is None:
         id_hex = _buscar_por_nombre(nombre, {"aura"})       # hipertecnicas
-        categoria = "Hipertecnica"
-    else:
+    if id_hex in tec:
         categoria = tec[id_hex]["categoria"]
+        nombre = tec[id_hex].get("nombre") or nombre
+    else:
+        categoria = "Hipertecnica"
+        nombre = tlv.nombres().get(id_hex, (nombre,))[0]
 
     if admite != "LIBRE" and categoria != admite:
         raise Ilegal("la ranura %d de %s solo admite tecnicas de %s, y %r es de %s"
@@ -402,7 +444,8 @@ def poner_tecnica(plain, fila, ranura, nombre):
     if admite == "?":
         raise Ilegal("la ranura %d de %s no existe en su arbol" % (ranura, ficha["nombre"]))
 
-    nueva = _una_fila_poseida(plain, id_hex, nombre)
+    # una fila de tecnica APRENDIDA, como las que deja el juego (O-171)
+    plain, slot_nuevo, creada = _fila_tecnica_aprendida(plain, id_hex, nombre)
     tecnicas = J.ocurrencias(plain, *J.ANCLA_TECNICAS)
     ini, _ = tlv.inicio_registro(plain, tecnicas[fila])
     off = None
@@ -414,15 +457,16 @@ def poner_tecnica(plain, fila, ranura, nombre):
         raise Ilegal("la fila de tecnicas %d no tiene la ranura %d" % (fila, ranura))
 
     antes = struct.unpack_from("<I", plain, off)[0]
-    if antes == nueva["slot"]:
+    if antes == slot_nuevo:
         raise Ilegal("ya lleva esa tecnica en esa ranura")
     porslot = inventario.por_slot(plain)
     buf = bytearray(plain)
-    struct.pack_into("<I", buf, off, nueva["slot"])
+    struct.pack_into("<I", buf, off, slot_nuevo)
     plain = bytes(buf)
     if antes and antes in porslot:
         plain = inventario.ajustar_equipada(plain, porslot[antes], -1)
-    plain = inventario.ajustar_equipada(plain, inventario.por_slot(plain)[nueva["slot"]], +1)
+    if not creada:      # la fila nueva ya nace con un jugador que la lleva
+        plain = inventario.ajustar_equipada(plain, inventario.por_slot(plain)[slot_nuevo], +1)
 
     nombres = tlv.nombres()
     return plain, {"fila": fila, "ranura": ranura, "admite": admite,
@@ -1984,6 +2028,85 @@ def arreglar_heredadas(plain):
                      % TOPE_HEREDADAS)
     return bytes(buf), {"jugadores": tocados, "quitadas": quitadas,
                         "que": "heredadas de mas quitadas"}
+
+
+def tecnicas_rotas(plain):
+    """[(fila, ranura, id)] de ranuras de tecnica de Idolos y Diamantes que
+    apuntan a un monton de manuales en vez de a una fila aprendida (O-171).
+
+    Solo se miran los que tienen tablero asignado (0xBAFA8DBD distinto de 0):
+    a esos el juego siempre les deja filas aprendidas (vienen de la capsula o
+    de una semilla), asi que un monton ahi lo puso el editor. A los fichados
+    del universo (tablero 0) el propio juego los apunta a montones (O-168), y
+    eso no se toca."""
+    ident = J.array(plain, J.ARRAY_IDENTIDAD)
+    occ = J.ocurrencias(plain, J.F_TABLERO_JUEGO, 24000)
+    if not occ:
+        return []
+    tablero = J.array(plain, (J.F_TABLERO_JUEGO, 24000, "I", 4))
+    tecnicas = J.ocurrencias(plain, *J.ANCLA_TECNICAS)
+    porslot = inventario.por_slot(plain)
+    fuera = []
+    for fila in range(min(6000, len(ident))):
+        if not ident[fila] or not tablero[fila]:
+            continue
+        c, _ = J._campos_de(plain, tecnicas[fila], set(J.RANURAS_TECNICAS))
+        for k, h in enumerate(J.RANURAS_TECNICAS):
+            v = int.from_bytes(c.get(h, b""), "little")
+            if not v:
+                continue
+            f = porslot.get(v)
+            if f is not None and not _es_fila_aprendida(f) and f.get("id"):
+                fuera.append((fila, k + 1, f["id"].upper()))
+    return fuera
+
+
+def arreglar_tecnicas(plain):
+    """Las ranuras que apuntan a montones de manuales pasan a apuntar a filas
+    de tecnica aprendida (las que ya haya, o nuevas). Es lo que deja el juego,
+    y lo que hace falta para que la tecnica se vea sin pasar por el arbol.
+
+    Se hace todo sobre un solo buffer y los contadores de "cuantos la llevan"
+    se ajustan al final, que con cientos de ranuras (Aaron tenia 322) hacerlo
+    de una en una tardaba minuto y medio."""
+    rotas = tecnicas_rotas(plain)
+    if not rotas:
+        raise Ilegal("no hay ninguna ranura de tecnica que apunte a un monton de manuales")
+    biblioteca = _biblioteca_de_tecnicas(plain)
+    bib = {k: v[0] for k, v in biblioteca.items()}
+    modelo = next((f for _v, f in biblioteca.values()), None)
+    if modelo is None:
+        raise Ilegal("no hay en la partida ninguna fila de tecnica aprendida de la "
+                     "que copiar la forma")
+    tecnicas = J.ocurrencias(plain, *J.ANCLA_TECNICAS)
+    # los offsets de las ranuras no cambian: solo se sobreescriben bytes
+    offsets = {(fila, ranura): _campo_en(plain, tecnicas[fila], J.RANURAS_TECNICAS[ranura - 1])[0]
+               for fila, ranura, _ in rotas}
+    deltas = {}
+    buf = bytearray(plain)
+    tocados = set()
+    for fila, ranura, id_hex in rotas:
+        if id_hex in bib:
+            slot_nuevo = bib[id_hex]
+            deltas[slot_nuevo] = deltas.get(slot_nuevo, 0) + 1
+        else:
+            # la fila nueva ya nace con un jugador que la lleva
+            nuevo, slot_nuevo = _meter_en_biblioteca(bytes(buf), id_hex, modelo)
+            buf = bytearray(nuevo)
+            bib[id_hex] = slot_nuevo
+        off = offsets[(fila, ranura)]
+        antes = struct.unpack_from("<I", buf, off)[0]
+        deltas[antes] = deltas.get(antes, 0) - 1
+        struct.pack_into("<I", buf, off, slot_nuevo)
+        tocados.add(fila)
+    plain = bytes(buf)
+    porslot = inventario.por_slot(plain)
+    for slot, d in deltas.items():
+        f = porslot.get(slot)
+        if d and f is not None and "equipada_off" in f:
+            struct.pack_into("<I", buf, f["equipada_off"], max(0, f["equipada"] + d))
+    return bytes(buf), {"jugadores": len(tocados), "ranuras": len(rotas),
+                        "que": "tecnicas apuntadas a filas aprendidas"}
 
 
 def cambiar_rama(plain, fila):
