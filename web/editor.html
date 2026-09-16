@@ -392,6 +392,17 @@
   .campo::before { content:""; position:absolute; left:14%; right:14%; top:50%;
     height:2px; background:rgba(255,255,255,.28); pointer-events:none; }
   .linea-campo { display:flex; gap:8px; justify-content:center; position:relative; }
+  /* el campo con la forma de la formacion del juego: cada puesto en su sitio */
+  .campo.con-formacion { display:block; height:470px; padding:0; }
+  .puesto-abs { position:absolute; transform:translate(-50%,-50%); display:flex;
+    flex-direction:column; align-items:center; gap:2px; z-index:1; }
+  .puesto-abs:hover { z-index:3; }
+  .rol-puesto { font-size:var(--t-xxs); font-weight:800; letter-spacing:.06em; color:#fff;
+    background:rgba(0,0,0,.45); border-radius:4px; padding:0 6px; line-height:1.5;
+    text-shadow:0 1px 1px rgba(0,0,0,.4); }
+  .rol-puesto.POR { background:#b8940a; } .rol-puesto.DF { background:#2f6fd0; }
+  .rol-puesto.MC { background:#e8801c; } .rol-puesto.DC { background:#d23b3b; }
+  .sitio.fuera-de-sitio { box-shadow:0 0 0 3px #f0c060, 0 2px 0 rgba(8,28,60,.45); }
   .tira { display:flex; gap:7px; align-items:center; flex-wrap:wrap;
     margin-top:10px; }
   .tira .eti-tira { font-size:var(--t-xs); font-weight:800; text-transform:uppercase;
@@ -2071,7 +2082,9 @@ function sitioDelEquipo(puesto) {
   return t;
 }
 
-const LINEAS_CAMPO = [[1,2,3,4],[5,6,7],[8,9,10],[0]];
+const LINEAS_CAMPO = [[1,2,3,4],[5,6,7],[8,9,10],[0]];   // solo si no se conoce la formacion
+// lo que es cada hueco de la formacion, en las palabras de la ficha del jugador
+const NATURAL_DEL_PUESTO = {POR:"POR", DF:"DEF", MC:"MED", DC:"DEL"};
 const PUESTOS_BANQUILLO = [11,12,13,14,15];
 /* Un equipo lleva **tres gerentes y un entrenador**, y el entrenador es el
    puesto 19. Antes estaba al reves (NOTAS O-132). */
@@ -2141,10 +2154,34 @@ function pintaEquipo() {
         + " Salen con el borde rojo; pasa el raton por encima para ver por que."})]));
 
   const campo = el("div", {class:"campo"});
-  for (const linea of LINEAS_CAMPO) {
-    const f = el("div", {class:"linea-campo"});
-    for (const puesto of linea) f.appendChild(sitioDelEquipo(puesto));
-    campo.appendChild(f);
+  if (d.formacion_puestos && d.formacion_puestos.length === 11) {
+    // Cada puesto donde lo pone la formacion del juego (NOTAS O-160), con el
+    // rotulo de lo que es ese hueco (POR/DF/MC/DC). Si el jugador que hay no
+    // es de esa posicion, el hueco sale con borde ambar: el juego lo deja,
+    // pero conviene verlo.
+    campo.classList.add("con-formacion");
+    for (const p of d.formacion_puestos) {
+      const sitio = sitioDelEquipo(p.puesto);
+      const m = huecoDe(p.puesto);
+      const natural = m && m.jugador && m.jugador.posicion;
+      const encaja = !natural || NATURAL_DEL_PUESTO[p.posicion] === natural;
+      if (!encaja) {
+        sitio.classList.add("fuera-de-sitio");
+        sitio.title = (sitio.title ? sitio.title + "\n" : "") + "Este hueco es de " + p.posicion
+          + " y " + m.jugador.nombre + " es " + natural + ".";
+      }
+      const caja = el("div", {class:"puesto-abs"}, [sitio,
+        el("span", {class:"rol-puesto " + p.posicion, text:p.posicion, title:"Puesto " + (p.puesto + 1) + ": " + p.posicion})]);
+      caja.style.left = (50 + p.x * 44) + "%";
+      caja.style.top = (7 + p.y * 86) + "%";
+      campo.appendChild(caja);
+    }
+  } else {
+    for (const linea of LINEAS_CAMPO) {
+      const f = el("div", {class:"linea-campo"});
+      for (const puesto of linea) f.appendChild(sitioDelEquipo(puesto));
+      campo.appendChild(f);
+    }
   }
   marco.appendChild(campo);
 

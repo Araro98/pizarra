@@ -419,6 +419,7 @@ def detalle_equipo(plain, i):
             "escudo_icono": _icono_de_valor("escudo", "%08X" % e["escudo"]),
             "equipacion_icono": _icono_de_valor("equipacion", "%08X" % e["equipacion"]),
             "formacion_nombre": _nombre_de_valor(plain, "formacion", "%08X" % e["formacion"]),
+            "formacion_puestos": _puestos_de_formacion("%08X" % e["formacion"]),
             "escudo_nombre": _nombre_de_valor(plain, "escudo", "%08X" % e["escudo"]),
             "equipacion_nombre": _nombre_de_valor(plain, "equipacion", "%08X" % e["equipacion"]),
             "tacticas": tacticas, "miembros": miembros,
@@ -525,6 +526,26 @@ def _icono_de_valor(cual, valor_hex):
             # que es el que Aaron quiere ver; el render del uniforme, de respaldo
             return propios.get(f["id_objeto"].upper(), "") or f.get("icono")
     return ""
+
+
+def _puestos_de_formacion(valor_hex):
+    """Donde va cada puesto (0-10) en esa formacion, del propio juego
+    (`formaciones.csv`, NOTAS O-160): [{puesto, posicion, x, y}] o []."""
+    def construir():
+        d = {}
+        for f in reglas._tabla("formaciones.csv"):
+            d.setdefault(f["id"].upper(), []).append({
+                "puesto": int(f["puesto"]), "posicion": f["posicion"],
+                "x": float(f["x"]), "y": float(f["y"]), "pase": int(f["pase"] or 0)})
+        return d
+    tabla = O._indice("formaciones", construir)
+    # el equipo guarda el "valor_equipo"; la tabla va por el id del objeto
+    al_reves = EQ._al_reves(valor_hex)
+    for f in reglas._tabla("equipo-objetos.csv"):
+        if f["tipo"] == "formacion" and f["valor_equipo"].upper() in (valor_hex.upper(), al_reves.upper()):
+            valor_hex = f["id_objeto"]
+            break
+    return tabla.get(valor_hex.upper()) or tabla.get(EQ._al_reves(valor_hex).upper()) or []
 
 
 def _nombre_de_valor(plain, cual, valor_hex):

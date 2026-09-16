@@ -3696,6 +3696,32 @@ en la mochila, en esas cuatro pestanas, hay un desplegable "Ordenar por"
 (nombre, total, +Potencia, +Control, ... +Inteligencia), y el selector de
 equipacion de la ficha del jugador lleva las mismas opciones en su "Ordenar".
 
+### O-160 · Las formaciones: donde va cada puesto, del propio juego
+
+Aaron vio que la pantalla de equipo pintaba siempre 4-3-3 aunque el equipo
+llevara otra formacion, y pidio ademas saber que es cada hueco.
+
+- `formation/formation_config` es RDBN pero el volcador de referencia se cae
+  con el (un tipo de campo que no conoce, el de las posiciones). Se escribio
+  `herramientas/rdbn.py`, un lector propio en Python que saca los tipos raros
+  como floats por su tamano. Tablas: `m_SoccerFormationInfoList` (115
+  formaciones: `formId`, rango de 11 filas en `m_SoccerFormPlacementInfoList`,
+  poder de ataque y defensa) y los puestos (`positionNo`, `positionId`,
+  `startPos` y las posiciones de defensa, ataque, corners y penaltis).
+- El id de la partida es el del **objeto** formacion; `item/item_config` ->
+  `ITEM_FORMATION_INFO_LIST` col 16 lleva el `formId`. Con eso las 11
+  formaciones que existen como objeto (las unicas que puede llevar un equipo)
+  quedan resueltas en `formaciones.csv` (`construir_formaciones.py`).
+- `positionId`: 1 portero; 2 y 3 defensas; 4-7 medios; 8-10 delanteros. Lo
+  dicen los pesos de linea de `m_SoccerPositionInfoList` y cuadra con la
+  pantalla del juego (4-3-3 Triangulo: puestos 1-4 DF, 5-7 MC, 8-10 DC).
+- **Los puestos 0-10 de la partida son los `positionNo` de la formacion**: el
+  0 es siempre el portero y el resto van en el orden de la tabla.
+
+El editor pinta ahora cada hueco donde lo pone la formacion (x de -1 a 1, y de
+0,9 abajo a 0,1 arriba), con el rotulo POR/DF/MC/DC del hueco, y marca en ambar
+al jugador que no es de esa posicion (el juego lo permite; solo se avisa).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
