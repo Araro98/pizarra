@@ -1200,17 +1200,15 @@ def sincronizar_tabla_pasivas(plain, fila):
                 except Ilegal:
                     rama = 1
                 fijas = O.pasivas_fijas(ident_hex, rama, arq_eff)
-            ficha_completa = all(x != "00000000" for x in normales)
             entradas = []
             for k in range(5):
                 # la heredada tapa a la de la ficha, y la de la ficha a la fija
                 if heredadas[k] != "00000000":
                     v = _variante(heredadas[k], rareza)
                     entradas.append((v, _valor(v)))
-                elif normales[k] != "00000000" and (rareza < 5 or ficha_completa):
-                    # (a un Idolo o Diamante con la ficha a medias el juego le
-                    # ignora las de la ficha y ensena sus fijas; con las cinco
-                    # puestas, como un Axel Idolo del universo, las usa)
+                elif normales[k] != "00000000" and rareza < 5:
+                    # (a un Idolo o Diamante el juego le ignora las de la ficha
+                    # y ensena sus fijas: Aaron quiere ver siempre las fijas)
                     v = _variante(normales[k], rareza)
                     entradas.append((v, _valor(v)))
                 elif k < len(fijas):
