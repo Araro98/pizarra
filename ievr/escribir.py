@@ -1082,6 +1082,54 @@ def _valor(pid):
     return _VALORES.get((pid or "").upper(), 0.0)
 
 
+def _arquetipo_diamante(plain, fila):
+    """El arquetipo elegido de un Diamante (array `14CDA97F`, 0-5; 0 = Brecha).
+    None si la partida no trae el array."""
+    if not J.ocurrencias(plain, J.F_ARQUETIPO_DIAMANTE, 6000):
+        return None
+    v = J.array(plain, (J.F_ARQUETIPO_DIAMANTE, 6000, "B", 1))[fila]
+    return v if v in J.ARQUETIPOS else None
+
+
+def _arquetipo_de_serie(identidad_hex):
+    """Con que arquetipo sale un Diamante del juego: el de su primer tablero
+    basara (Raika: Tension); si no tiene, el que delate la pareja de sus fijas;
+    si no, Brecha."""
+    from ievr import opciones as O
+    elegibles = O.arquetipos_elegibles(identidad_hex)
+    if elegibles:
+        return elegibles[0]
+    fijas = O.pasivas_fijas(identidad_hex, 1, None)
+    return _arquetipo_de_pareja([{"id": x} for x in fijas], O.PAREJA_ARQUETIPO) or 0
+
+
+def poner_arquetipo_diamante(plain, fila, arquetipo):
+    """Elige el arquetipo de un Diamante, como se hace dentro del juego: se
+    escribe en el array `14CDA97F` y la pareja 4-5 de su tabla de pasivas pasa
+    a ser la de ese arquetipo (NOTAS O-166). Un Idolo no cambia."""
+    rareza = J.array(plain, J.ARRAY_RAREZA)[fila]
+    if rareza != 8:
+        raise Ilegal("solo un Diamante elige arquetipo; un Idolo lo trae de fabrica")
+    if arquetipo not in J.ARQUETIPOS:
+        raise Ilegal("no conozco el arquetipo %r" % (arquetipo,))
+    occ = J.ocurrencias(plain, J.F_ARQUETIPO_DIAMANTE, 6000)
+    if not occ:
+        raise Ilegal("esta partida no trae el array de arquetipos de Diamante")
+    antes = J.array(plain, (J.F_ARQUETIPO_DIAMANTE, 6000, "B", 1))[fila]
+    buf = bytearray(plain)
+    buf[occ[0] + 8 + fila] = arquetipo
+    plain = sincronizar_tabla_pasivas(bytes(buf), fila)
+    return plain, {"fila": fila, "que": "arquetipo", "antes": J.ARQUETIPOS.get(antes, "?"),
+                   "despues": J.ARQUETIPOS[arquetipo]}
+
+
+def _escribir_arquetipo_diamante(buf, plain, fila, identidad_hex):
+    """Al fichar o ascender un Diamante: el arquetipo con el que sale del juego."""
+    occ = J.ocurrencias(plain, J.F_ARQUETIPO_DIAMANTE, 6000)
+    if occ:
+        buf[occ[0] + 8 + fila] = _arquetipo_de_serie(identidad_hex)
+
+
 def _arquetipo_de_pareja(entradas, parejas):
     """Que arquetipo delata la pareja 4-5 de la tabla, o None."""
     if len(entradas) < 5:
@@ -1130,9 +1178,10 @@ def sincronizar_tabla_pasivas(plain, fila):
         normales = [plain[off + 4 * k:off + 4 * k + 4].hex().upper() for k in range(5)]
         heredadas = [plain[offh + 4 * k:offh + 4 * k + 4].hex().upper() for k in range(5)]
         arq_eff = arq if arq in J.ARQUETIPOS else None
-        if arq_eff is None and rareza == 8:
-            elegido = J.array(plain, (J.F_ARQUETIPO_DIAMANTE, 6000, "B", 1))[fila] if J.ocurrencias(plain, J.F_ARQUETIPO_DIAMANTE, 6000) else 0
-            arq_eff = elegido if elegido in J.ARQUETIPOS and elegido else _arquetipo_de_pareja(actual, O.PAREJA_ARQUETIPO)
+        if rareza == 8:
+            # el arquetipo elegido de un Diamante vive en el array 14CDA97F
+            # (0 = Brecha; Raika: Afinidad 2 -> Brecha 0, confirmado en el juego)
+            arq_eff = _arquetipo_diamante(plain, fila)
         if rol in ("entrenador", "gerente"):
             # Los numeros de las pasivas de personal no salen de las tablas de
             # rareza (una gerente Leyenda lleva "+1 %" a 2, un entrenador la
@@ -1171,13 +1220,6 @@ def sincronizar_tabla_pasivas(plain, fila):
                     entradas.append((actual[k]["id"], actual[k]["valor"]))
                 else:
                     entradas.append(("00000000", 0.0))
-            if (rareza == 8 and arq_eff is None and fijas and actual
-                    and all(x["id"] != "00000000" for x in actual[3:])
-                    and all(heredadas[k] == "00000000" for k in (3, 4))):
-                # Diamante sin arquetipo elegido que el editor sepa: la pareja
-                # que ya tiene la tabla es la que se eligio en el juego
-                entradas = entradas[:3] + [(actual[3]["id"], actual[3]["valor"]),
-                                           (actual[4]["id"], actual[4]["valor"])]
     if entradas is None:
         return plain
     buf = bytearray(plain)
@@ -1554,6 +1596,8 @@ def anadir_jugador(plain, nombre, rareza=None, arquetipo=None, nivel=1):
         struct.pack_into("<I", buf, off, valor)
 
     _vaciar_tabla_pasivas(buf, plain, fila)
+    if rareza == 8:
+        _escribir_arquetipo_diamante(buf, plain, fila, identidad_hex)
     info = {"fila": fila, "nombre": ficha_base.get("nombre"),
             "rareza": J.RAREZAS[rareza], "arquetipo": arquetipo,
             "nivel": nivel, "familia": familia,
@@ -1939,6 +1983,7 @@ def poner_diamante(plain, fila):
     struct.pack_into("<I", buf, pos + 4 * fila, 8)
     pos_arq = J.ocurrencias(plain, J.F_ARQUETIPO, 6000)[0] + 8
     buf[pos_arq + fila] = ARQUETIPO_DIAMANTE
+    _escribir_arquetipo_diamante(buf, plain, fila, identidad_hex)
     for fhash in (J.F_PASIVAS, J.F_HEREDADAS, J.F_RAMA):
         off, n = _campo(plain, fila, fhash)
         buf[off:off + n] = bytes(n)

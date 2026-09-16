@@ -3930,9 +3930,14 @@ donde estaba todo lo que faltaba:
     la ficha sigue a 6. Ahi vive el arquetipo elegido del Diamante.
 - La tabla **conserva los registros de quien ocupo la fila antes**: al fichar
   se vacian los cinco de esa fila antes de rellenar.
-- Hay ademas un array de 1 byte x 6000 (`14CDA97F`) que solo llevan los
-  Diamantes (0-5); Raika paso de 2 a 0. Se lee como arquetipo elegido cuando no
-  es 0; si es 0, se deduce de la pareja de la tabla.
+- **El arquetipo elegido del Diamante es el array de 1 byte x 6000
+  `14CDA97F`** (0 Brecha ... 5 Justicia, como los demas): Raika paso de 2
+  (Afinidad) a 0 y Aaron confirmo en el juego que es Brecha. La tabla de
+  pasivas se queda con la pareja anterior hasta que el juego la refresca (en
+  la partida de las 14:25 aun llevaba la de Contra), asi que manda el array.
+  El juego se lo escribe al invocar (34 de los 48 Diamantes de nivel 1 lo
+  llevan a 1-5): el editor pone el de serie al fichar o ascender (el primer
+  tablero basara; Raika, Tension) y `poner_arquetipo_diamante` lo cambia.
 
 Consecuencia: el editor **lee** la ficha y las sumas del equipo de esta tabla
 (`jugador.tabla_pasivas`), y tras cualquier cambio de un jugador la **deja como

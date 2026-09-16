@@ -862,13 +862,14 @@ def detalle_jugador(plain, fila):
         "rarezas": O.rarezas(plain, fila),
         # El arquetipo: un normal lo cambia aqui; un Idolo lo trae de fabrica; un
         # Diamante lo elige dentro del juego (NOTAS O-163)
-        "arquetipo": J.ARQUETIPOS.get(arq[fila], "sin elegir" if rareza[fila] == 8 else "?"),
-        "arquetipos": O.arquetipos() if rareza[fila] < 5 else [],
-        "arquetipo_motivo": ("viene fijo de fabrica" if 5 <= rareza[fila] <= 7 else
-                             "se elige dentro del juego, en la ficha del Diamante"
-                             if rareza[fila] == 8 else ""),
+        "arquetipo": (J.ARQUETIPOS.get(E._arquetipo_diamante(plain, fila), "sin elegir") if rareza[fila] == 8
+                      else J.ARQUETIPOS.get(arq[fila], "?")),
+        "arquetipos": O.arquetipos() if rareza[fila] < 5 or rareza[fila] == 8 else [],
+        "arquetipo_motivo": "viene fijo de fabrica" if 5 <= rareza[fila] <= 7 else "",
         # si la tabla ya trae lo que ensena el juego, no hace falta la lista aparte
-        "pasivas_personal": None if tabla else _pasivas_de_personal(rol, rareza[fila], arq[fila], "%08X" % ident[fila]),
+        "pasivas_personal": None if tabla else _pasivas_de_personal(
+            rol, rareza[fila], E._arquetipo_diamante(plain, fila) if rareza[fila] == 8 else arq[fila],
+            "%08X" % ident[fila]),
         "partidos": struct.unpack_from("<H", plain, offp)[0], "partidos_limites": O.partidos(),
         "rol": rol,
         "pasivas_bloqueadas": rareza[fila] >= 5,
@@ -1122,6 +1123,8 @@ class Manejador(BaseHTTPRequestHandler):
         if t == "rareza":
             return sesion.aplicar(E.poner_rareza, fila, int(c["valor"]))
         if t == "arquetipo":
+            if J.array(sesion.plain, J.ARRAY_RAREZA)[fila] == 8:
+                return sesion.aplicar(E.poner_arquetipo_diamante, fila, int(c["valor"]))
             return sesion.aplicar(E.poner_arquetipo, fila,
                                   J.ARQUETIPOS[int(c["valor"])])
         if t == "partidos":
