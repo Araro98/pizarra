@@ -369,6 +369,16 @@ def _pasivas_de_personal(rol, rareza, arq, identidad_hex):
                        "icono200": iconos.get(pid, "")} for k, pid in enumerate(lista)]}
 
 
+def _version_instalada():
+    """La version de Pizarra (version.txt), para que se vea en la portada y se
+    sepa con cual se ha probado algo."""
+    try:
+        with open(os.path.join(RAIZ, "version.txt"), encoding="utf-8") as fh:
+            return fh.read().strip()
+    except OSError:
+        return ""
+
+
 def _rol_de_la_ficha(plain, fila):
     """Que es esa persona y a que puede cambiar, para los botones de la ficha.
 
@@ -1017,7 +1027,8 @@ class Manejador(BaseHTTPRequestHandler):
                     return self._responder(200, {
                         "origen": sesion.origen,
                         "cambios": sesion.cambios,
-                        "puede_deshacer": bool(sesion.historial)})
+                        "puede_deshacer": bool(sesion.historial),
+                        "version": _version_instalada()})
             if u.path == "/api/jugadores":
                 filtros = {c: (q.get(c) or [""])[0]
                            for c in ("elemento", "posicion", "rareza",

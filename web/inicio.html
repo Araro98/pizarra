@@ -135,7 +135,8 @@ function pintaPartida() {
   pedir("/api/estado").then(e => {
     const ruta = (e.origen || "").replace(/\\/g, "/");
     const partes = ruta.split("/").filter(Boolean);
-    $("#partida").textContent = partes.length ? "Partida: " + partes.slice(-2).join(" / ") : "Sin partida";
+    $("#partida").textContent = (partes.length ? "Partida: " + partes.slice(-2).join(" / ") : "Sin partida")
+      + (e.version ? "   ·   Pizarra " + e.version : "");
     $("#partida").title = e.origen || "";
   }).catch(() => { $("#partida").textContent = "Sin partida"; });
 }
