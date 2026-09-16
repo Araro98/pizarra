@@ -592,21 +592,75 @@ def _variante_maxima():
     return _indice("variante_maxima", construir)
 
 
-def pasivas_fijas(identidad_hex, rama=1):
-    """Las 5 pasivas fijas de un Idolo o Diamante nativo, en el orden de la
-    pantalla: las del tronco y las de la rama elegida (1 o 2), cada una con el
-    id de la version mas alta, que es la que ensena el juego (`pasivas-fijas.csv`,
-    de su tablero; NOTAS O-162). [] si el personaje no las tiene."""
+# La pareja de pasivas (ranuras 4 y 5) de cada arquetipo en un Idolo o un
+# Diamante: siempre la misma, a su valor maximo (NOTAS O-163; cuadra con los
+# tableros de Sonny, Axel y Raika y con las fotos de Aaron).
+PAREJA_ARQUETIPO = {0: ("84E41252", "B14171BB"), 1: ("CF6EEDEE", "595EEA99"),
+                    2: ("186FF180", "C99ABCE7"), 3: ("47B73F79", "72125C90"),
+                    4: ("41436E70", "32FAAE67"), 5: ("9642721E", "4C2BAEB7")}
+
+
+def _tablas_fijas():
     def construir():
         d = {}
         for f in reglas._tabla("pasivas-fijas.csv"):
-            d.setdefault(f["identidad"].upper(), []).append(
-                (int(f["casilla"]), f["tramo"], f["pasiva_id"].upper()))
-        return {k: sorted(v) for k, v in d.items()}
-    filas = _indice("pasivas_fijas", construir).get(identidad_hex.upper(), [])
-    quiero = ("tronco", "rama%d" % (2 if rama == 2 else 1))
+            d.setdefault(f["identidad"].upper(), []).append(f)
+        return d
+    return _indice("pasivas_fijas", construir)
+
+
+def pasivas_fijas(identidad_hex, rama=1, arquetipo=None):
+    """Las 5 pasivas fijas de un Idolo o Diamante, en el orden de la pantalla,
+    cada una con el id de su version mas alta, que es la que ensena el juego
+    (`pasivas-fijas.csv`; NOTAS O-162 y O-163). [] si no las tiene.
+
+    Que tablero: el basara del arquetipo elegido si lo hay; si no el propio;
+    si no el basara de serie (orden 0). Se cogen las del tronco y las de la
+    rama elegida (1 o 2). Si hay arquetipo elegido y el tablero no es el suyo,
+    las ranuras 4 y 5 son la pareja de ese arquetipo."""
+    filas = _tablas_fijas().get(identidad_hex.upper(), [])
+    if not filas:
+        return []
+    # Las tres primeras salen siempre del tablero propio (o del basara de serie,
+    # orden 0): en las seis fotos de Raika son las mismas con cualquier
+    # arquetipo. Solo cambia la pareja 4-5, que es la del arquetipo elegido.
+    arq = arquetipo if arquetipo in PAREJA_ARQUETIPO else None
+    origenes = {(f["origen"], f["arquetipo"]) for f in filas}
+    if ("propio", "") in origenes:
+        quiero = ("propio", "")
+    else:
+        primero = min((f for f in filas if f["origen"] == "basara"), key=lambda f: int(f["orden"]))
+        quiero = ("basara", primero["arquetipo"])
+    pareja = PAREJA_ARQUETIPO.get(arq)
+    tramos = ("tronco", "rama%d" % (2 if rama == 2 else 1))
     alta = _variante_maxima()
-    return [alta.get(pid, pid) for _, tramo, pid in filas if tramo in quiero]
+    ids = [alta.get(f["pasiva_id"].upper(), f["pasiva_id"].upper())
+           for f in sorted(filas, key=lambda f: int(f["casilla"]))
+           if (f["origen"], f["arquetipo"]) == quiero and f["tramo"] in tramos]
+    if pareja and len(ids) >= 5:
+        ids = ids[:3] + list(pareja)
+    return ids
+
+
+def arquetipos_elegibles(identidad_hex):
+    """Los arquetipos que un Diamante puede elegir en el juego (los de sus
+    tableros basara), en el orden del juego. [] si no tiene."""
+    filas = [f for f in _tablas_fijas().get(identidad_hex.upper(), []) if f["origen"] == "basara"]
+    vistos = sorted({(int(f["orden"]), int(f["arquetipo"])) for f in filas})
+    return [a for _, a in vistos]
+
+
+def pasivas_personal(rol, arquetipo, clave=100):
+    """Las 5 pasivas que lleva un gerente o entrenador de ese arquetipo
+    (`pasivas-personal.csv`, del juego; NOTAS O-163). La clave 100 es la de los
+    Diamantes; la de los normales esta por confirmar."""
+    def construir():
+        d = {}
+        for f in reglas._tabla("pasivas-personal.csv"):
+            d.setdefault((f["rol"], int(f["arquetipo"]), int(f["clave"])), []).append(
+                (int(f["ranura"]), f["pasiva_id"].upper()))
+        return {k: [pid for _, pid in sorted(v)] for k, v in d.items()}
+    return _indice("pasivas_personal", construir).get((rol, arquetipo, clave), [])
 
 
 def iconos_de_pasiva():

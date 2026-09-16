@@ -3805,6 +3805,49 @@ Con eso queda cerrado lo que O-67 y O-161 dejaban a medias:
   entrenadores y gerentes llevan sus propias pasivas (las listas
   `ABILITY_LEARNING_SUPPORTER_PASSIVE_*`). Sin mirar todavia.
 
+### O-163 · Diamantes: arquetipo elegible, semilla, personal, y las pasivas de cada cosa
+
+Aaron: un Diamante elige arquetipo dentro del juego (fotos de Raika Shinohara
+Diamante con los seis), cualquiera de los 5.000 puede ser Diamante con semilla
+o tienda, y gerentes y entrenadores llevan otras pasivas. Y los Idolos ni
+cambian de arquetipo ni pueden ser personal.
+
+- **Tableros por arquetipo**: `character/basara_chara_config` ("basara" es
+  como llama el juego al Diamante). `m_basaraBuildInfoList` (identidad al
+  reves) -> `m_basaraBuildTypeList`: seis (arquetipo, tablero de
+  ability_learning) por Diamante, 70 Diamantes. Cada tablero: 28 casillas,
+  tronco con 2 pasivas, cada rama con 3; **la ultima pareja es la del
+  arquetipo** y es la misma para todos (Idolos incluidos): Brecha
+  84E41252/B14171BB, Contra CF6EEDEE/595EEA99, Afinidad 186FF180/C99ABCE7,
+  Tension 47B73F79/72125C90, Juego sucio 41436E70/32FAAE67, Justicia
+  9642721E/4C2BAEB7. Raika: las tres primeras iguales en las seis fotos y la
+  pareja cambia; el tablero de orden 0 (Tension en su caso) es el que ensena
+  sin arquetipo elegido. `pasivas-fijas.csv` lleva ahora `origen` (propio /
+  basara), `arquetipo` y `orden`.
+- **Donde guarda la partida el arquetipo elegido: sin resolver.** Raika, tras
+  pasar por los seis y quedarse de entrenadora de Justicia, sigue con el byte
+  de arquetipo a 6 y su ficha solo cambio en la medalla (0x8F0E9F49 =
+  05601900, la Medalla de entrenador) y en el contador 0x1238E5AC. Los 60
+  Diamantes de la partida llevan 6. Pendiente de una partida guardada con
+  Raika de jugadora y un arquetipo concreto.
+- **Semilla Diamante** (46 ascendidos en la partida, identidad normal):
+  rareza 8, arquetipo 6, pasivas y heredadas a cero, rama 0, ranuras
+  `00 02 04 09 0b 0d 13 15 17`, las **nueve** tecnicas puestas; el arbol se
+  queda. `escribir.poner_diamante` hace ahora todo eso (antes solo la rareza),
+  y Fichar tiene la pestana "Con semilla" para fichar a cualquiera ya como
+  Diamante (`anadir_jugador_diamante`).
+- **Personal**: `ABILITY_LEARNING_SUPPORTER_PASSIVE_INFO/BUILD/SET`: rol 0
+  entrenador, 1 gerente; por arquetipo 15 juegos de 5 pasivas con clave 1..14
+  y 100. **La clave 100 es la del Diamante**: Raika Justicia entrenadora = DF
+  del muro +8 % x2 + Justicia +1,6 % x3; gerente = +4 % x2 + +0,8 % x3, tal
+  cual las fotos. `pasivas-personal.csv` (`construir_pasivas_personal.py`).
+  Que clave (1-14) usa un normal esta por confirmar: los juegos van en bloques
+  de tres por familia de stat (tiro, foco, disputa, muro) mas dos mixtos.
+- El editor: un Idolo no puede pasar a gerente ni entrenador ni cambiar de
+  arquetipo; un Diamante ensena "sin elegir" y no deja tocar el arquetipo
+  hasta saber donde va; la ficha de un gerente o entrenador Diamante ensena
+  sus pasivas de personal.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

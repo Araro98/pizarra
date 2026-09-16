@@ -1179,8 +1179,10 @@ function seccionAtributos(d) {
     ? desplegable("Rareza", d.rarezas.opciones.map(o => [o.valor, o.nombre]), d.rareza,
         v => manda({tipo:"rareza", fila, valor:v}))
     : bloqueado("Rareza", d.rareza + " — " + d.rarezas.motivo));
-  campos.appendChild(desplegable("Arquetipo", d.arquetipos.map(o => [o.valor, o.nombre]),
-    d.arquetipo, v => manda({tipo:"arquetipo", fila, valor:v})));
+  campos.appendChild(d.arquetipos.length
+    ? desplegable("Arquetipo", d.arquetipos.map(o => [o.valor, o.nombre]),
+        d.arquetipo, v => manda({tipo:"arquetipo", fila, valor:v}))
+    : bloqueado("Arquetipo", d.arquetipo + " — " + (d.arquetipo_motivo || "")));
   campos.appendChild(numero("Partidos jugados", d.partidos, d.partidos_limites.minimo,
     d.partidos_limites.maximo, v => manda({tipo:"partidos", fila, valor:v})));
   caja.appendChild(campos);
@@ -1301,6 +1303,21 @@ function seccionPasivas(d) {
   // para quitarla que devuelve la de siempre.
   const caja = el("div", {});
   const h = d.heredadas;
+  // Un gerente o entrenador lleva OTRA lista de pasivas (NOTAS O-163)
+  if (d.pasivas_personal) {
+    const pp = d.pasivas_personal;
+    caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Pasivas como " + pp.rol})]));
+    if (pp.lista)
+      for (const x of pp.lista)
+        caja.appendChild(el("div", {class:"ranura"}, [
+          el("div", {class:"marca", text:String(x.ranura)}),
+          x.icono200 ? el("img", {class:"ico-pasiva", loading:"lazy", alt:"", src:"/icono/" + x.icono200}) : null,
+          el("div", {class:"texto"}, [el("b", {text:x.texto})]),
+          el("span", {class:"bloqueada", text:"las pone el juego"})]));
+    else
+      caja.appendChild(el("p", {class:"pie-seccion", text:"Como " + pp.rol + " sus pasivas " + pp.motivo + "."}));
+    caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Pasivas como jugador"})]));
+  }
   d.pasivas.forEach(x => {
     const f = el("div", {class:"ranura" + (x.heredada ? " heredada" : "")});
     f.appendChild(el("div", {class:"marca", text:String(x.ranura)}));
@@ -2326,9 +2343,12 @@ const FILTROS_PER = [
 const estadoPer = {};
 // Los Idolos y los Diamantes van en su pestana: si no, se pierden entre 5.400
 // normales. La familia sale de la rareza que trae el personaje de fabrica.
-const FAMILIAS_PER = [["normal","Normales"],["hero","Idolos"],["fabled","Diamantes"]];
+// "Con semilla": cualquier normal fichado directamente como Diamante, que es lo
+// que hace la semilla Diamante del juego (lo pidio Aaron, NOTAS O-163).
+const FAMILIAS_PER = [["normal","Normales"],["hero","Idolos"],["fabled","Diamantes"],["semilla","Con semilla (cualquiera como Diamante)"]];
 let familiaPer = "normal";
 function familiaDe(c) { return c.familia || "normal"; }
+function enFamilia(c, k) { return k === "semilla" ? familiaDe(c) === "normal" : familiaDe(c) === k; }
 const POR_PAGINA_PER = 120;
 async function cargaPersonajes(recargar) {
   if (!personajes || recargar) {
@@ -2338,12 +2358,13 @@ async function cargaPersonajes(recargar) {
   // Pestanas por familia, que Aaron pidio para no mezclarlo todo.
   const fam = $("#familias-per"); fam.textContent = "";
   for (const [k, etiqueta] of FAMILIAS_PER) {
-    const cuantos = personajes.filter(x => familiaDe(x) === k).length;
+    const cuantos = personajes.filter(x => enFamilia(x, k)).length;
     fam.appendChild(el("button", {"aria-selected":String(k === familiaPer),
       onclick:() => { familiaPer = k; desdePer = 0; cargaPersonajes(); }},
       [el("span", {class:"rotulo", text:etiqueta + " (" + cuantos + ")"})]));
   }
-  const deLaFamilia = personajes.filter(x => familiaDe(x) === familiaPer);
+  const deLaFamilia = personajes.filter(x => enFamilia(x, familiaPer));
+  const comoDiamante = familiaPer === "semilla";
   montaFiltros($("#filtros-per"), deLaFamilia, FILTROS_PER, estadoPer,
                () => { desdePer = 0; cargaPersonajes(); });
   const q = $("#buscar-per").value.trim().toLowerCase();
@@ -2353,12 +2374,13 @@ async function cargaPersonajes(recargar) {
   const r = $("#lista-per"); r.textContent = "";
   for (const c of ves.slice(desdePer, desdePer + POR_PAGINA_PER)) {
     const t = el("button", {class:"ficha-mini",
-      title:c.nombre + (c.se_puede ? " — pulsa para ficharlo" : " — " + c.motivo),
-      onclick:() => c.se_puede ? manda({tipo:"jugador", nombre:c.identidad})
+      title:c.nombre + (c.se_puede ? (comoDiamante ? " — pulsa para ficharlo ya como Diamante"
+                                                   : " — pulsa para ficharlo") : " — " + c.motivo),
+      onclick:() => c.se_puede ? manda({tipo:"jugador", nombre:c.identidad, diamante:comoDiamante})
                                : aviso(c.motivo, "mal")});
     // Cada Idolo tiene su color (roja, plateada, rosa) y el Diamante el suyo.
     // Antes salian todos azules y no se distinguian (lo pidio Aaron).
-    t.style.background = FONDO_RAREZA[c.rareza_valor] || "#2f6fd0";
+    t.style.background = FONDO_RAREZA[comoDiamante ? 8 : c.rareza_valor] || "#2f6fd0";
     if (!c.se_puede) t.style.filter = "grayscale(.75) brightness(.85)";
     if (c.cara) for (const capa of capasRetrato(c, true)) t.appendChild(capa);
     t.appendChild(el("div", {class:"nombre-mini", text:c.nombre}));

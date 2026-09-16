@@ -293,10 +293,10 @@ async function abrePersonaje(p) {
           el("span", {text:x.texto, title:x.plantilla || ""})]));
       caja.appendChild(pr);
     }
-    return;
   }
-  caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Pasivas que le pueden salir (ranuras 1 y 2)"})]));
   const pl = el("div", {class:"pasivas-lista"});
+  if (!(d.pasivas.fijas && d.pasivas.fijas.length)) {
+  caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Pasivas que le pueden salir (ranuras 1 y 2)"})]));
   for (const x of d.pasivas.propias)
     pl.appendChild(el("div", {class:"pasiva"}, [
       x.icono ? el("img", {class:"ico-pasiva", loading:"lazy", alt:"", src:"/icono/" + x.icono}) : null,
@@ -309,10 +309,12 @@ async function abrePersonaje(p) {
   }
   if (!d.pasivas.propias.length) pl.appendChild(el("p", {class:"vacio", text:"No hay datos de sorteo para este personaje."}));
   caja.appendChild(pl);
+  }
 
   const arqs = Object.keys(d.pasivas.por_arquetipo).sort();
   if (arqs.length) {
-    caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Pasivas de las ranuras 3, 4 y 5 (por arquetipo)"})]));
+    caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:(d.pasivas.fijas && d.pasivas.fijas.length)
+      ? "Si se le elige arquetipo en el juego, las ranuras 4 y 5 pasan a ser" : "Pasivas de las ranuras 3, 4 y 5 (por arquetipo)"})]));
     let arqVisto = arqs.includes(d.arquetipo) ? d.arquetipo : arqs[0];
     const tabsA = el("div", {class:"arq-tabs"});
     const lista = el("div", {class:"pasivas-lista"});

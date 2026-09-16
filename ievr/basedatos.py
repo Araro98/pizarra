@@ -223,7 +223,16 @@ def _pasivas_de(ident, resumen):
             x = {"id": pid, "icono": iconos.get(pid, ""), "fija": True}
             x.update(_pasiva_con_valores(pid))
             otras.append(x)
-        return {"propias": [], "por_arquetipo": {}, "fijas": lista, "fijas_rama2": otras}
+        # y si es un Diamante al que se le elige arquetipo, la pareja de cada uno
+        por_arquetipo = {}
+        for a in O.arquetipos_elegibles(ident):
+            lista_a = []
+            for ranura, pid in zip((4, 5), O.PAREJA_ARQUETIPO.get(a, ())):
+                x = {"id": pid, "ranura": ranura, "icono": iconos.get(pid, ""), "fija": True}
+                x.update(_pasiva_con_valores(pid))
+                lista_a.append(x)
+            por_arquetipo[J.ARQUETIPOS.get(a, str(a))] = lista_a
+        return {"propias": [], "por_arquetipo": por_arquetipo, "fijas": lista, "fijas_rama2": otras}
     propias, vistas = [], set()
     for f in _pool().get(ident, []):
         pid = f["pasiva_id"].upper()

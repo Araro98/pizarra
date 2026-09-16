@@ -333,6 +333,24 @@ def _quien_es(plain, slot, ident, nivel, rareza, per):
             **O.datos_cuerpo(clave)}
 
 
+def _pasivas_de_personal(rol, rareza, arq):
+    """Lo que ensena el juego en "Pasivas de equipo" a un gerente o entrenador:
+    otra lista, que no es la del jugador (NOTAS O-163). Solo resuelta para los
+    Diamantes con arquetipo elegido."""
+    ahora = (rol or {}).get("ahora")
+    if ahora not in ("gerente", "entrenador"):
+        return None
+    if rareza == 8 and arq in J.ARQUETIPOS:
+        iconos = O.iconos_de_pasiva()
+        return {"rol": ahora, "lista": [{"ranura": k + 1, "texto": O.nombre_pasiva(pid),
+                                        "icono200": iconos.get(pid, "")}
+                                       for k, pid in enumerate(O.pasivas_personal(ahora, arq))]}
+    if rareza == 8:
+        return {"rol": ahora, "motivo": "dependen del arquetipo que se le elija dentro del juego"}
+    return {"rol": ahora, "motivo": "como %s lleva otra lista, que el editor aun no sabe leer "
+                                    "para los jugadores normales" % ahora}
+
+
 def _rol_de_la_ficha(plain, fila):
     """Que es esa persona y a que puede cambiar, para los botones de la ficha.
 
@@ -347,6 +365,7 @@ def _rol_de_la_ficha(plain, fila):
     f = EQ._ficha_de(plain, slot)
     nombre = f.get("nombre_es") or f.get("nombre_en") or ""
     partidos = EQ._partidos_de(plain, slot) or 0
+    rareza = J.array(plain, J.ARRAY_RAREZA)[fila]
     opciones = []
     for cual in ("jugador", "gerente", "entrenador"):
         if cual == ahora:
@@ -358,6 +377,10 @@ def _rol_de_la_ficha(plain, fila):
         if cual == "jugador" and nombre == EQ.NOMBRE_SOLO_STAFF:
             falta = ("%s es el protagonista de la historia: solo puede ser gerente "
                      "o entrenador." % nombre)
+        elif cual != "jugador" and 5 <= rareza <= 7:
+            # regla del juego que confirmo Aaron: un Idolo no se sienta en el
+            # cuerpo tecnico (NOTAS O-163)
+            falta = "Un Idolo no puede ser gerente ni entrenador: el juego no lo deja."
         elif not de_fabrica:
             hacen = (EQ.PARTIDOS_PARA_JUGADOR if cual == "jugador"
                      else EQ.PARTIDOS_PARA_STAFF)
@@ -450,6 +473,7 @@ def pasivas_de_equipo(plain, i):
     valores = {f["id"].upper(): f for f in reglas._tabla("pasivas-valor.csv")}
     iconos = O.iconos_de_pasiva()
     identidades = J.array(plain, J.ARRAY_IDENTIDAD)
+    arquetipos = J.array(plain, (J.F_ARQUETIPO, 6000, "B", 1))
     grupos = {}
     for m in e["miembros"]:
         if not m["jugador"]:
@@ -464,7 +488,8 @@ def pasivas_de_equipo(plain, i):
         # las fijas de un Idolo o Diamante nativo (campo a cero): las del tablero
         fijas = []
         if not any(plain[off:off + 20]):
-            fijas = O.pasivas_fijas("%08X" % identidades[fila], _rama_abierta(plain, fila).get("cual", 1))
+            fijas = O.pasivas_fijas("%08X" % identidades[fila], _rama_abierta(plain, fila).get("cual", 1),
+                                    arquetipos[fila])
         for k in range(5):
             idh = plain[offh + 4 * k:offh + 4 * k + 4].hex().upper()
             idn = plain[off + 4 * k:off + 4 * k + 4].hex().upper()
@@ -744,7 +769,7 @@ def detalle_jugador(plain, fila):
     offh, _ = E._campo(plain, fila, J.F_HEREDADAS)
     # Un Idolo o Diamante nativo lleva el campo a cero y el juego ensena las de
     # su tablero (NOTAS O-162): aqui se ensenan esas mismas
-    fijas = O.pasivas_fijas("%08X" % ident[fila], rama.get("cual", 1))
+    fijas = O.pasivas_fijas("%08X" % ident[fila], rama.get("cual", 1), arq[fila])
     if fijas and not any(plain[off:off + 20]):
         fijas = fijas + [""] * 5
     else:
@@ -777,6 +802,7 @@ def detalle_jugador(plain, fila):
         # las judias son solo seis tipos: esas si caben enteras
 
     offp, _ = E._campo(plain, fila, E.F_PARTIDOS)
+    rol = _rol_de_la_ficha(plain, fila)
     return {
         "fila": fila,
         "nombre": _nombre_de("%08X" % ident[fila], base),
@@ -790,9 +816,16 @@ def detalle_jugador(plain, fila):
         "nivel": nivel[fila], "niveles": O.niveles(),
         "rareza": J.RAREZAS.get(rareza[fila], "?"), "rareza_valor": rareza[fila],
         "rarezas": O.rarezas(plain, fila),
-        "arquetipo": J.ARQUETIPOS.get(arq[fila], "?"), "arquetipos": O.arquetipos(),
+        # El arquetipo: un normal lo cambia aqui; un Idolo lo trae de fabrica; un
+        # Diamante lo elige dentro del juego (NOTAS O-163)
+        "arquetipo": J.ARQUETIPOS.get(arq[fila], "sin elegir" if rareza[fila] == 8 else "?"),
+        "arquetipos": O.arquetipos() if rareza[fila] < 5 else [],
+        "arquetipo_motivo": ("viene fijo de fabrica" if 5 <= rareza[fila] <= 7 else
+                             "se elige dentro del juego, en la ficha del Diamante"
+                             if rareza[fila] == 8 else ""),
+        "pasivas_personal": _pasivas_de_personal(rol, rareza[fila], arq[fila]),
         "partidos": struct.unpack_from("<H", plain, offp)[0], "partidos_limites": O.partidos(),
-        "rol": _rol_de_la_ficha(plain, fila),
+        "rol": rol,
         "pasivas_bloqueadas": rareza[fila] >= 5,
         "motivo_pasivas": (("fija: la pone el juego desde su tablero" if fijas
                             else "son fijas y las pone el juego")
@@ -1107,6 +1140,8 @@ class Manejador(BaseHTTPRequestHandler):
         if t == "objeto":
             return sesion.aplicar(E.anadir_objeto, c.get("id") or c["nombre"], int(c.get("cantidad", 1)))
         if t == "jugador":
+            if c.get("diamante"):
+                return sesion.aplicar(E.anadir_jugador_diamante, c["nombre"])
             return sesion.aplicar(E.anadir_jugador, c["nombre"],
                                   c.get("rareza") or None, c.get("arquetipo") or None)
         if t == "borrar_jugador":

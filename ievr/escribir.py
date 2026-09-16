@@ -1194,6 +1194,51 @@ def _pasivas_del_nuevo(plain, identidad, arquetipo, fila):
             + pareja), de_quien
 
 
+def _tecnicas_de_salida(plain, ficha_base, identidad_hex, cuantas):
+    """Las referencias de biblioteca de las `cuantas` primeras tecnicas del
+    personaje (3 un normal, 6 un Idolo, 9 un Diamante), creando en la
+    biblioteca las que falten. Devuelve (plain, refs, creadas)."""
+    biblioteca = _biblioteca_de_tecnicas(plain)
+    nombres_tec = {}
+    for f in reglas._tabla("nombres-es.csv"):
+        if f.get("categoria") == "supertecnica":
+            nombres_tec.setdefault((f.get("nombre_es") or "").strip().lower(),
+                                   f["id"].upper())
+    modelo_tec = next((f for _v, f in biblioteca.values()), None)
+    refs, creadas, sin_nombre = [], [], []
+    # El id exacto de cada tecnica de salida lo dice chara_param (`tec1..tec3`
+    # de personajes.csv). El nombre queda solo de respaldo: hay tecnicas cuyo
+    # nombre no esta entre las "supertecnica" (Miximax Trans: Raika es un
+    # "aura") y con el nombre no se podia fichar a quien las lleva (NOTAS O-161).
+    ficha_juego = reglas.personajes().get(identidad_hex) or {}
+    for k in range(1, cuantas + 1):
+        nom_tec = (ficha_base.get("r%d_tecnica" % k) or "").strip()
+        id_tec = (ficha_juego.get("tec%d" % k) or "").strip().upper() or None
+        if not nom_tec and not id_tec:
+            continue
+        if id_tec is None:
+            id_tec = nombres_tec.get(nom_tec.lower())
+        if id_tec is None:
+            sin_nombre.append(nom_tec)
+            continue
+        if id_tec in biblioteca:
+            refs.append(biblioteca[id_tec][0])
+            continue
+        if modelo_tec is None:
+            raise Ilegal("no hay en la partida ninguna fila de biblioteca de la "
+                         "que copiar la forma. No escribo nada.")
+        plain, ref = _meter_en_biblioteca(plain, id_tec, modelo_tec)
+        biblioteca = _biblioteca_de_tecnicas(plain)
+        refs.append(ref)
+        creadas.append(nom_tec)
+    if sin_nombre:
+        raise Ilegal("no se que identificador tienen estas supertecnicas de %s: "
+                     "%s. No escribo nada."
+                     % (ficha_base.get("nombre"), ", ".join(sin_nombre)))
+
+    return plain, refs, creadas
+
+
 def anadir_jugador(plain, nombre, rareza=None, arquetipo=None, nivel=1):
     """Mete en la partida un jugador que no se tiene. Probado en el juego (NOTAS P-10).
 
@@ -1276,43 +1321,9 @@ def anadir_jugador(plain, nombre, rareza=None, arquetipo=None, nivel=1):
         pasivas, de_quien = _pasivas_del_nuevo(plain, identidad, arquetipo, fila)
 
     # --- las tecnicas de salida, por numero de fila de la biblioteca
-    biblioteca = _biblioteca_de_tecnicas(plain)
-    nombres_tec = {}
-    for f in reglas._tabla("nombres-es.csv"):
-        if f.get("categoria") == "supertecnica":
-            nombres_tec.setdefault((f.get("nombre_es") or "").strip().lower(),
-                                   f["id"].upper())
-    modelo_tec = next((f for _v, f in biblioteca.values()), None)
-    refs, creadas, sin_nombre = [], [], []
-    # El id exacto de cada tecnica de salida lo dice chara_param (`tec1..tec3`
-    # de personajes.csv). El nombre queda solo de respaldo: hay tecnicas cuyo
-    # nombre no esta entre las "supertecnica" (Miximax Trans: Raika es un
-    # "aura") y con el nombre no se podia fichar a quien las lleva (NOTAS O-161).
-    ficha_juego = reglas.personajes().get(identidad_hex) or {}
-    for k in range(1, TECNICAS_DE_SALIDA_POR_FAMILIA.get(familia, TECNICAS_DE_SALIDA) + 1):
-        nom_tec = (ficha_base.get("r%d_tecnica" % k) or "").strip()
-        id_tec = (ficha_juego.get("tec%d" % k) or "").strip().upper() or None
-        if not nom_tec and not id_tec:
-            continue
-        if id_tec is None:
-            id_tec = nombres_tec.get(nom_tec.lower())
-        if id_tec is None:
-            sin_nombre.append(nom_tec)
-            continue
-        if id_tec in biblioteca:
-            refs.append(biblioteca[id_tec][0])
-            continue
-        if modelo_tec is None:
-            raise Ilegal("no hay en la partida ninguna fila de biblioteca de la "
-                         "que copiar la forma. No escribo nada.")
-        plain, ref = _meter_en_biblioteca(plain, id_tec, modelo_tec)
-        biblioteca = _biblioteca_de_tecnicas(plain)
-        refs.append(ref)
-        creadas.append(nom_tec)
-    if sin_nombre:
-        raise Ilegal("no se que identificador tienen estas supertecnicas de %s: "
-                     "%s. No escribo nada."
-                     % (ficha_base.get("nombre"), ", ".join(sin_nombre)))
+    plain, refs, creadas = _tecnicas_de_salida(
+        plain, ficha_base, identidad_hex,
+        TECNICAS_DE_SALIDA_POR_FAMILIA.get(familia, TECNICAS_DE_SALIDA))
 
     # --- a partir de aqui ya no puede fallar nada, se escribe
     buf = bytearray(plain)
@@ -1723,18 +1734,18 @@ def cambiar_rama(plain, fila):
 
 
 def poner_diamante(plain, fila):
-    """Pasa un jugador normal a Diamante.
+    """Pasa un jugador normal a Diamante, como lo hace la semilla del juego.
 
     En el juego se hace cambiandolo por una semilla Diamante o comprandolo en la
     tienda con espiritus de Idolo, asi que **cualquier jugador normal puede
-    serlo**. Y no es un personaje distinto: en la partida de Aaron hay 28
-    identidades que estan a la vez como normales y como Diamante, la misma
-    identidad con otra rareza (NOTAS O-117).
+    serlo**. Y no es un personaje distinto: es la misma identidad con otra rareza
+    (NOTAS O-117).
 
-    Se cambia **solo la rareza**. Las pasivas de un Diamante las pone el juego y
-    no se tocan aqui: en la partida hay Diamantes con el campo de pasivas a cero
-    y otros con pasivas dentro, asi que no esta claro que escribe el juego y no
-    se inventa.
+    Lo que deja el juego, leido de los 46 ascendidos con semilla de la partida
+    de Aaron (NOTAS O-163): rareza 8, arquetipo "sin elegir" (6), pasivas y
+    heredadas a cero (las fijas las ensena el juego desde su tablero), rama 0,
+    el campo de ranuras de Diamante y **las nueve tecnicas** en sus ranuras.
+    El arbol de casillas se queda como estaba.
     """
     pos = J.ocurrencias(plain, J.ARRAY_RAREZA[0], J.ARRAY_RAREZA[1])[0] + 8
     antes = struct.unpack_from("<I", plain, pos + 4 * fila)[0]
@@ -1743,10 +1754,44 @@ def poner_diamante(plain, fila):
     if antes not in RAREZAS_QUE_SE_SUBEN:
         raise Ilegal("ese jugador es %s: los Idolos no se pasan a Diamante"
                      % J.RAREZAS.get(antes, "rareza %d" % antes))
+    identidad_hex = "%08X" % J.array(plain, J.ARRAY_IDENTIDAD)[fila]
+    ficha_base = _personaje_por_nombre(identidad_hex)
+    plain, refs, creadas = _tecnicas_de_salida(plain, ficha_base, identidad_hex, 9)
+
+    # a partir de aqui ya no falla nada; las posiciones se calculan sobre la
+    # partida con la biblioteca ya ampliada
     buf = bytearray(plain)
+    pos = J.ocurrencias(plain, J.ARRAY_RAREZA[0], J.ARRAY_RAREZA[1])[0] + 8
     struct.pack_into("<I", buf, pos + 4 * fila, 8)
+    pos_arq = J.ocurrencias(plain, J.F_ARQUETIPO, 6000)[0] + 8
+    buf[pos_arq + fila] = ARQUETIPO_DIAMANTE
+    for fhash in (J.F_PASIVAS, J.F_HEREDADAS, J.F_RAMA):
+        off, n = _campo(plain, fila, fhash)
+        buf[off:off + n] = bytes(n)
+    off, n = _campo(plain, fila, 0x45E2D879)
+    buf[off:off + n] = bytes.fromhex(RANURAS_NIVEL_1["fabled"])[:n]
+    tecnicas = J.ocurrencias(plain, *J.ANCLA_TECNICAS)
+    for k, h in enumerate(J.RANURAS_TECNICAS):
+        try:
+            off, n = _campo_en(plain, tecnicas[fila], h)
+        except Ilegal:
+            continue
+        struct.pack_into("<I", buf, off, refs[k] if k < len(refs) else 0)
     return bytes(buf), {"fila": fila, "que": "rareza",
-                        "antes": J.RAREZAS.get(antes, antes), "despues": "Diamante"}
+                        "antes": J.RAREZAS.get(antes, antes), "despues": "Diamante",
+                        "tecnicas": len(refs), "creadas": creadas}
+
+
+def anadir_jugador_diamante(plain, nombre):
+    """Ficha un jugador normal y lo pasa a Diamante en el mismo paso, como si
+    se le hubiera dado una semilla Diamante nada mas llegar (NOTAS O-163)."""
+    plain, info = anadir_jugador(plain, nombre)
+    if info.get("familia") != "normal":
+        return plain, info
+    plain, otro = poner_diamante(plain, info["fila"])
+    info.update({"rareza": "Diamante", "arquetipo": "sin elegir", "diamante": True,
+                 "tecnicas": otro.get("tecnicas", info.get("tecnicas"))})
+    return plain, info
 
 
 def poner_medalla(plain, fila, cual):
@@ -1776,6 +1821,9 @@ def poner_medalla(plain, fila, cual):
     ahora = EQ.medalla_de(plain, slot) or "jugador"
     if ahora == cual:
         raise Ilegal("%s ya es %s" % (nombre, cual))
+    if cual != "jugador" and 5 <= J.array(plain, J.ARRAY_RAREZA)[fila] <= 7:
+        raise Ilegal("%s es un Idolo, y el juego no deja que un Idolo sea gerente "
+                     "ni entrenador" % nombre)
     if cual == "jugador" and nombre == EQ.NOMBRE_SOLO_STAFF:
         raise Ilegal("%s es el protagonista de la historia: solo puede ser gerente "
                      "o entrenador, nunca jugar" % EQ.NOMBRE_SOLO_STAFF)
