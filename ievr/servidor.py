@@ -119,6 +119,10 @@ class Sesion:
 
     def aplicar(self, funcion, *args):
         nuevo, info = funcion(self.plain, *args)
+        # cualquier cambio de un jugador deja su tabla de pasivas con numero
+        # como la dejaria el juego (NOTAS O-166)
+        if isinstance(info, dict) and isinstance(info.get("fila"), int):
+            nuevo = E.sincronizar_tabla_pasivas(nuevo, info["fila"])
         self.historial.append((self.plain, list(self.cambios)))
         if len(self.historial) > self.PASOS:
             self.historial.pop(0)
@@ -500,9 +504,14 @@ def pasivas_de_equipo(plain, i):
         except E.Ilegal:
             continue
         quien = EQ._nombre_de_slot(plain, m["jugador"]) or "fila %d" % fila
+        # lo que ensena el juego: la tabla de pasivas con numero (O-166); si no
+        # esta, se reconstruye desde la ficha
+        tabla = J.tabla_pasivas(plain, fila)
+        if not any(x["id"] != "00000000" for x in tabla):
+            tabla = []
         # las fijas de un Idolo o Diamante nativo (campo a cero): las del tablero
         fijas = []
-        if not any(plain[off:off + 20]):
+        if not tabla and not any(plain[off:off + 20]):
             fijas = O.pasivas_fijas("%08X" % identidades[fila], _rama_abierta(plain, fila).get("cual", 1),
                                     arquetipos[fila])
         for k in range(5):
@@ -511,8 +520,12 @@ def pasivas_de_equipo(plain, i):
             if idn == "00000000" and k < len(fijas):
                 idn = fijas[k]
             pid = idh if idh != "00000000" else idn
-            # la version de su rareza, que es la que cuenta el juego (O-165)
-            pid = O.variante_por_rareza(pid, rarezas[fila])
+            valor_tabla = None
+            if tabla:
+                pid, valor_tabla = tabla[k]["id"], tabla[k]["valor"]
+            else:
+                # la version de su rareza, que es la que cuenta el juego (O-165)
+                pid = O.variante_por_rareza(pid, rarezas[fila])
             f = valores.get(pid)
             if not f:
                 continue
@@ -522,7 +535,7 @@ def pasivas_de_equipo(plain, i):
                                          "cuantos": 0, "quienes": [],
                                          "sitio": []})
             try:
-                v = float(f["valor"])
+                v = float(f["valor"]) if valor_tabla is None else float(valor_tabla)
             except ValueError:
                 v = 0.0
             g["valor"] += v
@@ -791,6 +804,11 @@ def detalle_jugador(plain, fila):
         fijas = fijas + [""] * 5
     else:
         fijas = []
+    # Lo que ensena el juego de verdad: la tabla de pasivas con numero (O-166).
+    # Si la partida no la tuviera, se reconstruye desde la ficha como antes.
+    tabla = J.tabla_pasivas(plain, fila)
+    if not any(x["id"] != "00000000" for x in tabla):
+        tabla = []
     pasivas = []
     for k in range(5):
         idn = plain[off + 4 * k:off + 4 * k + 4].hex().upper()
@@ -798,6 +816,14 @@ def detalle_jugador(plain, fila):
             idn = fijas[k]
         idh = plain[offh + 4 * k:offh + 4 * k + 4].hex().upper()
         iconos_p = O.iconos_de_pasiva()
+        if tabla:
+            t = tabla[k]
+            visible = O.texto_con_valor(t["id"], t["valor"]) if t["id"] != "00000000" else ""
+            pasivas.append({"ranura": k + 1, "fija": bool(fijas), "marca": t["marca"],
+                            "normal": visible if idh == "00000000" else O.nombre_pasiva(O.variante_por_rareza(idn, rareza[fila]), todos.get(idn, "")),
+                            "heredada": visible if idh != "00000000" else "",
+                            "icono200": iconos_p.get(t["id"] if t["id"] != "00000000" else (idh if idh != "00000000" else idn), "")})
+            continue
         pasivas.append({"ranura": k + 1, "fija": bool(fijas),
                         # con su numero puesto: cada version por rareza es un id (O-46)
                         # con el numero que ensena el juego para su rareza (O-165)
@@ -841,7 +867,8 @@ def detalle_jugador(plain, fila):
         "arquetipo_motivo": ("viene fijo de fabrica" if 5 <= rareza[fila] <= 7 else
                              "se elige dentro del juego, en la ficha del Diamante"
                              if rareza[fila] == 8 else ""),
-        "pasivas_personal": _pasivas_de_personal(rol, rareza[fila], arq[fila], "%08X" % ident[fila]),
+        # si la tabla ya trae lo que ensena el juego, no hace falta la lista aparte
+        "pasivas_personal": None if tabla else _pasivas_de_personal(rol, rareza[fila], arq[fila], "%08X" % ident[fila]),
         "partidos": struct.unpack_from("<H", plain, offp)[0], "partidos_limites": O.partidos(),
         "rol": rol,
         "pasivas_bloqueadas": rareza[fila] >= 5,

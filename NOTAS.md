@@ -3905,6 +3905,45 @@ propio +6 %, disputa propia +13 %, afinidad +10 % y muro +2 %, que es
 exactamente lo que da `variante_por_rareza` sobre sus cinco ids guardados
 (version 0). Y coincide con lo que ensenaba Axel Idolo (version 4 tambien).
 
+### O-166 · La tabla de pasivas CON NUMERO: lo que el juego ensena de verdad
+
+Comparando byte a byte dos partidas de Steam (Raika de Afinidad y Clark con la
+"Pasiva de entrenador 42" frente a Raika de Brecha y Clark con la 43) salio
+donde estaba todo lo que faltaba:
+
+- Aparte de la ficha, la partida lleva una **tabla de 6000 x 5 registros**
+  (cabecera `C86C5ADB`, cada jugador `4307B6FA` con 5 hijos): por registro
+  `5D2A9A7A` = id de la pasiva, `11F630D2` = su numero como float y `9A091BF4`
+  = marca (0 cerrada, 1 desbloqueada). 41 bytes por registro, 221 por jugador,
+  en el orden de las filas. **Es lo que el juego ensena y usa**:
+  - Orville Newman Leyenda: la ficha guarda ids base y la tabla lleva las
+    versiones 4 con 1,1 / 6 / 13 / 10 / 2, lo de su foto.
+  - Sonny plateado y Raika Diamante: ficha a cero, tabla con sus fijas.
+  - Celia Hills gerente: ficha con sus pasivas de jugadora, tabla con las de
+    personal (ids base del juego de clave 8 con numeros ya subidos: 2 / 2 / 1 /
+    0,4 / 5; un entrenador lleva la pareja a x3). Esos numeros no salen de las
+    tablas de rareza (los ids de personal solo tienen version 0): los pone el
+    juego, y las pasivas de personal son objetos con un grado ("E 16").
+  - Clark (convertido): ficha a cero, tabla con la pasiva de entrenador que le
+    dio Aaron (foco +1,5 -> disputa +10 al cambiar el objeto).
+  - Raika de Brecha: la pareja 4-5 de la tabla cambia; el byte de arquetipo de
+    la ficha sigue a 6. Ahi vive el arquetipo elegido del Diamante.
+- La tabla **conserva los registros de quien ocupo la fila antes**: al fichar
+  se vacian los cinco de esa fila antes de rellenar.
+- Hay ademas un array de 1 byte x 6000 (`14CDA97F`) que solo llevan los
+  Diamantes (0-5); Raika paso de 2 a 0. Se lee como arquetipo elegido cuando no
+  es 0; si es 0, se deduce de la pareja de la tabla.
+
+Consecuencia: el editor **lee** la ficha y las sumas del equipo de esta tabla
+(`jugador.tabla_pasivas`), y tras cualquier cambio de un jugador la **deja como
+la dejaria el juego** (`escribir.sincronizar_tabla_pasivas`, enganchado en
+`Sesion.aplicar`): normales con la version de su rareza, Idolos y Diamantes con
+sus fijas (respetando la pareja elegida), y el personal se deja como este (sus
+numeros son del juego; a uno recien fichado de fabrica se le deja a cero y el
+juego se la rellena, como hizo con Buddy Arnolds). O-165 sigue valiendo como
+regla de los numeros de los jugadores, pero ya no hace falta calcularla: esta
+escrita en la tabla.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

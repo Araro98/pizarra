@@ -69,6 +69,17 @@ F_HEREDADAS = 0xB30A7BA1        # 5 ids: las heredadas; tapan a la normal de su 
 #   18-27  rama 2: las de las ranuras 7, 8 y 9
 #   28-39  un tercer tramo, comun a las dos, sin identificar
 # Y `F_RAMA` dice cual de las dos esta elegida: 0 la primera, 1 la segunda.
+# La tabla de pasivas CON NUMERO: aparte de la ficha, la partida lleva una lista
+# de 6000 x 5 registros (id de la pasiva en la version que se ensena, su numero
+# como float, y una marca de desbloqueada). Es lo que el juego ensena y usa: a
+# un Idolo o Diamante (ficha a cero) le pone aqui sus fijas, a un gerente o
+# entrenador su juego de personal, a un normal la version de su rareza (NOTAS
+# O-166). Cada registro mide 41 bytes y cada jugador 221.
+F_TABLA_PASIVA = 0x5D2A9A7A
+TABLA_PASIVA_REGISTRO = 41
+TABLA_PASIVA_JUGADOR = 221
+F_ARQUETIPO_DIAMANTE = 0x14CDA97F   # 1 byte x 6000; solo lo llevan los Diamantes (O-166)
+
 F_TABLERO = 0xBB459017
 F_RAMA = 0x72479F6E
 TRAMO_TRONCO = (0, 8)
@@ -118,6 +129,42 @@ def _array(plain, definicion):
         raise ValueError("esperaba una sola cabecera %08X/%d, encontre %d"
                          % (fhash, nbytes, len(pos)))
     return struct.unpack_from("<%d%s" % (nbytes // ancho, fmt), plain, pos[0] + 8)
+
+
+def tabla_pasivas_base(plain):
+    """Donde empieza la tabla de pasivas con numero, o None si no esta."""
+    occ = ocurrencias(plain, F_TABLA_PASIVA, 4)
+    if len(occ) < 30000:
+        return None
+    base = occ[0]
+    if occ[5] - base != TABLA_PASIVA_JUGADOR or occ[1] - base != TABLA_PASIVA_REGISTRO:
+        return None
+    return base
+
+
+def pos_tabla_pasivas(plain, fila, ranura):
+    """Offset del registro (ranura 0-4) de ese jugador en la tabla, o None."""
+    base = tabla_pasivas_base(plain)
+    if base is None:
+        return None
+    p = base + fila * TABLA_PASIVA_JUGADOR + ranura * TABLA_PASIVA_REGISTRO
+    if plain[p:p + 4] != struct.pack("<I", F_TABLA_PASIVA):
+        return None
+    return p
+
+
+def tabla_pasivas(plain, fila):
+    """Las 5 pasivas con numero de ese jugador, como las ensena el juego:
+    [{id, valor, marca}] (id como en la partida). [] si no hay tabla."""
+    out = []
+    for k in range(5):
+        p = pos_tabla_pasivas(plain, fila, k)
+        if p is None:
+            return []
+        out.append({"id": plain[p + 8:p + 12].hex().upper(),
+                    "valor": struct.unpack_from("<f", plain, p + 20)[0],
+                    "marca": plain[p + 32]})
+    return out
 
 
 def indice_por_slot(plain):

@@ -1045,6 +1045,163 @@ def _bloques_de_aspecto(plain, identidad, modelo_fila):
 ARQUETIPO_DIAMANTE = 6
 
 
+_VARIANTES = {}
+_VALORES = {}
+
+
+def _variantes():
+    """{id: {rareza: id}} de `pasivas-rareza.csv`."""
+    if not _VARIANTES:
+        grupos = {}
+        for f in reglas._tabla("pasivas-rareza.csv"):
+            grupos.setdefault(f["grupo"], {})[int(f["rareza"])] = f["id"].upper()
+        for g in grupos.values():
+            for pid in g.values():
+                _VARIANTES[pid] = g
+    return _VARIANTES
+
+
+def _variante(pid, rareza):
+    """El id de la version de esa pasiva para esa rareza (0-4; Idolos y
+    Diamantes la 4). El mismo id si no tiene versiones."""
+    g = _variantes().get((pid or "").upper())
+    if not g:
+        return (pid or "").upper()
+    q = min(max(int(rareza or 0), 0), 4)
+    return g.get(q) or g.get(max(g))
+
+
+def _valor(pid):
+    """El numero propio de esa version de la pasiva (`pasivas-valor.csv`)."""
+    if not _VALORES:
+        for f in reglas._tabla("pasivas-valor.csv"):
+            try:
+                _VALORES[f["id"].upper()] = float(f.get("valor") or 0)
+            except ValueError:
+                _VALORES[f["id"].upper()] = 0.0
+    return _VALORES.get((pid or "").upper(), 0.0)
+
+
+def _arquetipo_de_pareja(entradas, parejas):
+    """Que arquetipo delata la pareja 4-5 de la tabla, o None."""
+    if len(entradas) < 5:
+        return None
+    par = {entradas[3]["id"], entradas[4]["id"]}
+    for a, ids in parejas.items():
+        if par == set(ids):
+            return a
+    return None
+
+
+def sincronizar_tabla_pasivas(plain, fila):
+    """Deja la tabla de pasivas con numero de ese jugador (NOTAS O-166) como la
+    dejaria el juego con lo que hay ahora en su ficha:
+
+    - gerente o entrenador de fabrica, o Diamante de personal: su juego de
+      personal (ids base, numero de su rareza), como Celia Hills o Raika;
+    - Idolo o Diamante con la ficha a cero: sus fijas (a la version maxima);
+      si es un Diamante sin arquetipo elegido se respeta la pareja 4-5 que ya
+      tuviera la tabla, que es la que el jugador eligio en el juego;
+    - cualquier otro: la version de su rareza de cada pasiva de la ficha (la
+      heredada tapa a la normal), con su numero;
+    - gerentes y entrenadores se dejan como esten: sus numeros los pone el
+      juego (a un normal convertido con objetos; a uno de fabrica al llegar).
+    La marca de desbloqueada se conserva.
+    """
+    from ievr import opciones as O, equipos as EQ
+    if J.tabla_pasivas_base(plain) is None:
+        return plain
+    actual = J.tabla_pasivas(plain, fila)
+    marcas = [x["marca"] for x in actual] if actual else [0] * 5
+    ident = J.array(plain, J.ARRAY_IDENTIDAD)[fila]
+    entradas = None
+    if not ident:
+        entradas = [("00000000", 0.0)] * 5
+    else:
+        rareza = J.array(plain, J.ARRAY_RAREZA)[fila]
+        arq = J.array(plain, (J.F_ARQUETIPO, 6000, "B", 1))[fila]
+        ident_hex = "%08X" % ident
+        try:
+            rol = EQ.medalla_de(plain, fila << 16) or ""
+        except Exception:
+            rol = ""
+        off, _ = _campo(plain, fila, J.F_PASIVAS)
+        offh, _ = _campo(plain, fila, J.F_HEREDADAS)
+        normales = [plain[off + 4 * k:off + 4 * k + 4].hex().upper() for k in range(5)]
+        heredadas = [plain[offh + 4 * k:offh + 4 * k + 4].hex().upper() for k in range(5)]
+        arq_eff = arq if arq in J.ARQUETIPOS else None
+        if arq_eff is None and rareza == 8:
+            elegido = J.array(plain, (J.F_ARQUETIPO_DIAMANTE, 6000, "B", 1))[fila] if J.ocurrencias(plain, J.F_ARQUETIPO_DIAMANTE, 6000) else 0
+            arq_eff = elegido if elegido in J.ARQUETIPOS and elegido else _arquetipo_de_pareja(actual, O.PAREJA_ARQUETIPO)
+        if rol in ("entrenador", "gerente"):
+            # Los numeros de las pasivas de personal no salen de las tablas de
+            # rareza (una gerente Leyenda lleva "+1 %" a 2, un entrenador la
+            # pareja a x3...): los pone el juego. Se deja como este.
+            return plain
+        elif not any(int(x, 16) for x in normales + heredadas) and rareza < 5:
+            # ficha sin pasivas (jugadores viejos de la partida): lo que haya en
+            # la tabla lo puso el juego, se respeta
+            return plain
+        else:
+            fijas = []
+            if rareza >= 5:
+                try:
+                    offr, _ = _campo(plain, fila, J.F_RAMA)
+                    rama = 2 if struct.unpack_from("<I", plain, offr)[0] == 1 else 1
+                except Ilegal:
+                    rama = 1
+                fijas = O.pasivas_fijas(ident_hex, rama, arq_eff)
+            ficha_completa = all(x != "00000000" for x in normales)
+            entradas = []
+            for k in range(5):
+                # la heredada tapa a la de la ficha, y la de la ficha a la fija
+                if heredadas[k] != "00000000":
+                    v = _variante(heredadas[k], rareza)
+                    entradas.append((v, _valor(v)))
+                elif normales[k] != "00000000" and (rareza < 5 or ficha_completa):
+                    # (a un Idolo o Diamante con la ficha a medias el juego le
+                    # ignora las de la ficha y ensena sus fijas; con las cinco
+                    # puestas, como un Axel Idolo del universo, las usa)
+                    v = _variante(normales[k], rareza)
+                    entradas.append((v, _valor(v)))
+                elif k < len(fijas):
+                    entradas.append((fijas[k], _valor(fijas[k])))
+                elif rareza >= 5 and actual and actual[k]["id"] != "00000000":
+                    # lo que el juego ya le puso (tablero generico, pareja elegida)
+                    entradas.append((actual[k]["id"], actual[k]["valor"]))
+                else:
+                    entradas.append(("00000000", 0.0))
+            if (rareza == 8 and arq_eff is None and fijas and actual
+                    and all(x["id"] != "00000000" for x in actual[3:])
+                    and all(heredadas[k] == "00000000" for k in (3, 4))):
+                # Diamante sin arquetipo elegido que el editor sepa: la pareja
+                # que ya tiene la tabla es la que se eligio en el juego
+                entradas = entradas[:3] + [(actual[3]["id"], actual[3]["valor"]),
+                                           (actual[4]["id"], actual[4]["valor"])]
+    if entradas is None:
+        return plain
+    buf = bytearray(plain)
+    for k, (pid, valor) in enumerate(entradas[:5]):
+        p = J.pos_tabla_pasivas(plain, fila, k)
+        if p is None:
+            return plain
+        buf[p + 8:p + 12] = bytes.fromhex(pid)
+        struct.pack_into("<f", buf, p + 20, float(valor))
+        buf[p + 32] = marcas[k] if pid != "00000000" else 0
+    return bytes(buf)
+
+
+def _vaciar_tabla_pasivas(buf, plain, fila):
+    """Pone a cero los 5 registros de esa fila en la tabla de pasivas con
+    numero: la tabla conserva los de quien ocupo la fila antes (NOTAS O-166)."""
+    for k in range(5):
+        p = J.pos_tabla_pasivas(plain, fila, k)
+        if p is not None:
+            buf[p + 8:p + 12] = bytes(4)
+            struct.pack_into("<f", buf, p + 20, 0.0)
+            buf[p + 32] = 0
+
+
 def _copia_existente(plain, identidad):
     """Un jugador de la partida que sea ese mismo personaje, o None.
 
@@ -1396,6 +1553,7 @@ def anadir_jugador(plain, nombre, rareza=None, arquetipo=None, nivel=1):
         valor = refs[k] if k < len(refs) else 0
         struct.pack_into("<I", buf, off, valor)
 
+    _vaciar_tabla_pasivas(buf, plain, fila)
     info = {"fila": fila, "nombre": ficha_base.get("nombre"),
             "rareza": J.RAREZAS[rareza], "arquetipo": arquetipo,
             "nivel": nivel, "familia": familia,
@@ -1518,6 +1676,7 @@ def borrar_jugador(plain, fila):
     tecnicas = J.ocurrencias(plain, *J.ANCLA_TECNICAS)
 
     buf = bytearray(plain)
+    _vaciar_tabla_pasivas(buf, plain, fila)
     for fhash, ancho, tam, vacio in ARRAYS_DE_JUGADOR:
         struct.pack_into(FORMATO[ancho], buf,
                          _base_array(plain, fhash, tam) + ancho * fila, vacio)
@@ -1879,7 +2038,19 @@ def poner_medalla(plain, fila, cual):
     off, n = _campo(plain, fila, EQ.F_MEDALLA)
     buf = bytearray(plain)
     struct.pack_into("<I", buf, off, valor)
-    return bytes(buf), {"fila": fila, "que": "rol", "antes": ahora, "despues": cual}
+    plain = bytes(buf)
+    if cual != "jugador" and not de_fabrica and J.array(plain, J.ARRAY_RAREZA)[fila] != 8:
+        # un normal convertido empieza sin pasivas de personal (Aaron, O-164):
+        # se vacia su tabla y ya se las dara el juego con objetos
+        buf = bytearray(plain)
+        for k in range(5):
+            p = J.pos_tabla_pasivas(plain, fila, k)
+            if p is not None:
+                buf[p + 8:p + 12] = bytes(4)
+                struct.pack_into("<f", buf, p + 20, 0.0)
+                buf[p + 32] = 0
+        plain = bytes(buf)
+    return plain, {"fila": fila, "que": "rol", "antes": ahora, "despues": cual}
 
 
 def conseguir_todo(plain, categoria, cantidad):

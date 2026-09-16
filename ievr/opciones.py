@@ -112,6 +112,16 @@ def _valores_pasiva():
                                               for f in reglas._tabla("pasivas-valor.csv")})
 
 
+def texto_con_valor(idh, valor, respaldo=""):
+    """El texto de una pasiva con el numero que diga la tabla de pasivas
+    (NOTAS O-166), que puede no ser el propio del id (un gerente lleva el id
+    base con el numero ya subido)."""
+    f = _valores_pasiva().get((idh or "").upper())
+    if not f or not f.get("texto"):
+        return nombre_pasiva(idh, respaldo)
+    return " ".join(f["texto"].replace("<VALUE>", "%g" % float(valor)).split())
+
+
 def nombre_pasiva(idh, respaldo=""):
     """El texto de una pasiva con su numero puesto: "PP del equipo +1.5 %".
 
@@ -646,19 +656,32 @@ def pasivas_fijas(identidad_hex, rama=1, arquetipo=None):
     # orden 0): en las seis fotos de Raika son las mismas con cualquier
     # arquetipo. Solo cambia la pareja 4-5, que es la del arquetipo elegido.
     arq = arquetipo if arquetipo in PAREJA_ARQUETIPO else None
-    origenes = {(f["origen"], f["arquetipo"]) for f in filas}
-    if ("propio", "") in origenes:
-        quiero = ("propio", "")
-    else:
-        primero = min((f for f in filas if f["origen"] == "basara"), key=lambda f: int(f["orden"]))
+    basaras = [f for f in filas if f["origen"] == "basara"]
+    if basaras:
+        # si tiene tableros basara, el juego usa esos (Zanark, Gabriel, Victor
+        # o Axel Diamante de nivel 99 llevan en su tabla el tronco basara, no
+        # el de su tablero propio); el de serie es el de orden 0
+        primero = min(basaras, key=lambda f: int(f["orden"]))
         quiero = ("basara", primero["arquetipo"])
+    else:
+        quiero = ("propio", "")
     pareja = PAREJA_ARQUETIPO.get(arq)
     tramos = ("tronco", "rama%d" % (2 if rama == 2 else 1))
     alta = _variante_maxima()
     ids = [alta.get(f["pasiva_id"].upper(), f["pasiva_id"].upper())
            for f in sorted(filas, key=lambda f: int(f["casilla"]))
            if (f["origen"], f["arquetipo"]) == quiero and f["tramo"] in tramos]
-    if pareja and len(ids) >= 5:
+    # Un Idolo lleva su arquetipo de fabrica y su tablero ya trae la pareja en
+    # su orden (Sonny plateado: tiro directo y luego pase). Solo un Diamante
+    # cambia de pareja; si tiene tablero basara de ese arquetipo, en el orden
+    # de ese tablero (Raika Afinidad: pase y luego tiro directo).
+    es_diamante = (reglas.personajes().get(identidad_hex.upper()) or {}).get("rareza") == "fabled"
+    if pareja and es_diamante and len(ids) >= 5:
+        del_tablero = [alta.get(f["pasiva_id"].upper(), f["pasiva_id"].upper())
+                       for f in sorted(filas, key=lambda f: int(f["casilla"]))
+                       if f["origen"] == "basara" and f["arquetipo"] == str(arq) and f["tramo"] == "rama1"]
+        if len(del_tablero) >= 2 and set(del_tablero[-2:]) == set(pareja):
+            pareja = tuple(del_tablero[-2:])
         ids = ids[:3] + list(pareja)
     return ids
 
