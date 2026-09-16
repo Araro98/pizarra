@@ -3876,8 +3876,18 @@ Ganonti), y la partida de Steam con ellos:
   lo unico que cambia en su ficha son dos casillas del arbol (28 y 33) del
   tramo 28-39 que O-115 dejo sin identificar, y la copia de nivel. Los
   Diamantes de nivel 50+ llevan 28-32 (o mas) puestas. Hipotesis: la eleccion
-  de arquetipo es "comprar" casillas de ese tramo. Falta una segunda muestra
-  (Raika de Afinidad) para saber que casilla es cada arquetipo.
+  de arquetipo es "comprar" casillas de ese tramo. **Descartado**: con
+  Afinidad elegido siguen siendo 28 y 33, y Clark von Wunderbar (entrenador
+  normal con una pasiva de entrenador puesta) lleva las mismas dos casillas.
+  Esas dos casillas parecen ir con haber sido personal, no con el arquetipo.
+- Las pasivas de personal de un convertido (Clark cambio la "Pasiva de
+  entrenador 43", disputa +10 % mismo elemento, por la 42, foco +1,5 %)
+  **tampoco estan en su ficha**: pasivas a cero, sin objeto en la mochila con
+  ese nombre. Los unicos sitios de la partida que nombran el slot de Raika o de
+  Clark son listas de slots y un registro pequeno por jugador (campos
+  `3A0D9419` = slot, `73700B76` = 2 bytes, `709A88E9` = 1 byte, `E2A3657B` = 4
+  bytes; Raika nueva 13/12, Raika vieja 11/9 y 1/0), aun sin descifrar. Copia
+  de la partida del 16-9 14:20 guardada aparte para comparar con la siguiente.
 
 ### O-165 · La partida guarda siempre la version base de cada pasiva
 
@@ -3890,8 +3900,10 @@ juego el que sube el numero al ensenarla: Celia Hills Leyenda guarda "disputa
 "+13 %" (version 4). Regla: rareza 0-4 -> version 0-4; Idolo y Diamante -> la
 4. `O.variante_por_rareza` la aplica en la ficha del editor, en las sumas del
 equipo (y por tanto en la calculadora) y en las pasivas de personal.
-**Por comprobar con una foto**: un jugador normal Leyenda, su pagina de pasivas
-en el juego frente a la ficha del editor.
+**Comprobado**: Orville Newman Leyenda (foto de Aaron) ensena foco +1,1 %, foco
+propio +6 %, disputa propia +13 %, afinidad +10 % y muro +2 %, que es
+exactamente lo que da `variante_por_rareza` sobre sus cinco ids guardados
+(version 0). Y coincide con lo que ensenaba Axel Idolo (version 4 tambien).
 
 ## SUPUESTO
 
