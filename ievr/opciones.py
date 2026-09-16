@@ -575,6 +575,27 @@ def objetos_creables(plain):
     return sorted(fuera, key=lambda x: (x["categoria"], x["nombre"]))
 
 
+def variante_por_rareza(pid, rareza):
+    """El id de la version de esa pasiva que ensena el juego a un jugador de esa
+    rareza: la partida guarda SIEMPRE la version base (0) y el juego sube el
+    numero al vuelo, rareza 0-4 -> version 0-4, Idolos y Diamantes -> la 4
+    (NOTAS O-165). Si la pasiva no tiene versiones, el mismo id."""
+    def construir():
+        grupos = {}
+        for f in reglas._tabla("pasivas-rareza.csv"):
+            grupos.setdefault(f["grupo"], {})[int(f["rareza"])] = f["id"].upper()
+        d = {}
+        for g in grupos.values():
+            for pid_g in g.values():
+                d[pid_g] = g
+        return d
+    g = _indice("variantes_pasiva", construir).get((pid or "").upper())
+    if not g:
+        return pid
+    quiero = min(max(int(rareza or 0), 0), 4)
+    return g.get(quiero) or g.get(max(g))
+
+
 def _variante_maxima():
     """{id: id de la version mas alta de su grupo} (`pasivas-rareza.csv`). Un
     Idolo o Diamante ensena cada pasiva con el numero de la version mas alta
@@ -648,6 +669,17 @@ def arquetipos_elegibles(identidad_hex):
     filas = [f for f in _tablas_fijas().get(identidad_hex.upper(), []) if f["origen"] == "basara"]
     vistos = sorted({(int(f["orden"]), int(f["arquetipo"])) for f in filas})
     return [a for _, a in vistos]
+
+
+def clave_personal(identidad_hex):
+    """La clave (1-14) del juego de pasivas de personal de un personaje normal:
+    columna 6 de chara_param (`clave_personal` en personajes.csv, NOTAS O-164).
+    Un Diamante usa la 100. None si no se sabe."""
+    f = reglas.personajes().get(identidad_hex.upper()) or {}
+    try:
+        return int(f.get("clave_personal") or "")
+    except ValueError:
+        return None
 
 
 def pasivas_personal(rol, arquetipo, clave=100):

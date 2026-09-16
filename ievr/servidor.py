@@ -333,22 +333,36 @@ def _quien_es(plain, slot, ident, nivel, rareza, per):
             **O.datos_cuerpo(clave)}
 
 
-def _pasivas_de_personal(rol, rareza, arq):
+def _pasivas_de_personal(rol, rareza, arq, identidad_hex):
     """Lo que ensena el juego en "Pasivas de equipo" a un gerente o entrenador:
-    otra lista, que no es la del jugador (NOTAS O-163). Solo resuelta para los
-    Diamantes con arquetipo elegido."""
+    otra lista, que no es la del jugador (NOTAS O-163, O-164).
+
+    - Diamante: el juego de clave 100 de su arquetipo.
+    - Gerente o entrenador **de fabrica** (llega del juego ya con la medalla):
+      el juego de su arquetipo con la clave del personaje (col 6 de chara_param).
+    - Un jugador normal convertido con la medalla: empieza sin pasivas de
+      personal y se le dan en el juego con objetos (Aaron); donde se guardan
+      esas, todavia no se sabe.
+    """
     ahora = (rol or {}).get("ahora")
     if ahora not in ("gerente", "entrenador"):
         return None
-    if rareza == 8 and arq in J.ARQUETIPOS:
-        iconos = O.iconos_de_pasiva()
-        return {"rol": ahora, "lista": [{"ranura": k + 1, "texto": O.nombre_pasiva(pid),
-                                        "icono200": iconos.get(pid, "")}
-                                       for k, pid in enumerate(O.pasivas_personal(ahora, arq))]}
-    if rareza == 8:
+    if 5 <= rareza <= 7:
+        return None
+    if arq not in J.ARQUETIPOS:
         return {"rol": ahora, "motivo": "dependen del arquetipo que se le elija dentro del juego"}
-    return {"rol": ahora, "motivo": "como %s lleva otra lista, que el editor aun no sabe leer "
-                                    "para los jugadores normales" % ahora}
+    clave = 100 if rareza == 8 else O.clave_personal(identidad_hex)
+    de_fabrica = (rol or {}).get("de_fabrica") == ahora
+    if rareza != 8 and not de_fabrica:
+        return {"rol": ahora, "motivo": "empiezan vacias: un jugador convertido con la medalla "
+                                        "las recibe en el juego con objetos"}
+    lista = O.pasivas_personal(ahora, arq, clave) if clave else []
+    if not lista:
+        return {"rol": ahora, "motivo": "no estan en las tablas del juego para este personaje"}
+    iconos = O.iconos_de_pasiva()
+    return {"rol": ahora, "clave": clave,
+            "lista": [{"ranura": k + 1, "texto": O.nombre_pasiva(O.variante_por_rareza(pid, rareza)),
+                       "icono200": iconos.get(pid, "")} for k, pid in enumerate(lista)]}
 
 
 def _rol_de_la_ficha(plain, fila):
@@ -474,6 +488,7 @@ def pasivas_de_equipo(plain, i):
     iconos = O.iconos_de_pasiva()
     identidades = J.array(plain, J.ARRAY_IDENTIDAD)
     arquetipos = J.array(plain, (J.F_ARQUETIPO, 6000, "B", 1))
+    rarezas = J.array(plain, J.ARRAY_RAREZA)
     grupos = {}
     for m in e["miembros"]:
         if not m["jugador"]:
@@ -496,6 +511,8 @@ def pasivas_de_equipo(plain, i):
             if idn == "00000000" and k < len(fijas):
                 idn = fijas[k]
             pid = idh if idh != "00000000" else idn
+            # la version de su rareza, que es la que cuenta el juego (O-165)
+            pid = O.variante_por_rareza(pid, rarezas[fila])
             f = valores.get(pid)
             if not f:
                 continue
@@ -783,8 +800,9 @@ def detalle_jugador(plain, fila):
         iconos_p = O.iconos_de_pasiva()
         pasivas.append({"ranura": k + 1, "fija": bool(fijas),
                         # con su numero puesto: cada version por rareza es un id (O-46)
-                        "normal": O.nombre_pasiva(idn, todos.get(idn, "")) if idn != "00000000" else "",
-                        "heredada": O.nombre_pasiva(idh, todos.get(idh, "")) if idh != "00000000" else "",
+                        # con el numero que ensena el juego para su rareza (O-165)
+                        "normal": O.nombre_pasiva(O.variante_por_rareza(idn, rareza[fila]), todos.get(idn, "")) if idn != "00000000" else "",
+                        "heredada": O.nombre_pasiva(O.variante_por_rareza(idh, rareza[fila]), todos.get(idh, "")) if idh != "00000000" else "",
                         # el dibujo de la que se ve (la heredada tapa a la normal)
                         "icono200": iconos_p.get(idh if idh != "00000000" else idn, "")})
 
@@ -823,7 +841,7 @@ def detalle_jugador(plain, fila):
         "arquetipo_motivo": ("viene fijo de fabrica" if 5 <= rareza[fila] <= 7 else
                              "se elige dentro del juego, en la ficha del Diamante"
                              if rareza[fila] == 8 else ""),
-        "pasivas_personal": _pasivas_de_personal(rol, rareza[fila], arq[fila]),
+        "pasivas_personal": _pasivas_de_personal(rol, rareza[fila], arq[fila], "%08X" % ident[fila]),
         "partidos": struct.unpack_from("<H", plain, offp)[0], "partidos_limites": O.partidos(),
         "rol": rol,
         "pasivas_bloqueadas": rareza[fila] >= 5,

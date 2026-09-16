@@ -265,6 +265,34 @@ def _pasivas_de(ident, resumen):
     return {"propias": propias, "por_arquetipo": por_arquetipo}
 
 
+def _pasivas_personal_de(ident, f):
+    """Las pasivas que lleva como gerente o entrenador, por arquetipo: las de
+    fabrica (clave del personaje) o las de Diamante (clave 100). NOTAS O-164."""
+    if f.get("rareza") == "fabled":
+        roles = [("entrenador", 100), ("gerente", 100)]
+    else:
+        clave = O.clave_personal(ident)
+        roles = [(r, clave) for r, apt in (("entrenador", "apt_entrenador"), ("gerente", "apt_gerente"))
+                 if f.get(apt) and clave]
+    if not roles:
+        return None
+    iconos = O.iconos_de_pasiva()
+    fuera = {}
+    for rol, clave in roles:
+        por_arq = {}
+        for a, nombre in sorted(J.ARQUETIPOS.items()):
+            lista = []
+            for pid in O.pasivas_personal(rol, a, clave):
+                x = {"id": pid, "icono": iconos.get(pid, "")}
+                x.update(_pasiva_con_valores(pid))
+                lista.append(x)
+            if lista:
+                por_arq[nombre] = lista
+        if por_arq:
+            fuera[rol] = por_arq
+    return fuera or None
+
+
 def personaje(identidad):
     """La ficha entera de un personaje."""
     ident = identidad.upper()
@@ -291,6 +319,7 @@ def personaje(identidad):
         "tecnicas": tecnicas,
         "pasivas": _pasivas_de(ident, r),
         "apt_entrenador": bool(f.get("apt_entrenador")),
+        "pasivas_personal": _pasivas_personal_de(ident, f),
         "apt_gerente": bool(f.get("apt_gerente")),
         "variantes": [x for x in personajes()
                       if x["nombre"] == r["nombre"] and x["identidad"] != ident],

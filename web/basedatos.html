@@ -311,6 +311,30 @@ async function abrePersonaje(p) {
   caja.appendChild(pl);
   }
 
+  // Como gerente o entrenador lleva OTRA lista, por arquetipo (NOTAS O-164)
+  if (d.pasivas_personal) {
+    for (const rol of Object.keys(d.pasivas_personal)) {
+      const porArq = d.pasivas_personal[rol];
+      const nombres = Object.keys(porArq).sort();
+      caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Pasivas como " + rol + " (segun su arquetipo)"})]));
+      let visto = nombres.includes(d.arquetipo) ? d.arquetipo : nombres[0];
+      const tabs = el("div", {class:"arq-tabs"});
+      const lista = el("div", {class:"pasivas-lista"});
+      const pinta = () => {
+        tabs.textContent = "";
+        for (const a of nombres)
+          tabs.appendChild(el("button", {"aria-selected":String(a === visto), text:a,
+            onclick:() => { visto = a; pinta(); }}));
+        lista.textContent = "";
+        for (const x of porArq[visto])
+          lista.appendChild(el("div", {class:"pasiva"}, [
+            x.icono ? el("img", {class:"ico-pasiva", loading:"lazy", alt:"", src:"/icono/" + x.icono}) : null,
+            el("span", {text:x.texto, title:x.plantilla || ""})]));
+      };
+      pinta();
+      caja.appendChild(tabs); caja.appendChild(lista);
+    }
+  }
   const arqs = Object.keys(d.pasivas.por_arquetipo).sort();
   if (arqs.length) {
     caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:(d.pasivas.fijas && d.pasivas.fijas.length)

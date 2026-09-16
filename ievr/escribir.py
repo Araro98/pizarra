@@ -1396,13 +1396,28 @@ def anadir_jugador(plain, nombre, rareza=None, arquetipo=None, nivel=1):
         valor = refs[k] if k < len(refs) else 0
         struct.pack_into("<I", buf, off, valor)
 
-    return bytes(buf), {"fila": fila, "nombre": ficha_base.get("nombre"),
-                        "rareza": J.RAREZAS[rareza], "arquetipo": arquetipo,
-                        "nivel": nivel, "familia": familia,
-                        "tecnicas": len(refs), "copiado_de": modelo,
-                        "pasivas_de": de_quien, "serie": serie, "creadas": creadas,
-                        "aspecto": de_donde_aspecto,
-                        "slot": a_poner[0x918020D9]}
+    info = {"fila": fila, "nombre": ficha_base.get("nombre"),
+            "rareza": J.RAREZAS[rareza], "arquetipo": arquetipo,
+            "nivel": nivel, "familia": familia,
+            "tecnicas": len(refs), "copiado_de": modelo,
+            "pasivas_de": de_quien, "serie": serie, "creadas": creadas,
+            "aspecto": de_donde_aspecto,
+            "slot": a_poner[0x918020D9]}
+    plain = bytes(buf)
+    # Un gerente o entrenador de fabrica llega del juego ya con su medalla
+    # puesta (Celia Hills, Nelly Raimon, Percival Travis... en la partida de
+    # Aaron, NOTAS O-164). Si no hay medalla en la mochila, se queda de jugador
+    # y se avisa.
+    ficha_juego = reglas.personajes().get(identidad_hex) or {}
+    apt = ("entrenador" if ficha_juego.get("apt_entrenador") else
+           "gerente" if ficha_juego.get("apt_gerente") else "")
+    if apt and familia == "normal":
+        try:
+            plain, _ = poner_medalla(plain, fila, apt)
+            info["rol"] = apt
+        except Ilegal as ex:
+            info["aviso"] = "Es %s de fabrica pero se queda de jugador: %s" % (apt, ex)
+    return plain, info
 
 
 # --- borrar jugadores ----------------------------------------------------------

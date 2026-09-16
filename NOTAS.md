@@ -1463,6 +1463,10 @@ Consecuencia para el editor: al crear un Idolo o un Diamante nativo no se eligen
 ni rareza ni arquetipo ni pasivas. Se copian de una copia suya que ya haya en la
 partida, y si no la hay **se rechaza la operacion** en vez de inventarselas.
 
+**Superado**: O-161 (rareza y arquetipo de las tablas del juego), O-162 (lo que
+escribe el juego al invocar, y las pasivas fijas salen del tablero de cada uno)
+y O-163 (Diamantes: arquetipo elegible, semilla y personal).
+
 
 ### O-68 · CORREGIDO · Un jugador son ONCE campos, no cinco
 El primer intento de crear jugadores escribio identidad, nivel, experiencia,
@@ -3847,6 +3851,47 @@ cambian de arquetipo ni pueden ser personal.
   arquetipo; un Diamante ensena "sin elegir" y no deja tocar el arquetipo
   hasta saber donde va; la ficha de un gerente o entrenador Diamante ensena
   sus pasivas de personal.
+
+### O-164 · Personal: la clave de cada personaje, y lo que llega del juego
+
+Aaron paso fotos de tres gerentes y tres entrenadores recien invocados (Celia
+Hills, Nelly Raimon, Silvia Woods, Percival Travis, Axel Blaze, Alessio
+Ganonti), y la partida de Steam con ellos:
+
+- **El juego de pasivas de personal de un normal es `chara_param` col 6**
+  (`clave_personal` en personajes.csv): Celia 8, Nelly 1, Silvia 2, Percival
+  7, Axel 5, Alessio 1, y los seis cuadran con su foto (juego del rol y del
+  arquetipo de esa copia). Los juegos van por familia de stat: 1-3 tiro, 4-6
+  foco, 7-9 disputa, 10-12 muro, 13-14 mixtos; 100 el Diamante.
+- Un gerente o entrenador **de fabrica** llega del juego como un normal
+  cualquiera (pasivas de jugador sorteadas de su pool, `00 02 04 ff...`, 3
+  tecnicas) **mas la medalla puesta** en `0x8F0E9F49` (3160c900 gerente,
+  05601900 entrenador: el hueco de mochila del monton de medallas). Lo que
+  ensena en "Pasivas de equipo" NO son esas sorteadas sino el juego de
+  personal. `anadir_jugador` le pone ahora la medalla al ficharlo.
+- Un normal **convertido** con la medalla empieza sin pasivas de personal y se
+  le dan en el juego con objetos (Aaron). En que campo van esas, sin muestra
+  todavia: Clark von Wunderbar (convertido) lleva todo a cero.
+- **Raika con Contra elegido como jugadora**: el byte de arquetipo sigue a 6 y
+  lo unico que cambia en su ficha son dos casillas del arbol (28 y 33) del
+  tramo 28-39 que O-115 dejo sin identificar, y la copia de nivel. Los
+  Diamantes de nivel 50+ llevan 28-32 (o mas) puestas. Hipotesis: la eleccion
+  de arquetipo es "comprar" casillas de ese tramo. Falta una segunda muestra
+  (Raika de Afinidad) para saber que casilla es cada arquetipo.
+
+### O-165 · La partida guarda siempre la version base de cada pasiva
+
+Al contrastar las fichas de personal (O-164) salio esto, que corrige O-46: en
+la partida de Steam, **las 13.885 pasivas guardadas de jugadores normales son
+todas la version 0** de su grupo, sea el jugador de rareza 0 o Leyenda. Los ids
+de las versiones 1-4 existen en las tablas pero no se escriben nunca. Es el
+juego el que sube el numero al ensenarla: Celia Hills Leyenda guarda "disputa
++1 %" y ensena "+2 %"; Axel Blaze Idolo Nv.14 guarda "disputa +8 %" y ensena
+"+13 %" (version 4). Regla: rareza 0-4 -> version 0-4; Idolo y Diamante -> la
+4. `O.variante_por_rareza` la aplica en la ficha del editor, en las sumas del
+equipo (y por tanto en la calculadora) y en las pasivas de personal.
+**Por comprobar con una foto**: un jugador normal Leyenda, su pagina de pasivas
+en el juego frente a la ficha del editor.
 
 ## SUPUESTO
 
