@@ -3718,9 +3718,21 @@ llevara otra formacion, y pidio ademas saber que es cada hueco.
 - **Los puestos 0-10 de la partida son los `positionNo` de la formacion**: el
   0 es siempre el portero y el resto van en el orden de la tabla.
 
-El editor pinta ahora cada hueco donde lo pone la formacion (x de -1 a 1, y de
-0,9 abajo a 0,1 arriba), con el rotulo POR/DF/MC/DC del hueco, y marca en ambar
-al jugador que no es de esa posicion (el juego lo permite; solo se avisa).
+- Aaron paso capturas de la pantalla de formacion del juego con el mismo
+  equipo en las 8 formaciones: se ve que **al cambiar de formacion cada jugador
+  se queda en su puesto y lo que cambia es lo que es ese hueco** (Nobby Shinn
+  sale de MC en la 5-4-1 y de DC en la 4-3-3 Delta). El juego rotula la tarjeta
+  con el papel del hueco, no con la posicion natural del jugador.
+- Las `startPos` no dan la pantalla tal cual (el juego reparte las filas a su
+  manera y `bustupPos` no lo explica), asi que `construir_formaciones.py` lleva
+  la posicion de cada tarjeta **medida de las capturas** (`px`, `py`, de 0 a 1).
+- Las tres formaciones "B-" (Raimon, Nagumo Hara, Club de Beisbol) tienen 5
+  puestos y son de equipos de la historia: Aaron confirma que no se pueden
+  poner, asi que `legal = 0` y el editor no las ofrece.
+
+El editor pinta el campo como la pantalla del juego (vertical, con sus areas y
+el circulo central), cada tarjeta donde la pone el juego y debajo el rotulo
+POR/DF/MC/DC de ese hueco en esa formacion.
 
 ## SUPUESTO
 
