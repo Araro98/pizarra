@@ -122,6 +122,7 @@ py herramientas\construir_hombros.py
 py herramientas\construir_formaciones.py
 py herramientas\construir_pasivas_fijas.py
 py herramientas\construir_pasivas_personal.py
+py herramientas\construir_tableros_diamante.py
 ```
 
 Y para volver a hacer el `.exe` (solo si cambia el codigo):

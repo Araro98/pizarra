@@ -79,6 +79,11 @@ F_TABLA_PASIVA = 0x5D2A9A7A
 TABLA_PASIVA_REGISTRO = 41
 TABLA_PASIVA_JUGADOR = 221
 F_ARQUETIPO_DIAMANTE = 0x14CDA97F   # 1 byte x 6000; solo lo llevan los Diamantes (O-166)
+# El tablero de habilidades que el juego le tiene asignado al jugador (4 bytes x
+# 6000): un Idolo el suyo propio (col 10 de chara_param), un Diamante el basara
+# de su arquetipo, un normal 0. Sin el, el juego trata al jugador como fichado
+# del universo: tres tecnicas y pasivas sorteadas (NOTAS O-169).
+F_TABLERO_JUEGO = 0xBAFA8DBD
 
 F_TABLERO = 0xBB459017
 F_RAMA = 0x72479F6E

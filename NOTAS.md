@@ -3978,6 +3978,30 @@ de sub 9 en la partida son asi, y son a las que apuntan todos los de nivel 1
 que entrega el juego. Y una tecnica repetida en el arbol (Frente frio tres
 veces) va a **una sola fila**, con el contador de "cuantos la llevan" sumado.
 
+### O-169 · `0xBAFA8DBD`: el tablero que el juego le tiene asignado a cada jugador
+
+Tras O-168 Aiden Froste rosa del editor seguia saliendo con tres tecnicas y
+pasivas sorteadas. Se enumeraron TODAS las estructuras de la partida con una
+entrada por jugador (19 arrays y 6 contenedores de 6.000) y se comparo al
+Aiden del editor con el Sonny invocado: la unica diferencia es el array
+`0xBAFA8DBD` (4 bytes x 6000): Sonny lleva `A264FA75`, que es **su tablero de
+habilidades** (col 10 de chara_param); el del editor lleva 0. Sin tablero el
+juego trata al jugador como fichado del universo (Axel Idolo Nv.14, que vino
+del universo, tambien lleva 0): tres tecnicas y pasivas sorteadas.
+
+Lo que lleva cada uno, en la partida:
+- Idolos: su tablero propio (col 10), los 100 que entrego el juego.
+- Diamantes: el tablero basara de **su arquetipo elegido** (`14CDA97F`), los 57
+  nativos sin excepcion (Raika de Brecha: `A9320039`).
+- Normales: 0 (el generico va por otra via). Destin Billows, el propio.
+- Normales ascendidos con semilla: uno de los juegos basara; va con posicion,
+  elemento y tipo (col 4 de chara_param) pero no del todo (35 de 43 en Brecha a
+  Juego sucio; Justicia varia mas). `tableros-diamante.csv` lleva el mas comun.
+
+El editor lo escribe al fichar (`tablero` de personajes.csv para un Idolo,
+basara para un Diamante), al ascender con semilla y al cambiar el arquetipo de
+un Diamante.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

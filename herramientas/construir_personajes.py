@@ -121,6 +121,9 @@ def main():
         # Columna 6: la clave (1-14) del juego de pasivas que lleva como gerente
         # o entrenador (NOTAS O-164): cuadra con las seis fotos de Aaron.
         clave_personal = entero(c[6]) if len(c) > 6 else None
+        # Columna 10: el tablero de habilidades propio (Idolos y algunos mas),
+        # que la partida guarda por jugador en 0xBAFA8DBD (NOTAS O-169).
+        tablero = entero(c[10]) if len(c) > 10 else None
         # Las nueve tecnicas del personaje y a que nivel se abre cada una:
         # columnas 11..27 (id) y 12..28 (nivel), de dos en dos. Las tres
         # primeras son el tronco, luego tres de la rama 1 y tres de la rama 2.
@@ -132,7 +135,8 @@ def main():
             tecnicas.append(("%08X" % (tid & 0xFFFFFFFF), niv or 0) if tid else ("", 0))
         tecnicas = [(bytes.fromhex(t)[::-1].hex().upper() if t else "", lv)
                     for t, lv in tecnicas]
-        param[ident & 0xFFFFFFFF] = (base_id, rareza, apt_e, apt_g, tecnicas, arquetipo, clave_personal)
+        param[ident & 0xFFFFFFFF] = (base_id, rareza, apt_e, apt_g, tecnicas, arquetipo, clave_personal,
+                                     "%08X" % (tablero & 0xFFFFFFFF) if tablero else "")
 
     # chara_base: 0 = chara_base_id, 2 = indice de catalogo, 3 = name_id
     base = {}
@@ -180,8 +184,8 @@ def main():
         w.writerow(["identidad", "chara_base_id", "indice", "rareza", "rareza_valor",
                     "nombre_es", "nombre_en", "apt_entrenador", "apt_gerente"]
                    + ["tec%d" % k for k in range(1, 10)]
-                   + ["tec%d_nivel" % k for k in range(1, 10)] + ["arquetipo_valor", "clave_personal"])
-        for ident, (base_id, rareza, apt_e, apt_g, tecnicas, arquetipo, clave_personal) in sorted(param.items()):
+                   + ["tec%d_nivel" % k for k in range(1, 10)] + ["arquetipo_valor", "clave_personal", "tablero"])
+        for ident, (base_id, rareza, apt_e, apt_g, tecnicas, arquetipo, clave_personal, tablero) in sorted(param.items()):
             if base_id not in base:
                 continue
             indice, name_id = base[base_id]
@@ -192,7 +196,7 @@ def main():
                         "1" if apt_e else "", "1" if apt_g else ""]
                        + [t for t, _ in tecnicas] + [lv for _, lv in tecnicas]
                        + ["" if arquetipo is None else arquetipo,
-                          "" if clave_personal is None else clave_personal])
+                          "" if clave_personal is None else clave_personal, tablero])
             n += 1
     print("Escritos %d personajes en %s" % (n, SALIDA))
     return 0

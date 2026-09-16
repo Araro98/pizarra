@@ -686,6 +686,32 @@ def pasivas_fijas(identidad_hex, rama=1, arquetipo=None):
     return ids
 
 
+def tablero_del_juego(identidad_hex, rareza, arquetipo, posicion="", elemento="", tipo=""):
+    """La clave del tablero que el juego le asigna (0xBAFA8DBD, NOTAS O-169):
+    Idolo -> el suyo (`tablero` de personajes.csv); Diamante -> el basara de su
+    arquetipo, y si no tiene basara el generico por posicion, elemento y tipo
+    (`tableros-diamante.csv`); normal -> 0. Devuelve un entero."""
+    ident = identidad_hex.upper()
+    if 5 <= rareza <= 7:
+        t = (reglas.personajes().get(ident) or {}).get("tablero") or ""
+        return int(t, 16) if t else 0
+    if rareza == 8:
+        arq = arquetipo if arquetipo in PAREJA_ARQUETIPO else None
+        filas = [f for f in _tablas_fijas().get(ident, []) if f["origen"] == "basara" and f.get("tablero")]
+        if filas:
+            if arq is None:
+                arq = arquetipos_elegibles(ident)[0]
+            for f in filas:
+                if int(f["arquetipo"]) == arq:
+                    return int(f["tablero"], 16)
+        def construir():
+            return {(f["posicion"], f["elemento"], f["tipo"], int(f["arquetipo"])): int(f["tablero"], 16)
+                    for f in reglas._tabla("tableros-diamante.csv")}
+        genericos = _indice("tableros_diamante", construir)
+        return genericos.get((posicion or "", elemento or "", str(tipo or ""), arq if arq is not None else 0), 0)
+    return 0
+
+
 def arquetipos_elegibles(identidad_hex):
     """Los arquetipos que un Diamante puede elegir en el juego (los de sus
     tableros basara), en el orden del juego. [] si no tiene."""

@@ -111,7 +111,7 @@ def main():
         for casilla, pid, nivel in fijas:
             filas.append(["%08X" % ident, ficha.get("nombre_es") or ficha.get("nombre_en") or "",
                           ficha.get("rareza_valor") or "", origen, arquetipo, orden,
-                          tramo_de(casilla, n), casilla, nivel, pid])
+                          tramo_de(casilla, n), casilla, nivel, pid, "%08X" % clave])
 
     # tableros propios (chara_param col 10)
     param = volcar(unico(os.path.join(GAMEDATA, "character"), "chara_param_"), "CHARA_PARAM_INFO_LIST")
@@ -148,10 +148,10 @@ def main():
     with open(SALIDA, "w", newline="", encoding="utf-8") as fh:
         fh.write("# Las pasivas fijas de cada Idolo y Diamante, leidas de sus tableros (NOTAS O-162, O-163).\n"
                  "# origen propio = tablero del personaje; basara = un tablero por arquetipo elegible (orden 0 = el de serie).\n"
-                 "# pasiva_id como en la partida. Se ensenan las del tronco y las de la rama elegida, por casilla.\n"
+                 "# pasiva_id como en la partida. Se ensenan las del tronco y las de la rama elegida, por casilla. tablero = la clave del tablero, la que la partida guarda en 0xBAFA8DBD.\n"
                  "# Lo genera herramientas/construir_pasivas_fijas.py.\n")
         w = csv.writer(fh)
-        w.writerow(["identidad", "nombre", "rareza", "origen", "arquetipo", "orden", "tramo", "casilla", "nivel", "pasiva_id"])
+        w.writerow(["identidad", "nombre", "rareza", "origen", "arquetipo", "orden", "tramo", "casilla", "nivel", "pasiva_id", "tablero"])
         w.writerows(filas)
     print("Escritas %d filas (%d personajes) en %s" % (len(filas), len({x[0] for x in filas}), SALIDA))
     if raros:

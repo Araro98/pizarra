@@ -892,6 +892,7 @@ ARRAYS_DE_JUGADOR = [
     (0xFC830AAC, 1, 6000, 0),
     (0x71DB6E55, 1, 6000, 0),
     (0xD6B65E67, 4, 24000, 0),
+    (0xBAFA8DBD, 4, 24000, 0),      # tablero asignado por el juego (O-169)
 ]
 # Valores de los cuatro que no se han sabido interpretar. Son los que llevan la
 # inmensa mayoria de los jugadores de la partida, y el ultimo va a cero porque
@@ -1118,9 +1119,32 @@ def poner_arquetipo_diamante(plain, fila, arquetipo):
     antes = J.array(plain, (J.F_ARQUETIPO_DIAMANTE, 6000, "B", 1))[fila]
     buf = bytearray(plain)
     buf[occ[0] + 8 + fila] = arquetipo
+    identidad_hex = "%08X" % J.array(plain, J.ARRAY_IDENTIDAD)[fila]
+    _escribir_tablero(buf, plain, fila, identidad_hex, 8, arquetipo)
     plain = sincronizar_tabla_pasivas(bytes(buf), fila)
     return plain, {"fila": fila, "que": "arquetipo", "antes": J.ARQUETIPOS.get(antes, "?"),
                    "despues": J.ARQUETIPOS[arquetipo]}
+
+
+def _tablero_para(plain, fila, identidad_hex, rareza, arquetipo, tipo=None):
+    """El tablero que le toca (NOTAS O-169), con los datos que hacen falta para
+    el generico de un Diamante ascendido."""
+    from ievr import opciones as O
+    try:
+        ficha = _personaje_por_nombre(identidad_hex)
+    except Ilegal:
+        ficha = {}
+    if tipo is None:
+        tipo = J.array(plain, (0xFC830AAC, 6000, "B", 1))[fila]
+    return O.tablero_del_juego(identidad_hex, rareza, arquetipo,
+                               ficha.get("posicion") or "", ficha.get("elemento") or "", tipo)
+
+
+def _escribir_tablero(buf, plain, fila, identidad_hex, rareza, arquetipo, tipo=None):
+    occ = J.ocurrencias(plain, J.F_TABLERO_JUEGO, 24000)
+    if occ:
+        struct.pack_into("<I", buf, occ[0] + 8 + 4 * fila,
+                         _tablero_para(plain, fila, identidad_hex, rareza, arquetipo, tipo))
 
 
 def _escribir_arquetipo_diamante(buf, plain, fila, identidad_hex):
@@ -1566,6 +1590,7 @@ def anadir_jugador(plain, nombre, rareza=None, arquetipo=None, nivel=1):
     a_poner[0x90F47C83] = serie
     a_poner[0x8BA23AC3] = arquetipo_valor
     a_poner[0xD6B65E67] = _identificador_de_copia(plain)
+    a_poner[0xBAFA8DBD] = 0   # el tablero se pone despues, segun la familia (O-169)
     fc = _campo_fc_de(identidad_hex)
     if fc is not None:
         a_poner[0xFC830AAC] = fc
@@ -1623,6 +1648,10 @@ def anadir_jugador(plain, nombre, rareza=None, arquetipo=None, nivel=1):
     _vaciar_tabla_pasivas(buf, plain, fila)
     if rareza == 8:
         _escribir_arquetipo_diamante(buf, plain, fila, identidad_hex)
+        arq_dia = _arquetipo_de_serie(identidad_hex)
+    else:
+        arq_dia = None
+    _escribir_tablero(buf, plain, fila, identidad_hex, rareza, arq_dia, a_poner.get(0xFC830AAC))
     info = {"fila": fila, "nombre": ficha_base.get("nombre"),
             "rareza": J.RAREZAS[rareza], "arquetipo": arquetipo,
             "nivel": nivel, "familia": familia,
@@ -2009,6 +2038,7 @@ def poner_diamante(plain, fila):
     pos_arq = J.ocurrencias(plain, J.F_ARQUETIPO, 6000)[0] + 8
     buf[pos_arq + fila] = ARQUETIPO_DIAMANTE
     _escribir_arquetipo_diamante(buf, plain, fila, identidad_hex)
+    _escribir_tablero(buf, plain, fila, identidad_hex, 8, _arquetipo_de_serie(identidad_hex))
     for fhash in (J.F_PASIVAS, J.F_HEREDADAS, J.F_RAMA):
         off, n = _campo(plain, fila, fhash)
         buf[off:off + n] = bytes(n)
