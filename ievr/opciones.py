@@ -496,8 +496,7 @@ def personajes_creables(plain):
     """Los personajes que se pueden meter en la partida, con lo que se elige.
 
     De un Idolo o un Diamante no se elige nada: rareza, arquetipo y pasivas son
-    los suyos. Y si no hay ninguna copia en la partida de la que copiarlos, ni
-    siquiera se puede crear, asi que aqui se dice.
+    los suyos (de una copia que ya haya, o de las tablas del juego, NOTAS O-161).
     """
     ident = J.array(plain, J.ARRAY_IDENTIDAD)
     tengo = {ident[i] for i in range(min(6000, len(ident))) if ident[i]}
@@ -530,10 +529,8 @@ def personajes_creables(plain):
             "rareza_valor": int(ficha.get("rareza_valor") or 0),
             "rareza": J.RAREZAS.get(int(ficha.get("rareza_valor") or 0), ""),
             "elige_rareza": not fijo, "elige_arquetipo": not fijo,
-            "se_puede": (not fijo) or (int(clave, 16) in tengo),
-            "motivo": "" if (not fijo) or int(clave, 16) in tengo else
-                      "es un %s y no tienes ninguna copia suya de la que copiar "
-                      "su rareza y sus pasivas" % ("Idolo" if familia == "hero" else "Diamante"),
+            "se_puede": True, "motivo": "",
+            "tengo": int(clave, 16) in tengo,
         })
     vistos, unicos = set(), []
     for o in sorted(fuera, key=lambda x: (x["nombre"] or "").lower()):

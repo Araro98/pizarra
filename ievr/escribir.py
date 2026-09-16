@@ -1032,6 +1032,11 @@ def _bloques_de_aspecto(plain, identidad, modelo_fila):
     return bytes([0xFF]) * 30, bytes(30), "vacios (NOTAS O-74)"
 
 
+# El arquetipo que llevan los Diamantes en la partida: no es ninguno de los
+# seis con nombre. Los 58 de la partida de Aaron van con este (NOTAS O-161).
+ARQUETIPO_DIAMANTE = 6
+
+
 def _copia_existente(plain, identidad):
     """Un jugador de la partida que sea ese mismo personaje, o None.
 
@@ -1207,23 +1212,32 @@ def anadir_jugador(plain, nombre, rareza=None, arquetipo=None, nivel=1):
     if fijo:
         # Un Idolo o un Diamante no se sortea: en la partida de Aaron ninguno
         # aparece con dos rarezas distintas, ni con dos arquetipos, ni con dos
-        # juegos de pasivas (NOTAS O-67). Asi que no se elige nada: se copia del
-        # que ya hay, que es la unica fuente fiable de cuales son los suyos.
-        if gemelo is None:
-            raise Ilegal("%s es un %s, y esos llevan rareza, arquetipo y pasivas "
-                         "fijas. Como no tienes ninguna copia suya en la partida, "
-                         "no tengo de donde sacar cuales son las suyas y no me las "
-                         "invento. No escribo nada."
-                         % (ficha_base.get("nombre"),
-                            "Idolo" if familia == "hero" else "Diamante"))
+        # juegos de pasivas (NOTAS O-67). Asi que no se elige nada. Si ya hay
+        # una copia se copia de ella; si no, se saca de las tablas del juego,
+        # que dicen lo mismo que las copias (NOTAS O-161): la rareza es la de
+        # `personajes.csv`, el arquetipo de un Idolo es la columna 5 de
+        # chara_param, un Diamante lleva el 6 ("sin arquetipo", como los 58 de
+        # la partida) y las pasivas van vacias, que es como las guarda el juego.
         if rareza is not None or arquetipo is not None:
             raise Ilegal("%s es un %s: su rareza y su arquetipo son los que son y "
                          "el juego no deja elegirlos. Pidemelo sin rareza ni "
                          "arquetipo." % (ficha_base.get("nombre"),
                                          "Idolo" if familia == "hero" else "Diamante"))
-        rareza = gemelo["rareza"]
-        arquetipo = J.ARQUETIPOS.get(gemelo["arquetipo"], "Brecha")
-        pasivas, de_quien = gemelo["pasivas"], gemelo["fila"]
+        if gemelo is not None:
+            rareza, arquetipo_valor = gemelo["rareza"], gemelo["arquetipo"]
+            pasivas, de_quien = gemelo["pasivas"], gemelo["fila"]
+        else:
+            ficha_juego = reglas.personajes().get(identidad_hex) or {}
+            try:
+                rareza = int(ficha_juego.get("rareza_valor") or "")
+                arquetipo_valor = (ARQUETIPO_DIAMANTE if familia == "fabled"
+                                   else int(ficha_juego.get("arquetipo_valor") or ""))
+            except ValueError:
+                raise Ilegal("no se que rareza o arquetipo lleva %s de fabrica "
+                             "(falta en personajes.csv). No escribo nada."
+                             % ficha_base.get("nombre"))
+            pasivas, de_quien = bytes(20), None
+        arquetipo = J.ARQUETIPOS.get(arquetipo_valor, "sin arquetipo")
     else:
         if rareza is None:
             rareza = RAREZAS_QUE_SE_SUBEN[0]
@@ -1243,6 +1257,7 @@ def anadir_jugador(plain, nombre, rareza=None, arquetipo=None, nivel=1):
             raise Ilegal("no conozco el arquetipo %r. Los que hay: %s"
                          % (arquetipo, ", ".join(J.ARQUETIPOS.values())))
         arquetipo = J.ARQUETIPOS[valores[arquetipo.lower()]]
+        arquetipo_valor = valores[arquetipo.lower()]
         pasivas = de_quien = None
 
     fila = _fila_libre_de_jugador(plain)
@@ -1259,11 +1274,18 @@ def anadir_jugador(plain, nombre, rareza=None, arquetipo=None, nivel=1):
                                    f["id"].upper())
     modelo_tec = next((f for _v, f in biblioteca.values()), None)
     refs, creadas, sin_nombre = [], [], []
+    # El id exacto de cada tecnica de salida lo dice chara_param (`tec1..tec3`
+    # de personajes.csv). El nombre queda solo de respaldo: hay tecnicas cuyo
+    # nombre no esta entre las "supertecnica" (Miximax Trans: Raika es un
+    # "aura") y con el nombre no se podia fichar a quien las lleva (NOTAS O-161).
+    ficha_juego = reglas.personajes().get(identidad_hex) or {}
     for k in range(1, TECNICAS_DE_SALIDA + 1):
         nom_tec = (ficha_base.get("r%d_tecnica" % k) or "").strip()
-        if not nom_tec:
+        id_tec = (ficha_juego.get("tec%d" % k) or "").strip().upper() or None
+        if not nom_tec and not id_tec:
             continue
-        id_tec = nombres_tec.get(nom_tec.lower())
+        if id_tec is None:
+            id_tec = nombres_tec.get(nom_tec.lower())
         if id_tec is None:
             sin_nombre.append(nom_tec)
             continue
@@ -1297,7 +1319,7 @@ def anadir_jugador(plain, nombre, rareza=None, arquetipo=None, nivel=1):
     a_poner[0x377173B1] = nivel
     a_poner[0xE9835BD9] = rareza
     a_poner[0x90F47C83] = serie
-    a_poner[0x8BA23AC3] = valores[arquetipo.lower()]
+    a_poner[0x8BA23AC3] = arquetipo_valor
     a_poner[0xD6B65E67] = _identificador_de_copia(plain)
     fc = _campo_fc_de(identidad_hex)
     if fc is not None:

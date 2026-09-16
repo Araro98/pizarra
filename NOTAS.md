@@ -3734,6 +3734,29 @@ El editor pinta el campo como la pantalla del juego (vertical, con sus areas y
 el circulo central), cada tarjeta donde la pone el juego y debajo el rotulo
 POR/DF/MC/DC de ese hueco en esa formacion.
 
+### O-161 · Idolos y Diamantes se pueden fichar sin tener una copia
+
+Aaron: "hay algunos diamantes e idolos que no me deja pillarlos en fichar, dice
+que no tengo ninguna copia en el juego y salen en gris". Desde O-67 el editor
+solo los creaba copiando rareza, arquetipo y pasivas de una copia que ya
+hubiera. Comprobado sobre la partida (61 Idolos y 58 Diamantes distintos) que
+las tablas del juego dicen lo mismo que las copias:
+
+- **Rareza**: `chara_param` col 41 (= `rareza_valor` de `personajes.csv`)
+  coincide con la partida en los 119 (Idolos 5/6/7, Diamantes 8).
+- **Arquetipo de un Idolo**: `chara_param` col 5, con los mismos numeros que la
+  partida (0 Brecha, 1 Contra, 2 Afinidad, 3 Tension, 4 Juego sucio, 5
+  Justicia). Coincide en los 61. Ahora va en `personajes.csv` como
+  `arquetipo_valor`.
+- **Arquetipo de un Diamante**: en la partida los 58 llevan el valor **6**, que
+  no es ninguno de los seis con nombre ("sin arquetipo"). La col 5 de un
+  Diamante trae otra cosa (Gandares: 2) y no se usa.
+- **Pasivas**: vacias (20 bytes a cero), que es como las guarda el juego en los
+  95 Idolos y en los Diamantes nativos (O-67).
+
+`escribir.crear_jugador` usa la copia si la hay y si no estas tablas; Fichar ya
+no pone a nadie en gris.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

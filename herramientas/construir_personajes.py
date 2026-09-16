@@ -113,6 +113,11 @@ def main():
             continue
         apt_e = c[37].strip() == "1" if len(c) > 37 else False
         apt_g = c[38].strip() == "1" if len(c) > 38 else False
+        # Columna 5: el arquetipo de fabrica, con los mismos numeros que la
+        # partida (0 Brecha ... 5 Justicia). En los 61 Idolos de la partida de
+        # Aaron coincide siempre con el que llevan (NOTAS O-161); en los
+        # normales se sortea y este es solo el de la ficha.
+        arquetipo = entero(c[5]) if len(c) > 5 else None
         # Las nueve tecnicas del personaje y a que nivel se abre cada una:
         # columnas 11..27 (id) y 12..28 (nivel), de dos en dos. Las tres
         # primeras son el tronco, luego tres de la rama 1 y tres de la rama 2.
@@ -124,7 +129,7 @@ def main():
             tecnicas.append(("%08X" % (tid & 0xFFFFFFFF), niv or 0) if tid else ("", 0))
         tecnicas = [(bytes.fromhex(t)[::-1].hex().upper() if t else "", lv)
                     for t, lv in tecnicas]
-        param[ident & 0xFFFFFFFF] = (base_id, rareza, apt_e, apt_g, tecnicas)
+        param[ident & 0xFFFFFFFF] = (base_id, rareza, apt_e, apt_g, tecnicas, arquetipo)
 
     # chara_base: 0 = chara_base_id, 2 = indice de catalogo, 3 = name_id
     base = {}
@@ -172,8 +177,8 @@ def main():
         w.writerow(["identidad", "chara_base_id", "indice", "rareza", "rareza_valor",
                     "nombre_es", "nombre_en", "apt_entrenador", "apt_gerente"]
                    + ["tec%d" % k for k in range(1, 10)]
-                   + ["tec%d_nivel" % k for k in range(1, 10)])
-        for ident, (base_id, rareza, apt_e, apt_g, tecnicas) in sorted(param.items()):
+                   + ["tec%d_nivel" % k for k in range(1, 10)] + ["arquetipo_valor"])
+        for ident, (base_id, rareza, apt_e, apt_g, tecnicas, arquetipo) in sorted(param.items()):
             if base_id not in base:
                 continue
             indice, name_id = base[base_id]
@@ -182,7 +187,8 @@ def main():
                         idiomas.get("es", {}).get(name_id, ""),
                         idiomas.get("en", {}).get(name_id, ""),
                         "1" if apt_e else "", "1" if apt_g else ""]
-                       + [t for t, _ in tecnicas] + [lv for _, lv in tecnicas])
+                       + [t for t, _ in tecnicas] + [lv for _, lv in tecnicas]
+                       + ["" if arquetipo is None else arquetipo])
             n += 1
     print("Escritos %d personajes en %s" % (n, SALIDA))
     return 0
