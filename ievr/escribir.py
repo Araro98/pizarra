@@ -1477,7 +1477,11 @@ def anadir_jugador(plain, nombre, rareza=None, arquetipo=None, nivel=1):
                                          "Idolo" if familia == "hero" else "Diamante"))
         if gemelo is not None:
             rareza, arquetipo_valor = gemelo["rareza"], gemelo["arquetipo"]
-            pasivas, de_quien = gemelo["pasivas"], gemelo["fila"]
+            # Las pasivas NO se copian de la copia: el juego las deja a cero al
+            # invocar y las fijas van en la tabla de pasivas con numero (O-166).
+            # Una copia con pasivas sorteadas (fichada por el universo de
+            # jugadores) contaminaba al nuevo (Plink Powai, O-167).
+            pasivas, de_quien = bytes(20), None
         else:
             ficha_juego = reglas.personajes().get(identidad_hex) or {}
             try:
