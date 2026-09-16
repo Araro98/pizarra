@@ -859,10 +859,11 @@ def espiritu_permitido(id_hex, identidad_hex):
     """Si ese jugador puede llevar ese espiritu. Las armaduras y los mixi max
     son de un personaje concreto (regla de Aaron: la armadura del Pegaso solo
     la lleva Arion); se compara por nombre para que valgan todas sus versiones.
-    Los que no tienen dueno conocido se dejan a cualquiera."""
+    Las armaduras y mixis sin dueno conocido no se dejan a NADIE (Aaron: "mejor
+    que nadie pueda usarlos antes de que todos puedan usarlos")."""
     d = duenos_de_espiritu(id_hex)
     if not d["identidades"]:
-        return True
+        return (_espiritus().get(id_hex.upper()) or {}).get("familia") not in ("armadura", "mixi")
     ident = (identidad_hex or "").upper()
     if ident in d["identidades"]:
         return True

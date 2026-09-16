@@ -4066,8 +4066,9 @@ con el Rey Arturo". En los datos del juego el dueno sale de tres sitios:
 `espiritus-duenos.csv` (`construir_duenos_espiritus.py`) junta las tres. Un
 personaje tiene muchas identidades, asi que se compara por nombre. De los 258
 (189 armaduras + 69 mixi), 249 tienen dueno; los 9 sin dueno (mixi con
-Shindo/Kariya/Endo/Goenji/Fudo/Fubuki/Yuto, Cao Cao y una Raika) se dejan a
-cualquiera hasta que Aaron diga. Comprobado con su partida: de 35 mixi puestos
+Shindo/Kariya/Endo/Goenji/Fudo/Fubuki/Yuto, Cao Cao y una Raika) no se dejan
+a NADIE: Aaron los intuye (Raika a Cade, Froste a Axel, Cazador a Gabi...) pero
+no esta seguro y prefiere "que nadie pueda usarlos antes de que todos puedan". Comprobado con su partida: de 35 mixi puestos
 por el juego, 34 cuadran con el dueno (el otro es el Cao Cao de Zanark, sin
 dueno en los datos). El editor solo ofrece al jugador sus armaduras y mixis, y
 `poner_tecnica` se niega con los ajenos.
