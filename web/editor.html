@@ -462,6 +462,7 @@
   .rol-ahora.gerente { background:#8a4fd0; }
   .rol-ahora.entrenador { background:#c2761a; }
   .btn.vetado { opacity:.42; text-decoration:line-through; }
+  .btn.rojo { background:#a8202e; border-color:#7a1622; color:#fff; }
   .chapa-rol.gerente { background:#8a4fd0; }
   .chapa-rol.entrenador { background:#c2761a; }
   .ficha-mini.no-vale { opacity:.34; filter:grayscale(.75); cursor:not-allowed; }
@@ -1217,6 +1218,21 @@ function seccionAtributos(d) {
         onclick:async () => { if (await confirma("Convertir en Diamante",
                                   "Se convierte en Diamante. Se puede deshacer."))
                           manda({tipo:"diamante", fila}); }})]));
+  // Borrar al jugador de la partida, como desde el menu del juego. Si esta en
+  // algun equipo no se puede: hay que sacarlo antes (regla de Aaron).
+  caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Borrar"})]));
+  const enEquipo = (d.equipos || []).length > 0;
+  caja.appendChild(el("p", {class:"pie-seccion"}, [
+    el("button", {class:"btn chico rojo" + (enEquipo ? " vetado" : ""),
+      text:"Borrar jugador",
+      title:enEquipo ? "Esta en el equipo " + d.equipos.join(", ") + ": sacalo primero"
+                     : "Se quita de la partida, como desde el menu del juego. Se puede deshacer.",
+      onclick:async () => {
+        if (enEquipo) { aviso("Esta en el equipo " + d.equipos.join(", ") + ". Sacalo del equipo primero.", "mal"); return; }
+        if (await confirma("Borrar jugador", "Se borra a " + d.nombre + " (Nv." + d.nivel + ") de la partida. Se puede deshacer."))
+          manda({tipo:"borrar_jugador", fila});
+      }}),
+    enEquipo ? el("span", {class:"bloqueada", text:"esta en " + d.equipos.join(", ")}) : null]));
   caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Judias"})]));
   const j = el("div", {});
   for (const x of d.judias)
@@ -1702,7 +1718,12 @@ async function manda(cambio) {
       pintaReservas();
       return;
     }
-    if (jugadorAbierto !== null) {
+    if (cambio.tipo === "borrar_jugador") {
+      // la ficha abierta ya no existe
+      jugadorAbierto = null; detalle = null;
+      $("#ficha").textContent = "";
+      $("#ficha").appendChild(el("div", {class:"vacio", text:"Elige un jugador."}));
+    } else if (jugadorAbierto !== null) {
       detalle = await pedir("/api/jugador/" + jugadorAbierto);
       pintaFicha();
     }

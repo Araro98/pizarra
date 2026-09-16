@@ -882,6 +882,7 @@ def detalle_jugador(plain, fila):
             "%08X" % ident[fila]),
         "partidos": struct.unpack_from("<H", plain, offp)[0], "partidos_limites": O.partidos(),
         "rol": rol,
+        "equipos": E.equipos_del_jugador(plain, fila),
         "pasivas_bloqueadas": rareza[fila] >= 5,
         "motivo_pasivas": (("fija: la pone el juego desde su tablero" if fijas
                             else "son fijas y las pone el juego")

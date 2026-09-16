@@ -1749,6 +1749,22 @@ def reparar_jugador(plain, fila, vaciar_aspecto=False):
                         "arreglado": arreglado}
 
 
+def equipos_del_jugador(plain, fila):
+    """Los nombres de los equipos en los que esta ese jugador (campo, banquillo
+    o cuerpo tecnico). [] si esta suelto."""
+    from ievr import equipos as EQ
+    slot = EQ.slot_de_fila(plain, fila)
+    fuera = []
+    for t in EQ.todos(plain, solo_con_nombre=False):
+        try:
+            e = EQ.leer(plain, t["hueco"])
+        except EQ.Ilegal:
+            continue
+        if any(m["jugador"] == slot for m in e["miembros"]):
+            fuera.append(t["nombre"] or "hueco %d" % t["hueco"])
+    return fuera
+
+
 def borrar_jugador(plain, fila):
     """Quita un jugador de la partida. Probado en el juego (NOTAS P-10).
 
@@ -1762,7 +1778,12 @@ def borrar_jugador(plain, fila):
     ident = J.array(plain, J.ARRAY_IDENTIDAD)
     if fila >= min(6000, len(ident)) or ident[fila] == 0:
         raise Ilegal("en la fila %d no hay ningun jugador" % fila)
-
+    # Regla de Aaron: al que esta en algun equipo (campo, banquillo o cuerpo
+    # tecnico) no se le borra; primero se le saca del equipo.
+    en = equipos_del_jugador(plain, fila)
+    if en:
+        raise Ilegal("esta en el equipo %s. Sacalo del equipo primero y luego ya "
+                     "se puede borrar." % ", ".join(en))
     equipos = J.ocurrencias(plain, *J.ANCLA_EQUIPO)
     puesto, _ = J._campos_de(plain, equipos[fila], {h for h, _ in J.RANURAS_EQUIPO})
     if any(int.from_bytes(v, "little") for v in puesto.values()):

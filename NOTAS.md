@@ -4008,6 +4008,15 @@ Brecha, no las viejas). Al ascender con semilla, el arquetipo del Diamante
 empieza siendo el que tenia de normal. Y las pasivas de un normal fichado se
 sortean de verdad entre las legales (ranuras 1-2 de su pool, 3 del arquetipo).
 
+### O-170 · Borrar jugadores desde el editor
+
+Aaron: "mete lo de borrar jugadores desde el editor, excepto si estan en algun
+equipo". `escribir.borrar_jugador` ya existia (P-10) y se niega si el jugador
+lleva algo equipado; ahora ademas se niega si esta en algun equipo (campo,
+banquillo o cuerpo tecnico: `equipos_del_jugador`, que recorre las
+alineaciones). La ficha lleva el boton "Borrar jugador" con confirmacion, y
+sale vetado con el nombre del equipo si esta metido en uno. Se puede deshacer.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
