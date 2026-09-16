@@ -3971,6 +3971,13 @@ crea las nuevas con esa forma, y al reutilizar una se suma uno al contador.
 Con eso un Terry, un Sonny o un normal del editor apuntan a las mismas filas
 que los del juego.
 
+Segunda vuelta (Aiden Froste rojo, 2026.09.16.4): tambien hay **montones de
+99 manuales con sub 10**, y el juego los trata igual que los de sub 2. La
+condicion buena es **una sola unidad** (cantidad 1): 492 filas de sub 10 y 54
+de sub 9 en la partida son asi, y son a las que apuntan todos los de nivel 1
+que entrega el juego. Y una tecnica repetida en el arbol (Frente frio tres
+veces) va a **una sola fila**, con el contador de "cuantos la llevan" sumado.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

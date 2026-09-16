@@ -1325,7 +1325,10 @@ def _biblioteca_de_tecnicas(plain):
             # apuntan a montones de objetos (sub 1 y 2), y un jugador que apunte
             # ahi el juego lo trata como fichado del universo: le sortea pasivas
             # y solo le ensena tres tecnicas (Terry Archibald, NOTAS O-168).
-            if f is not None and f.get("kind") == inventario.KIND_REAL and f.get("sub") in (9, 10):
+            # ...y ademas de UNA unidad: los montones de 99 manuales tambien
+            # llevan sub 10 (Aiden Froste, O-168) y el juego los trata igual
+            if (f is not None and f.get("kind") == inventario.KIND_REAL
+                    and f.get("sub") in (9, 10) and f.get("cantidad") == 1):
                 fuera.setdefault(f["id"], (v, f))
     return fuera
 
@@ -1410,6 +1413,7 @@ def _tecnicas_de_salida(plain, ficha_base, identidad_hex, cuantas):
                                    f["id"].upper())
     modelo_tec = next((f for _v, f in biblioteca.values()), None)
     refs, creadas, sin_nombre = [], [], []
+    nuevas = {}   # id de tecnica -> fila creada en esta misma llamada
     # El id exacto de cada tecnica de salida lo dice chara_param (`tec1..tec3`
     # de personajes.csv). El nombre queda solo de respaldo: hay tecnicas cuyo
     # nombre no esta entre las "supertecnica" (Miximax Trans: Raika es un
@@ -1425,6 +1429,13 @@ def _tecnicas_de_salida(plain, ficha_base, identidad_hex, cuantas):
         if id_tec is None:
             sin_nombre.append(nom_tec)
             continue
+        if id_tec in nuevas:
+            # la misma tecnica repetida en el arbol (Frente frio x3 de Aiden):
+            # una sola fila, como hace el juego, y se suma al contador
+            ref = nuevas[id_tec]
+            refs.append(ref)
+            plain = inventario.ajustar_equipada(plain, inventario.por_slot(plain)[ref], +1)
+            continue
         if id_tec in biblioteca:
             ref, fila_bib = biblioteca[id_tec]
             refs.append(ref)
@@ -1437,6 +1448,7 @@ def _tecnicas_de_salida(plain, ficha_base, identidad_hex, cuantas):
                          "que copiar la forma. No escribo nada.")
         plain, ref = _meter_en_biblioteca(plain, id_tec, modelo_tec)
         biblioteca = _biblioteca_de_tecnicas(plain)
+        nuevas[id_tec] = ref
         refs.append(ref)
         creadas.append(nom_tec)
     if sin_nombre:
