@@ -3792,9 +3792,18 @@ Con eso queda cerrado lo que O-67 y O-161 dejaban a medias:
   pasivas), rama 1 (8-17, 3 pasivas) y rama 2 (18-27, otras 3); la segunda
   columna de cada casilla es el nivel al que se abre. Se ensenan tronco + rama
   elegida. Los 33 Diamantes **sin** tablero propio son los que solo existen
-  como version Diamante de un normal; el unico visto salir del juego (Cedric
-  Freud, en la partida del 16-9) llevaba dos pasivas de su sorteo y tres a
-  cero, y asi los crea el editor. **Por confirmar** con una foto de Aaron.
+  como version Diamante de un normal. Aaron invoco a Raika Shinohara Diamante:
+  el juego la deja **igual que a los demas** (pasivas a cero, 9 tecnicas,
+  `09 0b 0d 13 15 17`) y en pantalla le ensena 5 pasivas (AT de tiro +3,5 %
+  cercanos, DF del muro +3,5 % cercanos, mismo elemento AT propio de tiro +8 %,
+  y la pareja de Tension +6 % / +2 %) que no salen de ningun tablero propio ni
+  de su sorteo: vienen de un tablero generico que aun no se ha localizado
+  (`ABILITY_LEARNING_TABLE_INFO_LIST`, 1.159 claves que no son ni la identidad
+  ni ninguna columna de chara_param). El editor los crea bien; solo le falta
+  ensenar esas 5 en la ficha. **Pendiente.**
+- Aaron avisa: un Diamante puede cambiar de rareza dentro del juego, y los
+  entrenadores y gerentes llevan sus propias pasivas (las listas
+  `ABILITY_LEARNING_SUPPORTER_PASSIVE_*`). Sin mirar todavia.
 
 ## SUPUESTO
 

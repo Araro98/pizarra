@@ -1045,13 +1045,6 @@ def _bloques_de_aspecto(plain, identidad, modelo_fila):
 ARQUETIPO_DIAMANTE = 6
 
 
-def _tiene_tablero_propio(identidad_hex):
-    """Si ese Idolo o Diamante tiene tablero propio con sus pasivas fijas
-    (`pasivas-fijas.csv`, NOTAS O-162)."""
-    return any(f["identidad"].upper() == identidad_hex.upper()
-               for f in reglas._tabla("pasivas-fijas.csv"))
-
-
 def _copia_existente(plain, identidad):
     """Un jugador de la partida que sea ese mismo personaje, o None.
 
@@ -1251,16 +1244,9 @@ def anadir_jugador(plain, nombre, rareza=None, arquetipo=None, nivel=1):
                 raise Ilegal("no se que rareza o arquetipo lleva %s de fabrica "
                              "(falta en personajes.csv). No escribo nada."
                              % ficha_base.get("nombre"))
+            # Tambien los Diamantes sin tablero propio: Raika Shinohara
+            # invocada con capsulas sale con el campo a cero (NOTAS O-162).
             pasivas, de_quien = bytes(20), None
-            if familia == "fabled" and not _tiene_tablero_propio(identidad_hex):
-                # Un Diamante sin tablero propio (los 33 que solo existen como
-                # version Diamante de un normal): el unico que se ha visto salir
-                # del juego (Cedric Freud, NOTAS O-162) llevaba dos pasivas de su
-                # sorteo y el resto a cero. Se hace igual; queda por confirmar.
-                pool = _pool_del_personaje(identidad)
-                if len(pool) >= 2:
-                    pasivas = (bytes.fromhex(pool[0]["pasiva_id"]) + bytes.fromhex(pool[1]["pasiva_id"])
-                               + bytes(12))
         arquetipo = J.ARQUETIPOS.get(arquetipo_valor, "sin arquetipo")
     else:
         if rareza is None:
