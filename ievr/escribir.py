@@ -1761,7 +1761,7 @@ def equipos_del_jugador(plain, fila):
         except EQ.Ilegal:
             continue
         if any(m["jugador"] == slot for m in e["miembros"]):
-            fuera.append(t["nombre"] or "hueco %d" % t["hueco"])
+            fuera.append(t["nombre"] or "un equipo de la historia (hueco %d)" % t["hueco"])
     return fuera
 
 
