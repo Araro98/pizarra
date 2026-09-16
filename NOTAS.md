@@ -3949,6 +3949,28 @@ juego se la rellena, como hizo con Buddy Arnolds). O-165 sigue valiendo como
 regla de los numeros de los jugadores, pero ya no hace falta calcularla: esta
 escrita en la tabla.
 
+### O-168 · Un jugador que apunte a montones de objetos, el juego lo trata como del universo
+
+Aaron ficho a Terry Archibald rosa con la 2026.09.16.3 y el juego le ensenaba
+tres tecnicas y pasivas sorteadas. La partida que escribio el editor
+(`partidas/test-cambios3`) llevaba la ficha a cero, seis tecnicas y la tabla de
+pasivas con sus fijas; la que guardo el juego despues tenia **la ficha con
+cinco pasivas sorteadas** y todo lo demas igual. Registro por registro, la
+unica diferencia con un Sonny invocado por el juego eran las filas de
+biblioteca a las que apuntaban las tecnicas: el editor reutilizaba cualquier
+fila que ya usara otro jugador, y dos de las de Terry eran **montones de
+objetos** (sub 2, 99 unidades: los manuales de tecnica de la mochila). Los
+fichados por el universo de jugadores apuntan justo ahi, y son los que llegan
+con pasivas sorteadas y tres tecnicas: el juego, al ver esas referencias,
+inicializa al jugador como si viniera del universo.
+
+Los que entrega el juego apuntan a filas de **tecnica aprendida**: kind 3,
+sub 10 (o 9), una unidad, y el contador de "cuantos la llevan" que el juego
+mantiene. `_biblioteca_de_tecnicas` solo reutiliza esas, `_meter_en_biblioteca`
+crea las nuevas con esa forma, y al reutilizar una se suma uno al contador.
+Con eso un Terry, un Sonny o un normal del editor apuntan a las mismas filas
+que los del juego.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

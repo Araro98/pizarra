@@ -1320,7 +1320,12 @@ def _biblioteca_de_tecnicas(plain):
         for h in J.RANURAS_TECNICAS:
             v = int.from_bytes(c.get(h, b""), "little")
             f = porslot.get(v) if v else None
-            if f is not None:
+            # Solo filas de tecnica APRENDIDA (sub 10, o 9), que es donde apuntan
+            # los jugadores que entrega el juego. Los fichados por el universo
+            # apuntan a montones de objetos (sub 1 y 2), y un jugador que apunte
+            # ahi el juego lo trata como fichado del universo: le sortea pasivas
+            # y solo le ensena tres tecnicas (Terry Archibald, NOTAS O-168).
+            if f is not None and f.get("kind") == inventario.KIND_REAL and f.get("sub") in (9, 10):
                 fuera.setdefault(f["id"], (v, f))
     return fuera
 
@@ -1357,10 +1362,12 @@ def _meter_en_biblioteca(plain, id_tec, modelo):
     buf[libre["id_off"]:libre["id_off"] + 4] = bytes.fromhex(id_tec)
     struct.pack_into("<I", buf, libre["serie_off"], serie)
     buf[libre["kind_off"]] = inventario.KIND_REAL
-    buf[libre["sub_off"]] = modelo.get("sub", 10)
-    struct.pack_into("<I", buf, libre["cantidad_off"], modelo.get("cantidad", 1))
+    # una tecnica aprendida: sub 10, una unidad, y un jugador que la lleva
+    # (como las filas que crea el juego al invocar; NOTAS O-168)
+    buf[libre["sub_off"]] = 10
+    struct.pack_into("<I", buf, libre["cantidad_off"], 1)
     if "equipada_off" in libre:
-        struct.pack_into("<I", buf, libre["equipada_off"], 0)
+        struct.pack_into("<I", buf, libre["equipada_off"], 1)
     return bytes(buf), slot
 
 
@@ -1419,7 +1426,11 @@ def _tecnicas_de_salida(plain, ficha_base, identidad_hex, cuantas):
             sin_nombre.append(nom_tec)
             continue
         if id_tec in biblioteca:
-            refs.append(biblioteca[id_tec][0])
+            ref, fila_bib = biblioteca[id_tec]
+            refs.append(ref)
+            # un jugador mas la lleva puesta (el juego mantiene ese contador)
+            plain = inventario.ajustar_equipada(plain, fila_bib, +1)
+            biblioteca = _biblioteca_de_tecnicas(plain)
             continue
         if modelo_tec is None:
             raise Ilegal("no hay en la partida ninguna fila de biblioteca de la "
