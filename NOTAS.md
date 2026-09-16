@@ -4000,7 +4000,13 @@ Lo que lleva cada uno, en la partida:
 
 El editor lo escribe al fichar (`tablero` de personajes.csv para un Idolo,
 basara para un Diamante), al ascender con semilla y al cambiar el arquetipo de
-un Diamante.
+un Diamante. Y `tableros.csv` (`construir_tableros.py`) lleva las pasivas de
+TODOS los tableros del juego: las fijas de un jugador salen del tablero que
+tiene asignado, sea el propio, el basara o el generico de un ascendido (Nerina
+Hartland ascendida con el editor lleva ahora las del tablero de portera de
+Brecha, no las viejas). Al ascender con semilla, el arquetipo del Diamante
+empieza siendo el que tenia de normal. Y las pasivas de un normal fichado se
+sortean de verdad entre las legales (ranuras 1-2 de su pool, 3 del arquetipo).
 
 ## SUPUESTO
 

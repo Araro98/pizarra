@@ -1223,7 +1223,8 @@ def sincronizar_tabla_pasivas(plain, fila):
                     rama = 2 if struct.unpack_from("<I", plain, offr)[0] == 1 else 1
                 except Ilegal:
                     rama = 1
-                fijas = O.pasivas_fijas(ident_hex, rama, arq_eff)
+                tablero_j = J.array(plain, (J.F_TABLERO_JUEGO, 24000, "I", 4))[fila] if J.ocurrencias(plain, J.F_TABLERO_JUEGO, 24000) else 0
+                fijas = O.pasivas_fijas(ident_hex, rama, arq_eff, tablero_j or None)
             entradas = []
             for k in range(5):
                 # la heredada tapa a la de la ficha, y la de la ficha a la fija
@@ -1409,13 +1410,14 @@ def _pasivas_del_nuevo(plain, identidad, arquetipo, fila):
     if len(pool) < 2:
         raise Ilegal("no tengo las pasivas que puede sacar ese personaje, asi que "
                      "no puedo darle unas legales. No escribo nada.")
-    uno, dos = pool[0]["pasiva_id"].upper(), pool[1]["pasiva_id"].upper()
+    # dos distintas al azar de su pool, como sortea el juego (NOTAS O-51, O-57)
+    import random
+    elegidas = random.sample([f["pasiva_id"].upper() for f in pool], 2)
+    uno, dos = elegidas
 
-    tercera = None
-    for f in reglas._tabla("pasivas-por-ranura.csv"):
-        if f["grupo"] == "%s (ranura 3)" % arquetipo:
-            tercera = f["id"].upper()
-            break
+    candidatas = [f["id"].upper() for f in reglas._tabla("pasivas-por-ranura.csv")
+                  if f["grupo"] == "%s (ranura 3)" % arquetipo]
+    tercera = random.choice(candidatas) if candidatas else None
     if tercera is None:
         raise Ilegal("no tengo las pasivas de ranura 3 del arquetipo %s" % arquetipo)
 
@@ -2036,9 +2038,15 @@ def poner_diamante(plain, fila):
     pos = J.ocurrencias(plain, J.ARRAY_RAREZA[0], J.ARRAY_RAREZA[1])[0] + 8
     struct.pack_into("<I", buf, pos + 4 * fila, 8)
     pos_arq = J.ocurrencias(plain, J.F_ARQUETIPO, 6000)[0] + 8
+    arq_normal = plain[pos_arq + fila]
     buf[pos_arq + fila] = ARQUETIPO_DIAMANTE
-    _escribir_arquetipo_diamante(buf, plain, fila, identidad_hex)
-    _escribir_tablero(buf, plain, fila, identidad_hex, 8, _arquetipo_de_serie(identidad_hex))
+    # el arquetipo elegido del Diamante empieza siendo el que tenia de normal
+    # (los ascendidos de la partida llevan de todo, no siempre el de serie)
+    arq_dia = arq_normal if arq_normal in J.ARQUETIPOS else _arquetipo_de_serie(identidad_hex)
+    occ_ad = J.ocurrencias(plain, J.F_ARQUETIPO_DIAMANTE, 6000)
+    if occ_ad:
+        buf[occ_ad[0] + 8 + fila] = arq_dia
+    _escribir_tablero(buf, plain, fila, identidad_hex, 8, arq_dia)
     for fhash in (J.F_PASIVAS, J.F_HEREDADAS, J.F_RAMA):
         off, n = _campo(plain, fila, fhash)
         buf[off:off + n] = bytes(n)

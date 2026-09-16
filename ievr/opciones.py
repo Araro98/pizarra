@@ -640,7 +640,61 @@ def _tablas_fijas():
     return _indice("pasivas_fijas", construir)
 
 
-def pasivas_fijas(identidad_hex, rama=1, arquetipo=None):
+def _tableros():
+    def construir():
+        d = {}
+        for f in reglas._tabla("tableros.csv"):
+            d.setdefault(f["tablero"].upper(), []).append(f)
+        return d
+    return _indice("tableros", construir)
+
+
+def pasivas_de_tablero(tablero, rama=1):
+    """Las pasivas que ensena un tablero (tronco + rama elegida, por casilla),
+    cada una en su version mas alta. `tablero` en hex o entero. [] si no se
+    conoce (NOTAS O-169)."""
+    clave = ("%08X" % tablero) if isinstance(tablero, int) else (tablero or "").upper()
+    filas = _tableros().get(clave, [])
+    if not filas:
+        return []
+    tramos = ("tronco", "rama%d" % (2 if rama == 2 else 1))
+    alta = _variante_maxima()
+    return [alta.get(f["pasiva_id"].upper(), f["pasiva_id"].upper())
+            for f in sorted(filas, key=lambda f: int(f["casilla"])) if f["tramo"] in tramos]
+
+
+def pasivas_fijas(identidad_hex, rama=1, arquetipo=None, tablero=None):
+    """Las 5 pasivas fijas de un Idolo o Diamante, en el orden de la pantalla.
+    Si se sabe el tablero que le tiene asignado el juego (`tablero`, el array
+    0xBAFA8DBD), salen de ese tablero; si no, del que le tocaria por identidad
+    y arquetipo; y si tampoco, de las tablas viejas por identidad."""
+    if tablero:
+        ids = pasivas_de_tablero(tablero, rama)
+        if ids:
+            return ids
+    ficha = reglas.personajes().get(identidad_hex.upper()) or {}
+    try:
+        rareza = int(ficha.get("rareza_valor") or 0)
+    except ValueError:
+        rareza = 0
+    if rareza:
+        jug = _por_identidad().get(identidad_hex.upper()) or {}
+        t = tablero_del_juego(identidad_hex, rareza, arquetipo, jug.get("posicion") or "",
+                              jug.get("elemento") or "", _tipo_fc(identidad_hex))
+        ids = pasivas_de_tablero(t, rama) if t else []
+        if ids:
+            return ids
+    return _pasivas_fijas_por_identidad(identidad_hex, rama, arquetipo)
+
+
+def _tipo_fc(identidad_hex):
+    """El tipo (col 4 de chara_param, campo 0xFC830AAC) de `ficha-jugador.csv`."""
+    def construir():
+        return {f["identidad"].upper(): f.get("campo_fc") or "" for f in reglas._tabla("ficha-jugador.csv")}
+    return _indice("tipo_fc", construir).get(identidad_hex.upper(), "")
+
+
+def _pasivas_fijas_por_identidad(identidad_hex, rama=1, arquetipo=None):
     """Las 5 pasivas fijas de un Idolo o Diamante, en el orden de la pantalla,
     cada una con el id de su version mas alta, que es la que ensena el juego
     (`pasivas-fijas.csv`; NOTAS O-162 y O-163). [] si no las tiene.
