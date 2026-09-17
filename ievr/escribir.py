@@ -505,13 +505,18 @@ def poner_heredada(plain, fila, ranura, nombre):
         raise Ilegal("es un Diamante (Fabled): sus pasivas son fijas y no admite "
                      "heredadas")
 
+    from ievr import opciones as O
     id_hex = None
-    for f in reglas._tabla("nombres-es.csv"):
-        if f.get("categoria") != "pasiva":
-            continue
-        if _sin_marcadores(f.get("nombre_es")) == _sin_marcadores(nombre):
-            id_hex = f["id"].upper()
-            break
+    texto = (nombre or "").strip()
+    if len(texto) == 8 and all(c in "0123456789abcdefABCDEF" for c in texto):
+        id_hex = texto.upper()          # el editor manda el codigo
+    else:
+        for f in reglas._tabla("nombres-es.csv"):
+            if f.get("categoria") != "pasiva":
+                continue
+            if _sin_marcadores(f.get("nombre_es")) == _sin_marcadores(nombre):
+                id_hex = f["id"].upper()
+                break
     if id_hex is None:
         parecidas = sorted({_sin_marcadores(f.get("nombre_es"))
                             for f in reglas._tabla("nombres-es.csv")
@@ -521,10 +526,17 @@ def poner_heredada(plain, fila, ranura, nombre):
                      % (nombre, ("\n   Parecidas: " + " | ".join(parecidas))
                         if parecidas else ""))
 
-    clase = reglas.clase_de_pasiva(id_hex)
-    if rareza in (5, 6, 7) and clase == "normal":
-        raise Ilegal("es un Idolo (Hero) y esa pasiva es de jugador normal: a un "
-                     "Idolo solo se le pueden heredar pasivas de otro Idolo")
+    # se guarda siempre la version base; el juego pone el numero de la rareza
+    # del que la recibe (O-165). Y solo las que se pueden heredar (O-173).
+    id_hex = O.variante_por_rareza(id_hex, 0)
+    if id_hex not in O.pasivas_heredables(rareza):
+        que = O.nombre_pasiva(id_hex, nombre)
+        if rareza in (5, 6, 7):
+            raise Ilegal("es un Idolo y %s no es una pasiva de Idolo: a un Idolo solo "
+                         "se le heredan las de otro Idolo" % que)
+        raise Ilegal("%s no se puede heredar: solo las pasivas de jugador (ni las de "
+                     "Idolo, ni las de stats, ni las de entrenador o gerente, ni las "
+                     "personalizadas)" % que)
 
     fichas = J.ocurrencias(plain, *J.ANCLA_FICHA)
     ini, _ = tlv.inicio_registro(plain, fichas[fila])
@@ -553,7 +565,7 @@ def poner_heredada(plain, fila, ranura, nombre):
     return bytes(buf), {
         "fila": fila, "ranura": ranura,
         "antes": nombres.get(tapada.hex().upper(), ("vacia",))[0] if any(tapada) else "vacia",
-        "despues": nombres.get(id_hex, (nombre,))[0],
+        "despues": O.nombre_pasiva(O.variante_por_rareza(id_hex, rareza), nombres.get(id_hex, (nombre,))[0]),
         "tapa_a": nombres.get(fic_pas or "", ("—",))[0],
         "heredadas_tras_esto": puestas + 1,
     }

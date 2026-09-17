@@ -402,16 +402,43 @@ def pasivas(plain, fila, ranura):
     return {"de_donde": de_donde, "puede": True, "opciones": unicas}
 
 
+def pasivas_heredables(rareza):
+    """{id base} de las pasivas que se le pueden heredar a un jugador de esa
+    rareza (NOTAS O-173). Reglas de Aaron:
+
+    - a un normal (0-4) solo pasivas DE JUGADOR: las que salen en las cinco
+      ranuras de un jugador normal (`pasivas-por-ranura.csv`, 63; cuadran con
+      la lista "Pasivas de jugador" de inazumo.es);
+    - a un Idolo (5-7) solo las de otro Idolo: las de los tableros propios
+      (`pasivas-fijas.csv`, origen propio, 46);
+    - a un Diamante nada;
+    - nunca las de "Agilidad +x" y demas stats, ni las de entrenador o gerente,
+      ni las personalizadas.
+
+    Se devuelve siempre la version base (rareza 0): la partida guarda esa y el
+    juego ensena el numero que le toca al que la recibe (O-165)."""
+    def construir():
+        normales = {variante_por_rareza(f["id"].upper(), 0)
+                    for f in reglas._tabla("pasivas-por-ranura.csv")}
+        idolos = {variante_por_rareza(f["pasiva_id"].upper(), 0)
+                  for f in reglas._tabla("pasivas-fijas.csv") if f.get("origen") == "propio"}
+        return {"normales": normales, "idolos": idolos}
+    d = _indice("pasivas_heredables", construir)
+    if rareza in (5, 6, 7):
+        return d["idolos"]
+    if rareza == 8:
+        return set()
+    return d["normales"]
+
+
 def heredadas(plain, fila):
     """Las pasivas que se le pueden heredar, y cuantas ranuras quedan.
 
-    Dos reglas de Aaron:
-
-    - A un **Diamante** no se le hereda nada: sus pasivas son las suyas y punto.
-    - A un **Idolo** solo se le heredan pasivas **de otro Idolo**. Escribir ya lo
-      impedia, pero la lista las ensenaba todas y eso es un error: aqui las
-      opciones se **generan** con la regla puesta, no se ensenan para luego
-      rechazarlas.
+    Reglas de Aaron (NOTAS O-173, `pasivas_heredables`): a un Diamante nada; a
+    un Idolo solo las de otro Idolo; a un normal solo pasivas de jugador. Cada
+    pasiva sale UNA vez (la version base), con el numero que tendria en este
+    jugador: al heredar de un comun a un leyenda, la pasiva se pone con el
+    valor del leyenda; es la misma pasiva con otro numero.
     """
     rareza = J.array(plain, J.ARRAY_RAREZA)[fila]
     if rareza == 8:
@@ -426,26 +453,24 @@ def heredadas(plain, fila):
     puestas = sum(1 for k in range(5) if any(plain[off + 4 * k:off + 4 * k + 4]))
     libres = max(0, E.TOPE_HEREDADAS - puestas)
     opciones = []
-    if libres and solo_de_idolo:
-        # las de Idolo no estan en nombres-es con esa etiqueta; la lista buena es
-        # la de `pasivas-hero.csv`, y el texto de verdad sale de la partida
+    if libres:
         nombres_tlv = tlv.nombres()
-        for id_hex in sorted(reglas.pasivas_hero()):
-            texto = nombres_tlv.get(id_hex.upper())
-            opciones.append({"id": id_hex.upper(),
-                             "icono200": iconos_de_pasiva().get(id_hex.upper(), ""),
-                             "nombre": _limpio(texto[0] if texto else id_hex)})
-    elif libres:
-        for f in _nombres_por_categoria().get("pasiva", []):
-            if reglas.clase_de_pasiva(f["id"].upper()) == "hero":
-                continue    # esas son de Idolo y este no lo es
-            opciones.append({"id": f["id"].upper(),
-                             "icono200": iconos_de_pasiva().get(f["id"].upper(), ""),
-                             "nombre": _limpio(f.get("nombre_es") or f.get("nombre_en"))})
+        for id_hex in sorted(pasivas_heredables(rareza)):
+            # el numero que ensenaria ESTE jugador (su rareza manda, O-165)
+            version = variante_por_rareza(id_hex, rareza)
+            texto = nombres_tlv.get(version) or nombres_tlv.get(id_hex)
+            opciones.append({"id": id_hex,
+                             "icono200": iconos_de_pasiva().get(id_hex, "") or iconos_de_pasiva().get(version, ""),
+                             "nombre": nombre_pasiva(version, _limpio(texto[0] if texto else id_hex))})
+    # una sola por texto: hay pasivas de Idolo repetidas (dos ids con el mismo
+    # texto y numero); se queda la que mas tableros usan (regla de Aaron: "solo
+    # deberia salir 1")
+    usos = _indice("usos_pasiva_tablero", lambda: __import__("collections").Counter(
+        variante_por_rareza(f["pasiva_id"].upper(), 0) for f in reglas._tabla("pasivas-fijas.csv")))
     vistos, unicas = set(), []
-    for o in sorted(opciones, key=lambda x: x["nombre"]):
-        if o["nombre"] and o["id"] not in vistos:
-            vistos.add(o["id"])
+    for o in sorted(opciones, key=lambda x: (x["nombre"], -usos.get(x["id"], 0), x["id"])):
+        if o["nombre"] and o["nombre"] not in vistos:
+            vistos.add(o["nombre"])
             unicas.append(o)
     return {"puede": libres > 0 and bool(unicas),
             "de_donde": ("solo pasivas de Idolo" if solo_de_idolo else

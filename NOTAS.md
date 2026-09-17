@@ -4073,6 +4073,26 @@ por el juego, 34 cuadran con el dueno (el otro es el Cao Cao de Zanark, sin
 dueno en los datos). El editor solo ofrece al jugador sus armaduras y mixis, y
 `poner_tecnica` se niega con los ajenos.
 
+### O-173 · Que pasivas se pueden heredar, y una sola vez cada una
+
+Aaron, probando: la lista de heredadas sacaba "muchas pasivas iguales" (una por
+version de rareza, y sin numero porque el marcador se limpiaba), y ofrecia
+cosas que el juego no deja heredar. Sus reglas:
+
+- Una pasiva es una: al heredar de un comun a un leyenda se pone con el valor
+  del leyenda. La partida guarda la version base (O-165) y el editor ofrece
+  cada pasiva UNA vez con el numero que tendria en el que la recibe.
+- Ni de Idolo a normal ni de normal a Idolo; de Idolo a Idolo si; a Diamante
+  nada. Y nunca las de stats ("Agilidad +x"), ni las de entrenador o gerente,
+  ni las personalizadas.
+- Las que si: la lista "Pasivas de jugador" de inazumo.es/pasivas (63).
+
+`pasivas-por-ranura.csv` tiene justo 63 ids base distintos (los que salen en
+las cinco ranuras de un normal) y cuadran una a una con esa lista; para un
+Idolo valen las 46 de los tableros propios (`pasivas-fijas.csv`, origen
+propio). `O.pasivas_heredables(rareza)`, y `poner_heredada` se niega con el
+resto y guarda siempre la base. El editor manda el codigo, no el nombre.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

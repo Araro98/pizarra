@@ -1198,7 +1198,7 @@ class Manejador(BaseHTTPRequestHandler):
         if t == "conseguir_todo":
             return sesion.aplicar(E.conseguir_todo, c["categoria"], int(c["cantidad"]))
         if t == "heredada":
-            return sesion.aplicar(E.poner_heredada, fila, int(c["ranura"]), c["nombre"])
+            return sesion.aplicar(E.poner_heredada, fila, int(c["ranura"]), c.get("id") or c["nombre"])
         if t == "judia":
             return sesion.aplicar(E.poner_tipo_judia, fila, int(c["ranura"]),
                                   c["nombre"], int(c["cantidad"]))

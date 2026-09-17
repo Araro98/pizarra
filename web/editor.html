@@ -1388,9 +1388,9 @@ function seccionPasivas(d) {
         onclick:() => abrePicker("Heredar en la ranura " + x.ranura,
           () => pedir("/api/opciones?tipo=heredada&fila=" + d.fila)
                   .then(r => ({...r, ordenes:[{campo:"etiqueta", etiqueta:"nombre"}],
-                    opciones:r.opciones.map(o => ({valor:o.nombre, etiqueta:o.nombre,
+                    opciones:r.opciones.map(o => ({valor:o.id, etiqueta:o.nombre,
                                                    icono200:o.icono200 || ""}))})),
-          v => manda({tipo:"heredada", fila:d.fila, ranura:x.ranura, nombre:v}))}));
+          v => manda({tipo:"heredada", fila:d.fila, ranura:x.ranura, id:v}))}));
     else
       f.appendChild(el("span", {class:"bloqueada", text:h.motivo || "—"}));
     caja.appendChild(f);
