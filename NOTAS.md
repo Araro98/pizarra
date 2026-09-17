@@ -4292,33 +4292,48 @@ vista". Al filtrar por un equipo propio sale el mismo panel plegable de
 y rojo (O-176). El filtro devuelve tambien el hueco de cada equipo, que es lo
 que pide `/api/equipo/<hueco>/pasivas`.
 
-### O-184 · PENDIENTE · Las pasivas de los kenshin
+### O-184 · RESUELTO · La habilidad pasiva de cada espiritu
 
-Aaron pidio verlas en el editor y paso tres ejemplos (Argentia "valor de
-disputa +10 % para jugadores cercanos", Metis "valor de foco +10 % para
-jugadores de distintas posiciones", Asura "cuando un jugador de otro elemento
-esta cerca, AT propio de tiro +20 %"). **No se han encontrado**, y aqui queda
-por donde se fue:
+Aaron pidio verlas en el editor y paso tres fotos: Argentia "valor de disputa
++10 % para jugadores cercanos", Metis "valor de foco +10 % para jugadores de
+distintas posiciones" y Asura "cuando un jugador de otro elemento esta cerca,
+AT propio de tiro +20 %". **Las tres salen ahora exactas.**
 
-- En `aura_skill_config`, detras de la fila de cada espiritu (19 columnas) van
-  tres parejas (indice, cuantos) que apuntan a `AURA_CMD_UNIQUE_EFFECT_LIST`,
-  `AURA_CMD_EFFECT_LIST` y `AURA_CMD_CHARA_LIST`. Argentia usa UNIQUE[31] y
-  EFFECT[93..95]. Las tres filas de EFFECT son iguales en todos los kenshin
-  (los +50 % genericos); **la de UNIQUE es distinta para cada uno** y es la
-  pasiva: Argentia `0F680557`, Metis `B5390CCE`, Asura `23090BB9`.
-- Ese id no esta en `passive_skill_config` ni en `pasivas-valor.csv` (ni como
-  pasiva ni como tipo de efecto). Solo aparece en
-  `soccer/soccer_command_effect_config`, que describe los efectos de partido
-  por partes (efecto, valor, condicion de objetivo).
-- Ese fichero tiene 212 tablas y **el volcador solo sabe sacar la primera de
-  cada nombre** (`db.table(nombre)`), asi que no se puede leer lo que hay
-  dentro. Ampliarlo son cuatro lineas de Rust, pero **en el PC no hay cargo**
-  instalado.
-- `HyperMoves.csv` de inazumo.es si trae la pasiva de 66 espiritus, pero **en
-  ingles** y le faltan justo Argentia, Metis y Asura (tiene 60 kenshin de 103).
+Donde estaban:
 
-Con `rustup` instalado se saca en un rato: ampliar `referencia/volcado` para
-volcar todas las tablas en orden y leer el efecto de cada UNIQUE.
+1. Detras de la ficha de cada espiritu en `aura_skill_config` (la fila de 19
+   columnas de `AURA_CMD_INFO_LIST`) van tres parejas (indice, cuantos) que
+   apuntan a `AURA_CMD_UNIQUE_EFFECT_LIST`, `AURA_CMD_EFFECT_LIST` y
+   `AURA_CMD_CHARA_LIST`. Las de EFFECT son los +50 % genericos que llevan
+   todos; **la de UNIQUE es la pasiva propia**, y el indice va **desplazado en
+   uno**.
+2. Ese id se busca en `soccer/soccer_command_effect_config`, que describe cada
+   efecto en tres partes: el tipo y el numero (`EFFECT_DATA_LIST`) y a quien o
+   cuando se aplica (`TARGET_COND_DATA_LIST` / `EXEC_COND_DATA_LIST`). El
+   fichero **repite el nombre de tabla** 212 veces y `db.table(nombre)` solo
+   daba la primera: por eso no habia forma de leerlo. Se le anadio al volcador
+   el modo **`--todas`** (y `--json`), que era lo que faltaba. Para eso se
+   instalo Rust, que ya estaba en el PC pero sin PATH.
+
+Salen **10 tipos de efecto** (AT de tiro, valor de foco, valor de disputa, DF
+del muro, poder de afinidad al pasar, tension necesaria para la brecha, tension
+al ganar foco o disputa, tasa de parada, tasa de brecha y tasa de faltas al
+esprintar) y **11 condiciones** (mismo/distinto elemento, misma/distinta
+posicion, cercanos, campo propio, campo contrario, fuera del area, y las dos
+"cuando un jugador del mismo/otro elemento esta cerca"). Con eso se arma el
+texto en espanol: `construir_pasivas_espiritu.py` -> `pasivas-espiritu.csv`,
+**399 de 443 espiritus** (103 kenshin, 161 armaduras, 68 mixi, 43 almas, 24
+especiales).
+
+Comprobado ademas contra los 60 espiritus con pasiva de inazumo.es: **55
+aciertos de 59**. Lo unico que los datos no separan es si un efecto "en campo
+propio", "en campo contrario" o "fuera del area" es del jugador o de todo el
+equipo; en esos el texto va sin ese matiz.
+
+En el editor: la pasiva sale en la tarjeta del selector de hipertecnicas, en la
+base de datos de espiritus, y con el **boton "i"** de la ranura del arbol, que
+abre la ficha del espiritu (nombre largo, familia, rango, dueno, pasiva,
+supertecnica propia y descripcion).
 
 ## SUPUESTO
 

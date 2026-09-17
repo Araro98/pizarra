@@ -886,6 +886,9 @@ def detalle_jugador(plain, fila):
         esp = O._espiritus().get(idh) or {}
         arbol.append({"ranura": k, "admite": arbol_admite(base, k),
                       "trozo": trozo, "puesta": nombre_de_ref(v),
+                      # el codigo, para poder pedir la ficha del espiritu (O-184)
+                      "id": idh if esp else "",
+                      "pasiva": O.pasiva_de_espiritu(idh) if esp else "",
                       # el tipo de lo que hay puesto, para el icono del juego
                       "tipo": tec.get("categoria") or ("Hipertecnica" if esp else ""),
                       "elemento": tec.get("elemento") or "",
@@ -1138,6 +1141,15 @@ class Manejador(BaseHTTPRequestHandler):
                 fila = int(u.path.rsplit("/", 1)[1])
                 with sesion.lock:
                     return self._responder(200, detalle_jugador(sesion.plain, fila))
+            if u.path.startswith("/api/espiritu/"):
+                # la ficha de un espiritu: su pasiva y su tecnica (O-184)
+                idh = u.path.rsplit("/", 1)[1].upper()
+                e = O._espiritus().get(idh) or {}
+                with sesion.lock:
+                    return self._responder(200, dict(
+                        {"id": idh, "nombre": O.nombre_de(idh) if hasattr(O, "nombre_de") else "",
+                         "icono": e.get("icono") or ""},
+                        **O._detalle_espiritu(idh, e)))
             if u.path == "/api/opciones":
                 tipo = (q.get("tipo") or [""])[0]
                 fila = int((q.get("fila") or ["-1"])[0])

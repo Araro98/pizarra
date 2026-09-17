@@ -350,7 +350,10 @@ def espiritus():
         e = esp.get(idh) or {}
         fuera.append({"id": idh, "nombre": _limpio(n.get("nombre_es") or n.get("nombre_en")),
                       "familia": e.get("familia") or "", "rango": int(e.get("rango") or 0),
-                      "icono": e.get("icono") or "", "modelo": e.get("modelo") or ""})
+                      "icono": e.get("icono") or "", "modelo": e.get("modelo") or "",
+                      # la habilidad pasiva de cada uno (NOTAS O-184)
+                      "pasiva": O.pasiva_de_espiritu(idh),
+                      "nombre_largo": e.get("nombre_largo") or ""})
     fuera.sort(key=lambda x: (x["familia"], -x["rango"], x["nombre"].lower()))
     return fuera
 

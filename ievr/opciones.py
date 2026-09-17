@@ -973,9 +973,16 @@ def espiritu_permitido(id_hex, identidad_hex):
     return bool(nombre) and nombre in d["nombres"]
 
 
+def pasiva_de_espiritu(id_hex):
+    """La habilidad pasiva de un espiritu, en texto (NOTAS O-184)."""
+    return _indice("pasivas_espiritu", lambda: {
+        f["id"].upper(): f["texto"] for f in reglas._tabla("pasivas-espiritu.csv")
+    }).get((id_hex or "").upper(), "")
+
+
 def _detalle_espiritu(idh, e):
-    """Rango, nombre largo, descripcion, de quien es y su tecnica propia, para
-    ensenarlo en el selector (O-174)."""
+    """Rango, nombre largo, descripcion, pasiva, de quien es y su tecnica
+    propia, para ensenarlo en el selector (O-174, O-184)."""
     d = duenos_de_espiritu(idh)
     if d.get("todos"):
         dueno = "de cualquier jugador"
@@ -985,6 +992,7 @@ def _detalle_espiritu(idh, e):
         dueno = ""
     fuera = {"rango": int(e.get("rango") or 0), "nombre_largo": e.get("nombre_largo") or "",
              "descripcion": e.get("descripcion") or "", "dueno": dueno,
+             "pasiva": pasiva_de_espiritu(idh), "familia": e.get("familia") or "",
              "tecnica": "", "tecnica_categoria": "", "tecnica_poder": 0, "tecnica_tp": 0,
              "tecnica_elemento": ""}
     t = _tecnicas_por_id().get((e.get("tecnica") or "").upper())

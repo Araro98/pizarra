@@ -752,6 +752,19 @@
   .opcion-tarjeta .stats .total { color:#2b5ea8; }
   .opcion-tarjeta .extra { color:#17734b; font-size:var(--t-sm); font-weight:700; }
   .opcion-tarjeta .tec-barra .nom { white-space:normal; line-height:1.15; }
+  .pasiva-esp { margin:0; font-size:var(--t-sm); font-weight:700; color:#17734b;
+    background:#eefaf3; border:1px solid #bfe6d2; border-radius:7px; padding:4px 8px;
+    line-height:1.25; }
+  .pasiva-esp.grande { font-size:var(--t-md); }
+  .btn.info, button.info { flex:none; width:26px; height:26px; border-radius:50%;
+    border:2px solid var(--azul-marco); background:#fff; color:var(--azul-marco);
+    font-weight:800; font-style:italic; cursor:pointer; line-height:1; padding:0; }
+  button.info:hover { background:var(--azul-marco); color:#fff; }
+  .modal.ficha-esp { width:min(560px,96vw); }
+  .modal.ficha-esp .cuerpo { display:flex; gap:12px; padding:12px 14px; align-items:flex-start; }
+  .modal.ficha-esp .datos { flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:6px; }
+  .retrato-esp { width:110px; height:110px; object-fit:contain; flex:none;
+    filter:drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
   @media (max-width:700px) { .modal.selector .rejilla { grid-template-columns:1fr; } }
 
   .aviso { padding:9px 14px; border-radius:8px; font-size:var(--t-md); margin:0 0 10px;
@@ -1536,9 +1549,52 @@ function ranuraTecnica(t, cargar, alElegir, titulo) {
     caja.appendChild(el("div", {class:"texto"}, [el("b", {text:"vacia"}),
       el("span", {text:"solo " + t.admite})]));
   }
+  if (t.puesta && t.icono)      // es un espiritu: se puede ver su ficha (O-184)
+    caja.appendChild(el("button", {class:"info", text:"i", title:"Ver la pasiva de este espiritu",
+      onclick:() => fichaEspiritu(t.id)}));
   caja.appendChild(el("button", {class:"elegir", text:"Cambiar",
     onclick:() => abrePicker(titulo, cargar, alElegir)}));
   return caja;
+}
+
+/* La ficha de un espiritu: su habilidad pasiva, su supertecnica y de quien es.
+   Aaron la pidio como "el tipico boton de informacion" (NOTAS O-184). */
+async function fichaEspiritu(id) {
+  let d;
+  try { d = await pedir("/api/espiritu/" + id); }
+  catch (e) { aviso(e.message, "mal"); return; }
+  const caja = el("div", {class:"modal ficha-esp"});
+  caja.appendChild(el("div", {class:"cab"}, [
+    el("h3", {text:d.nombre_largo || d.nombre || id}),
+    el("p", {text:[NOMBRE_FAMILIA[d.familia] || d.familia || "",
+                   d.rango ? "\u2605".repeat(d.rango) : "", d.dueno || ""]
+                  .filter(Boolean).join("   ")})]));
+  const cuerpo = el("div", {class:"cuerpo"});
+  if (d.icono) cuerpo.appendChild(el("img", {class:"retrato-esp", loading:"lazy", alt:"",
+                                             src:"/espiritu/" + d.icono}));
+  const texto = el("div", {class:"datos"});
+  if (d.pasiva) {
+    texto.appendChild(el("div", {class:"sub", text:"Habilidad pasiva"}));
+    texto.appendChild(el("p", {class:"pasiva-esp grande", text:d.pasiva}));
+  } else {
+    texto.appendChild(el("p", {class:"vacio", text:"De este no se sabe la pasiva."}));
+  }
+  if (d.tecnica) {
+    texto.appendChild(el("div", {class:"sub", text:"Supertecnica del espiritu"}));
+    texto.appendChild(barraDeTecnica({etiqueta:d.tecnica, elemento:d.tecnica_elemento,
+      categoria:d.tecnica_categoria, tp:d.tecnica_tp, poder:d.tecnica_poder}));
+  }
+  if (d.descripcion) texto.appendChild(el("p", {class:"desc", text:d.descripcion}));
+  cuerpo.appendChild(texto);
+  caja.appendChild(cuerpo);
+  const pie = el("div", {class:"pie"});
+  const fondo = el("div", {class:"fondo-modal", onclick:e => { if (e.target === fondo) cerrar(); }}, [caja]);
+  function cerrar() { fondo.remove(); document.onkeydown = antes; }
+  pie.appendChild(el("button", {class:"btn", text:"Cerrar", onclick:cerrar}));
+  caja.appendChild(pie);
+  const antes = document.onkeydown;
+  document.onkeydown = e => { if (e.key === "Escape") cerrar(); };
+  document.body.appendChild(fondo);
 }
 function filaJudia(fila, j) {
   const num = el("input", {type:"number", min:"0", max:String(j.tope),
@@ -1653,6 +1709,10 @@ function tarjetaDeOpcion(o, alPulsar, puesta) {
     if (o.rango) chips.appendChild(chip("\u2605".repeat(o.rango), "rango"));
     if (o.dueno) chips.appendChild(chip(o.dueno, "dueno"));
     t.appendChild(chips);
+    if (o.pasiva) {
+      t.appendChild(el("div", {class:"sub", text:"Habilidad pasiva"}));
+      t.appendChild(el("p", {class:"pasiva-esp", text:o.pasiva}));
+    }
     if (o.tecnica) {
       t.appendChild(el("div", {class:"sub", text:"Tecnica del espiritu"}));
       t.appendChild(barraDeTecnica({etiqueta:o.tecnica, elemento:o.tecnica_elemento,
@@ -1736,7 +1796,8 @@ async function abrePicker(titulo, cargar, alElegir) {
       (!q || (o.etiqueta || "").toLowerCase().includes(q)
           || (o.descripcion || "").toLowerCase().includes(q)
           || (o.dueno || "").toLowerCase().includes(q)
-          || (o.tecnica || "").toLowerCase().includes(q)));
+          || (o.tecnica || "").toLowerCase().includes(q)
+          || (o.pasiva || "").toLowerCase().includes(q)));
     const cual = ordenes.find(x => x.campo === orden);
     if (cual) ves = ves.slice().sort((a, b) => cual.mayor
       ? (Number(b[cual.campo] || 0) - Number(a[cual.campo] || 0))

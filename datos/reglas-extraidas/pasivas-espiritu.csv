@@ -1,0 +1,402 @@
+# La habilidad pasiva de cada espiritu (NOTAS O-184).
+# Lo genera herramientas/construir_pasivas_espiritu.py.
+id,nombre,familia,texto,valor
+BB1BC0C0,Tótem antílope,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+EEEA336E,Tótem antílope oscuro,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+9B00D549,Tótem Begiran,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+5853F862,Tótem Belion,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+50D90BC6,Tótem Brakias,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+04BBB0BF,Tótem búfalo,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+69DE21EF,Tótem búho,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+7A6AB06F,Tótem búho cornudo,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+C98575BC,Tótem caballo,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+ECC86EEA,Tótem Dandor,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+0E1334F3,Tótem Dohma,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+3B5BAB76,Tótem Dolfinus,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+1DA78F1F,Tótem Doruga,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+2E08217A,Tótem Dragunova,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+B754756C,Tótem Fenikias,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+E80D028E,Tótem Flami,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+821CEAE9,Tótem Gandran,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+0C316977,Tótem Garius,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+A6C2B968,Tótem Giorom,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+ED5B0C51,Tótem Goliger,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+903B33BE,Tótem grifo,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+E7F3A271,Tótem Guirius,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+F5D4514A,Tótem Guma,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+6402DC94,Tótem Gusfi,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+F1113D2E,Tótem halcón,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+DA31CE50,Tótem Ixaal,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+77B66778,Tótem león,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+B0202637,Tótem lobo,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+224794D6,Tótem lobo plateado,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+11E810DF,Tótem oso lunar,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+FA2ADBD9,Tótem oso pardo,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+974F4A89,Tótem Pamerio,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+3DBC9A96,Tótem pavo real,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+E5D1FFF5,Tótem pegaso,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+2682D2DE,Tótem pegaso rojo,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+AFDB021B,Tótem Pelion,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+558F2F75,Tótem salamandra oscura,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+C32DF1F0,Tótem tejón,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+53681E95,Tótem Univolt,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+6C882F30,Tótem Vairaas,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+D2BB3DF4,Tótem Zooma,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+762505C3,Tótem zorro,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+EEEA1902,Tótem águila calva,alma,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+7B3A69F2,Alfil blanco,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+ED0A6E85,Alfil blanco,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+CAF7F1A5,Alfil negro,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+90F8A2F4,Amaterasu,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+3219528B,Apolo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+A42955FC,Apolo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+AC3155C6,Archipegaso,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+F05C2D31,Archipegaso rojo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+8607F429,Argentia,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+0E091089,Arturo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+3EB0F6EA,Arturo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+5BD74A52,Arturo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+5CCDD688,Arturo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+6B6EAC31,Arturo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+B4581910,Arturo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+CAFDD1FF,Arturo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+D13FA5A8,Arturo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+7E71AEAF,Astaroth,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+082A77B7,Asura,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+0897A1A0,Atenea,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+382E47C3,Atenea,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+47F39EC0,Atenea,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+6B92902E,Atenea,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+B2C6A839,Atenea,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+D1C399B7,Atenea,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+FDA29759,Atenea,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+7C44309F,Ave de fuego,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+EA7437E8,Ave de fuego,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+50826324,Azote negro,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+1814E08D,Baihu,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+0995EF3D,Barius,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+9FA5E84A,Barius,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+4B24D2C4,Berserker,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+DD14D5B3,Berserker,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+104D40E7,Brunilda,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+20F4A684,Brunilda,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+745610FF,Brunilda,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+AA1C497E,Brunilda,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+E2661788,Brunilda,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+78815CFB,Bufón,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+480D3E3F,Caballo blanco,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+646C30D1,Caballo blanco,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+DE3D3948,Caballo blanco,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+BCA608E7,Caballo negro,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+3E56E727,Chione,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+A866E050,Chione,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+60A7CBFB,Comadreja,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+2E5363F4,Cuervo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+B8636483,Cuervo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+E2C5FDC9,Cychr,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+58029AB6,Drake,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+CE329DC1,Drake,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+A97A929B,Eris,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+8E8D2DE1,Evera,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+C591A8F2,Fénix,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+32B09890,Garas,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+A4809FE7,Garas,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+EC2D0FA7,Glenr,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+3F82703C,Grifo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+43037603,Grifo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+5BC52AD4,Grifo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+6B7CCCB7,Grifo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+6F6278ED,Grifo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+85D379A5,Grifo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+B44A7996,Grifo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+B56A9FC6,Grifo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+D00D237E,Grifo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+D12DC52E,Grifo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+E0B4C51D,Grifo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+F9527F9A,Grifo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+00AF952C,Guiverno blanco,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+059C89E8,Guiverno blanco,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+11B3783D,Guiverno blanco,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+87837F4A,Guiverno blanco,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+8F746612,Guiverno blanco,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+BFCD8071,Guiverno blanco,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+83D4CADC,Halcón de trueno,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+2F7E228C,Huargo,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+D1C9B9ED,Jaguar,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+9A76D6BF,Jmet,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+9349B7A7,Juez,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+6EECD3D4,Kukulkán,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+228E0FAA,Lancelot,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+B4BE08DD,Lancelot,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+11886BD4,León,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+87B86CA3,León,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+6CE87E57,Licaón,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+BB40A822,Los enamorados ♀,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+B16D3628,Los enamorados ♂,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+F58F13C4,Magister,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+491B6CAE,Metis,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+73284992,Musashi,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+E5184EE5,Musashi,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+AF804095,Neptuno,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+1E4DD8C2,Oneiros,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+887DDFB5,Oneiros,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+972F3182,Pegaso,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+D9DB998D,Pendragón,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+53AF38CB,Peón blanco,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+660A5B22,Peón blanco,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+7FCE3625,Peón blanco,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+C59F3FBC,Peón blanco,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+E9FE3152,Peón blanco,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+F03A5C55,Peón blanco,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+A7040E13,Peón negro,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+54D5D6B2,Poseidón,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+C2E5D1C5,Poseidón,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+5925FB94,Qinglong,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+18B70ACC,Raiden,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+4C5A8BA9,Reina blanca,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+DA6A8CDE,Reina blanca,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+356D2BBC,Robin,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+3D752B86,Roc,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+AB452CF1,Roc,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+5B1065A4,Sirena,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+CD2062D3,Sirena,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+129A94C6,Sombra de plasma DF,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+1A214C47,Sombra de plasma DF,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+2D4B8E46,Sombra de plasma DF,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+3EFB9A28,Sombra de plasma DF,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+439F0A45,Sombra de plasma DF,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+74F5C844,Sombra de plasma DF,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+84AA93B1,Sombra de plasma DF,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+A8CB9D5F,Sombra de plasma DF,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+15836018,Sombra de plasma RE,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+22E9A219,Sombra de plasma RE,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+475A54DB,Sombra de plasma RE,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+4C3D261A,Sombra de plasma RE,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+5E9E39DC,Sombra de plasma RE,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+6B3B5A35,Sombra de plasma RE,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+7B57E41B,Sombra de plasma RE,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+C8AE3EAB,Sombra de plasma RE,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+C92B691F,Sombra de plasma RE,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+D16A53AC,Sombra de plasma RE,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+FD0B5D42,Sombra de plasma RE,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+FE41AB1E,Sombra de plasma RE,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+1DC94936,Sombra de plasma TI,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+1F73F030,Sombra de plasma TI,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+31A847D8,Sombra de plasma TI,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+46CDB632,Sombra de plasma TI,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+71A77433,Sombra de plasma TI,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+8BF94E41,Sombra de plasma TI,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+A79840AF,Sombra de plasma TI,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+01B6FCEE,Surtur,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+2DD7F200,Surtur,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+9786FB99,Surtur,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+023CFA54,Tachión,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+940CFD23,Tachión,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+BCAC28BD,Tirador,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+3A0B72EB,Torre blanca,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+8BC6EABC,Torre negra,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+0573908A,Trickster,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+934397FD,Trickster,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+40A766FE,Xuan-Wu,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+4C652F54,Xuan-Wu,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+600421BA,Xuan-Wu,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+701E809D,Xuan-Wu,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+CA4F8904,Xuan-Wu,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+F63426CD,Xuan-Wu,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+E4043C2E,Zhuque,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+CD1B713A,Zodíaco,armadura,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+823501EB,Cambio de despertar,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+E40D7BD6,Catalizador elemental,especial,Valor de foco del equipo +20 %,20
+CACAB252,Despertar,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+CD571A8D,Despertar,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+3E80ACFA,Espíritu Miximax,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+723D7CA1,Impulso temporal,especial,Valor de foco del equipo +20 %,20
+84D1A563,Limitadores desactivados,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+A8B0AB8D,Mejora de cápsula,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+2188D903,Modo Aphrody,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+7E422032,Modo Aphrody,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+D2CB3804,Modo Aphrody,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+EB55E074,Modo Atacante,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+4DFC1203,Modo Brutal,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+0A6DB6D1,Modo Dos Caras,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+073F662B,Modo Furia,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+394C2003,Modo León Salvaje,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+29BDFB74,Modo Reina,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+33D120E8,Modo Santurrón,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+B362BAAD,Modo Santurrón,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+A59A5B92,Modo Serio,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+6BF911A6,Sobrecarga ardiente,especial,AT de tiro del equipo +20 %,20
+75732EDD,Transformación de vínculo,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+8182504F,Transformación de vínculo,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+A844F719,Transformación de vínculo,especial,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+35651956,Alfil blanco,kenshin,Valor de disputa +10 % para jugadores cercanos,10
+84A88101,Alfil negro,kenshin,DF del muro +10 % para jugadores cercanos,10
+DEA7D250,Amaterasu,kenshin,"Cuando un jugador del mismo elemento está cerca, Valor propio de foco +20 %",20
+42AE4670,Amorosa,kenshin,"Al hacer un pase, poder de afinidad +50 %",50
+3619AB35,Animador,kenshin,Valor de foco +10 % para jugadores de distintas posiciones,10
+D0DA7EBE,Animador,kenshin,Valor de foco +10 % para jugadores de distintas posiciones,10
+7C46222F,Apolo,kenshin,AT de tiro +10 % para jugadores de la misma posición,10
+E26E2562,Archipegaso,kenshin,"Cuando un jugador del mismo elemento está cerca, Valor propio de foco +20 %",20
+BE035D95,Archipegaso rojo,kenshin,"Cuando un jugador de otro elemento está cerca, Valor propio de foco +20 %",20
+C858848D,Argentia,kenshin,Valor de disputa +10 % para jugadores cercanos,10
+05FD76CF,Arges,kenshin,"Al hacer un pase, poder de afinidad +50 %",50
+1292A62C,Arturo,kenshin,AT de tiro +10 % para jugadores de distintos elementos,10
+302EDE0B,Astaroth,kenshin,"Cuando un jugador del mismo elemento está cerca, AT propio de tiro +20 %",20
+46750713,Asura,kenshin,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+09ACEE64,Atenea,kenshin,"Al hacer un pase, poder de afinidad +50 %",50
+CC83C5EE,Atlanticus,kenshin,Tensión necesaria para la brecha del equipo -20 %,20
+A52338DA,Atlas,kenshin,Tasa de parada +5 %,5
+A42B474C,Ave de fuego,kenshin,Valor de foco +15 % en campo propio,15
+1EDD1380,Azote negro,kenshin,AT de tiro +10 % para jugadores de la misma posición,10
+564B9029,Baihu,kenshin,Valor de disputa +10 % para jugadores cercanos,10
+D1FA98EE,Barius,kenshin,Valor de disputa +15 % en campo contrario,15
+91F8EF88,Barron,kenshin,Tasa de parada +5 %,5
+057BA260,Berserker,kenshin,DF del muro +10 % para jugadores cercanos,10
+AC39672C,Brunilda,kenshin,DF del muro +10 % para jugadores cercanos,10
+A0EE2B28,Bufón,kenshin,AT de tiro +10 % para jugadores de la misma posición,10
+06524E9B,Caballo blanco,kenshin,Valor de foco +10 % para jugadores de distintos elementos,10
+64C97F34,Caballo negro,kenshin,AT de tiro +10 % para jugadores de la misma posición,10
+70099783,Chione,kenshin,"Cuando un jugador del mismo elemento está cerca, AT propio de tiro +20 %",20
+2EF8BB5F,Comadreja,kenshin,Valor de disputa +20 % en campo propio,20
+54126D0C,Conejo de cristal,kenshin,AT de tiro +10 % para jugadores de la misma posición,10
+712971D3,Conejo de cristal,kenshin,AT de tiro +10 % para jugadores de la misma posición,10
+600C1350,Cuervo,kenshin,Tasa de faltas del equipo -15 % al esprintar,15
+BAD81CF6,Cychr,kenshin,Valor de foco +20 % en campo propio,20
+44CC6DD6,Daji,kenshin,"Al hacer un pase, poder de afinidad +50 %",50
+667015F1,Demogorgo,kenshin,AT de tiro del equipo +10 %,10
+806DED65,Drake,kenshin,Valor de foco +20 % en campo propio,20
+E725E23F,Eris,kenshin,Valor de foco +10 % en campo contrario,10
+C0D25D45,Evera,kenshin,Tensión necesaria para la brecha del equipo -20 %,20
+8BCED856,Fénix,kenshin,Valor de disputa +20 % cuando se está fuera del área,20
+EADFEF43,Garas,kenshin,Valor de foco +10 % para jugadores cercanos,10
+D40C98F5,Gargantúa,kenshin,"Al hacer un pase, poder de afinidad +50 %",50
+F85812BC,Gigante,kenshin,"Cuando el equipo gana en foco o disputa, tensión +10 %",10
+A2727F03,Glenr,kenshin,Valor de foco +15 % en campo propio,15
+3FCE53F3,Goliat,kenshin,Tasa de parada +5 %,5
+24F01BBB,Grandius,kenshin,Tasa de parada +5 %,5
+213D0849,Grifo,kenshin,Valor de foco +10 % en campo contrario,10
+5FEC0899,Guiverno blanco,kenshin,AT de tiro +10 % para jugadores de la misma posición,10
+CD8BBA78,Halcón de trueno,kenshin,Valor de disputa +10 % para jugadores del mismo elemento,10
+61215228,Huargo,kenshin,Valor de foco +10 % en campo contrario,10
+9F96C949,Jaguar,kenshin,"Cuando un jugador del mismo elemento está cerca, Valor propio de foco +20 %",20
+D429A61B,Jmet,kenshin,AT de tiro +10 % para jugadores de la misma posición,10
+DD16C703,Juez,kenshin,DF del muro +10 % para jugadores cercanos,10
+65C100A2,Kraon,kenshin,Tensión necesaria para la brecha del equipo -20 %,20
+20B3A370,Kukulkán,kenshin,"Cuando el equipo gana en foco o disputa, tensión +10 %",10
+FAE17879,Lancelot,kenshin,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+5FD71B70,León,kenshin,Valor de foco +15 % en campo propio,15
+22B70EF3,Licaón,kenshin,Valor de foco +15 % en campo contrario,15
+F51FD886,Los enamorados ♀,kenshin,Valor de foco +15 % en campo propio,15
+FF32468C,Los enamorados ♂,kenshin,Valor de foco +10 % en campo contrario,10
+7EFF48EA,Lot,kenshin,"Cuando el equipo gana en foco o disputa, tensión +10 %",10
+BBD06360,Magister,kenshin,"Cuando un jugador del mismo elemento está cerca, Valor propio de foco +20 %",20
+07441C0A,Metis,kenshin,Valor de foco +10 % para jugadores de distintas posiciones,10
+3D773936,Musashi,kenshin,AT de tiro +10 % en campo contrario,10
+E1DF3031,Neptuno,kenshin,Valor de foco +15 % en campo contrario,15
+526E1F5B,Niké,kenshin,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+75EC1DB7,Niké,kenshin,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+5012A866,Oneiros,kenshin,Valor de disputa +20 % cuando se está fuera del área,20
+73A6AFD7,Papelín,kenshin,"Cuando el equipo gana en foco o disputa, tensión +10 %",10
+D9704126,Pegaso,kenshin,"Al hacer un pase, poder de afinidad +50 %",50
+9784E929,Pendragón,kenshin,Tasa de brecha del equipo +10 %,10
+A7A141F6,Peón blanco,kenshin,DF del muro +10 % para jugadores del mismo elemento,10
+C53A7059,Peón negro,kenshin,Valor de disputa +15 % en campo contrario,15
+8CBAA161,Poseidón,kenshin,AT de tiro +10 % en campo contrario,10
+1E1F0FD7,Protoanimador,kenshin,Valor de foco +10 % para jugadores de distintas posiciones,10
+177A8B30,Qinglong,kenshin,Valor de foco +10 % para jugadores cercanos,10
+56E87A68,Raiden,kenshin,Valor de foco +20 % en campo propio,20
+9435FC7A,Reina blanca,kenshin,Valor de foco +15 % en campo propio,15
+29B7D181,Reina negra,kenshin,Tasa de brecha del equipo +10 %,10
+2384628C,Rey blanco,kenshin,"Cuando el equipo gana en foco o disputa, tensión +10 %",10
+9E064F77,Rey negro,kenshin,"Al hacer un pase, poder de afinidad +50 %",50
+7B325B18,Robin,kenshin,Valor de disputa +10 % para jugadores de la misma posición,10
+B6BF309C,Robin,kenshin,Valor de disputa +10 % para jugadores de la misma posición,10
+E51A5C55,Roc,kenshin,Valor de foco +10 % en campo contrario,10
+E7A33690,Serendipity,kenshin,"Al hacer un pase, poder de afinidad +50 %",50
+837F1277,Sirena,kenshin,Valor de foco +15 % en campo contrario,15
+70A4EA8C,Sombra de plasma DF,kenshin,Valor de foco +15 % en campo propio,15
+3326BB0A,Sombra de plasma PA,kenshin,Tensión necesaria para la brecha del equipo -20 %,20
+0905247F,Sombra de plasma RE,kenshin,"Cuando un jugador de otro elemento está cerca, Valor propio de foco +20 %",20
+7FF7377C,Sombra de plasma TI,kenshin,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+4FE98C4A,Surtur,kenshin,"Cuando un jugador del mismo elemento está cerca, AT propio de tiro +20 %",20
+4C638AF0,Tachión,kenshin,Valor de foco +15 % en campo contrario,15
+F2F35819,Tirador,kenshin,DF del muro +10 % para jugadores cercanos,10
+7454024F,Torre blanca,kenshin,"Cuando un jugador del mismo elemento está cerca, DF propia del muro +20 %",20
+C5999A18,Torre negra,kenshin,Valor de foco +15 % en campo propio,15
+4B2CE02E,Trickster,kenshin,Tasa de brecha del equipo +10 %,10
+1B100072,Vega,kenshin,"Cuando un jugador de otro elemento está cerca, Valor propio de foco +20 %",20
+B27A5CF8,Victoria,kenshin,Valor de foco +10 % en campo contrario,10
+879F40FD,Vritrá,kenshin,Tasa de parada +5 %,5
+5CCB03B6,Warborg,kenshin,Tensión necesaria para la brecha del equipo -20 %,20
+D4BCF89B,Warborg,kenshin,Tensión necesaria para la brecha del equipo -20 %,20
+2E5B511E,Xuan-Wu,kenshin,DF del muro +10 % para jugadores cercanos,10
+AA5B4C8A,Zhuque,kenshin,Valor de foco +10 % para jugadores de la misma posición,10
+8344019E,Zodíaco,kenshin,Tasa de faltas del equipo -15 % al esprintar,15
+D353F757,Miximax Trans: <FLC:ENDO>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+0097875D,Miximax Trans: <FLC:FUBUKI>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+59BB18AD,Miximax Trans: <FLC:FUDO>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+96A7802A,Miximax Trans: <FLC:GOENJI>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+82F5B16F,Miximax Trans: <FLC:KARIYA>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+0617924F,Miximax Trans: <FLC:KIRINO>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+14C5B618,Miximax Trans: <FLC:KIRINO>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+36AE742C,Miximax Trans: <FLC:KIRINO>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+55F4AD01,Miximax Trans: <FLC:KIRINO>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+BC469BD6,Miximax Trans: <FLC:KIRINO>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+2F721847,Miximax Trans: <FLC:OKITA>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+E06E80C0,Miximax Trans: <FLC:SAKAMOTO>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+C3C4AA76,Miximax Trans: <FLC:SHINDO>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+1000DA7C,Miximax Trans: <FLC:TSURUGI>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+16CBB2FD,Miximax Trans: <FLC:TSURUGI>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+2672549E,Miximax Trans: <FLC:TSURUGI>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+2BB77423,Miximax Trans: <FLC:TSURUGI>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+462194E4,Miximax Trans: <FLC:TSURUGI>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+76987287,Miximax Trans: <FLC:TSURUGI>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+9262EC4E,Miximax Trans: <FLC:TSURUGI>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+AC9ABB64,Miximax Trans: <FLC:TSURUGI>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+BD877354,Miximax Trans: <FLC:TSURUGI>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+CCC97B1E,Miximax Trans: <FLC:TSURUGI>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+CF8B1FDA,Miximax Trans: <FLC:YUTO>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+13FFCE3F,Miximax Trans: <FST:TENMA>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+2346285C,Miximax Trans: <FST:TENMA>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+4563F020,Miximax Trans: <FST:TENMA>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+79D467E1,Miximax Trans: <FST:TENMA>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+8630DD0B,Miximax Trans: <FST:TENMA>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+A9AEC7A6,Miximax Trans: <FST:TENMA>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+C3856E78,Miximax Trans: <FST:TENMA>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+F33C881B,Miximax Trans: <FST:TENMA>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+8EBA04C3,Miximax Trans: <FUL:G GENE>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+0452EB39,Miximax Trans: <FUL:HAKURYU>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+4315E826,Miximax Trans: <FUL:HAKURYU>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+56FDB456,Miximax Trans: <FUL:HAKURYU>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+66445235,Miximax Trans: <FUL:HAKURYU>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+73AC0E45,Miximax Trans: <FUL:HAKURYU>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+C9FD07DC,Miximax Trans: <FUL:HAKURYU>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+D7969B33,Miximax Trans: <FUL:HAKURYU>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+DC155BAC,Miximax Trans: <FUL:HAKURYU>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+0323EE8D,Miximax Trans: <FUL:SYU>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+339A08EE,Miximax Trans: <FUL:SYU>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+41A69C44,Miximax Trans: <FUL:SYU>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+48B4206B,Miximax Trans: <FUL:SYU>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+6A866F3A,Miximax Trans: <FUL:SYU>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+780DC608,Miximax Trans: <FUL:SYU>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+B972E714,Miximax Trans: <FUL:SYU>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+C25CCF91,Miximax Trans: <FUL:SYU>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+F06B0413,Miximax Trans: <FUL:V GENE>,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+6E43035E,Miximax Trans: Big,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+5DECAD3B,Miximax Trans: Cao Cao,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+963559D8,Miximax Trans: Gen S,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+DF8E9B09,Miximax Trans: Juana,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+AD102E75,Miximax Trans: Nobunaga,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+9A7AEC74,Miximax Trans: Papá,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+1CDDB622,Miximax Trans: R. dragones,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+114ED203,Miximax Trans: Raika,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+F2E895EF,Miximax Trans: Raika,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+9EBF8010,Miximax Trans: Rey Arturo,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+B15A1F0A,Miximax Trans: Rosa negra,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+E8E45908,Miximax Trans: Tiranosaurio,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+A15F9BD9,Miximax Trans: Zeta,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+50595129,Miximax Trans: Zhuge Liang,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+63D55F1C,Miximax Trans: Zhuge Liang,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+DAB1BED3,Miximax Trans: Zhuge Liang,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+EA0858B0,Miximax Trans: Zhuge Liang,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20
+EC21356C,Miximax Trans: Zhuge Liang,mixi,"Cuando un jugador de otro elemento está cerca, AT propio de tiro +20 %",20

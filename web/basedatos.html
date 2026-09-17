@@ -46,6 +46,9 @@
   .obj img { width:56px; height:56px; object-fit:contain; }
   .obj .n { font-size:var(--t-sm); font-weight:700; line-height:1.2; }
   .obj .b { font-size:var(--t-xs); color:#17734b; font-weight:700; }
+  .obj .pasiva-esp { margin:4px 0 0; font-size:var(--t-xs); font-weight:700; color:#17734b;
+    background:#eefaf3; border:1px solid #bfe6d2; border-radius:6px; padding:3px 6px;
+    line-height:1.2; text-align:left; }
 </style>
 </head>
 <body>
@@ -404,12 +407,17 @@ async function cargaEspiritus() {
 }
 function pintaEspiritus() {
   const q = $("#buscar-esp").value.trim().toLowerCase();
-  const ves = datos.espiritus.filter(e => pasaFiltros(e, FILTROS_ESP, estadoEsp) && (!q || e.nombre.toLowerCase().includes(q)));
+  const ves = datos.espiritus.filter(e => pasaFiltros(e, FILTROS_ESP, estadoEsp)
+    && (!q || e.nombre.toLowerCase().includes(q)
+          || (e.pasiva || "").toLowerCase().includes(q)
+          || (e.nombre_largo || "").toLowerCase().includes(q)));
   const r = $("#lista-esp"); r.textContent = "";
-  for (const e of ves) r.appendChild(el("div", {class:"obj"}, [
+  for (const e of ves) r.appendChild(el("div", {class:"obj", title:e.nombre_largo || ""}, [
     el("img", {loading:"lazy", alt:"", src:e.icono ? "/espiritu/" + e.icono : "/categoria/aura"}),
     el("div", {class:"n", text:e.nombre}),
-    el("div", {class:"b", text:(NOMBRE_FAMILIA[e.familia] || e.familia || "") + (e.rango ? "  ★" + e.rango : "")})]));
+    el("div", {class:"b", text:(NOMBRE_FAMILIA[e.familia] || e.familia || "") + (e.rango ? "  ★" + e.rango : "")}),
+    // la habilidad pasiva de cada espiritu (NOTAS O-184)
+    e.pasiva ? el("div", {class:"pasiva-esp", text:e.pasiva}) : null]));
   $("#contador-esp").textContent = ves.length + " espiritus";
 }
 
