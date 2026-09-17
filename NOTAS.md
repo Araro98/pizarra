@@ -4587,12 +4587,14 @@ y con sus personajes en el equipo (cualquier hueco, tambien banquillo y
 cuerpo tecnico: "Las gerentes mas allegadas" son tres gerentes). El selector
 ensena los personajes en verde o tachados y los efectos.
 
-**Los dibujos**: `icon_synergy.g4tx` esta en los paquetes del juego (lo dice
-`listado.txt`), pero no en `datos/juego/laminas`. Se saca con
-`extraer_iconos.py` filtrando por `30_icon_synergy` y se recorta con
-`recortar_g4tx.py`; los recortes van a `recortes/laminas/icon_synergy/` y el
-editor los usa solos si estan (`O._icono_de_sinergia`). Mientras no esten,
-bandera o castillo.
+**Los dibujos**: `icon_synergy.g4tx` no estaba en `datos/juego/laminas`
+(es de la 6.00). Se saco de los paquetes del juego (estaba en la segunda
+tanda de 3 GB, de los paquetes mas nuevos) y se recorto con
+`recortar_g4tx.py`: 41 dibujos con su nombre, y 35 de las 37 sinergias tienen
+el suyo (`sf04002.png`...); las dos que no ("El principe del campo de nieve" y
+"Centinela temporal", las de prueba `sf010000xx`) llevan bandera o castillo.
+Van en `recortes/laminas/icon_synergy/` y el editor los coge solo
+(`O._icono_de_sinergia`).
 
 ## SUPUESTO
 
