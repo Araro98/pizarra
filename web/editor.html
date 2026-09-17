@@ -790,6 +790,7 @@
         <div class="buscador"><input type="search" id="buscar"
           placeholder="Buscar por nombre, equipo, posicion..."></div>
         <div class="filtros" id="filtros"></div>
+        <div id="bonif-jug"></div>
         <div class="rejilla-jug" id="lista"></div>
         <div class="contador" id="contador"></div>
       </div>
@@ -969,6 +970,15 @@ async function cargaLista() {
   try { ultima = await pedir("/api/jugadores?" + p); }
   finally { trabajando(false); }
   pintaFiltros(ultima);
+  // Si se esta mirando un equipo mio, la suma de sus pasivas sale aqui mismo,
+  // que es lo que pidio Aaron para plantear pasivas sin cambiar de pestana
+  // (NOTAS O-183).
+  const panel = $("#bonif-jug"); panel.textContent = "";
+  if (filtros.mi_equipo) {
+    const opc = (ultima.filtros.mi_equipo || []).find(o => o.valor === filtros.mi_equipo);
+    if (opc && opc.hueco !== undefined)
+      panel.appendChild(panelBonificaciones(opc.hueco));
+  }
   const r = $("#lista"); r.textContent = "";
   for (const j of ultima.jugadores) r.appendChild(fichaMini(j));
   if (!ultima.jugadores.length)

@@ -684,6 +684,7 @@ def equipos_por_fila(plain):
     buscarlos uno a uno (NOTAS O-181). Los nombres repetidos se distinguen con
     el hueco, que es lo unico que los separa."""
     fuera = {}
+    huecos = {}
     equipos = EQ.todos(plain)
     repetidos = set()
     vistos = set()
@@ -700,10 +701,11 @@ def equipos_por_fila(plain):
             e = EQ.leer(plain, t["hueco"])
         except EQ.Ilegal:
             continue
+        huecos[nombre] = t["hueco"]
         for m in e["miembros"]:
             if m["jugador"]:
                 fuera.setdefault(m["jugador"] >> 16, []).append(nombre)
-    return fuera
+    return fuera, huecos
 
 
 def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
@@ -722,7 +724,7 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
     jugadores = O._por_identidad()
     texto = (texto or "").strip().lower()
 
-    mios = equipos_por_fila(plain)
+    mios, huecos_equipo = equipos_por_fila(plain)
     todos = []
     for i in range(min(6000, len(ident))):
         if ident[i]:
@@ -769,7 +771,11 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
         "tecnicas_rotas": len(E.tecnicas_rotas(plain)) if not cuantos else 0,
         "arboles_rotos": len(E.arboles_rotos(plain)) if not cuantos else 0,
         "jugadores": trozo,
-        "filtros": {c: [{"valor": v, "cuantos": n}
+        # el hueco va con el nombre para poder ensenar las pasivas sumadas de
+        # ese equipo en la propia lista de Jugadores (NOTAS O-183)
+        "filtros": {c: [dict({"valor": v, "cuantos": n},
+                             **({"hueco": huecos_equipo[v]}
+                                if c == "mi_equipo" and v in huecos_equipo else {}))
                         for v, n in sorted(cuentas[c].items(),
                                            key=lambda x: (-x[1], x[0]))]
                     for c in cuentas},

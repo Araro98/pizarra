@@ -931,12 +931,36 @@ def duenos_de_espiritu(id_hex):
     return _indice("duenos_espiritu", construir).get(id_hex.upper(), {"nombres": set(), "identidades": set(), "todos": False})
 
 
+def espiritu_de_escena(id_hex):
+    """Si ese espiritu es la copia de una escena y no el que se consigue.
+
+    Aaron vio "el Animador y el Nike duplicados". Los dos de cada pareja son el
+    mismo espiritu con dos modelos: el normal (`wko02030`) y uno con sufijo de
+    escena (`wko02030_st0701`). Se ofrece el normal (NOTAS O-182)."""
+    def construir():
+        esp = _espiritus()
+        modelos = {(f.get("modelo") or "") for f in esp.values()}
+        return {i for i, f in esp.items()
+                if "_st" in (f.get("modelo") or "")
+                and (f["modelo"].split("_st")[0]) in modelos}
+    return id_hex.upper() in _indice("espiritus_de_escena", construir)
+
+
+def espiritu_sin_tecnica(id_hex):
+    """Un kenshin sin supertecnica propia. Solo hay uno, el Protoanimador, y
+    Aaron dice que es ilegal (NOTAS O-182)."""
+    f = _espiritus().get(id_hex.upper()) or {}
+    return f.get("familia") == "kenshin" and not (f.get("tecnica") or "").strip()
+
+
 def espiritu_permitido(id_hex, identidad_hex):
     """Si ese jugador puede llevar ese espiritu. Las armaduras y los mixi max
     son de un personaje concreto (regla de Aaron: la armadura del Pegaso solo
     la lleva Arion); se compara por nombre para que valgan todas sus versiones.
     Las armaduras y mixis sin dueno conocido no se dejan a NADIE (Aaron: "mejor
     que nadie pueda usarlos antes de que todos puedan usarlos")."""
+    if espiritu_de_escena(id_hex) or espiritu_sin_tecnica(id_hex):
+        return False        # copias de escena y el Protoanimador (O-182)
     d = duenos_de_espiritu(id_hex)
     if d.get("todos"):
         return True
@@ -1006,6 +1030,7 @@ def _espiritus():
                                   "rango": int(f["rango"] or 0),
                                   "nombre_largo": f.get("nombre_largo") or "",
                                   "descripcion": f.get("descripcion") or "",
-                                  "tecnica": f.get("tecnica") or ""}
+                                  "tecnica": f.get("tecnica") or "",
+                                  "modelo": f.get("modelo") or ""}
                 for f in reglas._tabla("espiritus.csv")}
     return _indice("espiritus", construir)
