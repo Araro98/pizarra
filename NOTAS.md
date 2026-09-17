@@ -4626,6 +4626,25 @@ editor no se toca ninguno hecho por el juego). Anastasia pasa del 7 al 4, que
 es lo que lleva su otra copia; el jugador japones de nivel 48 se queda con el
 7 porque no hay ninguna copia suya.
 
+### O-196 · El registro del equipo no acaba en el nombre: las sinergias van detras
+
+Aaron puso "Los guerreros de Santuario" en gordos con el editor y en el juego
+el hueco salia vacio; luego la puso a mano y mando la partida. Comparando la
+partida de antes de instalar con la de despues: el juego escribio la sinergia
+en un bloque que va **detras del nombre** del equipo (`0xF7D8FF40` de un
+byte, cinco `skillId` y las dos sinergias, cerrado por `0x033925BC`), y el
+editor la habia escrito en el bloque de antes del nombre, que es el del
+equipo anterior. Desde O-108 se daba por hecho que el nombre cerraba el
+registro; la plantilla, las tacticas y la equipacion si van delante (todo
+eso cuadra con las capturas), pero ese bloque de detras es del mismo equipo
+que el nombre que lo precede: detras del ultimo nombre (el 47) hay un bloque
+asi y luego otra cosa, y delante del primero hay una plantilla entera.
+
+`EQ.leer` lee ahora las sinergias desde el final del nombre hasta
+`0x033925BC`. Con eso, lo que escribe el editor para gordos es byte a byte
+lo que escribio el juego. La lectura antigua dejo una sinergia escrita en el
+bloque del equipo 23 (sin nombre, no se ve en el juego): es inofensiva.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

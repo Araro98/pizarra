@@ -28,7 +28,12 @@ Que hay dentro, todo comprobado contra la captura del equipo ECLIPSE de Aaron:
 | `0x709A88E9` (1) | donde juega: 0 el portero, 1-10 el resto, 16+ entrenador y gerentes |
 | `0x627F2D54` (4) | el **hueco de la mochila** del objeto de la equipacion (NOTAS O-190) |
 | `0xF863CD5D` (16) | los huecos de la mochila de las tres tacticas |
-| `0x20D7819C` (4, x3) | `synergyFlagItemId`: las sinergias puestas (NOTAS O-191) |
+| `0x20D7819C` (4, x2) | `synergyFlagItemId`: las sinergias puestas, **detras del nombre** (NOTAS O-191, O-196) |
+
+**Ojo con el nombre**: el registro no acaba en el nombre. Detras del nombre
+van un byte (`0xF7D8FF40`), cinco `skillId` y las dos sinergias, y son del
+mismo equipo que ese nombre (O-196). El resto (plantilla, tacticas, etc.) va
+delante del nombre.
 
 **Los codigos de campo son crc32 del nombre en ingles** (O-190): `teamName`,
 `uniformId`, `emblemId`, `formationId`, `tacticsId`, `uniformNo` (el dorsal),
@@ -60,6 +65,7 @@ F_HUECO_EQUIPACION = 0x627F2D54     # hueco de mochila del objeto de la equipaci
 F_HUECOS_TACTICAS = 0xF863CD5D      # 16 bytes: los huecos de las tres tacticas
 F_SINERGIA = 0x20D7819C             # synergyFlagItemId: dos huecos (ofensiva, defensiva)
 F_SINERGIA_HUECO = 0x585CA018       # detras de cada uno: el hueco de mochila del objeto
+F_FIN_DE_EQUIPO = 0x033925BC        # `teamInfoList`: cierra el bloque de detras del nombre
 
 LARGO_NOMBRE = 128
 HUECOS = 30
@@ -183,17 +189,25 @@ def leer(plain, i):
         elif fh == F_HUECOS_TACTICAS and ln == 16:
             simples["huecos_tacticas"] = [struct.unpack_from("<I", d, 4 * k)[0] for k in range(4)]
             simples["off_huecos_tacticas"] = off + 8
-        elif fh == F_SINERGIA and ln == 4:
-            sinergias.append({"id": _u(d), "off": off + 8, "hueco": 0, "off_hueco": None})
-        elif fh == F_SINERGIA_HUECO and ln == 4 and sinergias:
-            sinergias[-1]["hueco"] = _u(d)
-            sinergias[-1]["off_hueco"] = off + 8
         elif fh in (F_ESCUDO, F_FORMACION, F_EQUIPACION, F_ENTRENADOR, F_CAPITAN,
                     F_HUECO_EQUIPACION) and ln == 4:
             simples[fh] = _u(d)
             simples["off_%08X" % fh] = off + 8
     if actual is not None:
         huecos.append(actual)
+
+    # El registro NO acaba en el nombre (NOTAS O-196): detras del nombre van
+    # un byte, las cinco `skillId` y las dos sinergias, y son de ESTE equipo.
+    # Se leen desde el final del nombre hasta la marca `0x033925BC`.
+    fin_nombre = a[i] + 8 + LARGO_NOMBRE
+    for off, fh, tipo, ln, d in _campos(plain, fin_nombre, min(len(plain), fin_nombre + 200)):
+        if fh == F_SINERGIA and ln == 4:
+            sinergias.append({"id": _u(d), "off": off + 8, "hueco": 0, "off_hueco": None})
+        elif fh == F_SINERGIA_HUECO and ln == 4 and sinergias:
+            sinergias[-1]["hueco"] = _u(d)
+            sinergias[-1]["off_hueco"] = off + 8
+        elif fh == F_FIN_DE_EQUIPO:
+            break
 
     return {"hueco": i, "nombre": nombre, "off_nombre": a[i] + 8,
             "de_la_historia": i in EQUIPOS_DE_LA_HISTORIA,
@@ -930,6 +944,10 @@ def piezas_desajustadas(plain):
         except Ilegal:
             continue
         if not e["nombre"].strip() or e["de_la_historia"]:
+            # un equipo sin nombre no sale en el juego: si tiene una sinergia
+            # es que la puso el editor en el bloque equivocado (O-196)
+            if not e["de_la_historia"] and any(x["id"] for x in e["sinergias"]):
+                fuera.append((i, "sinergia de sobra"))
             continue
         if "off_%08X" % F_HUECO_EQUIPACION in e["campos"]:
             bueno = hueco_de_pieza(plain, "equipacion", e["equipacion"])
@@ -951,6 +969,12 @@ def arreglar_piezas(plain):
     buf = bytearray(plain)
     for i, que in mal:
         e = leer(plain, i)
+        if que == "sinergia de sobra":
+            for x in e["sinergias"]:
+                buf[x["off"]:x["off"] + 4] = bytes(4)
+                if x["off_hueco"] is not None:
+                    struct.pack_into("<I", buf, x["off_hueco"], 0)
+            continue
         if que == "equipacion":
             struct.pack_into("<I", buf, e["campos"]["off_%08X" % F_HUECO_EQUIPACION],
                              hueco_de_pieza(plain, "equipacion", e["equipacion"]))
