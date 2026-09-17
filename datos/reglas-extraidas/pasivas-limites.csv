@@ -1,0 +1,33 @@
+# Tope de cada pasiva de equipo sumada (NOTAS O-176). Lo que se pase del tope
+# no cuenta en el partido. Fuente: Aaron, con la tabla "Limites de Pasivas de
+# Equipo" de inazumo.es. `patron` es una expresion regular sobre el texto de la
+# pasiva (sin marcadores, sin distinguir mayusculas); `limite` en las mismas
+# unidades que el numero de la pasiva (%).
+arquetipo,patron,limite
+Brecha,conf\. brecha.*perforaci,100
+Brecha,tensi.n necesaria para brecha,80
+Tension,gana en foco o disputa.*tensi,150
+Tension,tensi.n est. al 50.*valor de foco del equipo,50
+Tension,tensi.n est. al 100.*at de tiro del equipo,200
+Contraataque,tras recuperar.*at de tiro del equipo,50
+Contraataque,tras recuperar.*foco de mc,50
+Contraataque,tras recuperar.*foco de df,50
+Contraataque,tras recuperar.*pp,100
+Contraataque,tras recuperar.*ataque duro,100
+Afinidad,al hacer un pase.*poder de afinidad,150
+Afinidad,conf\. v.nculo.*valor de disputa del equipo,250
+Afinidad,poder de afinidad es 20.*at de tiro directo,150
+Afinidad,p.rdida de poder de afinidad,100
+Juego sucio,tasa de faltas del equipo.*al esprintar,80
+Juego sucio,tasa de faltas del equipo.*fuera del .rea,80
+Juego sucio,al ser derribado en esprint.*tensi,50
+Juego sucio,conf\. juego sucio.*ataque duro,100
+Justicia,al recibir marcajes o bloqueos en esprint.*poder de afinidad,200
+Justicia,rival comete una falta.*poder de afinidad,200
+Justicia,hasta que el equipo reciba una falta.*df del muro,50
+Justicia,conf\. justicia.*at y df del equipo,50
+Staff,tras una sustituci.n.*at del jugador sustituto,150
+Staff,tras una sustituci.n.*df del jugador sustituto,150
+Staff,enfriamiento de t.cticas especiales,50
+Staff,durante la primera mitad.*at del equipo,30
+Staff,durante la segunda mitad.*df del equipo,30

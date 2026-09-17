@@ -930,6 +930,25 @@ def _tecnicas_por_id():
     return _indice("tecnicas_por_id", lambda: {f["id"].upper(): f for f in reglas._tabla("tecnicas.csv")})
 
 
+def limite_de_pasiva(texto):
+    """(limite, arquetipo) de una pasiva de equipo sumada, o (None, "") si no
+    tiene tope conocido (`pasivas-limites.csv`, NOTAS O-176)."""
+    import re as _re
+    def construir():
+        fuera = []
+        for f in reglas._tabla("pasivas-limites.csv"):
+            try:
+                fuera.append((_re.compile(f["patron"], _re.I), float(f["limite"]), f["arquetipo"]))
+            except (_re.error, ValueError):
+                pass
+        return fuera
+    limpio = " ".join(_limpio(texto).replace("\\", " ").split()).lower()
+    for patron, limite, arq in _indice("limites_pasiva", construir):
+        if patron.search(limpio):
+            return limite, arq
+    return None, ""
+
+
 def _espiritus():
     """{id: {familia, rango, icono}} para dibujar cada espiritu con SU imagen.
 

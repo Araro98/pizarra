@@ -4139,6 +4139,20 @@ marca "la lleva ahora"; la busqueda tambien mira descripcion, dueno y tecnica
 del espiritu; Enter elige la primera; y hay filtro nuevo "De quien es".
 Todos los selectores mandan ya el codigo, no el nombre.
 
+### O-176 · Topes de las pasivas de equipo sumadas
+
+Aaron: "el juego te permite pasarte del limite, pero si te pasas deja de
+sumar en partidos, asi que si te pasas que salga en rojo, justo en naranja y
+por debajo en verde". Los topes son los de la tabla "Limites de Pasivas de
+Equipo" de inazumo.es (Brecha: perforacion de muro 100 %, tension necesaria
+-80 %; Tension: 150 / 50 / 200; Contraataque: 50 / 50 / 50 / 100 / 100;
+Afinidad: 150 / 250 / 150 / -100; Juego sucio: -80 / -80 / 50 / 100; Justicia:
+200 / 200 / 50 / 50; Staff: sustitucion 150 / 150, enfriamiento de tacticas
+-50, primera mitad 30, segunda mitad 30). Estan en `pasivas-limites.csv` como
+patrones sobre el texto de la pasiva; `O.limite_de_pasiva`, y
+`pasivas_de_equipo` devuelve `limite` y `estado` (bien / justo / pasa). Las
+pasivas sin tope conocido (tasa de brecha, drenar tension...) no llevan numero.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

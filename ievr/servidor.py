@@ -559,6 +559,13 @@ def pasivas_de_equipo(plain, i):
     for g in grupos.values():
         g["valor"] = round(g["valor"], 2)
         g["texto_con_valor"] = g["texto"].replace("<VALUE>", ("%g" % g["valor"]))
+        # el tope del juego (O-176): pasarse no cuenta en el partido
+        limite, arq = O.limite_de_pasiva(g["texto"])
+        g["limite"] = limite
+        g["limite_de"] = arq
+        g["estado"] = ("" if limite is None else
+                       "pasa" if abs(g["valor"]) > limite + 1e-9 else
+                       "justo" if abs(abs(g["valor"]) - limite) < 1e-9 else "bien")
         fuera.append(g)
     fuera.sort(key=lambda x: (x["familia"], -x["valor"]))
     return {"equipo": O.sin_marcadores(e["nombre"]), "pasivas": fuera}
