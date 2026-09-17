@@ -386,15 +386,18 @@ def pasivas(plain, fila, ranura):
     if ranura <= 2:
         de_donde = "las que puede sacar este personaje"
         for f in _pool_por_identidad().get("%08X" % identidad, []):
+            # con el numero que tendra en este jugador: la version de su rareza (O-165)
             fuera.append({"id": f["pasiva_id"].upper(),
-                          "nombre": nombre_pasiva(f["pasiva_id"], _limpio(f.get("pasiva"))),
+                          "nombre": nombre_pasiva(variante_por_rareza(f["pasiva_id"].upper(), rareza),
+                                                  _limpio(f.get("pasiva"))),
                           "icono200": iconos_de_pasiva().get(f["pasiva_id"].upper(), "")})
     else:
         de_donde = "las del arquetipo %s en la ranura %d" % (arquetipo, ranura)
         grupo = "%s (ranura %d)" % (arquetipo, ranura)
         for f in _por_grupo_de_ranura().get(grupo, []):
             fuera.append({"id": f["id"].upper(),
-                          "nombre": nombre_pasiva(f["id"], _limpio(f.get("nombre"))),
+                          "nombre": nombre_pasiva(variante_por_rareza(f["id"].upper(), rareza),
+                                                  _limpio(f.get("nombre"))),
                           "icono200": iconos_de_pasiva().get(f["id"].upper(), "")})
 
     vistos, unicas = set(), []

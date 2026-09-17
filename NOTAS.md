@@ -4692,6 +4692,30 @@ juego de otro arquetipo y 10 llevan mezcla, asi que no se limita por eso.
 La clave del personaje (`clave_personal`) si cuadra siempre con el juego que
 llevan los de fabrica (`O.pasivas_personal_legales`).
 
+### O-199 · Tecnicas repetidas: la tercera copia entra en cualquier ranura de despues
+
+Regla del juego, dicha por Aaron y comprobada por el con Dvalin Diamante
+(Abolla2VR): una misma tecnica puede ir varias veces en el arbol (y sube de
+poder), y **la tercera copia se puede poner en cualquier ranura posterior,
+sea del tipo que sea**, aunque sea exclusiva de otra categoria. Ejemplo: dos
+"Mano magica" en las dos ranuras de Parada y una tercera en una de Defensa.
+Lo que no vale es ponerla antes de sus dos copias, y si luego se cambia una
+de las dos, **el juego quita** la copia que se queda sin sus dos anteriores.
+
+El editor hace lo mismo: `poner_tecnica` deja la tecnica en una ranura que no
+es de su tipo si ya esta dos veces en ranuras anteriores, y despues de cada
+cambio `_quitar_repetidas_sueltas` vacia las copias que se quedan sin sus dos
+anteriores (en orden, para que una quitada no sostenga a la siguiente), baja
+el contador de "cuantos la llevan" y lo avisa en pantalla. Probado con Gael:
+Mano magica en 2 y 4 (Parada) y en 7 (Regate) entra; cambiar la 2 por otra
+parada vacia la 7.
+
+Dos mas de Aaron en la misma tanda: la vista previa de las pasivas de jugador
+ensena ahora el numero de la version de su rareza (antes salia el base y al
+ponerla cambiaba), y al subir de rareza a un gerente o entrenador sus pasivas
+de personal se ponen al valor nuevo (`actualizar_pasivas_personal` tras cada
+cambio de ficha, O-197).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

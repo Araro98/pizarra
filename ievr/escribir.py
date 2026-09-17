@@ -448,8 +448,14 @@ def poner_tecnica(plain, fila, ranura, nombre):
         nombre = tlv.nombres().get(id_hex, (nombre,))[0]
 
     if admite != "LIBRE" and categoria != admite:
-        raise Ilegal("la ranura %d de %s solo admite tecnicas de %s, y %r es de %s"
-                     % (ranura, ficha["nombre"], admite, nombre, categoria))
+        # La tercera copia de una tecnica vale en cualquier ranura de despues,
+        # sea del tipo que sea, si ya la lleva dos veces en ranuras anteriores
+        # (regla del juego que dio Aaron, NOTAS O-199).
+        previas = [x for x in _tecnicas_puestas(plain, fila)[:ranura - 1] if x["id"] == id_hex]
+        if len(previas) < 2:
+            raise Ilegal("la ranura %d de %s solo admite tecnicas de %s, y %r es de %s "
+                         "(solo entraria si ya la llevara dos veces en ranuras anteriores)"
+                         % (ranura, ficha["nombre"], admite, nombre, categoria))
     from ievr import opciones as O
     if categoria == "Hipertecnica" and not O.espiritu_permitido(id_hex, "%08X" % identidad):
         # armaduras y mixi max: solo su personaje (regla de Aaron, O-172)
@@ -485,14 +491,81 @@ def poner_tecnica(plain, fila, ranura, nombre):
         plain = inventario.ajustar_equipada(plain, porslot[antes], -1)
     if not creada:      # la fila nueva ya nace con un jugador que la lleva
         plain = inventario.ajustar_equipada(plain, inventario.por_slot(plain)[slot_nuevo], +1)
+    # si el cambio deja una copia repetida sin sus dos anteriores, el juego la
+    # quita: aqui tambien (O-199)
+    plain, quitadas = _quitar_repetidas_sueltas(plain, fila)
 
     nombres = tlv.nombres()
     return plain, {"fila": fila, "ranura": ranura, "admite": admite,
+                   "quitadas": quitadas,
+                   "aviso": ("El juego quitaria estas por quedarse sin sus dos copias "
+                             "anteriores, asi que se quitan: " + "; ".join(
+                                 "ranura %d (%s)" % (r, n) for r, n in quitadas))
+                            if quitadas else "",
                    # sin los marcadores del juego ("Talisman de <FLC:ENDO>"), O-187
                    "antes": _limpio_nombre(
                        nombres.get(porslot.get(antes, {}).get("id", ""), ("vacia",))[0])
                             if antes else "vacia",
                    "despues": _limpio_nombre(nombres.get(id_hex, (nombre,))[0])}
+
+
+def _tecnicas_puestas(plain, fila):
+    """[{ranura, off, slot, id}] de las nueve ranuras de tecnica de ese jugador
+    (id None si esta vacia)."""
+    tecnicas = J.ocurrencias(plain, *J.ANCLA_TECNICAS)
+    ini, _ = tlv.inicio_registro(plain, tecnicas[fila])
+    offs = {}
+    for o, fh, n, _ in tlv.campos_desde(plain, ini, maximo=12):
+        if fh in J.RANURAS_TECNICAS:
+            offs[fh] = o + 8
+    porslot = inventario.por_slot(plain)
+    fuera = []
+    for k, fh in enumerate(J.RANURAS_TECNICAS, 1):
+        off = offs.get(fh)
+        slot = struct.unpack_from("<I", plain, off)[0] if off is not None else 0
+        f = porslot.get(slot) if slot else None
+        fuera.append({"ranura": k, "off": off, "slot": slot,
+                      "id": (f or {}).get("id", "").upper() or None if slot else None})
+    return fuera
+
+
+def _quitar_repetidas_sueltas(plain, fila):
+    """Quita las copias de una tecnica que estan en una ranura que no es de su
+    tipo y ya no tienen dos copias en ranuras anteriores (O-199). Devuelve
+    (plain, [(ranura, nombre)])."""
+    identidad = J.array(plain, J.ARRAY_IDENTIDAD)[fila]
+    ficha = next((f for f in reglas._tabla("jugadores.csv")
+                  if f["identidad"].upper() == "%08X" % identidad), None)
+    if ficha is None:
+        return plain, []
+    tec = {f["id"].upper(): f for f in reglas._tabla("tecnicas.csv")}
+    puestas = _tecnicas_puestas(plain, fila)
+    nombres = tlv.nombres()
+    quitadas, soltadas = [], []
+    buf = bytearray(plain)
+    porslot = inventario.por_slot(plain)
+    for x in puestas:
+        if not x["id"] or x["off"] is None:
+            continue
+        admite = ficha.get("r%d_tipo" % x["ranura"], "?")
+        categoria = tec[x["id"]]["categoria"] if x["id"] in tec else "Hipertecnica"
+        if admite == "LIBRE" or categoria == admite:
+            continue
+        previas = [y for y in puestas[:x["ranura"] - 1] if y["id"] == x["id"] and y["slot"]]
+        if len(previas) >= 2:
+            continue
+        struct.pack_into("<I", buf, x["off"], 0)
+        soltadas.append(x["slot"])
+        x["slot"] = 0            # para que las de despues tampoco cuenten con ella
+        quitadas.append((x["ranura"], _limpio_nombre(nombres.get(x["id"], (x["id"],))[0])))
+    if not quitadas:
+        return plain, []
+    plain = bytes(buf)
+    # y el contador de "cuantos la llevan" de cada fila que se ha soltado
+    for slot in soltadas:
+        if slot in porslot:
+            plain = inventario.ajustar_equipada(plain, porslot[slot], -1)
+    return plain, quitadas
 
 
 # --- pasivas heredadas ---------------------------------------------------------
@@ -1757,6 +1830,24 @@ def pasivas_personal_desajustadas(plain):
             if abs(x["valor"] - valor_de_pasiva_personal(plain, fila, x["id"])) > 1e-3:
                 fuera.append((fila, k))
     return fuera
+
+
+def actualizar_pasivas_personal(plain, fila):
+    """Deja las pasivas de personal de ESE gerente o entrenador con el valor de
+    su rareza actual (si se le sube la rareza, suben; O-197). Devuelve plain."""
+    if rol_de_personal(plain, fila) not in ("gerente", "entrenador"):
+        return plain
+    buf = None
+    for k, x in enumerate(J.tabla_pasivas(plain, fila) or []):
+        if x["id"] == "00000000":
+            continue
+        bueno = valor_de_pasiva_personal(plain, fila, x["id"])
+        if abs(x["valor"] - bueno) > 1e-3:
+            pos = J.pos_tabla_pasivas(plain, fila, k)
+            if buf is None:
+                buf = bytearray(plain)
+            struct.pack_into("<f", buf, pos + 20, float(bueno))
+    return bytes(buf) if buf is not None else plain
 
 
 def arreglar_pasivas_personal(plain):

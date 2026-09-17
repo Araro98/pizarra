@@ -126,6 +126,9 @@ class Sesion:
             # la tabla de pasivas con numero (O-166)
             nuevo = E.abrir_arbol(nuevo, info["fila"])
             nuevo = E.sincronizar_tabla_pasivas(nuevo, info["fila"])
+            # y las pasivas de un gerente o entrenador con el valor de su
+            # rareza de ahora (O-197): si se le sube la rareza, suben
+            nuevo = E.actualizar_pasivas_personal(nuevo, info["fila"])
         self.historial.append((self.plain, list(self.cambios)))
         if len(self.historial) > self.PASOS:
             self.historial.pop(0)

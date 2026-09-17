@@ -2060,7 +2060,9 @@ async function manda(cambio) {
   try {
     const r = await pedir("/api/cambiar", {method:"POST",
       headers:{"Content-Type":"application/json"}, body:JSON.stringify(cambio)});
-    aviso("Hecho.", "bien");
+    // el servidor puede tener algo que decir (una tecnica repetida que se
+    // quita sola, O-199); si no, "Hecho."
+    aviso(r && r.hecho && r.hecho.aviso ? r.hecho.aviso : "Hecho.", "bien");
     // La mochila se repinta **de inmediato** con el cambio ya hecho, sin esperar
     // a que el servidor vuelva a mandar los 3.000 objetos. Luego se refresca por
     // detras por si acaso. Antes se esperaba a las dos peticiones y se notaba el
