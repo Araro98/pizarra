@@ -20,9 +20,23 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from ievr import codec, comparar, tlv
 
-PARTIDA = os.environ.get(
-    "IEVR_PARTIDA",
-    r"F:\steam\userdata\143274881\2799860\remote\002AB8F4-USERDATALIVE")
+def _partida_por_defecto():
+    """La partida con la que probar: IEVR_PARTIDA, si no la de partidas/original
+    (o actual, o para-editar), y si no la de Steam de este ordenador."""
+    raiz = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    from ievr import escribir, servidor
+    for sub in ("original", "actual", "para-editar"):
+        carpeta = os.path.join(raiz, "partidas", sub)
+        nombre = escribir.partida_en(carpeta)
+        if nombre:
+            return os.path.join(carpeta, nombre)
+    de_steam = servidor.partidas_de_steam()
+    if de_steam:
+        return os.path.join(de_steam[0][0], de_steam[0][1])
+    return os.path.join(raiz, "partidas", "original", "XXXXXXXX-USERDATALIVE")
+
+
+PARTIDA = os.environ.get("IEVR_PARTIDA") or _partida_por_defecto()
 
 F_NIVEL = 0x7C27AEEC
 fallos = []

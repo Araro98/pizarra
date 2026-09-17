@@ -30,7 +30,11 @@ import subprocess
 import time
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-JUEGO = r"F:\steam\steamapps\common\INAZUMA ELEVEN Victory Road\data\packs"
+sys.path.insert(0, RAIZ)
+# la carpeta del juego en ESTE ordenador (registro de Steam o IEVR_JUEGO), sin
+# rutas de nadie escritas (NOTAS O-201)
+from ievr import rutas as _rutas  # noqa: E402
+JUEGO = _rutas.carpeta_del_juego() or r"C:\Program Files (x86)\Steam\steamapps\common\INAZUMA ELEVEN Victory Road\data\packs"
 TRABAJO = os.path.join(RAIZ, "datos", "juego")
 EXTRACTOR = os.path.join(TRABAJO, "tools", "ievr_toolbox-win64.exe")
 STAGING = os.path.join(TRABAJO, "staging_listado")

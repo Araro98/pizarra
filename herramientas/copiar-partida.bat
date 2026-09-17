@@ -1,21 +1,22 @@
 @echo off
 REM Copia la partida actual de Steam a partidas\rondas\<nombre>\
 REM No toca nada del juego: solo copia hacia aqui. Es seguro con Steam abierto.
+REM La partida se busca sola en el Steam de este ordenador (buscar-steam.bat).
 setlocal
-set "ORIGEN=F:\steam\userdata\143274881\2799860\remote\002AB8F4-USERDATALIVE"
 set "DESTINO_BASE=%~dp0..\partidas\rondas"
 
-if not exist "%ORIGEN%" goto :sin_partida
+call "%~dp0buscar-steam.bat"
+if not defined ORIGEN goto :sin_partida
 
 set "NOMBRE=%~1"
 if not defined NOMBRE set /p "NOMBRE=Nombre para esta copia, por ejemplo 01-base: "
 if not defined NOMBRE goto :sin_nombre
 
 set "DESTINO=%DESTINO_BASE%\%NOMBRE%"
-if exist "%DESTINO%\002AB8F4-USERDATALIVE" goto :ya_existe
+if exist "%DESTINO%\%FICHERO%" goto :ya_existe
 
 if not exist "%DESTINO%" mkdir "%DESTINO%"
-copy /Y "%ORIGEN%" "%DESTINO%\002AB8F4-USERDATALIVE" >nul
+copy /Y "%ORIGEN%" "%DESTINO%\%FICHERO%" >nul
 if errorlevel 1 goto :fallo
 
 echo.
@@ -26,9 +27,7 @@ if "%~1"=="" pause
 exit /b 0
 
 :sin_partida
-echo No encuentro la partida en:
-echo    %ORIGEN%
-echo Comprueba que el juego esta instalado en esa cuenta de Steam.
+echo No encuentro ninguna partida del juego en el Steam de este ordenador.
 if "%~1"=="" pause
 exit /b 1
 

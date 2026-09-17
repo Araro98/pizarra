@@ -822,7 +822,8 @@
     <span class="pendientes" id="pendientes" hidden></span>
     <button class="btn" id="abrir">Abrir partida...</button>
     <button class="btn" id="deshacer" disabled>Deshacer</button>
-    <button class="btn verde" id="guardar" disabled>Guardar copia</button>
+    <button class="btn verde" id="guardar">Guardar copia</button>
+    <button class="btn" id="instalar" disabled title="Copia la ultima partida guardada a tu Steam (con Steam cerrado)">Instalar en Steam</button>
   </span>
 </div>
 
@@ -966,7 +967,9 @@ async function refrescaEstado() {
   $("#pendientes").hidden = !n;
   $("#pendientes").textContent = n + (n === 1 ? " cambio" : " cambios") + " sin guardar";
   $("#deshacer").disabled = !estado.puede_deshacer;
-  $("#guardar").disabled = !n;
+  // Guardar siempre se puede, aunque no haya cambios: al guardar se repasan
+  // los arboles, los dorsales y las piezas (Aaron tuvo que bajar de nivel a
+  // uno para poder guardar, O-201).
 }
 function pintaCambios() {
   const c = $("#cuerpo-cambios"); c.textContent = "";
@@ -3051,10 +3054,27 @@ $("#guardar").onclick = async () => {
             + (d.dorsales ? " Se cambiaron " + d.dorsales + " dorsales repetidos." : "")
             + (d.piezas ? " Se enlazo la equipacion y las tacticas de " + d.piezas + " equipos." : "")
             + (d.personal ? " Se puso el valor de su rareza a las pasivas de " + d.personal + " gerentes o entrenadores." : "")
-            + " Para ponerla en el juego usa "
-            + "herramientas\\instalar-partida.bat con Steam cerrado.", "bien");
+            + " Para ponerla en el juego, cierra Steam y pulsa \"Instalar en Steam\".", "bien");
+      ultimaGuardada = d.carpeta;
+      $("#instalar").disabled = false;
     } catch (e) { aviso(e.message, "mal"); }
   }, "Guardar aqui", false);
+};
+
+// Instalar en Steam la ultima copia guardada (O-201): el servidor se niega si
+// Steam esta abierto y guarda antes una copia de lo que habia.
+let ultimaGuardada = "";
+$("#instalar").onclick = async () => {
+  if (!ultimaGuardada) { aviso("Primero guarda la copia.", "mal"); return; }
+  if (!await confirma("Instalar en Steam", "Se copia la partida guardada a tu carpeta de Steam, "
+      + "guardando antes una copia de la que hay ahora. STEAM TIENE QUE ESTAR CERRADO DEL TODO "
+      + "(boton derecho en su icono junto al reloj, Salir). Sigo?")) return;
+  try {
+    const d = await pedir("/api/instalar", {method:"POST",
+      headers:{"Content-Type":"application/json"}, body:JSON.stringify({carpeta:ultimaGuardada})});
+    aviso("Instalada en " + d.instalada + ". La de antes queda en " + d.copia
+          + ". Ya puedes abrir Steam y el juego.", "bien");
+  } catch (e) { aviso(e.message, "mal"); }
 };
 
 // Atajos: flechas para cambiar de seccion cuando hay un jugador abierto, y

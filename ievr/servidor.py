@@ -21,6 +21,8 @@ Tres cosas que no hace, a proposito:
 """
 import json
 import os
+import subprocess
+import shutil
 import sys
 import threading
 import webbrowser
@@ -51,14 +53,15 @@ RECORTES = os.path.join(ICONOS, "recortes")
 # (herramientas/recortar_ui.py). Es lo que hace que la pagina se parezca al
 # juego de verdad y no a un dibujo hecho a mano.
 UI = os.path.join(RAIZ, "datos", "ui")
-CARPETA_STEAM = r"F:\steam\userdata\143274881\2799860\remote"   # la de Aaron
+ANTES_DE_INSTALAR = os.path.join(RAIZ, "partidas", "antes-de-instalar")
 
 
 def partidas_de_steam():
     """Las partidas del juego que haya en el Steam de este ordenador, la mas
     reciente primero: [(carpeta, nombre, fecha)]. Se mira la carpeta de Steam
-    del registro de Windows, las de siempre y la de Aaron (NOTAS O-158)."""
-    raices = [CARPETA_STEAM]
+    del registro de Windows y las de siempre en cada unidad (NOTAS O-158).
+    Nada de este ordenador va escrito aqui: vale para cualquier PC."""
+    raices = []
     try:
         import winreg
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Valve\Steam") as k:
@@ -94,6 +97,61 @@ def _listar(carpeta):
         return os.listdir(carpeta)
     except OSError:
         return []
+
+
+def steam_abierto():
+    """True si Steam esta en marcha. Con Steam abierto no se instala nada: su
+    nube sobrescribe la partida y parece que el editor no funciona (LEEME)."""
+    # Primero el registro: Steam apunta su proceso en ActiveProcess\pid y se
+    # mira si ese proceso sigue vivo (sin lanzar nada, que desde el .exe sin
+    # consola un tasklist se puede quedar colgado). Si eso falla, tasklist con
+    # la entrada cerrada y sin ventana.
+    try:
+        import ctypes
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Valve\Steam\ActiveProcess") as k:
+            pid = int(winreg.QueryValueEx(k, "pid")[0])
+        if pid:
+            h = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)   # PROCESS_QUERY_LIMITED_INFORMATION
+            if h:
+                codigo = ctypes.c_ulong()
+                vivo = ctypes.windll.kernel32.GetExitCodeProcess(h, ctypes.byref(codigo)) and codigo.value == 259
+                ctypes.windll.kernel32.CloseHandle(h)
+                return bool(vivo)
+        return False
+    except Exception:
+        pass
+    try:
+        r = subprocess.run(["tasklist", "/NH", "/FI", "IMAGENAME eq steam.exe"],
+                           capture_output=True, text=True, timeout=15,
+                           stdin=subprocess.DEVNULL, creationflags=0x08000000)
+        return any(l.lower().startswith("steam.exe") for l in r.stdout.splitlines())
+    except Exception:
+        return False
+
+
+def instalar_en_steam(carpeta, nombre):
+    """Copia la partida `nombre` de `carpeta` a la carpeta de Steam de la cuenta
+    que tenga ESE mismo nombre de partida (el nombre es la clave, asi que solo
+    puede ir a su cuenta), con copia de seguridad de lo que hubiera (O-201)."""
+    origen = os.path.join(carpeta, nombre)
+    if not os.path.isfile(origen):
+        raise E.Ilegal("no encuentro la partida guardada en %s" % carpeta)
+    if steam_abierto():
+        raise E.Ilegal("Steam esta abierto. Cierralo del todo (boton derecho en su icono junto "
+                       "al reloj, Salir) y vuelve a pulsar: si no, su nube sobrescribe la partida.")
+    destinos = [c for c, n, _ in partidas_de_steam() if n == nombre]
+    if not destinos:
+        raise E.Ilegal("no encuentro en el Steam de este ordenador ninguna partida llamada %s: "
+                       "la partida solo puede volver a la cuenta de la que salio" % nombre)
+    destino = destinos[0]
+    import time
+    sello = time.strftime("%Y-%m-%d_%H-%M-%S")
+    copia = os.path.join(ANTES_DE_INSTALAR, sello)
+    os.makedirs(copia, exist_ok=True)
+    shutil.copy2(os.path.join(destino, nombre), os.path.join(copia, nombre))
+    shutil.copy2(origen, os.path.join(destino, nombre))
+    return {"instalada": os.path.join(destino, nombre), "copia": copia}
 
 
 class Sesion:
@@ -1294,6 +1352,13 @@ class Manejador(BaseHTTPRequestHandler):
                     sesion.origen, sesion.plain, sesion.nombre = nueva.origen, nueva.plain, nueva.nombre
                     sesion.historial, sesion.cambios = [], []
                     return self._responder(200, {"origen": sesion.origen})
+                if u.path == "/api/instalar":
+                    carpeta = (cuerpo.get("carpeta") or "").strip()
+                    if not carpeta:
+                        raise E.Ilegal("primero guarda la copia")
+                    # (el POST ya va con el cerrojo cogido: otro `with` aqui se
+                    # queda esperando para siempre, como paso con /api/guardar)
+                    return self._responder(200, instalar_en_steam(carpeta, sesion.nombre))
                 if u.path == "/api/guardar":
                     # antes de escribir, el arbol de todos como lo dejaria el
                     # juego: si no, las tecnicas puestas con el editor no se ven

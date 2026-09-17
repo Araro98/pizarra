@@ -15,8 +15,10 @@ Regla que manda sobre todo lo demas: **lo que no esta PROBADO es de solo lectura
 ## Entorno (confirmado 2026-09-13)
 
 - Windows 11 Pro, Steam instalado en `F:\steam`.
-- Cuenta de Steam: `143274881`. Juego: app `2799860`.
-- Partida: `F:\steam\userdata\143274881\2799860\remote\002AB8F4-USERDATALIVE` (12.598.458 bytes).
+- Juego: app `2799860` de Steam.
+- Partida: `<Steam>\userdata\<cuenta>\2799860\remote\XXXXXXXX-USERDATALIVE` (12.598.458 bytes).
+  El programa la encuentra solo (NOTAS O-158); nada de la cuenta ni del PC de
+  nadie va escrito en el codigo (O-201).
 - `002AB8F4-SYSTEMLIVE` son solo ajustes. Hay ademas un `002B8D10-*` antiguo (feb 2025).
 - Juego instalado en `F:\steam\steamapps\common\INAZUMA ELEVEN Victory Road`.
 - Copia intacta de la partida guardada en `partidas/original/` (md5 `6d066d329f38908b5e44e0a57a622fa4`).
@@ -4743,6 +4745,34 @@ excepcion. Ahora el editor abre 33-39 a todo gerente o entrenador cuyo arbol
 llega al anillo, y `sincronizar_tabla_pasivas` pone la marca a 1 cuando
 estan abiertas. En la partida de antes del editor esto abre a 16 del juego
 que nunca habian entrado en su arbol (es lo que el juego haria al entrar).
+
+### O-201 · Listo para otro ordenador: sin rutas de nadie y con "Instalar en Steam"
+
+Aaron va a pasarle el programa a un amigo. Repaso:
+
+- **Nada del PC de Aaron en el codigo.** `servidor.CARPETA_STEAM` (su ruta con
+  su cuenta) fuera: `partidas_de_steam` mira el registro de Windows y las
+  carpetas de siempre en cada unidad, para cualquier cuenta. Los tres `.bat`
+  buscan la partida con `buscar-steam.bat` (registro + unidades, la partida
+  mas nueva) en vez de llevar la ruta escrita. Las herramientas que leen los
+  ficheros del juego usan `ievr/rutas.py` (registro, `libraryfolders.vdf`,
+  unidades; o `IEVR_JUEGO`). `test_basico` coge la partida de `partidas/` o de
+  Steam. En NOTAS quedaba la cuenta en la cabecera: fuera. Comprobado con
+  `git grep`: ni la cuenta, ni `F:\`, ni la carpeta del proyecto, ni el
+  correo aparecen en ningun fichero del repositorio.
+- **Nada depende de la partida de Aaron**: el nombre de la partida sale del
+  fichero (es la clave), las tablas son del juego, y `anillos.csv` es una
+  tabla por personaje que vale para cualquiera.
+- **"Instalar en Steam"** en el editor, al lado de Guardar: copia la ultima
+  partida guardada a la carpeta de Steam de la cuenta con ESE nombre de
+  partida (no puede ir a otra cuenta), guardando antes la que habia en
+  `partidas/antes-de-instalar/<fecha>`. Se niega si Steam esta abierto: lo
+  mira en el registro (`ActiveProcess\pid`, comprobando que el proceso vive)
+  y no con `tasklist`, que desde el .exe sin consola se queda colgado. Ojo:
+  el POST ya lleva el cerrojo de la sesion; un `with sesion.lock` dentro se
+  quedaba esperando para siempre (segunda vez que pasa).
+- **Guardar siempre**: el boton ya no se apaga sin cambios (Aaron tuvo que
+  bajar de nivel a uno para poder guardar y que se aplicaran los arreglos).
 
 ## SUPUESTO
 

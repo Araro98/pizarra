@@ -1,18 +1,17 @@
 @echo off
 REM Copia una partida editada a la carpeta de Steam.
 REM Se niega a hacerlo si Steam esta abierto, porque la nube la sobrescribiria.
-setlocal
-set "DESTINO=F:\steam\userdata\143274881\2799860\remote"
+REM No lleva ninguna ruta escrita: busca Steam en el registro de Windows y la
+REM cuenta que tenga el juego (NOTAS O-201). El editor tiene el mismo boton
+REM ("Instalar en Steam"), asi que esto es solo por si se prefiere a mano.
+setlocal EnableDelayedExpansion
 set "EDITADAS=%~dp0..\partidas\editadas"
 set "COPIAS=%~dp0..\partidas\antes-de-instalar"
 
-if not exist "%DESTINO%\002AB8F4-USERDATALIVE" goto :sin_steam
+call "%~dp0buscar-steam.bat"
+if not defined DESTINO goto :sin_steam
+if not defined FICHERO goto :sin_steam
 
-REM Se vuelca la lista entera a un fichero y se busca ahi, sin filtros ni
-REM tuberias. Con filtro, cuando NO hay proceso tasklist contesta "INFO: No
-REM tasks are running..." repitiendo el nombre buscado, y la busqueda daria
-REM siempre positivo. Y find.exe va con ruta completa porque si esto se lanza
-REM desde otra consola otro "find" distinto puede adelantarse.
 set "LISTA=%TEMP%\ievr_procesos.txt"
 tasklist /NH > "%LISTA%" 2>nul
 "%SystemRoot%\System32\find.exe" /I "steam.exe" "%LISTA%" >nul 2>&1
@@ -33,22 +32,21 @@ set /p "NOMBRE=Cual instalo: "
 if not defined NOMBRE goto :sin_nombre
 
 :tengo_nombre
-set "ORIGEN=%EDITADAS%\%NOMBRE%\002AB8F4-USERDATALIVE"
+set "ORIGEN=%EDITADAS%\%NOMBRE%\%FICHERO%"
 if not exist "%ORIGEN%" goto :no_existe
 
-REM copia de seguridad de lo que hay ahora, con fecha y hora
 set "SELLO=%DATE:/=-%_%TIME::=-%"
 set "SELLO=%SELLO: =0%"
 set "SELLO=%SELLO:,=-%"
 if not exist "%COPIAS%\%SELLO%" mkdir "%COPIAS%\%SELLO%"
-copy /Y "%DESTINO%\002AB8F4-USERDATALIVE" "%COPIAS%\%SELLO%\002AB8F4-USERDATALIVE" >nul
+copy /Y "%DESTINO%\%FICHERO%" "%COPIAS%\%SELLO%\%FICHERO%" >nul
 echo Tu partida actual queda guardada en:
 echo    partidas\antes-de-instalar\%SELLO%
 echo.
 
-copy /Y "%ORIGEN%" "%DESTINO%\002AB8F4-USERDATALIVE" >nul
+copy /Y "%ORIGEN%" "%DESTINO%\%FICHERO%" >nul
 if errorlevel 1 goto :fallo
-echo Instalada "%NOMBRE%". Ya puedes abrir Steam y el juego.
+echo Instalada "%NOMBRE%" en %DESTINO%. Ya puedes abrir Steam y el juego.
 echo.
 if "%~1"=="" pause
 exit /b 0
@@ -65,13 +63,12 @@ if "%~1"=="" pause
 exit /b 1
 
 :sin_steam
-echo No encuentro la partida de Steam en:
-echo    %DESTINO%
+echo No encuentro ninguna partida del juego en el Steam de este ordenador.
 if "%~1"=="" pause
 exit /b 1
 
 :no_existe
-echo No existe la partida editada "%NOMBRE%".
+echo No existe la partida editada "%NOMBRE%" (busco %ORIGEN%).
 if "%~1"=="" pause
 exit /b 1
 

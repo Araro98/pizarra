@@ -19,8 +19,12 @@ hace lo mismo pero en el navegador, en `http://127.0.0.1:8765/`.) Las opciones:
 | **Base de datos** | Todos los personajes del juego con sus stats por nivel y rareza, su arbol, sus tecnicas y sus pasivas; y aparte supertecnicas, espiritus, pasivas y objetos. No toca tu partida. |
 | **Calculadora de poder** | Cuanto saca un jugador en cada jugada (tiro, foco, disputa, muro) con sus stats, su supertecnica y las bonificaciones. Con jugadores de tu partida, del juego o a mano; si eliges un equipo tuyo, sus pasivas se suman solas. |
 
-El editor trabaja sobre **una copia** de tu partida (`partidas/para-editar`, que hace el `.bat` al arrancar). Cuando
-guardas, deja la partida editada en una carpeta nueva y te dice cual.
+El editor trabaja sobre **una copia** de tu partida (`partidas/para-editar`, que
+hace el programa al arrancar: busca solo tu partida en el Steam de tu
+ordenador). Cuando guardas, deja la partida editada en una carpeta nueva y te
+dice cual; y con el boton **"Instalar en Steam"** (con Steam cerrado del todo)
+la copia a tu carpeta de Steam guardando antes la que habia en
+`partidas/antes-de-instalar`.
 
 ## Lo que nunca hay que hacer
 
@@ -57,10 +61,13 @@ son los dibujos del juego). Quien lo reciba lo descomprime donde quiera y abre
 `Pizarra.exe`, sin instalar nada: el programa busca su partida en su Steam solo
 (la de la cuenta que haya jugado mas recientemente) y trabaja sobre una copia.
 Cada cuenta de Steam tiene su propio nombre de partida (`XXXXXXXX-USERDATALIVE`)
-y el programa lo respeta, porque ese nombre es la clave de cifrado.
+y el programa lo respeta, porque ese nombre es la clave de cifrado. Nada del
+programa depende del ordenador ni de la partida de nadie: ni rutas, ni cuentas
+(NOTAS O-201).
 
 Ojo: el zip lleva dibujos que son del juego. Es para pasarselo a alguien que lo
-tenga, no para colgarlo en publico.
+tenga, no para colgarlo en publico. Lo que hay en GitHub es el codigo y las
+tablas; el programa, una vez instalado, se actualiza solo desde ahi.
 
 ## Actualizaciones
 
