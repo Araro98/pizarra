@@ -580,6 +580,8 @@ def pasivas_de_equipo(plain, i):
             clave = f["texto"]
             g = grupos.setdefault(clave, {"texto": f["texto"], "familia": f["familia"],
                                          "icono": iconos.get(pid, ""), "valor": 0.0,
+                                         # el id sirve para saber su tope (O-186)
+                                         "id_pasiva": pid,
                                          "cuantos": 0, "quienes": [],
                                          "sitio": []})
             try:
@@ -593,8 +595,8 @@ def pasivas_de_equipo(plain, i):
     for g in grupos.values():
         g["valor"] = round(g["valor"], 2)
         g["texto_con_valor"] = g["texto"].replace("<VALUE>", ("%g" % g["valor"]))
-        # el tope del juego (O-176): pasarse no cuenta en el partido
-        limite, arq = O.limite_de_pasiva(g["texto"])
+        # el tope del juego (O-176, O-186): pasarse no cuenta en el partido
+        limite, arq = O.limite_de_pasiva(g.get("id_pasiva") or "")
         g["limite"] = limite
         g["limite_de"] = arq
         g["estado"] = ("" if limite is None else

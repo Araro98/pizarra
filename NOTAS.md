@@ -4369,39 +4369,43 @@ y se niega si se intenta cruzar.
 `E.dar_pasivas_personal`), que son las mismas que salen al quitarselas a
 alguien en el juego.
 
-### O-186 · CERRADO · Los topes de las pasivas NO estan en los datos del juego
+### O-186 · RESUELTO · Los topes de las pasivas, sacados del juego
 
-Aaron: "puedes buscar tu el limite de pasivas? en inazumo creo que faltan
-algunos". **No estan en los ficheros del juego.** Buscado a fondo, ahora con el
-volcador ampliado (`--todas`, `--json`, O-184):
+Aaron: "en las notas de un parche se anadieron limites de pasivas, y el propio
+juego te lo marca en rojo, asi que tiene que estar en algun sitio". Lo estaba, y
+estaba **en el sitio que ya habia mirado**: la primera pasada se quedo a medias.
 
-- `soccer/passive_skill_effect_config` tiene una tabla que se llama
-  **GRAND_TOTAL** y parecia justo eso, pero lo que guarda es el **icono de
-  buff** de cada efecto (valores 2, 16, 18, 11...) y un indice correlativo (50,
-  51, 52...), no un tope.
-- `skill/passive_skill_effect_config`, `team_build_config` y
-  `synergy_flag_config`: nada parecido.
-- Barrido de **los 900+ `.cfg.bin` de gamedata** buscando filas que lleven a la
-  vez un id (o un tipo) de pasiva y uno de los valores de tope (250, 200, 150,
-  100, 80): solo salen falsos positivos (la clave 100 de los Diamantes y unos
-  precios de tienda).
-- Barrido de todos los textos en espanol por "limite", "tope", "maximo",
-  "deja de sumar": lo unico que aparece es el tope del **poder de afinidad**
-  ("se puede acumular hasta un 30 %"), que es otra cosa. El juego **no tiene
-  ninguna pantalla** de limites de pasivas.
-- Tampoco salen de una regla: el tope partido por el valor maximo de la pasiva
-  va de 2,0 a 93,8. No hay proporcion.
+En `soccer/passive_skill_effect_config` hay **80 efectos de pasiva**. Cada uno
+lleva su bloque `EFFECT_DATA_LIST` y ahi, en una fila de tres numeros
+`(algo, indice, TOPE)`, el tercero es el tope de la suma del equipo. La primera
+vez se miro solo el segundo numero (50, 51, 52...), que es un indice
+correlativo, y se dio por hecho que la fila no servia.
 
-Asi que los topes de inazumo.es son **medidas de la comunidad**, y por eso
-estan incompletos. Se queda lo que hay (26 patrones; se quito el de
-"Contraataque, foco de DF" porque **esa pasiva no existe**: el juego solo tiene
-cuatro de Contraataque, no cinco). Las demas salen en el panel como **"sin tope
-conocido"** en vez de en blanco, para que se vea cuales son.
+**40 efectos tienen tope y 40 lo llevan a cero** (sin tope: las de "AT de tiro
+para jugadores del mismo elemento" y demas de las ranuras 1-2, que se suman sin
+limite).
 
-Sin tope conocido, por si algun dia se miden: de las 40 pasivas de arquetipo
-faltan 19 (Brecha 6, Afinidad 3, Juego sucio 3, Tension 3, Contra 2, Justicia
-2) y de las 45 de personal faltan 19 (17 de entrenador y las 2 de gerente,
-"PP del equipo" y "enfriamiento de supertecnicas propias").
+El enlace con la pasiva es la columna `tipo_efecto` de `pasivas-valor.csv`
+**leida tal cual**, no con los bytes al reves como el resto de ids de la
+partida: `8A52A068` es el efecto `2320670824`. Casan 1.700 de las 1.716
+pasivas. `construir_pasivas_limites.py` -> `pasivas-limites.csv` (40 topes,
+por tipo de efecto, asi que todas las versiones por rareza comparten tope).
+
+Contra la lista de inazumo.es (26): coinciden las que son "de una vez"
+(tension necesaria 80, gana en foco o disputa 150, faltas al esprintar 80,
+sustitucion 150, mitades 30...). Las que no coinciden son las de **"Por cada
+rango de Conf. X"** y la de **"Al hacer un pase"**, y es porque miden cosas
+distintas: el juego pone el tope a la SUMA de la pasiva y inazumo al efecto
+final. Cuadran multiplicando por lo que se acumula: Conf. Vinculo 50 x 5 rangos
+= 250, Conf. Brecha 20 x 5 = 100, Conf. Justicia 10 x 5 = 50, y "al hacer un
+pase" 5 x 30 % de poder de afinidad acumulable = 150. Para el panel del editor,
+que compara la SUMA, el bueno es el del juego.
+
+Ademas salen **14 topes que inazumo no tiene**: valor de foco del equipo en
+campo propio, en campo contrario y fuera del area (50 cada uno), tasa de brecha
+del equipo (100), drenar tension (100), PP del equipo (20), Conf. Tension (20),
+Conf. Contraataque (15), enfriamiento de supertecnicas propias (10), las dos de
+tasa de obtencion de objetos (200 y 100), y tres mas.
 
 ## SUPUESTO
 

@@ -1,35 +1,46 @@
-# Tope de cada pasiva de equipo sumada (NOTAS O-176). Lo que se pase del tope
-# no cuenta en el partido. Fuente: Aaron, con la tabla "Limites de Pasivas de
-# Equipo" de inazumo.es. `patron` es una expresion regular sobre el texto de la
-# pasiva (sin marcadores, sin distinguir mayusculas); `limite` en las mismas
-# unidades que el numero de la pasiva (%).
-# Solo estan estas: los topes NO estan en los datos del juego (NOTAS O-186),
-# son medidas de la comunidad. Las pasivas de equipo sin tope aqui salen en el
-# editor como "sin tope conocido".
-arquetipo,patron,limite
-Brecha,conf\. brecha.*perforaci,100
-Brecha,tensi.n necesaria para brecha,80
-Tension,gana en foco o disputa.*tensi,150
-Tension,tensi.n est. al 50.*valor de foco del equipo,50
-Tension,tensi.n est. al 100.*at de tiro del equipo,200
-Contraataque,tras recuperar.*at de tiro del equipo,50
-Contraataque,tras recuperar.*foco de mc,50
-Contraataque,tras recuperar.*pp,100
-Contraataque,tras recuperar.*ataque duro,100
-Afinidad,al hacer un pase.*poder de afinidad,150
-Afinidad,conf\. v.nculo.*valor de disputa del equipo,250
-Afinidad,poder de afinidad es 20.*at de tiro directo,150
-Afinidad,p.rdida de poder de afinidad,100
-Juego sucio,tasa de faltas del equipo.*al esprintar,80
-Juego sucio,tasa de faltas del equipo.*fuera del .rea,80
-Juego sucio,al ser derribado en esprint.*tensi,50
-Juego sucio,conf\. juego sucio.*ataque duro,100
-Justicia,al recibir marcajes o bloqueos en esprint.*poder de afinidad,200
-Justicia,rival comete una falta.*poder de afinidad,200
-Justicia,hasta que el equipo reciba una falta.*df del muro,50
-Justicia,conf\. justicia.*at y df del equipo,50
-Staff,tras una sustituci.n.*at del jugador sustituto,150
-Staff,tras una sustituci.n.*df del jugador sustituto,150
-Staff,enfriamiento de t.cticas especiales,50
-Staff,durante la primera mitad.*at del equipo,30
-Staff,durante la segunda mitad.*df del equipo,30
+# El tope de la suma de cada pasiva de equipo (NOTAS O-186), del propio
+# juego: soccer/passive_skill_effect_config. Lo que se pase del tope no
+# cuenta en el partido. `tipo_efecto` es la columna del mismo nombre de
+# pasivas-valor.csv, leida tal cual.
+# Lo genera herramientas/construir_pasivas_limites.py.
+tipo_efecto,limite,ejemplo
+DC0807EE,200,"Al recibir marcajes o bloqueos en esprint, poder de afinidad +<VALUE> %"
+45015654,200,"Cuando el rival comete una falta, poder de afinidad +<VALUE> %"
+075DC059,200,"Cuando la tensión está al 100 %, AT de tiro del equipo +<VALUE> %"
+EE3E656C,200,"Cuando se tienen los mismos goles o menos, tasa de brecha del equipo +<VALUE> %"
+D8A34B0F,200,Tasa de obtención del equipo (comunes) +<VALUE>%
+E953A175,150,"Cuando el equipo gana en foco o disputa, tensión +<VALUE> %"
+F0489034,150,"Si el poder de afinidad es 20 % o más, AT de tiro directo del equipo +<VALUE> %"
+DB65C3F7,150,"Tras una sustitución, AT del jugador sustituto +<VALUE> % durante 15 s"
+426C924D,150,"Tras una sustitución, DF del jugador sustituto +<VALUE> % durante 15 s"
+9E5491E3,100,"Cuando el rival pasa durante foco, drena un <VALUE> % de tensión"
+993955FA,100,Tasa de brecha del equipo +<VALUE> %
+AFA47B99,100,Tasa de obtención del equipo (inusuales) +<VALUE>%
+F725542D,100,"Tras recuperar el balón sin una captura directa, durante los próximos 15 segundos PP aumenta +<VALUE> %"
+97E2DDC8,100,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT de tiro del equipo +<VALUE> %"
+6E2C0597,100,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de ataque duro (equipo) +<VALUE> %"
+1E46F118,80,Tasa de faltas del equipo -<VALUE> % al esprintar
+8EF9EC89,80,Tasa de faltas del equipo -<VALUE> % cuando se está fuera del área
+00300440,80,Tensión necesaria para brecha del equipo -<VALUE> %
+705AF0CF,50,"Cuando la tensión está al 50 % o más, valor de foco del equipo +<VALUE> %"
+356BA2DB,50,Enfriamiento de tácticas especiales -<VALUE> %
+320666C2,50,"Hasta que el equipo reciba una falta, DF del muro +<VALUE> %"
+F9FEDC1F,50,"Juego sucio: Al ser derribado en esprint, tensión +<VALUE> %"
+3B5792C4,50,"Por cada rango de Conf. Brecha, tasa de Parada del equipo +<VALUE> %"
+DCEFBFC3,50,"Por cada rango de Conf. Vínculo, valor de disputa del equipo +<VALUE> %"
+E0E5ED5E,50,"Tras recuperar el balón sin una captura directa, durante los próximos 30 segundos AT y DF de foco de MC +<VALUE> %"
+481C569E,50,Valor de foco del equipo +<VALUE> % cuando se está fuera del área
+D1150724,50,Valor de foco del equipo +<VALUE> % en campo contrario
+D678C33D,50,Valor de foco del equipo +<VALUE> % en campo propio
+A5D4BF4A,30,"Durante la primera mitad, AT del equipo +<VALUE> %"
+D2D38FDC,30,"Durante la segunda mitad, DF del equipo +<VALUE> %"
+ABE88F55,20,"Por cada rango de Conf. Brecha, tasa de perforación de muro +<VALUE> ％"
+2C972BB7,20,"Por cada rango de Conf. Tensión, tensión +<VALUE> %"
+5B901B21,20,"Por cada rango de Conf. Vínculo, pérdida de poder de afinidad －<VALUE> ％"
+2B1D5783,20,PP del equipo +<VALUE> %
+4C50A252,15,"Por cada rango de Conf. Contraataque, valor de foco del equipo +<VALUE> %"
+358C1AF6,10,Enfriamiento de supertécnicas propias -<VALUE> %
+45E6EE79,10,"Por cada rango de Conf. Juego sucio, AT/DF de Ataque duro +<VALUE> %"
+AC854B4C,10,"Por cada rango de Conf. Justicia, AT y DF del equipo +<VALUE> %"
+C27EF2B6,5,"Al hacer un pase, poder de afinidad +<VALUE> %"
+CBC8BE9D,2,"Conf. Vínculo: Por cada 1 % del poder de afinidad, AT/DF del equipo +<VALUE> %"

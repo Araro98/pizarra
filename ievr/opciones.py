@@ -1052,23 +1052,21 @@ def _tecnicas_por_id():
     return _indice("tecnicas_por_id", lambda: {f["id"].upper(): f for f in reglas._tabla("tecnicas.csv")})
 
 
-def limite_de_pasiva(texto):
-    """(limite, arquetipo) de una pasiva de equipo sumada, o (None, "") si no
-    tiene tope conocido (`pasivas-limites.csv`, NOTAS O-176)."""
-    import re as _re
+def limite_de_pasiva(id_hex):
+    """(tope, "") de la suma de esa pasiva en el equipo, o (None, "") si no
+    tiene. Sale del propio juego (`pasivas-limites.csv`, NOTAS O-186): el tope
+    va por TIPO DE EFECTO, asi que todas las versiones por rareza de una pasiva
+    comparten tope."""
     def construir():
-        fuera = []
-        for f in reglas._tabla("pasivas-limites.csv"):
-            try:
-                fuera.append((_re.compile(f["patron"], _re.I), float(f["limite"]), f["arquetipo"]))
-            except (_re.error, ValueError):
-                pass
-        return fuera
-    limpio = " ".join(_limpio(texto).replace("\\", " ").split()).lower()
-    for patron, limite, arq in _indice("limites_pasiva", construir):
-        if patron.search(limpio):
-            return limite, arq
-    return None, ""
+        topes = {f["tipo_efecto"].upper(): float(f["limite"])
+                 for f in reglas._tabla("pasivas-limites.csv")}
+        d = {}
+        for f in reglas._tabla("pasivas-valor.csv"):
+            t = (f.get("tipo_efecto") or "").upper()
+            if t in topes:
+                d[f["id"].upper()] = topes[t]
+        return d
+    return _indice("limites_pasiva", construir).get((id_hex or "").upper()), ""
 
 
 def _espiritus():
