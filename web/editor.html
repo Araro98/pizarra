@@ -496,6 +496,8 @@
   .tope.bien { background:#1fa84a; }
   .tope.justo { background:#e8890c; }
   .tope.pasa { background:#d8232a; }
+  .tope.sintope { background:rgba(255,255,255,.22); color:#eef6ff; font-weight:700;
+    border-style:dashed; }
   .nota-bonif .tope { font-size:var(--t-xs); padding:1px 7px; }
   .bonif-fila.pasa { outline:2px solid #ff5c5c; outline-offset:-2px; }
   .bonif-fila .cuantos { flex:none; font-size:var(--t-sm); font-weight:800; background:rgba(0,0,0,.3);
@@ -2645,7 +2647,9 @@ function pintaBonificaciones(caja, lista) {
       el("span", {class:"texto", text:g.texto_con_valor}),
       g.limite != null
         ? el("span", {class:"tope " + g.estado, text:"%g".replace("%g", g.valor) + " / " + g.limite + " %"})
-        : null,
+        // el tope de esta no se sabe: no esta en los datos del juego (O-186)
+        : el("span", {class:"tope sintope", title:"El tope de esta pasiva no se conoce",
+                      text:"sin tope conocido"}),
       el("span", {class:"cuantos", text:"×" + g.cuantos})]));
   }
   const leyenda = el("p", {class:"nota-bonif"});
@@ -2658,6 +2662,8 @@ function pintaBonificaciones(caja, lista) {
   leyenda.appendChild(el("span", {class:"tope justo", text:"naranja, justo"}));
   leyenda.appendChild(document.createTextNode(" "));
   leyenda.appendChild(el("span", {class:"tope pasa", text:"rojo, pasado (lo que sobra no cuenta)"}));
+  leyenda.appendChild(document.createTextNode(" "));
+  leyenda.appendChild(el("span", {class:"tope sintope", text:"sin tope conocido"}));
   caja.appendChild(leyenda);
 }
 

@@ -4369,6 +4369,40 @@ y se niega si se intenta cruzar.
 `E.dar_pasivas_personal`), que son las mismas que salen al quitarselas a
 alguien en el juego.
 
+### O-186 · CERRADO · Los topes de las pasivas NO estan en los datos del juego
+
+Aaron: "puedes buscar tu el limite de pasivas? en inazumo creo que faltan
+algunos". **No estan en los ficheros del juego.** Buscado a fondo, ahora con el
+volcador ampliado (`--todas`, `--json`, O-184):
+
+- `soccer/passive_skill_effect_config` tiene una tabla que se llama
+  **GRAND_TOTAL** y parecia justo eso, pero lo que guarda es el **icono de
+  buff** de cada efecto (valores 2, 16, 18, 11...) y un indice correlativo (50,
+  51, 52...), no un tope.
+- `skill/passive_skill_effect_config`, `team_build_config` y
+  `synergy_flag_config`: nada parecido.
+- Barrido de **los 900+ `.cfg.bin` de gamedata** buscando filas que lleven a la
+  vez un id (o un tipo) de pasiva y uno de los valores de tope (250, 200, 150,
+  100, 80): solo salen falsos positivos (la clave 100 de los Diamantes y unos
+  precios de tienda).
+- Barrido de todos los textos en espanol por "limite", "tope", "maximo",
+  "deja de sumar": lo unico que aparece es el tope del **poder de afinidad**
+  ("se puede acumular hasta un 30 %"), que es otra cosa. El juego **no tiene
+  ninguna pantalla** de limites de pasivas.
+- Tampoco salen de una regla: el tope partido por el valor maximo de la pasiva
+  va de 2,0 a 93,8. No hay proporcion.
+
+Asi que los topes de inazumo.es son **medidas de la comunidad**, y por eso
+estan incompletos. Se queda lo que hay (26 patrones; se quito el de
+"Contraataque, foco de DF" porque **esa pasiva no existe**: el juego solo tiene
+cuatro de Contraataque, no cinco). Las demas salen en el panel como **"sin tope
+conocido"** en vez de en blanco, para que se vea cuales son.
+
+Sin tope conocido, por si algun dia se miden: de las 40 pasivas de arquetipo
+faltan 19 (Brecha 6, Afinidad 3, Juego sucio 3, Tension 3, Contra 2, Justicia
+2) y de las 45 de personal faltan 19 (17 de entrenador y las 2 de gerente,
+"PP del equipo" y "enfriamiento de supertecnicas propias").
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

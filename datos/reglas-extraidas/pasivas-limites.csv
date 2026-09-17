@@ -3,6 +3,9 @@
 # Equipo" de inazumo.es. `patron` es una expresion regular sobre el texto de la
 # pasiva (sin marcadores, sin distinguir mayusculas); `limite` en las mismas
 # unidades que el numero de la pasiva (%).
+# Solo estan estas: los topes NO estan en los datos del juego (NOTAS O-186),
+# son medidas de la comunidad. Las pasivas de equipo sin tope aqui salen en el
+# editor como "sin tope conocido".
 arquetipo,patron,limite
 Brecha,conf\. brecha.*perforaci,100
 Brecha,tensi.n necesaria para brecha,80
@@ -11,7 +14,6 @@ Tension,tensi.n est. al 50.*valor de foco del equipo,50
 Tension,tensi.n est. al 100.*at de tiro del equipo,200
 Contraataque,tras recuperar.*at de tiro del equipo,50
 Contraataque,tras recuperar.*foco de mc,50
-Contraataque,tras recuperar.*foco de df,50
 Contraataque,tras recuperar.*pp,100
 Contraataque,tras recuperar.*ataque duro,100
 Afinidad,al hacer un pase.*poder de afinidad,150
