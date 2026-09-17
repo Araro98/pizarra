@@ -4645,6 +4645,33 @@ asi y luego otra cosa, y delante del primero hay una plantilla entera.
 lo que escribio el juego. La lectura antigua dejo una sinergia escrita en el
 bloque del equipo 23 (sin nombre, no se ve en el juego): es inofensiva.
 
+### O-197 · El valor de una pasiva de gerente o entrenador va por su rareza
+
+Aaron: "le doy a Robert pasivas de gerente y salen +12 % y +4 %, pero Carlos
+Arroyo (gerente hecho en el juego) tiene la misma con +6 %, que no existe en
+el editor; y la de ganar tension al esprintar tambien esta mal".
+
+En la tabla de pasivas con numero (O-166) el juego guarda, junto al id, un
+**valor** por pasiva. Para el personal ese valor NO es el del catalogo: Carlos
+lleva `6CA04827` ("AT de tiro +4 %" en el catalogo) con 6.0. Contando los 915
+valores de los 192 gerentes y entrenadores de la partida de Aaron: el valor
+depende solo de (pasiva, rareza del personaje), sin una sola excepcion, y es
+**el valor de la version de esa pasiva para esa rareza** (`pasivas-rareza.csv`
++ `pasivas-valor.csv`): cuadra 915 de 915. El id que se guarda sigue siendo
+el base; solo cambia el numero. El editor escribia siempre el valor base, asi
+que un gerente de rareza 4 se quedaba con +4 en vez de +6.
+
+Ahora `E.valor_de_pasiva_personal` da el numero por rareza, el selector lo
+ensena tal cual le quedara, y `pasivas_personal_desajustadas` /
+`arreglar_pasivas_personal` corrigen los que puso el editor con el valor base
+(al guardar y en el Resumen). En la partida de antes del editor no hay ninguno.
+
+De paso, dos cosas mas que vio Aaron: en la ficha de un gerente, "pasivas como
+jugador" salia repetida con las de gerente (la ficha leia la tabla con numero,
+que en el personal lleva las de personal: ahora lee las ranuras de la ficha);
+y "Conseguirlos todos" en la pestana de sinergias daba error (ahora crea las
+37, como el boton verde).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

@@ -963,7 +963,9 @@ def personales(plain, fila):
     for idh in pasivas_de_personal_del_rol(rol):
         if idh not in poseidas:
             continue
-        fuera.append({"id": idh, "nombre": nombre_pasiva(idh, idh),
+        # con el numero que tendra en ESTE gerente o entrenador (O-197)
+        valor = E.valor_de_pasiva_personal(plain, fila, idh)
+        fuera.append({"id": idh, "nombre": texto_con_valor(idh, valor, idh),
                       "icono200": iconos_de_pasiva().get(idh, ""),
                       "cantidad": poseidas[idh][0].get("cantidad", 0)})
     fuera.sort(key=lambda x: x["nombre"])

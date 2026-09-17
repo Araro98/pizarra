@@ -168,6 +168,11 @@ class Sesion:
             plain, info = EQ.arreglar_piezas(self.plain)
             self._paso(plain, {"que": "piezas de equipo enlazadas", "equipos": info["equipos"]})
             fuera["piezas"] = info["equipos"]
+        fuera["personal"] = 0
+        if E.pasivas_personal_desajustadas(self.plain):
+            plain, info = E.arreglar_pasivas_personal(self.plain)
+            self._paso(plain, {"que": "pasivas de personal con su valor", "jugadores": info["jugadores"]})
+            fuera["personal"] = info["jugadores"]
         return fuera
         return len(rotos)
 
@@ -828,6 +833,7 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
         "arboles_rotos": len(E.arboles_rotos(plain)) if not cuantos else 0,
         "dorsales_repetidos": len(EQ.dorsales_repetidos(plain)) if not cuantos else 0,
         "piezas_desajustadas": len({i for i, _ in EQ.piezas_desajustadas(plain)}) if not cuantos else 0,
+        "personal_desajustado": len({f for f, _ in E.pasivas_personal_desajustadas(plain)}) if not cuantos else 0,
         "jugadores": trozo,
         # el hueco va con el nombre para poder ensenar las pasivas sumadas de
         # ese equipo en la propia lista de Jugadores (NOTAS O-183)
@@ -967,7 +973,11 @@ def detalle_jugador(plain, fila):
         fijas = []
     # Lo que ensena el juego de verdad: la tabla de pasivas con numero (O-166).
     # Si la partida no la tuviera, se reconstruye desde la ficha como antes.
+    # En un gerente o entrenador la tabla lleva SUS pasivas de personal (O-185),
+    # asi que las de jugador se leen de la ficha: si no, salian repetidas.
     tabla = J.tabla_pasivas(plain, fila)
+    if E.rol_de_personal(plain, fila) in ("gerente", "entrenador"):
+        tabla = []
     if not any(x["id"] != "00000000" for x in tabla):
         tabla = []
     pasivas = []
@@ -1299,6 +1309,7 @@ class Manejador(BaseHTTPRequestHandler):
                                                  "arboles": arreglos["arboles"],
                                                  "dorsales": arreglos["dorsales"],
                                                  "piezas": arreglos["piezas"],
+                                                 "personal": arreglos["personal"],
                                                  "fichero": os.path.join(destino, sesion.nombre)})
             return self._responder(404, {"error": "no existe esa direccion"})
         except (E.Ilegal, EQ.Ilegal) as e:
@@ -1336,6 +1347,8 @@ class Manejador(BaseHTTPRequestHandler):
             return sesion.aplicar(EQ.arreglar_dorsales)
         if t == "arreglar_piezas":
             return sesion.aplicar(EQ.arreglar_piezas)
+        if t == "arreglar_pasivas_personal":
+            return sesion.aplicar(E.arreglar_pasivas_personal)
         if t == "dar_personalizadas":
             return sesion.aplicar(E.dar_personalizadas, int(c.get("cantidad") or 99))
         if t == "dar_pasivas_personal":

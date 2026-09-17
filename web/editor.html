@@ -1967,6 +1967,18 @@ async function pintaResumen() {
         manda({tipo:"arreglar_dorsales"}); }}));
     c.appendChild(g);
   }
+  if (d.personal_desajustado) {
+    const g = el("div", {class:"grupo-resumen"});
+    g.appendChild(el("h3", {text:"Arreglos"}));
+    g.appendChild(el("p", {text:d.personal_desajustado + " gerentes o entrenadores llevan pasivas con el "
+      + "valor base en vez del de su rareza (las puso una version anterior del editor): en el juego "
+      + "salen con menos de lo que les toca."}));
+    g.appendChild(el("button", {class:"btn", text:"Poner el valor de su rareza",
+      onclick:async () => { if (await confirma("Pasivas de personal", "A cada pasiva de gerente o "
+        + "entrenador se le pone el valor de la rareza del personaje, como hace el juego. Se puede deshacer."))
+        manda({tipo:"arreglar_pasivas_personal"}); }}));
+    c.appendChild(g);
+  }
   if (d.piezas_desajustadas) {
     const g = el("div", {class:"grupo-resumen"});
     g.appendChild(el("h3", {text:"Arreglos"}));
@@ -3034,6 +3046,7 @@ $("#guardar").onclick = async () => {
             + (d.arboles ? " Se puso al dia el arbol de " + d.arboles + " jugadores." : "")
             + (d.dorsales ? " Se cambiaron " + d.dorsales + " dorsales repetidos." : "")
             + (d.piezas ? " Se enlazo la equipacion y las tacticas de " + d.piezas + " equipos." : "")
+            + (d.personal ? " Se puso el valor de su rareza a las pasivas de " + d.personal + " gerentes o entrenadores." : "")
             + " Para ponerla en el juego usa "
             + "herramientas\\instalar-partida.bat con Steam cerrado.", "bien");
     } catch (e) { aviso(e.message, "mal"); }

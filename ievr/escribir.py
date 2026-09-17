@@ -1709,7 +1709,7 @@ def poner_pasiva_personal(plain, fila, ranura, nombre):
     antes = plain[pos + 8:pos + 12].hex().upper()
     if antes == id_hex:
         raise Ilegal("ya lleva esa pasiva en esa ranura")
-    valor = O.valor_de_pasiva(id_hex)
+    valor = valor_de_pasiva_personal(plain, fila, id_hex)
     buf = bytearray(plain)
     buf[pos + 8:pos + 12] = bytes.fromhex(id_hex)
     struct.pack_into("<f", buf, pos + 20, float(valor))
@@ -1725,7 +1725,48 @@ def poner_pasiva_personal(plain, fila, ranura, nombre):
         plain = inventario.ajustar_equipada(plain, porid[id_hex], +1)
     return plain, {"fila": fila, "ranura": ranura, "rol": rol,
                    "antes": O.nombre_pasiva(antes, "vacia") if antes != "00000000" else "vacia",
-                   "despues": O.nombre_pasiva(id_hex, id_hex)}
+                   "despues": O.texto_con_valor(id_hex, valor, id_hex)}
+
+
+def valor_de_pasiva_personal(plain, fila, id_hex):
+    """El numero que el juego guarda en la tabla para esa pasiva en ESE gerente
+    o entrenador: el de la version de la pasiva para su rareza (NOTAS O-197).
+    Cuadra en los 915 casos de la partida de Aaron: un gerente de rareza 4 con
+    "AT de tiro +4 %" lleva +6 %."""
+    from ievr import opciones as O
+    rareza = J.array(plain, J.ARRAY_RAREZA)[fila]
+    return O.valor_de_pasiva(O.variante_por_rareza(id_hex, rareza))
+
+
+def pasivas_personal_desajustadas(plain):
+    """[(fila, ranura)] de gerentes y entrenadores cuya tabla lleva una pasiva
+    con un valor que no es el de su rareza (las puso una version anterior del
+    editor con el valor base, O-197)."""
+    ident = J.array(plain, J.ARRAY_IDENTIDAD)
+    fuera = []
+    for fila in range(min(6000, len(ident))):
+        if not ident[fila] or rol_de_personal(plain, fila) not in ("gerente", "entrenador"):
+            continue
+        for k, x in enumerate(J.tabla_pasivas(plain, fila) or []):
+            if x["id"] == "00000000":
+                continue
+            if abs(x["valor"] - valor_de_pasiva_personal(plain, fila, x["id"])) > 1e-3:
+                fuera.append((fila, k))
+    return fuera
+
+
+def arreglar_pasivas_personal(plain):
+    """Pone a cada pasiva de personal el valor de su rareza."""
+    mal = pasivas_personal_desajustadas(plain)
+    if not mal:
+        raise Ilegal("todas las pasivas de personal llevan su valor")
+    buf = bytearray(plain)
+    for fila, k in mal:
+        pos = J.pos_tabla_pasivas(plain, fila, k)
+        idh = plain[pos + 8:pos + 12].hex().upper()
+        struct.pack_into("<f", buf, pos + 20, float(valor_de_pasiva_personal(plain, fila, idh)))
+    return bytes(buf), {"jugadores": len({f for f, _ in mal}), "pasivas": len(mal),
+                        "que": "pasivas de personal con el valor de su rareza"}
 
 
 def dar_pasivas_personal(plain, cantidad=99):
@@ -2983,6 +3024,8 @@ def conseguir_todo(plain, categoria, cantidad):
     """
     if not 1 <= cantidad <= TOPE_CANTIDAD:
         raise Ilegal("la cantidad va de 1 a %d" % TOPE_CANTIDAD)
+    if categoria == "sinergia":
+        return dar_sinergias(plain)
     if categoria not in CATEGORIAS_QUE_SE_ANADEN:
         raise Ilegal("no se pueden conseguir cosas de %r" % categoria)
 
