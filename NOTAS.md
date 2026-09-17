@@ -4596,6 +4596,36 @@ el suyo (`sf04002.png`...); las dos que no ("El principe del campo de nieve" y
 Van en `recortes/laminas/icon_synergy/` y el editor los coge solo
 (`O._icono_de_sinergia`).
 
+### O-195 · El giro del anillo es fijo por personaje (Anastasia, segunda vuelta)
+
+Aaron instalo la partida con los arboles arreglados (O-189) y el juego, al
+cargarla, **volvio a cerrar las pasivas 3-5 de Anastasia** (y de otro) con
+los mismos bytes que a Bob Sled le valieron. Asi que el giro 7 no vale para
+todos.
+
+Contado en la partida de antes del editor: de los 53 personajes con tres o
+mas copias hechas por el juego, **todas las copias de cada uno llevan el mismo
+giro**, y con la clave "identidad + si es Diamante" no discrepa ni una en
+2.900 (un Diamante lleva otro giro que las copias normales del mismo
+personaje). O sea: el giro no lo elige el jugador, lo fija el juego por
+personaje. Lo que no se encontro es de donde lo saca: ninguna columna de
+`chara_param` ni `chara_base`, ni las tablas del arbol (`BOARD_INFO`, `TYPE`,
+`TABLE`), ni crc32 de los nombres internos lo predicen; los normales no llevan
+tablero en `chara_param` (columna 10 a cero) y el sorteo de tableros parece
+usar la identidad como semilla.
+
+Asi que se aprende de los jugadores hechos por el juego:
+`construir_anillos.py <partida>` -> `anillos.csv` (2.628 personajes de la
+partida de Aaron, con la rama y si es Diamante), y el editor mira ademas las
+copias de la partida abierta. Cuando solo conoce la otra rama pasa por la
+pareja mas frecuente (7->5, 6->8, 8->4, 4->8, 1->5; no es exacta: el 7 va al
+5 seis veces y al 1 tres), y si no conoce nada, el mas comun (7, 5 o 8). Y si
+un anillo esta girado con un giro que no es el de su personaje, se corrige
+(`arboles_rotos` lo lista; con la clave buena, en la partida de antes del
+editor no se toca ninguno hecho por el juego). Anastasia pasa del 7 al 4, que
+es lo que lleva su otra copia; el jugador japones de nivel 48 se queda con el
+7 porque no hay ninguna copia suya.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

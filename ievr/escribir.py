@@ -1296,7 +1296,83 @@ CASILLA_ANILLO = 7
 CASILLAS_DEL_ANILLO = range(28, 33)
 
 
-def _giro_del_anillo(rareza, rama):
+# El giro NO es una eleccion del jugador: es fijo por personaje (NOTAS O-195).
+# En la partida de Aaron, de los 53 personajes con tres o mas copias hechas
+# por el juego, todas las copias de cada uno llevan el mismo giro; y con el
+# giro equivocado el juego da la rama por desconectada y cierra las pasivas
+# (Anastasia con el 7, cuando lo suyo es el 4). Como no sale de ninguna tabla
+# del juego que tengamos, se aprende de los jugadores que hizo el juego:
+# `anillos.csv` (2.601 personajes de la partida de Aaron) y la partida abierta.
+# Cuando solo se conoce el giro de la otra rama, se pasa por la pareja mas
+# frecuente; cuando no se conoce nada, el giro mas comun.
+GIRO_DE_LA_OTRA_RAMA = {0: {7: 5, 6: 8, 8: 4, 4: 8, 1: 5},      # rama 1 -> rama 2
+                        1: {5: 7, 8: 6, 4: 8, 1: 7}}            # rama 2 -> rama 1
+
+
+def _giros_de_tabla():
+    """{(identidad, diamante, rama): giro} de `anillos.csv`. Un Diamante lleva
+    otro giro que las copias normales del mismo personaje."""
+    from ievr import opciones as O
+    def construir():
+        d = {}
+        for f in reglas._tabla("anillos.csv"):
+            d[(f["identidad"].upper(), int(f.get("diamante") or 0), int(f["rama"]))] = int(f["giro"])
+        return d
+    return O._indice("anillos", construir)
+
+
+def _giros_de_la_partida(plain):
+    """{(identidad, diamante, rama): {giro: cuantos}} de los jugadores de la partida con
+    el anillo girado. Se cuenta todo (tambien lo que haya escrito el editor),
+    por eso se mira despues de la tabla."""
+    from ievr import memoria
+    def calcular():
+        import collections
+        ident = J.array(plain, J.ARRAY_IDENTIDAD)
+        rar = J.array(plain, J.ARRAY_RAREZA)
+        d = collections.defaultdict(collections.Counter)
+        for fila in range(min(6000, len(ident))):
+            if not ident[fila] or 5 <= rar[fila] <= 7:
+                continue
+            try:
+                oa, na = _campo(plain, fila, F_ANILLOS)
+                ob, nb = _campo(plain, fila, F_GIROS)
+                orr, _ = _campo(plain, fila, J.F_RAMA)
+            except Ilegal:
+                continue
+            if na != 30 or nb != 30 or plain[oa] != CASILLA_ANILLO or not plain[ob]:
+                continue
+            rama = struct.unpack_from("<I", plain, orr)[0]
+            d[("%08X" % ident[fila], 1 if rar[fila] == 8 else 0, rama)][plain[ob]] += 1
+        return d
+    return memoria.recordar(plain, "giros_anillo", calcular)
+
+
+def _giro_conocido(plain, fila, rama):
+    """El giro que el juego usa para ese personaje en esa rama, si se sabe
+    (de la tabla, o de otra copia en la partida); si no, None."""
+    ident = "%08X" % J.array(plain, J.ARRAY_IDENTIDAD)[fila]
+    dia = 1 if J.array(plain, J.ARRAY_RAREZA)[fila] == 8 else 0
+    tabla = _giros_de_tabla()
+    if (ident, dia, rama) in tabla:
+        return tabla[(ident, dia, rama)]
+    otra = tabla.get((ident, dia, 1 - rama))
+    if otra is not None and otra in GIRO_DE_LA_OTRA_RAMA[1 - rama]:
+        return GIRO_DE_LA_OTRA_RAMA[1 - rama][otra]
+    vivos = _giros_de_la_partida(plain)
+    c = vivos.get((ident, dia, rama))
+    if c:
+        return c.most_common(1)[0][0]
+    c = vivos.get((ident, dia, 1 - rama))
+    if c and c.most_common(1)[0][0] in GIRO_DE_LA_OTRA_RAMA[1 - rama]:
+        return GIRO_DE_LA_OTRA_RAMA[1 - rama][c.most_common(1)[0][0]]
+    return None
+
+
+def _giro_del_anillo(plain, fila, rareza, rama):
+    conocido = _giro_conocido(plain, fila, rama)
+    if conocido is not None:
+        return conocido
     if rareza == 8:
         return 8
     return 5 if rama == 1 else 7
@@ -1338,7 +1414,10 @@ def _arbol_esperado(plain, fila):
     mapa = bytearray(plain[off:off + 40])
     for c in _orden_de_casillas(rareza, rama)[:_casillas_por_nivel(nivel, rareza)]:
         mapa[c] = 1
-    # el anillo: solo si la rama ya empieza y el juego no lo ha girado (O-189)
+    # el anillo (O-189, O-195): si la rama ya empieza y el juego no lo ha
+    # girado, se gira con el giro de ese personaje; y si esta girado con un
+    # giro que no es el suyo (lo puso una version anterior del editor), se
+    # corrige, porque con el giro equivocado el juego cierra las pasivas
     anillo = None
     if not 5 <= rareza <= 7 and (mapa[8] or mapa[18]):
         try:
@@ -1346,14 +1425,21 @@ def _arbol_esperado(plain, fila):
             ob, nb = _campo(plain, fila, F_GIROS)
         except Ilegal:
             oa = None
-        if oa is not None and na == 30 and nb == 30 and plain[oa] == 0xFF:
-            for c in CASILLAS_DEL_ANILLO:
-                mapa[c] = 1
-            a = bytearray(plain[oa:oa + 30])
-            a[0] = CASILLA_ANILLO
-            b = bytearray(plain[ob:ob + 30])
-            b[0] = _giro_del_anillo(rareza, rama)
-            anillo = ((oa, bytes(a)), (ob, bytes(b)))
+        if oa is not None and na == 30 and nb == 30:
+            if plain[oa] == 0xFF:
+                for c in CASILLAS_DEL_ANILLO:
+                    mapa[c] = 1
+                a = bytearray(plain[oa:oa + 30])
+                a[0] = CASILLA_ANILLO
+                b = bytearray(plain[ob:ob + 30])
+                b[0] = _giro_del_anillo(plain, fila, rareza, rama)
+                anillo = ((oa, bytes(a)), (ob, bytes(b)))
+            elif plain[oa] == CASILLA_ANILLO:
+                bueno = _giro_conocido(plain, fila, rama)
+                if bueno is not None and plain[ob] != bueno:
+                    b = bytearray(plain[ob:ob + 30])
+                    b[0] = bueno
+                    anillo = ((ob, bytes(b)),)
     if rareza >= 5:
         # a un Idolo o Diamante el editor solo le abre casillas: sus ranuras de
         # tecnica ya vienen puestas de fabrica (O-165, O-169)
