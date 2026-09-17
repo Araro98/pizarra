@@ -58,7 +58,8 @@ F_DORSAL = 0x70730B76
 F_PUESTO = 0x709A88E9
 F_HUECO_EQUIPACION = 0x627F2D54     # hueco de mochila del objeto de la equipacion
 F_HUECOS_TACTICAS = 0xF863CD5D      # 16 bytes: los huecos de las tres tacticas
-F_SINERGIA = 0x20D7819C             # synergyFlagItemId, tres veces
+F_SINERGIA = 0x20D7819C             # synergyFlagItemId: dos huecos (ofensiva, defensiva)
+F_SINERGIA_HUECO = 0x585CA018       # detras de cada uno: el hueco de mochila del objeto
 
 LARGO_NOMBRE = 128
 HUECOS = 30
@@ -183,7 +184,10 @@ def leer(plain, i):
             simples["huecos_tacticas"] = [struct.unpack_from("<I", d, 4 * k)[0] for k in range(4)]
             simples["off_huecos_tacticas"] = off + 8
         elif fh == F_SINERGIA and ln == 4:
-            sinergias.append({"id": _u(d), "off": off + 8})
+            sinergias.append({"id": _u(d), "off": off + 8, "hueco": 0, "off_hueco": None})
+        elif fh == F_SINERGIA_HUECO and ln == 4 and sinergias:
+            sinergias[-1]["hueco"] = _u(d)
+            sinergias[-1]["off_hueco"] = off + 8
         elif fh in (F_ESCUDO, F_FORMACION, F_EQUIPACION, F_ENTRENADOR, F_CAPITAN,
                     F_HUECO_EQUIPACION) and ln == 4:
             simples[fh] = _u(d)
@@ -819,6 +823,83 @@ def sacar_jugador(plain, i, hueco):
     struct.pack_into("<I", buf, m["off_jugador"], 0)
     return bytes(buf), {"equipo": i, "que": "sacar del equipo",
                         "antes": _nombre_de_slot(plain, m["jugador"])}
+
+
+# --- Sinergias del equipo (NOTAS O-191, O-194) ----------------------------------
+#
+# El equipo lleva dos `synergyFlagItemId`: el primero la ofensiva y el segundo
+# la defensiva (las dos pestanas del juego, bandera y castillo), cada uno con
+# el hueco de mochila del objeto detras, como la equipacion (O-190). Una
+# sinergia solo vale si sus personajes estan en el equipo (cualquier hueco,
+# tambien el banquillo y el cuerpo tecnico: "Las gerentes mas allegadas" son
+# tres gerentes).
+TIPO_DE_RANURA_SINERGIA = {1: "ofensiva", 2: "defensiva"}
+
+
+def _base_por_identidad():
+    return {f["identidad"].upper(): f["chara_base_id"]
+            for f in reglas._tabla("personajes.csv")}
+
+
+def personajes_del_equipo(plain, e):
+    """{chara_base_id} de todos los que estan en el equipo."""
+    ident = J.array(plain, J.ARRAY_IDENTIDAD)
+    base = _base_por_identidad()
+    fuera = set()
+    for m in e["miembros"]:
+        if not m["jugador"]:
+            continue
+        fila = m["jugador"] >> 16
+        if fila < len(ident) and ident[fila]:
+            b = base.get("%08X" % ident[fila])
+            if b:
+                fuera.add(b)
+    return fuera
+
+
+def sinergia_en_equipo(plain, e, sn):
+    """[(nombre, esta)] por cada personaje que pide la sinergia."""
+    from ievr import opciones as _O
+    tiene = personajes_del_equipo(plain, e)
+    ids = _O.sinergia_ids_personajes(sn["item_id"])
+    return [(n, i in tiene) for n, i in zip(sn["personajes"], ids)]
+
+
+def poner_sinergia(plain, i, ranura, item_id):
+    """Pone (o quita, con item_id vacio) la sinergia de esa ranura: 1 la
+    ofensiva, 2 la defensiva. Hay que tenerla y que sus personajes esten."""
+    from ievr import inventario, opciones as _O
+    e = leer(plain, i)
+    _protege(e)
+    if ranura not in TIPO_DE_RANURA_SINERGIA:
+        raise Ilegal("las sinergias van en la ranura 1 (ofensiva) o 2 (defensiva)")
+    if len(e["sinergias"]) < ranura or e["sinergias"][ranura - 1]["off_hueco"] is None:
+        raise Ilegal("ese equipo no tiene el hueco de sinergia %d en la partida" % ranura)
+    ent = e["sinergias"][ranura - 1]
+    buf = bytearray(plain)
+    item_id = (item_id or "").upper()
+    if not item_id:
+        buf[ent["off"]:ent["off"] + 4] = bytes(4)
+        struct.pack_into("<I", buf, ent["off_hueco"], 0)
+        return bytes(buf), {"equipo": i, "que": "sinergia %s" % TIPO_DE_RANURA_SINERGIA[ranura],
+                            "despues": "ninguna"}
+    sn = _O.sinergia_por_objeto().get(item_id)
+    if not sn:
+        raise Ilegal("%s no es ninguna sinergia" % item_id)
+    if sn["tipo"] != TIPO_DE_RANURA_SINERGIA[ranura]:
+        raise Ilegal("%s es %s y esa ranura es de la %s"
+                     % (sn["nombre"], sn["tipo"], TIPO_DE_RANURA_SINERGIA[ranura]))
+    filas = [f for f in inventario.filas_poseidas(plain).get(item_id, []) if f.get("slot")]
+    if not filas:
+        raise Ilegal("no tienes la sinergia %s en la mochila" % sn["nombre"])
+    faltan = [n for n, esta in sinergia_en_equipo(plain, e, sn) if not esta]
+    if faltan:
+        raise Ilegal("para %s hace falta tener en el equipo a %s"
+                     % (sn["nombre"], ", ".join(faltan)))
+    buf[ent["off"]:ent["off"] + 4] = bytes.fromhex(item_id)
+    struct.pack_into("<I", buf, ent["off_hueco"], filas[0]["slot"])
+    return bytes(buf), {"equipo": i, "que": "sinergia %s" % TIPO_DE_RANURA_SINERGIA[ranura],
+                        "despues": sn["nombre"]}
 
 
 def hueco_de_pieza(plain, tipo, valor):

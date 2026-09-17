@@ -4557,6 +4557,43 @@ abierto.
 Aaron: "en las pasivas sumadas los suplentes no entran; entrenador y gerentes
 si". `pasivas_de_equipo` salta los puestos 11-15.
 
+### O-194 · Las sinergias, resueltas con las tres que compro Aaron
+
+Aaron compro "Los guerreros de Santuario", "El duo del Trueno de primavera"
+y "El emperador y su vasallo" (las unicas que podia comprar) y mando la foto
+de cada una.
+
+**Las fotos corrigieron los personajes.** En `SYNERGY_FLAG_INFO_LIST` las dos
+parejas `[desde, cuantas]` van al reves de como se leyeron en O-191: la
+primera son los **efectos** y la segunda las **condiciones** (las sumas
+cuadran, 91 efectos y 82 condiciones, y ahora "Los guerreros de Santuario"
+son Bai Long y Tezcat, como en la foto). Cada condicion es un `chara_base_id`,
+que agrupa las rarezas de una misma version del personaje.
+
+**En la mochila** cayeron en el tramo de las tacticas de equipo y los escudos
+(clase 0, tipo 6): tres filas nuevas con la misma forma que una tactica, sin
+cantidad, `kind` 3 y `sub` 2. `E.anadir_sinergia` copia esa forma exacta
+(comprobado byte a byte contra las compradas) y `dar_sinergias` crea las 37;
+el tramo tiene 500 filas y sobran.
+
+**En el equipo**: los dos `synergyFlagItemId` (primero la ofensiva, segundo
+la defensiva, como las dos pestanas del juego) con el id del objeto tal cual
+va en la mochila y, detras, `0x585CA018` con el hueco de mochila del objeto,
+como la equipacion (O-190). Aaron no habia puesto ninguna todavia, asi que el
+orden ofensiva/defensiva y el hueco son lo que mas sentido tiene, **sin
+comprobar en el juego**: pendiente de que Aaron ponga una con el editor y mire.
+`EQ.poner_sinergia` solo deja poner una que se tenga, del tipo de la ranura,
+y con sus personajes en el equipo (cualquier hueco, tambien banquillo y
+cuerpo tecnico: "Las gerentes mas allegadas" son tres gerentes). El selector
+ensena los personajes en verde o tachados y los efectos.
+
+**Los dibujos**: `icon_synergy.g4tx` esta en los paquetes del juego (lo dice
+`listado.txt`), pero no en `datos/juego/laminas`. Se saca con
+`extraer_iconos.py` filtrando por `30_icon_synergy` y se recorta con
+`recortar_g4tx.py`; los recortes van a `recortes/laminas/icon_synergy/` y el
+editor los usa solos si estan (`O._icono_de_sinergia`). Mientras no esten,
+bandera o castillo.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

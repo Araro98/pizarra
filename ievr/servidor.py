@@ -522,11 +522,18 @@ def detalle_equipo(plain, i):
                  "cara": O._cara_por_identidad().get("%08X" % e["entrenador"], "")}
     por_objeto = O.sinergia_por_objeto()
     sinergias = []
-    for k, sn in enumerate(e["sinergias"][:3], 1):
-        s_ = por_objeto.get("%08X" % sn["id"]) if sn["id"] else None
-        sinergias.append({"ranura": k, "id": "%08X" % sn["id"] if sn["id"] else "",
-                          "nombre": s_["nombre"] if s_ else ("desconocida %08X" % sn["id"] if sn["id"] else ""),
-                          "tipo": s_["tipo"] if s_ else ""})
+    for k, sn in enumerate(e["sinergias"][:2], 1):
+        # el id va en la partida con los mismos 4 bytes que en la mochila
+        idh = sn["id"].to_bytes(4, "little").hex().upper() if sn["id"] else ""
+        s_ = por_objeto.get(idh) if idh else None
+        quien = EQ.sinergia_en_equipo(plain, e, s_) if s_ else []
+        sinergias.append({"ranura": k, "id": idh,
+                          "tipo": EQ.TIPO_DE_RANURA_SINERGIA[k],
+                          "nombre": s_["nombre"] if s_ else ("desconocida " + idh if idh else ""),
+                          "icono_ruta": s_["icono_ruta"] if s_ else "",
+                          "efectos": s_["efectos"] if s_ else [],
+                          "quien": [{"nombre": n, "esta": esta} for n, esta in quien],
+                          "cumple": all(esta for _, esta in quien)})
     return {"hueco": i, "nombre": O.sin_marcadores(e["nombre"]),
             "sinergias": sinergias,
             "nombre_crudo": e["nombre"], "de_la_historia": e["de_la_historia"],
@@ -1232,6 +1239,11 @@ class Manejador(BaseHTTPRequestHandler):
                 n = int(u.path.split("/")[3])
                 with sesion.lock:
                     return self._responder(200, pasivas_de_equipo(sesion.plain, n))
+            if u.path.startswith("/api/equipo/") and u.path.endswith("/sinergias"):
+                n = int(u.path.split("/")[3])
+                with sesion.lock:
+                    e = EQ.leer(sesion.plain, n)
+                    return self._responder(200, {"sinergias": O.sinergias_para_equipo(sesion.plain, e)})
             if u.path.startswith("/api/equipo/"):
                 n = int(u.path.rsplit("/", 1)[1])
                 with sesion.lock:
@@ -1386,7 +1398,14 @@ class Manejador(BaseHTTPRequestHandler):
         if t == "cantidad":
             return sesion.aplicar(E.poner_cantidad, c.get("id") or c["nombre"], int(c["cantidad"]))
         if t == "objeto":
+            if (c.get("id") or "").upper() in O.sinergia_por_objeto():
+                return sesion.aplicar(E.anadir_sinergia, c["id"])
             return sesion.aplicar(E.anadir_objeto, c.get("id") or c["nombre"], int(c.get("cantidad", 1)))
+        if t == "dar_sinergias":
+            return sesion.aplicar(E.dar_sinergias)
+        if t == "equipo_sinergia":
+            return sesion.aplicar(EQ.poner_sinergia, int(c["equipo"]), int(c["ranura"]),
+                                  c.get("id") or "")
         if t == "jugador":
             if c.get("diamante"):
                 return sesion.aplicar(E.anadir_jugador_diamante, c["nombre"])

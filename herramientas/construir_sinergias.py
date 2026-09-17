@@ -8,8 +8,10 @@ Escribe `datos/reglas-extraidas/sinergias.csv`.
 **De donde sale.** Tres ficheros del juego:
 
 - `skill/synergy_flag_config`: la lista `SYNERGY_FLAG_INFO_LIST` va en tercias
-  de filas: `[id]`, `[desde, cuantas]` de condiciones y `[desde, cuantas]` de
-  efectos. Las condiciones (`SYNERGY_FLAG_EXEC_COND_LIST`) son todas del mismo
+  de filas: `[id]`, `[desde, cuantas]` de **efectos** y `[desde, cuantas]` de
+  **condiciones** (en ese orden: las sumas cuadran con las 91 filas de efectos
+  y las 82 de condiciones, y las fotos de Aaron lo confirman: "Los guerreros
+  de Santuario" son Bai Long y Tezcat). Las condiciones (`SYNERGY_FLAG_EXEC_COND_LIST`) son todas del mismo
   tipo, "este personaje en el equipo", y el segundo numero es el
   `chara_base_id` del personaje. Los efectos (`SYNERGY_FLAG_EFFECT_LIST`) son
   `(tipo de efecto, valor, ...)`.
@@ -138,8 +140,8 @@ def main():
     k = 1
     while k + 2 < len(info) and len(info[k]) == 1 and len(info[k + 1]) == 2:
         sid = info[k][0]
-        ci, cn = info[k + 1]
-        ei, en = info[k + 2]
+        ei, en = info[k + 1]
+        ci, cn = info[k + 2]
         k += 3
         o = objetos.get(sid)
         if not o:

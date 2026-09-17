@@ -637,11 +637,44 @@ def sinergias():
         for f in reglas._tabla("sinergias.csv"):
             fuera.append({"id": f["id"].upper(), "item_id": f["item_id"].upper(),
                           "nombre": f["nombre"], "tipo": f["tipo"], "icono": f["icono"],
+                          "icono_ruta": _icono_de_sinergia(f["icono"]),
                           "orden": int(f.get("orden") or 0),
                           "personajes": [x for x in f["personajes"].split(";") if x],
                           "efectos": [x for x in f["efectos"].split("|") if x]})
         return fuera
     return _indice("sinergias", construir)
+
+
+def _icono_de_sinergia(icono):
+    """La ruta (para /icono/) del dibujo de esa sinergia, si esta recortado de
+    la lamina `icon_synergy` (NOTAS O-194); si no, vacio."""
+    import os
+    ruta = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                        "datos", "iconos", "recortes", "laminas", "icon_synergy", icono + ".png")
+    return "icon_synergy/%s.png" % icono if os.path.isfile(ruta) else ""
+
+
+def sinergia_ids_personajes(item_id):
+    """[chara_base_id] que pide esa sinergia, en el mismo orden que sus nombres."""
+    def construir():
+        return {f["item_id"].upper(): [x for x in f["personajes_ids"].split(";") if x]
+                for f in reglas._tabla("sinergias.csv")}
+    return _indice("sinergias_ids", construir).get((item_id or "").upper(), [])
+
+
+def sinergias_para_equipo(plain, e):
+    """Las 37 con lo que hace falta para elegir una para ESE equipo: si se
+    tiene, y que personajes de los que pide estan (NOTAS O-194)."""
+    from ievr import equipos as EQ
+    poseidas = inventario.filas_poseidas(plain)
+    fuera = []
+    for sn in sinergias():
+        quien = EQ.sinergia_en_equipo(plain, e, sn)
+        fuera.append({**sn, "tengo": sn["item_id"] in poseidas,
+                      "quien": [{"nombre": n, "esta": esta} for n, esta in quien],
+                      "cumple": all(esta for _, esta in quien)})
+    fuera.sort(key=lambda x: (not (x["tengo"] and x["cumple"]), not x["tengo"], x["nombre"]))
+    return fuera
 
 
 def sinergia_por_objeto():
@@ -682,20 +715,16 @@ def objetos_creables(plain):
                       "lleva_cantidad": categoria not in E.CATEGORIAS_SIN_CANTIDAD,
                       "cantidad": poseidas[idh][0].get("cantidad", 0) if idh in poseidas else 0})
     fuera.sort(key=lambda x: (x["categoria"], x["nombre"]))
-    # Las sinergias (NOTAS O-191): se ensenan con todo lo suyo, pero no se
-    # pueden crear: en la partida de Aaron no hay ninguna y no se sabe en que
-    # tramo de la mochila las guarda el juego.
+    # Las sinergias (NOTAS O-191, O-194): con sus personajes y efectos; se
+    # crean en el tramo de las tacticas de equipo, como las que compro Aaron.
     for sn in sinergias():
         fuera.append({"id": sn["item_id"], "nombre": sn["nombre"], "categoria": "sinergia",
                       "tipo": "", "subtipo": "", "elemento": "", "poder": 0, "tp": 0,
                       "bonus": "", "tengo": sn["item_id"] in poseidas,
                       "icono": "", "icono200": "", "familia": "", "rango": 0,
-                      "lleva_cantidad": False, "cantidad": 0,
+                      "lleva_cantidad": False, "cantidad": 1 if sn["item_id"] in poseidas else 0,
                       "sinergia": sn["tipo"], "personajes": sn["personajes"],
-                      "efectos": sn["efectos"],
-                      "no_se_puede_crear": "Las sinergias todavia no se pueden crear con el "
-                                           "editor: hace falta ver una en una partida para "
-                                           "saber donde las guarda el juego."})
+                      "efectos": sn["efectos"], "icono_sinergia": sn["icono_ruta"]})
     return fuera
 
 

@@ -368,9 +368,18 @@
     border-radius:10px; padding:6px 10px; cursor:pointer; min-width:96px;
     box-shadow:0 2px 0 rgba(20,55,105,.18); transition:transform .08s, border-color .1s; }
   .pieza:hover { border-color:var(--cian); transform:translateY(-2px); }
-  .pieza.sinergia { cursor:default; opacity:.85; }
-  .pieza.sinergia:hover { transform:none; border-color:var(--azul-marco); }
-  .pieza.sinergia .marca-sinergia { font-size:26px; line-height:44px; }
+  .pieza.sinergia .marca-sinergia { font-size:26px; line-height:44px; width:44px; height:44px; }
+  .pieza.sinergia.rota { border-color:#d9561a; }
+  .pieza-elige.sinergia { width:auto; min-width:220px; max-width:300px; text-align:left;
+    align-items:flex-start; }
+  .pieza-elige.sinergia .cab-sin { display:flex; align-items:center; gap:8px; }
+  .pieza-elige.sinergia .cab-sin img, .pieza-elige.sinergia .cab-sin .marca-sinergia {
+    width:44px; height:44px; font-size:24px; line-height:44px; }
+  .pieza-elige.sinergia .quien { font-size:var(--t-sm); }
+  .pieza-elige.sinergia .quien .no { color:#c0392b; text-decoration:line-through; }
+  .pieza-elige.sinergia .quien .si { color:#1e8a4c; }
+  .pieza-elige.sinergia .efectos { font-size:var(--t-sm); color:#2b5ea8; }
+  .pieza-elige.sinergia.apagada { opacity:.5; cursor:not-allowed; }
   .marca-sinergia { display:flex; align-items:center; justify-content:center; font-size:30px;
     color:#fff; border-radius:12px; width:54px; height:54px; }
   .marca-sinergia.ofensiva { background:linear-gradient(180deg,#ff9a3c,#d9561a); }
@@ -846,6 +855,8 @@
           title="Las 37 pasivas personalizadas del juego, 99 de cada una">Conseguir 99 pasivas personalizadas</button>
         <button class="btn verde" id="personal-99"
           title="Las pasivas de gerente y de entrenador, 99 de cada una">Conseguir 99 pasivas de personal</button>
+        <button class="btn verde" id="sin-todas"
+          title="Las 37 sinergias del juego, en la mochila">Conseguir todas las sinergias</button>
       </div>
       <div class="filtros" id="filtros-obj"></div>
       <div class="rejilla-obj" id="lista-obj"></div>
@@ -2174,8 +2185,10 @@ function pintaInventario() {
       // una marca con su tipo, bandera para las ofensivas y castillo para las
       // defensivas, como las dos pestanas del juego
       o.sinergia
-        ? el("div", {class:"icono marca-sinergia " + o.sinergia,
-                     text:o.sinergia === "ofensiva" ? "\u2691" : "\u265C"})
+        ? (o.icono_sinergia
+            ? el("img", {class:"icono propio", loading:"lazy", alt:"", src:"/icono/" + o.icono_sinergia})
+            : el("div", {class:"icono marca-sinergia " + o.sinergia,
+                         text:o.sinergia === "ofensiva" ? "\u2691" : "\u265C"}))
         : el("img", {class:"icono" + (o.icono || o.icono200 || ICONO_TIPO[o.tipo] ? " propio" : ""),
                  loading:"lazy", alt:"",
                  src:o.icono200 ? "/icono/" + o.icono200
@@ -2204,9 +2217,6 @@ function pintaInventario() {
   if (!ves.length) r.appendChild(el("div", {class:"vacio", text:"Nada aqui."}));
 }
 function pideCantidad(o) {
-  // Las sinergias todavia no se pueden crear: no se sabe donde las guarda el
-  // juego hasta ver una en una partida (NOTAS O-191).
-  if (o.no_se_puede_crear) { aviso(o.no_se_puede_crear, "mal"); return; }
   // Los escudos y las tacticas de equipo no guardan cuantos tienes: la partida
   // no tiene ni el campo. Preguntar una cantidad ahi no tiene sentido, asi que
   // se consiguen de un toque (NOTAS O-135).
@@ -2583,16 +2593,19 @@ function pintaEquipo() {
   // De momento solo se ensenan: para poder ponerlas hace falta ver una en una
   // partida y saber donde guarda el juego los objetos.
   const sin = el("div", {class:"tacticas"});
-  const tipos = ["ofensiva", "defensiva"];
-  (d.sinergias || []).forEach((x, k) => {
-    const tipo = x.tipo || tipos[k] || "";
-    sin.appendChild(el("button", {class:"pieza tactica sinergia",
-      title:"Sinergia " + tipo + ". Todavia no se puede cambiar desde el editor: "
-        + "hace falta ver una sinergia en una partida para saber donde la guarda el juego."}, [
-      el("div", {class:"marca-sinergia " + tipo,
-                 text:tipo === "ofensiva" ? "\u2691" : "\u265C"}),
-      el("span", {class:"val", text:(x.nombre || "ninguna") + " (" + tipo + ")"})]));
-  });
+  for (const x of (d.sinergias || [])) {
+    const tipo = x.tipo;
+    const faltan = (x.quien || []).filter(q => !q.esta).map(q => q.nombre);
+    sin.appendChild(el("button", {class:"pieza tactica sinergia" + (x.id && !x.cumple ? " rota" : ""),
+      title:"Sinergia " + tipo + (x.nombre ? ": " + x.nombre + "\n" + (x.efectos || []).join("\n")
+        + (faltan.length ? "\nFALTAN en el equipo: " + faltan.join(", ") : "") : ". Pulsa para poner una."),
+      onclick:() => abreSinergias(x.ranura, tipo, x.id)}, [
+      x.icono_ruta
+        ? el("img", {class:"mini-tac", loading:"lazy", alt:"", src:"/icono/" + x.icono_ruta})
+        : el("div", {class:"marca-sinergia " + tipo, text:tipo === "ofensiva" ? "\u2691" : "\u265C"}),
+      el("span", {class:"val", text:(x.nombre || "ninguna") + " (" + tipo + ")"
+        + (x.id && !x.cumple ? " · faltan personajes" : "")})]));
+  }
   if (d.sinergias && d.sinergias.length) marco.appendChild(sin);
 
   // la suma de las pasivas de todo el equipo, como la pantalla
@@ -2753,6 +2766,60 @@ function pintaBonificaciones(caja, lista) {
 
 /* Ventana para elegir escudo, equipacion, formacion o tactica: una rejilla con
    el dibujo de cada uno, que es mucho mas facil que un desplegable. */
+/* Elegir la sinergia ofensiva o defensiva del equipo (NOTAS O-194): solo las
+   que se tienen y cuyos personajes estan en el equipo; las demas salen
+   apagadas diciendo que falta. */
+async function abreSinergias(ranura, tipo, actual) {
+  const d = detalleEq;
+  let lista;
+  try { lista = (await pedir("/api/equipo/" + d.hueco + "/sinergias")).sinergias.filter(x => x.tipo === tipo); }
+  catch (e) { aviso(e.message, "mal"); return; }
+  const rejilla = el("div", {class:"rejilla-piezas"});
+  rejilla.style.gridTemplateColumns = "repeat(auto-fill,minmax(250px,1fr))";   // tarjetas anchas
+  const busca = el("input", {type:"search", placeholder:"Buscar sinergia o personaje..."});
+  const pie = el("div", {class:"pie"});
+  const caja = el("div", {class:"modal ancho"}, [
+    el("div", {class:"cab"}, [el("h3", {text:"Sinergia " + tipo}),
+      el("p", {text:"Solo se puede poner una que tengas y cuyos personajes esten en el equipo"})]),
+    el("div", {class:"busca"}, [busca]), rejilla, pie]);
+  const fondo = el("div", {class:"fondo-modal", onclick:e => { if (e.target === fondo) cerrar(); }}, [caja]);
+  document.body.appendChild(fondo);
+  const antes = document.onkeydown;
+  function cerrar() { fondo.remove(); document.onkeydown = antes; }
+  document.onkeydown = e => { if (e.key === "Escape") cerrar(); };
+  function pinta() {
+    const q = busca.value.trim().toLowerCase();
+    rejilla.textContent = "";
+    const ves = lista.filter(x => !q || x.nombre.toLowerCase().includes(q)
+      || x.personajes.join(" ").toLowerCase().includes(q));
+    for (const x of ves) {
+      const vale = x.tengo && x.cumple;
+      const b = el("button", {class:"pieza-elige sinergia" + (x.item_id === actual ? " puesta" : "") + (vale ? "" : " apagada"),
+        title:!x.tengo ? "No la tienes en la mochila" : !x.cumple ? "Faltan personajes en el equipo" : x.nombre,
+        onclick:() => { if (!vale) { aviso(!x.tengo ? "No tienes esa sinergia en la mochila." : "Faltan personajes en el equipo.", "mal"); return; }
+          cerrar(); manda({tipo:"equipo_sinergia", equipo:d.hueco, ranura, id:x.item_id}); }});
+      b.appendChild(el("div", {class:"cab-sin"}, [
+        x.icono_ruta ? el("img", {loading:"lazy", alt:"", src:"/icono/" + x.icono_ruta})
+                     : el("div", {class:"marca-sinergia " + x.tipo, text:x.tipo === "ofensiva" ? "\u2691" : "\u265C"}),
+        el("b", {text:x.nombre})]));
+      b.appendChild(el("div", {class:"quien"}, [el("span", {text:"Con "}),
+        ...x.quien.flatMap((qn, i) => [el("span", {class:qn.esta ? "si" : "no", text:qn.nombre}),
+                                       i < x.quien.length - 1 ? el("span", {text:", "}) : null])]));
+      b.appendChild(el("div", {class:"efectos", text:x.efectos.join(" · ")}));
+      b.appendChild(el("div", {class:"quien", text:!x.tengo ? "no la tienes" : x.cumple ? "se puede poner" : "faltan personajes"}));
+      rejilla.appendChild(b);
+    }
+    pie.textContent = "";
+    pie.appendChild(el("span", {text:ves.length + " de " + lista.length}));
+    if (actual) pie.appendChild(el("button", {class:"btn", text:"Quitar la puesta",
+      onclick:() => { cerrar(); manda({tipo:"equipo_sinergia", equipo:d.hueco, ranura, id:""}); }}));
+    pie.appendChild(el("button", {class:"btn", text:"Cancelar", onclick:cerrar}));
+  }
+  busca.oninput = pinta;
+  pinta();
+  busca.focus();
+}
+
 function abrePiezas(cual, titulo, ranura) {
   const d = detalleEq;
   const lista = cual === "tactica" ? d.tacticas_que_tienes
@@ -2911,6 +2978,14 @@ $("#pers-99").onclick = async () => {
 };
 // Las pasivas de gerente y entrenador: tambien son objetos de mochila, y se
 // consiguen quitandoselas a uno en el juego (Aaron, NOTAS O-185).
+// Las sinergias van en el tramo de las tacticas de equipo, como las tres que
+// compro Aaron (NOTAS O-194).
+$("#sin-todas").onclick = async () => {
+  if (!await confirma("Conseguir todas las sinergias",
+      "Se crean en la mochila las 37 sinergias del juego que no tengas. Se puede deshacer.")) return;
+  await manda({tipo:"dar_sinergias"});
+  await cargaInventario();
+};
 $("#personal-99").onclick = async () => {
   if (!await confirma("Conseguir 99 pasivas de personal",
       "Se ponen 99 unidades de cada pasiva de gerente y de entrenador en la "

@@ -518,7 +518,8 @@ function pintaSinergias() {
     && (!q || x.nombre.toLowerCase().includes(q) || x.personajes.join(" ").toLowerCase().includes(q)));
   const r = $("#lista-sin"); r.textContent = "";
   for (const x of ves) r.appendChild(el("div", {class:"sinergia"}, [
-    el("div", {class:"marca " + x.tipo, text:x.tipo === "ofensiva" ? "\u2691" : "\u265C"}),
+    x.icono_ruta ? el("img", {class:"marca dibujo", loading:"lazy", alt:"", src:"/icono/" + x.icono_ruta})
+                 : el("div", {class:"marca " + x.tipo, text:x.tipo === "ofensiva" ? "\u2691" : "\u265C"}),
     el("div", {class:"cuerpo"}, [
       el("div", {class:"n"}, [el("b", {text:x.nombre}),
         el("span", {class:"chip " + (x.tipo === "ofensiva" ? "naranja" : ""), text:x.tipo})]),

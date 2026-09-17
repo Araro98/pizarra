@@ -1702,6 +1702,73 @@ def _dar_de_todo(plain, todas, cantidad, que):
                         "actualizadas": subidas, "total": len(todas)}
 
 
+# --- Sinergias en la mochila (NOTAS O-194) --------------------------------------
+#
+# Aaron compro tres en el juego y las tres cayeron en el **mismo tramo que las
+# tacticas de equipo y los escudos** (clase 0, tipo 6), con la misma forma de
+# fila: sin cantidad, `kind` 3 y `sub` 2 (las tacticas llevan `sub` 1). Se
+# tienen o no se tienen.
+SUB_SINERGIA = 2
+
+
+def _bloque_de_sinergias(plain):
+    from ievr import opciones as O
+    ids = {sn["item_id"] for sn in O.sinergias()}
+    ids |= {f["id"].upper() for f in reglas._tabla("nombres-es.csv")
+            if f.get("categoria") in ("tactica-objeto", "escudo")}
+    return inventario.bloque_con(plain, ids)
+
+
+def anadir_sinergia(plain, item_id):
+    """Crea en la mochila la fila de una sinergia que no se tiene (O-194)."""
+    from ievr import opciones as O
+    item_id = (item_id or "").upper()
+    sn = O.sinergia_por_objeto().get(item_id)
+    if not sn:
+        raise Ilegal("%s no es ninguna sinergia del juego" % item_id)
+    if inventario.filas_poseidas(plain).get(item_id):
+        raise Ilegal("ya tienes la sinergia %s" % sn["nombre"])
+    bloque = _bloque_de_sinergias(plain)
+    if bloque is None:
+        raise Ilegal("no encuentro el tramo de la mochila de las sinergias")
+    libre = pos = None
+    for i, f in enumerate(bloque["filas"]):
+        if f["slot"] == 0 and f.get("id") == "00000000":
+            libre, pos = f, i
+            break
+    if libre is None:
+        raise Ilegal("no queda ninguna fila libre en el tramo de las sinergias")
+    slot = inventario.componer_slot(bloque["clase"], bloque["tipo"], pos)
+    serie = max((f.get("serie", 0) for f in inventario.todas_las_filas(plain)), default=0) + 1
+    buf = bytearray(plain)
+    struct.pack_into("<I", buf, libre["slot_off"] + 8, slot)
+    buf[libre["id_off"]:libre["id_off"] + 4] = bytes.fromhex(item_id)
+    struct.pack_into("<I", buf, libre["serie_off"], serie)
+    buf[libre["kind_off"]] = inventario.KIND_REAL
+    buf[libre["sub_off"]] = SUB_SINERGIA
+    if "cantidad_off" in libre:
+        struct.pack_into("<I", buf, libre["cantidad_off"], 1)
+    if "equipada_off" in libre:
+        struct.pack_into("<I", buf, libre["equipada_off"], 0)
+    return bytes(buf), {"objeto": sn["nombre"], "categoria": "sinergia", "cantidad": 1,
+                        "posicion": pos, "slot": slot, "serie": serie}
+
+
+def dar_sinergias(plain):
+    """Todas las sinergias del juego en la mochila (las que falten)."""
+    from ievr import opciones as O
+    creadas = 0
+    for sn in O.sinergias():
+        if inventario.filas_poseidas(plain).get(sn["item_id"]):
+            continue
+        plain, _ = anadir_sinergia(plain, sn["item_id"])
+        creadas += 1
+    if not creadas:
+        raise Ilegal("ya tienes las %d sinergias" % len(O.sinergias()))
+    return plain, {"que": "sinergias en la mochila", "creadas": creadas,
+                   "total": len(O.sinergias())}
+
+
 def dar_personalizadas(plain, cantidad=99):
     """Pone `cantidad` de cada una de las 37 pasivas personalizadas en la
     mochila, creando la fila de las que no se tengan (NOTAS O-179)."""

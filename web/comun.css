@@ -180,6 +180,7 @@ input[type=search] { width:100%; }
   align-items:center; justify-content:center; font-size:26px; color:#fff; }
 .sinergia .marca.ofensiva { background:linear-gradient(180deg,#ff9a3c,#d9561a); }
 .sinergia .marca.defensiva { background:linear-gradient(180deg,#5c9cea,#1c4fa4); }
+.sinergia .marca.dibujo { object-fit:contain; background:none; }
 .sinergia .n { display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:var(--t-base); }
 .sinergia .quien { font-size:var(--t-sm); color:var(--suave, #56708f); margin:3px 0; }
 .sinergia .efectos { margin:0; padding-left:18px; font-size:var(--t-sm); }
