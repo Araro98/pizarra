@@ -1777,6 +1777,8 @@ function tarjetaDeOpcion(o, alPulsar, puesta) {
     chips.appendChild(chip(o.categoria, "tipo"));
     if (o.subtipo && o.subtipo !== "normal" && !/sin identificar/.test(o.subtipo))
       chips.appendChild(chip(o.subtipo));
+    // ya la lleva dos veces antes: vale en esta ranura aunque sea de otro tipo (O-199)
+    if (o.repetida) chips.appendChild(chip("3ª copia: vale aquí", "tipo"));
     const ce = chipElemento(o.elemento);
     if (ce) chips.appendChild(ce);
     t.appendChild(chips);

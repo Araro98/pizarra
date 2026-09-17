@@ -316,14 +316,22 @@ def tecnicas(plain, fila, ranura):
     # combinacion en el partido y las versiones de la historia, no (O-171).
     obtenibles = _indice("tecnicas_obtenibles", lambda: {
         f["id"].upper() for f in reglas._tabla("tecnicas-origen.csv") if f.get("obtenible") == "si"})
+    # una tecnica que ya lleva dos veces en ranuras anteriores entra aqui aunque
+    # la ranura sea de otro tipo (regla del juego, NOTAS O-199)
+    from ievr import escribir as E
+    puestas = E._tecnicas_puestas(plain, fila)[:ranura - 1]
+    repetibles = {x["id"] for x in puestas
+                  if x["id"] and sum(1 for y in puestas if y["id"] == x["id"]) >= 2}
     fuera = []
     for f in reglas._tabla("tecnicas.csv"):
         idh = f["id"].upper()
-        if idh not in poseidas or (obtenibles and idh not in obtenibles):
+        repetida = idh in repetibles
+        if idh not in poseidas or (obtenibles and idh not in obtenibles and not repetida):
             continue
-        if admite != "LIBRE" and f.get("categoria") != admite:
+        if admite != "LIBRE" and f.get("categoria") != admite and not repetida:
             continue
         fuera.append({"id": idh, "nombre": _limpio(f.get("nombre")),
+                      "repetida": repetida,
                       "categoria": f.get("categoria"),
                       "subtipo": f.get("subtipo") or "",
                       "elemento": f.get("elemento") or "sin elemento",
