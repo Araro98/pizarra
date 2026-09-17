@@ -232,6 +232,13 @@ CATEGORIA_RANURA = {1: "equipo-1-botas", 2: "equipo-2-brazalete",
                     3: "equipo-3-colgante", 4: "equipo-4-especial"}
 
 
+def _limpio_nombre(texto):
+    """Un nombre para ensenarlo: sin los marcadores del juego pero con sus
+    mayusculas ("Talisman de <FLC:ENDO>" -> "Talisman de Evans"), NOTAS O-187."""
+    from ievr import opciones as O
+    return O._limpio(texto)
+
+
 def _sin_marcadores(texto):
     """Quita los marcadores de plantilla del juego para poder comparar nombres.
 
@@ -391,9 +398,11 @@ def poner_equipacion(plain, fila, ranura, nombre):
 
     nombres = tlv.nombres()
     return plain, {"fila": fila, "ranura": ranura,
-                   "antes": nombres.get(porslot.get(antes, {}).get("id", ""), ("vacia",))[0]
+                   # sin los marcadores del juego ("Talisman de <FLC:ENDO>"), O-187
+                   "antes": _limpio_nombre(
+                       nombres.get(porslot.get(antes, {}).get("id", ""), ("vacia",))[0])
                             if antes else "vacia",
-                   "despues": nombres.get(id_hex, (nombre,))[0]}
+                   "despues": _limpio_nombre(nombres.get(id_hex, (nombre,))[0])}
 
 
 def poner_tecnica(plain, fila, ranura, nombre):
@@ -479,9 +488,11 @@ def poner_tecnica(plain, fila, ranura, nombre):
 
     nombres = tlv.nombres()
     return plain, {"fila": fila, "ranura": ranura, "admite": admite,
-                   "antes": nombres.get(porslot.get(antes, {}).get("id", ""), ("vacia",))[0]
+                   # sin los marcadores del juego ("Talisman de <FLC:ENDO>"), O-187
+                   "antes": _limpio_nombre(
+                       nombres.get(porslot.get(antes, {}).get("id", ""), ("vacia",))[0])
                             if antes else "vacia",
-                   "despues": nombres.get(id_hex, (nombre,))[0]}
+                   "despues": _limpio_nombre(nombres.get(id_hex, (nombre,))[0])}
 
 
 # --- pasivas heredadas ---------------------------------------------------------

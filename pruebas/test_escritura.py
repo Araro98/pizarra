@@ -135,9 +135,11 @@ def main():
     # para que la prueba no se rompa cuando cambien las tablas.
     from ievr import opciones as O
     tres = []
+    # se mandan por codigo, como hace el editor: el nombre que ensena ya lleva
+    # el valor ("AT de tiro +1.5 %...") y no es el de la tabla de nombres
     for o in O.heredadas(plain, KING)["opciones"]:
-        if o["nombre"] not in tres:
-            tres.append(o["nombre"])
+        if o["id"] not in tres:
+            tres.append(o["id"])
         if len(tres) == 4:
             break
     p4 = acepta("la primera heredada entra", plain,

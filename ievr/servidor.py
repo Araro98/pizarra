@@ -1274,7 +1274,10 @@ class Manejador(BaseHTTPRequestHandler):
         if t == "partidos":
             return sesion.aplicar(E.poner_partidos, fila, int(c["valor"]))
         if t == "equipacion":
-            return sesion.aplicar(E.poner_equipacion, fila, int(c["ranura"]), c["nombre"])
+            # por codigo: los nombres con marcador ("Talisman de <FLC:ENDO>") no
+            # se encontraban por el texto limpio (O-187)
+            return sesion.aplicar(E.poner_equipacion, fila, int(c["ranura"]),
+                                  c.get("id") or c["nombre"])
         if t == "tecnica":
             return sesion.aplicar(E.poner_tecnica, fila, int(c["ranura"]), c.get("id") or c["nombre"])
         if t == "arreglar_tecnicas":

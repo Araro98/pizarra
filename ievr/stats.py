@@ -140,8 +140,10 @@ def de_judias(plain, fila):
     for k in range(3):
         tipo = struct.unpack_from("<H", plain, off_tipo + 2 * k)[0]
         cant = struct.unpack_from("<H", plain, off_cant + 2 * k)[0]
-        if tipo < 7:
-            suma[tipo] += cant
+        # el tipo de judia y la lista de stats no van en el mismo orden en los
+        # dos ultimos (O-187): se pasa por el nombre
+        if tipo in J.JUDIAS:
+            suma[NOMBRES.index(J.JUDIAS[tipo])] += cant
     return suma
 
 

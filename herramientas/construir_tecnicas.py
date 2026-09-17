@@ -52,9 +52,11 @@ SUBTIPOS = {
     ("Tiro", "0"): "normal",
     ("Tiro", "4"): "tiro largo",
     ("Tiro", "16"): "bloqueo de tiros",
-    # Aaron no reconoce el 8. Descartado que sea "override": esas tecnicas
-    # aparecen en las tablas de combinacion del juego igual que las demas.
-    ("Tiro", "8"): "normal (subtipo 8 sin identificar)",
+    # El 8 son 67 tiros normales de toda la vida (Tornado de fuego, Remate
+    # dragon, Tiro fantasma...): el juego no los distingue, asi que "normal".
+    # Descartado que sea "override": esas tecnicas aparecen en las tablas de
+    # combinacion del juego igual que las demas (NOTAS O-188).
+    ("Tiro", "8"): "normal",
     ("Defensa", "0"): "normal",
     ("Defensa", "16"): "bloqueo de tiro",
     ("Parada", "1"): "atajo",

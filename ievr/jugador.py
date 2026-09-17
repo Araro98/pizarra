@@ -101,8 +101,12 @@ F_JUDIA_CANT = 0xF90D22F5       # 3 x u16
 # posiciones cuadran a la vez sin contradecirse (NOTAS O-104). Ademas tiene
 # sentido futbolistico: el delantero recibe Potencia, Control y Tecnica, y el
 # portero Inteligencia, Fisico y Presion.
+# El tipo de judia va en el orden INTERNO del juego, que en los dos ultimos
+# no es el de la ficha: 5 es Inteligencia y 6 Agilidad. Lo demostro Gael
+# Vehemaint: su judia de tipo 6 en el juego es la naranja de Agilidad (NOTAS
+# O-187). El mismo orden lo usan los bonus de la equipacion.
 JUDIAS = {0: "Potencia", 1: "Control", 2: "Tecnica", 3: "Presion",
-          4: "Fisico", 5: "Agilidad", 6: "Inteligencia"}
+          4: "Fisico", 5: "Inteligencia", 6: "Agilidad"}
 
 RANURAS_TECNICAS = [
     0xAAC36512, 0xDDC45584, 0x44CD043E, 0x33CA34A8, 0xADAEA10B,

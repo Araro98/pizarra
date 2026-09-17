@@ -158,6 +158,14 @@ function fichaMini(j, alPulsar) {
   return t;
 }
 /* Filtros genericos: un desplegable por campo con los valores que hay. */
+/* Una etiqueta de filtro como se le ensena a una persona: primera letra en
+   mayuscula, y fuera las coletillas de "sin identificar" (NOTAS O-188). */
+function bonito(texto) {
+  let t = String(texto ?? "").replace(/\s*\(subtipo \d+ sin identificar\)/i, "").trim();
+  if (!t) return "";
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
+
 function montaFiltros(caja, datos, campos, estado, alCambiar) {
   caja.textContent = "";
   for (const c of campos) {
@@ -172,7 +180,7 @@ function montaFiltros(caja, datos, campos, estado, alCambiar) {
     const sel = el("select");
     sel.appendChild(el("option", {value:"", text:c.etiqueta + ": todos"}));
     for (const v of orden)
-      sel.appendChild(el("option", {value:v, text:(c.nombre ? c.nombre(v) : v) + "  (" + cuenta.get(v) + ")"}));
+      sel.appendChild(el("option", {value:v, text:bonito(c.nombre ? c.nombre(v) : v) + "  (" + cuenta.get(v) + ")"}));
     sel.value = estado[c.campo] || "";
     sel.onchange = () => { estado[c.campo] = sel.value; alCambiar(); };
     caja.appendChild(el("label", {class:"filtro"}, [el("span", {text:c.etiqueta}), sel]));

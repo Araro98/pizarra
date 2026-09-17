@@ -5,28 +5,28 @@
 id,nombre,categoria,subtipo,subtipo_valor,elemento,poder,tp,nombre_interno,descripcion
 A4A8BD63,Inazuma Drop,Tiro,bloqueo de tiros,16,Viento,440,70,whs00010,Salta usando el cuerpo de un compañero como apoyo y remata con un disparo rápido como el rayo.
 67FB9048,Remate combinado,Tiro,normal,0,Fuego,440,70,whs00020,Dos jugadores se turnan para golpear el balón con fuerza y realizan un tiro combinado de gran potencia.
-26CA8B51,Tornado de fuego,Tiro,normal (subtipo 8 sin identificar),8,Fuego,360,60,whs00030,Elévate alto en el cielo con un tornado rojo intenso. Tiro envuelto en llamas que atraviesa la portería.
-E15CCA1E,Chut de 100 toques,Tiro,normal (subtipo 8 sin identificar),8,Bosque,300,50,whs00040,Golpea el balón con una serie de patadas y ejecuta un súper tiro desde el aire.
+26CA8B51,Tornado de fuego,Tiro,normal,8,Fuego,360,60,whs00030,Elévate alto en el cielo con un tornado rojo intenso. Tiro envuelto en llamas que atraviesa la portería.
+E15CCA1E,Chut de 100 toques,Tiro,normal,8,Bosque,300,50,whs00040,Golpea el balón con una serie de patadas y ejecuta un súper tiro desde el aire.
 A06DD107,Superrelámpago,Tiro,bloqueo de tiros,16,Viento,440,70,whs00050,Dos jugadores sincronizan sus movimientos y disparan con toda su fuerza. Una técnica de tiro a dúo que simboliza su amistad.
-633EFC2C,Remate dragón,Tiro,normal (subtipo 8 sin identificar),8,Bosque,300,50,whs00060,Ataca con un rugido despiadado que contiene el inmenso poder de un dragón.
+633EFC2C,Remate dragón,Tiro,normal,8,Bosque,300,50,whs00060,Ataca con un rugido despiadado que contiene el inmenso poder de un dragón.
 220FE735,Chut granada,Tiro,normal,0,Fuego,300,50,whs00070,"Con un giro del cuerpo, libera toda la energía acumulada y descárgala en el balón con un disparo letal."
 ED137FB2,Triángulo letal,Tiro,normal,0,Bosque,440,70,whs00080,Lanza un tiro desde el triángulo de la muerte. Es esencial sincronizar la respiración de los tres jugadores.
-AC2264AB,Tiro fantasma,Tiro,normal (subtipo 8 sin identificar),8,Bosque,300,50,whs00090,Haz aparecer una ilusión del balón como una llama etérea. Inquietante técnica que confunde al portero.
+AC2264AB,Tiro fantasma,Tiro,normal,8,Bosque,300,50,whs00090,Haz aparecer una ilusión del balón como una llama etérea. Inquietante técnica que confunde al portero.
 D2F3647B,Remate halcón,Tiro,bloqueo de tiros,16,Viento,300,50,whs00100,Tus aliados te dan un impulso hacia arriba para tirar mientras te lanzas en picado a gran velocidad.
 93C27F62,Ataque meteorito,Tiro,normal,0,Fuego,300,50,whs00110,¡Golpea el balón para lanzarlo como un meteorito hacia la portería!
-50915249,Remate serpiente,Tiro,normal (subtipo 8 sin identificar),8,Montana,300,50,whs00120,Lanza el balón en un tiro serpenteante que se retuerce y enrosca para desconcertar al portero.
-11A04950,Tiro giratorio,Tiro,normal (subtipo 8 sin identificar),8,Viento,300,50,whs00130,"El balón vuela hacia la portería como si fuera un huracán, incluso al lanzarlo con los ojos cerrados."
+50915249,Remate serpiente,Tiro,normal,8,Montana,300,50,whs00120,Lanza el balón en un tiro serpenteante que se retuerce y enrosca para desconcertar al portero.
+11A04950,Tiro giratorio,Tiro,normal,8,Viento,300,50,whs00130,"El balón vuela hacia la portería como si fuera un huracán, incluso al lanzarlo con los ojos cerrados."
 D636081F,Tiro del cometa,Tiro,tiro largo,4,Viento,300,50,whs00140,Haz caer el balón como un cometa ardiente que deja una estela de luz a su paso.
-97071306,Disparo rodante,Tiro,normal (subtipo 8 sin identificar),8,Bosque,300,50,whs00150,"Concentra energía con un giro artístico en el aire, y transmítela al balón con un disparo acrobático."
-54543E2D,Remate múltiple,Tiro,normal (subtipo 8 sin identificar),8,Bosque,300,50,whs00160,Usa una técnica ninja para crear clones y chuta desde tres direcciones. Un tiro ninja que parece trampa.
-15652534,Tiro dinamita,Tiro,normal (subtipo 8 sin identificar),8,Fuego,360,60,whs00170,Destroza la portería con una explosiva chilena que sacude la red.
+97071306,Disparo rodante,Tiro,normal,8,Bosque,300,50,whs00150,"Concentra energía con un giro artístico en el aire, y transmítela al balón con un disparo acrobático."
+54543E2D,Remate múltiple,Tiro,normal,8,Bosque,300,50,whs00160,Usa una técnica ninja para crear clones y chuta desde tres direcciones. Un tiro ninja que parece trampa.
+15652534,Tiro dinamita,Tiro,normal,8,Fuego,360,60,whs00170,Destroza la portería con una explosiva chilena que sacude la red.
 DA79BDB3,Remate misil,Tiro,tiro largo,4,Fuego,360,60,whs00180,El balón se eleva en el cielo como un misil implacable que vuela hacia la portería.
 9B48A6AA,Remate espiral,Tiro,normal,0,Viento,300,50,whs00190,Haz girar el balón para acumular energía. Disparo giratorio que perfora la portería.
 8B4D2279,Chut congelante,Tiro,normal,0,Bosque,300,50,whs00200,Congela el entorno con una mirada fría como el hielo y lanza un aterrador disparo gélido y pesado.
-CA7C3960,Pase cruzado,Tiro,normal (subtipo 8 sin identificar),8,Viento,300,50,whs00210,"Concentra poder en forma vertical y horizontal, envolviendo el balón en un aura con forma de cruz que refuerza el tiro."
-092F144B,Rapto divino,Tiro,normal (subtipo 8 sin identificar),8,Montana,360,60,whs00220,Haz desaparecer y reaparecer el balón para confundir al portero en el último segundo.
+CA7C3960,Pase cruzado,Tiro,normal,8,Viento,300,50,whs00210,"Concentra poder en forma vertical y horizontal, envolviendo el balón en un aura con forma de cruz que refuerza el tiro."
+092F144B,Rapto divino,Tiro,normal,8,Montana,360,60,whs00220,Haz desaparecer y reaparecer el balón para confundir al portero en el último segundo.
 481E0F52,Psicorremate,Tiro,normal,0,Bosque,300,50,whs00230,Levanta y controla el balón con la mente y lo tira con fuerza contra la portería.
-8F884E1D,Ataque cóndor,Tiro,normal (subtipo 8 sin identificar),8,Viento,300,50,whs00240,Sube al cielo y baja en picado hacia el balón. Un tiro certero como un cóndor acechando a su presa.
+8F884E1D,Ataque cóndor,Tiro,normal,8,Viento,300,50,whs00240,Sube al cielo y baja en picado hacia el balón. Un tiro certero como un cóndor acechando a su presa.
 CEB95504,Balón rodante,Tiro,normal,0,Bosque,300,50,whs00250,"Corre a toda velocidad sobre el balón, aumentando su aceleración, y dispara con ímpetu directo hacia la portería."
 0DEA782F,Triángulo Z,Tiro,normal,0,Fuego,440,70,whs00260,La trayectoria del tiro dibuja una Z. Combinación entre tres jugadores que ejecutan un disparo sincronizado.
 4CDB6336,Bateo total,Tiro,bloqueo de tiros,16,Fuego,360,60,whs00270,Agarra a un compañero como un bate y batea con él. Técnica que requiere una relación de confianza mutua.
@@ -35,14 +35,14 @@ C2F6E0A8,Cabezazo kung-fu,Tiro,normal,0,Bosque,300,50,whs00290,Emplea técnicas 
 BC27E078,Tiro cegador,Tiro,normal,0,Fuego,360,60,whs00300,El brillo del sol deslumbra al portero. Un tiro con efecto impregnado de luz intensa.
 FD16FB61,Flecha divina,Tiro,normal,0,Viento,360,60,whs00310,El noble balón se convierte en portador de la ira divina. Disparo que lo atraviesa todo como una flecha.
 3E45D64A,Tornado inverso,Tiro,bloqueo de tiros,16,Viento,360,60,whs00320,Se eleva alto al cielo con un tornado azul intenso. Perfora la portería con un disparo giratorio de tacón.
-7F74CD53,Remate Tarzán,Tiro,normal (subtipo 8 sin identificar),8,Montana,300,50,whs00330,"Salta de liana en liana como Tarzán, tomando impulso para disparar."
+7F74CD53,Remate Tarzán,Tiro,normal,8,Montana,300,50,whs00330,"Salta de liana en liana como Tarzán, tomando impulso para disparar."
 B8E28C1C,Sabiduría divina,Tiro,normal,0,Viento,440,70,whs00340,Disparo que desafía las leyes universales con un poder abrumador propio de los dioses.
 F9D39705,Tornado dragón,Tiro,normal,0,Fuego,440,70,whs00350,Combinación del Remate dragón y el Tornado de fuego. Un disparo especial devastador.
-3A80BA2E,Bola de fango,Tiro,normal (subtipo 8 sin identificar),8,Montana,300,50,whs00360,El balón rueda por el suelo acumulando fuerza y se convierte en una bola de barro para un disparo poderoso.
+3A80BA2E,Bola de fango,Tiro,normal,8,Montana,300,50,whs00360,El balón rueda por el suelo acumulando fuerza y se convierte en una bola de barro para un disparo poderoso.
 7BB1A137,Pájaro de fuego,Tiro,tiro largo,4,Fuego,360,60,whs00370,"El balón, disparado por dos jugadores, se envuelve en alas de fuego en dirección a la portería como si volara."
 B4AD39B0,Ruptura relámpago,Tiro,normal,0,Viento,640,100,whs00380,"El balón se lanza alto, cargado con poderosos rayos, y tres jugadores ejecutan un disparo combinado que avanza como un relámpago."
 F59C22A9,Tiro galáctico,Tiro,normal,0,Fuego,640,100,whs00390,Invoca el poder de la Mano celestial para atravesar el cosmos y lanzar un tiro estratosférico.
-3931AF7D,Pingüino emperador n.º 2,Tiro,normal (subtipo 8 sin identificar),8,Bosque,540,85,whs00400,Técnica mejorada que reduce la carga del Pingüino emperador n.º 1. Los pingüinos orgullosos danzan en el aire.
+3931AF7D,Pingüino emperador n.º 2,Tiro,normal,8,Bosque,540,85,whs00400,Técnica mejorada que reduce la carga del Pingüino emperador n.º 1. Los pingüinos orgullosos danzan en el aire.
 7800B464,Fénix,Tiro,normal,0,Fuego,540,85,whs00410,El balón envuelto en llamas se convierte en un fénix y vuela agitando sus alas directo a la portería.
 BB53994F,Tiro dracoroniano,Tiro,normal,0,Viento,360,60,whs00420,¡Un dragoncito mono y con chispa! ¡Libera un chut electrizante!
 FA628256,Tornado oscuro,Tiro,bloqueo de tiros,16,Bosque,360,60,whs00430,Un tornado oscuro que encierra un poder prohibido. Las llamas malignas engullen la portería.
@@ -54,17 +54,17 @@ FEA7EE32,Triángulo letal 2,Tiro,normal,0,Bosque,540,85,whs00470,La versión per
 708A6DAC,Arcoíris luminoso,Tiro,tiro largo,4,Montana,300,50,whs00490,El disparo traza un arcoíris en el campo de juego. Un tiro de larga distancia con efecto sanador.
 0E5B6D7C,Astrorremate,Tiro,normal,0,Bosque,360,60,whs00500,"Envuelto en un aura de otra dimensión, el balón avanza girando a gran velocidad destruyendo todo a su paso."
 4F6A7665,Cañón de meteoritos,Tiro,bloqueo de tiros,16,Fuego,440,70,whs00510,¡Domina el campo con la potencia de una amenaza galáctica! Destroza la portería con un chute alto que parece meteorito.
-8C395B4E,Bomba acrobática,Tiro,normal (subtipo 8 sin identificar),8,Bosque,360,60,whs00520,Realiza un giro con movimientos acrobáticos y golpea el balón con la cadera usando el impulso en una técnica combinada.
+8C395B4E,Bomba acrobática,Tiro,normal,8,Bosque,360,60,whs00520,Realiza un giro con movimientos acrobáticos y golpea el balón con la cadera usando el impulso en una técnica combinada.
 CD084057,Técnica kung-fu,Tiro,bloqueo de tiros,16,Montana,300,50,whs00530,Concentra el poder de múltiples formas en un disparo. Una técnica que solo los verdaderos maestros del kung-fu pueden dominar.
-0A9E0118,Granada doble,Tiro,normal (subtipo 8 sin identificar),8,Fuego,360,60,whs00540,"Patea el balón con ambos pies, duplicando su potencia y disparándolo como una bala en un tiro descendente."
-4BAF1A01,Cabezazo yoyó,Tiro,normal (subtipo 8 sin identificar),8,Montana,360,60,whs00550,"Gira con el balón y da un cabezazo meteórico, mandándolo directo a la portería."
+0A9E0118,Granada doble,Tiro,normal,8,Fuego,360,60,whs00540,"Patea el balón con ambos pies, duplicando su potencia y disparándolo como una bala en un tiro descendente."
+4BAF1A01,Cabezazo yoyó,Tiro,normal,8,Montana,360,60,whs00550,"Gira con el balón y da un cabezazo meteórico, mandándolo directo a la portería."
 88FC372A,Remate en V,Tiro,normal,0,Viento,360,60,whs00560,El lazo entre dos jugadores genera un torbellino revolucionario de victoria. Un súper tiro cargado con el poder de la amistad.
-C9CD2C33,Tiro pirueta,Tiro,normal (subtipo 8 sin identificar),8,Fuego,300,50,whs00570,Levanta el balón de un rodillazo para luego mandarlo al suelo con un golpe de talón.
+C9CD2C33,Tiro pirueta,Tiro,normal,8,Fuego,300,50,whs00570,Levanta el balón de un rodillazo para luego mandarlo al suelo con un golpe de talón.
 06D1B4B4,Cañón dragón,Tiro,bloqueo de tiros,16,Fuego,440,70,whs00580,Concentra el poder dracónico en las piernas y lanza el balón a la portería con una patada lateral.
 47E0AFAD,Zapatazo dual,Tiro,normal,0,Bosque,360,60,whs00590,Los pases a la velocidad del rayo hacen que el balón parezca multiplicarse en este disparo de fantasía.
 57E52B7E,Aullido de lobo,Tiro,tiro largo,4,Viento,440,70,whs00600,Lanza un tiro preciso que resuena en el campo como el aullido de un lobo a la luz de la luna.
 16D43067,Pingüino emperador n.º1,Tiro,normal,0,Bosque,540,85,whs00610,Pingüinos salvajes picotean ferozmente tu pierna al chutar. Una técnica prohibida y definitiva que fue sellada.
-D5871D4C,Lecho de rosas,Tiro,normal (subtipo 8 sin identificar),8,Bosque,300,50,whs00620,Incluso la rosa más bella tiene espinas. Un hipnótico tiro letal de movimientos elegantes.
+D5871D4C,Lecho de rosas,Tiro,normal,8,Bosque,300,50,whs00620,Incluso la rosa más bella tiene espinas. Un hipnótico tiro letal de movimientos elegantes.
 94B60655,Golf total,Tiro,tiro largo,4,Montana,440,70,whs00630,Usa a un compañero como palo de golf para marcar un hoyo en uno en toda la portería.
 5320471A,Chut de 200 toques,Tiro,bloqueo de tiros,16,Bosque,440,70,whs00640,Un aluvión de 100 toques por partida doble que asolan la portería del rival en una ofensiva implacable.
 12115C03,Lanza de Odín,Tiro,tiro largo,4,Viento,360,60,whs00650,Abre un portal hacia el espacio bajo tus pies y lanza un disparo envuelto en un aura con forma de lanza.
@@ -75,9 +75,9 @@ D5871D4C,Lecho de rosas,Tiro,normal (subtipo 8 sin identificar),8,Bosque,300,50,
 21BEF266,Relámpago saltón,Tiro,normal,0,Montana,360,60,whs00710,Golpea el balón con un cabezazo y haz un remate de volea en pleno descenso para darle más fuerza.
 E2EDDF4D,Remate del águila,Tiro,tiro largo,4,Montana,360,60,whs00720,Dos jugadores vuelan por el aire como un águila real y ejecutan un potente tiro combinado.
 A3DCC454,Baile de mariposas,Tiro,bloqueo de tiros,16,Montana,360,60,whs00730,"Cuando dos personas en total armonía se dan la mano, sus energías se entrelazan en una mariposa que deslumbra al rival."
-644A851B,Disparo cósmico,Tiro,normal (subtipo 8 sin identificar),8,Bosque,440,70,whs00740,El impacto del doble tiro crea un espacio cósmico y lanza una descarga de energía: el Disparo cósmico.
+644A851B,Disparo cósmico,Tiro,normal,8,Bosque,440,70,whs00740,El impacto del doble tiro crea un espacio cósmico y lanza una descarga de energía: el Disparo cósmico.
 257B9E02,Remate de Gaia,Tiro,normal,0,Montana,540,85,whs00750,"El aura combinada de tres jugadores sacude la tierra y crea un enorme bloque de roca que, junto con el balón, destruye todo a su paso."
-E628B329,Remate gafas,Tiro,normal (subtipo 8 sin identificar),8,Montana,300,50,whs00760,Da igual que las gafas se rompan. Técnica desesperada en la que el balón se desvía con la cara.
+E628B329,Remate gafas,Tiro,normal,8,Montana,300,50,whs00760,Da igual que las gafas se rompan. Técnica desesperada en la que el balón se desvía con la cara.
 A719A830,Remate combinado F,Tiro,normal,0,Fuego,540,85,whs00770,"En combinación con el Tornado de fuego, el poder del Remate combinado aumenta aún más."
 680530B7,Tornado doble,Tiro,bloqueo de tiros,16,Bosque,540,85,whs00780,Combina el Tornado inverso con el Tornado de fuego en un tiro giratorio imparable.
 29342BAE,Llamarada atómica,Tiro,bloqueo de tiros,16,Fuego,440,70,whs00790,Tiro con un balón que contiene la fuerza explosiva del sol y abrasa con sus llamas carmesíes.
@@ -93,61 +93,61 @@ DB6FEF22,Fénix oscuro,Tiro,normal,0,Bosque,640,100,whs00860,"El balón, envuelt
 147377A5,Remate asalto,Tiro,tiro largo,4,Fuego,540,85,whs00890,Lanza el balón como un imparable misil que cae sobre la portería en un ataque sin fin.
 6AA27775,Disparo sagrado,Tiro,normal,0,Viento,540,85,whs00900,Alas doradas tan bellas que dejan sin aliento. Una supertécnica definitiva capaz de cautivar incluso a los dioses.
 2B936C6C,Cabezazo megatón,Tiro,bloqueo de tiros,16,Montana,440,70,whs00910,Aparece una gigantesca mano alzada sobre tu cabeza y da un cabezazo explosivo en forma de puñetazo.
-E8C04147,Tiro torre de Osaka,Tiro,normal (subtipo 8 sin identificar),8,Fuego,360,60,whs00920,"El balón sube al cielo girando sobre sí mismo, y luego baja en picado como un superdisparo con efecto."
-A9F15A5E,Balón iceberg,Tiro,normal (subtipo 8 sin identificar),8,Viento,440,70,whs00930,"Golpe extremo que manda al portero a un suelo helado, mientras una potente aurora atraviesa la formación rival."
+E8C04147,Tiro torre de Osaka,Tiro,normal,8,Fuego,360,60,whs00920,"El balón sube al cielo girando sobre sí mismo, y luego baja en picado como un superdisparo con efecto."
+A9F15A5E,Balón iceberg,Tiro,normal,8,Viento,440,70,whs00930,"Golpe extremo que manda al portero a un suelo helado, mientras una potente aurora atraviesa la formación rival."
 6E671B11,Ventisca de fuego,Tiro,normal,0,Fuego,540,85,whs00940,"El fuego y el hielo, dos energías opuestas que se cruzan y liberan su poder en forma de torbellino: el disparo doble definitivo."
 2F560008,Fuego cruzado,Tiro,normal,0,Fuego,640,100,whs00950,Dos auras entrecruzadas giran en un torbellino. Un tiro combinado con un poder capaz de sacudir las estrellas.
 EC052D23,Remate del tigre,Tiro,tiro largo,4,Montana,360,60,whs00960,"Chut de postura imponente, como acechando a una presa. Se dice que aparece la silueta de un enorme tigre a espaldas del jugador."
 AD34363A,Excalibur,Tiro,tiro largo,4,Viento,360,60,whs00970,El aura que envuelve tu pierna derecha al alzarla se convierte en una espada gigantesca que corta el campo en dos.
 6228AEBD,Llamarada infernal,Tiro,normal,0,Fuego,360,60,whs00980,Un potente disparo que prende fuego infernal al balón. Tiro especial con efecto de combustión.
 2319B5A4,Gran tifón,Tiro,normal,0,Viento,360,60,whs00990,"Sube con fuerza para conquistar el mar embravecido, y lanza un disparo de tormenta desde el ojo del tifón."
-80FE1AC2,Torbellino trampolín,Tiro,normal (subtipo 8 sin identificar),8,Viento,540,85,whs01000,Una nueva versión del Trampolín relámpago. Dos jugadores generan un tornado en una chilena.
+80FE1AC2,Torbellino trampolín,Tiro,normal,8,Viento,540,85,whs01000,Una nueva versión del Trampolín relámpago. Dos jugadores generan un tornado en una chilena.
 C1CF01DB,Bestia del trueno,Tiro,normal,0,Viento,440,70,whs01010,Invoca a la bestia del trueno con una patada lateral en salto. Potencia el disparo de tus compañeros.
 029C2CF0,Tormenta del tigre,Tiro,normal,0,Fuego,540,85,whs01020,El poder de Tormenta de fuego y de Remate del tigre combinados en una supertécnica.
-43AD37E9,Megadragón,Tiro,normal (subtipo 8 sin identificar),8,Bosque,440,70,whs01030,El rey dragón azul despliega sus enormes alas y ruge. Un disparo feroz que combina poder y majestuosidad.
+43AD37E9,Megadragón,Tiro,normal,8,Bosque,440,70,whs01030,El rey dragón azul despliega sus enormes alas y ruge. Un disparo feroz que combina poder y majestuosidad.
 843B76A6,Círculo de espadas,Tiro,tiro largo,4,Montana,440,70,whs01040,Siete espadas brillantes rasgan el cielo al avanzar. Una técnica de tiro que se dirige directamente hacia la portería.
 C50A6DBF,Pingüino emperador n.º 3,Tiro,normal,0,Bosque,640,100,whs01050,Haz sonar un silbido con los dedos que invoca a los pingüinos y estos formarán un círculo para reunir energía.
 06594094,Gran lobo,Tiro,normal,0,Bosque,540,85,whs01060,El poder de tres jugadores revive al legendario Fenrir. Su rugido bestial desgarra la portería.
-47685B8D,Espada de Odín,Tiro,normal (subtipo 8 sin identificar),8,Montana,440,70,whs01070,El aura de la Espada de Odín emerge de un círculo mágico dibujado en el suelo y perfora la portería.
+47685B8D,Espada de Odín,Tiro,normal,8,Montana,440,70,whs01070,El aura de la Espada de Odín emerge de un círculo mágico dibujado en el suelo y perfora la portería.
 8874C30A,Remate celestial,Tiro,tiro largo,4,Montana,440,70,whs01080,"El balón sube al cielo y se cubre de luz, para luego bajar en picado como un castigo divino."
 C945D813,Golpe de samba,Tiro,tiro largo,4,Montana,360,60,whs01090,"Da rotación al balón con un elegante manejo de pies, y tira con el ritmo de la samba. Una técnica mágica."
 B794D8C3,La aurora,Tiro,normal,0,Viento,540,85,whs01100,"Combinando dos poderes llevados al máximo, se forja un ADN completamente nuevo imbuido con una energía descomunal."
 F6A5C3DA,Big Bang,Tiro,normal,0,Fuego,640,100,whs01110,Coordinación de tres jugadores para incrementar la potencia de manera explosiva. Disparo letal que evoca el nacimiento del universo.
 35F6EEF1,Huracán,Tiro,normal,0,Viento,540,85,whs01120,Combinación de una ventisca de hielo y viento huracanado. Disparo devastador con la fuerza de un huracán.
 74C7F5E8,Megalodón,Tiro,normal,0,Viento,360,60,whs01130,De entre las olas furiosas surge un tiburón gigante que se abalanza sobre el portero rival.
-B351B4A7,Ataque de paladín,Tiro,normal (subtipo 8 sin identificar),8,Montana,360,60,whs01140,Concentra toda la fuerza del cuerpo en la punta del pie en un poderoso y resplandeciente tiro de empeine.
+B351B4A7,Ataque de paladín,Tiro,normal,8,Montana,360,60,whs01140,Concentra toda la fuerza del cuerpo en la punta del pie en un poderoso y resplandeciente tiro de empeine.
 F260AFBE,Banana shot,Tiro,normal,0,Bosque,300,50,whs01150,"Lanza el balón girando de lado, en una trayectoria en forma de plátano, directo a la portería."
 31338295,Cañón de agua,Tiro,normal,0,Viento,360,60,whs01160,Un tiro con efecto que surfea por las olas y atraviesa el túnel de agua directamente hacia la portería.
 7002998C,Cañonazo,Tiro,normal,0,Fuego,300,50,whs01170,Da rotación al balón entre los pies y dispara desde el aire como una bala a gran velocidad.
-BF1E010B,Torbellino de fuego,Tiro,normal (subtipo 8 sin identificar),8,Fuego,540,85,whs01180,Un disparo envuelto en llamas giratorias. Tiene el poder de abrasarlo todo en un instante.
-FE2F1A12,Tiro espejismo,Tiro,normal (subtipo 8 sin identificar),8,Bosque,360,60,whs01190,"Un espejismo distorsiona el espacio y hace que parezca que el balón se ha dividido en dos, confundiendo al rival."
-EE2A9EC1,Remate Pegaso,Tiro,normal (subtipo 8 sin identificar),8,Bosque,440,70,whs01200,Cree en tu propio poder para invocar al Pegaso. La versión individual del Tripegaso.
-AF1B85D8,Remate unicornio,Tiro,normal (subtipo 8 sin identificar),8,Montana,540,85,whs01210,"Un remate doble perfectamente sincronizado invoca al unicornio, que se lanza directo a portería."
+BF1E010B,Torbellino de fuego,Tiro,normal,8,Fuego,540,85,whs01180,Un disparo envuelto en llamas giratorias. Tiene el poder de abrasarlo todo en un instante.
+FE2F1A12,Tiro espejismo,Tiro,normal,8,Bosque,360,60,whs01190,"Un espejismo distorsiona el espacio y hace que parezca que el balón se ha dividido en dos, confundiendo al rival."
+EE2A9EC1,Remate Pegaso,Tiro,normal,8,Bosque,440,70,whs01200,Cree en tu propio poder para invocar al Pegaso. La versión individual del Tripegaso.
+AF1B85D8,Remate unicornio,Tiro,normal,8,Montana,540,85,whs01210,"Un remate doble perfectamente sincronizado invoca al unicornio, que se lanza directo a portería."
 6C48A8F3,Tiro a reacción,Tiro,tiro largo,4,Montana,640,100,whs01220,Tres jugadores unen fuerzas para crear un tornado que potencia al máximo el disparo.
 2D79B3EA,Fuego total,Tiro,tiro largo,4,Fuego,640,100,whs01230,Tres potentes disparos generan una enorme llamarada. Temible tiro raso envuelto en fuego.
 EAEFF2A5,Disparo valiente,Tiro,tiro largo,4,Montana,640,100,whs01240,Da una patada voladora y lanza el balón con un golpe certero que hipnotiza a todos los que lo ven.
 ABDEE9BC,Remate caótico,Tiro,normal,0,Bosque,640,100,whs01250,Combinación del Disparo sagrado y la Ventisca de fuego. Un disparo caótico capaz de arrasarlo todo.
-688DC497,Puerta astral,Tiro,normal (subtipo 8 sin identificar),8,Bosque,360,60,whs01260,Invoca un inmenso agujero negro que destruye todo a su paso y potencia el Astrorremate al máximo.
+688DC497,Puerta astral,Tiro,normal,8,Bosque,360,60,whs01260,Invoca un inmenso agujero negro que destruye todo a su paso y potencia el Astrorremate al máximo.
 29BCDF8E,Mandíbulas dobles,Tiro,normal,0,Fuego,360,60,whs01270,Gigantescos colmillos afilados aparecen para potenciar un disparo en zigzag que va directo a la portería.
-E6A04709,Tiro torre Eiffel,Tiro,normal (subtipo 8 sin identificar),8,Montana,300,50,whs01280,Lanza un imponente tiro que celebra tu triunfo en una versión a la francesa del Tiro torre de Osaka.
+E6A04709,Tiro torre Eiffel,Tiro,normal,8,Montana,300,50,whs01280,Lanza un imponente tiro que celebra tu triunfo en una versión a la francesa del Tiro torre de Osaka.
 A7915C10,Tirachinas,Tiro,normal,0,Montana,540,85,whs01290,El balón se estira al máximo como una goma y se dispara con energía elástica en un tiro veloz.
 D9405CC0,Full goleador,Tiro,normal,0,Bosque,360,60,whs01300,Haz rebotar el balón sobre unas cartas y mándalo directo a la portería a toda velocidad.
 987147D9,Pingüino emperador X,Tiro,normal,0,Fuego,540,85,whs01310,Un pingüino emperador nacido de la oscuridad del corazón. Su aura de odio lo devora todo.
 5B226AF2,Tiro radiocontrol,Tiro,tiro largo,4,Fuego,360,60,whs01320,"El balón se transforma en las ruedas de un coche teledirigido, corriendo a toda velocidad hacia el gol."
 1A1371EB,Cañón X,Tiro,normal,0,Fuego,440,70,whs01330,Rasga el balón cruzando las piernas y lanza la energía que brota de él como un rayo luminoso.
-DD8530A4,Cañón celestial,Tiro,normal (subtipo 8 sin identificar),8,Montana,440,70,whs01340,La energía oculta de la Mano celestial se concentra en ambas piernas y dispara un potente cañonazo.
+DD8530A4,Cañón celestial,Tiro,normal,8,Montana,440,70,whs01340,La energía oculta de la Mano celestial se concentra en ambas piernas y dispara un potente cañonazo.
 9CB42BBD,Carga negativa,Tiro,bloqueo de tiros,16,Bosque,360,60,whs01350,El balón absorbe la materia oscura del universo y hace que el portero rival pruebe el infierno.
 5FE70696,Rayo oscuro,Tiro,normal,0,Montana,440,70,whs01360,Una luz nacida de la oscuridad se convierte en un destello destructor. Un disparo de yin y yang.
-1ED61D8F,Fuego supremo,Tiro,normal (subtipo 8 sin identificar),8,Fuego,360,60,whs01370,Una ardiente espada ígnea envuelve tu pierna derecha y avanza desgarrando la tierra con un disparo abrasador.
-D1CA8508,Cometa legendario,Tiro,normal (subtipo 8 sin identificar),8,Viento,640,100,whs01380,La fuerza de todos se une y forma un cristal que envuelve el balón. Disparo doble con un brillo cegador.
+1ED61D8F,Fuego supremo,Tiro,normal,8,Fuego,360,60,whs01370,Una ardiente espada ígnea envuelve tu pierna derecha y avanza desgarrando la tierra con un disparo abrasador.
+D1CA8508,Cometa legendario,Tiro,normal,8,Viento,640,100,whs01380,La fuerza de todos se une y forma un cristal que envuelve el balón. Disparo doble con un brillo cegador.
 90FB9E11,Diluvio letal,Tiro,tiro largo,4,Fuego,360,60,whs01390,"Convertido en un arma de destrucción, el balón baja como un rayo carmesí en un disparo letal."
 5C5613C5,Lanza letal,Tiro,tiro largo,4,Bosque,360,60,whs01400,Da rotación al balón entre los pies y ejecuta un disparo que atraviesa la portería como una lanza.
 1D6708DC,Mangual letal,Tiro,normal,0,Montana,640,100,whs01410,"El balón, envuelto por un aura de muerte, se vuelve un arma diseñada solo para destruir."
 DE3425F7,Rayo oscuro,Tiro,normal,0,Bosque,440,70,whs01420,Una luz nacida de la oscuridad se convierte en un destello destructor. Un disparo de yin y yang.
-9F053EEE,Descenso estelar,Tiro,normal (subtipo 8 sin identificar),8,Fuego,540,85,whs01430,Incontables planetas caen desde el espacio. Potente disparo cósmico capaz de derribar el cielo.
+9F053EEE,Descenso estelar,Tiro,normal,8,Fuego,540,85,whs01430,Incontables planetas caen desde el espacio. Potente disparo cósmico capaz de derribar el cielo.
 58937FA1,Triángulo múltiple,Tiro,normal,0,Bosque,440,70,whs01440,Crea un triángulo mortífero con tu propio poder en una terrorífica versión del Triángulo letal.
 19A264B8,Pingüino múltiple,Tiro,normal,0,Bosque,440,70,whs01450,"Usa esta técnica valiéndote de tu propio poder, en una variación del Pingüino emperador n.º 2."
-DAF14993,Tiro vendaval,Tiro,normal (subtipo 8 sin identificar),8,Viento,300,50,whs01460,"Con una velocidad explosiva, genera un vendaval y ejecuta un veloz disparo imposible de seguir con la vista."
+DAF14993,Tiro vendaval,Tiro,normal,8,Viento,300,50,whs01460,"Con una velocidad explosiva, genera un vendaval y ejecuta un veloz disparo imposible de seguir con la vista."
 9BC0528A,Proyectil letal,Tiro,normal,0,Fuego,360,60,whs01470,"El balón, envuelto en una oscura aura, perfora la portería como una espada mortal revestida de llamas azabaches."
 54DCCA0D,Pingüino emperador 7,Tiro,tiro largo,4,Viento,540,85,whs01480,Un grupo de pingüinos coloridos traza un bonito arco como un arcoíris de siete tonos rumbo a la portería.
 15EDD114,Salto incandescente,Tiro,bloqueo de tiros,16,Montana,300,50,whs01490,Salta más alto que nadie en el campo y ejecuta un potente disparo en el aire.
@@ -158,22 +158,22 @@ A86FFCEF,Cabezazo cohete,Tiro,normal,0,Fuego,360,60,whs01530,"Impulsado por el p
 6FF9BDA0,Tiro balista,Tiro,tiro largo,4,Montana,360,60,whs01540,"Como una antigua balista, acumula fuerza y lanza un disparo afilado como una flecha."
 2EC8A6B9,Triángulo ZZ,Tiro,normal,0,Fuego,540,85,whs01550,"Con un equilibrio perfecto, tres jugadores combinan su poder en un disparo triangular hipnótico."
 ED9B8B92,Trayectoria perfecta,Tiro,normal,0,Bosque,300,50,whs01560,Analiza la trayectoria óptima hacia la portería y ejecuta un disparo calculado con precisión para asegurar el gol.
-ACAA908B,Pentagrama,Tiro,normal (subtipo 8 sin identificar),8,Bosque,300,50,whs01570,Tiro orquestal que se adapta a la perfección al balón y reproduce un tono precioso.
-63B6080C,Aguijón letal,Tiro,normal (subtipo 8 sin identificar),8,Fuego,440,70,whs01580,Infunde un aura negra al balón tras elevarlo y remata con una potente chilena.
+ACAA908B,Pentagrama,Tiro,normal,8,Bosque,300,50,whs01570,Tiro orquestal que se adapta a la perfección al balón y reproduce un tono precioso.
+63B6080C,Aguijón letal,Tiro,normal,8,Fuego,440,70,whs01580,Infunde un aura negra al balón tras elevarlo y remata con una potente chilena.
 22871315,Tiro espectral,Tiro,normal,0,Bosque,360,60,whs01590,Una multitud de almas se reúne para atacar. Una técnica misteriosa que va más allá de la comprensión humana.
-328297C6,Remate dinosaurio,Tiro,normal (subtipo 8 sin identificar),8,Montana,360,60,whs01600,Libera una fuerza prehistórica en un disparo que sacude la tierra como el rugido de un dinosaurio.
+328297C6,Remate dinosaurio,Tiro,normal,8,Montana,360,60,whs01600,Libera una fuerza prehistórica en un disparo que sacude la tierra como el rugido de un dinosaurio.
 73B38CDF,Tiro sónico,Tiro,normal,0,Viento,360,60,whs01610,El balón acelera bruscamente justo después de ser disparado. Casi alcanza la velocidad del sonido.
 B0E0A1F4,Aguijones escarlata,Tiro,normal,0,,540,85,whs01620,Dispara una ráfaga de energía que se divide en una lluvia de flechas dirigidas directamente al portero.
 F1D1BAED,Lluvia de azufre,Tiro,normal,0,Bosque,440,70,whs01630,La energía cargada en el balón cae como un disparo de lluvia fría sobre el rival.
 3647FBA2,Peces voladores,Tiro,tiro largo,4,Viento,300,50,whs01640,"Ejecuta un remate en salto con la rodilla, como un pez volador saltando en el océano."
-7776E0BB,Cascabel,Tiro,normal (subtipo 8 sin identificar),8,Montana,300,50,whs01650,Un disparo acrobático que traza la trayectoria de una gran serpiente salvaje.
+7776E0BB,Cascabel,Tiro,normal,8,Montana,300,50,whs01650,Un disparo acrobático que traza la trayectoria de una gran serpiente salvaje.
 B425CD90,Tiro sobrenatural,Tiro,normal,0,Fuego,440,70,whs01660,Invoca al demonio que habita en tu interior. Disparo envuelto en alas de oscuridad.
 F514D689,Ciclón blanco,Tiro,bloqueo de tiros,16,Viento,360,60,whs01670,"Una tormenta de luz cegadora recorre el campo, derribando todo a su paso hacia la portería."
 3A084E0E,Zero Magnum,Tiro,bloqueo de tiros,16,,540,85,whs01680,Junta las energías de la luz y la oscuridad en un disparo supremo que borra todo a su paso.
-7B395517,Estrella oscura,Tiro,normal (subtipo 8 sin identificar),8,Bosque,440,70,whs01690,Salta desde el campo hacia un espacio desconocido y ejecuta un disparo que atraviesa dimensiones con potencia aumentada.
-05E855C7,Triple amenaza,Tiro,normal (subtipo 8 sin identificar),8,Montana,640,100,whs01700,Técnica de tiro evolucionada entre tres jugadores. Ejecuta un disparo triple que alcanza el máximo nivel de evolución.
-44D94EDE,Leopardo de la ventisca,Tiro,normal (subtipo 8 sin identificar),8,Viento,440,70,whs01710,"A través de la ventisca que azota la llanura nevada, un feroz leopardo blanco se abalanza sobre la portería."
-878A63F5,Furia de los elementos,Tiro,normal (subtipo 8 sin identificar),8,,540,85,whs01720,"Fusión de aire, bosque, fuego y montaña. Disparo que trasciende los elementos y lo destruye todo."
+7B395517,Estrella oscura,Tiro,normal,8,Bosque,440,70,whs01690,Salta desde el campo hacia un espacio desconocido y ejecuta un disparo que atraviesa dimensiones con potencia aumentada.
+05E855C7,Triple amenaza,Tiro,normal,8,Montana,640,100,whs01700,Técnica de tiro evolucionada entre tres jugadores. Ejecuta un disparo triple que alcanza el máximo nivel de evolución.
+44D94EDE,Leopardo de la ventisca,Tiro,normal,8,Viento,440,70,whs01710,"A través de la ventisca que azota la llanura nevada, un feroz leopardo blanco se abalanza sobre la portería."
+878A63F5,Furia de los elementos,Tiro,normal,8,,540,85,whs01720,"Fusión de aire, bosque, fuego y montaña. Disparo que trasciende los elementos y lo destruye todo."
 C6BB78EC,Ceniza negra,Tiro,normal,0,Bosque,440,70,whs01730,Tiro oscuro con una energía destructora que infunde desesperación y desata una niebla negra que se traga el campo.
 012D39A3,Burbujas arcoíris,Tiro,tiro largo,4,Bosque,360,60,whs01740,Mete el balón en una burbuja y lánzalo contra la portería en una explosión multicolor.
 401C22BA,Coletazo de dragón,Tiro,normal,0,Montana,440,70,whs01750,Tu espíritu se vuelve tan feroz que te crece una cola para lanzar el balón a la portería.
@@ -201,21 +201,21 @@ CC96E6E6,Desolación eterna,Tiro,normal,0,,800,140,whs01930,Carga la espada con 
 8962919B,Chut prehistórico,Tiro,normal,0,Montana,540,85,whs01960,"El balón ataca ferozmente la portería del campo contrario, como un tiranosaurio en busca de su presa."
 C8538A82,Balón de plasma,Tiro,tiro largo,4,Viento,300,50,whs01970,"El balón, envuelto en plasma de alta tensión, avanza rozando el suelo con un movimiento ondulante."
 074F1205,Disparo doble,Tiro,tiro largo,4,,360,60,whs01980,"Divide el balón en dos, golpea con ambos pies y vuelve a unir las dos partes para lanzar un disparo de una potencia nunca vista."
-467E091C,Rizo de dragón,Tiro,normal (subtipo 8 sin identificar),8,Viento,440,70,whs01990,Desata un torbellino de energía dracónica en una única y poderosa explosión.
+467E091C,Rizo de dragón,Tiro,normal,8,Viento,440,70,whs01990,Desata un torbellino de energía dracónica en una única y poderosa explosión.
 6E51AFD0,Onda chispeante,Tiro,tiro largo,4,Viento,440,70,whs02000,Manda el balón hasta el espacio como un cohete a una velocidad supersónica.
 2F60B4C9,Triángulo letal final,Tiro,normal,0,Bosque,640,100,whs02010,Elévate sobre múltiples triángulos letales y lanza el balón a la Tierra con una fuerza sombría.
 EC3399E2,Tormenta dimensional,Tiro,bloqueo de tiros,16,Bosque,540,85,whs02020,¡Chuta con todas tus fuerzas mientras el balón atraviesa una brecha dimensional!
-AD0282FB,Tiro magnético,Tiro,normal (subtipo 8 sin identificar),8,Bosque,440,70,whs02030,Haz girar el balón con ambos pies para generar un campo magnético y lanzar un tiro imparable.
-6A94C3B4,Impulso efímero,Tiro,normal (subtipo 8 sin identificar),8,Bosque,540,85,whs02040,Persigue el balón en el aire y aceléralo con una serie de toques rápidos para el disparo.
+AD0282FB,Tiro magnético,Tiro,normal,8,Bosque,440,70,whs02030,Haz girar el balón con ambos pies para generar un campo magnético y lanzar un tiro imparable.
+6A94C3B4,Impulso efímero,Tiro,normal,8,Bosque,540,85,whs02040,Persigue el balón en el aire y aceléralo con una serie de toques rápidos para el disparo.
 2BA5D8AD,Tiro de arcabuz,Tiro,tiro largo,4,Fuego,360,60,whs02050,Un jugador apunta y el otro dispara. Disparo combinado similar a un arcabuz.
 E8F6F586,Flecha de Cupido,Tiro,tiro largo,4,Fuego,360,60,whs02060,Puesta en escena encantadora y fantástica. Disparo adorable en forma de flecha con corazón.
-A9C7EE9F,Cabezazo gigatón,Tiro,normal (subtipo 8 sin identificar),8,Montana,440,70,whs02070,Crea una mano gigantesca con la cabeza y remata el balón con una fuerza descomunal.
+A9C7EE9F,Cabezazo gigatón,Tiro,normal,8,Montana,440,70,whs02070,Crea una mano gigantesca con la cabeza y remata el balón con una fuerza descomunal.
 66DB7618,Golpe cataclismo,Tiro,normal,0,Montana,440,70,whs02080,Tiro devastador que acumula energía maligna en el balón y horada el campo desde el aire.
 27EA6D01,Engranajes aceleradores,Tiro,normal,0,Montana,360,60,whs02090,"Acelera con cada rebote, impulsado por un engranaje. Disparo imprevisible de trayectoria caótica."
 593B6DD1,Tiro supermasivo,Tiro,bloqueo de tiros,16,Montana,640,100,whs02100,Envuelve el balón con una energía caótica y lánzalo con la fuerza de un meteorito devastador.
-180A76C8,Caída planetaria,Tiro,normal (subtipo 8 sin identificar),8,Montana,360,60,whs02110,"Un sello invoca llamas espectrales que envuelven el balón, desencadenando un disparo en forma de hoja circular."
+180A76C8,Caída planetaria,Tiro,normal,8,Montana,360,60,whs02110,"Un sello invoca llamas espectrales que envuelven el balón, desencadenando un disparo en forma de hoja circular."
 DB595BE3,Doble trallazo planetario,Tiro,bloqueo de tiros,16,Montana,440,70,whs02120,La perfecta sincronización en el momento del disparo aumenta al máximo la potencia del tiro.
-9A6840FA,Tormenta solar,Tiro,normal (subtipo 8 sin identificar),8,Fuego,540,85,whs02130,Atraviesa las nubes y lanza un disparo abrasador que quema más que el sol estival.
+9A6840FA,Tormenta solar,Tiro,normal,8,Fuego,540,85,whs02130,Atraviesa las nubes y lanza un disparo abrasador que quema más que el sol estival.
 5DFE01B5,Viento celestial,Tiro,normal,0,Viento,440,70,whs02140,Disparo kamikaze que desata un fuerte viento. Avanza por el campo arrasándolo todo a su paso.
 1CCF1AAC,Polen devastador,Tiro,normal,0,Montana,540,85,whs02150,Esparce rosas de color negro carmesí en una elegante chilena cargada del poder del caos.
 DF9C3787,Tornado de fuego DT,Tiro,normal,0,Fuego,640,100,whs02160,Lanza un Tornado de fuego triple con tres espirales de fuego que convergen en un tiro brutal.
@@ -247,7 +247,7 @@ F3C8BDCE,Asalto mortal,Tiro,normal,0,Montana,800,140,whs02410,Rompe el aire con 
 309B90E5,Ataque de corazón,Tiro,normal,0,Viento,800,140,whs02420,"Dibuja un corazón rosa pálido con la espada, y luego lanza un tiro cautivador directo a la portería."
 71AA8BFC,Ataque de corazón,Tiro,normal,0,Montana,800,140,whs02430,"Dibuja una aguamarina resplandeciente con la espada, y luego lanza un tiro hechizante directo a la portería."
 B63CCAB3,Taconazo parkour,Tiro,normal,0,Viento,440,70,whs02440,Salta por el campo de un lado a otro y asesta un golpe salvaje al balón con el talón.
-F70DD1AA,Choque de sirena,Tiro,normal (subtipo 8 sin identificar),8,Viento,300,50,whs02450,Gira y ataca con la gracia de una sirena para mandar el balón con gran elegancia hacia la portería.
+F70DD1AA,Choque de sirena,Tiro,normal,8,Viento,300,50,whs02450,Gira y ataca con la gracia de una sirena para mandar el balón con gran elegancia hacia la portería.
 345EFC81,Cabezazo catapulta,Tiro,tiro largo,4,Montana,300,50,whs02460,Fija la mirada en la portería y lanza el balón cual catapulta con un cabezazo letal.
 756FE798,Fuego rápido,Tiro,tiro largo,4,Fuego,300,50,whs02470,Golpea el balón con una velocidad sobrehumana en un tiro ardiente difícil de parar.
 BA737F1F,Chilena fulminante,Tiro,tiro largo,4,,440,70,whs02480,"Lanza un tiro aéreo con una chilena letal, inspirado en la técnica Proyectil letal."
@@ -255,13 +255,13 @@ FB426406,Balón de petróleo,Tiro,normal,0,Fuego,440,70,whs02490,Aprovecha la im
 859364D6,Tiro elefantino,Tiro,normal,0,Bosque,360,60,whs02500,"Lanza la pelota hacia adelante con un fuerte rodillazo, perfeccionado gracias al muay thai."
 C4A27FCF,Fiebre del oro,Tiro,normal,0,Montana,440,70,whs02510,Desentierra los tesoros que se esconden bajo el campo y lanza un deslumbrante y demoledor tiro.
 07F152E4,Misil arenoso,Tiro,normal,0,Montana,540,85,whs02520,Destroza el balón en una nube de arena que cae con fuerza sobre la portería.
-46C049FD,Tiro efervescente,Tiro,normal (subtipo 8 sin identificar),8,Viento,540,85,whs02530,Envuelve el balón en agua hirviendo para abrasar al portero como se atreva a bloquearlo.
+46C049FD,Tiro efervescente,Tiro,normal,8,Viento,540,85,whs02530,Envuelve el balón en agua hirviendo para abrasar al portero como se atreva a bloquearlo.
 815608B2,Roca volcánica,Tiro,tiro largo,4,Fuego,540,85,whs02540,"Entierra el balón en el suelo y, tras convertirlo en roca fundida, lánzalo contra la portería."
 C06713AB,Habichuelas mágicas,Tiro,tiro largo,4,Bosque,300,50,whs02550,Envuelve el balón en una enredadera colosal y lánzalo hacia la portería con una potencia imparable.
 03343E80,Bota propulsora,Tiro,normal,0,Fuego,440,70,whs02560,Utiliza una bota mecánica para canalizar energía cósmica y potenciar el tiro con una fuerza arrolladora.
-42052599,Relámpago volcánico,Tiro,normal (subtipo 8 sin identificar),8,Fuego,640,100,whs02570,Concentra la energía volcánica para invocar el poder del rayo y lanzar el balón con fuerza contra la red.
+42052599,Relámpago volcánico,Tiro,normal,8,Fuego,640,100,whs02570,Concentra la energía volcánica para invocar el poder del rayo y lanzar el balón con fuerza contra la red.
 8D19BD1E,Amplificador mágico,Tiro,normal,0,Bosque,640,100,whs02580,Manda el balón por un círculo mágico que lo propulsa hacia adelante con un poder explosivo.
-CC28A607,Tormenta estelar,Tiro,normal (subtipo 8 sin identificar),8,Viento,640,100,whs02590,Lanza el balón para desplegar un cielo lleno de estrellas que caen como meteoritos en la portería.
+CC28A607,Tormenta estelar,Tiro,normal,8,Viento,640,100,whs02590,Lanza el balón para desplegar un cielo lleno de estrellas que caen como meteoritos en la portería.
 DC2D22D4,Golpe kabuki,Tiro,normal,0,Bosque,440,70,whs02600,Posa entre pétalos de cerezo que flotan por el aire y lanza un tiro imbuido del poder del kabuki.
 9D1C39CD,Tiro del corazón real,Tiro,normal,0,Fuego,640,100,whs02610,Imbuye al balón con lealtad inquebrantable y lánzalo con la precisión de un devoto guerrero.
 5E4F14E6,Remate orbital,Tiro,normal,0,Viento,640,100,whs02620,Controla la trayectoria del balón en pleno vuelo para un efecto imprevisible que pilla desprevenido al portero.
@@ -285,7 +285,7 @@ FF15D190,Coletazo de Begiran,Tiro,normal,0,,800,140,whs02721,"Desata un ataque c
 2814CDFE,Cañonazo de Ixaal,Tiro,normal,0,Viento,800,140,whs02730,Acumula un remolino de caos negro y libéralo en un colosal disparo de rayo.
 BE24CA89,Cañonazo de Vairaas,Tiro,normal,0,Montana,800,140,whs02731,Envuelve el balón con una energía abrumadora y libera toda esa energía en una explosión devastadora.
 EF828CB1,Averno de Guma,Tiro,normal,0,Fuego,800,140,whs02740,Devora la pelota de un bocado y escúpela en una llamarada carmesí que abrasa la portería.
-AEB397A8,Tornado de fuego A,Tiro,normal (subtipo 8 sin identificar),8,Fuego,360,60,whs02750,Un remate fulminante envuelto en una feroz llamarada. Usa tu pierna derecha para disparar con potencia desde el aire.
+AEB397A8,Tornado de fuego A,Tiro,normal,8,Fuego,360,60,whs02750,Un remate fulminante envuelto en una feroz llamarada. Usa tu pierna derecha para disparar con potencia desde el aire.
 6DE0BA83,Ave goleadora,Tiro,normal,0,Fuego,360,60,whs02760,"Gracias al poder del sol, esta chilena convierte el balón en un pájaro de fuego que vuela con una fuerza imparable."
 2CD1A19A,Oso polar n.º 2,Tiro,normal,0,Montana,440,70,whs02770,Envuelve el balón en aire gélido y lánzalo hacia la portería con la ferocidad de un oso polar.
 E3CD391D,Tiro meteórico,Tiro,normal,0,Fuego,540,85,whs02780,"Salta hacia el cielo con el poder de tus compañeros y golpea la pelota con un remate desde arriba, como si fuera un meteorito."
@@ -366,7 +366,7 @@ D3179C11,Tiro tramposo,Tiro,normal,0,Fuego,440,70,whs10060,"Manda el balón rebo
 23EB1F5F,Tornado de fuego meteoro,Tiro,normal,0,Fuego,540,85,whs10110,"Invoca el Tornado de fuego definitivo, un tiro meteórico que desciende desde los cielos para aplastar al portero."
 E0B83274,Remate Bahamut,Tiro,normal,0,Bosque,440,70,whs10120,"Imbuye el balón con la fuerza y velocidad de Bahamut, y lánzalo hacia delante con un golpe catastrófico."
 A189296D,Trueno celestial,Tiro,normal,0,Viento,360,60,whs10130,Carga el balón con la fuerza del rayo celestial y lánzalo hacia el suelo en un golpe cegador.
-661F6822,Impulso de resolución,Tiro,normal (subtipo 8 sin identificar),8,Bosque,360,60,whs10140,Analiza cada movimiento del portero y golpea el balón para mandarlo en la trayectoria perfecta a la portería.
+661F6822,Impulso de resolución,Tiro,normal,8,Bosque,360,60,whs10140,Analiza cada movimiento del portero y golpea el balón para mandarlo en la trayectoria perfecta a la portería.
 272E733B,Marlín volador,Tiro,tiro largo,4,Viento,360,60,whs10150,Vuela con la elegancia de un pez espada y lanza el balón con un golpe certero.
 E47D5E10,Tornado de fuego meteoro V,Tiro,normal,0,Fuego,800,140,whs10160,Invoca el poder evolucionado de un espíritu y lanza el balón como un cometa ardiente que incendia todo a su paso.
 A54C4509,Aullido de lobo argénteo,Tiro,tiro largo,4,Viento,360,60,whs10170,Aúlla como un lobo argénteo; el eco y el balón atraviesan la noche iluminada por la luna hacia la portería.
@@ -389,7 +389,7 @@ F5D603ED,Ventisca guiverno,Tiro,normal,0,Viento,720,120,whs00840_or,Una poderosa
 74C55327,Tornado de fuego DT,Tiro,normal,0,Fuego,900,180,whs02160_or,Lanza un Tornado de fuego triple con tres espirales de fuego que convergen en un tiro brutal.
 97D78FD7,Remate caótico,Tiro,normal,0,Bosque,900,180,whs01250_or,Combinación del Disparo sagrado y la Ventisca de fuego. Un disparo caótico capaz de arrasarlo todo.
 F43CE2C0,Tornado de fuego DD,Tiro,normal,0,Fuego,800,140,whs01760_or,Supertécnica que enlaza las llamas interiores con un efecto sinérgico de gran poder destructivo.
-54C9A24F,Triple amenaza,Tiro,normal (subtipo 8 sin identificar),8,Montana,880,160,whs01700_or,Técnica de tiro evolucionada entre tres jugadores. Ejecuta un disparo triple que alcanza el máximo nivel de evolución.
+54C9A24F,Triple amenaza,Tiro,normal,8,Montana,880,160,whs01700_or,Técnica de tiro evolucionada entre tres jugadores. Ejecuta un disparo triple que alcanza el máximo nivel de evolución.
 8CAA6728,Tormenta del tigre,Tiro,normal,0,Fuego,800,140,whs01020_or,El poder de Tormenta de fuego y de Remate del tigre combinados en una supertécnica.
 29793BE3,Huracán,Tiro,normal,0,Viento,840,150,whs01120_or,Combinación de una ventisca de hielo y viento huracanado. Disparo devastador con la fuerza de un huracán.
 85B709D7,Chut de 200 toques,Tiro,normal,0,Bosque,720,120,whs00640_or,Un aluvión de 100 toques por partida doble que asolan la portería del rival en una ofensiva implacable.
@@ -401,19 +401,19 @@ C1CA2F5E,Triángulo letal final,Tiro,normal,0,Bosque,880,160,whs02010_or,Elévat
 40A40AFD,Ruptura relámpago,Tiro,normal,0,Viento,800,140,whs00380_mm,"El balón se lanza alto, cargado con poderosos rayos, y tres jugadores ejecutan un disparo combinado que avanza como un relámpago."
 327EB79D,Aullido de lobo,Tiro,tiro largo,4,Viento,640,100,whs00600_mm,Lanza un tiro preciso que resuena en el campo como el aullido de un lobo a la luz de la luna.
 EB197925,Pingüino emperador n.º 3,Tiro,normal,0,Bosque,800,140,whs01050_mm,Haz sonar un silbido con los dedos que invoca a los pingüinos y estos formarán un círculo para reunir energía.
-FF0EB516,Torbellino de fuego,Tiro,normal (subtipo 8 sin identificar),8,Fuego,720,120,whs01180_mm,Un disparo envuelto en llamas giratorias. Tiene el poder de abrasarlo todo en un instante.
+FF0EB516,Torbellino de fuego,Tiro,normal,8,Fuego,720,120,whs01180_mm,Un disparo envuelto en llamas giratorias. Tiene el poder de abrasarlo todo en un instante.
 F332D645,Chut prehistórico,Tiro,normal,0,Montana,720,120,whs01960_mm,"El balón ataca ferozmente la portería del campo contrario, como un tiranosaurio en busca de su presa."
-38DB740F,Pentagrama,Tiro,normal (subtipo 8 sin identificar),8,Bosque,440,70,whs01570_mm,Tiro orquestal que se adapta a la perfección al balón y reproduce un tono precioso.
-E94C248D,Aguijón letal,Tiro,normal (subtipo 8 sin identificar),8,Fuego,640,100,whs01580_mm,Infunde un aura negra al balón tras elevarlo y remata con una potente chilena.
+38DB740F,Pentagrama,Tiro,normal,8,Bosque,440,70,whs01570_mm,Tiro orquestal que se adapta a la perfección al balón y reproduce un tono precioso.
+E94C248D,Aguijón letal,Tiro,normal,8,Fuego,640,100,whs01580_mm,Infunde un aura negra al balón tras elevarlo y remata con una potente chilena.
 96A9E089,Ciclón blanco,Tiro,bloqueo de tiros,16,Viento,540,85,whs01670_mm,"Una tormenta de luz cegadora recorre el campo, derribando todo a su paso hacia la portería."
 F3DC3CB7,Ceniza negra,Tiro,normal,0,Bosque,640,100,whs01730_mm,Tiro oscuro con una energía destructora que infunde desesperación y desata una niebla negra que se traga el campo.
-C62AF129,Impulso efímero,Tiro,normal (subtipo 8 sin identificar),8,Bosque,720,120,whs02040_mm,Persigue el balón en el aire y aceléralo con una serie de toques rápidos para el disparo.
-1650516E,Cabezazo gigatón,Tiro,normal (subtipo 8 sin identificar),8,Montana,640,100,whs02070_mm,Crea una mano gigantesca con la cabeza y remata el balón con una fuerza descomunal.
+C62AF129,Impulso efímero,Tiro,normal,8,Bosque,720,120,whs02040_mm,Persigue el balón en el aire y aceléralo con una serie de toques rápidos para el disparo.
+1650516E,Cabezazo gigatón,Tiro,normal,8,Montana,640,100,whs02070_mm,Crea una mano gigantesca con la cabeza y remata el balón con una fuerza descomunal.
 BD04D9AC,Tormenta eléctrica,Tiro,normal,0,Viento,720,120,whs02210_mm,Invoca nubes de tormenta sobre todo el cielo y ejecuta un disparo eléctrico desde un remolino.
 6D7E79EB,Katana crisantemo,Tiro,bloqueo de tiros,16,Fuego,720,120,whs02220_mm,Rápido disparo con los ojos cerrados y en silencio. Su potencia dispersa las flores de crisantemo.
 7DA25959,Colmillo retorcido,Tiro,normal,0,Montana,720,120,whs02250_mm,Disparo mucho más potente que el Chut prehistórico. Muestra la autoridad del rey de los dinosaurios.
 685865AF,Soy todopoderoso,Tiro,normal,0,Montana,720,120,whs02340_mm,Condensa la energía de un gran tifón y la canaliza en el balón junto con tu propio poder.
-23A69CF0,Triple amenaza,Tiro,normal (subtipo 8 sin identificar),8,Montana,800,140,whs01700_mm,Técnica de tiro evolucionada entre tres jugadores. Ejecuta un disparo triple que alcanza el máximo nivel de evolución.
+23A69CF0,Triple amenaza,Tiro,normal,8,Montana,800,140,whs01700_mm,Técnica de tiro evolucionada entre tres jugadores. Ejecuta un disparo triple que alcanza el máximo nivel de evolución.
 C112A44F,Tiro rotatorio,Tiro,normal,0,Viento,440,70,whs10050_mm,"Haz girar el balón en una espiral vertiginosa que da vueltas y más vueltas, para pillar al portero desprevenido."
 E6CFFB5B,Llamarada atómica,Tiro,bloqueo de tiros,16,Fuego,640,100,whs00790_mm,Tiro con un balón que contiene la fuerza explosiva del sol y abrasa con sus llamas carmesíes.
 62145D27,Gran explosión,Tiro,normal,0,,800,140,whs02180_mm,Fusiona auras de luz y oscuridad en un tiro de una fuerza incomparable.
@@ -995,7 +995,7 @@ D1DFD83A,Parada en arco,Defensa,normal,0,,200,30,rhd10030,Haz un esprint curvo p
 08662ED1,Ciclón blanco,Tiro,tiro largo,4,Viento,640,100,whs01670_cro,"Una tormenta de luz cegadora recorre el campo, derribando todo a su paso hacia la portería."
 B3F71296,Último recurso: Sigma,Tiro,bloqueo de tiros,16,,640,100,whs03280_cro,"Envía cuatro dragones en espiral hacia la portería, con un poder destructivo más allá de humano."
 16244E5D,Último recurso: Dragón,Tiro,tiro largo,4,,640,100,whs03290_cro,Lanza un poderoso disparo que se transforma en un malévolo dragón y arrasa con todo a su paso.
-F50EFB5B,Ensueño: Remate dragón,Tiro,normal (subtipo 8 sin identificar),8,Bosque,300,50,whs00061,Ataca con un rugido despiadado que contiene el inmenso poder de un dragón.
+F50EFB5B,Ensueño: Remate dragón,Tiro,normal,8,Bosque,300,50,whs00061,Ataca con un rugido despiadado que contiene el inmenso poder de un dragón.
 11AA690A,Ensueño: El muro,Defensa,bloqueo de tiro,16,Montana,300,50,whd00011,Usa el poder de la tierra para levantar un muro que bloquea el paso y demuestra tu habilidad como defensa.
 C4183FFB,Ensueño: Mano celestial,Parada,atajo,1,Montana,360,60,whk00011,Defiende la portería de todos los tiros con una enorme mano derecha cargada de pasión por el fútbol.
 4D8F335B,null,Tiro,normal,0,,0,0,swap_skill_waza_01,

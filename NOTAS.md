@@ -4407,6 +4407,55 @@ del equipo (100), drenar tension (100), PP del equipo (20), Conf. Tension (20),
 Conf. Contraataque (15), enfriamiento de supertecnicas propias (10), las dos de
 tasa de obtencion de objetos (200 y 100), y tres mas.
 
+### O-187 · Judias y equipacion: Agilidad e Inteligencia iban al reves
+
+Aaron, con Gael Vehemaint: "la judia naranja, que es de agilidad, en el editor
+sale como la celeste de inteligencia". Y era mas gordo que el icono.
+
+Gael tiene en la partida judias de tipo 4, 6 y 3 (180 cada una) y en el juego
+salen Fisico, **Agilidad** y Presion, con la naranja de correr. El editor decia
+Inteligencia para el 6. Y comparando los siete stats del juego con los del
+editor, los cinco primeros cuadraban exactos y los dos ultimos no; cuadran
+**exactos** solo si:
+
+- el tipo de judia 5 es **Inteligencia** y el 6 **Agilidad** (el orden interno
+  del juego, que no es el de la ficha), y
+- los bonus de la equipacion llevan **las dos ultimas columnas al reves**: las
+  botas y el colgante de Gael dan +29 y +29 que el juego suma a Agilidad
+  (232 + 58 + 13 del arbol = 303, que con las 180 judias da los 483 del
+  juego), y el brazalete +25 que suma a Inteligencia (210 + 25 = 235, exacto).
+
+Alex Zabel (O-96) cuadraba porque su equipacion no tocaba esas dos. Arreglado
+en `J.JUDIAS`, en `stats.de_judias` (pasa por el nombre) y en
+`construir_stats.py` (intercambia las dos columnas al generar
+`bonus-objeto.csv`). El arbol estaba bien.
+
+De paso: **"Talisman de Evans" y "Capa de Jude" no se podian equipar**. El
+nombre en la tabla lleva marcador (`Talisman de <FLC:ENDO>`) y el editor
+mandaba el texto limpio, que no casaba. Ahora la equipacion se manda por
+codigo, como todo lo demas.
+
+### O-188 · Los desplegables, iguales en todas partes
+
+Aaron: "los selectores de los filtros salen feillos y unos empiezan en
+mayuscula y otros en minuscula; igualalo". Un solo estilo en `comun.css` para
+todos los `select` (flecha propia en vez de la del sistema, misma letra, mismo
+borde, hover y foco), fuera los estilos sueltos del editor, y las etiquetas
+pasan por `bonito()` (primera letra en mayuscula y sin el "(subtipo N sin
+identificar)") en la lista de Jugadores, en el selector y en la base de datos.
+
+Dos cosas mas que salieron al comprobarlo:
+
+- El editor no carga `comun.css` (lleva su hoja dentro, con sus propios
+  colores), asi que la regla de los `select` esta **dos veces**: en `comun.css`
+  para inicio y base de datos, y copiada en `editor.html`. Si se toca una, tocar
+  la otra.
+- Salia "Normal" dos veces en la clase de los tiros porque el subtipo 8 iba
+  como "normal (subtipo 8 sin identificar)". Son 67 tiros normales de toda la
+  vida (Tornado de fuego, Remate dragon, Tiro fantasma...) que el juego no
+  distingue de los demas: ahora `construir_tecnicas.py` los llama "normal" y
+  quedan 353 tiros normales, 47 largos y 33 bloqueos.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

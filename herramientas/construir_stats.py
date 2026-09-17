@@ -189,6 +189,11 @@ def main():
             except ValueError:
                 sin_bonus += 1
                 continue
+            # La tabla del juego lleva los dos ultimos al reves respecto a la
+            # ficha: inteligencia y luego agilidad. Gael Vehemaint (NOTAS O-187):
+            # sus botas y colgante daban +29 y +29 que el juego suma a Agilidad,
+            # y el brazalete +25 que suma a Inteligencia.
+            nums[5], nums[6] = nums[6], nums[5]
             en_partida = bytes.fromhex("%08X" % v)[::-1].hex().upper()
             bonus.append([en_partida, categoria] + nums)
             n += 1

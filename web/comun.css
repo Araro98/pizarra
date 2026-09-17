@@ -71,11 +71,22 @@ a.titulo { text-decoration:none; }
 input[type=search], input[type=number], input[type=text], select {
   font:inherit; padding:7px 10px; border:2px solid var(--azul-marco); border-radius:8px;
   background:#fff; color:var(--tinta); }
+/* Todos los desplegables iguales (NOTAS O-188): sin la flecha gris del
+   sistema, con la del editor, y la misma letra y bordes en todas las pantallas. */
+select {
+  appearance:none; -webkit-appearance:none; -moz-appearance:none;
+  padding:6px 30px 6px 10px; font-size:var(--t-md); font-weight:700; line-height:1.2;
+  color:var(--azul-osc, #12233b); cursor:pointer; max-width:100%;
+  background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%232b5ea8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 10px center;
+  box-shadow:0 1px 0 rgba(10,30,60,.12); transition:border-color .1s, box-shadow .1s; }
+select:hover { border-color:#1c4fa4; box-shadow:0 2px 6px rgba(43,94,168,.25); }
+select:focus { outline:none; border-color:var(--cian); box-shadow:0 0 0 3px rgba(63,224,208,.35); }
+select option { font-weight:600; }
 input[type=search] { width:100%; }
 .filtros { display:flex; gap:10px; flex-wrap:wrap; margin:10px 0; }
 .filtro { display:flex; flex-direction:column; gap:2px; font-size:var(--t-xs); font-weight:800;
   text-transform:uppercase; letter-spacing:.05em; color:var(--azul-osc); }
-.filtro select { font-size:var(--t-md); text-transform:none; letter-spacing:0; font-weight:600; }
+.filtro select { font-size:var(--t-md); text-transform:none; letter-spacing:0; }
 
 .seccion-nav { margin:14px 0 8px; }
 .seccion-nav h4 { margin:0; color:#fff; font-weight:800; font-style:italic; font-size:var(--t-md);

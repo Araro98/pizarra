@@ -39,6 +39,19 @@
     background-size:560px auto; opacity:.10; }
   body::after { content:none; }
   button, select, input { font:inherit; color:inherit; }
+  /* Todos los desplegables iguales (NOTAS O-188): la misma regla que en
+     comun.css para las otras pantallas (el editor no la carga, lleva su hoja
+     dentro). Flecha propia en vez de la del sistema, misma letra y borde. */
+  select {
+    appearance:none; -webkit-appearance:none; -moz-appearance:none;
+    padding:6px 30px 6px 10px; border:2px solid var(--azul-marco); border-radius:8px;
+    font-size:var(--t-md); font-weight:700; line-height:1.2;
+    color:var(--azul-osc); cursor:pointer; max-width:100%;
+    background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%232b5ea8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 10px center;
+    box-shadow:0 1px 0 rgba(10,30,60,.12); transition:border-color .1s, box-shadow .1s; }
+  select:hover { border-color:#1c4fa4; box-shadow:0 2px 6px rgba(43,94,168,.25); }
+  select:focus { outline:none; border-color:var(--cian); box-shadow:0 0 0 3px rgba(63,224,208,.35); }
+  select option { font-weight:600; }
   .titulo { font-weight:800; font-style:italic; }
 
   .barra-modos { background:rgba(244,248,253,.94); backdrop-filter:blur(4px);
@@ -132,8 +145,7 @@
   .filtro { display:flex; flex-direction:column; gap:2px; }
   .filtro span { font-size:var(--t-xs); font-weight:800; color:var(--azul-osc);
     text-transform:uppercase; letter-spacing:.05em; }
-  .filtro select { padding:5px 8px; border-radius:6px; border:2px solid var(--azul-marco);
-    background:#fff; max-width:190px; }
+  .filtro select { max-width:220px; }
   .contador button { padding:2px 10px; }
   .rejilla-jug { display:grid; gap:8px; max-height:64vh; overflow:auto;
     grid-template-columns:repeat(auto-fill,minmax(104px,1fr)); }
@@ -531,8 +543,9 @@
     grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); }
   .campo > span { display:block; font-size:var(--t-sm); color:var(--suave);
     font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
-  .campo input, .campo select { width:100%; padding:6px 8px; border-radius:6px;
+  .campo input { width:100%; padding:6px 8px; border-radius:6px;
     border:2px solid var(--azul-marco); background:#fff; }
+  .campo select { width:100%; }
 
   .pestanas-obj { display:flex; gap:4px; padding:7px 10px 0; overflow-x:auto;
     border-radius:12px 12px 0 0;
@@ -648,8 +661,7 @@
   .modal .cab p { margin:2px 0 0; font-size:var(--t-sm); opacity:.9; }
   .modal .busca { padding:10px 14px; border-bottom:1px solid var(--linea); }
   .filtros-picker { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
-  .filtros-picker select { padding:4px 8px; border-radius:6px; font-size:var(--t-sm);
-    border:2px solid var(--azul-marco); background:#fff; max-width:180px; }
+  .filtros-picker select { max-width:220px; }
   .btn.chico { padding:4px 12px; font-size:var(--t-sm); }
   .modal li button { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   .modal li button > span { flex:1 1 auto; }
@@ -1081,7 +1093,7 @@ function actualizaFiltros(d) {
     sel.appendChild(el("option", {value:"", text:"Todos"}));
     for (const o of d.filtros[campo] || [])
       sel.appendChild(el("option", {value:o.valor,
-        text:o.valor + "  (" + o.cuantos + ")", selected:o.valor === antes}));
+        text:bonito(o.valor) + "  (" + o.cuantos + ")", selected:o.valor === antes}));
     sel.value = antes;
   }
 }
@@ -1431,11 +1443,11 @@ function seccionEquipacion(d) {
     e.etiqueta.replace(/^\d+\s*/, ""),
     () => pedir(`/api/opciones?tipo=equipacion&fila=${d.fila}&ranura=${e.ranura}`)
             .then(r => ({...r, ordenes:ORDENES_EQUIPO, actual_etiqueta:e.puesto || null,
-              opciones:r.opciones.map(o => ({...o, valor:o.nombre, etiqueta:o.nombre,
+              opciones:r.opciones.map(o => ({...o, valor:o.id, etiqueta:o.nombre,
                                              icono200:o.icono200 || "",
                                              total:o.total || 0,
                                              ...Object.fromEntries((o.stats || []).map((v, i) => ["s" + i, v]))}))})),
-    v => manda({tipo:"equipacion", fila:d.fila, ranura:e.ranura, nombre:v}),
+    v => manda({tipo:"equipacion", fila:d.fila, ranura:e.ranura, id:v}),
     false, e.etiqueta.replace(/^\d+\s*/, "").replace(/^./, c => c.toUpperCase()),
     e.icono200 ? el("img", {class:"mini-icono grande", loading:"lazy", alt:"",
                             src:"/icono/" + e.icono200}) : null)));
@@ -1838,7 +1850,7 @@ async function abrePicker(titulo, cargar, alElegir) {
       const sel = el("select");
       sel.appendChild(el("option", {value:"", text:f.etiqueta + ": todos"}));
       for (const v of valores)
-        sel.appendChild(el("option", {value:v, text:(f.nombres && f.nombres[v]) || v}));
+        sel.appendChild(el("option", {value:v, text:bonito((f.nombres && f.nombres[v]) || v)}));
       sel.onchange = () => { puesto[f.campo] = sel.value; pinta(); };
       barra.appendChild(sel);
     }
