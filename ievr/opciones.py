@@ -960,7 +960,8 @@ def personales(plain, fila):
                 "opciones": []}
     poseidas = inventario.filas_poseidas(plain)
     fuera = []
-    for idh in pasivas_de_personal_del_rol(rol):
+    legales = pasivas_personal_legales(plain, fila, rol)
+    for idh in sorted(legales) if legales else pasivas_de_personal_del_rol(rol):
         if idh not in poseidas:
             continue
         # con el numero que tendra en ESTE gerente o entrenador (O-197)
@@ -973,6 +974,34 @@ def personales(plain, fila):
             "motivo": "" if fuera else "no tienes ningun manual de pasiva de %s "
                                        "en la mochila" % rol,
             "opciones": fuera}
+
+
+def pasivas_solo_de_diamante(rol):
+    """{id} de las pasivas de personal que solo estan en los juegos de clave
+    100, los de los Diamantes (12 por rol). En la partida de Aaron ningun
+    gerente ni entrenador normal hecho por el juego lleva una (NOTAS O-198)."""
+    def construir():
+        d = {}
+        for r in ("gerente", "entrenador"):
+            cien, resto = set(), set()
+            for f in reglas._tabla("pasivas-personal.csv"):
+                if f["rol"] != r:
+                    continue
+                (cien if f["clave"] == "100" else resto).add(f["pasiva_id"].upper())
+            d[r] = cien - resto
+        return d
+    return _indice("personal_diamante", construir).get(rol, set())
+
+
+def pasivas_personal_legales(plain, fila, rol):
+    """{id} de las pasivas de personal que puede llevar ese gerente o
+    entrenador: las de su rol, y las de Diamante solo si es Diamante (NOTAS
+    O-198). El arquetipo no se mira: en la partida de Aaron hay 43 de fabrica
+    con el juego de otro arquetipo."""
+    todas = set(pasivas_de_personal_del_rol(rol))
+    if J.array(plain, J.ARRAY_RAREZA)[fila] == 8:
+        return todas
+    return todas - pasivas_solo_de_diamante(rol)
 
 
 def pasivas_personal(rol, arquetipo, clave=100):

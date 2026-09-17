@@ -4672,6 +4672,26 @@ que en el personal lleva las de personal: ahora lee las ranuras de la ficha);
 y "Conseguirlos todos" en la pestana de sinergias daba error (ahora crea las
 37, como el boton verde).
 
+### O-198 · Las pasivas de personal de clave 100 son solo de Diamantes
+
+Aaron: "a Cottontail le salen la de +6 % y la de +12 % de tension al 100 %;
+creo que la de +12 % es ilegal, revisa si son exclusivas de Diamantes".
+
+En `pasivas-personal.csv` (O-163) cada rol tiene juegos de 5 pasivas por
+arquetipo y clave, y la clave 100 es la de los Diamantes. Contado: las
+pasivas de los juegos de clave 100 son **12 por rol** y no aparecen en
+ningun juego normal ("AT de tiro +12 %" `E3E95F08` frente a "+4 %"
+`6CA04827`, que con la rareza 4 sale como +6 %, O-197). Y en los 192
+gerentes y entrenadores hechos por el juego en la partida de Aaron, **solo
+los 4 Diamantes** llevan alguna. Asi que Aaron tenia razon: para un normal
+son ilegales, y el editor ya no las ofrece ni las acepta (`Ilegal` con
+"es una pasiva de Diamante").
+
+El arquetipo, en cambio, **no** lo respeta el juego: 43 de fabrica llevan el
+juego de otro arquetipo y 10 llevan mezcla, asi que no se limita por eso.
+La clave del personaje (`clave_personal`) si cuadra siempre con el juego que
+llevan los de fabrica (`O.pasivas_personal_legales`).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

@@ -1699,6 +1699,10 @@ def poner_pasiva_personal(plain, fila, ranura, nombre):
         if id_hex in O.pasivas_de_personal_del_rol(otro):
             raise Ilegal("esa es una pasiva de %s y este es %s: no se mezclan" % (otro, rol))
         raise Ilegal("%s no es una pasiva de %s" % (id_hex, rol))
+    # las de clave 100 son solo de Diamantes (NOTAS O-198)
+    if id_hex not in O.pasivas_personal_legales(plain, fila, rol):
+        raise Ilegal("%s es una pasiva de Diamante: solo la lleva un %s Diamante"
+                     % (O.nombre_pasiva(id_hex, id_hex), rol))
     poseidas = inventario.filas_poseidas(plain).get(id_hex)
     if not poseidas:
         raise Ilegal("no tienes ningun manual de esa pasiva en la mochila")
