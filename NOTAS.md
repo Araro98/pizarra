@@ -4153,6 +4153,37 @@ patrones sobre el texto de la pasiva; `O.limite_de_pasiva`, y
 `pasivas_de_equipo` devuelve `limite` y `estado` (bien / justo / pasa). Las
 pasivas sin tope conocido (tasa de brecha, drenar tension...) no llevan numero.
 
+### O-177 · El arbol de un normal: casillas por nivel y tecnicas confirmadas
+
+Aaron, con Kevin Dragonfly (Leyenda, nivel 99 puesto con el editor, seis
+tecnicas puestas con el editor): en el juego salia SIN tecnicas y con las
+pasivas con candado; el arbol "medio bugueado, como si no tuviera ruta"; al
+elegir la ruta y salir se abrian las pasivas y las tres del tronco, pero las
+tres de la rama seguian sin salir.
+
+Leido de los 2.700 normales de su partida:
+
+- El mapa de casillas (`0xBB459017`) lo abre el juego con el nivel, en orden:
+  tronco 1 casilla a nivel 1, 2 a nivel 10, 5 a nivel 20, 8 a nivel 30; la rama
+  que juega 2-3 casillas a nivel 30, 5 a nivel 40, 7 a nivel 45, 10 a nivel 50.
+  Kevin tenia UNA casilla (nivel 1) con nivel 99: por eso el arbol raro.
+- `0x45E2D879` (9 bytes) lleva la casilla de cada ranura de tecnica
+  CONFIRMADA: `00 02 04` siempre (desde nivel 1, aunque las casillas 2 y 4 no
+  esten abiertas), y `09 0b 0d` (rama 1) o `13 15 17` (rama 2) solo cuando el
+  jugador confirma esas tecnicas en el arbol. Los 53 leyendas de nivel 99 del
+  juego llevan `000204090b0dffffff`; Kevin llevaba `000204ffffffffffff` con las
+  ranuras 4-6 llenas: por eso no salian.
+- La marca de la tabla de pasivas (byte `9A091BF4`) es si la casilla de esa
+  pasiva esta abierta: nivel 1 -> 00000, nivel 99 -> 11111. El editor la
+  conservaba (0 en filas nuevas): el candado.
+
+`abrir_arbol(plain, fila)` deja el mapa abierto hasta su nivel y confirma las
+tecnicas de las ranuras de la rama que juega; se llama tras cualquier cambio
+de ficha de un normal (`Sesion.aplicar`), y `sincronizar_tabla_pasivas` pone
+las marcas por el arbol. "Arreglar los arboles" (Resumen) repasa los que ya
+estaban a medias. Idolos y Diamantes no se tocan (van con sus ranuras de
+fabrica, O-165/O-169).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

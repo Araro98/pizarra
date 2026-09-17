@@ -122,6 +122,9 @@ class Sesion:
         # cualquier cambio de un jugador deja su tabla de pasivas con numero
         # como la dejaria el juego (NOTAS O-166)
         if isinstance(info, dict) and isinstance(info.get("fila"), int):
+            # el arbol de un normal, como lo dejaria el juego (O-177), y luego
+            # la tabla de pasivas con numero (O-166)
+            nuevo = E.abrir_arbol(nuevo, info["fila"])
             nuevo = E.sincronizar_tabla_pasivas(nuevo, info["fila"])
         self.historial.append((self.plain, list(self.cambios)))
         if len(self.historial) > self.PASOS:
@@ -709,6 +712,7 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
         "total": len(todos), "encajan": len(filtrados), "desde": desde,
         # para el Resumen (que pide todos): ranuras que apuntan a montones (O-171)
         "tecnicas_rotas": len(E.tecnicas_rotas(plain)) if not cuantos else 0,
+        "arboles_rotos": len(E.arboles_rotos(plain)) if not cuantos else 0,
         "jugadores": trozo,
         "filtros": {c: [{"valor": v, "cuantos": n}
                         for v, n in sorted(cuentas[c].items(),
@@ -1163,6 +1167,8 @@ class Manejador(BaseHTTPRequestHandler):
             return sesion.aplicar(E.poner_tecnica, fila, int(c["ranura"]), c.get("id") or c["nombre"])
         if t == "arreglar_tecnicas":
             return sesion.aplicar(E.arreglar_tecnicas)
+        if t == "arreglar_arboles":
+            return sesion.aplicar(E.arreglar_arboles)
         if t == "pasiva":
             return sesion.aplicar(E.poner_pasiva, fila, int(c["ranura"]), c.get("id") or c["nombre"])
         if t == "quitar_heredada":

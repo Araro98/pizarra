@@ -1239,6 +1239,147 @@ def _arquetipo_de_pareja(entradas, parejas):
     return None
 
 
+# --- El arbol de habilidades de un jugador normal (NOTAS O-177) -----------------
+#
+# Lo que deja el juego, leido de los 2.700 normales de la partida de Aaron:
+# el mapa de casillas (`0xBB459017`) se va abriendo con el nivel, en orden, el
+# tronco (0-7) y luego la rama que juega (8-17 o 18-27); y el campo `0x45E2D879`
+# lleva la casilla de cada ranura de tecnica CONFIRMADA: las tres del tronco
+# siempre (0, 2, 4; desde nivel 1), y las de la rama solo cuando el jugador las
+# confirma en el arbol (9, 11, 13 en la rama 1; 19, 21, 23 en la 2). Un jugador
+# con tecnicas en las ranuras 4-6 pero sin confirmarlas no las ensena en el
+# juego (Kevin Dragonfly), y con el mapa sin abrir hasta su nivel el arbol sale
+# "bugueado" y las pasivas con candado hasta que el juego lo repasa.
+CELDA_TECNICA_NORMAL = {1: 0, 2: 2, 3: 4, 4: 9, 5: 11, 6: 13, 7: 19, 8: 21, 9: 23}
+CELDA_PASIVA_NORMAL = {0: 1, 1: 3, 2: 8, 3: 12, 4: 15}      # ranura 3-5: +10 en la rama 2
+# (nivel, casillas abiertas) MEDIDOS en la partida; entre dos medidas se queda
+# la de abajo, para no abrir nunca una casilla antes que el juego
+NIVEL_CELDA_TRONCO = ((1, 1), (10, 2), (20, 5), (30, 8))
+NIVEL_CELDA_RAMA = ((30, 2), (40, 5), (45, 7), (50, 10))
+
+
+def _celdas_abiertas_por_nivel(nivel):
+    tronco = max([c for u, c in NIVEL_CELDA_TRONCO if nivel >= u] or [0])
+    rama = max([c for u, c in NIVEL_CELDA_RAMA if nivel >= u] or [0])
+    return tronco, rama
+
+
+def _arbol_esperado(plain, fila):
+    """(offset del mapa, 40 bytes de mapa, offset del 45E2, 9 bytes) tal y como
+    los dejaria el juego para ese normal a su nivel; None si no aplica."""
+    if J.array(plain, J.ARRAY_RAREZA)[fila] >= 5:
+        return None
+    try:
+        off, n = _campo(plain, fila, J.F_TABLERO)
+        offr, nr = _campo(plain, fila, J.F_RAMA)
+        o45, n45 = _campo(plain, fila, 0x45E2D879)
+    except Ilegal:
+        return None
+    if n != 60 or nr != 4 or n45 != 9:
+        return None
+    rama = struct.unpack_from("<I", plain, offr)[0]
+    if rama not in (0, 1):
+        return None
+    nivel = J.array(plain, J.ARRAY_NIVEL)[fila]
+    tronco, ramac = _celdas_abiertas_por_nivel(nivel)
+    mapa = bytearray(plain[off:off + 40])
+    for c in range(tronco):
+        mapa[c] = 1
+    ini = 8 if rama == 0 else 18
+    for c in range(ramac):
+        mapa[ini + c] = 1
+    tecnicas = J.ocurrencias(plain, *J.ANCLA_TECNICAS)
+    campos, _ = J._campos_de(plain, tecnicas[fila], set(J.RANURAS_TECNICAS))
+    # solo se ANADE: lo que el juego ya tenga puesto (confirmaciones raras de
+    # personajes de la historia, casillas de mas) no se toca
+    e45 = bytearray(plain[o45:o45 + 9])
+    for k in range(1, 10):
+        if e45[k - 1] != 0xFF:
+            continue
+        celda = CELDA_TECNICA_NORMAL[k]
+        if k <= 3:
+            e45[k - 1] = celda          # el juego las lista siempre, desde nivel 1
+            continue
+        ref = int.from_bytes(campos.get(J.RANURAS_TECNICAS[k - 1], b""), "little")
+        de_rama = 0 if k <= 6 else 1
+        if ref and de_rama == rama and mapa[celda]:
+            e45[k - 1] = celda          # confirmada, como al pulsar en el arbol
+    return off, bytes(mapa), o45, bytes(e45)
+
+
+def abrir_arbol(plain, fila):
+    """Deja el arbol de un jugador normal como lo dejaria el juego: casillas
+    abiertas hasta su nivel y las tecnicas de sus ranuras confirmadas (O-177).
+    Se llama despues de cualquier cambio en la ficha. Devuelve plain."""
+    esperado = _arbol_esperado(plain, fila)
+    if esperado is None:
+        return plain
+    off, mapa, o45, e45 = esperado
+    if plain[off:off + 40] == mapa and plain[o45:o45 + 9] == e45:
+        return plain
+    buf = bytearray(plain)
+    buf[off:off + 40] = mapa
+    buf[o45:o45 + 9] = e45
+    return bytes(buf)
+
+
+def _marcas_por_arbol(plain, fila):
+    """La marca de desbloqueada de cada ranura de pasiva de un normal: 1 si su
+    casilla del arbol esta abierta (O-177). None si no aplica."""
+    if J.array(plain, J.ARRAY_RAREZA)[fila] >= 5:
+        return None
+    try:
+        off, n = _campo(plain, fila, J.F_TABLERO)
+        offr, _ = _campo(plain, fila, J.F_RAMA)
+    except Ilegal:
+        return None
+    if n != 60:
+        return None
+    rama = struct.unpack_from("<I", plain, offr)[0]
+    fuera = []
+    for k in range(5):
+        celda = CELDA_PASIVA_NORMAL[k] + (10 if (k >= 2 and rama == 1) else 0)
+        fuera.append(1 if plain[off + celda] else 0)
+    return fuera
+
+
+def arboles_rotos(plain):
+    """[fila] de normales cuyo arbol no esta como lo dejaria el juego (O-177)."""
+    ident = J.array(plain, J.ARRAY_IDENTIDAD)
+    rareza = J.array(plain, J.ARRAY_RAREZA)
+    fuera = []
+    for fila in range(min(6000, len(ident))):
+        if not ident[fila] or rareza[fila] >= 5:
+            continue
+        esperado = _arbol_esperado(plain, fila)
+        if esperado is None:
+            continue
+        off, mapa, o45, e45 = esperado
+        if plain[off:off + 40] != mapa or plain[o45:o45 + 9] != e45:
+            fuera.append(fila)
+    return fuera
+
+
+def arreglar_arboles(plain):
+    """Abre el arbol hasta su nivel y confirma las tecnicas de todos los normales
+    que lo tengan a medias, y repasa sus marcas de pasivas."""
+    rotos = arboles_rotos(plain)
+    if not rotos:
+        raise Ilegal("no hay ningun arbol a medias")
+    buf = bytearray(plain)
+    for fila in rotos:
+        esperado = _arbol_esperado(plain, fila)
+        if esperado is None:
+            continue
+        off, mapa, o45, e45 = esperado
+        buf[off:off + 40] = mapa
+        buf[o45:o45 + 9] = e45
+    plain = bytes(buf)
+    for fila in rotos:
+        plain = sincronizar_tabla_pasivas(plain, fila)
+    return plain, {"jugadores": len(rotos), "que": "arboles abiertos hasta su nivel y tecnicas confirmadas"}
+
+
 def sincronizar_tabla_pasivas(plain, fila):
     """Deja la tabla de pasivas con numero de ese jugador (NOTAS O-166) como la
     dejaria el juego con lo que hay ahora en su ficha:
@@ -1260,6 +1401,12 @@ def sincronizar_tabla_pasivas(plain, fila):
     actual = J.tabla_pasivas(plain, fila)
     marcas = [x["marca"] for x in actual] if actual else [0] * 5
     ident = J.array(plain, J.ARRAY_IDENTIDAD)[fila]
+    # en un normal la marca dice si la casilla de esa pasiva esta abierta en el
+    # arbol (O-177): nivel 1 -> 00000, nivel 99 -> 11111, como deja el juego
+    if ident:
+        por_arbol = _marcas_por_arbol(plain, fila)
+        if por_arbol is not None:
+            marcas = por_arbol
     entradas = None
     if not ident:
         entradas = [("00000000", 0.0)] * 5

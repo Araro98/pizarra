@@ -1793,6 +1793,18 @@ async function pintaResumen() {
   c.appendChild(cajas);
 
   // Arreglos: solo salen si de verdad hay algo que arreglar.
+  if (d.arboles_rotos) {
+    const g = el("div", {class:"grupo-resumen"});
+    g.appendChild(el("h3", {text:"Arreglos"}));
+    g.appendChild(el("p", {text:d.arboles_rotos + " jugadores normales tienen el arbol a medias: "
+      + "casillas sin abrir para su nivel o tecnicas de la rama sin confirmar (las puso una version "
+      + "anterior del editor). En el juego salen sin esas tecnicas y con las pasivas con candado."}));
+    g.appendChild(el("button", {class:"btn", text:"Arreglar los arboles",
+      onclick:async () => { if (await confirma("Arreglar los arboles", "Se abren las casillas hasta su "
+        + "nivel y se confirman las tecnicas, como lo deja el juego. Se puede deshacer."))
+        manda({tipo:"arreglar_arboles"}); }}));
+    c.appendChild(g);
+  }
   if (d.tecnicas_rotas) {
     const g = el("div", {class:"grupo-resumen"});
     g.appendChild(el("h3", {text:"Arreglos"}));
