@@ -2,447 +2,447 @@
 # id = los 4 bytes tal y como aparecen en la partida.
 # icono = ruta dentro de 200_icon/10_icon_chr (vacio = no hay).
 # Lo genera herramientas/construir_espiritus.py (NOTAS O-102).
-id,familia,rango,icono,modelo
-0097875D,mixi,1,face/c05029470_l.png,wmm00270
-00AF952C,armadura,1,aura_armed/c04003500_5100_l.png,was00290_1
-01B6FCEE,armadura,3,aura_armed/c05022910_5000_l.png,was00100
-023CFA54,armadura,3,aura_armed/c05023660_5000_l.png,wao00480
-0323EE8D,mixi,2,face/c05029450_l.png,wmm00260_h2
-0452EB39,mixi,1,face/c05029440_l.png,wmm00230
-04BBB0BF,alma,3,aura_soul/a000110_l.png,wsd000110
-0573908A,armadura,2,aura_armed/c04001100_5000_l.png,was00140
-057BA260,kenshin,2,aura_fs/k000420_l.png,wkd00420
-059C89E8,armadura,1,aura_armed/c04003500_5100_l.png,was00290_h1
-05FD76CF,kenshin,1,aura_fs/k000940_l.png,wkk00940
-0617924F,mixi,2,face/c11908150_l.png,wmm00241_h2
-06524E9B,kenshin,4,aura_fs/k000190_l.png,wks00190
-073F662B,especial,5,,mode_change_c06030060
-07441C0A,kenshin,3,aura_fs/k000870_l.png,wks00870
-082A77B7,armadura,4,aura_armed/c05023510_5000_l.png,was00860
-0897A1A0,armadura,1,aura_armed/c05020700_5000_l.png,was00630_h2
-0905247F,kenshin,4,,wko00721
-0995EF3D,armadura,1,aura_armed/c04001490_5000_l.png,wao00091
-09ACEE64,kenshin,1,aura_fs/k000630_l.png,wks00630
-0A6DB6D1,especial,5,,mode_change_c04000150
-0A931D72,armadura,1,aura_armed/c02024410_5000_l.png,wak00950
-0C316977,alma,4,aura_soul/a000190_l.png,wsd000190
-0C63EF26,armadura,4,aura_armed/c04002810_5000_l.png,wak00461
-0CF136D4,armadura,2,aura_armed/c05023010_5000_l.png,wak00790
-0E091089,armadura,5,aura_armed/c04003700_5100_l.png,was00240_h2
-0E1334F3,alma,4,aura_soul/a000060_l.png,wso000060
-1000DA7C,mixi,3,face/c11908140_l.png,wmm00211
-104D40E7,armadura,2,aura_armed/c04000030_5000_l.png,wad00650_h2
-114ED203,mixi,1,face/c11010230_l.png,wmm11010230_st0801
-11886BD4,armadura,4,aura_armed/c05022860_5000_l.png,wao00070
-11B3783D,armadura,1,aura_armed/c04003500_5100_l.png,was00290
-11E810DF,alma,3,aura_soul/a000450_l.png,wso000450
-1292A62C,kenshin,5,aura_fs/k000240_l.png,wks00240
-129A94C6,armadura,1,aura_armed/c05021820_5000_l.png,wad00720
-13FFCE3F,mixi,1,face/c05029410_l.png,wmm00210_h2
-14C5B618,mixi,2,face/c11908160_l.png,wmm00251
-15836018,armadura,4,aura_armed/c05028450_5000_l.png,wao00720_1
-16CBB2FD,mixi,3,face/c11908170_l.png,wmm00231_h2
-177A8B30,kenshin,2,aura_fs/k000900_l.png,wko00900
-1814E08D,armadura,1,aura_armed/c05022900_5000_l.png,wao00910
-18B70ACC,armadura,4,aura_armed/c05023620_5000_l.png,wad00920
-1A214C47,armadura,1,aura_armed/c05028530_5000_l.png,wad00723_1
-1B100072,kenshin,1,aura_fs/k000490_l.png,wkk00490
-1CDDB622,mixi,2,face/c05028120_l.png,wmm00120
-1DA78F1F,alma,3,aura_soul/a000210_l.png,wss000210
-1DC94936,armadura,3,aura_armed/c05021950_5000_l.png,was00722
-1E1F0FD7,kenshin,2,,wko02025
-1E4DD8C2,armadura,2,aura_armed/c05023700_5000_l.png,was00530
-1EDD1380,kenshin,2,aura_fs/k000280_l.png,wks00280
-1F73F030,armadura,3,aura_armed/c05028550_5000_l.png,was00722_1
-2037656F,armadura,4,aura_armed/c04001610_5000_l.png,wak00111
-20B3A370,kenshin,1,aura_fs/k000830_l.png,wkd00830
-20F4A684,armadura,2,aura_armed/c04000030_5000_l.png,wad00650_b1
-213D0849,kenshin,3,aura_fs/k000300_l.png,wks00300
-2188D903,especial,5,,mode_change_c11150120
-224794D6,alma,2,aura_soul/a000390_l.png,wss000390
-228E0FAA,armadura,3,aura_armed/c06030140_5000_l.png,was00021
-22B70EF3,kenshin,2,aura_fs/k000680_l.png,wko00680
-22E9A219,armadura,4,aura_armed/c05028460_5000_l.png,wao00721_1
-2346285C,mixi,1,face/c05029410_l.png,wmm00210_b1
-2384628C,kenshin,3,aura_fs/k000230_l.png,wkk00230
-24F01BBB,kenshin,4,aura_fs/k000510_l.png,wkk00510
-2672549E,mixi,3,face/c11908170_l.png,wmm00231_b1
-2682D2DE,alma,3,aura_soul/a000550_l.png,wso000550
-282F6555,armadura,2,aura_armed/c05023610_5000_l.png,wak00260
-29B7D181,kenshin,2,aura_fs/k000380_l.png,wks00380
-29BDFB74,especial,5,,mode_change_c05020700
-2B9E7006,armadura,3,aura_armed/c05023410_5000_l.png,wak00500
-2BB77423,mixi,3,face/c05028020_l.png,wmm00020
-2D4B8E46,armadura,1,aura_armed/c05028440_5000_l.png,wad00722_1
-2DD7F200,armadura,3,aura_armed/c01000100_5000_l.png,was00102
-2E08217A,alma,5,aura_soul/a000350_l.png,wss000350
-2E5363F4,armadura,4,aura_armed/c05022710_5000_l.png,was00310
-2E5B511E,kenshin,4,aura_fs/k000670_l.png,wkd00670
-2EF8BB5F,kenshin,1,aura_fs/k000640_l.png,wko00640
-2F721847,mixi,3,face/c05028110_l.png,wmm00060
-2F7E228C,armadura,3,aura_armed/c05023500_5000_l.png,wao00810
-302EDE0B,kenshin,3,aura_fs/k000970_l.png,wks00970
-30A0384E,armadura,4,aura_armed/c05021010_5000_l.png,wak00170
-3163F14E,alma,3,aura_soul/a000510_l.png,wsk000510
-31A847D8,armadura,3,aura_armed/c05021900_5000_l.png,was00720
-3219528B,armadura,3,aura_armed/c04002900_5000_l.png,was00040
-32B09890,armadura,2,aura_armed/c04002490_5000_l.png,wao00151
-3326BB0A,kenshin,2,,wkk00723
-339A08EE,mixi,2,face/c05029450_l.png,wmm00260_b1
-33D120E8,especial,5,,mode_change_c08030032
-35651956,kenshin,2,aura_fs/k000200_l.png,wkd00200
-356D2BBC,armadura,2,aura_armed/c05020110_5000_l.png,was00760
-36178879,alma,2,aura_soul/a000230_l.png,wsk000230
-3619AB35,kenshin,2,aura_fs/k002030_l.png,wko02030_st0701
-36AE742C,mixi,2,face/c11908150_l.png,wmm00241_b1
-382E47C3,armadura,1,aura_armed/c05020700_5000_l.png,was00630_b1
-394C2003,especial,5,,mode_change_c03030430
-3A0B72EB,armadura,4,aura_armed/c04003230_5100_l.png,wad00210
-3B5BAB76,alma,1,aura_soul/a000090_l.png,wsd000090
-3D752B86,armadura,1,aura_armed/c04001700_5000_l.png,was00411
-3D773936,kenshin,4,aura_fs/k000050_l.png,wks00050
-3DBC9A96,alma,2,aura_soul/a000120_l.png,wso000120
-3DF9DF73,armadura,2,aura_armed/c05029620_5000_l.png,wak00850
-3E56E727,armadura,1,aura_armed/c05023110_5000_l.png,was00080
-3E80ACFA,especial,5,,wap09002
-3EB0F6EA,armadura,5,aura_armed/c04003700_5100_l.png,was00240_b1
-3EFB9A28,armadura,1,aura_armed/c05021840_5000_l.png,wad00722
-3F82703C,armadura,3,aura_armed/c04000100_5100_l.png,was00303_h1
-3FCE53F3,kenshin,1,aura_fs/k000160_l.png,wkk00160
-40A766FE,armadura,4,aura_armed/c05021500_5100_l.png,wad00670_b1
-41A69C44,mixi,2,face/c05029450_l.png,wmm00260
-42AE4670,kenshin,2,aura_fs/k000790_l.png,wkk00790
-43037603,armadura,3,aura_armed/c04000100_5100_l.png,was00302
-4315E826,mixi,1,face/c05029440_l.png,wmm00230_b1
-439F0A45,armadura,1,aura_armed/c05028420_5000_l.png,wad00720_1
-44CC6DD6,kenshin,1,aura_fs/k000950_l.png,wkk00950
-4563F020,mixi,1,face/c05029460_l.png,wmm00220
-462194E4,mixi,3,face/c11908140_l.png,wmm00211_b1
-46750713,kenshin,4,aura_fs/k000860_l.png,wks00860
-46CDB632,armadura,3,aura_armed/c05028510_5000_l.png,was00721_1
-475A54DB,armadura,4,aura_armed/c05021860_5000_l.png,wao00721
-47981F48,especial,5,,wap01003
-47F39EC0,armadura,1,aura_armed/c05020700_5000_l.png,was00630
-480D3E3F,armadura,4,aura_armed/c04002300_5100_l.png,was00190
-48B4206B,mixi,2,face/c05028030_l.png,wmm00030_b1
-491B6CAE,armadura,3,aura_armed/c06037410_5100_l.png,was00870
-4997985B,armadura,4,aura_armed/c04002210_5000_l.png,wak00431
-4B24D2C4,armadura,2,aura_armed/c05023050_5000_l.png,wad00420
-4B2CE02E,kenshin,2,aura_fs/k000140_l.png,wks00140
-4BA2066B,armadura,1,aura_armed/c05023210_5000_l.png,wak00940
-4C3D261A,armadura,4,aura_armed/c05028490_5000_l.png,wao00723_1
-4C5A8BA9,armadura,2,aura_armed/c04003220_5100_l.png,was00221
-4C638AF0,kenshin,3,aura_fs/k000480_l.png,wko00480
-4C652F54,armadura,4,aura_armed/c05029840_5000_l.png,wad00672
-4DFC1203,especial,5,,mode_change_c11801040
-4FE98C4A,kenshin,3,aura_fs/k000100_l.png,wks00100
-5012A866,kenshin,2,aura_fs/k000530_l.png,wks00530
-50595129,mixi,1,face/c05028140_l.png,wmm00055_h1
-50826324,armadura,2,aura_armed/c04003700_5000_l.png,was00280
-50D90BC6,alma,3,aura_soul/a000440_l.png,wso000440
-5118C540,armadura,2,aura_armed/c05021920_5000_l.png,wak00721
-526E1F5B,kenshin,3,aura_fs/k002060_l.png,wks02060_st0901
-53681E95,alma,3,aura_soul/a000320_l.png,wso000320
-53AF38CB,armadura,3,aura_armed/c04003280_5100_l.png,wao00183
-54126D0C,kenshin,3,aura_fs/k002020_l.png,wks02020_st0701
-54D5D6B2,armadura,1,aura_armed/c04001500_5000_l.png,was00131
-554F70D6,armadura,1,aura_armed/c05020710_5000_l.png,wak00490
-558F2F75,alma,5,aura_soul/a000290_l.png,wsd000290
-55F4AD01,mixi,2,face/c11908150_l.png,wmm00241
-564B9029,kenshin,1,aura_fs/k000910_l.png,wko00910
-56E87A68,kenshin,4,aura_fs/k000920_l.png,wkd00920
-56FDB456,mixi,1,face/c11908180_l.png,wmm00261_b1
-58029AB6,armadura,1,aura_armed/c04001220_5000_l.png,wad00321
-5853F862,alma,2,aura_soul/a000240_l.png,wss000240
-5925FB94,armadura,2,aura_armed/c05023100_5000_l.png,wao00900
-59BB18AD,mixi,2,face/c11908210_l.png,wmm00281
-5B1065A4,armadura,3,aura_armed/c04003060_5000_l.png,wao00471
-5BC52AD4,armadura,3,aura_armed/c04000080_5100_l.png,was00300_b1
-5BD74A52,armadura,5,aura_armed/c04003500_5000_l.png,was00241_b1
-5CCB03B6,kenshin,4,aura_fs/k002040_l.png,wkd02040_st0701
-5CCDD688,armadura,5,aura_armed/c04003700_5100_l.png,was00240
-5DECAD3B,mixi,2,face/c05028150_l.png,wmm00130
-5E9E39DC,armadura,4,aura_armed/c05021870_5000_l.png,wao00725
-5FD71B70,kenshin,4,aura_fs/k000070_l.png,wko00070
-5FEC0899,kenshin,1,aura_fs/k000290_l.png,wks00290
-600421BA,armadura,4,aura_armed/c05021500_5100_l.png,wad00670
-600C1350,kenshin,4,aura_fs/k000310_l.png,wks00310
-60A7CBFB,armadura,1,aura_armed/c05021100_5000_l.png,wao00640
-61215228,kenshin,3,aura_fs/k000810_l.png,wko00810
-63D55F1C,mixi,1,face/c05028140_l.png,wmm00055
-6402DC94,alma,4,aura_soul/a000220_l.png,wso000220
-646C30D1,armadura,4,aura_armed/c04003290_5100_l.png,was00192
-64C97F34,kenshin,4,aura_fs/k000350_l.png,wks00350
-65C100A2,kenshin,3,aura_fs/k000500_l.png,wkk00500
-660A5B22,armadura,3,aura_armed/c04003270_5100_l.png,wao00185
-66445235,mixi,1,face/c11908180_l.png,wmm00261_h2
-667015F1,kenshin,2,aura_fs/k000260_l.png,wkk00260
-69DE21EF,alma,4,aura_soul/a000470_l.png,wsd000470
-6A866F3A,mixi,2,face/c05028030_l.png,wmm00030
-6AAF6B1F,armadura,4,aura_armed/c05029820_5000_l.png,wak00510
-6B3B5A35,armadura,4,aura_armed/c05021890_5000_l.png,wao00723
-6B6EAC31,armadura,5,aura_armed/c04003500_5000_l.png,was00241_h2
-6B7CCCB7,armadura,3,aura_armed/c04000080_5100_l.png,was00300_h2
-6B92902E,armadura,1,aura_armed/c05020700_5000_l.png,was00632
-6BF911A6,especial,5,,wap01001
-6C882F30,alma,4,aura_soul/a000420_l.png,wss000420
-6CE87E57,armadura,2,aura_armed/c05020800_5000_l.png,wao00680
-6DDB1228,armadura,3,aura_armed/c04003210_5000_l.png,wak00230
-6E43035E,mixi,4,face/c05028090_l.png,wmm00070
-6EECD3D4,armadura,1,aura_armed/c05023420_5000_l.png,wad00830
-6F6278ED,armadura,3,aura_armed/c04000080_5100_l.png,was00300
-6FA9CE7B,alma,1,aura_soul/a000130_l.png,wsk000130
-70099783,kenshin,1,aura_fs/k000080_l.png,wks00080
-701E809D,armadura,4,aura_armed/c05021500_5100_l.png,wad00670_h2
-7052EA57,alma,4,aura_soul/a000500_l.png,wsk000500
-70A4EA8C,kenshin,1,,wkd00722
-712971D3,kenshin,3,aura_fs/k002020_l.png,wks02020
-71912357,armadura,1,aura_armed/c04001010_5000_l.png,wak00160
-71A77433,armadura,3,aura_armed/c05028500_5000_l.png,was00720_1
-723D7CA1,especial,5,,wap01005
-73284992,armadura,4,aura_armed/c04000160_5000_l.png,was00050
-73A6AFD7,kenshin,2,aura_fs/k000850_l.png,wkk00850
-73AC0E45,mixi,1,face/c05029440_l.png,wmm00230_h2
-7454024F,kenshin,4,aura_fs/k000210_l.png,wkd00210
-745610FF,armadura,2,aura_armed/c05029830_5000_l.png,wad00651
-74978633,alma,4,aura_soul/a000540_l.png,wsk000540
-74F5C844,armadura,1,aura_armed/c05028430_5000_l.png,wad00721_1
-75732EDD,especial,5,,test_kizuna_trans
-75EC1DB7,kenshin,3,aura_fs/k002060_l.png,wks02060
-762505C3,alma,2,aura_soul/a000040_l.png,wsd000040
-76987287,mixi,3,face/c11908140_l.png,wmm00211_h2
-77B66778,alma,2,aura_soul/a000050_l.png,wss000050
-780DC608,mixi,2,face/c05028030_l.png,wmm00030_h2
-78815CFB,armadura,4,aura_armed/c04002510_5000_l.png,was00441
-79D467E1,mixi,1,face/c05029460_l.png,wmm00220_h1
-7A6AB06F,alma,1,aura_soul/a000080_l.png,wsd000080
-7B325B18,kenshin,2,aura_fs/k000760_l.png,wks00760
-7B3A69F2,armadura,2,aura_armed/c04003240_5100_l.png,wad00200
-7B57E41B,armadura,4,aura_armed/c05028480_5000_l.png,wao00722_1
-7C44309F,armadura,3,aura_armed/c04001710_5000_l.png,was00401
-7C46222F,kenshin,3,aura_fs/k000040_l.png,wks00040
-7E422032,especial,5,,mode_change_c11150120_legend
-7E71AEAF,armadura,3,aura_armed/c05024900_5000_l.png,was00970
-7EFF48EA,kenshin,4,aura_fs/k000170_l.png,wkk00170
-7FCE3625,armadura,3,aura_armed/c04002060_5100_l.png,wao00181
-7FF7377C,kenshin,3,aura_fs/k000720_l.png,wks00720
-806DED65,kenshin,1,aura_fs/k000320_l.png,wkd00320
-8182504F,especial,5,,wkt00010
-821CEAE9,alma,4,aura_soul/a000170_l.png,wsd000170
-823501EB,especial,5,,awakening_change
-82DCB54A,armadura,1,aura_armed/c05022610_5000_l.png,wak00770
-82F5B16F,mixi,2,face/c05029430_l.png,wmm00250
-8344019E,kenshin,4,aura_fs/k000690_l.png,wks00690
-837F1277,kenshin,3,aura_fs/k000470_l.png,wko00470
-83D4CADC,armadura,1,aura_armed/c04000860_5000_l.png,was00120
-84A88101,kenshin,2,aura_fs/k000360_l.png,wkd00360
-84AA93B1,armadura,1,aura_armed/c05021830_5000_l.png,wad00721
-84D1A563,especial,5,,wap09001
-85D379A5,armadura,3,aura_armed/c04000100_5100_l.png,was00303_h2
-8607F429,armadura,2,aura_armed/c05023710_5000_l.png,was00880
-8630DD0B,mixi,1,face/c05029410_l.png,wmm00210
-87837F4A,armadura,1,aura_armed/c05029810_5000_l.png,was00291
-879F40FD,kenshin,3,aura_fs/k000960_l.png,wkk00960
-87B86CA3,armadura,4,aura_armed/c04002290_5000_l.png,wao00071
-887DDFB5,armadura,2,aura_armed/c04002500_5100_l.png,was00531
-8BC6EABC,armadura,4,aura_armed/c04003710_5000_l.png,wad00370
-8BCED856,kenshin,3,aura_fs/k000610_l.png,wks00610
-8BF94E41,armadura,3,aura_armed/c05021960_5000_l.png,was00723
-8CBAA161,kenshin,1,aura_fs/k000130_l.png,wks00130
-8E8D2DE1,armadura,4,aura_armed/c05023300_5000_l.png,was00800
-8EBA04C3,mixi,3,face/c05028630_l.png,wmm00290
-8F746612,armadura,1,aura_armed/c04003500_5100_l.png,was00290_b1
-903B33BE,alma,5,aura_soul/a000310_l.png,wso000310
-90F8A2F4,armadura,3,aura_armed/c05020140_5000_l.png,wad00700
-91F8EF88,kenshin,4,aura_fs/k000430_l.png,wkk00430
-9262EC4E,mixi,3,face/c11908170_l.png,wmm00231
-934397FD,armadura,2,aura_armed/c01002110_5000_l.png,was00141
-9349B7A7,armadura,2,aura_armed/c05024830_5000_l.png,wad00060
-940CFD23,armadura,3,aura_armed/c04003070_5000_l.png,wao00481
-9435FC7A,kenshin,2,aura_fs/k000220_l.png,wks00220
-963559D8,mixi,4,face/c05028620_l.png,wmm00180
-96A7802A,mixi,3,face/c11908200_l.png,wmm00271
-972F3182,armadura,1,aura_armed/c04000080_5000_l.png,wao00010
-974F4A89,alma,2,aura_soul/a000430_l.png,wso000430
-9784E929,kenshin,5,aura_fs/k000540_l.png,wks00540
-9786FB99,armadura,3,aura_armed/c04003080_5000_l.png,was00101
-9A53E851,armadura,4,aura_armed/c05022810_5000_l.png,wak00460
-9A76D6BF,armadura,4,aura_armed/c05023310_5000_l.png,wao00930
-9A7AEC74,mixi,1,face/c05028080_l.png,wmm00140
-9B00D549,alma,5,aura_soul/a000270_l.png,wss000270
-9E064F77,kenshin,3,aura_fs/k000390_l.png,wkk00390
-9EBF8010,mixi,4,face/c05028130_l.png,wmm00100
-9F96C949,kenshin,1,aura_fs/k000710_l.png,wkd00710
-9FA5E84A,armadura,1,aura_armed/c05020460_5000_l.png,wao00090
-A0EE2B28,kenshin,4,aura_fs/k000440_l.png,wks00440
-A15F9BD9,mixi,4,face/c05028160_l.png,wmm00080
-A2727F03,kenshin,4,aura_fs/k000820_l.png,wko00820
-A42955FC,armadura,3,aura_armed/c05029850_5000_l.png,was00041
-A42B474C,kenshin,3,aura_fs/k000400_l.png,wks00400
-A4809FE7,armadura,2,aura_armed/c05023490_5000_l.png,wao00150
-A52338DA,kenshin,4,aura_fs/k000250_l.png,wkk00250
-A59A5B92,especial,5,,mode_change_c02023520
-A6903F39,armadura,4,aura_armed/c04002410_5000_l.png,wak00171
-A6C2B968,alma,3,aura_soul/a000480_l.png,wsd000480
-A7040E13,armadura,3,aura_armed/c04003470_5000_l.png,wao00342
-A79840AF,armadura,3,aura_armed/c05021910_5000_l.png,was00721
-A7A141F6,kenshin,3,aura_fs/k000180_l.png,wko00180
-A844F719,especial,5,,pv8_kizuna_trans_GK
-A866E050,armadura,1,aura_armed/c04002100_5000_l.png,was00081
-A8B0AB8D,especial,5,,wap09003
-A8CB9D5F,armadura,1,aura_armed/c05021930_5000_l.png,wad00723
-A97A929B,armadura,1,aura_armed/c05024920_5000_l.png,wad00840
-A9AEC7A6,mixi,1,face/c05029410_l.png,wmm00210_h1
-A9FC4634,armadura,3,aura_armed/c06037380_5000_l.png,wak00520
-AA1C497E,armadura,2,aura_armed/c04000030_5000_l.png,wad00650_h1
-AA5B4C8A,kenshin,3,aura_fs/k000890_l.png,wkd00890
-AB452CF1,armadura,1,aura_armed/c05021490_5000_l.png,was00410
-AC3155C6,armadura,1,aura_armed/c04000080_5200_l.png,was00330
-AC39672C,kenshin,2,aura_fs/k000650_l.png,wkd00650
-AC9ABB64,mixi,3,face/c11908170_l.png,wmm00231_h1
-ACFAE350,alma,2,aura_soul/a000100_l.png,wsk000100
-AD102E75,mixi,2,face/c05028040_l.png,wmm00040
-AF804095,armadura,1,aura_armed/c04002910_5000_l.png,was00450
-AFDB021B,alma,1,aura_soul/a000410_l.png,wss000410
-B0202637,alma,3,aura_soul/a000020_l.png,wss000020
-B0B0D22F,alma,1,aura_soul/a000250_l.png,wsk000250
-B15A1F0A,mixi,4,face/c05028610_l.png,wmm00310
-B16D3628,armadura,4,aura_armed/c05022890_5000_l.png,was00980
-B27A5CF8,kenshin,1,aura_fs/k002010_l.png,wks02010
-B2C6A839,armadura,1,aura_armed/c05020700_5000_l.png,was00630_h1
-B301C77C,alma,4,aura_soul/a000530_l.png,wsk000530
-B362BAAD,especial,5,,mode_change_c08030032_legend
-B44A7996,armadura,3,aura_armed/c04000090_5100_l.png,was00301_h1
-B4581910,armadura,5,aura_armed/c04003700_5100_l.png,was00240_h1
-B4BE08DD,armadura,3,aura_armed/c04000100_5000_l.png,was00020
-B56A9FC6,armadura,3,aura_armed/c04000100_5100_l.png,was00303_b1
-B6076218,armadura,4,aura_armed/c05021410_5000_l.png,wak00110
-B6BF309C,kenshin,2,aura_fs/k002050_l.png,wks02050
-B754756C,alma,1,aura_soul/a000180_l.png,wso000180
-B8636483,armadura,4,aura_armed/c04001310_5000_l.png,was00311
-B972E714,mixi,2,face/c05029450_l.png,wmm00260_h1
-BAD81CF6,kenshin,2,aura_fs/k000660_l.png,wkk00660
-BB1BC0C0,alma,1,aura_soul/a000140_l.png,wso000140
-BB40A822,armadura,1,aura_armed/c05022880_5000_l.png,was00780
-BBD06360,kenshin,2,aura_fs/k000030_l.png,wks00030
-BC469BD6,mixi,2,face/c11908150_l.png,wmm00241_h1
-BCA608E7,armadura,4,aura_armed/c04003660_5000_l.png,was00351
-BCAC28BD,armadura,3,aura_armed/c05023230_5000_l.png,wad00270
-BD877354,mixi,3,face/c05028020_l.png,wmm00021
-BE035D95,kenshin,1,aura_fs/k000990_l.png,wks00990
-BFCD8071,armadura,1,aura_armed/c04003500_5100_l.png,was00290_h2
-C0D25D45,kenshin,4,aura_fs/k000800_l.png,wks00800
-C22E6753,alma,5,aura_soul/a000300_l.png,wsk000300
-C25CCF91,mixi,2,face/c05028030_l.png,wmm00030_h1
-C2E5D1C5,armadura,1,aura_armed/c05022680_5000_l.png,was00130
-C32DF1F0,alma,1,aura_soul/a000160_l.png,wsd000160
-C37F77A1,armadura,1,aura_armed/c01000120_5000_l.png,wak00491
-C3856E78,mixi,1,face/c05029460_l.png,wmm00220_h2
-C3C4AA76,mixi,2,face/c05029420_l.png,wmm00240
-C53A7059,kenshin,3,aura_fs/k000340_l.png,wko00340
-C591A8F2,armadura,3,aura_armed/c05020500_5000_l.png,was00610
-C5999A18,kenshin,4,aura_fs/k000370_l.png,wkd00370
-C59F3FBC,armadura,3,aura_armed/c04003300_5100_l.png,wao00182
-C6EB0B37,alma,3,aura_soul/a000340_l.png,wsk000340
-C728C237,armadura,2,aura_armed/c05021810_5000_l.png,wak00720
-C858848D,kenshin,2,aura_fs/k000880_l.png,wks00880
-C8AE3EAB,armadura,4,aura_armed/c05021940_5000_l.png,wao00724
-C92B691F,armadura,4,aura_armed/c05028540_5000_l.png,wao00724_1
-C98575BC,alma,1,aura_soul/a000010_l.png,wso000010
-C9C03059,armadura,3,aura_armed/c05024810_5000_l.png,wak00960
-C9FD07DC,mixi,1,face/c05029440_l.png,wmm00230_h1
-CA4F8904,armadura,4,aura_armed/c05021500_5100_l.png,wad00670_h1
-CAA4BE9B,alma,2,aura_soul/a000380_l.png,wsk000380
-CACAB252,especial,5,,test_awakening_power
-CAF7F1A5,armadura,2,aura_armed/c04003690_5000_l.png,wad00360
-CAFDD1FF,armadura,5,aura_armed/c04003500_5000_l.png,was00241
-CC83C5EE,kenshin,1,aura_fs/k000770_l.png,wkk00770
-CCC97B1E,mixi,3,face/c11908140_l.png,wmm00211_h1
-CD1B713A,armadura,4,aura_armed/c05021500_5000_l.png,was00690
-CD2062D3,armadura,3,aura_armed/c05023260_5000_l.png,wao00470
-CD571A8D,especial,5,,awakening_power_st0301
-CD8BBA78,kenshin,1,aura_fs/k000120_l.png,wks00120
-CE329DC1,armadura,1,aura_armed/c05023430_5000_l.png,wad00320
-CF8B1FDA,mixi,1,face/c05029480_l.png,wmm00280
-D00D237E,armadura,3,aura_armed/c04000090_5100_l.png,was00302_b1
-D0DA7EBE,kenshin,2,aura_fs/k002030_l.png,wko02030
-D12DC52E,armadura,3,aura_armed/c04000080_5100_l.png,was00300_h1
-D13FA5A8,armadura,5,aura_armed/c04003500_5000_l.png,was00241_h1
-D16A53AC,armadura,4,aura_armed/c05021850_5000_l.png,wao00720
-D1A8183F,especial,5,,wap01002
-D1C399B7,armadura,1,aura_armed/c05020700_5000_l.png,was00631
-D1C9B9ED,armadura,1,aura_armed/c05020150_5000_l.png,wad00710
-D1FA98EE,kenshin,1,aura_fs/k000090_l.png,wko00090
-D2BB3DF4,alma,2,aura_soul/a000460_l.png,wso000460
-D2CB3804,especial,5,,mode_change_c11150120_exst
-D353F757,mixi,4,face/c11908190_l.png,wmm00221
-D40C98F5,kenshin,4,aura_fs/k000460_l.png,wkk00460
-D429A61B,kenshin,4,aura_fs/k000930_l.png,wko00930
-D4BCF89B,kenshin,4,aura_fs/k002040_l.png,wkd02040
-D7969B33,mixi,1,face/c11908180_l.png,wmm00261
-D8E7E89D,armadura,2,aura_armed/c05028520_5000_l.png,wak00721_1
-D9704126,kenshin,1,aura_fs/k000010_l.png,wko00010
-D9DB998D,armadura,5,aura_armed/c05020120_5000_l.png,was00540
-DA31CE50,alma,1,aura_soul/a000260_l.png,wss000260
-DA6A8CDE,armadura,2,aura_armed/c05024910_5100_l.png,was00220
-DAB1BED3,mixi,1,face/c05028140_l.png,wmm00055_b1
-DB4BF76D,mixi,4,face/c05028070_l.png,wmm00150
-DC155BAC,mixi,1,face/c11908180_l.png,wmm00261_h1
-DD14D5B3,armadura,2,aura_armed/c04002050_5000_l.png,wad00421
-DD16C703,kenshin,2,aura_fs/k000060_l.png,wkd00060
-DE3D3948,armadura,4,aura_armed/c04003260_5100_l.png,was00191
-DEA7D250,kenshin,3,aura_fs/k000700_l.png,wkd00700
-DF8E9B09,mixi,3,face/c05028050_l.png,wmm00110
-DFA79F2C,armadura,4,aura_armed/c05020410_5000_l.png,wak00430
-E06E80C0,mixi,4,face/c05028100_l.png,wmm00090
-E0B4C51D,armadura,3,aura_armed/c04000090_5100_l.png,was00302_h2
-E1DF3031,kenshin,1,aura_fs/k000450_l.png,wks00450
-E2661788,armadura,2,aura_armed/c04000030_5000_l.png,wad00650
-E26E2562,kenshin,1,aura_fs/k000330_l.png,wks00330
-E2C5FDC9,armadura,2,aura_armed/c05020350_5000_l.png,wao00660
-E4043C2E,armadura,3,aura_armed/c05022620_5000_l.png,wad00890
-E40D7BD6,especial,5,,wap01004
-E5184EE5,armadura,4,aura_armed/c01000110_5000_l.png,was00051
-E51A5C55,kenshin,1,aura_fs/k000410_l.png,wks00410
-E5D1FFF5,alma,1,aura_soul/a000560_l.png,wso000560
-E725E23F,kenshin,1,aura_fs/k000840_l.png,wkd00840
-E7A33690,kenshin,3,aura_fs/k000520_l.png,wkk00520
-E7F3A271,alma,2,aura_soul/a000490_l.png,wsd000490
-E80D028E,alma,3,aura_soul/a000330_l.png,wsd000330
-E8E45908,mixi,4,face/c05028010_l.png,wmm00010
-E9FE3152,armadura,3,aura_armed/c04001420_5100_l.png,wao00180
-EA0858B0,mixi,1,face/c05028140_l.png,wmm00055_h2
-EA7437E8,armadura,3,aura_armed/c05021510_5000_l.png,was00400
-EADFEF43,kenshin,2,aura_fs/k000150_l.png,wko00150
-EB55E074,especial,5,,mode_change_c02023290
-EB7C487E,armadura,4,aura_armed/c04000050_5000_l.png,wak00250
-EC21356C,mixi,1,face/c05028060_l.png,wmm00050
-EC2D0FA7,armadura,4,aura_armed/c05023690_5000_l.png,wao00820
-ECC86EEA,alma,2,aura_soul/a000370_l.png,wsd000370
-ED0A6E85,armadura,2,aura_armed/c04003250_5100_l.png,wad00201
-ED5B0C51,alma,4,aura_soul/a000360_l.png,wss000360
-EEEA1902,alma,4,aura_soul/a000400_l.png,wss000400
-EEEA336E,alma,5,aura_soul/a000280_l.png,wso000280
-EF8D2A9C,armadura,2,aura_armed/c05028410_5000_l.png,wak00720_1
-F03A5C55,armadura,3,aura_armed/c04003310_5100_l.png,wao00184
-F05C2D31,armadura,1,aura_armed/c04000080_5300_l.png,was00990
-F06B0413,mixi,5,face/c05028640_l.png,wmm00300
-F1113D2E,alma,1,aura_soul/a000030_l.png,wss000030
-F230DC65,alma,1,aura_soul/a000520_l.png,wsk000520
-F2E895EF,mixi,1,face/c11010230_l.png,wmm11010230
-F2F35819,kenshin,3,aura_fs/k000270_l.png,wkd00270
-F33C881B,mixi,1,face/c05029460_l.png,wmm00220_b1
-F51FD886,kenshin,1,aura_fs/k000780_l.png,wks00780
-F544A552,alma,3,aura_soul/a000200_l.png,wsk000200
-F58F13C4,armadura,2,aura_armed/c04000090_5000_l.png,was00030
-F5D4514A,alma,3,aura_soul/a000070_l.png,wss000070
-F63426CD,armadura,4,aura_armed/c05020360_5000_l.png,wad00671
-F85812BC,kenshin,4,aura_fs/k000110_l.png,wkk00110
-F9527F9A,armadura,3,aura_armed/c04000090_5100_l.png,was00301
-FA2ADBD9,alma,4,aura_soul/a000150_l.png,wso000150
-FAE17879,kenshin,3,aura_fs/k000020_l.png,wks00020
-FC9F6C68,armadura,4,aura_armed/c01000010_5000_l.png,wak00511
-FD0B5D42,armadura,4,aura_armed/c05021880_5000_l.png,wao00722
-FDA29759,armadura,1,aura_armed/c05020700_5000_l.png,was00633
-FE41AB1E,armadura,4,aura_armed/c05028470_5000_l.png,wao00725_1
-FF32468C,kenshin,4,aura_fs/k000980_l.png,wks00980
+id,familia,rango,icono,modelo,nombre_largo,descripcion,tecnica
+0097875D,mixi,1,face/c05029470_l.png,wmm00270,Miximax Trans: <FLC:FUBUKI>,"Lo conocen como el ""Cazaosos"". Bajo su temperamento tranquilo, se oculta una furia sin igual.",327EB79D
+00AF952C,armadura,1,aura_armed/c04003500_5100_l.png,was00290_1,"Guiverno blanco, drágon heráldico",Utiliza un keshin como armadura para liberar un poder inconmensurable.,467E091C
+01B6FCEE,armadura,3,aura_armed/c05022910_5000_l.png,was00100,"Surtur, gigante de fuego",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+023CFA54,armadura,3,aura_armed/c05023660_5000_l.png,wao00480,"Tachión, hipervelocista",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+0323EE8D,mixi,2,face/c05029450_l.png,wmm00260_h2,Miximax Trans: <FUL:SYU>,Un jugador misterioso y fantasmagórico. Nadie sabe nada sobre su pasado.,F3DC3CB7
+0452EB39,mixi,1,face/c05029440_l.png,wmm00230,Miximax Trans: <FUL:HAKURYU>,Un chico que confía plenamente en sus propias habilidades. Mantiene una gran rivalidad con <FLC:TSURUGI>.,96A9E089
+04BBB0BF,alma,3,aura_soul/a000110_l.png,wsd000110,Tótem búfalo,Un enorme animal de rebaño con unos cuernos y una fuerza que le confieren una potencia sin igual.,BC37EDF0
+0573908A,armadura,2,aura_armed/c04001100_5000_l.png,was00140,"Trickster, ilusionista",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+057BA260,kenshin,2,aura_fs/k000420_l.png,wkd00420,Berserker,Un espíritu de bosque. Es un frenético torbellino que puede con todo.,CBF29259
+059C89E8,armadura,1,aura_armed/c04003500_5100_l.png,was00290_h1,"Guiverno blanco, drágon heráldico",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+05FD76CF,kenshin,1,aura_fs/k000940_l.png,wkk00940,"Arges, cíclope colosal",Un espíritu de viento. Defiende su posición con sus brazos hercúleos.,D9D685E7
+0617924F,mixi,2,face/c11908150_l.png,wmm00241_h2,Miximax Trans: <FLC:KIRINO>,Un jugador tan bello y esbelto que da el pego como chica. Conoce bien a <FLC:SHINDO>.,5FE340A4
+06524E9B,kenshin,4,aura_fs/k000190_l.png,wks00190,Caballo blanco,Un espíritu de montaña. Nunca pierde de vista la portería.,4EF4D0D4
+073F662B,especial,5,,mode_change_c06030060,Modo Furia,"Tras superar un trauma del pasado, ahora controla su ira y la convierte en su fuerza.",073F662B
+07441C0A,kenshin,3,aura_fs/k000870_l.png,wks00870,"Metis, señora del ingenio",Un espíritu de fuego. Destruye sin piedad a todo rival que se le interpone.,F079A89D
+082A77B7,armadura,4,aura_armed/c05023510_5000_l.png,was00860,"Asura, cazador de gloria",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+0897A1A0,armadura,1,aura_armed/c05020700_5000_l.png,was00630_h2,"Atenea, dueña del aire",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+0905247F,kenshin,4,,wko00721,"Sombra de plasma RE, guerrero artificial",Un espíritu de montaña. Está programado para ser infalible.,1667D7AE
+0995EF3D,armadura,1,aura_armed/c04001490_5000_l.png,wao00091,"Barius, supersónico",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+09ACEE64,kenshin,1,aura_fs/k000630_l.png,wks00630,"Atenea, dueña del aire",Un espíritu de viento. Es justa a la par que despiadada.,F079A89D
+0A6DB6D1,especial,5,,mode_change_c04000150,Modo Dos Caras,Sonríe con amabilidad para esconder su auténtica personalidad y no abrirse a los demás.,0A6DB6D1
+0A931D72,armadura,1,aura_armed/c02024410_5000_l.png,wak00950,"Daji, doncella ladina",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+0C316977,alma,4,aura_soul/a000190_l.png,wsd000190,Tótem Garius,Un escamoso depredador de Magmavís que puede retorcer el cuerpo y atacar con su piel blindada.,3A90B7A6
+0C63EF26,armadura,4,aura_armed/c04002810_5000_l.png,wak00461,"Gargantúa, gigante metálico",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+0CF136D4,armadura,2,aura_armed/c05023010_5000_l.png,wak00790,"Amorosa, colablanca explosiva",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+0E091089,armadura,5,aura_armed/c04003700_5100_l.png,was00240_h2,"Arturo, paladín de la espada sagrada",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+0E1334F3,alma,4,aura_soul/a000060_l.png,wso000060,Tótem Dohma,Una criatura reptiliana de Sílice que se esconde en la arena y se alimenta de rocas subterráneas.,FE1409FB
+1000DA7C,mixi,3,face/c11908140_l.png,wmm00211,Miximax Trans: <FLC:TSURUGI>,Un delantero afín a la oscuridad. Sus increíbles talentos abruman a aliados y rivales por igual.,E94C248D
+104D40E7,armadura,2,aura_armed/c04000030_5000_l.png,wad00650_h2,"Brunilda, valquiria abanderada",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+114ED203,mixi,1,face/c11010230_l.png,wmm11010230_st0801,Miximax Trans: Raika,"Alegre y encantadora, es la favorita de todos. Siempre busca nuevas emociones y le importa más el proceso que el resultado.",C112A44F
+11886BD4,armadura,4,aura_armed/c05022860_5000_l.png,wao00070,"León, rey de la selva",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+11B3783D,armadura,1,aura_armed/c04003500_5100_l.png,was00290,"Guiverno blanco, drágon heráldico",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+11E810DF,alma,3,aura_soul/a000450_l.png,wso000450,Tótem oso lunar,Un dominante oso silvestre con una mancha blanca en forma de media luna en el pecho.,EA4638BE
+1292A62C,kenshin,5,aura_fs/k000240_l.png,wks00240,"Arturo, paladín de la espada sagrada",Un espíritu neutro. Un solo tajo de Excalibur puede decidir un combate.,7114CB1D
+129A94C6,armadura,1,aura_armed/c05021820_5000_l.png,wad00720,"Sombra de plasma DF, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+13FFCE3F,mixi,1,face/c05029410_l.png,wmm00210_h2,Miximax Trans: <FST:TENMA>,"Joven algo ingenuo, pero que adora el fútbol. Su juego es tan agradable como una bocanada de aire fresco.",F2F2F5EE
+14C5B618,mixi,2,face/c11908160_l.png,wmm00251,Miximax Trans: <FLC:KIRINO>,Un jugador tan bello y esbelto que da el pego como chica. Conoce bien a <FLC:SHINDO>.,5FE340A4
+15836018,armadura,4,aura_armed/c05028450_5000_l.png,wao00720_1,"Sombra de plasma RE, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+16CBB2FD,mixi,3,face/c11908170_l.png,wmm00231_h2,Miximax Trans: <FLC:TSURUGI>,Un delantero afín a la oscuridad. Sus increíbles talentos abruman a aliados y rivales por igual.,E94C248D
+177A8B30,kenshin,2,aura_fs/k000900_l.png,wko00900,"Qinglong, guerrero del este",Un espíritu de bosque. Su rugido deja helados a sus oponentes.,2987CC67
+1814E08D,armadura,1,aura_armed/c05022900_5000_l.png,wao00910,"Baihu, guerrero del oeste",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+18B70ACC,armadura,4,aura_armed/c05023620_5000_l.png,wad00920,"Raiden, señor de las tormentas",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+1A214C47,armadura,1,aura_armed/c05028530_5000_l.png,wad00723_1,"Sombra de plasma DF, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+1B100072,kenshin,1,aura_fs/k000490_l.png,wkk00490,"Vega, suerte encarnada",Un espíritu de viento. La suerte siempre le sonríe.,1A85A8CC
+1CDDB622,mixi,2,face/c05028120_l.png,wmm00120,Miximax Trans: R. dragones,Una dragona de un mundo fantástico que luchó contra el Rey Arturo. Posee la ferocidad de una bestia y el intelecto de un sabio.,93905818
+1DA78F1F,alma,3,aura_soul/a000210_l.png,wss000210,Tótem Doruga,Un feroz reptil de Falam Orbius que destruye todo a su paso con mordiscos demoledores.,3C46FCBB
+1DC94936,armadura,3,aura_armed/c05021950_5000_l.png,was00722,"Sombra de plasma TI, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+1E1F0FD7,kenshin,2,,wko02025,Protoanimador,"Sin terminar, pero rebosante de potencial. Concentra tu corazón y todo será posible.",
+1E4DD8C2,armadura,2,aura_armed/c05023700_5000_l.png,was00530,"Oneiros, señor de los sueños",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+1EDD1380,kenshin,2,aura_fs/k000280_l.png,wks00280,"Azote negro, señor oscuro","Un espíritu de bosque. Cuando ataca con su hacha, todos se echan a temblar.",3025D004
+1F73F030,armadura,3,aura_armed/c05028550_5000_l.png,was00722_1,"Sombra de plasma TI, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+2037656F,armadura,4,aura_armed/c04001610_5000_l.png,wak00111,Titán gigante,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+20B3A370,kenshin,1,aura_fs/k000830_l.png,wkd00830,"Kukulkán, serpiente emplumada",Un espíritu de viento. Consigue el triunfo con un solo batir de alas.,CD184DDF
+20F4A684,armadura,2,aura_armed/c04000030_5000_l.png,wad00650_b1,"Brunilda, valquiria abanderada",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+213D0849,kenshin,3,aura_fs/k000300_l.png,wks00300,"Grifo, señor de las bestias",Un espíritu de fuego. Blande una gigantesca espada llameante.,0FC5CBCD
+2188D903,especial,5,,mode_change_c11150120,Modo Aphrody,Le sobrepasa la admiración por Aphrody y se transforma en su forma exacta.,2188D903
+224794D6,alma,2,aura_soul/a000390_l.png,wss000390,Tótem lobo plateado,Un solitario lobo argénteo con un pelaje místico y un feroz espíritu que vaga sin compañía.,7D77E7A2
+228E0FAA,armadura,3,aura_armed/c06030140_5000_l.png,was00021,Caballero Lancelot,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+22B70EF3,kenshin,2,aura_fs/k000680_l.png,wko00680,"Licaón, lobo maldito","Un espíritu de bosque. Si se le eriza el vello, ¡aléjate!",5756CCB7
+22E9A219,armadura,4,aura_armed/c05028460_5000_l.png,wao00721_1,"Sombra de plasma RE, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+2346285C,mixi,1,face/c05029410_l.png,wmm00210_b1,Miximax Trans: <FST:TENMA>,"Joven algo ingenuo, pero que adora el fútbol. Su juego es tan agradable como una bocanada de aire fresco.",F2F2F5EE
+2384628C,kenshin,3,aura_fs/k000230_l.png,wkk00230,"Rey blanco, sabio monarca",Un espíritu de fuego. Su potencia y su sabiduría no tienen parangón.,98E79EFE
+24F01BBB,kenshin,4,aura_fs/k000510_l.png,wkk00510,"Grandius, mágico gigante","Un espíritu de montaña. Cuando se hace con el balón, no lo deja escapar.",94A82B52
+2672549E,mixi,3,face/c11908170_l.png,wmm00231_b1,Miximax Trans: <FLC:TSURUGI>,Un delantero afín a la oscuridad. Sus increíbles talentos abruman a aliados y rivales por igual.,E94C248D
+2682D2DE,alma,3,aura_soul/a000550_l.png,wso000550,Tótem pegaso rojo,Un feroz pegaso rojo con una crin negra que recorre los cielos cual meteorito.,E6098D12
+282F6555,armadura,2,aura_armed/c05023610_5000_l.png,wak00260,"Demogorgo, duque destructor",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+29B7D181,kenshin,2,aura_fs/k000380_l.png,wks00380,"Reina negra, encantadora real",Un espíritu de bosque. Una poderosísima aliada en el campo.,8DA7FDFF
+29BDFB74,especial,5,,mode_change_c05020700,Modo Reina,"Deja de hacerse la inocente y se convierte en alguien feroz y dominante, que no tiene miedo a nada.",29BDFB74
+2B9E7006,armadura,3,aura_armed/c05023410_5000_l.png,wak00500,"Kraon, guerrero dragón",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+2BB77423,mixi,3,face/c05028020_l.png,wmm00020,Miximax Trans: <FLC:TSURUGI>,Un delantero afín a la oscuridad. Sus increíbles talentos abruman a aliados y rivales por igual.,E94C248D
+2D4B8E46,armadura,1,aura_armed/c05028440_5000_l.png,wad00722_1,"Sombra de plasma DF, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+2DD7F200,armadura,3,aura_armed/c01000100_5000_l.png,was00102,"Surtur, gigante de fuego",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+2E08217A,alma,5,aura_soul/a000350_l.png,wss000350,Tótem Dragunova,Un depredador acorazado de Falam Orbius que despedaza a su presa con sus afiladas garras y cola.,C726EE3B
+2E5363F4,armadura,4,aura_armed/c05022710_5000_l.png,was00310,Cuervo alas negras,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+2E5B511E,kenshin,4,aura_fs/k000670_l.png,wkd00670,"Xuan-Wu, guerrero del norte",Un espíritu de montaña. Impasible como una roca y frío como el hielo.,1201518B
+2EF8BB5F,kenshin,1,aura_fs/k000640_l.png,wko00640,"Comadreja, garras de hoz",Un espíritu de viento. Se deshace de sus enemigos con una velocidad devastadora.,68B6D77E
+2F721847,mixi,3,face/c05028110_l.png,wmm00060,Miximax Trans: <FLC:OKITA>,Soberbio espadachín del Shinsengumi. Ni su enfermedad le impedirá llevar a cabo su misión.,6D7E79EB
+2F7E228C,armadura,3,aura_armed/c05023500_5000_l.png,wao00810,"Huargo, can infernal",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+302EDE0B,kenshin,3,aura_fs/k000970_l.png,wks00970,"Astaroth, príncipe del caos",Un espíritu de fuego. Engulle el campo con su aura infernal.,3F65301A
+30A0384E,armadura,4,aura_armed/c05021010_5000_l.png,wak00170,"Lot, gran jugador",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+3163F14E,alma,3,aura_soul/a000510_l.png,wsk000510,Tótem Dalfonus,"Una criatura marina con aspecto de delfín de Naiadi, juguetona y muy querida por los niños.",FC04A925
+31A847D8,armadura,3,aura_armed/c05021900_5000_l.png,was00720,"Sombra de plasma TI, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+3219528B,armadura,3,aura_armed/c04002900_5000_l.png,was00040,"Apolo, dios del sol",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+32B09890,armadura,2,aura_armed/c04002490_5000_l.png,wao00151,"Garas, maestra de ilusiones",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+3326BB0A,kenshin,2,,wkk00723,"Sombra de plasma PA, guerrero artificial",Un espíritu de bosque. Calcula cada parada con gran precisión.,45D13148
+339A08EE,mixi,2,face/c05029450_l.png,wmm00260_b1,Miximax Trans: <FUL:SYU>,Un jugador misterioso y fantasmagórico. Nadie sabe nada sobre su pasado.,F3DC3CB7
+33D120E8,especial,5,,mode_change_c08030032,Modo Santurrón,Se mueve con una gracia y compostura casi angelicales para cautivar y engañar a sus rivales.,33D120E8
+35651956,kenshin,2,aura_fs/k000200_l.png,wkd00200,"Alfil blanco, mensajero divino",Un espíritu de bosque. Es capaz de robar el balón sin que el enemigo se dé cuenta.,CF37FE3D
+356D2BBC,armadura,2,aura_armed/c05020110_5000_l.png,was00760,"Robin, caballero ultraveloz",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+36178879,alma,2,aura_soul/a000230_l.png,wsk000230,Tótem Mosfi,Una criatura nariguda de Fertilia cuyos cuernos dan un fruto que cambia según su estado de ánimo.,E8569860
+3619AB35,kenshin,2,aura_fs/k002030_l.png,wko02030_st0701,Animador,Un espíritu de bosque. Surge de la unidad y vive para difundir alegría.,3710E401
+36AE742C,mixi,2,face/c11908150_l.png,wmm00241_b1,Miximax Trans: <FLC:KIRINO>,Un jugador tan bello y esbelto que da el pego como chica. Conoce bien a <FLC:SHINDO>.,5FE340A4
+382E47C3,armadura,1,aura_armed/c05020700_5000_l.png,was00630_b1,"Atenea, dueña del aire",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+394C2003,especial,5,,mode_change_c03030430,Modo León Salvaje,"El fragor de la batalla despierta sus instintos primarios, y desata el feroz espíritu de un león salvaje.",394C2003
+3A0B72EB,armadura,4,aura_armed/c04003230_5100_l.png,wad00210,"Torre blanca, centinela vigía",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+3B5BAB76,alma,1,aura_soul/a000090_l.png,wsd000090,Tótem Dolfinus,Una criatura de Naiadi con aspecto de delfín que puede nadar a una velocidad de 200 nudos.,7BA1ACBF
+3D752B86,armadura,1,aura_armed/c04001700_5000_l.png,was00411,"Roc, ave mitológica",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+3D773936,kenshin,4,aura_fs/k000050_l.png,wks00050,"Musashi, bravo samurái",Un espíritu de montaña. Usa sus dos katanas con una destreza legendaria.,31FC39EA
+3DBC9A96,alma,2,aura_soul/a000120_l.png,wso000120,Tótem pavo real,Un ave deslumbrante que cautiva a todos con un colorido plumaje y una cola de lo más elegante.,3D4724D0
+3DF9DF73,armadura,2,aura_armed/c05029620_5000_l.png,wak00850,"Papelín, rey de los empollones",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+3E56E727,armadura,1,aura_armed/c05023110_5000_l.png,was00080,"Chione, reina de la nieve",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+3E80ACFA,especial,5,,wap09002,Espíritu Miximax,Descripción de Ghost Miximax.,
+3EB0F6EA,armadura,5,aura_armed/c04003700_5100_l.png,was00240_b1,"Arturo, paladín de la espada sagrada",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+3EFB9A28,armadura,1,aura_armed/c05021840_5000_l.png,wad00722,"Sombra de plasma DF, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+3F82703C,armadura,3,aura_armed/c04000100_5100_l.png,was00303_h1,"Grifo, señor de las bestias",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+3FCE53F3,kenshin,1,aura_fs/k000160_l.png,wkk00160,"Goliat, titán",Un espíritu de viento. Es un soldado gigante construido para la defensa.,1E40C4A8
+40A766FE,armadura,4,aura_armed/c05021500_5100_l.png,wad00670_b1,"Xuan-Wu, guerrero del norte",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+41A69C44,mixi,2,face/c05029450_l.png,wmm00260,Miximax Trans: <FUL:SYU>,Un jugador misterioso y fantasmagórico. Nadie sabe nada sobre su pasado.,F3DC3CB7
+42AE4670,kenshin,2,aura_fs/k000790_l.png,wkk00790,"Amorosa, colablanca explosiva","Un espíritu de bosque. Gracias a sus malas artes, siempre se sale con la suya.",C7B3077A
+43037603,armadura,3,aura_armed/c04000100_5100_l.png,was00302,"Grifo, señor de las bestias",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+4315E826,mixi,1,face/c05029440_l.png,wmm00230_b1,Miximax Trans: <FUL:HAKURYU>,Un chico que confía plenamente en sus propias habilidades. Mantiene una gran rivalidad con <FLC:TSURUGI>.,96A9E089
+439F0A45,armadura,1,aura_armed/c05028420_5000_l.png,wad00720_1,"Sombra de plasma DF, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+44CC6DD6,kenshin,1,aura_fs/k000950_l.png,wkk00950,"Daji, doncella ladina",Un espíritu de viento. Manipula sabiamente a sus enemigos para robarles el balón.,C7B3077A
+4563F020,mixi,1,face/c05029460_l.png,wmm00220,Miximax Trans: <FST:TENMA>,"Joven algo ingenuo, pero que adora el fútbol. Su juego es tan agradable como una bocanada de aire fresco.",F2F2F5EE
+462194E4,mixi,3,face/c11908140_l.png,wmm00211_b1,Miximax Trans: <FLC:TSURUGI>,Un delantero afín a la oscuridad. Sus increíbles talentos abruman a aliados y rivales por igual.,E94C248D
+46750713,kenshin,4,aura_fs/k000860_l.png,wks00860,"Asura, cazador de gloria",Un espíritu de montaña. Sus tres cabezas le otorgan el triple de poder.,B148B384
+46CDB632,armadura,3,aura_armed/c05028510_5000_l.png,was00721_1,"Sombra de plasma TI, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+475A54DB,armadura,4,aura_armed/c05021860_5000_l.png,wao00721,"Sombra de plasma RE, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+47981F48,especial,5,,wap01003,Guardián férreo,"Poniendo su alma en la defensa, el jugador se vuelve un muro infranqueable.",
+47F39EC0,armadura,1,aura_armed/c05020700_5000_l.png,was00630,"Atenea, dueña del aire",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+480D3E3F,armadura,4,aura_armed/c04002300_5100_l.png,was00190,Caballo blanco,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+48B4206B,mixi,2,face/c05028030_l.png,wmm00030_b1,Miximax Trans: <FUL:SYU>,Un jugador misterioso y fantasmagórico. Nadie sabe nada sobre su pasado.,F3DC3CB7
+491B6CAE,armadura,3,aura_armed/c06037410_5100_l.png,was00870,"Metis, señora del ingenio",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+4997985B,armadura,4,aura_armed/c04002210_5000_l.png,wak00431,"Barron, coloso metálico",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+4B24D2C4,armadura,2,aura_armed/c05023050_5000_l.png,wad00420,Berserker,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+4B2CE02E,kenshin,2,aura_fs/k000140_l.png,wks00140,"Trickster, ilusionista",Un espíritu de bosque. Confunde a los rivales con sus trucos.,799E12D5
+4BA2066B,armadura,1,aura_armed/c05023210_5000_l.png,wak00940,"Arges, cíclope colosal",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+4C3D261A,armadura,4,aura_armed/c05028490_5000_l.png,wao00723_1,"Sombra de plasma RE, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+4C5A8BA9,armadura,2,aura_armed/c04003220_5100_l.png,was00221,"Reina blanca, encantadora real",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+4C638AF0,kenshin,3,aura_fs/k000480_l.png,wko00480,"Tachión, hipervelocista",Un espíritu de fuego. Es imposible percibir sus movimientos a simple vista.,B58078C8
+4C652F54,armadura,4,aura_armed/c05029840_5000_l.png,wad00672,"Xuan-Wu, guerrero del norte",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+4DFC1203,especial,5,,mode_change_c11801040,Modo Brutal,"Cuando alguien lo acorrala, aparece un lado suyo oculto y despiadado.",4DFC1203
+4FE98C4A,kenshin,3,aura_fs/k000100_l.png,wks00100,"Surtur, gigante de fuego",Un espíritu de fuego. Su inmensa fuerza le permite arrollar a sus enemigos.,C27E1488
+5012A866,kenshin,2,aura_fs/k000530_l.png,wks00530,"Oneiros, señor de los sueños","Un espíritu de bosque. Para él, la victoria es mucho más que un sueño.",799E12D5
+50595129,mixi,1,face/c05028140_l.png,wmm00055_h1,Miximax Trans: Zhuge Liang,"La estratega más brillante de <FUL:RYUBI>. Hermosa, pero reservada y esquiva.",BD04D9AC
+50826324,armadura,2,aura_armed/c04003700_5000_l.png,was00280,"Azote negro, señor oscuro",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+50D90BC6,alma,3,aura_soul/a000440_l.png,wso000440,Tótem Brakias,Un depredador dracónico de Falam Orbius que se enfrenta a todo aquel que ose acercarse.,11262A3E
+5118C540,armadura,2,aura_armed/c05021920_5000_l.png,wak00721,"Sombra de plasma PA, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+526E1F5B,kenshin,3,aura_fs/k002060_l.png,wks02060_st0901,"Niké, mágico gigante",Un espíritu de fuego. Domina a todos con fuego puro y cero piedad.,E47D5E10
+53681E95,alma,3,aura_soul/a000320_l.png,wso000320,Tótem Univolt,Una criatura de aspecto equino de Nomor que golpea a sus enemigos con un inmenso cuerno.,6CE162E8
+53AF38CB,armadura,3,aura_armed/c04003280_5100_l.png,wao00183,Peón blanco,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+54126D0C,kenshin,3,aura_fs/k002020_l.png,wks02020_st0701,"Conejo de cristal, lanza sagrada","Un espíritu de fuego. Golpea una vez, suficiente para acabar con todo.",1C0B0496
+54D5D6B2,armadura,1,aura_armed/c04001500_5000_l.png,was00131,"Poseidón, rey de los mares",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+554F70D6,armadura,1,aura_armed/c05020710_5000_l.png,wak00490,"Vega, suerte encarnada",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+558F2F75,alma,5,aura_soul/a000290_l.png,wsd000290,Tótem salamandra oscura,Un anfibio moteado de mirada penetrante que intimida y paraliza a su presa.,6B36F19E
+55F4AD01,mixi,2,face/c11908150_l.png,wmm00241,Miximax Trans: <FLC:KIRINO>,Un jugador tan bello y esbelto que da el pego como chica. Conoce bien a <FLC:SHINDO>.,5FE340A4
+564B9029,kenshin,1,aura_fs/k000910_l.png,wko00910,"Baihu, guerrero del oeste",Un espíritu de viento. Vuela como el viento y ataca como un tigre.,5756CCB7
+56E87A68,kenshin,4,aura_fs/k000920_l.png,wkd00920,"Raiden, señor de las tormentas",Un espíritu de montaña. Aplasta a sus enemigos con un viento huracanado.,1201518B
+56FDB456,mixi,1,face/c11908180_l.png,wmm00261_b1,Miximax Trans: <FUL:HAKURYU>,Un chico que confía plenamente en sus propias habilidades. Mantiene una gran rivalidad con <FLC:TSURUGI>.,96A9E089
+58029AB6,armadura,1,aura_armed/c04001220_5000_l.png,wad00321,"Drake, caballero dragón",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+5853F862,alma,2,aura_soul/a000240_l.png,wss000240,Tótem Belion,Una salvaje subespecie de Pelion de Falam Orbius que ataca con una ferocidad inusual.,6925D6E7
+5925FB94,armadura,2,aura_armed/c05023100_5000_l.png,wao00900,"Qinglong, guerrero del este",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+59BB18AD,mixi,2,face/c11908210_l.png,wmm00281,Miximax Trans: <FLC:FUDO>,"Un joven fanfarrón, pero con un increíble talento. Controla a los demás como si fuesen marionetas.",EB197925
+5B1065A4,armadura,3,aura_armed/c04003060_5000_l.png,wao00471,"Sirena, la hechicera",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+5BC52AD4,armadura,3,aura_armed/c04000080_5100_l.png,was00300_b1,"Grifo, señor de las bestias",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+5BD74A52,armadura,5,aura_armed/c04003500_5000_l.png,was00241_b1,"Arturo, paladín de la espada sagrada",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+5CCB03B6,kenshin,4,aura_fs/k002040_l.png,wkd02040_st0701,"Warborg, muralla titánica",Un espíritu de la tierra. Provoca a los delanteros para luego convertirlos en piedra.,33766224
+5CCDD688,armadura,5,aura_armed/c04003700_5100_l.png,was00240,"Arturo, paladín de la espada sagrada",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+5DECAD3B,mixi,2,face/c05028150_l.png,wmm00130,Miximax Trans: Cao Cao,"Rival de <FUL:RYUBI> que llegó a gobernar Wei, uno de los Tres Reinos.",3A969C9A
+5E9E39DC,armadura,4,aura_armed/c05021870_5000_l.png,wao00725,"Sombra de plasma RE, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+5FD71B70,kenshin,4,aura_fs/k000070_l.png,wko00070,"León, rey de la selva",Un espíritu de montaña. Fiero depredador tanto dentro como fuera del campo.,8A606301
+5FEC0899,kenshin,1,aura_fs/k000290_l.png,wks00290,"Guiverno blanco, drágon heráldico",Un espíritu de viento. Su presencia es tan encantadora como aterradora.,FF394883
+600421BA,armadura,4,aura_armed/c05021500_5100_l.png,wad00670,"Xuan-Wu, guerrero del norte",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+600C1350,kenshin,4,aura_fs/k000310_l.png,wks00310,Cuervo alas negras,Un espíritu de montaña. Es más oscuro que la noche cerrada.,3C6A65A8
+60A7CBFB,armadura,1,aura_armed/c05021100_5000_l.png,wao00640,"Comadreja, garras de hoz",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+61215228,kenshin,3,aura_fs/k000810_l.png,wko00810,"Huargo, can infernal",Un espíritu de fuego. Te seguirá hasta el infierno y más allá.,D534FA85
+63D55F1C,mixi,1,face/c05028140_l.png,wmm00055,Miximax Trans: Zhuge Liang,"La estratega más brillante de <FUL:RYUBI>. Hermosa, pero reservada y esquiva.",BD04D9AC
+6402DC94,alma,4,aura_soul/a000220_l.png,wso000220,Tótem Gusfi,"Una criatura nativa de Fertilia con frutas en los cuernos, en una mezcla de rasgos vegetales y animales.",3108917C
+646C30D1,armadura,4,aura_armed/c04003290_5100_l.png,was00192,Caballo blanco,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+64C97F34,kenshin,4,aura_fs/k000350_l.png,wks00350,Caballo negro,Un espíritu de montaña. Jamás pierde de vista la portería.,4EF4D0D4
+65C100A2,kenshin,3,aura_fs/k000500_l.png,wkk00500,"Kraon, guerrero dragón",Un espíritu de fuego. Sus poderes son un enigma de otra dimensión.,5BB4B3D5
+660A5B22,armadura,3,aura_armed/c04003270_5100_l.png,wao00185,Peón blanco,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+66445235,mixi,1,face/c11908180_l.png,wmm00261_h2,Miximax Trans: <FUL:HAKURYU>,Un chico que confía plenamente en sus propias habilidades. Mantiene una gran rivalidad con <FLC:TSURUGI>.,96A9E089
+667015F1,kenshin,2,aura_fs/k000260_l.png,wkk00260,"Demogorgo, duque destructor",Un espíritu de bosque. Puede parar prácticamente cualquier tiro.,D9D685E7
+69DE21EF,alma,4,aura_soul/a000470_l.png,wsd000470,Tótem búho,Un sagaz pájaro del bosque con una mirada penetrante que le permite desplazarse por el más oscuro de los bosques.,3E55DBC2
+6A866F3A,mixi,2,face/c05028030_l.png,wmm00030,Miximax Trans: <FUL:SYU>,Un jugador misterioso y fantasmagórico. Nadie sabe nada sobre su pasado.,F3DC3CB7
+6AAF6B1F,armadura,4,aura_armed/c05029820_5000_l.png,wak00510,"Grandius, mágico gigante",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+6B3B5A35,armadura,4,aura_armed/c05021890_5000_l.png,wao00723,"Sombra de plasma RE, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+6B6EAC31,armadura,5,aura_armed/c04003500_5000_l.png,was00241_h2,"Arturo, paladín de la espada sagrada",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+6B7CCCB7,armadura,3,aura_armed/c04000080_5100_l.png,was00300_h2,"Grifo, señor de las bestias",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+6B92902E,armadura,1,aura_armed/c05020700_5000_l.png,was00632,"Atenea, dueña del aire",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+6BF911A6,especial,5,,wap01001,Sobrecarga ardiente,"La pasión del delantero por la victoria empieza a arder, y despierta su verdadero poder.",
+6C882F30,alma,4,aura_soul/a000420_l.png,wss000420,Tótem Vairaas,Un ser blanco y siniestro de Falam Orbius con ocho tentáculos que se estiran hasta alcanzar diez veces su longitud.,BE24CA89
+6CE87E57,armadura,2,aura_armed/c05020800_5000_l.png,wao00680,"Licaón, lobo maldito",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+6DDB1228,armadura,3,aura_armed/c04003210_5000_l.png,wak00230,"Rey blanco, sabio monarca",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+6E43035E,mixi,4,face/c05028090_l.png,wmm00070,Miximax Trans: Big,Asumió el cargo de su madre como jefe del Valle de las Bestias. Transformó una infancia solitaria en pura fuerza.,7DA25959
+6EECD3D4,armadura,1,aura_armed/c05023420_5000_l.png,wad00830,"Kukulkán, serpiente emplumada",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+6F6278ED,armadura,3,aura_armed/c04000080_5100_l.png,was00300,"Grifo, señor de las bestias",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+6FA9CE7B,alma,1,aura_soul/a000130_l.png,wsk000130,Tótem mamut,"Una gigantesca bestia, extinta desde hace eones en la Tierra, que lo destroza todo a su paso.",2B05B54B
+70099783,kenshin,1,aura_fs/k000080_l.png,wks00080,"Chione, reina de la nieve",Un espíritu de viento. Hiela al enemigo con sus gélidos vendavales.,FBFC24E7
+701E809D,armadura,4,aura_armed/c05021500_5100_l.png,wad00670_h2,"Xuan-Wu, guerrero del norte",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+7052EA57,alma,4,aura_soul/a000500_l.png,wsk000500,Tótem Dolmega,Un depredador con caparazón que aplasta a sus presas gracias a su peso y sus púas.,0764BBA5
+70A4EA8C,kenshin,1,,wkd00722,"Sombra de plasma DF, guerrero artificial",Un espíritu de viento. Preciso y con una gran velocidad de respuesta.,DD1DC90C
+712971D3,kenshin,3,aura_fs/k002020_l.png,wks02020,"Conejo de cristal, lanza sagrada","Un espíritu de fuego. Golpea una vez, suficiente para acabar con todo.",1C0B0496
+71912357,armadura,1,aura_armed/c04001010_5000_l.png,wak00160,"Goliat, titán",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+71A77433,armadura,3,aura_armed/c05028500_5000_l.png,was00720_1,"Sombra de plasma TI, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+723D7CA1,especial,5,,wap01005,Impulso temporal,"Impulsa la concentración del jugador, reduciendo el tiempo de enfriamiento de las supertécnicas.",
+73284992,armadura,4,aura_armed/c04000160_5000_l.png,was00050,"Musashi, bravo samurái",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+73A6AFD7,kenshin,2,aura_fs/k000850_l.png,wkk00850,"Papelín, rey de los empollones",Un espíritu de bosque. Protege a aquellos cuyo objetivo en la vida es aprender.,86821C63
+73AC0E45,mixi,1,face/c05029440_l.png,wmm00230_h2,Miximax Trans: <FUL:HAKURYU>,Un chico que confía plenamente en sus propias habilidades. Mantiene una gran rivalidad con <FLC:TSURUGI>.,96A9E089
+7454024F,kenshin,4,aura_fs/k000210_l.png,wkd00210,"Torre blanca, centinela vigía",Un espíritu de montaña. El poder que desprende es impresionante.,8AC38940
+745610FF,armadura,2,aura_armed/c05029830_5000_l.png,wad00651,"Brunilda, valquiria abanderada",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+74978633,alma,4,aura_soul/a000540_l.png,wsk000540,Tótem Cerbegira,Una bestia acorazada de tres cabezas. Cada cabeza puede formar pensamientos propios.,4A1A1510
+74F5C844,armadura,1,aura_armed/c05028430_5000_l.png,wad00721_1,"Sombra de plasma DF, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+75732EDD,especial,5,,test_kizuna_trans,Transformación de vínculo,Invoca el aura de un personaje con el que tengas un fuerte vínculo para convertirte en ese personaje.,
+75EC1DB7,kenshin,3,aura_fs/k002060_l.png,wks02060,"Niké, mágico gigante",Un espíritu de fuego. Domina a todos con fuego puro y cero piedad.,E47D5E10
+762505C3,alma,2,aura_soul/a000040_l.png,wsd000040,Tótem zorro,"Un cazador silvestre con muy buena visión, curioso y precavido a partes iguales.",7F64C0DB
+76987287,mixi,3,face/c11908140_l.png,wmm00211_h2,Miximax Trans: <FLC:TSURUGI>,Un delantero afín a la oscuridad. Sus increíbles talentos abruman a aliados y rivales por igual.,E94C248D
+77B66778,alma,2,aura_soul/a000050_l.png,wss000050,Tótem león,Un poderoso gobernante de las llanuras con una majestuosa melena. Lo admiran y temen a partes iguales por ser el rey de las bestias.,AA76FBCC
+780DC608,mixi,2,face/c05028030_l.png,wmm00030_h2,Miximax Trans: <FUL:SYU>,Un jugador misterioso y fantasmagórico. Nadie sabe nada sobre su pasado.,F3DC3CB7
+78815CFB,armadura,4,aura_armed/c04002510_5000_l.png,was00441,"Bufón, artista del engaño",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+79D467E1,mixi,1,face/c05029460_l.png,wmm00220_h1,Miximax Trans: <FST:TENMA>,"Joven algo ingenuo, pero que adora el fútbol. Su juego es tan agradable como una bocanada de aire fresco.",F2F2F5EE
+7A6AB06F,alma,1,aura_soul/a000080_l.png,wsd000080,Tótem búho cornudo,"Un búho silvestre, fácilmente distinguible por sus prominentes ""cuernos"" de plumas.",A865DCB5
+7B325B18,kenshin,2,aura_fs/k000760_l.png,wks00760,"Robin, caballero ultraveloz",Un espíritu de bosque. Usa su agudo ingenio para robar el balón.,B2F9A6D7
+7B3A69F2,armadura,2,aura_armed/c04003240_5100_l.png,wad00200,"Alfil blanco, mensajero divino",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+7B57E41B,armadura,4,aura_armed/c05028480_5000_l.png,wao00722_1,"Sombra de plasma RE, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+7C44309F,armadura,3,aura_armed/c04001710_5000_l.png,was00401,"Plumas ardientes, ave de fuego",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+7C46222F,kenshin,3,aura_fs/k000040_l.png,wks00040,"Apolo, dios del sol",Un espíritu de fuego. Sus llamas deslumbran a todo aquel que las ve.,BE08539A
+7E422032,especial,5,,mode_change_c11150120_legend,Modo Aphrody,Le sobrepasa la admiración por Aphrody y se transforma en su forma exacta.,2188D903
+7E71AEAF,armadura,3,aura_armed/c05024900_5000_l.png,was00970,"Astaroth, príncipe del caos",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+7EFF48EA,kenshin,4,aura_fs/k000170_l.png,wkk00170,"Lot, gran jugador",Un espíritu de montaña. Decide el resultado de los partidos con sus dados.,1A85A8CC
+7FCE3625,armadura,3,aura_armed/c04002060_5100_l.png,wao00181,Peón blanco,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+7FF7377C,kenshin,3,aura_fs/k000720_l.png,wks00720,"Sombra de plasma TI, guerrero artificial",Un espíritu de fuego. Sus subrutinas lo hacen tan eficaz que vale por varios.,7E542B03
+806DED65,kenshin,1,aura_fs/k000320_l.png,wkd00320,"Drake, caballero dragón",Un espíritu de viento. Siempre arrasa con todo en el campo.,CBF29259
+8182504F,especial,5,,wkt00010,Transformación de vínculo,Invoca el aura de un personaje con el que tengas un fuerte vínculo para convertirte en ese personaje.,
+821CEAE9,alma,4,aura_soul/a000170_l.png,wsd000170,Tótem Gandran,Un gigante blindado de Falam Orbius con una piel tan dura que es capaz de resistir cualquier golpe.,2A07EA87
+823501EB,especial,5,,awakening_change,Cambio de despertar,Descripción de Awakening Transformation.,
+82DCB54A,armadura,1,aura_armed/c05022610_5000_l.png,wak00770,"Atlanticus, bestia abisal",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+82F5B16F,mixi,2,face/c05029430_l.png,wmm00250,Miximax Trans: <FLC:KARIYA>,"Joven con un excelente equilibrio en el campo de juego. Tiene sus prontos, pero también tiene un corazón de oro.",FFF8EAD9
+8344019E,kenshin,4,aura_fs/k000690_l.png,wks00690,"Zodíaco, príncipe del plano astral",Un espíritu de montaña. Una oscura energía dirige sus disparos.,3F65301A
+837F1277,kenshin,3,aura_fs/k000470_l.png,wko00470,"Sirena, la hechicera",Un espíritu de fuego. El tiempo parece ralentizarse en su presencia.,F4B163D1
+83D4CADC,armadura,1,aura_armed/c04000860_5000_l.png,was00120,Sobrenatural halcón de trueno,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+84A88101,kenshin,2,aura_fs/k000360_l.png,wkd00360,"Alfil negro, mensajero divino",Un espíritu de bosque. Roba el balón con sus técnicas de ilusionismo.,CF37FE3D
+84AA93B1,armadura,1,aura_armed/c05021830_5000_l.png,wad00721,"Sombra de plasma DF, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+84D1A563,especial,5,,wap09001,Limitadores desactivados,Descripción de Limiter Release.,
+85D379A5,armadura,3,aura_armed/c04000100_5100_l.png,was00303_h2,"Grifo, señor de las bestias",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+8607F429,armadura,2,aura_armed/c05023710_5000_l.png,was00880,"Argentia, reina plateada",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+8630DD0B,mixi,1,face/c05029410_l.png,wmm00210,Miximax Trans: <FST:TENMA>,"Joven algo ingenuo, pero que adora el fútbol. Su juego es tan agradable como una bocanada de aire fresco.",F2F2F5EE
+87837F4A,armadura,1,aura_armed/c05029810_5000_l.png,was00291,"Guiverno blanco, drágon heráldico",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+879F40FD,kenshin,3,aura_fs/k000960_l.png,wkk00960,"Vritrá, Escualodragón despiadado",Un espíritu de fuego. Atrae a sus enemigos solo para juguetear con ellos.,04E02A51
+87B86CA3,armadura,4,aura_armed/c04002290_5000_l.png,wao00071,"León, rey de la selva",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+887DDFB5,armadura,2,aura_armed/c04002500_5100_l.png,was00531,"Oneiros, señor de los sueños",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+8BC6EABC,armadura,4,aura_armed/c04003710_5000_l.png,wad00370,"Torre negra, centinela vigía",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+8BCED856,kenshin,3,aura_fs/k000610_l.png,wks00610,"Fénix, señor de los cielos",Un espíritu de fuego. Un poderoso ser celestial con poder más que divino.,B148B384
+8BF94E41,armadura,3,aura_armed/c05021960_5000_l.png,was00723,"Sombra de plasma TI, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+8CBAA161,kenshin,1,aura_fs/k000130_l.png,wks00130,"Poseidón, rey de los mares",Un espíritu de viento. No hay rival que se resista a su temible tridente.,7D5B7EB1
+8E8D2DE1,armadura,4,aura_armed/c05023300_5000_l.png,was00800,"Evera, gran señor de los demonios",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+8EBA04C3,mixi,3,face/c05028630_l.png,wmm00290,Miximax Trans: <FUL:G GENE>,"El cuerpo de <FST:GARSHAR> alberga un gen único que, cuando se activa, hace que despierte su cazador interior.",E6CFFB5B
+8F746612,armadura,1,aura_armed/c04003500_5100_l.png,was00290_b1,"Guiverno blanco, drágon heráldico",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+903B33BE,alma,5,aura_soul/a000310_l.png,wso000310,Tótem grifo,Un enorme ser de Nomor con unas inmensas y poderosas alas que le permiten volar por los cielos.,50173127
+90F8A2F4,armadura,3,aura_armed/c05020140_5000_l.png,wad00700,"Amaterasu, guerrera del amanecer",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+91F8EF88,kenshin,4,aura_fs/k000430_l.png,wkk00430,"Barron, coloso metálico",Un espíritu de montaña. No se doblega ante nada ni ante nadie.,1E40C4A8
+9262EC4E,mixi,3,face/c11908170_l.png,wmm00231,Miximax Trans: <FLC:TSURUGI>,Un delantero afín a la oscuridad. Sus increíbles talentos abruman a aliados y rivales por igual.,E94C248D
+934397FD,armadura,2,aura_armed/c01002110_5000_l.png,was00141,"Trickster, ilusionista",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+9349B7A7,armadura,2,aura_armed/c05024830_5000_l.png,wad00060,Juez supremo,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+940CFD23,armadura,3,aura_armed/c04003070_5000_l.png,wao00481,"Tachión, hipervelocista",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+9435FC7A,kenshin,2,aura_fs/k000220_l.png,wks00220,"Reina blanca, encantadora real",Un espíritu de bosque. Es una aliada muy poderosa dentro del campo.,8DA7FDFF
+963559D8,mixi,4,face/c05028620_l.png,wmm00180,Miximax Trans: Gen S,Un gen único que se manifiesta en <FUL:SARU> y que contiene el poder indómito de una bestia feroz.,23A69CF0
+96A7802A,mixi,3,face/c11908200_l.png,wmm00271,Miximax Trans: <FLC:GOENJI>,"Bajo su fría apariencia, en el interior de este chico arde una intensa pasión por el fútbol.",FF0EB516
+972F3182,armadura,1,aura_armed/c04000080_5000_l.png,wao00010,Pegaso alado,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+974F4A89,alma,2,aura_soul/a000430_l.png,wso000430,Tótem Pamerio,Una criatura capaz de ver el futuro; es capaz de evitar el peligro con maestría.,93441C0C
+9784E929,kenshin,5,aura_fs/k000540_l.png,wks00540,"Pendragón, caballero misterioso",Un espíritu neutro. Pobre de aquel que se cruce en su camino.,CC96E6E6
+9786FB99,armadura,3,aura_armed/c04003080_5000_l.png,was00101,"Surtur, gigante de fuego",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+9A53E851,armadura,4,aura_armed/c05022810_5000_l.png,wak00460,"Gargantúa, gigante metálico",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+9A76D6BF,armadura,4,aura_armed/c05023310_5000_l.png,wao00930,"Jmet, adalid leonino",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+9A7AEC74,mixi,1,face/c05028080_l.png,wmm00140,Miximax Trans: Papá,"Quetzalcoatlus, un majestuoso pterosaurio de la era Cretácica que crio al perdido <FUL:TORB>.",2E8150A9
+9B00D549,alma,5,aura_soul/a000270_l.png,wss000270,Tótem Begiran,Un insectoide negro de dos colas que se desplaza por el suelo a una velocidad vertiginosa.,FF15D190
+9E064F77,kenshin,3,aura_fs/k000390_l.png,wkk00390,"Rey negro, sabio monarca",Un espíritu de fuego. Sus poderosas llamas lo consumen todo a su paso.,98E79EFE
+9EBF8010,mixi,4,face/c05028130_l.png,wmm00100,Miximax Trans: Rey Arturo,El legendario rey británico y líder de los caballeros de la Mesa Redonda.,2E5DCDE0
+9F96C949,kenshin,1,aura_fs/k000710_l.png,wkd00710,"Jaguar, guerrero prehistórico",Un espíritu de viento. Su lanza fatal corta el aire cuando ataca.,9C2CD215
+9FA5E84A,armadura,1,aura_armed/c05020460_5000_l.png,wao00090,"Barius, supersónico",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+A0EE2B28,kenshin,4,aura_fs/k000440_l.png,wks00440,"Bufón, artista del engaño",Un espíritu de montaña. Deja a todos perplejos con sus increíbles trucos.,799E12D5
+A15F9BD9,mixi,4,face/c05028160_l.png,wmm00080,Miximax Trans: Zeta,Es el mayor huracán que se ha visto jamás. Desató vientos lo suficientemente fuertes como para arrasar todo a su paso.,685865AF
+A2727F03,kenshin,4,aura_fs/k000820_l.png,wko00820,"Glenr, portador del sol nocturno",Un espíritu de montaña. Su luz inundará tus momentos más oscuros.,9405E19C
+A42955FC,armadura,3,aura_armed/c05029850_5000_l.png,was00041,"Apolo, dios del sol",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+A42B474C,kenshin,3,aura_fs/k000400_l.png,wks00400,"Plumas ardientes, ave de fuego",Un espíritu de fuego. Deja una estela ígnea cuando recorre el campo.,38AF09CC
+A4809FE7,armadura,2,aura_armed/c05023490_5000_l.png,wao00150,"Garas, maestra de ilusiones",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+A52338DA,kenshin,4,aura_fs/k000250_l.png,wkk00250,"Atlas, protector de la Tierra",Un espíritu de montaña. Protege la portería con una fuerza inigualable.,DD13E983
+A59A5B92,especial,5,,mode_change_c02023520,Modo Serio,"Se dejó de tonterías para concentrarse por completo, lo que le llenó de una nueva determinación.",A59A5B92
+A6903F39,armadura,4,aura_armed/c04002410_5000_l.png,wak00171,"Lot, gran jugador",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+A6C2B968,alma,3,aura_soul/a000480_l.png,wsd000480,Tótem Giorom,Una criatura ciclópea con una visión increíble. Es capaz de ver a través de superficies no muy gruesas.,D167F807
+A7040E13,armadura,3,aura_armed/c04003470_5000_l.png,wao00342,Peón negro,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+A79840AF,armadura,3,aura_armed/c05021910_5000_l.png,was00721,"Sombra de plasma TI, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+A7A141F6,kenshin,3,aura_fs/k000180_l.png,wko00180,Peón blanco,"Un espíritu de fuego. A pesar de no ser muy grande, es un adversario temible.",CB517818
+A844F719,especial,5,,pv8_kizuna_trans_GK,Transformación de vínculo,Invoca el aura de un personaje con el que tengas un fuerte vínculo para convertirte en ese personaje.,
+A866E050,armadura,1,aura_armed/c04002100_5000_l.png,was00081,"Chione, reina de la nieve",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+A8B0AB8D,especial,5,,wap09003,Mejora de cápsula,Descripción de Ampule Enhancement.,
+A8CB9D5F,armadura,1,aura_armed/c05021930_5000_l.png,wad00723,"Sombra de plasma DF, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+A97A929B,armadura,1,aura_armed/c05024920_5000_l.png,wad00840,"Eris, bruja de la discordia",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+A9AEC7A6,mixi,1,face/c05029410_l.png,wmm00210_h1,Miximax Trans: <FST:TENMA>,"Joven algo ingenuo, pero que adora el fútbol. Su juego es tan agradable como una bocanada de aire fresco.",F2F2F5EE
+A9FC4634,armadura,3,aura_armed/c06037380_5000_l.png,wak00520,"Serendipity, maestro de las trampas",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+AA1C497E,armadura,2,aura_armed/c04000030_5000_l.png,wad00650_h1,"Brunilda, valquiria abanderada",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+AA5B4C8A,kenshin,3,aura_fs/k000890_l.png,wkd00890,"Zhuque, guerrera del sur",Un espíritu de fuego. Una bailarina excelente que es inmortal como el fénix.,CD184DDF
+AB452CF1,armadura,1,aura_armed/c05021490_5000_l.png,was00410,"Roc, ave mitológica",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+AC3155C6,armadura,1,aura_armed/c04000080_5200_l.png,was00330,Archipegaso alado,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+AC39672C,kenshin,2,aura_fs/k000650_l.png,wkd00650,"Brunilda, valquiria abanderada",Un espíritu de bosque. Infunde respeto en sus aliados y terror en sus enemigos.,D1527CA0
+AC9ABB64,mixi,3,face/c11908170_l.png,wmm00231_h1,Miximax Trans: <FLC:TSURUGI>,Un delantero afín a la oscuridad. Sus increíbles talentos abruman a aliados y rivales por igual.,E94C248D
+ACFAE350,alma,2,aura_soul/a000100_l.png,wsk000100,Tótem Delfinus,Un depredador marino de Naiadi que aturde a sus presas con potentes ondas ultrasónicas.,6A34AE52
+AD102E75,mixi,2,face/c05028040_l.png,wmm00040,Miximax Trans: Nobunaga,Un poderoso y carismático señor feudal de la era Sengoku que quiere gobernar Japón.,C62AF129
+AF804095,armadura,1,aura_armed/c04002910_5000_l.png,was00450,"Neptuno, señor de los mares",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+AFDB021B,alma,1,aura_soul/a000410_l.png,wss000410,Tótem Pelion,Una bestia de dos colas de Falam Orbius que se mueve con gran precisión mientras persigue a su presa.,4544D809
+B0202637,alma,3,aura_soul/a000020_l.png,wss000020,Tótem lobo,Un cazador nato que se mueve en manada y reduce a sus presas con sus feroces colmillos.,EB47E0D5
+B0B0D22F,alma,1,aura_soul/a000250_l.png,wsk000250,Tótem Angidra,Un depredador de tres cabezas de Falam Orbius que mueve los cuernos para intimidar a sus enemigos.,667B1BFE
+B15A1F0A,mixi,4,face/c05028610_l.png,wmm00310,Miximax Trans: Rosa negra,Una oscura rosa del color de la desesperación. Sus afiladas espinas lo mantienen todo a raya.,A35F2D17
+B16D3628,armadura,4,aura_armed/c05022890_5000_l.png,was00980,"Los enamorados ♂, a. encadenadas",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+B27A5CF8,kenshin,1,aura_fs/k002010_l.png,wks02010,"Victoria, diosa del triunfo",Un espíritu del viento. Recurre a un vínculo profundo para liberar su triunfante poder latente.,3B644244
+B2C6A839,armadura,1,aura_armed/c05020700_5000_l.png,was00630_h1,"Atenea, dueña del aire",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+B301C77C,alma,4,aura_soul/a000530_l.png,wsk000530,Tótem Grimron,Un depredador con tentáculos que expulsa un humo negro cuando se siente amenazado.,B17A0790
+B362BAAD,especial,5,,mode_change_c08030032_legend,Modo Santurrón,Se mueve con una gracia y compostura casi angelicales para cautivar y engañar a sus rivales.,33D120E8
+B44A7996,armadura,3,aura_armed/c04000090_5100_l.png,was00301_h1,"Grifo, señor de las bestias",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+B4581910,armadura,5,aura_armed/c04003700_5100_l.png,was00240_h1,"Arturo, paladín de la espada sagrada",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+B4BE08DD,armadura,3,aura_armed/c04000100_5000_l.png,was00020,Caballero Lancelot,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+B56A9FC6,armadura,3,aura_armed/c04000100_5100_l.png,was00303_b1,"Grifo, señor de las bestias",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+B6076218,armadura,4,aura_armed/c05021410_5000_l.png,wak00110,Titán gigante,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+B6BF309C,kenshin,2,aura_fs/k002050_l.png,wks02050,"Robin, paladín ultraveloz",Un espíritu de bosque. Se acerca como un destello y deja a sus rivales hechos polvo.,B2F9A6D7
+B754756C,alma,1,aura_soul/a000180_l.png,wso000180,Tótem Fenikias,"Una maravilla voladora de Falam Orbius que recorre los cielos con elegancia, con una belleza de otro planeta.",AB7723A7
+B8636483,armadura,4,aura_armed/c04001310_5000_l.png,was00311,Cuervo alas negras,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+B972E714,mixi,2,face/c05029450_l.png,wmm00260_h1,Miximax Trans: <FUL:SYU>,Un jugador misterioso y fantasmagórico. Nadie sabe nada sobre su pasado.,F3DC3CB7
+BAD81CF6,kenshin,2,aura_fs/k000660_l.png,wkk00660,"Cychr, dragón enjoyado",Un espíritu de bosque. Sus enemigos deben procurar no desatar su ira.,2987CC67
+BB1BC0C0,alma,1,aura_soul/a000140_l.png,wso000140,Tótem antílope,Una ágil cabra de montaña que salta por acantilados con movimientos fluidos y naturales.,BF2512E2
+BB40A822,armadura,1,aura_armed/c05022880_5000_l.png,was00780,"Los enamorados ♀, a. encadenadas",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+BBD06360,kenshin,2,aura_fs/k000030_l.png,wks00030,Director Magister,Un espíritu de bosque. Usa los cuatro brazos para dirigir la batalla.,4C539716
+BC469BD6,mixi,2,face/c11908150_l.png,wmm00241_h1,Miximax Trans: <FLC:KIRINO>,Un jugador tan bello y esbelto que da el pego como chica. Conoce bien a <FLC:SHINDO>.,5FE340A4
+BCA608E7,armadura,4,aura_armed/c04003660_5000_l.png,was00351,Caballo negro,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+BCAC28BD,armadura,3,aura_armed/c05023230_5000_l.png,wad00270,Tirador sombrío,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+BD877354,mixi,3,face/c05028020_l.png,wmm00021,Miximax Trans: <FLC:TSURUGI>,Un delantero afín a la oscuridad. Sus increíbles talentos abruman a aliados y rivales por igual.,E94C248D
+BE035D95,kenshin,1,aura_fs/k000990_l.png,wks00990,Archipegaso rojo alado,Un espíritu de viento. Se escabulle volando con sus alas de color carmesí.,BACD3FFE
+BFCD8071,armadura,1,aura_armed/c04003500_5100_l.png,was00290_h2,"Guiverno blanco, drágon heráldico",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+C0D25D45,kenshin,4,aura_fs/k000800_l.png,wks00800,"Evera, gran señor de los demonios",Un espíritu de montaña. Capaz de manifestar poderes inenarrables.,F3C8BDCE
+C22E6753,alma,5,aura_soul/a000300_l.png,wsk000300,Tótem Gigiras,Una gigantesca bestia con cuatro tentáculos que parecen látigos con los que aplasta a sus enemigos.,274A00E7
+C25CCF91,mixi,2,face/c05028030_l.png,wmm00030_h1,Miximax Trans: <FUL:SYU>,Un jugador misterioso y fantasmagórico. Nadie sabe nada sobre su pasado.,F3DC3CB7
+C2E5D1C5,armadura,1,aura_armed/c05022680_5000_l.png,was00130,"Poseidón, rey de los mares",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+C32DF1F0,alma,1,aura_soul/a000160_l.png,wsd000160,Tótem tejón,Un depredador audaz que blande unas garras afiladas como cuchillas contra sus enemigos.,FD06F6E9
+C37F77A1,armadura,1,aura_armed/c01000120_5000_l.png,wak00491,"Vega, suerte encarnada",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+C3856E78,mixi,1,face/c05029460_l.png,wmm00220_h2,Miximax Trans: <FST:TENMA>,"Joven algo ingenuo, pero que adora el fútbol. Su juego es tan agradable como una bocanada de aire fresco.",F2F2F5EE
+C3C4AA76,mixi,2,face/c05029420_l.png,wmm00240,Miximax Trans: <FLC:SHINDO>,"Jugador que dirige a su equipo como un director de orquesta. Todo un genio, que se ha ganado el apodo de ""Virtuoso"".",38DB740F
+C53A7059,kenshin,3,aura_fs/k000340_l.png,wko00340,Peón negro,"Un espíritu de fuego. A pesar de no ser muy grande, es un adversario temible.",CB517818
+C591A8F2,armadura,3,aura_armed/c05020500_5000_l.png,was00610,"Fénix, señor de los cielos",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+C5999A18,kenshin,4,aura_fs/k000370_l.png,wkd00370,"Torre negra, centinela vigía",Un espíritu de montaña. El poder que desprende es impresionante.,8AC38940
+C59F3FBC,armadura,3,aura_armed/c04003300_5100_l.png,wao00182,Peón blanco,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+C6EB0B37,alma,3,aura_soul/a000340_l.png,wsk000340,Tótem Magnatas,"Una bestia robusta de Nomor, de cuatro extremidades, cuya espalda acorazada la protege de cualquier daño.",BD35B23C
+C728C237,armadura,2,aura_armed/c05021810_5000_l.png,wak00720,"Sombra de plasma PA, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+C858848D,kenshin,2,aura_fs/k000880_l.png,wks00880,"Argentia, reina plateada",Un espíritu de bosque. Hermoso y peligroso como una daga de plata.,FBFC24E7
+C8AE3EAB,armadura,4,aura_armed/c05021940_5000_l.png,wao00724,"Sombra de plasma RE, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+C92B691F,armadura,4,aura_armed/c05028540_5000_l.png,wao00724_1,"Sombra de plasma RE, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+C98575BC,alma,1,aura_soul/a000010_l.png,wso000010,Tótem caballo,Un animal fuerte y veloz que pisa el suelo con sus poderosas pezuñas mientras corre sin parar.,FAD1659F
+C9C03059,armadura,3,aura_armed/c05024810_5000_l.png,wak00960,"Vritrá, Escualodragón despiadado",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+C9FD07DC,mixi,1,face/c05029440_l.png,wmm00230_h1,Miximax Trans: <FUL:HAKURYU>,Un chico que confía plenamente en sus propias habilidades. Mantiene una gran rivalidad con <FLC:TSURUGI>.,96A9E089
+CA4F8904,armadura,4,aura_armed/c05021500_5100_l.png,wad00670_h1,"Xuan-Wu, guerrero del norte",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+CAA4BE9B,alma,2,aura_soul/a000380_l.png,wsk000380,Tótem Saranarja,"Un depredador de tres cabezas de la familia de la hidra, procedente de Falam Orbius, que ataca con ponzoñosa precisión.",F04B1C89
+CACAB252,especial,5,,test_awakening_power,Despertar,Descripción de Awakening Power.,
+CAF7F1A5,armadura,2,aura_armed/c04003690_5000_l.png,wad00360,"Alfil negro, mensajero divino",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+CAFDD1FF,armadura,5,aura_armed/c04003500_5000_l.png,was00241,"Arturo, paladín de la espada sagrada",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+CC83C5EE,kenshin,1,aura_fs/k000770_l.png,wkk00770,"Atlanticus, bestia abisal",Un espíritu de viento. Su furia devora campos de fútbol enteros.,04E02A51
+CCC97B1E,mixi,3,face/c11908140_l.png,wmm00211_h1,Miximax Trans: <FLC:TSURUGI>,Un delantero afín a la oscuridad. Sus increíbles talentos abruman a aliados y rivales por igual.,E94C248D
+CD1B713A,armadura,4,aura_armed/c05021500_5000_l.png,was00690,"Zodíaco, príncipe del plano astral",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+CD2062D3,armadura,3,aura_armed/c05023260_5000_l.png,wao00470,"Sirena, la hechicera",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+CD571A8D,especial,5,,awakening_power_st0301,Despertar,Descripción de Awakening Power.,
+CD8BBA78,kenshin,1,aura_fs/k000120_l.png,wks00120,Sobrenatural halcón de trueno,Un espíritu de viento. Sus afiladas garras hacen temblar hasta al más pintado.,38AF09CC
+CE329DC1,armadura,1,aura_armed/c05023430_5000_l.png,wad00320,"Drake, caballero dragón",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+CF8B1FDA,mixi,1,face/c05029480_l.png,wmm00280,Miximax Trans: <FLC:YUTO>,Un capitán que guía hacia la victoria a su equipo. Posee un amplio arsenal de tácticas y técnicas.,40A40AFD
+D00D237E,armadura,3,aura_armed/c04000090_5100_l.png,was00302_b1,"Grifo, señor de las bestias",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+D0DA7EBE,kenshin,2,aura_fs/k002030_l.png,wko02030,Animador,Un espíritu de bosque. Surge de la unidad y vive para difundir alegría.,3710E401
+D12DC52E,armadura,3,aura_armed/c04000080_5100_l.png,was00300_h1,"Grifo, señor de las bestias",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+D13FA5A8,armadura,5,aura_armed/c04003500_5000_l.png,was00241_h1,"Arturo, paladín de la espada sagrada",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+D16A53AC,armadura,4,aura_armed/c05021850_5000_l.png,wao00720,"Sombra de plasma RE, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+D1A8183F,especial,5,,wap01002,Determinación de portero,"Consciente de la importancia de su papel, el portero se esfuerza a tope y da la talla cuando es necesario.",
+D1C399B7,armadura,1,aura_armed/c05020700_5000_l.png,was00631,"Atenea, dueña del aire",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+D1C9B9ED,armadura,1,aura_armed/c05020150_5000_l.png,wad00710,"Jaguar, guerrero prehistórico",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+D1FA98EE,kenshin,1,aura_fs/k000090_l.png,wko00090,"Barius, supersónico",Un espíritu de viento. Su celeridad le da una gran ventaja frente a sus rivales.,B58078C8
+D2BB3DF4,alma,2,aura_soul/a000460_l.png,wso000460,Tótem Zooma,Un enorme depredador reptiliano de Sílice que se abre camino por el suelo a una velocidad vertiginosa.,68240E8C
+D2CB3804,especial,5,,mode_change_c11150120_exst,Modo Aphrody,Le sobrepasa la admiración por Aphrody y se transforma en su forma exacta.,2188D903
+D353F757,mixi,4,face/c11908190_l.png,wmm00221,Miximax Trans: <FLC:ENDO>,"Su pasión por el fútbol es insuperable. Pase lo que pase, su valiente corazón nunca se rendirá.",1650516E
+D40C98F5,kenshin,4,aura_fs/k000460_l.png,wkk00460,"Gargantúa, gigante metálico",Un espíritu de montaña. Tan grande y tan resistente como una muralla.,5F71DFB1
+D429A61B,kenshin,4,aura_fs/k000930_l.png,wko00930,"Jmet, adalid leonino",Un espíritu de montaña. Las zarpas de acero de este veterano hablan por él.,8A606301
+D4BCF89B,kenshin,4,aura_fs/k002040_l.png,wkd02040,"Warborg, muralla titánica",Un espíritu de la tierra. Provoca a los delanteros para luego convertirlos en piedra.,33766224
+D7969B33,mixi,1,face/c11908180_l.png,wmm00261,Miximax Trans: <FUL:HAKURYU>,Un chico que confía plenamente en sus propias habilidades. Mantiene una gran rivalidad con <FLC:TSURUGI>.,96A9E089
+D8E7E89D,armadura,2,aura_armed/c05028520_5000_l.png,wak00721_1,"Sombra de plasma PA, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+D9704126,kenshin,1,aura_fs/k000010_l.png,wko00010,Pegaso alado,Un espíritu de viento. Usa sus poderosas alas para derribar a los enemigos.,08025533
+D9DB998D,armadura,5,aura_armed/c05020120_5000_l.png,was00540,"Pendragón, caballero misterioso",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+DA31CE50,alma,1,aura_soul/a000260_l.png,wss000260,Tótem Ixaal,Una criatura cósmica humanoide que flota por el aire y atrapa a sus presas con los tentáculos.,2814CDFE
+DA6A8CDE,armadura,2,aura_armed/c05024910_5100_l.png,was00220,"Reina blanca, encantadora real",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+DAB1BED3,mixi,1,face/c05028140_l.png,wmm00055_b1,Miximax Trans: Zhuge Liang,"La estratega más brillante de <FUL:RYUBI>. Hermosa, pero reservada y esquiva.",BD04D9AC
+DB4BF76D,mixi,4,face/c05028070_l.png,wmm00150,Miximax Trans: Liu Bei,Héroe de los Tres Reinos. Un tipo peculiar que no deja nada a medias.,57A5DD31
+DC155BAC,mixi,1,face/c11908180_l.png,wmm00261_h1,Miximax Trans: <FUL:HAKURYU>,Un chico que confía plenamente en sus propias habilidades. Mantiene una gran rivalidad con <FLC:TSURUGI>.,96A9E089
+DD14D5B3,armadura,2,aura_armed/c04002050_5000_l.png,wad00421,Berserker,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+DD16C703,kenshin,2,aura_fs/k000060_l.png,wkd00060,Juez supremo,Un espíritu de bosque. Juzga y condena sin piedad a sus rivales.,4D55C80F
+DE3D3948,armadura,4,aura_armed/c04003260_5100_l.png,was00191,Caballo blanco,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+DEA7D250,kenshin,3,aura_fs/k000700_l.png,wkd00700,"Amaterasu, guerrera del amanecer",Un espíritu de fuego. Ciega al oponente con flechas deslumbrantes.,53304A92
+DF8E9B09,mixi,3,face/c05028050_l.png,wmm00110,Miximax Trans: Juana,Una chica tímida y discreta que se convertirá en la salvadora de Francia.,5336D8ED
+DFA79F2C,armadura,4,aura_armed/c05020410_5000_l.png,wak00430,"Barron, coloso metálico",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+E06E80C0,mixi,4,face/c05028100_l.png,wmm00090,Miximax Trans: <FLC:SAKAMOTO>,Un hombre con un gran corazón... y un gran apetito. Aspira a crear un nuevo Japón.,9E74ADDD
+E0B4C51D,armadura,3,aura_armed/c04000090_5100_l.png,was00302_h2,"Grifo, señor de las bestias",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+E1DF3031,kenshin,1,aura_fs/k000450_l.png,wks00450,"Neptuno, señor de los mares",Un espíritu de viento. Cuenta con todo el poderío de los océanos.,7D5B7EB1
+E2661788,armadura,2,aura_armed/c04000030_5000_l.png,wad00650,"Brunilda, valquiria abanderada",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+E26E2562,kenshin,1,aura_fs/k000330_l.png,wks00330,Archipegaso alado,Un espíritu de viento. Se diría que se desliza por la brisa.,BACD3FFE
+E2C5FDC9,armadura,2,aura_armed/c05020350_5000_l.png,wao00660,"Cychr, dragón enjoyado",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+E4043C2E,armadura,3,aura_armed/c05022620_5000_l.png,wad00890,"Zhuque, guerrera del sur",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+E40D7BD6,especial,5,,wap01004,Catalizador elemental,El jugador aprovecha todo su potencial y desbloquea un poder elemental aún mayor.,
+E5184EE5,armadura,4,aura_armed/c01000110_5000_l.png,was00051,"Musashi, bravo samurái",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+E51A5C55,kenshin,1,aura_fs/k000410_l.png,wks00410,"Roc, ave mitológica",Un espíritu de viento. Es tan cautivador que resulta imposible no mirarlo.,3C6A65A8
+E5D1FFF5,alma,1,aura_soul/a000560_l.png,wso000560,Tótem pegaso,Una criatura legendaria que recorre los cielos con unas radiantes alas blancas.,70398A65
+E725E23F,kenshin,1,aura_fs/k000840_l.png,wkd00840,"Eris, bruja de la discordia",Un espíritu de viento. Enreda a los enemigos en un caos de rosas espinosas.,8C2956C6
+E7A33690,kenshin,3,aura_fs/k000520_l.png,wkk00520,"Serendipity, maestro de las trampas",Un espíritu de fuego. Es una inspiración para todo el equipo.,1A85A8CC
+E7F3A271,alma,2,aura_soul/a000490_l.png,wsd000490,Tótem Guirius,"Un depredador acorazado de Magmavís que ataca puntos vitales con el pico, afilado cual cuchilla.",ACA0B0D1
+E80D028E,alma,3,aura_soul/a000330_l.png,wsd000330,Tótem Flami,Una criatura de Nomor con aspecto de zorro; su temperatura corporal aumenta al percibir cualquier peligro.,E954C7AC
+E8E45908,mixi,4,face/c05028010_l.png,wmm00010,Miximax Trans: Tiranosaurio,Un carnívoro del período Cretácico cuyas poderosas mandíbulas pueden aplastar lo que sea.,F332D645
+E9FE3152,armadura,3,aura_armed/c04001420_5100_l.png,wao00180,Peón blanco,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+EA0858B0,mixi,1,face/c05028140_l.png,wmm00055_h2,Miximax Trans: Zhuge Liang,"La estratega más brillante de <FUL:RYUBI>. Hermosa, pero reservada y esquiva.",BD04D9AC
+EA7437E8,armadura,3,aura_armed/c05021510_5000_l.png,was00400,"Plumas ardientes, ave de fuego",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+EADFEF43,kenshin,2,aura_fs/k000150_l.png,wko00150,"Garas, maestra de ilusiones",Un espíritu de bosque. Deja a sus enemigos petrificados de pavor.,F4B163D1
+EB55E074,especial,5,,mode_change_c02023290,Modo Atacante,"Para cumplir una promesa de perfección, adopta la personalidad de su difunto hermano.",EB55E074
+EB7C487E,armadura,4,aura_armed/c04000050_5000_l.png,wak00250,"Atlas, protector de la Tierra",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+EC21356C,mixi,1,face/c05028060_l.png,wmm00050,Miximax Trans: Zhuge Liang,"La estratega más brillante de <FUL:RYUBI>. Hermosa, pero reservada y esquiva.",BD04D9AC
+EC2D0FA7,armadura,4,aura_armed/c05023690_5000_l.png,wao00820,"Glenr, portador del sol nocturno",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+ECC86EEA,alma,2,aura_soul/a000370_l.png,wsd000370,Tótem Dandor,Un depredador acorazado de Falam Orbius que se lanza hacia delante con una fuerza capaz de romper una piedra.,9056E31E
+ED0A6E85,armadura,2,aura_armed/c04003250_5100_l.png,wad00201,"Alfil blanco, mensajero divino",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+ED5B0C51,alma,4,aura_soul/a000360_l.png,wss000360,Tótem Goliger,Un depredador negro y amarillo de Nomor que se vale de sus garras traseras para escalar hasta los acantilados más escarpados.,8617F522
+EEEA1902,alma,4,aura_soul/a000400_l.png,wss000400,Tótem águila calva,Un majestuoso pájaro de presa que gobierna los cielos con una visión sin igual y unas garras mortíferas.,03A6E772
+EEEA336E,alma,5,aura_soul/a000280_l.png,wso000280,Tótem antílope oscuro,"Una adorable criatura de grandes ojos y orejas, capaz de entender a los humanos.",29151595
+EF8D2A9C,armadura,2,aura_armed/c05028410_5000_l.png,wak00720_1,"Sombra de plasma PA, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+F03A5C55,armadura,3,aura_armed/c04003310_5100_l.png,wao00184,Peón blanco,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+F05C2D31,armadura,1,aura_armed/c04000080_5300_l.png,was00990,Archipegaso rojo alado,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+F06B0413,mixi,5,face/c05028640_l.png,wmm00300,Miximax Trans: <FUL:V GENE>,"<FST:VAMP> cuenta con un gen único en su interior, que lo hace enloquecer cuando ve sangre.",62145D27
+F1113D2E,alma,1,aura_soul/a000030_l.png,wss000030,Tótem halcón,Un halcón que se lanza en picado con una precisión letal y surca los cielos a una velocidad de infarto.,9596E005
+F230DC65,alma,1,aura_soul/a000520_l.png,wsk000520,Tótem Kosfi,Una criatura con cuernos de Fertilia que absorbe el néctar con una lengua fina y rápida.,7E669F17
+F2E895EF,mixi,1,face/c11010230_l.png,wmm11010230,Miximax Trans: Raika,"Alegre y encantadora, es la favorita de todos. Siempre busca nuevas emociones y le importa más el proceso que el resultado.",C112A44F
+F2F35819,kenshin,3,aura_fs/k000270_l.png,wkd00270,Tirador sombrío,Un espíritu de fuego. Nada escapa a su puntería.,0C64D316
+F33C881B,mixi,1,face/c05029460_l.png,wmm00220_b1,Miximax Trans: <FST:TENMA>,"Joven algo ingenuo, pero que adora el fútbol. Su juego es tan agradable como una bocanada de aire fresco.",F2F2F5EE
+F51FD886,kenshin,1,aura_fs/k000780_l.png,wks00780,"Los enamorados ♀, a. encadenadas",Un espíritu de viento. Es más fuerte en conjunción con su pareja.,309B90E5
+F544A552,alma,3,aura_soul/a000200_l.png,wsk000200,Tótem Gorius,Una poderosa criatura de Magmavís con escamas rojas que destruye las rocas con su poderosa cola.,A9678379
+F58F13C4,armadura,2,aura_armed/c04000090_5000_l.png,was00030,Director Magister,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+F5D4514A,alma,3,aura_soul/a000070_l.png,wss000070,Tótem Guma,Una criatura de Sílice de un rojo intenso que evita el agua y ataca con gran velocidad en terrenos áridos.,EF828CB1
+F63426CD,armadura,4,aura_armed/c05020360_5000_l.png,wad00671,"Xuan-Wu, guerrero del norte",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+F85812BC,kenshin,4,aura_fs/k000110_l.png,wkk00110,Titán gigante,Un espíritu de montaña. Defiende la portería con gran tenacidad.,5F71DFB1
+F9527F9A,armadura,3,aura_armed/c04000090_5100_l.png,was00301,"Grifo, señor de las bestias",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+FA2ADBD9,alma,4,aura_soul/a000150_l.png,wso000150,Tótem oso pardo,Un terrorífico y gigantesco oso que asesta poderosos golpes con sus potentes garras.,7C763FC9
+FAE17879,kenshin,3,aura_fs/k000020_l.png,wks00020,Caballero Lancelot,Un espíritu de fuego. Derrota a sus enemigos con coraje y gallardía.,0D628C0F
+FC9F6C68,armadura,4,aura_armed/c01000010_5000_l.png,wak00511,"Grandius, mágico gigante",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+FD0B5D42,armadura,4,aura_armed/c05021880_5000_l.png,wao00722,"Sombra de plasma RE, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+FDA29759,armadura,1,aura_armed/c05020700_5000_l.png,was00633,"Atenea, dueña del aire",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+FE41AB1E,armadura,4,aura_armed/c05028470_5000_l.png,wao00725_1,"Sombra de plasma RE, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+FF32468C,kenshin,4,aura_fs/k000980_l.png,wks00980,"Los enamorados ♂, a. encadenadas",Un espíritu de montaña. Es más fuerte en conjunción con su pareja.,71AA8BFC

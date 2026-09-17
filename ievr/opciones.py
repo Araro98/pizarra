@@ -328,7 +328,8 @@ def tecnicas(plain, fila, ranura):
                       "subtipo": f.get("subtipo") or "",
                       "elemento": f.get("elemento") or "sin elemento",
                       "poder": int(f.get("poder") or 0),
-                      "tp": int(f.get("tp") or 0)})
+                      "tp": int(f.get("tp") or 0),
+                      "descripcion": f.get("descripcion") or ""})
     if admite == "LIBRE":
         # En una ranura LIBRE tambien caben los espiritus, y esos se distinguen
         # por su familia (kenshin, alma, armadura, mixi), que es justo por lo que
@@ -346,7 +347,9 @@ def tecnicas(plain, fila, ranura):
                               "subtipo": e.get("familia") or "",
                               "elemento": "sin elemento",
                               "icono": e.get("icono") or "",
-                              "poder": 0, "tp": 0})
+                              "poder": 0, "tp": 0,
+                              # lo que ensena la ficha del espiritu (O-174)
+                              **_detalle_espiritu(idh, e)})
     vistos, unicas = set(), []
     for o in sorted(fuera, key=lambda x: x["nombre"]):
         if o["nombre"] and o["id"] not in vistos:
@@ -872,12 +875,15 @@ def duenos_de_espiritu(id_hex):
     def construir():
         d = {}
         for f in reglas._tabla("espiritus-duenos.csv"):
-            e = d.setdefault(f["id"].upper(), {"nombres": set(), "identidades": set()})
+            e = d.setdefault(f["id"].upper(), {"nombres": set(), "identidades": set(), "todos": False})
+            if f.get("personaje") == "todos":
+                e["todos"] = True       # hipertecnica especial de cualquiera (O-174)
+                continue
             e["identidades"].add(f["identidad"].upper())
             if f.get("personaje"):
                 e["nombres"].add(f["personaje"])
         return d
-    return _indice("duenos_espiritu", construir).get(id_hex.upper(), {"nombres": set(), "identidades": set()})
+    return _indice("duenos_espiritu", construir).get(id_hex.upper(), {"nombres": set(), "identidades": set(), "todos": False})
 
 
 def espiritu_permitido(id_hex, identidad_hex):
@@ -887,13 +893,41 @@ def espiritu_permitido(id_hex, identidad_hex):
     Las armaduras y mixis sin dueno conocido no se dejan a NADIE (Aaron: "mejor
     que nadie pueda usarlos antes de que todos puedan usarlos")."""
     d = duenos_de_espiritu(id_hex)
+    if d.get("todos"):
+        return True
     if not d["identidades"]:
-        return (_espiritus().get(id_hex.upper()) or {}).get("familia") not in ("armadura", "mixi")
+        return (_espiritus().get(id_hex.upper()) or {}).get("familia") not in ("armadura", "mixi", "especial")
     ident = (identidad_hex or "").upper()
     if ident in d["identidades"]:
         return True
     nombre = (reglas.personajes().get(ident) or {}).get("nombre_es") or ""
     return bool(nombre) and nombre in d["nombres"]
+
+
+def _detalle_espiritu(idh, e):
+    """Rango, nombre largo, descripcion, de quien es y su tecnica propia, para
+    ensenarlo en el selector (O-174)."""
+    d = duenos_de_espiritu(idh)
+    if d.get("todos"):
+        dueno = "de cualquier jugador"
+    elif d["nombres"]:
+        dueno = "solo de " + ", ".join(sorted(d["nombres"]))
+    else:
+        dueno = ""
+    fuera = {"rango": int(e.get("rango") or 0), "nombre_largo": e.get("nombre_largo") or "",
+             "descripcion": e.get("descripcion") or "", "dueno": dueno,
+             "tecnica": "", "tecnica_categoria": "", "tecnica_poder": 0, "tecnica_tp": 0,
+             "tecnica_elemento": ""}
+    t = _tecnicas_por_id().get((e.get("tecnica") or "").upper())
+    if t:
+        fuera.update({"tecnica": _limpio(t.get("nombre")), "tecnica_categoria": t.get("categoria") or "",
+                      "tecnica_poder": int(t.get("poder") or 0), "tecnica_tp": int(t.get("tp") or 0),
+                      "tecnica_elemento": t.get("elemento") or ""})
+    return fuera
+
+
+def _tecnicas_por_id():
+    return _indice("tecnicas_por_id", lambda: {f["id"].upper(): f for f in reglas._tabla("tecnicas.csv")})
 
 
 def _espiritus():
@@ -905,6 +939,9 @@ def _espiritus():
     """
     def construir():
         return {f["id"].upper(): {"familia": f["familia"], "icono": f["icono"],
-                                  "rango": int(f["rango"] or 0)}
+                                  "rango": int(f["rango"] or 0),
+                                  "nombre_largo": f.get("nombre_largo") or "",
+                                  "descripcion": f.get("descripcion") or "",
+                                  "tecnica": f.get("tecnica") or ""}
                 for f in reglas._tabla("espiritus.csv")}
     return _indice("espiritus", construir)

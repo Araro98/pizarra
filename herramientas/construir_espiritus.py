@@ -43,6 +43,10 @@ CHR = os.path.join(RAIZ, "datos", "iconos", "data", "dx11", "menu", "200_icon",
 SALIDA = os.path.join(RAIZ, "datos", "reglas-extraidas", "espiritus.csv")
 
 COL_MODELO, COL_RANGO, COL_FAMILIA, COL_PERSONAJE = 1, 8, 10, 13
+# col 2: el nombre largo ("Pegaso alado", NOUN_INFO de skill_text); col 3: la
+# descripcion (TEXT_INFO); col 6: la supertecnica propia del espiritu (O-174)
+COL_NOMBRE_LARGO, COL_DESCRIPCION, COL_TECNICA = 2, 3, 6
+TEXTO_ES = os.path.join(RAIZ, "datos", "juego", "extracted", "data", "common", "text", "es")
 FAMILIAS = {"0": ("kenshin", "aura_fs", "k"), "1": ("armadura", "aura_armed", ""),
             "2": ("mixi", "aura_mixi", ""), "3": ("alma", "aura_soul", "a")}
 
@@ -57,6 +61,24 @@ def entero(x):
 def cadena(celda):
     m = re.match(r'^String\("(.*)"\)$', (celda or "").strip())
     return m.group(1) if m else ""
+
+
+def textos_es(fichero, tabla):
+    """{id: texto} de una tabla de textos en espanol, saltos del juego fuera."""
+    r = subprocess.run([VOLCADO, os.path.join(TEXTO_ES, fichero), tabla], capture_output=True,
+                       text=True, encoding="utf-8", errors="replace")
+    fuera = {}
+    for l in r.stdout.splitlines()[1:]:
+        c = l.split("	")
+        k = entero(c[0]) if c else None
+        if k is None:
+            continue
+        for celda in c[1:]:
+            t = cadena(celda)
+            if t:
+                fuera[k] = " ".join(re.sub(r"\\+n", " ", t).replace("\\", "").split())
+                break
+    return fuera
 
 
 def filas_tsv(ruta):
@@ -89,6 +111,8 @@ def main():
         d = os.path.join(CHR, carpeta)
         hay[carpeta] = set(os.listdir(d)) if os.path.isdir(d) else set()
 
+    nombres_largos = textos_es("skill_text.cfg.bin", "NOUN_INFO")
+    descripciones = textos_es("skill_text.cfg.bin", "TEXT_INFO")
     filas, con, sin = [], 0, 0
     for l in r.stdout.splitlines():
         c = l.split("\t")
@@ -126,8 +150,12 @@ def main():
             rango = int(c[COL_RANGO])
         except ValueError:
             rango = 0
+        tecnica = entero(c[COL_TECNICA]) or 0
         filas.append([en_partida, familia, rango,
-                      (carpeta + "/" + fichero) if existe else "", modelo])
+                      (carpeta + "/" + fichero) if existe else "", modelo,
+                      nombres_largos.get(entero(c[COL_NOMBRE_LARGO]), ""),
+                      descripciones.get(entero(c[COL_DESCRIPCION]), ""),
+                      bytes.fromhex("%08X" % tecnica)[::-1].hex().upper() if tecnica else ""])
 
     os.makedirs(os.path.dirname(SALIDA), exist_ok=True)
     with open(SALIDA, "w", newline="", encoding="utf-8") as fh:
@@ -136,7 +164,7 @@ def main():
                  "# icono = ruta dentro de 200_icon/10_icon_chr (vacio = no hay).\n"
                  "# Lo genera herramientas/construir_espiritus.py (NOTAS O-102).\n")
         w = csv.writer(fh)
-        w.writerow(["id", "familia", "rango", "icono", "modelo"])
+        w.writerow(["id", "familia", "rango", "icono", "modelo", "nombre_largo", "descripcion", "tecnica"])
         w.writerows(sorted(filas))
     print("Escritos %d espiritus: %d con imagen, %d sin" % (len(filas), con, sin))
     porfam = {}

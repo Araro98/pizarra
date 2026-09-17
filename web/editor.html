@@ -698,6 +698,54 @@
     display:flex; justify-content:space-between; align-items:center;
     font-size:var(--t-md); color:var(--suave); }
 
+  /* El selector en rejilla (O-175): ancho, con tarjetas, para ver de un
+     vistazo muchas opciones sin bajar y bajar. */
+  .modal.selector { width:min(1200px,96vw); max-height:min(90vh,960px); }
+  .modal.selector .herramientas { display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+    padding:10px 14px; border-bottom:1px solid var(--linea); background:#f6faff; }
+  .modal.selector .herramientas input { flex:1 1 240px; min-width:160px; padding:7px 12px;
+    border:2px solid var(--azul-marco); border-radius:8px; font-size:var(--t-md); }
+  .modal.selector .herramientas .filtros-picker { margin:0; }
+  .modal.selector .rejilla { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr));
+    gap:8px; padding:10px 14px; overflow:auto; flex:1; align-content:start;
+    background:linear-gradient(180deg,#eef4fb,#f7fafe); }
+  .modal.selector .rejilla .vacio { grid-column:1/-1; }
+  .tarjeta { position:relative; text-align:left; background:#fff; border:2px solid var(--linea);
+    border-radius:10px; padding:8px 10px; cursor:pointer; display:flex; flex-direction:column;
+    gap:6px; min-width:0; font:inherit; color:var(--tinta);
+    transition:transform .08s, box-shadow .08s, border-color .08s; }
+  .tarjeta:hover, .tarjeta:focus-visible { border-color:var(--azul-marco); outline:none;
+    box-shadow:0 3px 12px rgba(43,94,168,.28); transform:translateY(-1px); }
+  .tarjeta.puesta { border-color:#18b7a6; background:linear-gradient(180deg,#effffc,#fff); }
+  .tarjeta .ya { position:absolute; right:8px; top:-9px; background:#18b7a6; color:#fff;
+    font-size:var(--t-xxs); font-weight:800; padding:1px 8px; border-radius:8px;
+    text-transform:uppercase; letter-spacing:.05em; }
+  .tarjeta .chips { display:flex; flex-wrap:wrap; gap:4px; }
+  .chip { font-size:var(--t-xs); font-weight:700; padding:1px 8px; border-radius:9px;
+    background:#e9f1fb; color:#2b4a72; border:1px solid #cfe0f3; white-space:nowrap;
+    max-width:100%; overflow:hidden; text-overflow:ellipsis; }
+  .chip.tipo { background:var(--azul-marco); color:#fff; border-color:var(--azul-marco); }
+  .chip.dueno { background:#fff4d6; color:#7a5200; border-color:#f0d58a; }
+  .chip.rango { color:#b8860b; background:#fff9e6; border-color:#f3e2a0; letter-spacing:.08em; }
+  .tarjeta .desc { margin:0; font-size:var(--t-sm); color:var(--suave); line-height:1.3;
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .tarjeta .cab-esp, .tarjeta .cab-obj { display:flex; gap:9px; align-items:center; min-width:0; }
+  .tarjeta .titulos { min-width:0; display:flex; flex-direction:column; gap:1px; }
+  .tarjeta .titulos b { font-size:var(--t-md); font-style:italic; font-weight:800;
+    overflow:hidden; text-overflow:ellipsis; }
+  .tarjeta .titulos small { color:var(--suave); font-size:var(--t-xs); }
+  .ico-esp { width:48px; height:48px; object-fit:contain; flex:none;
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,.35)); }
+  .tarjeta .sub { font-size:var(--t-xxs); text-transform:uppercase; letter-spacing:.08em;
+    color:var(--suave); font-weight:800; margin-top:2px; }
+  .tarjeta .stats { display:flex; flex-wrap:wrap; gap:3px 10px; font-size:var(--t-sm);
+    font-weight:700; color:#17734b; }
+  .tarjeta .stats .stat { display:inline-flex; align-items:center; gap:2px; }
+  .tarjeta .stats .total { color:#2b5ea8; }
+  .tarjeta .extra { color:#17734b; font-size:var(--t-sm); font-weight:700; }
+  .tarjeta .tec-barra .nom { white-space:normal; line-height:1.15; }
+  @media (max-width:700px) { .modal.selector .rejilla { grid-template-columns:1fr; } }
+
   .aviso { padding:9px 14px; border-radius:8px; font-size:var(--t-md); margin:0 0 10px;
     font-weight:600; }
   .aviso { padding-left:42px; background-repeat:no-repeat;
@@ -1286,16 +1334,17 @@ function seccionTecnicas(d) {
       ? ranuraTecnica(t,
           () => pedir(`/api/opciones?tipo=tecnica&fila=${d.fila}&ranura=${t.ranura}`)
                   .then(r => ({de_donde:"solo admite tecnicas de " + r.admite,
+                    actual_etiqueta:t.puesta || null,
                     facetas:[{campo:"categoria", etiqueta:"Tipo"},
-                             {campo:"subtipo", etiqueta:"Clase"},
-                             {campo:"elemento", etiqueta:"Afinidad"}],
+                             {campo:"subtipo", etiqueta:"Clase", nombres:NOMBRE_FAMILIA},
+                             {campo:"elemento", etiqueta:"Afinidad"},
+                             {campo:"dueno", etiqueta:"De quien es"}],
                     ordenes:[{campo:"poder", etiqueta:"mas poder", mayor:true},
                              {campo:"etiqueta", etiqueta:"nombre"},
-                             {campo:"tp", etiqueta:"menos TP"}],
-                    opciones:r.opciones.map(o => ({valor:o.id, etiqueta:o.nombre,
-                      extra:(o.poder ? "AT " + o.poder + "   TP " + o.tp : ""),
-                      categoria:o.categoria, subtipo:o.subtipo, elemento:o.elemento,
-                      icono:o.icono || "", poder:o.poder, tp:o.tp}))})),
+                             {campo:"tp", etiqueta:"menos TP"},
+                             {campo:"rango", etiqueta:"rango del espiritu", mayor:true}],
+                    opciones:r.opciones.map(o => ({...o, valor:o.id, etiqueta:o.nombre,
+                      icono:o.icono || ""}))})),
           // se manda el codigo, no el nombre: hay hipertecnicas con el nombre repetido
           v => manda({tipo:"tecnica", fila:d.fila, ranura:t.ranura, id:v}),
           "Tecnica de la ranura " + t.ranura)
@@ -1318,10 +1367,10 @@ function seccionEquipacion(d) {
     String(e.ranura), e.puesto || "vacio",
     e.etiqueta.replace(/^\d+\s*/, ""),
     () => pedir(`/api/opciones?tipo=equipacion&fila=${d.fila}&ranura=${e.ranura}`)
-            .then(r => ({...r, ordenes:ORDENES_EQUIPO,
-              opciones:r.opciones.map(o => ({valor:o.nombre, etiqueta:o.nombre,
+            .then(r => ({...r, ordenes:ORDENES_EQUIPO, actual_etiqueta:e.puesto || null,
+              opciones:r.opciones.map(o => ({...o, valor:o.nombre, etiqueta:o.nombre,
                                              icono200:o.icono200 || "",
-                                             extra:o.bonus, total:o.total || 0,
+                                             total:o.total || 0,
                                              ...Object.fromEntries((o.stats || []).map((v, i) => ["s" + i, v]))}))})),
     v => manda({tipo:"equipacion", fila:d.fila, ranura:e.ranura, nombre:v}),
     false, e.etiqueta.replace(/^\d+\s*/, "").replace(/^./, c => c.toUpperCase()),
@@ -1374,7 +1423,8 @@ function seccionPasivas(d) {
         onclick:() => abrePicker("Pasiva " + x.ranura,
           () => pedir(`/api/opciones?tipo=pasiva&fila=${d.fila}&ranura=${x.ranura}`)
                   .then(r => ({...r, ordenes:[{campo:"etiqueta", etiqueta:"nombre"}],
-                    opciones:r.opciones.map(o => ({valor:o.id, etiqueta:o.nombre,
+                    actual_etiqueta:x.normal || null,
+                    opciones:r.opciones.map(o => ({...o, valor:o.id, etiqueta:o.nombre,
                                                    icono200:o.icono200 || ""}))})),
           v => manda({tipo:"pasiva", fila:d.fila, ranura:x.ranura, id:v}))}));
 
@@ -1388,7 +1438,8 @@ function seccionPasivas(d) {
         onclick:() => abrePicker("Heredar en la ranura " + x.ranura,
           () => pedir("/api/opciones?tipo=heredada&fila=" + d.fila)
                   .then(r => ({...r, ordenes:[{campo:"etiqueta", etiqueta:"nombre"}],
-                    opciones:r.opciones.map(o => ({valor:o.id, etiqueta:o.nombre,
+                    actual_etiqueta:x.heredada || null,
+                    opciones:r.opciones.map(o => ({...o, valor:o.id, etiqueta:o.nombre,
                                                    icono200:o.icono200 || ""}))})),
           v => manda({tipo:"heredada", fila:d.fila, ranura:x.ranura, id:v}))}));
     else
@@ -1457,7 +1508,8 @@ function filaJudia(fila, j) {
     el("div", {style:"display:flex;gap:6px;align-items:center"}, [num,
       el("button", {class:"elegir", text:"Tipo", onclick:() => abrePicker(
         "Judia de la ranura " + j.ranura,
-        async () => ({opciones:j.opciones.map(o => ({valor:o.nombre, etiqueta:o.nombre,
+        async () => ({actual_etiqueta:j.tipo || null,
+                      opciones:j.opciones.map(o => ({valor:o.nombre, etiqueta:o.nombre,
                                                     judia:o.nombre}))}),
         v => manda({tipo:"judia", fila, ranura:j.ranura, nombre:v,
                     cantidad:Math.max(1, Number(num.value) || 1)}))})])]);
@@ -1500,44 +1552,113 @@ function bloqueado(etiqueta, texto) {
 /* Una fila de la ventana de elegir. Si lo que se elige es una tecnica, se
    dibuja como en el juego: icono redondo del tipo, barra del color de su
    afinidad, nombre y poder. Si no, la fila de siempre con su dibujo si lo hay. */
-function filaDeOpcion(o, alPulsar) {
-  const esTecnica = o.categoria && ICONO_TIPO[o.categoria];
-  if (esTecnica) {
-    const barra = el("div", {class:"tec-barra"});
-    barra.style.background = fondoBarra(o.elemento, o.categoria);
-    const ico = o.icono
-      ? el("img", {class:"ico-tipo", loading:"lazy", alt:"",
-                   src:"/espiritu/" + o.icono})
-      : iconoTipo(o.categoria);
-    if (ico) barra.appendChild(ico);
-    barra.appendChild(el("span", {class:"nom", text:o.etiqueta}));
-    if (o.tp) barra.appendChild(el("span", {class:"tp", text:"TP " + o.tp}));
-    if (o.poder) {
-      barra.appendChild(el("span", {class:"clase",
-        text:o.categoria === "Parada" || o.categoria === "Defensa" ? "DF" : "AT"}));
-      barra.appendChild(el("span", {class:"pot", text:String(o.poder)}));
-    }
-    return el("button", {class:"con-barra", onclick:alPulsar}, [barra]);
+/* --- El selector: una ventana ancha con TARJETAS en rejilla, para ver muchas
+   opciones de un vistazo sin hacer scroll (lo pidio Aaron, NOTAS O-175). Cada
+   tarjeta lleva todo lo que se sabe de la cosa: la barra del juego en las
+   tecnicas, la familia, el rango, el dueno y la tecnica propia en los
+   espiritus, los stats en la equipacion, el numero en las pasivas. --- */
+function chip(texto, clase, estilo) {
+  const c = el("span", {class:"chip" + (clase ? " " + clase : ""), text:texto});
+  if (estilo) c.setAttribute("style", estilo);
+  return c;
+}
+function chipElemento(elemento) {
+  if (!elemento || elemento === "sin elemento") return null;
+  const color = COLOR_ELEM[elemento] || "#9aa8b8";
+  return chip(elemento, "elem", "background:" + color + ";border-color:" + color + ";color:#fff");
+}
+function barraDeTecnica(t) {
+  const barra = el("div", {class:"tec-barra"});
+  barra.style.background = fondoBarra(t.elemento, t.categoria);
+  const ico = t.icono
+    ? el("img", {class:"ico-tipo", loading:"lazy", alt:"", src:"/espiritu/" + t.icono})
+    : iconoTipo(t.categoria);
+  if (ico) barra.appendChild(ico);
+  barra.appendChild(el("span", {class:"nom", text:t.etiqueta}));
+  if (t.tp) barra.appendChild(el("span", {class:"tp", text:"TP " + t.tp}));
+  if (t.poder) {
+    barra.appendChild(el("span", {class:"clase",
+      text:t.categoria === "Parada" || t.categoria === "Defensa" ? "DF" : "AT"}));
+    barra.appendChild(el("span", {class:"pot", text:String(t.poder)}));
   }
-  return el("button", {onclick:alPulsar}, [
-    o.icono200 ? el("img", {class:"mini-icono", loading:"lazy", alt:"",
-                            src:"/icono/" + o.icono200})
-      : o.icono ? el("img", {class:"mini-icono", loading:"lazy", alt:"",
-                             src:"/espiritu/" + o.icono}) : null,
-    o.judia ? iconoJudia(o.judia, 30) : (o.stat ? iconoStat(o.stat, 24) : null),
-    el("span", {text:o.etiqueta}),
-    o.extra ? el("small", {class:"extra", text:o.extra}) : null]);
+  return barra;
+}
+
+function tarjetaDeOpcion(o, alPulsar, puesta) {
+  const t = el("button", {class:"tarjeta" + (puesta ? " puesta" : ""), onclick:alPulsar,
+                          title:o.descripcion || ""});
+  if (puesta) t.appendChild(el("span", {class:"ya", text:"la lleva ahora"}));
+  const esTecnica = o.categoria && ICONO_TIPO[o.categoria];
+
+  if (o.categoria === "Hipertecnica") {
+    // un espiritu o una hipertecnica especial
+    t.classList.add("espiritu");
+    const ico = o.icono
+      ? el("img", {class:"ico-esp", loading:"lazy", alt:"", src:"/espiritu/" + o.icono})
+      : iconoTipo("Hipertecnica", 40);
+    t.appendChild(el("div", {class:"cab-esp"}, [ico,
+      el("div", {class:"titulos"}, [el("b", {text:o.etiqueta}),
+        (o.nombre_largo && o.nombre_largo !== o.etiqueta) ? el("small", {text:o.nombre_largo}) : null])]));
+    const chips = el("div", {class:"chips"});
+    if (o.subtipo) chips.appendChild(chip(NOMBRE_FAMILIA[o.subtipo] || o.subtipo, "tipo"));
+    if (o.rango) chips.appendChild(chip("\u2605".repeat(o.rango), "rango"));
+    if (o.dueno) chips.appendChild(chip(o.dueno, "dueno"));
+    t.appendChild(chips);
+    if (o.tecnica) {
+      t.appendChild(el("div", {class:"sub", text:"Tecnica del espiritu"}));
+      t.appendChild(barraDeTecnica({etiqueta:o.tecnica, elemento:o.tecnica_elemento,
+        categoria:o.tecnica_categoria, tp:o.tecnica_tp, poder:o.tecnica_poder}));
+    }
+    if (o.descripcion) t.appendChild(el("p", {class:"desc", text:o.descripcion}));
+    return t;
+  }
+  if (esTecnica) {
+    t.classList.add("tecnica");
+    t.appendChild(barraDeTecnica(o));
+    const chips = el("div", {class:"chips"});
+    chips.appendChild(chip(o.categoria, "tipo"));
+    if (o.subtipo && o.subtipo !== "normal" && !/sin identificar/.test(o.subtipo))
+      chips.appendChild(chip(o.subtipo));
+    const ce = chipElemento(o.elemento);
+    if (ce) chips.appendChild(ce);
+    t.appendChild(chips);
+    if (o.descripcion) t.appendChild(el("p", {class:"desc", text:o.descripcion}));
+    return t;
+  }
+  // equipacion, pasivas, judias y lo demas
+  const dibujo = o.icono200
+    ? el("img", {class:"mini-icono grande", loading:"lazy", alt:"", src:"/icono/" + o.icono200})
+    : o.icono ? el("img", {class:"mini-icono grande", loading:"lazy", alt:"", src:"/espiritu/" + o.icono})
+    : o.judia ? iconoJudia(o.judia, 40)
+    : o.stat ? iconoStat(o.stat, 30) : null;
+  t.appendChild(el("div", {class:"cab-obj"}, [dibujo,
+    el("div", {class:"titulos"}, [el("b", {text:o.etiqueta}),
+      o.cantidad ? el("small", {text:"tienes " + o.cantidad}) : null])]));
+  if (Array.isArray(o.stats) && o.stats.some(v => v)) {
+    const st = el("div", {class:"stats"});
+    o.stats.forEach((v, i) => {
+      if (!v) return;
+      st.appendChild(el("span", {class:"stat"}, [iconoStat(NOMBRES_STAT_CORTO[i], 18),
+        document.createTextNode(NOMBRES_STAT_CORTO[i] + " +" + v)]));
+    });
+    if (o.total) st.appendChild(el("span", {class:"stat total", text:"total +" + o.total}));
+    t.appendChild(st);
+  } else if (o.extra) {
+    t.appendChild(el("small", {class:"extra", text:o.extra}));
+  }
+  if (o.descripcion) t.appendChild(el("p", {class:"desc", text:o.descripcion}));
+  return t;
 }
 
 async function abrePicker(titulo, cargar, alElegir) {
-  const lista = el("ul");
+  const rejilla = el("div", {class:"rejilla"});
   const pie = el("div", {class:"pie"}, [el("span", {text:"Cargando..."})]);
-  const busca = el("input", {type:"search", placeholder:"Buscar..."});
+  const busca = el("input", {type:"search", placeholder:"Buscar... (Enter elige la primera)"});
   const barra = el("div", {class:"filtros-picker"});
   const dedonde = el("p", {text:""});
-  const caja = el("div", {class:"modal"}, [
+  const caja = el("div", {class:"modal selector"}, [
     el("div", {class:"cab"}, [el("h3", {text:titulo}), dedonde]),
-    el("div", {class:"busca"}, [busca, barra]), lista, pie]);
+    el("div", {class:"herramientas"}, [busca, barra]), rejilla, pie]);
   const fondo = el("div", {class:"fondo-modal",
     onclick:e => { if (e.target === fondo) cerrar(); }}, [caja]);
   document.body.appendChild(fondo);
@@ -1546,10 +1667,15 @@ async function abrePicker(titulo, cargar, alElegir) {
   document.onkeydown = e => { if (e.key === "Escape") cerrar(); };
   busca.focus();
 
-  let todas = [], facetas = [], ordenes = [];
+  let todas = [], facetas = [], ordenes = [], actual = null, actualEtiqueta = null;
   const puesto = {};
   let orden = "";
+  let visibles = [];
 
+  function esLaPuesta(o) {
+    return (actual !== null && actual !== undefined && String(o.valor) === String(actual))
+      || (actualEtiqueta && (o.etiqueta || "") === actualEtiqueta);
+  }
   function encaja(o) {
     for (const f of facetas)
       if (puesto[f.campo] && String(o[f.campo] || "") !== puesto[f.campo]) return false;
@@ -1557,22 +1683,24 @@ async function abrePicker(titulo, cargar, alElegir) {
   }
   function pinta() {
     const q = busca.value.trim().toLowerCase();
-    caja.classList.toggle("con-tecnicas",
-      todas.some(o => o.categoria && ICONO_TIPO[o.categoria]));
     let ves = todas.filter(o => encaja(o) &&
-      (!q || (o.etiqueta || "").toLowerCase().includes(q)));
+      (!q || (o.etiqueta || "").toLowerCase().includes(q)
+          || (o.descripcion || "").toLowerCase().includes(q)
+          || (o.dueno || "").toLowerCase().includes(q)
+          || (o.tecnica || "").toLowerCase().includes(q)));
     const cual = ordenes.find(x => x.campo === orden);
     if (cual) ves = ves.slice().sort((a, b) => cual.mayor
       ? (Number(b[cual.campo] || 0) - Number(a[cual.campo] || 0))
       : String(a[cual.campo] || "").localeCompare(String(b[cual.campo] || "")));
-    lista.textContent = "";
-    for (const o of ves.slice(0, 400))
-      lista.appendChild(el("li", {}, [filaDeOpcion(o, () => {
-        cerrar(); alElegir(o.valor);
-      })]));
+    // la que lleva puesta, la primera, para verla sin buscar
+    ves.sort((a, b) => (esLaPuesta(b) ? 1 : 0) - (esLaPuesta(a) ? 1 : 0));
+    visibles = ves;
+    rejilla.textContent = "";
+    for (const o of ves.slice(0, 600))
+      rejilla.appendChild(tarjetaDeOpcion(o, () => { cerrar(); alElegir(o.valor); }, esLaPuesta(o)));
     pie.textContent = "";
     pie.appendChild(el("span", {text:ves.length + " de " + todas.length +
-      (ves.length > 400 ? " (se ensenan 400)" : "")}));
+      (ves.length > 600 ? " (se ensenan 600; afina la busqueda)" : "")}));
     pie.appendChild(el("button", {class:"btn", text:"Cancelar", onclick:cerrar}));
   }
   function montaFiltros() {
@@ -1583,7 +1711,8 @@ async function abrePicker(titulo, cargar, alElegir) {
       if (valores.length < 2) continue;
       const sel = el("select");
       sel.appendChild(el("option", {value:"", text:f.etiqueta + ": todos"}));
-      for (const v of valores) sel.appendChild(el("option", {value:v, text:v}));
+      for (const v of valores)
+        sel.appendChild(el("option", {value:v, text:(f.nombres && f.nombres[v]) || v}));
       sel.onchange = () => { puesto[f.campo] = sel.value; pinta(); };
       barra.appendChild(sel);
     }
@@ -1600,21 +1729,30 @@ async function abrePicker(titulo, cargar, alElegir) {
         onclick:() => { for (const k in puesto) delete puesto[k];
                         for (const sel of barra.querySelectorAll("select")) sel.value = "";
                         orden = ordenes.length ? ordenes[0].campo : "";
+                        busca.value = "";
                         pinta(); }});
       barra.appendChild(limpia);
     }
   }
   busca.oninput = pinta;
+  busca.onkeydown = e => {
+    if (e.key === "Enter" && visibles.length) {
+      const o = visibles.find(x => !esLaPuesta(x)) || visibles[0];
+      cerrar(); alElegir(o.valor);
+    }
+  };
   try {
     const r = await cargar();
     todas = r.opciones;
     facetas = r.facetas || [];
     ordenes = r.ordenes || [];
+    actual = r.actual === undefined ? null : r.actual;
+    actualEtiqueta = r.actual_etiqueta || null;
     if (ordenes.length) orden = ordenes[0].campo;
     if (r.de_donde) dedonde.textContent = r.de_donde;
     if (!todas.length) {
-      lista.appendChild(el("li", {}, [el("div", {class:"vacio",
-        text:r.motivo || "Aqui no se puede poner nada."})]));
+      rejilla.appendChild(el("div", {class:"vacio",
+        text:r.motivo || "Aqui no se puede poner nada."}));
       pie.textContent = "";
       pie.appendChild(el("button", {class:"btn", text:"Cerrar", onclick:cerrar}));
       return;

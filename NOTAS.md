@@ -4099,6 +4099,46 @@ el texto de la tabla, que lleva `<VALUE>`, asi que no cuadraba nunca (Aaron con
 Kevin Dragonfly, Juego sucio, ranura 5). Ahora el editor manda el codigo y se
 comprueba por codigo: probadas las 144 opciones de los seis arquetipos.
 
+### O-174 · Hipertecnicas especiales: cinco de todos, el resto de su personaje
+
+Aaron: "para todos los jugadores solo estan disponibles Catalizador elemental,
+Determinacion de portero, Impulso temporal, Guardian ferreo y Sobrecarga
+ardiente; las demas estan asignadas a X jugadores (Modo Reina solo de Beta,
+Modo Aphrody solo de Thaddeus)". Las cinco de todos van a mano en
+`construir_duenos_espiritus.py` (`PARA_TODOS`, fila con personaje "todos"); las
+demas salen de `chara_param` (cols 15, 21 y 27: Modo Reina -> Beta, Modo
+Aphrody -> Thaddeus Bellefax, Modo Atacante -> Shawn Froste, Modo Brutal ->
+Hekyll Jyde, Modo Dos Caras -> Aitor Cazador, Modo Furia -> Buddy Fury, Modo
+Leon Salvaje -> Bilal Kalil, Modo Santurron -> Seth Bael, Modo Serio -> Scott
+Banyan, Despertar -> Thierry Reyes). Las que no tienen dueno en los datos
+(Cambio de despertar, Espiritu Miximax, Limitadores desactivados, Mejora de
+capsula, Transformacion de vinculo y una copia de Aphrody, Santurron y
+Despertar) no se dejan a nadie, como los mixi sin dueno de O-172.
+
+Ademas `espiritus.csv` lleva ahora `nombre_largo` (col 2 de
+`AURA_CMD_INFO_LIST`, NOUN_INFO de skill_text: "Pegaso alado"), `descripcion`
+(col 3, TEXT_INFO) y `tecnica` (col 6: la supertecnica propia del espiritu,
+"Rayo celeste" en el Pegaso); y `tecnicas.csv` lleva `descripcion` (col 7 de
+`m_skillInfoList` -> TEXT_INFO). El efecto pasivo de un kenshin ("al pasar,
+poder de afinidad +50 %") NO esta como texto: `AURA_CMD_EFFECT_LIST` guarda
+codigos de efecto numericos (que apuntan a `soccer_command_effect_config`) y
+no hay ningun texto ligado a ellos; queda pendiente.
+
+### O-175 · El selector en rejilla
+
+Aaron: "en los submenus, por ejemplo el de cambiar tecnicas, que no se tenga
+que hacer tanto scroll: un popup en horizontal, con las tecnicas ahi en
+horizontal, manteniendo el icono y el color, con todos los datos de cada cosa,
+muy visual". `abrePicker` pinta ahora una ventana ancha (1200 px) con
+TARJETAS en rejilla (3-4 por fila) en vez de una lista de una columna: la
+tecnica con su barra del juego + tipo, clase, afinidad y la descripcion; el
+espiritu con su icono grande, familia, rango en estrellas, de quien es, su
+tecnica propia con barra y la descripcion; la equipacion con sus stats y el
+total; la pasiva con su numero. La que lleva puesta sale la primera con la
+marca "la lleva ahora"; la busqueda tambien mira descripcion, dueno y tecnica
+del espiritu; Enter elige la primera; y hay filtro nuevo "De quien es".
+Todos los selectores mandan ya el codigo, no el nombre.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

@@ -33,6 +33,7 @@ Los nombres de los subtipos los aporto Aaron (2026-09-14), ver
 """
 import csv
 import os
+import re
 import subprocess
 import sys
 
@@ -108,12 +109,31 @@ def numero(celda):
         return 0
 
 
+def textos_es(fichero, tabla):
+    """{id: texto} de una tabla de un fichero de textos en espanol, con los
+    saltos del juego (\n) pasados a espacios."""
+    import re
+    ruta = os.path.join(COMUN, "text", "es", fichero)
+    fuera = {}
+    for c in volcar(ruta, tabla):
+        k = u32(c[0]) if c else None
+        if k is None:
+            continue
+        for celda in c[1:]:
+            m = re.match(r'^String\("(.*)"\)$', (celda or "").strip())
+            if m:
+                fuera[k] = " ".join(re.sub(r"\\+n", " ", m.group(1)).replace("\\", "").split())
+                break
+    return fuera
+
+
 def main():
     sys.path.insert(0, RAIZ)
     from ievr import tlv
     nombres = tlv.nombres()
 
     skill = os.path.join(COMUN, "gamedata", "skill")
+    descripciones = textos_es("skill_text.cfg.bin", "TEXT_INFO")     # col 7 -> descripcion
     filas = []
     for c in volcar(unico(skill, "skill_config_"), "m_skillInfoList"):
         if len(c) < 15:
@@ -135,6 +155,7 @@ def main():
             "poder": numero(c[11]),
             "tp": numero(c[10]),
             "nombre_interno": cadena(c[1]),
+            "descripcion": descripciones.get(u32(c[7]), ""),
         })
 
     os.makedirs(os.path.dirname(SALIDA), exist_ok=True)
