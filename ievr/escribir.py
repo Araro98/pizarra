@@ -1432,23 +1432,58 @@ def _giro_conocido(plain, fila, rama):
     otra = tabla.get((ident, dia, 1 - rama))
     if otra is not None and otra in GIRO_DE_LA_OTRA_RAMA[1 - rama]:
         return GIRO_DE_LA_OTRA_RAMA[1 - rama][otra]
+    # las otras copias de la partida, SIN contarse a si mismo: si no, un giro
+    # que puso el editor se confirmaba solo (Quentin Rackner, NOTAS O-200)
     vivos = _giros_de_la_partida(plain)
-    c = vivos.get((ident, dia, rama))
-    if c:
-        return c.most_common(1)[0][0]
-    c = vivos.get((ident, dia, 1 - rama))
-    if c and c.most_common(1)[0][0] in GIRO_DE_LA_OTRA_RAMA[1 - rama]:
-        return GIRO_DE_LA_OTRA_RAMA[1 - rama][c.most_common(1)[0][0]]
+    propio = None
+    try:
+        oa, _ = _campo(plain, fila, F_ANILLOS)
+        ob, _ = _campo(plain, fila, F_GIROS)
+        if plain[oa] == CASILLA_ANILLO and plain[ob]:
+            propio = plain[ob]
+    except Ilegal:
+        pass
+    for r, mapa_giro in ((rama, None), (1 - rama, GIRO_DE_LA_OTRA_RAMA[1 - rama])):
+        c = vivos.get((ident, dia, r))
+        if not c:
+            continue
+        c = c.copy()
+        if propio is not None and r == rama:
+            c[propio] -= 1
+        c = +c
+        if not c:
+            continue
+        g = c.most_common(1)[0][0]
+        if mapa_giro is None:
+            return g
+        if g in mapa_giro:
+            return mapa_giro[g]
     return None
 
 
 def _giro_del_anillo(plain, fila, rareza, rama):
-    conocido = _giro_conocido(plain, fila, rama)
-    if conocido is not None:
-        return conocido
-    if rareza == 8:
-        return 8
-    return 5 if rama == 1 else 7
+    """El giro del anillo para ese personaje, o None si no se conoce: entonces
+    el anillo se deja sin girar y lo gira el jugador en el juego con un clic
+    (con un giro inventado el juego lo ensena roto y no deja moverlo, O-200)."""
+    return _giro_conocido(plain, fila, rama)
+
+
+def _marcas_dicen_desconectado(plain, fila, rareza, rama):
+    """True si el juego ha dejado a cero las marcas de las pasivas 3-5 (con la
+    1 abierta): es su forma de decir que la rama no conecta, o sea, que el
+    giro del anillo no es el suyo (Anastasia con el 7, Quentin), NOTAS O-200."""
+    p = J.pos_tabla_pasivas(plain, fila, 0)
+    if p is None:
+        return False
+    marcas = [plain[q + 32] for q in range(p, p + 41 * 5, 41)]
+    return marcas[2:] == [0, 0, 0] and marcas[0] == 1
+
+
+# Un gerente o entrenador tiene ademas las casillas 33-39: el juego las abre
+# solas al entrar en su arbol y con ellas se desbloquean sus pasivas de
+# personal (Robert y Hilton; los que el editor dejo sin abrirlas salian con
+# candado, NOTAS O-200).
+CASILLAS_DE_PERSONAL = range(33, 40)
 def _casillas_por_nivel(nivel, rareza):
     tabla = NIVEL_CASILLAS_IDOLO if 5 <= rareza <= 7 else NIVEL_CASILLAS_OTROS
     return max([c for u, c in tabla if nivel >= u] or [0])
@@ -1499,20 +1534,32 @@ def _arbol_esperado(plain, fila):
         except Ilegal:
             oa = None
         if oa is not None and na == 30 and nb == 30:
-            if plain[oa] == 0xFF:
+            giro = _giro_del_anillo(plain, fila, rareza, rama)
+            if plain[oa] == 0xFF and giro is not None:
                 for c in CASILLAS_DEL_ANILLO:
                     mapa[c] = 1
                 a = bytearray(plain[oa:oa + 30])
                 a[0] = CASILLA_ANILLO
                 b = bytearray(plain[ob:ob + 30])
-                b[0] = _giro_del_anillo(plain, fila, rareza, rama)
+                b[0] = giro
                 anillo = ((oa, bytes(a)), (ob, bytes(b)))
             elif plain[oa] == CASILLA_ANILLO:
-                bueno = _giro_conocido(plain, fila, rama)
-                if bueno is not None and plain[ob] != bueno:
+                if giro is not None and plain[ob] != giro:
                     b = bytearray(plain[ob:ob + 30])
-                    b[0] = bueno
+                    b[0] = giro
                     anillo = ((ob, bytes(b)),)
+                elif giro is None and _marcas_dicen_desconectado(plain, fila, rareza, rama):
+                    # giro inventado que el juego rechaza y no deja mover: se
+                    # deja sin girar para que el jugador lo gire con un clic
+                    a = bytearray(plain[oa:oa + 30]); a[0] = 0xFF
+                    b = bytearray(plain[ob:ob + 30]); b[0] = 0
+                    for c in CASILLAS_DEL_ANILLO:
+                        mapa[c] = 0
+                    anillo = ((oa, bytes(a)), (ob, bytes(b)))
+        # las casillas de personal de un gerente o entrenador (O-200)
+        if rol_de_personal(plain, fila) in ("gerente", "entrenador") and mapa[28]:
+            for c in CASILLAS_DE_PERSONAL:
+                mapa[c] = 1
     if rareza >= 5:
         # a un Idolo o Diamante el editor solo le abre casillas: sus ranuras de
         # tecnica ya vienen puestas de fabrica (O-165, O-169)
@@ -2049,10 +2096,23 @@ def sincronizar_tabla_pasivas(plain, fila):
             # (0 = Brecha; Raika: Afinidad 2 -> Brecha 0, confirmado en el juego)
             arq_eff = _arquetipo_diamante(plain, fila)
         if rol in ("entrenador", "gerente"):
-            # Los numeros de las pasivas de personal no salen de las tablas de
-            # rareza (una gerente Leyenda lleva "+1 %" a 2, un entrenador la
-            # pareja a x3...): los pone el juego. Se deja como este.
-            return plain
+            # Los numeros de las pasivas de personal van por su rareza (O-197) y
+            # la marca de desbloqueada la dan las casillas 33-39 del arbol, que
+            # el juego abre al entrar en el (O-200): con ellas abiertas, marca 1
+            try:
+                offm, nm = _campo(plain, fila, J.F_TABLERO)
+            except Ilegal:
+                return plain
+            if nm != 60 or not all(plain[offm + c] for c in CASILLAS_DE_PERSONAL):
+                return plain
+            buf = None
+            for k, x in enumerate(actual or []):
+                if x["id"] != "00000000" and not x["marca"]:
+                    pos = J.pos_tabla_pasivas(plain, fila, k)
+                    if buf is None:
+                        buf = bytearray(plain)
+                    buf[pos + 32] = 1
+            return bytes(buf) if buf is not None else plain
         elif not any(int(x, 16) for x in normales + heredadas) and rareza < 5:
             # ficha sin pasivas (jugadores viejos de la partida): lo que haya en
             # la tabla lo puso el juego, se respeta

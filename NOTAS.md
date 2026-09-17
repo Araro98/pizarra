@@ -4716,6 +4716,34 @@ ponerla cambiaba), y al subir de rareza a un gerente o entrenador sus pasivas
 de personal se ponen al valor nuevo (`actualizar_pasivas_personal` tras cada
 cambio de ficha, O-197).
 
+### O-200 · Quentin (giro desconocido) y los candados del cuerpo tecnico
+
+Dos fotos de Aaron del Super Alpino.
+
+**Quentin Rackner**: solo dos pasivas y el anillo apuntando a ninguna parte,
+sin dejarse girar en el juego. Quentin no tiene ninguna otra copia en la
+partida ni esta en `anillos.csv`, asi que el editor le habia puesto el giro
+por defecto (7), y ademas `_giro_conocido` se lo confirmaba a si mismo
+contando su propia copia. Con un giro inventado el juego ensena el anillo
+roto y NO deja moverlo. Ahora: (1) las copias de la partida se cuentan sin
+uno mismo; (2) si el giro no se conoce, el anillo **se deja sin girar** (ff)
+y lo gira el jugador con un clic en el juego, que es lo que siempre funciono;
+(3) si ya esta girado con un giro desconocido y el juego ha dejado las
+pasivas 3-5 a cero (su forma de decir "no conecta"), se vuelve a dejar sin
+girar y se cierran las casillas 28-32. En la partida de antes del editor esto
+no toca a ningun normal.
+
+**Gerentes y entrenadores con candado** (Robert, Hilton, Clifford, Wilder):
+Aaron abrio en el juego el arbol de dos y dejo los otros dos como los deja
+el editor. Diferencia: a los dos abiertos el juego les abrio solas las
+casillas **33-39** del mapa, y con eso las cinco pasivas de personal quedan
+desbloqueadas; a los otros dos, con 33-39 cerradas, les puso las marcas a
+cero. Contado en los 192 del juego: 33-39 abiertas <-> marcas a 1, sin
+excepcion. Ahora el editor abre 33-39 a todo gerente o entrenador cuyo arbol
+llega al anillo, y `sincronizar_tabla_pasivas` pone la marca a 1 cuando
+estan abiertas. En la partida de antes del editor esto abre a 16 del juego
+que nunca habian entrado en su arbol (es lo que el juego haria al entrar).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
