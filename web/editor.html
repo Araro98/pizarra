@@ -710,40 +710,40 @@
     gap:8px; padding:10px 14px; overflow:auto; flex:1; align-content:start;
     background:linear-gradient(180deg,#eef4fb,#f7fafe); }
   .modal.selector .rejilla .vacio { grid-column:1/-1; }
-  .tarjeta { position:relative; text-align:left; background:#fff; border:2px solid var(--linea);
+  .opcion-tarjeta { position:relative; text-align:left; background:#fff; border:2px solid var(--linea);
     border-radius:10px; padding:8px 10px; cursor:pointer; display:flex; flex-direction:column;
     gap:6px; min-width:0; font:inherit; color:var(--tinta);
     transition:transform .08s, box-shadow .08s, border-color .08s; }
-  .tarjeta:hover, .tarjeta:focus-visible { border-color:var(--azul-marco); outline:none;
+  .opcion-tarjeta:hover, .opcion-tarjeta:focus-visible { border-color:var(--azul-marco); outline:none;
     box-shadow:0 3px 12px rgba(43,94,168,.28); transform:translateY(-1px); }
-  .tarjeta.puesta { border-color:#18b7a6; background:linear-gradient(180deg,#effffc,#fff); }
-  .tarjeta .ya { position:absolute; right:8px; top:-9px; background:#18b7a6; color:#fff;
+  .opcion-tarjeta.puesta { border-color:#18b7a6; background:linear-gradient(180deg,#effffc,#fff); }
+  .opcion-tarjeta .ya { position:absolute; right:8px; top:-9px; background:#18b7a6; color:#fff;
     font-size:var(--t-xxs); font-weight:800; padding:1px 8px; border-radius:8px;
     text-transform:uppercase; letter-spacing:.05em; }
-  .tarjeta .chips { display:flex; flex-wrap:wrap; gap:4px; }
+  .opcion-tarjeta .chips { display:flex; flex-wrap:wrap; gap:4px; }
   .chip { font-size:var(--t-xs); font-weight:700; padding:1px 8px; border-radius:9px;
     background:#e9f1fb; color:#2b4a72; border:1px solid #cfe0f3; white-space:nowrap;
     max-width:100%; overflow:hidden; text-overflow:ellipsis; }
   .chip.tipo { background:var(--azul-marco); color:#fff; border-color:var(--azul-marco); }
   .chip.dueno { background:#fff4d6; color:#7a5200; border-color:#f0d58a; }
   .chip.rango { color:#b8860b; background:#fff9e6; border-color:#f3e2a0; letter-spacing:.08em; }
-  .tarjeta .desc { margin:0; font-size:var(--t-sm); color:var(--suave); line-height:1.3;
+  .opcion-tarjeta .desc { margin:0; font-size:var(--t-sm); color:var(--suave); line-height:1.3;
     display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-  .tarjeta .cab-esp, .tarjeta .cab-obj { display:flex; gap:9px; align-items:center; min-width:0; }
-  .tarjeta .titulos { min-width:0; display:flex; flex-direction:column; gap:1px; }
-  .tarjeta .titulos b { font-size:var(--t-md); font-style:italic; font-weight:800;
+  .opcion-tarjeta .cab-esp, .opcion-tarjeta .cab-obj { display:flex; gap:9px; align-items:center; min-width:0; }
+  .opcion-tarjeta .titulos { min-width:0; display:flex; flex-direction:column; gap:1px; }
+  .opcion-tarjeta .titulos b { font-size:var(--t-md); font-style:italic; font-weight:800;
     overflow:hidden; text-overflow:ellipsis; }
-  .tarjeta .titulos small { color:var(--suave); font-size:var(--t-xs); }
+  .opcion-tarjeta .titulos small { color:var(--suave); font-size:var(--t-xs); }
   .ico-esp { width:48px; height:48px; object-fit:contain; flex:none;
     filter:drop-shadow(0 1px 2px rgba(0,0,0,.35)); }
-  .tarjeta .sub { font-size:var(--t-xxs); text-transform:uppercase; letter-spacing:.08em;
+  .opcion-tarjeta .sub { font-size:var(--t-xxs); text-transform:uppercase; letter-spacing:.08em;
     color:var(--suave); font-weight:800; margin-top:2px; }
-  .tarjeta .stats { display:flex; flex-wrap:wrap; gap:3px 10px; font-size:var(--t-sm);
+  .opcion-tarjeta .stats { display:flex; flex-wrap:wrap; gap:3px 10px; font-size:var(--t-sm);
     font-weight:700; color:#17734b; }
-  .tarjeta .stats .stat { display:inline-flex; align-items:center; gap:2px; }
-  .tarjeta .stats .total { color:#2b5ea8; }
-  .tarjeta .extra { color:#17734b; font-size:var(--t-sm); font-weight:700; }
-  .tarjeta .tec-barra .nom { white-space:normal; line-height:1.15; }
+  .opcion-tarjeta .stats .stat { display:inline-flex; align-items:center; gap:2px; }
+  .opcion-tarjeta .stats .total { color:#2b5ea8; }
+  .opcion-tarjeta .extra { color:#17734b; font-size:var(--t-sm); font-weight:700; }
+  .opcion-tarjeta .tec-barra .nom { white-space:normal; line-height:1.15; }
   @media (max-width:700px) { .modal.selector .rejilla { grid-template-columns:1fr; } }
 
   .aviso { padding:9px 14px; border-radius:8px; font-size:var(--t-md); margin:0 0 10px;
@@ -1585,7 +1585,7 @@ function barraDeTecnica(t) {
 }
 
 function tarjetaDeOpcion(o, alPulsar, puesta) {
-  const t = el("button", {class:"tarjeta" + (puesta ? " puesta" : ""), onclick:alPulsar,
+  const t = el("button", {class:"opcion-tarjeta" + (puesta ? " puesta" : ""), onclick:alPulsar,
                           title:o.descripcion || ""});
   if (puesta) t.appendChild(el("span", {class:"ya", text:"la lleva ahora"}));
   const esTecnica = o.categoria && ICONO_TIPO[o.categoria];
