@@ -4250,6 +4250,20 @@ ese nivel; al 99, 180". Al elegir el tipo de judia el editor manda ya
 `cantidad = tope` (`E.tope_judias(nivel)`), y el numero se puede bajar a mano
 despues. En la ventana de elegir se dice cuantas se van a poner.
 
+### O-181 · Filtrar la lista por MIS equipos
+
+Aaron: "dentro de Jugadores, poder buscar por equipo de los que tengo guardados
+en el juego; por ejemplo ECLIPSE y que salgan solo los de ese equipo, con su
+entrenador y sus gerentes". El filtro "Equipo" que ya habia es el equipo del
+personaje en la historia (Raimon, Zeus...), que es otra cosa y se queda.
+
+El nuevo es **"Mi equipo"**: `servidor.equipos_por_fila` recorre los equipos con
+nombre (`EQ.todos`) y apunta en que equipos esta cada fila, mirando TODOS los
+miembros, que ya incluyen campo, banquillo, entrenador y gerentes. Un jugador
+puede estar en varios equipos a la vez, asi que el campo es una lista y el
+filtro comprueba pertenencia en vez de igualdad. Dos equipos con el mismo
+nombre (Aaron tiene dos "ECLIPSE") se distinguen con su hueco.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

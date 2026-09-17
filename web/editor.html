@@ -936,6 +936,9 @@ function pintaCambios() {
 /* ---- lista de jugadores: filtros, orden y paginas ---- */
 const CAMPOS_FILTRO = [["elemento","Afinidad"],["posicion","Posicion"],
   ["rareza","Rareza"],["arquetipo","Arquetipo"],["equipo","Equipo"],
+  // "Mi equipo" son los equipos guardados de Aaron, con su cuerpo tecnico;
+  // "Equipo" a secas es el equipo del personaje en la historia (NOTAS O-181)
+  ["mi_equipo","Mi equipo"],
   // Estos cuatro no vienen del personaje sino de COMO esta el jugador, que es
   // lo que hace falta para buscar "a quien le queda algo por terminar".
   ["nivel_grupo","Nivel"],["judias","Judias"],["heredadas","Heredadas"],

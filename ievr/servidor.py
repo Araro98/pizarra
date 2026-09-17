@@ -678,6 +678,34 @@ def _nombre_de_valor(plain, cual, valor_hex):
     return ""
 
 
+def equipos_por_fila(plain):
+    """{fila: [nombres de MIS equipos en los que esta]}, con el cuerpo tecnico
+    incluido. Lo pidio Aaron para poder editar a los de un equipo suyo sin
+    buscarlos uno a uno (NOTAS O-181). Los nombres repetidos se distinguen con
+    el hueco, que es lo unico que los separa."""
+    fuera = {}
+    equipos = EQ.todos(plain)
+    repetidos = set()
+    vistos = set()
+    for t in equipos:
+        n = O.sin_marcadores(t["nombre"] or "")
+        if n in vistos:
+            repetidos.add(n)
+        vistos.add(n)
+    for t in equipos:
+        nombre = O.sin_marcadores(t["nombre"] or "") or "sin nombre"
+        if nombre in repetidos:
+            nombre = "%s (hueco %d)" % (nombre, t["hueco"])
+        try:
+            e = EQ.leer(plain, t["hueco"])
+        except EQ.Ilegal:
+            continue
+        for m in e["miembros"]:
+            if m["jugador"]:
+                fuera.setdefault(m["jugador"] >> 16, []).append(nombre)
+    return fuera
+
+
 def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
                      desde=0, cuantos=120, sentido="asc"):
     """La plantilla, filtrada y por paginas.
@@ -694,18 +722,25 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
     jugadores = O._por_identidad()
     texto = (texto or "").strip().lower()
 
+    mios = equipos_por_fila(plain)
     todos = []
     for i in range(min(6000, len(ident))):
         if ident[i]:
-            todos.append(_ficha_corta(plain, i, ident, nivel, rareza, arq, jugadores))
+            d = _ficha_corta(plain, i, ident, nivel, rareza, arq, jugadores)
+            d["mis_equipos"] = mios.get(i, [])
+            todos.append(d)
 
     import collections
     cuentas = {c: collections.Counter() for c in
                ("elemento", "posicion", "rareza", "arquetipo", "equipo",
-                "nivel_grupo", "judias", "heredadas", "equipacion", "rol", "cuerpo_tipo")}
+                "nivel_grupo", "judias", "heredadas", "equipacion", "rol",
+                "cuerpo_tipo", "mi_equipo")}
     for d in todos:
         for c in cuentas:
-            if d.get(c):
+            if c == "mi_equipo":
+                for n in d["mis_equipos"]:
+                    cuentas[c][n] += 1
+            elif d.get(c):
                 cuentas[c][d[c]] += 1
 
     def pasa(d):
@@ -713,7 +748,13 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
                                    + d["posicion"] + " " + d["elemento"]).lower():
             return False
         for campo, valor in filtros.items():
-            if valor and d.get(campo) != valor:
+            if not valor:
+                continue
+            # "mi_equipo" es una lista: un jugador puede estar en varios
+            if campo == "mi_equipo":
+                if valor not in d["mis_equipos"]:
+                    return False
+            elif d.get(campo) != valor:
                 return False
         return True
 
@@ -1079,7 +1120,7 @@ class Manejador(BaseHTTPRequestHandler):
                            for c in ("elemento", "posicion", "rareza",
                                      "arquetipo", "equipo", "nivel_grupo",
                                      "judias", "heredadas", "equipacion", "rol",
-                                     "cuerpo_tipo")}
+                                     "cuerpo_tipo", "mi_equipo")}
                 with sesion.lock:
                     return self._responder(200, listar_jugadores(
                         sesion.plain, (q.get("q") or [""])[0], filtros,
