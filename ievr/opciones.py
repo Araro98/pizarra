@@ -405,6 +405,35 @@ def pasivas(plain, fila, ranura):
     return {"de_donde": de_donde, "puede": True, "opciones": unicas}
 
 
+def pasivas_personalizadas():
+    """{id} de las 37 pasivas personalizadas del juego (las que en los datos se
+    llaman `ss_ps5xxxx`; son justo la lista "Pasivas Personalizadas" de
+    inazumo.es, NOTAS O-179)."""
+    return _indice("pasivas_personalizadas", lambda: {
+        f["id"].upper() for f in reglas._tabla("pasivas-valor.csv")
+        if (f.get("interno") or "").startswith("ss_ps")})
+
+
+def personalizadas(plain, fila):
+    """Las pasivas personalizadas que se le pueden poner: las que tengas en la
+    mochila. Una por jugador (NOTAS O-179)."""
+    from ievr import escribir as E
+    poseidas = inventario.filas_poseidas(plain)
+    puesta, _slot = E.pasiva_personalizada(plain, fila)
+    fuera = []
+    for idh in sorted(pasivas_personalizadas()):
+        if idh not in poseidas:
+            continue
+        fuera.append({"id": idh, "nombre": nombre_pasiva(idh, idh),
+                      "icono200": iconos_de_pasiva().get(idh, ""),
+                      "cantidad": poseidas[idh][0].get("cantidad", 0)})
+    fuera.sort(key=lambda x: x["nombre"])
+    return {"puede": bool(fuera), "puesta": puesta,
+            "motivo": "" if fuera else "no tienes ningun manual de pasiva "
+                                       "personalizada en la mochila",
+            "opciones": fuera}
+
+
 def pasivas_heredables(rareza):
     """{id base} de las pasivas que se le pueden heredar a un jugador de esa
     rareza (NOTAS O-173). Reglas de Aaron:

@@ -1290,6 +1290,28 @@ function seccionAtributos(d) {
         onclick:async () => { if (await confirma("Convertir en Diamante",
                                   "Se convierte en Diamante. Se puede deshacer."))
                           manda({tipo:"diamante", fila}); }})]));
+  // La pasiva personalizada: una por jugador, de las que tengas en la mochila
+  // (NOTAS O-179).
+  caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Pasiva personalizada"})]));
+  const pz = d.personalizada || {};
+  const filaPz = el("div", {class:"ranura"}, [
+    el("div", {class:"marca", text:"P"}),
+    pz.icono200 ? el("img", {class:"mini-icono grande", loading:"lazy", alt:"",
+                             src:"/icono/" + pz.icono200}) : null,
+    el("div", {class:"texto"}, [el("b", {text:pz.nombre || "ninguna"}),
+      el("span", {text:"una por jugador, sale de un manual de la mochila"})]),
+    el("button", {class:"elegir", text:"Cambiar",
+      onclick:() => abrePicker("Pasiva personalizada",
+        () => pedir("/api/opciones?tipo=personalizada&fila=" + d.fila)
+                .then(r => ({...r, ordenes:[{campo:"etiqueta", etiqueta:"nombre"}],
+                  actual:r.puesta || null,
+                  opciones:r.opciones.map(o => ({...o, valor:o.id, etiqueta:o.nombre,
+                                                 icono200:o.icono200 || ""}))})),
+        v => manda({tipo:"personalizada", fila:d.fila, id:v}))}),
+    pz.id ? el("button", {class:"btn chico", text:"Quitar",
+      onclick:() => manda({tipo:"personalizada", fila:d.fila, id:""})}) : null]);
+  caja.appendChild(filaPz);
+
   // Borrar al jugador de la partida, como desde el menu del juego. Si esta en
   // algun equipo no se puede: hay que sacarlo antes (regla de Aaron).
   caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Borrar"})]));
@@ -1517,10 +1539,13 @@ function filaJudia(fila, j) {
       el("button", {class:"elegir", text:"Tipo", onclick:() => abrePicker(
         "Judia de la ranura " + j.ranura,
         async () => ({actual_etiqueta:j.tipo || null,
+                      de_donde:"se pondran " + j.tope + ", que es el tope de su nivel",
                       opciones:j.opciones.map(o => ({valor:o.nombre, etiqueta:o.nombre,
                                                     judia:o.nombre}))}),
+        // el tope que permita su nivel, que es lo que quiere Aaron siempre
+        // (a nivel 99 son 180); luego se puede bajar a mano
         v => manda({tipo:"judia", fila, ranura:j.ranura, nombre:v,
-                    cantidad:Math.max(1, Number(num.value) || 1)}))})])]);
+                    cantidad:j.tope}))})])]);
 }
 function desplegable(etiqueta, opciones, actual, alElegir) {
   const sel = el("select");
@@ -2731,8 +2756,10 @@ $("#guardar").onclick = async () => {
       const d = await pedir("/api/guardar", {method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({carpeta})});
-      aviso("Guardada en " + d.carpeta + ". Para ponerla en el juego usa " +
-            "herramientas\\instalar-partida.bat con Steam cerrado.", "bien");
+      aviso("Guardada en " + d.carpeta + "."
+            + (d.arboles ? " Se puso al dia el arbol de " + d.arboles + " jugadores." : "")
+            + " Para ponerla en el juego usa "
+            + "herramientas\\instalar-partida.bat con Steam cerrado.", "bien");
     } catch (e) { aviso(e.message, "mal"); }
   }, "Guardar aqui", false);
 };

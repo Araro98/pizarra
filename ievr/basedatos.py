@@ -368,12 +368,15 @@ def pasivas():
         v = O._valores_pasiva().get(idh) or {}
         plantilla = _texto_pasiva(v.get("texto") or n.get("nombre_es") or n.get("nombre_en"))
         clase = reglas.clase_de_pasiva(idh)
+        propia = idh in O.pasivas_personalizadas()   # las 37 `ss_ps*` (O-179)
         # una linea por texto: las versiones por rareza y las dos familias con
         # el mismo texto (O-55) se juntan, que es como lo lee una persona
         g = grupos.setdefault(plantilla, {
             "texto": plantilla, "clase": clase, "icono": iconos.get(idh, ""),
-            "ids": [], "por_rareza": None, "valores": []})
+            "ids": [], "por_rareza": None, "valores": [], "personalizada": False})
         g["ids"].append(idh)
+        if propia:
+            g["personalizada"] = True
         # "de Idolo" solo si TODAS las versiones lo son; si hay de las dos, nada
         if g["clase"] != clase and len(g["ids"]) > 1:
             g["clase"] = "mixta" if "hero" in (clase, g["clase"]) else (g["clase"] or clase)

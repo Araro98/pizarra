@@ -4184,6 +4184,64 @@ las marcas por el arbol. "Arreglar los arboles" (Resumen) repasa los que ya
 estaban a medias. Idolos y Diamantes no se tocan (van con sus ranuras de
 fabrica, O-165/O-169).
 
+### O-178 · El arbol tambien se abre en Idolos y Diamantes
+
+Aaron: un Shawn Idolo fichado con el editor salia "con las tecnicas vacias
+menos la primera". O-177 solo abria el arbol de los normales, y a un Idolo el
+editor le dejaba el mapa de casillas de nivel 1 aunque lo subiera a 99: de las
+seis tecnicas que declara su `45E2D879` (celdas 0, 2, 4, 8, 10, 12) solo se
+veia la de la casilla 0.
+
+Como reparte cada rareza sus casillas, medido en los que hizo el juego:
+
+| rareza | orden en que se abren |
+|---|---|
+| Idolo (5-7) | seguido, 0 a 22 |
+| normal (0-4) y Diamante (8) | tronco 0-7, rama 8-17 (o 18-27), comun 28-32 |
+
+Y cuantas se abren por nivel sale de la tabla del propio juego
+(`ABILITY_LEARNING_LOCK_LEVEL_INFO_LIST`): 1, 7, 13, 16, 20, 23, 26, 28, 30,
+35, 38, 40, 43, 45, 47, 48 y 50 para las 17 primeras, mas una a nivel 50 en
+normales y Diamantes. El editor **se queda ahi**: las del tramo comun (28-32)
+las abre el jugador gastando puntos y no hacen falta para ver las tecnicas.
+Con eso las marcas de las pasivas cuadran con lo medido: Idolo celdas 1, 9,
+11, 13 y 15; Diamante 1, 3, 8, 10 y 11; normal 1, 3, 8, 12 y 15 (+10 en la
+rama 2).
+
+Y el arreglo ya no depende de acordarse del boton: **al guardar la partida** se
+repasa el arbol de todos (`Sesion.arreglar_arboles`), que es justo cuando la
+partida va al juego. Se dice en el aviso de guardado y se puede deshacer.
+
+### O-179 · Las pasivas personalizadas
+
+Aaron: "anade el poder poner pasivas personalizadas dentro del editor (1 por
+jugador)". En los datos del juego son las 37 pasivas cuyo nombre interno
+empieza por `ss_ps` (`ss_ps50001` a `ss_ps50037`, en `passive_skill_config` /
+`PASSIVE_SKILL_INFO_LIST`), y son **exactamente** la lista "Pasivas
+Personalizadas" de inazumo.es: mismo orden, mismos textos y mismos numeros
+(1, 1, 1.5, 1, ... y las dos ultimas 10 y 5, "Tasa de obtencion del equipo
+(comunes/inusuales)"). Ya estaban en `pasivas-valor.csv`, solo habia que
+separarlas: `O.pasivas_personalizadas()`.
+
+En la partida son objetos de la mochila (kind 3, sub 2) y el jugador guarda el
+numero de fila del objeto en el **quinto campo del registro de equipacion**,
+`0x3B0EB3DB`, que es el unico de ese registro que no era ninguna de las cuatro
+ranuras de equipacion y que esta a cero en los 3.097 jugadores de Aaron (no
+tiene ninguna puesta). Se maneja como la equipacion: se apunta la fila y se
+lleva la cuenta de "cuantos la llevan" (`0xEDC3670F`). Una por jugador.
+`E.poner_personalizada(plain, fila, id)`; con id vacio se quita.
+
+**Sin probar en el juego**: el campo encaja por descarte y por forma, pero en
+la partida de Aaron no hay ningun ejemplo con el que contrastar. Que lo pruebe
+con un jugador antes de fiarse.
+
+### O-180 · Las judias, al tope del nivel
+
+Aaron: "cuando anades judias a un jugador, que se pongan el maximo que permita
+ese nivel; al 99, 180". Al elegir el tipo de judia el editor manda ya
+`cantidad = tope` (`E.tope_judias(nivel)`), y el numero se puede bajar a mano
+despues. En la ventana de elegir se dice cuantas se van a poner.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

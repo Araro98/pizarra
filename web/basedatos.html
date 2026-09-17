@@ -430,7 +430,9 @@ function pistaValores(p) {
   if (!p.por_rareza) return p.valores && p.valores.length > 1 ? "Valores: " + p.valores.join(" / ") : "";
   return Object.keys(p.por_rareza).sort().map(r => (NOMBRES_RAREZA[r] || r) + ": " + Number(p.por_rareza[r].valor)).join("\n");
 }
-const FILTROS_PAS = [{campo:"clase", etiqueta:"Clase", nombre:v => v === "hero" ? "de Idolo" : v}];
+const FILTROS_PAS = [{campo:"clase", etiqueta:"Clase", nombre:v => v === "hero" ? "de Idolo" : v},
+                     {campo:"personalizada", etiqueta:"Personalizada",
+                      nombre:v => v === "true" || v === true ? "si" : "no"}];
 const estadoPas = {};
 async function cargaPasivas() {
   if (!datos.pasivas) {
@@ -449,7 +451,9 @@ function pintaPasivas() {
     p.icono ? el("img", {class:"ico-pasiva", loading:"lazy", alt:"", src:"/icono/" + p.icono}) : null,
     el("span", {text:textoGrupoPasiva(p, rar)}),
     p.por_rareza ? el("span", {class:"chip gris", text:"por rareza"}) : null,
-    p.clase === "hero" ? el("span", {class:"chip naranja fija", text:"de Idolo"}) : null]));
+    p.clase === "hero" ? el("span", {class:"chip naranja fija", text:"de Idolo"}) : null,
+    p.personalizada
+      ? el("span", {class:"chip naranja fija", text:"personalizada"}) : null]));
   $("#rareza-pas").onchange = pintaPasivas;
   $("#contador-pas").textContent = ves.length + " pasivas" + (ves.length > 500 ? " (se ensenan 500)" : "");
 }

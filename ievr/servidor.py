@@ -138,6 +138,20 @@ class Sesion:
             raise E.Ilegal("no hay nada que deshacer")
         self.plain, self.cambios = self.historial.pop()
 
+    def arreglar_arboles(self):
+        """Deja el arbol de todos como lo dejaria el juego. Se hace al guardar,
+        que es cuando la partida va al juego (NOTAS O-177)."""
+        rotos = E.arboles_rotos(self.plain)
+        if not rotos:
+            return 0
+        plain, _info = E.arreglar_arboles(self.plain)
+        self.historial.append((self.plain, list(self.cambios)))
+        if len(self.historial) > self.PASOS:
+            self.historial.pop(0)
+        self.plain = plain
+        self.cambios.append({"que": "arboles puestos al dia", "jugadores": len(rotos)})
+        return len(rotos)
+
     def guardar(self, nombre):
         destino = os.path.join(EDITADAS, nombre)
         E.guardar(self.plain, destino, self.nombre)
@@ -762,6 +776,15 @@ def _rama_abierta(plain, fila):
             "elegida": bool(r1 or r2)}
 
 
+def _personalizada_de(plain, fila):
+    """La pasiva personalizada que lleva ese jugador, para la ficha (O-179)."""
+    idh, _slot = E.pasiva_personalizada(plain, fila)
+    if not idh:
+        return {"id": "", "nombre": "", "icono200": ""}
+    return {"id": idh, "nombre": O.nombre_pasiva(idh, idh),
+            "icono200": O.iconos_de_pasiva().get(idh, "")}
+
+
 def detalle_jugador(plain, fila):
     ident = J.array(plain, J.ARRAY_IDENTIDAD)
     if fila >= min(6000, len(ident)) or not ident[fila]:
@@ -902,6 +925,7 @@ def detalle_jugador(plain, fila):
         "partidos": struct.unpack_from("<H", plain, offp)[0], "partidos_limites": O.partidos(),
         "rol": rol,
         "equipos": E.equipos_del_jugador(plain, fila),
+        "personalizada": _personalizada_de(plain, fila),
         "pasivas_bloqueadas": rareza[fila] >= 5,
         "motivo_pasivas": (("fija: la pone el juego desde su tablero" if fijas
                             else "son fijas y las pone el juego")
@@ -1080,6 +1104,8 @@ class Manejador(BaseHTTPRequestHandler):
                         return self._responder(200, O.pasivas(p, fila, ranura))
                     if tipo == "heredada":
                         return self._responder(200, O.heredadas(p, fila))
+                    if tipo == "personalizada":
+                        return self._responder(200, O.personalizadas(p, fila))
                     return self._responder(400, {"error": "no se que opciones son %r" % tipo})
             if u.path == "/api/inventario":
                 with sesion.lock:
@@ -1129,6 +1155,10 @@ class Manejador(BaseHTTPRequestHandler):
                     sesion.historial, sesion.cambios = [], []
                     return self._responder(200, {"origen": sesion.origen})
                 if u.path == "/api/guardar":
+                    # antes de escribir, el arbol de todos como lo dejaria el
+                    # juego: si no, las tecnicas puestas con el editor no se ven
+                    # y las pasivas salen con candado (NOTAS O-177, O-178)
+                    arreglados = sesion.arreglar_arboles()
                     carpeta = (cuerpo.get("carpeta") or "").strip()
                     if carpeta:
                         E.guardar(sesion.plain, carpeta, sesion.nombre)
@@ -1139,6 +1169,7 @@ class Manejador(BaseHTTPRequestHandler):
                                          if c.isalnum() or c in "-_") or "editada"
                         destino = sesion.guardar(nombre)
                     return self._responder(200, {"carpeta": destino,
+                                                 "arboles": arreglados,
                                                  "fichero": os.path.join(destino, sesion.nombre)})
             return self._responder(404, {"error": "no existe esa direccion"})
         except (E.Ilegal, EQ.Ilegal) as e:
@@ -1169,6 +1200,8 @@ class Manejador(BaseHTTPRequestHandler):
             return sesion.aplicar(E.arreglar_tecnicas)
         if t == "arreglar_arboles":
             return sesion.aplicar(E.arreglar_arboles)
+        if t == "personalizada":
+            return sesion.aplicar(E.poner_personalizada, fila, c.get("id") or c.get("nombre") or "")
         if t == "pasiva":
             return sesion.aplicar(E.poner_pasiva, fila, int(c["ranura"]), c.get("id") or c["nombre"])
         if t == "quitar_heredada":

@@ -1252,23 +1252,42 @@ def _arquetipo_de_pareja(entradas, parejas):
 # "bugueado" y las pasivas con candado hasta que el juego lo repasa.
 CELDA_TECNICA_NORMAL = {1: 0, 2: 2, 3: 4, 4: 9, 5: 11, 6: 13, 7: 19, 8: 21, 9: 23}
 CELDA_PASIVA_NORMAL = {0: 1, 1: 3, 2: 8, 3: 12, 4: 15}      # ranura 3-5: +10 en la rama 2
-# (nivel, casillas abiertas) MEDIDOS en la partida; entre dos medidas se queda
-# la de abajo, para no abrir nunca una casilla antes que el juego
-NIVEL_CELDA_TRONCO = ((1, 1), (10, 2), (20, 5), (30, 8))
-NIVEL_CELDA_RAMA = ((30, 2), (40, 5), (45, 7), (50, 10))
+# Un Idolo tiene un tablero seguido (0-22) con sus seis tecnicas en 0,2,4,8,10,12;
+# un Diamante usa el mismo reparto que un normal. Medido en la partida de Aaron
+# contra los que hizo el juego (NOTAS O-178).
+CELDA_PASIVA_IDOLO = {0: 1, 1: 9, 2: 11, 3: 13, 4: 15}
+CELDA_PASIVA_DIAMANTE = {0: 1, 1: 3, 2: 8, 3: 10, 4: 11}
+# (nivel, casillas abiertas): las 17 primeras son la tabla del propio juego
+# (ABILITY_LEARNING_LOCK_LEVEL_INFO_LIST) y el resto esta medido
+NIVEL_CASILLAS_BASE = ((1, 1), (7, 2), (13, 3), (16, 4), (20, 5), (23, 6), (26, 7),
+                       (28, 8), (30, 9), (35, 10), (38, 11), (40, 12), (43, 13),
+                       (45, 14), (47, 15), (48, 16), (50, 17))
+# El editor se queda en el tronco + la rama: las casillas del tramo comun
+# (28-32) las abre el jugador gastando puntos, y no hacen falta para que se
+# vean las tecnicas ni para que se abran las pasivas.
+NIVEL_CASILLAS_IDOLO = NIVEL_CASILLAS_BASE
+NIVEL_CASILLAS_OTROS = NIVEL_CASILLAS_BASE + ((50, 18),)
+def _casillas_por_nivel(nivel, rareza):
+    tabla = NIVEL_CASILLAS_IDOLO if 5 <= rareza <= 7 else NIVEL_CASILLAS_OTROS
+    return max([c for u, c in tabla if nivel >= u] or [0])
 
 
-def _celdas_abiertas_por_nivel(nivel):
-    tronco = max([c for u, c in NIVEL_CELDA_TRONCO if nivel >= u] or [0])
-    rama = max([c for u, c in NIVEL_CELDA_RAMA if nivel >= u] or [0])
-    return tronco, rama
+def _orden_de_casillas(rareza, rama):
+    """El orden en que el juego va abriendo las casillas del mapa de 40 bytes.
+
+    Un Idolo tiene un tablero seguido; un normal o un Diamante abren el tronco
+    (0-7), luego la rama que juega (8-17 o 18-27) y luego el tramo comun
+    (28-32). Medido en los jugadores que hizo el juego (NOTAS O-178)."""
+    if 5 <= rareza <= 7:
+        return list(range(0, 23))
+    rama_ini = 8 if rama == 0 else 18
+    return list(range(0, 8)) + list(range(rama_ini, rama_ini + 10)) + list(range(28, 33))
 
 
 def _arbol_esperado(plain, fila):
     """(offset del mapa, 40 bytes de mapa, offset del 45E2, 9 bytes) tal y como
-    los dejaria el juego para ese normal a su nivel; None si no aplica."""
-    if J.array(plain, J.ARRAY_RAREZA)[fila] >= 5:
-        return None
+    los dejaria el juego para ese jugador a su nivel; None si no aplica."""
+    rareza = J.array(plain, J.ARRAY_RAREZA)[fila]
     try:
         off, n = _campo(plain, fila, J.F_TABLERO)
         offr, nr = _campo(plain, fila, J.F_RAMA)
@@ -1281,13 +1300,13 @@ def _arbol_esperado(plain, fila):
     if rama not in (0, 1):
         return None
     nivel = J.array(plain, J.ARRAY_NIVEL)[fila]
-    tronco, ramac = _celdas_abiertas_por_nivel(nivel)
     mapa = bytearray(plain[off:off + 40])
-    for c in range(tronco):
+    for c in _orden_de_casillas(rareza, rama)[:_casillas_por_nivel(nivel, rareza)]:
         mapa[c] = 1
-    ini = 8 if rama == 0 else 18
-    for c in range(ramac):
-        mapa[ini + c] = 1
+    if rareza >= 5:
+        # a un Idolo o Diamante el editor solo le abre casillas: sus ranuras de
+        # tecnica ya vienen puestas de fabrica (O-165, O-169)
+        return off, bytes(mapa), o45, plain[o45:o45 + 9]
     tecnicas = J.ocurrencias(plain, *J.ANCLA_TECNICAS)
     campos, _ = J._campos_de(plain, tecnicas[fila], set(J.RANURAS_TECNICAS))
     # solo se ANADE: lo que el juego ya tenga puesto (confirmaciones raras de
@@ -1324,10 +1343,9 @@ def abrir_arbol(plain, fila):
 
 
 def _marcas_por_arbol(plain, fila):
-    """La marca de desbloqueada de cada ranura de pasiva de un normal: 1 si su
-    casilla del arbol esta abierta (O-177). None si no aplica."""
-    if J.array(plain, J.ARRAY_RAREZA)[fila] >= 5:
-        return None
+    """La marca de desbloqueada de cada ranura de pasiva: 1 si su casilla del
+    arbol esta abierta (O-177, O-178). None si no se sabe."""
+    rareza = J.array(plain, J.ARRAY_RAREZA)[fila]
     try:
         off, n = _campo(plain, fila, J.F_TABLERO)
         offr, _ = _campo(plain, fila, J.F_RAMA)
@@ -1338,18 +1356,22 @@ def _marcas_por_arbol(plain, fila):
     rama = struct.unpack_from("<I", plain, offr)[0]
     fuera = []
     for k in range(5):
-        celda = CELDA_PASIVA_NORMAL[k] + (10 if (k >= 2 and rama == 1) else 0)
+        if 5 <= rareza <= 7:
+            celda = CELDA_PASIVA_IDOLO[k]
+        elif rareza == 8:
+            celda = CELDA_PASIVA_DIAMANTE[k]
+        else:
+            celda = CELDA_PASIVA_NORMAL[k] + (10 if (k >= 2 and rama == 1) else 0)
         fuera.append(1 if plain[off + celda] else 0)
     return fuera
 
 
 def arboles_rotos(plain):
-    """[fila] de normales cuyo arbol no esta como lo dejaria el juego (O-177)."""
+    """[fila] de jugadores cuyo arbol no esta como lo dejaria el juego (O-177)."""
     ident = J.array(plain, J.ARRAY_IDENTIDAD)
-    rareza = J.array(plain, J.ARRAY_RAREZA)
     fuera = []
     for fila in range(min(6000, len(ident))):
-        if not ident[fila] or rareza[fila] >= 5:
+        if not ident[fila]:
             continue
         esperado = _arbol_esperado(plain, fila)
         if esperado is None:
@@ -1361,8 +1383,8 @@ def arboles_rotos(plain):
 
 
 def arreglar_arboles(plain):
-    """Abre el arbol hasta su nivel y confirma las tecnicas de todos los normales
-    que lo tengan a medias, y repasa sus marcas de pasivas."""
+    """Abre el arbol hasta su nivel y confirma las tecnicas de todos los que lo
+    tengan a medias, y repasa sus marcas de pasivas."""
     rotos = arboles_rotos(plain)
     if not rotos:
         raise Ilegal("no hay ningun arbol a medias")
@@ -1378,6 +1400,92 @@ def arreglar_arboles(plain):
     for fila in rotos:
         plain = sincronizar_tabla_pasivas(plain, fila)
     return plain, {"jugadores": len(rotos), "que": "arboles abiertos hasta su nivel y tecnicas confirmadas"}
+
+
+# La pasiva personalizada de un jugador: el quinto campo del registro de
+# equipacion (`0x3B0EB3DB`), que guarda el numero de fila del objeto de la
+# mochila, igual que las botas o las tecnicas (NOTAS O-179).
+F_PERSONALIZADA = 0x3B0EB3DB
+
+
+def _es_pasiva_personalizada(id_hex):
+    from ievr import opciones as O
+    return (id_hex or "").upper() in O.pasivas_personalizadas()
+
+
+def pasiva_personalizada(plain, fila):
+    """(id de la pasiva, slot) que lleva puesta ese jugador, o (None, 0)."""
+    equipos = J.ocurrencias(plain, *J.ANCLA_EQUIPO)
+    if fila >= len(equipos):
+        return None, 0
+    c, _ = J._campos_de(plain, equipos[fila], {F_PERSONALIZADA})
+    slot = int.from_bytes(c.get(F_PERSONALIZADA, b""), "little")
+    if not slot:
+        return None, 0
+    f = inventario.por_slot(plain).get(slot)
+    return ((f or {}).get("id") or "").upper() or None, slot
+
+
+def poner_personalizada(plain, fila, nombre):
+    """Pone (o quita, con nombre vacio) la pasiva personalizada de un jugador.
+
+    Es un objeto de la mochila, asi que se guarda el numero de fila del objeto
+    y se lleva la cuenta de cuantos lo llevan puesto, igual que la equipacion
+    (NOTAS O-179). Una por jugador, que es lo que deja el juego.
+    """
+    from ievr import opciones as O
+    ident = J.array(plain, J.ARRAY_IDENTIDAD)
+    if fila >= min(6000, len(ident)) or not ident[fila]:
+        raise Ilegal("en la fila %d no hay ningun jugador" % fila)
+    equipos = J.ocurrencias(plain, *J.ANCLA_EQUIPO)
+    try:
+        off, n = _campo_en(plain, equipos[fila], F_PERSONALIZADA)
+    except Ilegal:
+        raise Ilegal("esa ficha no tiene el campo de pasiva personalizada")
+    antes = struct.unpack_from("<I", plain, off)[0]
+    porslot = inventario.por_slot(plain)
+    nombres = tlv.nombres()
+    texto_antes = "ninguna"
+    if antes and antes in porslot:
+        texto_antes = O.nombre_pasiva(porslot[antes].get("id", ""), "?")
+
+    texto = (nombre or "").strip()
+    if not texto:
+        if not antes:
+            raise Ilegal("ese jugador no lleva ninguna pasiva personalizada")
+        buf = bytearray(plain)
+        struct.pack_into("<I", buf, off, 0)
+        plain = bytes(buf)
+        if antes in porslot:
+            plain = inventario.ajustar_equipada(plain, porslot[antes], -1)
+        return plain, {"fila": fila, "antes": texto_antes, "despues": "ninguna"}
+
+    id_hex = texto.upper()
+    if not (len(id_hex) == 8 and all(c in "0123456789ABCDEF" for c in id_hex)):
+        id_hex = None
+        for k in O.pasivas_personalizadas():
+            if _sin_marcadores(O.nombre_pasiva(k, "")) == _sin_marcadores(texto):
+                id_hex = k
+                break
+        if id_hex is None:
+            raise Ilegal("no encuentro ninguna pasiva personalizada que se llame %r" % texto)
+    if id_hex not in O.pasivas_personalizadas():
+        raise Ilegal("%s no es una pasiva personalizada" % id_hex)
+    poseidas = inventario.filas_poseidas(plain).get(id_hex)
+    if not poseidas:
+        raise Ilegal("no tienes ningun manual de esa pasiva personalizada en la "
+                     "mochila, y la partida guarda una referencia a TU copia")
+    nueva = poseidas[0]
+    if antes == nueva["slot"]:
+        raise Ilegal("ya lleva esa pasiva personalizada")
+    buf = bytearray(plain)
+    struct.pack_into("<I", buf, off, nueva["slot"])
+    plain = bytes(buf)
+    if antes and antes in porslot:
+        plain = inventario.ajustar_equipada(plain, porslot[antes], -1)
+    plain = inventario.ajustar_equipada(plain, inventario.por_slot(plain)[nueva["slot"]], +1)
+    return plain, {"fila": fila, "antes": texto_antes,
+                   "despues": O.nombre_pasiva(id_hex, nombres.get(id_hex, (texto,))[0])}
 
 
 def sincronizar_tabla_pasivas(plain, fila):
