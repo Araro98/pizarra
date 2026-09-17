@@ -235,7 +235,6 @@ class Sesion:
             self._paso(plain, {"que": "pasivas de personal con su valor", "jugadores": info["jugadores"]})
             fuera["personal"] = info["jugadores"]
         return fuera
-        return len(rotos)
 
     def guardar(self, nombre):
         destino = os.path.join(EDITADAS, nombre)
@@ -417,8 +416,8 @@ def listar_carpetas(ruta):
                 {"nombre": "Partidas del proyecto", "ruta": os.path.join(RAIZ, "partidas")},
                 {"nombre": "Rondas guardadas", "ruta": os.path.join(RAIZ, "partidas", "rondas")},
                 {"nombre": "Editadas", "ruta": EDITADAS},
-                {"nombre": "Carpeta de Steam", "ruta": CARPETA_STEAM},
-            ]}
+            ] + [{"nombre": "Carpeta de Steam", "ruta": c}
+                 for c in dict.fromkeys(c for c, _n, _f in partidas_de_steam())]}
 
 
 def _quien_es(plain, slot, ident, nivel, rareza, per):
