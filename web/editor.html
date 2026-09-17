@@ -804,6 +804,8 @@
         <input type="search" id="buscar-obj" placeholder="Buscar objeto...">
         <button class="btn" id="todo-1">Conseguir 1 de todo</button>
         <button class="btn verde" id="todo-99">Conseguir 99 de todo</button>
+        <button class="btn verde" id="pers-99"
+          title="Las 37 pasivas personalizadas del juego, 99 de cada una">Conseguir 99 pasivas personalizadas</button>
       </div>
       <div class="filtros" id="filtros-obj"></div>
       <div class="rejilla-obj" id="lista-obj"></div>
@@ -1299,7 +1301,8 @@ function seccionAtributos(d) {
     pz.icono200 ? el("img", {class:"mini-icono grande", loading:"lazy", alt:"",
                              src:"/icono/" + pz.icono200}) : null,
     el("div", {class:"texto"}, [el("b", {text:pz.nombre || "ninguna"}),
-      el("span", {text:"una por jugador, sale de un manual de la mochila"})]),
+      el("span", {text:pz.numero ? "Pasiva personalizada " + pz.numero + ", una por jugador"
+                                 : "una por jugador, sale de un manual de la mochila"})]),
     el("button", {class:"elegir", text:"Cambiar",
       onclick:() => abrePicker("Pasiva personalizada",
         () => pedir("/api/opciones?tipo=personalizada&fila=" + d.fila)
@@ -2719,6 +2722,15 @@ function ajustaBotonesTodo() {
   uno.textContent = sinCantidad ? "Conseguirlos todos" : "Conseguir 1 de todo";
   nn.hidden = sinCantidad;
 }
+// Las 37 pasivas personalizadas, 99 de cada una: son objetos de mochila y no
+// salen en ninguna pestana de categoria, asi que van en su propio boton (O-179).
+$("#pers-99").onclick = async () => {
+  if (!await confirma("Conseguir 99 pasivas personalizadas",
+      "Se ponen 99 unidades de cada una de las 37 pasivas personalizadas en la "
+      + "mochila, creando las que no tengas. Se puede deshacer.")) return;
+  await manda({tipo:"dar_personalizadas", cantidad:99});
+  await cargaInventario();
+};
 $("#buscar-obj").oninput = () => { clearTimeout(temporizador);
   temporizador = setTimeout(pintaInventario, 200); };
 $("#buscar-per").oninput = () => { clearTimeout(temporizador);

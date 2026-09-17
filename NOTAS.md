@@ -4224,16 +4224,24 @@ Personalizadas" de inazumo.es: mismo orden, mismos textos y mismos numeros
 separarlas: `O.pasivas_personalizadas()`.
 
 En la partida son objetos de la mochila (kind 3, sub 2) y el jugador guarda el
-numero de fila del objeto en el **quinto campo del registro de equipacion**,
-`0x3B0EB3DB`, que es el unico de ese registro que no era ninguna de las cuatro
-ranuras de equipacion y que esta a cero en los 3.097 jugadores de Aaron (no
-tiene ninguna puesta). Se maneja como la equipacion: se apunta la fila y se
-lleva la cuenta de "cuantos la llevan" (`0xEDC3670F`). Una por jugador.
-`E.poner_personalizada(plain, fila, id)`; con id vacio se quita.
+numero de fila del objeto en **`0xB66A2462`, el decimo campo del registro de
+supertecnicas**, justo detras de las nueve ranuras. Se maneja como la
+equipacion: se apunta la fila y se lleva la cuenta de "cuantos la llevan"
+(`0xEDC3670F`). Una por jugador. `E.poner_personalizada(plain, fila, id)`; con
+id vacio se quita.
 
-**Sin probar en el juego**: el campo encaja por descarte y por forma, pero en
-la partida de Aaron no hay ningun ejemplo con el que contrastar. Que lo pruebe
-con un jugador antes de fiarse.
+**CONFIRMADO en el juego**: primero se dio por bueno el quinto campo del
+registro de equipacion (`0x3B0EB3DB`) por descarte, y **era falso**. Aaron le
+puso en el juego la "Pasiva personalizada 1" a Kevin Dragonfly y la 36 a Bunny
+Cottontail, y comparando la partida de antes con la de despues los unicos
+cambios de asignacion son ese campo en sus dos registros de supertecnicas (a
+los slots de los objetos `DDFB1BE9` y `BD3D525C`) y el contador de los dos
+objetos, que sube en uno. En su partida hay 346 jugadores con una puesta.
+
+El numero que ensena el juego es el del nombre interno: `ss_ps50001` es la
+"Pasiva personalizada 1". `O.numero_personalizada`. Y el boton **"Conseguir 99
+pasivas personalizadas"** (pestana Mochila) pone 99 de las 37, creando la fila
+de las que no se tengan (`E.dar_personalizadas`).
 
 ### O-180 · Las judias, al tope del nivel
 

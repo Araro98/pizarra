@@ -780,8 +780,9 @@ def _personalizada_de(plain, fila):
     """La pasiva personalizada que lleva ese jugador, para la ficha (O-179)."""
     idh, _slot = E.pasiva_personalizada(plain, fila)
     if not idh:
-        return {"id": "", "nombre": "", "icono200": ""}
+        return {"id": "", "nombre": "", "icono200": "", "numero": 0}
     return {"id": idh, "nombre": O.nombre_pasiva(idh, idh),
+            "numero": O.numero_personalizada(idh),
             "icono200": O.iconos_de_pasiva().get(idh, "")}
 
 
@@ -1200,6 +1201,8 @@ class Manejador(BaseHTTPRequestHandler):
             return sesion.aplicar(E.arreglar_tecnicas)
         if t == "arreglar_arboles":
             return sesion.aplicar(E.arreglar_arboles)
+        if t == "dar_personalizadas":
+            return sesion.aplicar(E.dar_personalizadas, int(c.get("cantidad") or 99))
         if t == "personalizada":
             return sesion.aplicar(E.poner_personalizada, fila, c.get("id") or c.get("nombre") or "")
         if t == "pasiva":

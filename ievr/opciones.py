@@ -406,12 +406,26 @@ def pasivas(plain, fila, ranura):
 
 
 def pasivas_personalizadas():
-    """{id} de las 37 pasivas personalizadas del juego (las que en los datos se
-    llaman `ss_ps5xxxx`; son justo la lista "Pasivas Personalizadas" de
-    inazumo.es, NOTAS O-179)."""
-    return _indice("pasivas_personalizadas", lambda: {
-        f["id"].upper() for f in reglas._tabla("pasivas-valor.csv")
-        if (f.get("interno") or "").startswith("ss_ps")})
+    """{id: numero} de las 37 pasivas personalizadas del juego (las que en los
+    datos se llaman `ss_ps5xxxx`; son justo la lista "Pasivas Personalizadas"
+    de inazumo.es, y el numero del nombre interno es el que ensena el juego:
+    `ss_ps50001` es "Pasiva personalizada 1", NOTAS O-179)."""
+    def construir():
+        d = {}
+        for f in reglas._tabla("pasivas-valor.csv"):
+            interno = f.get("interno") or ""
+            if interno.startswith("ss_ps"):
+                try:
+                    d[f["id"].upper()] = int(interno[len("ss_ps"):]) - 50000
+                except ValueError:
+                    d[f["id"].upper()] = 0
+        return d
+    return _indice("pasivas_personalizadas", construir)
+
+
+def numero_personalizada(id_hex):
+    """El numero con el que el juego la llama ("Pasiva personalizada 7")."""
+    return pasivas_personalizadas().get((id_hex or "").upper(), 0)
 
 
 def personalizadas(plain, fila):
@@ -421,13 +435,15 @@ def personalizadas(plain, fila):
     poseidas = inventario.filas_poseidas(plain)
     puesta, _slot = E.pasiva_personalizada(plain, fila)
     fuera = []
-    for idh in sorted(pasivas_personalizadas()):
+    for idh in sorted(pasivas_personalizadas(), key=numero_personalizada):
         if idh not in poseidas:
             continue
         fuera.append({"id": idh, "nombre": nombre_pasiva(idh, idh),
+                      "numero": numero_personalizada(idh),
+                      "extra": "Pasiva personalizada %d" % numero_personalizada(idh),
                       "icono200": iconos_de_pasiva().get(idh, ""),
                       "cantidad": poseidas[idh][0].get("cantidad", 0)})
-    fuera.sort(key=lambda x: x["nombre"])
+    fuera.sort(key=lambda x: x["numero"])
     return {"puede": bool(fuera), "puesta": puesta,
             "motivo": "" if fuera else "no tienes ningun manual de pasiva "
                                        "personalizada en la mochila",

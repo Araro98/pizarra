@@ -1402,10 +1402,12 @@ def arreglar_arboles(plain):
     return plain, {"jugadores": len(rotos), "que": "arboles abiertos hasta su nivel y tecnicas confirmadas"}
 
 
-# La pasiva personalizada de un jugador: el quinto campo del registro de
-# equipacion (`0x3B0EB3DB`), que guarda el numero de fila del objeto de la
-# mochila, igual que las botas o las tecnicas (NOTAS O-179).
-F_PERSONALIZADA = 0x3B0EB3DB
+# La pasiva personalizada de un jugador: el decimo campo del registro de
+# supertecnicas (`0xB66A2462`, justo detras de las nueve ranuras), que guarda
+# el numero de fila del objeto de la mochila, igual que las botas o las
+# tecnicas. CONFIRMADO con la partida de Aaron: le puso la 1 a Kevin y la 36 a
+# Bunny en el juego y es el unico campo que cambio (NOTAS O-179).
+F_PERSONALIZADA = 0xB66A2462
 
 
 def _es_pasiva_personalizada(id_hex):
@@ -1415,10 +1417,10 @@ def _es_pasiva_personalizada(id_hex):
 
 def pasiva_personalizada(plain, fila):
     """(id de la pasiva, slot) que lleva puesta ese jugador, o (None, 0)."""
-    equipos = J.ocurrencias(plain, *J.ANCLA_EQUIPO)
-    if fila >= len(equipos):
+    tecnicas = J.ocurrencias(plain, *J.ANCLA_TECNICAS)
+    if fila >= len(tecnicas):
         return None, 0
-    c, _ = J._campos_de(plain, equipos[fila], {F_PERSONALIZADA})
+    c, _ = J._campos_de(plain, tecnicas[fila], {F_PERSONALIZADA})
     slot = int.from_bytes(c.get(F_PERSONALIZADA, b""), "little")
     if not slot:
         return None, 0
@@ -1437,9 +1439,9 @@ def poner_personalizada(plain, fila, nombre):
     ident = J.array(plain, J.ARRAY_IDENTIDAD)
     if fila >= min(6000, len(ident)) or not ident[fila]:
         raise Ilegal("en la fila %d no hay ningun jugador" % fila)
-    equipos = J.ocurrencias(plain, *J.ANCLA_EQUIPO)
+    tecnicas = J.ocurrencias(plain, *J.ANCLA_TECNICAS)
     try:
-        off, n = _campo_en(plain, equipos[fila], F_PERSONALIZADA)
+        off, n = _campo_en(plain, tecnicas[fila], F_PERSONALIZADA)
     except Ilegal:
         raise Ilegal("esa ficha no tiene el campo de pasiva personalizada")
     antes = struct.unpack_from("<I", plain, off)[0]
@@ -1486,6 +1488,61 @@ def poner_personalizada(plain, fila, nombre):
     plain = inventario.ajustar_equipada(plain, inventario.por_slot(plain)[nueva["slot"]], +1)
     return plain, {"fila": fila, "antes": texto_antes,
                    "despues": O.nombre_pasiva(id_hex, nombres.get(id_hex, (texto,))[0])}
+
+
+def dar_personalizadas(plain, cantidad=99):
+    """Pone `cantidad` de cada una de las 37 pasivas personalizadas en la
+    mochila, creando la fila de las que no se tengan (NOTAS O-179)."""
+    from ievr import opciones as O
+    if not 1 <= cantidad <= TOPE_CANTIDAD:
+        raise Ilegal("la cantidad va de 1 a %d" % TOPE_CANTIDAD)
+    todas = sorted(O.pasivas_personalizadas())
+    poseidas = inventario.filas_poseidas(plain)
+    modelo = None
+    for idh in todas:
+        f = (poseidas.get(idh) or [None])[0]
+        if f is not None and f.get("kind") == inventario.KIND_REAL and f["slot"]:
+            modelo = f
+            break
+    if modelo is None:
+        raise Ilegal("no tienes ninguna pasiva personalizada en la mochila, asi "
+                     "que no se de que tramo copiar la forma. No escribo nada.")
+    bloque = None
+    for b in inventario.bloques(plain):
+        if any(x["slot_off"] == modelo["slot_off"] for x in b["filas"]):
+            bloque = b
+            break
+    if bloque is None:
+        raise Ilegal("no encuentro el tramo de la mochila donde van")
+
+    creadas = subidas = 0
+    buf = bytearray(plain)
+    libres = [(i, f) for i, f in enumerate(bloque["filas"])
+              if f["slot"] == 0 and f.get("id") == "00000000"]
+    serie = max((f.get("serie", 0) for f in inventario.todas_las_filas(plain)), default=0)
+    for idh in todas:
+        f = (poseidas.get(idh) or [None])[0]
+        if f is not None and "cantidad_off" in f:
+            if f["cantidad"] != cantidad:
+                struct.pack_into("<I", buf, f["cantidad_off"], cantidad)
+                subidas += 1
+            continue
+        if not libres:
+            raise Ilegal("no quedan filas libres en el tramo de la mochila para "
+                         "crear las que faltan (van %d)" % creadas)
+        pos, libre = libres.pop(0)
+        serie += 1
+        slot = inventario.componer_slot(bloque["clase"], bloque["tipo"], pos)
+        struct.pack_into("<I", buf, libre["slot_off"] + 8, slot)
+        buf[libre["id_off"]:libre["id_off"] + 4] = bytes.fromhex(idh)
+        struct.pack_into("<I", buf, libre["serie_off"], serie)
+        buf[libre["kind_off"]] = inventario.KIND_REAL
+        buf[libre["sub_off"]] = modelo.get("sub", 2)
+        struct.pack_into("<I", buf, libre["cantidad_off"], cantidad)
+        creadas += 1
+    return bytes(buf), {"que": "pasivas personalizadas en la mochila",
+                        "cuantas": cantidad, "creadas": creadas,
+                        "actualizadas": subidas, "total": len(todas)}
 
 
 def sincronizar_tabla_pasivas(plain, fila):
