@@ -4093,6 +4093,12 @@ Idolo valen las 46 de los tableros propios (`pasivas-fijas.csv`, origen
 propio). `O.pasivas_heredables(rareza)`, y `poner_heredada` se niega con el
 resto y guarda siempre la base. El editor manda el codigo, no el nombre.
 
+Y lo mismo en las pasivas normales (ranuras 1-5): el selector ensenaba el
+nombre con el numero puesto ("tension +2 %") y `poner_pasiva` comparaba con
+el texto de la tabla, que lleva `<VALUE>`, asi que no cuadraba nunca (Aaron con
+Kevin Dragonfly, Juego sucio, ranura 5). Ahora el editor manda el codigo y se
+comprueba por codigo: probadas las 144 opciones de los seis arquetipos.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

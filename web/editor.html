@@ -1374,9 +1374,9 @@ function seccionPasivas(d) {
         onclick:() => abrePicker("Pasiva " + x.ranura,
           () => pedir(`/api/opciones?tipo=pasiva&fila=${d.fila}&ranura=${x.ranura}`)
                   .then(r => ({...r, ordenes:[{campo:"etiqueta", etiqueta:"nombre"}],
-                    opciones:r.opciones.map(o => ({valor:o.nombre, etiqueta:o.nombre,
+                    opciones:r.opciones.map(o => ({valor:o.id, etiqueta:o.nombre,
                                                    icono200:o.icono200 || ""}))})),
-          v => manda({tipo:"pasiva", fila:d.fila, ranura:x.ranura, nombre:v}))}));
+          v => manda({tipo:"pasiva", fila:d.fila, ranura:x.ranura, id:v}))}));
 
     if (x.heredada)
       f.appendChild(el("button", {class:"elegir quitar", text:"Quitar herencia",

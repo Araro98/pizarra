@@ -719,9 +719,18 @@ def poner_pasiva(plain, fila, ranura, nombre):
         raise Ilegal("no tengo la lista de %s, asi que no me arriesgo a escribir"
                      % de_donde)
 
+    from ievr import opciones as O
     id_hex = None
+    texto = (nombre or "").strip().upper()
+    if len(texto) == 8 and all(c in "0123456789ABCDEF" for c in texto):
+        # el editor manda el codigo: el nombre lleva el numero puesto ("+2 %")
+        # y la tabla lleva <VALUE>, asi que por nombre no cuadraban (O-173)
+        if texto in permitidas:
+            id_hex = texto
+        else:
+            nombre = O.nombre_pasiva(texto, texto)
     for k, v in permitidas.items():
-        if _sin_marcadores(v) == _sin_marcadores(nombre):
+        if id_hex is None and _sin_marcadores(v) == _sin_marcadores(nombre):
             id_hex = k
             break
     if id_hex is None:
@@ -737,8 +746,8 @@ def poner_pasiva(plain, fila, ranura, nombre):
     buf[off + 4 * (ranura - 1):off + 4 * ranura] = bytes.fromhex(id_hex)
     nombres = tlv.nombres()
     return bytes(buf), {"fila": fila, "ranura": ranura, "de_donde": de_donde,
-                        "antes": nombres.get(antes, ("vacia",))[0] if antes != "00000000" else "vacia",
-                        "despues": nombres.get(id_hex, (nombre,))[0]}
+                        "antes": O.nombre_pasiva(antes, nombres.get(antes, ("vacia",))[0]) if antes != "00000000" else "vacia",
+                        "despues": O.nombre_pasiva(id_hex, nombres.get(id_hex, (nombre,))[0])}
 
 
 # --- partidos jugados ----------------------------------------------------------

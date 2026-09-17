@@ -1157,7 +1157,7 @@ class Manejador(BaseHTTPRequestHandler):
         if t == "arreglar_tecnicas":
             return sesion.aplicar(E.arreglar_tecnicas)
         if t == "pasiva":
-            return sesion.aplicar(E.poner_pasiva, fila, int(c["ranura"]), c["nombre"])
+            return sesion.aplicar(E.poner_pasiva, fila, int(c["ranura"]), c.get("id") or c["nombre"])
         if t == "quitar_heredada":
             return sesion.aplicar(E.quitar_heredada, fila, int(c["ranura"]))
         if t == "equipo_nombre":
