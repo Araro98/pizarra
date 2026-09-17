@@ -128,6 +128,7 @@ py herramientas\construir_tecnicas_origen.py
 py herramientas\construir_duenos_espiritus.py
 py herramientas\construir_pasivas_espiritu.py
 py herramientas\construir_pasivas_limites.py
+py herramientas\construir_sinergias.py
 ```
 
 Y para volver a hacer el `.exe` (solo si cambia el codigo):

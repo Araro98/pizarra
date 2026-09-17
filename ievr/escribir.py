@@ -1278,6 +1278,28 @@ NIVEL_CASILLAS_BASE = ((1, 1), (7, 2), (13, 3), (16, 4), (20, 5), (23, 6), (26, 
 # vean las tecnicas ni para que se abran las pasivas.
 NIVEL_CASILLAS_IDOLO = NIVEL_CASILLAS_BASE
 NIVEL_CASILLAS_OTROS = NIVEL_CASILLAS_BASE + ((50, 18),)
+
+# --- El anillo del tronco (NOTAS O-189) ---------------------------------------
+# En el arbol de un normal o un Diamante la casilla 7 del tronco es un anillo
+# giratorio: al llegar a el hay que girarlo para que conecte con la rama. El
+# giro se guarda en dos campos de 30 bytes de la ficha: `0x3CAEA0BD` (la lista
+# de anillos girados, ff = vacio; en todo el juego solo existe el 07) y
+# `0x38AFC2B8` (hacia donde quedo cada uno, del 1 al 8). Y con el se abren las
+# cinco casillas 28-32 del mapa. Sin esto el arbol sale "desconectado" en el
+# juego (Anastasia, Iggie, Joaquine) hasta que se pulsa el anillo, y con ello
+# sale bien (Kevin, Bunny, Gael). Lo que deja el juego en la partida de Aaron:
+# rama 1 -> giro 7 (144 de 323), rama 2 -> giro 5 (11 de 27), Diamante -> 8.
+# Un Idolo no tiene anillo (tablero seguido).
+F_ANILLOS = 0x3CAEA0BD
+F_GIROS = 0x38AFC2B8
+CASILLA_ANILLO = 7
+CASILLAS_DEL_ANILLO = range(28, 33)
+
+
+def _giro_del_anillo(rareza, rama):
+    if rareza == 8:
+        return 8
+    return 5 if rama == 1 else 7
 def _casillas_por_nivel(nivel, rareza):
     tabla = NIVEL_CASILLAS_IDOLO if 5 <= rareza <= 7 else NIVEL_CASILLAS_OTROS
     return max([c for u, c in tabla if nivel >= u] or [0])
@@ -1296,8 +1318,10 @@ def _orden_de_casillas(rareza, rama):
 
 
 def _arbol_esperado(plain, fila):
-    """(offset del mapa, 40 bytes de mapa, offset del 45E2, 9 bytes) tal y como
-    los dejaria el juego para ese jugador a su nivel; None si no aplica."""
+    """(offset del mapa, 40 bytes de mapa, offset del 45E2, 9 bytes, anillo)
+    tal y como los dejaria el juego para ese jugador a su nivel; None si no
+    aplica. `anillo` es None o ((offset, 30 bytes), (offset, 30 bytes)) de los
+    campos del anillo cuando hay que girarlo (O-189)."""
     rareza = J.array(plain, J.ARRAY_RAREZA)[fila]
     try:
         off, n = _campo(plain, fila, J.F_TABLERO)
@@ -1314,10 +1338,26 @@ def _arbol_esperado(plain, fila):
     mapa = bytearray(plain[off:off + 40])
     for c in _orden_de_casillas(rareza, rama)[:_casillas_por_nivel(nivel, rareza)]:
         mapa[c] = 1
+    # el anillo: solo si la rama ya empieza y el juego no lo ha girado (O-189)
+    anillo = None
+    if not 5 <= rareza <= 7 and (mapa[8] or mapa[18]):
+        try:
+            oa, na = _campo(plain, fila, F_ANILLOS)
+            ob, nb = _campo(plain, fila, F_GIROS)
+        except Ilegal:
+            oa = None
+        if oa is not None and na == 30 and nb == 30 and plain[oa] == 0xFF:
+            for c in CASILLAS_DEL_ANILLO:
+                mapa[c] = 1
+            a = bytearray(plain[oa:oa + 30])
+            a[0] = CASILLA_ANILLO
+            b = bytearray(plain[ob:ob + 30])
+            b[0] = _giro_del_anillo(rareza, rama)
+            anillo = ((oa, bytes(a)), (ob, bytes(b)))
     if rareza >= 5:
         # a un Idolo o Diamante el editor solo le abre casillas: sus ranuras de
         # tecnica ya vienen puestas de fabrica (O-165, O-169)
-        return off, bytes(mapa), o45, plain[o45:o45 + 9]
+        return off, bytes(mapa), o45, plain[o45:o45 + 9], anillo
     tecnicas = J.ocurrencias(plain, *J.ANCLA_TECNICAS)
     campos, _ = J._campos_de(plain, tecnicas[fila], set(J.RANURAS_TECNICAS))
     # solo se ANADE: lo que el juego ya tenga puesto (confirmaciones raras de
@@ -1334,7 +1374,23 @@ def _arbol_esperado(plain, fila):
         de_rama = 0 if k <= 6 else 1
         if ref and de_rama == rama and mapa[celda]:
             e45[k - 1] = celda          # confirmada, como al pulsar en el arbol
-    return off, bytes(mapa), o45, bytes(e45)
+    return off, bytes(mapa), o45, bytes(e45), anillo
+
+
+def _arbol_esta_como_toca(plain, esperado):
+    off, mapa, o45, e45, anillo = esperado
+    if plain[off:off + 40] != mapa or plain[o45:o45 + 9] != e45:
+        return False
+    return anillo is None
+
+
+def _escribir_arbol(buf, esperado):
+    off, mapa, o45, e45, anillo = esperado
+    buf[off:off + 40] = mapa
+    buf[o45:o45 + 9] = e45
+    if anillo:
+        for o, datos in anillo:
+            buf[o:o + 30] = datos
 
 
 def abrir_arbol(plain, fila):
@@ -1342,14 +1398,10 @@ def abrir_arbol(plain, fila):
     abiertas hasta su nivel y las tecnicas de sus ranuras confirmadas (O-177).
     Se llama despues de cualquier cambio en la ficha. Devuelve plain."""
     esperado = _arbol_esperado(plain, fila)
-    if esperado is None:
-        return plain
-    off, mapa, o45, e45 = esperado
-    if plain[off:off + 40] == mapa and plain[o45:o45 + 9] == e45:
+    if esperado is None or _arbol_esta_como_toca(plain, esperado):
         return plain
     buf = bytearray(plain)
-    buf[off:off + 40] = mapa
-    buf[o45:o45 + 9] = e45
+    _escribir_arbol(buf, esperado)
     return bytes(buf)
 
 
@@ -1387,8 +1439,7 @@ def arboles_rotos(plain):
         esperado = _arbol_esperado(plain, fila)
         if esperado is None:
             continue
-        off, mapa, o45, e45 = esperado
-        if plain[off:off + 40] != mapa or plain[o45:o45 + 9] != e45:
+        if not _arbol_esta_como_toca(plain, esperado):
             fuera.append(fila)
     return fuera
 
@@ -1404,13 +1455,12 @@ def arreglar_arboles(plain):
         esperado = _arbol_esperado(plain, fila)
         if esperado is None:
             continue
-        off, mapa, o45, e45 = esperado
-        buf[off:off + 40] = mapa
-        buf[o45:o45 + 9] = e45
+        _escribir_arbol(buf, esperado)
     plain = bytes(buf)
     for fila in rotos:
         plain = sincronizar_tabla_pasivas(plain, fila)
-    return plain, {"jugadores": len(rotos), "que": "arboles abiertos hasta su nivel y tecnicas confirmadas"}
+    return plain, {"jugadores": len(rotos),
+                   "que": "arboles abiertos hasta su nivel, anillo girado y tecnicas confirmadas"}
 
 
 # La pasiva personalizada de un jugador: el decimo campo del registro de

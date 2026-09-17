@@ -397,6 +397,11 @@ def pasivas():
     return fuera
 
 
+def sinergias():
+    """Las sinergias del juego, tal cual (NOTAS O-191)."""
+    return O.sinergias()
+
+
 def objetos():
     """Equipacion con sus bonus, y lo demas de la mochila, con su dibujo."""
     bonus = {f["id"].upper(): f for f in reglas._tabla("bonus-objeto.csv")}

@@ -138,6 +138,13 @@ class Sesion:
             raise E.Ilegal("no hay nada que deshacer")
         self.plain, self.cambios = self.historial.pop()
 
+    def _paso(self, plain, info):
+        self.historial.append((self.plain, list(self.cambios)))
+        if len(self.historial) > self.PASOS:
+            self.historial.pop(0)
+        self.plain = plain
+        self.cambios.append(info)
+
     def arreglar_arboles(self):
         """Deja el arbol de todos como lo dejaria el juego. Se hace al guardar,
         que es cuando la partida va al juego (NOTAS O-177)."""
@@ -145,11 +152,23 @@ class Sesion:
         if not rotos:
             return 0
         plain, _info = E.arreglar_arboles(self.plain)
-        self.historial.append((self.plain, list(self.cambios)))
-        if len(self.historial) > self.PASOS:
-            self.historial.pop(0)
-        self.plain = plain
-        self.cambios.append({"que": "arboles puestos al dia", "jugadores": len(rotos)})
+        self._paso(plain, {"que": "arboles puestos al dia", "jugadores": len(rotos)})
+        return len(rotos)
+
+    def arreglar_al_guardar(self):
+        """Lo que se repasa siempre antes de que la partida vaya al juego:
+        arboles (O-177, O-189), dorsales repetidos (O-192) y el enlace de la
+        equipacion y las tacticas con la mochila (O-190)."""
+        fuera = {"arboles": self.arreglar_arboles(), "dorsales": 0, "piezas": 0}
+        if EQ.dorsales_repetidos(self.plain):
+            plain, info = EQ.arreglar_dorsales(self.plain)
+            self._paso(plain, {"que": "dorsales repetidos arreglados", "jugadores": info["jugadores"]})
+            fuera["dorsales"] = info["jugadores"]
+        if EQ.piezas_desajustadas(self.plain):
+            plain, info = EQ.arreglar_piezas(self.plain)
+            self._paso(plain, {"que": "piezas de equipo enlazadas", "equipos": info["equipos"]})
+            fuera["piezas"] = info["equipos"]
+        return fuera
         return len(rotos)
 
     def guardar(self, nombre):
@@ -501,7 +520,15 @@ def detalle_equipo(plain, i):
         entre = {"identidad": "%08X" % e["entrenador"],
                  "nombre": _nombre_de("%08X" % e["entrenador"], f),
                  "cara": O._cara_por_identidad().get("%08X" % e["entrenador"], "")}
+    por_objeto = O.sinergia_por_objeto()
+    sinergias = []
+    for k, sn in enumerate(e["sinergias"][:3], 1):
+        s_ = por_objeto.get("%08X" % sn["id"]) if sn["id"] else None
+        sinergias.append({"ranura": k, "id": "%08X" % sn["id"] if sn["id"] else "",
+                          "nombre": s_["nombre"] if s_ else ("desconocida %08X" % sn["id"] if sn["id"] else ""),
+                          "tipo": s_["tipo"] if s_ else ""})
     return {"hueco": i, "nombre": O.sin_marcadores(e["nombre"]),
+            "sinergias": sinergias,
             "nombre_crudo": e["nombre"], "de_la_historia": e["de_la_historia"],
             "formacion": "%08X" % e["formacion"], "escudo": "%08X" % e["escudo"],
             "equipacion": "%08X" % e["equipacion"], "entrenador": entre,
@@ -544,6 +571,9 @@ def pasivas_de_equipo(plain, i):
     grupos = {}
     for m in e["miembros"]:
         if not m["jugador"]:
+            continue
+        # los suplentes no suman; el entrenador y los gerentes si (Aaron, O-193)
+        if EQ.EN_EL_CAMPO <= m["puesto"] < EQ.PUESTO_STAFF:
             continue
         fila = m["jugador"] >> 16
         try:
@@ -789,6 +819,8 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
         # para el Resumen (que pide todos): ranuras que apuntan a montones (O-171)
         "tecnicas_rotas": len(E.tecnicas_rotas(plain)) if not cuantos else 0,
         "arboles_rotos": len(E.arboles_rotos(plain)) if not cuantos else 0,
+        "dorsales_repetidos": len(EQ.dorsales_repetidos(plain)) if not cuantos else 0,
+        "piezas_desajustadas": len({i for i, _ in EQ.piezas_desajustadas(plain)}) if not cuantos else 0,
         "jugadores": trozo,
         # el hueco va con el nombre para poder ensenar las pasivas sumadas de
         # ese equipo en la propia lista de Jugadores (NOTAS O-183)
@@ -1074,6 +1106,8 @@ class Manejador(BaseHTTPRequestHandler):
                 return self._responder(200, {"pasivas": BD.pasivas()})
             if u.path == "/api/bd/objetos":
                 return self._responder(200, {"objetos": BD.objetos()})
+            if u.path == "/api/bd/sinergias":
+                return self._responder(200, {"sinergias": BD.sinergias()})
             if u.path.startswith("/api/bd/stats/"):
                 # los siete stats base de un personaje a cualquier nivel y
                 # rareza, para la calculadora (interpolados como en el editor)
@@ -1239,7 +1273,7 @@ class Manejador(BaseHTTPRequestHandler):
                     # antes de escribir, el arbol de todos como lo dejaria el
                     # juego: si no, las tecnicas puestas con el editor no se ven
                     # y las pasivas salen con candado (NOTAS O-177, O-178)
-                    arreglados = sesion.arreglar_arboles()
+                    arreglos = sesion.arreglar_al_guardar()
                     carpeta = (cuerpo.get("carpeta") or "").strip()
                     if carpeta:
                         E.guardar(sesion.plain, carpeta, sesion.nombre)
@@ -1250,7 +1284,9 @@ class Manejador(BaseHTTPRequestHandler):
                                          if c.isalnum() or c in "-_") or "editada"
                         destino = sesion.guardar(nombre)
                     return self._responder(200, {"carpeta": destino,
-                                                 "arboles": arreglados,
+                                                 "arboles": arreglos["arboles"],
+                                                 "dorsales": arreglos["dorsales"],
+                                                 "piezas": arreglos["piezas"],
                                                  "fichero": os.path.join(destino, sesion.nombre)})
             return self._responder(404, {"error": "no existe esa direccion"})
         except (E.Ilegal, EQ.Ilegal) as e:
@@ -1284,6 +1320,10 @@ class Manejador(BaseHTTPRequestHandler):
             return sesion.aplicar(E.arreglar_tecnicas)
         if t == "arreglar_arboles":
             return sesion.aplicar(E.arreglar_arboles)
+        if t == "arreglar_dorsales":
+            return sesion.aplicar(EQ.arreglar_dorsales)
+        if t == "arreglar_piezas":
+            return sesion.aplicar(EQ.arreglar_piezas)
         if t == "dar_personalizadas":
             return sesion.aplicar(E.dar_personalizadas, int(c.get("cantidad") or 99))
         if t == "dar_pasivas_personal":

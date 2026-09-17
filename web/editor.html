@@ -368,6 +368,16 @@
     border-radius:10px; padding:6px 10px; cursor:pointer; min-width:96px;
     box-shadow:0 2px 0 rgba(20,55,105,.18); transition:transform .08s, border-color .1s; }
   .pieza:hover { border-color:var(--cian); transform:translateY(-2px); }
+  .pieza.sinergia { cursor:default; opacity:.85; }
+  .pieza.sinergia:hover { transform:none; border-color:var(--azul-marco); }
+  .pieza.sinergia .marca-sinergia { font-size:26px; line-height:44px; }
+  .marca-sinergia { display:flex; align-items:center; justify-content:center; font-size:30px;
+    color:#fff; border-radius:12px; width:54px; height:54px; }
+  .marca-sinergia.ofensiva { background:linear-gradient(180deg,#ff9a3c,#d9561a); }
+  .marca-sinergia.defensiva { background:linear-gradient(180deg,#5c9cea,#1c4fa4); }
+  .fam-ofensiva { background:#e8701c; color:#fff; }
+  .fam-defensiva { background:#2b5ea8; color:#fff; }
+  .obj .bonus.efectos { color:#2b5ea8; }
   .pieza img { width:44px; height:44px; object-fit:contain; }
   .pieza .sin-dibujo { font-size:var(--t-3xl); line-height:44px; color:#9db8d4; }
   .pieza .eti { font-size:var(--t-xxs); font-weight:800; text-transform:uppercase;
@@ -1935,6 +1945,29 @@ async function pintaResumen() {
         manda({tipo:"arreglar_arboles"}); }}));
     c.appendChild(g);
   }
+  if (d.dorsales_repetidos) {
+    const g = el("div", {class:"grupo-resumen"});
+    g.appendChild(el("h3", {text:"Arreglos"}));
+    g.appendChild(el("p", {text:d.dorsales_repetidos + " equipos tienen dos jugadores con el mismo "
+      + "dorsal (o alguno sin dorsal). El juego no lo permite."}));
+    g.appendChild(el("button", {class:"btn", text:"Arreglar los dorsales",
+      onclick:async () => { if (await confirma("Arreglar los dorsales", "Al segundo que lleva un dorsal "
+        + "repetido se le da el primero libre. Se puede deshacer."))
+        manda({tipo:"arreglar_dorsales"}); }}));
+    c.appendChild(g);
+  }
+  if (d.piezas_desajustadas) {
+    const g = el("div", {class:"grupo-resumen"});
+    g.appendChild(el("h3", {text:"Arreglos"}));
+    g.appendChild(el("p", {text:d.piezas_desajustadas + " equipos tienen la equipacion o las tacticas "
+      + "sin enlazar con su objeto de la mochila (las puso una version anterior del editor): en el "
+      + "juego el equipo sale con la equipacion sencilla."}));
+    g.appendChild(el("button", {class:"btn", text:"Enlazar las piezas",
+      onclick:async () => { if (await confirma("Enlazar las piezas", "A cada equipo se le apunta el hueco "
+        + "de la mochila de su equipacion y sus tacticas, como lo deja el juego. Se puede deshacer."))
+        manda({tipo:"arreglar_piezas"}); }}));
+    c.appendChild(g);
+  }
   if (d.tecnicas_rotas) {
     const g = el("div", {class:"grupo-resumen"});
     g.appendChild(el("h3", {text:"Arreglos"}));
@@ -2002,7 +2035,7 @@ const TOPE_CANTIDAD = 99999;
 
 async function manda(cambio) {
   try {
-    await pedir("/api/cambiar", {method:"POST",
+    const r = await pedir("/api/cambiar", {method:"POST",
       headers:{"Content-Type":"application/json"}, body:JSON.stringify(cambio)});
     aviso("Hecho.", "bien");
     // La mochila se repinta **de inmediato** con el cambio ya hecho, sin esperar
@@ -2033,7 +2066,7 @@ async function manda(cambio) {
       pintaTabsEquipos();
       await abreEquipo();
       pintaReservas();
-      return;
+      return r && r.hecho;      // lo que hizo el servidor (el dorsal movido, O-192)
     }
     if (cambio.tipo === "jugador" || cambio.tipo === "borrar_jugador") reservas = null;
     if (cambio.tipo === "borrar_jugador") {
@@ -2085,7 +2118,7 @@ const NOMBRE_CAT = {"equipo-1-botas":"Botas", "equipo-2-brazalete":"Brazaletes",
   "tactica":"Tacticas", "escudo":"Escudos", "emblema-jugador":"Emblemas",
   "equipacion-equipo":"Equipaciones", "tactica-objeto":"Tacticas de equipo",
   "supertactica":"Supertacticas", "kizuna":"Vinculos", "placa":"Placas",
-  "material":"Materiales"};
+  "material":"Materiales", "sinergia":"Sinergias"};
 let inventario = [], categoria = null;
 async function cargaInventario() {
   inventario = await pedir("/api/inventario");
@@ -2137,7 +2170,13 @@ function pintaInventario() {
       // mixi), porque hay varios que comparten nombre y asi se distinguen.
       // Los espiritus llevan su propio dibujo y las supertecnicas el icono
       // redondo de su tipo, que es lo que el juego usa para distinguirlas.
-      el("img", {class:"icono" + (o.icono || o.icono200 || ICONO_TIPO[o.tipo] ? " propio" : ""),
+      // una sinergia no tiene dibujo suelto en los datos (NOTAS O-191): lleva
+      // una marca con su tipo, bandera para las ofensivas y castillo para las
+      // defensivas, como las dos pestanas del juego
+      o.sinergia
+        ? el("div", {class:"icono marca-sinergia " + o.sinergia,
+                     text:o.sinergia === "ofensiva" ? "\u2691" : "\u265C"})
+        : el("img", {class:"icono" + (o.icono || o.icono200 || ICONO_TIPO[o.tipo] ? " propio" : ""),
                  loading:"lazy", alt:"",
                  src:o.icono200 ? "/icono/" + o.icono200
                       : o.icono ? "/espiritu/" + o.icono
@@ -2145,6 +2184,10 @@ function pintaInventario() {
                           ? "/icono/icon_common/" + ICONO_TIPO[o.tipo] + ".png"
                           : "/categoria/" + encodeURIComponent(o.categoria)}),
       el("div", {class:"nombre", text:o.nombre}),
+      o.sinergia ? el("div", {class:"familia"}, [
+        el("span", {class:"fam fam-" + o.sinergia, text:"Sinergia " + o.sinergia})]) : null,
+      o.personajes ? el("div", {class:"bonus", text:"Con " + o.personajes.join(", ")}) : null,
+      o.efectos ? el("div", {class:"bonus efectos", text:o.efectos.join(" · ")}) : null,
       o.familia ? el("div", {class:"familia"}, [
         el("span", {class:"fam fam-" + o.familia, text:NOMBRE_FAMILIA[o.familia] || o.familia}),
         o.rango ? el("span", {class:"rango", text:"★" + o.rango}) : null]) : null,
@@ -2161,6 +2204,9 @@ function pintaInventario() {
   if (!ves.length) r.appendChild(el("div", {class:"vacio", text:"Nada aqui."}));
 }
 function pideCantidad(o) {
+  // Las sinergias todavia no se pueden crear: no se sabe donde las guarda el
+  // juego hasta ver una en una partida (NOTAS O-191).
+  if (o.no_se_puede_crear) { aviso(o.no_se_puede_crear, "mal"); return; }
   // Los escudos y las tacticas de equipo no guardan cuantos tienes: la partida
   // no tiene ni el campo. Preguntar una cantidad ahi no tiene sentido, asi que
   // se consiguen de un toque (NOTAS O-135).
@@ -2495,6 +2541,7 @@ const PUESTOS_BANQUILLO = [11,12,13,14,15];
    puesto 19. Antes estaba al reves (NOTAS O-132). */
 const PUESTOS_STAFF = [[16,"Gerente 1"],[17,"Gerente 2"],[18,"Gerente 3"],[19,"Entrenador"]];
 
+let dorsalesAbiertos = false;
 function pintaEquipo() {
   const d = detalleEq;
   const caja = $("#ficha-equipo"); caja.textContent = "";
@@ -2531,6 +2578,22 @@ function pintaEquipo() {
                            src:"/icono/" + t.icono}) : null,
       el("span", {class:"val", text:t.nombre || "ninguna"})]));
   marco.appendChild(tac);
+
+  // las dos sinergias del equipo, una ofensiva y una defensiva (NOTAS O-191).
+  // De momento solo se ensenan: para poder ponerlas hace falta ver una en una
+  // partida y saber donde guarda el juego los objetos.
+  const sin = el("div", {class:"tacticas"});
+  const tipos = ["ofensiva", "defensiva"];
+  (d.sinergias || []).forEach((x, k) => {
+    const tipo = x.tipo || tipos[k] || "";
+    sin.appendChild(el("button", {class:"pieza tactica sinergia",
+      title:"Sinergia " + tipo + ". Todavia no se puede cambiar desde el editor: "
+        + "hace falta ver una sinergia en una partida para saber donde la guarda el juego."}, [
+      el("div", {class:"marca-sinergia " + tipo,
+                 text:tipo === "ofensiva" ? "\u2691" : "\u265C"}),
+      el("span", {class:"val", text:(x.nombre || "ninguna") + " (" + tipo + ")"})]));
+  });
+  if (d.sinergias && d.sinergias.length) marco.appendChild(sin);
 
   // la suma de las pasivas de todo el equipo, como la pantalla
   // "Bonificaciones de equipo" del juego (NOTAS O-145)
@@ -2600,14 +2663,22 @@ function pintaEquipo() {
   }
   marco.appendChild(st);
 
-  // dorsales y capitan, plegado
+  // dorsales y capitan, plegado. Se recuerda si estaba abierto: al cambiar
+  // un dorsal se repinta el equipo y antes se cerraba solo (NOTAS O-192).
   const det = el("details", {class:"plegado"});
+  det.open = dorsalesAbiertos;
+  det.ontoggle = () => { dorsalesAbiertos = det.open; };
   det.appendChild(el("summary", {text:"Dorsales y capitan"}));
   for (const m of d.miembros.filter(x => x.jugador)) {
-    const num = el("input", {type:"number", min:"0", max:"99", value:String(m.dorsal)});
+    const num = el("input", {type:"number", min:"1", max:"99", value:String(m.dorsal)});
     num.style.width = "66px";
-    num.onchange = () => manda({tipo:"equipo_dorsal", equipo:d.hueco,
-                                hueco:m.hueco, valor:Number(num.value)});
+    num.onchange = async () => {
+      const r = await manda({tipo:"equipo_dorsal", equipo:d.hueco,
+                             hueco:m.hueco, valor:Number(num.value)});
+      // dos no pueden llevar el mismo: el otro pasa al primer dorsal libre
+      if (r && r.movido)
+        aviso(r.movido.nombre + " llevaba ese dorsal y pasa a llevar el " + r.movido.dorsal + ".", "bien");
+    };
     det.appendChild(el("div", {class:"ranura"}, [
       el("div", {class:"marca", text:String(m.dorsal)}),
       el("div", {class:"texto"}, [el("b", {text:m.jugador.nombre}),
@@ -2629,7 +2700,8 @@ let bonifAbierto = false;
 function panelBonificaciones(hueco) {
   const det = el("details", {class:"plegado bonif"});
   det.open = bonifAbierto;
-  det.appendChild(el("summary", {text:"Bonificaciones de equipo (las pasivas sumadas)"}));
+  det.appendChild(el("summary", {text:"Bonificaciones de equipo (las pasivas sumadas: los once, "
+    + "el entrenador y los gerentes; los suplentes no)"}));
   const cuerpo = el("div", {class:"bonif-lista"}, [el("p", {class:"vacio", text:"Cargando..."})]);
   det.appendChild(cuerpo);
   const carga = async () => {
@@ -2885,6 +2957,8 @@ $("#guardar").onclick = async () => {
         body:JSON.stringify({carpeta})});
       aviso("Guardada en " + d.carpeta + "."
             + (d.arboles ? " Se puso al dia el arbol de " + d.arboles + " jugadores." : "")
+            + (d.dorsales ? " Se cambiaron " + d.dorsales + " dorsales repetidos." : "")
+            + (d.piezas ? " Se enlazo la equipacion y las tacticas de " + d.piezas + " equipos." : "")
             + " Para ponerla en el juego usa "
             + "herramientas\\instalar-partida.bat con Steam cerrado.", "bien");
     } catch (e) { aviso(e.message, "mal"); }

@@ -1,0 +1,42 @@
+# Las sinergias del juego (NOTAS O-191): id como en la partida, el objeto
+# de la mochila que la da, tipo (ofensiva/defensiva), los personajes que
+# tienen que estar en el equipo (chara_base_id y nombre) y sus efectos.
+# Lo genera herramientas/construir_sinergias.py.
+id,item_id,nombre,tipo,icono,orden,personajes_ids,personajes,efectos
+33C6901D,9F95E6E0,Centinela temporal,defensiva,sf01000020,0,-1416125486;-36895660,Jack Wallside;Tod Ironside,Tasa de obtención del equipo (inusuales) +30%|Tensión necesaria para brecha del equipo -40 %
+12EC8B08,12EC8B08,Trío rompedor,defensiva,sp01001,7601,-1717452464;-2122802650;-2097394104,Mark Evans;Axel Blaze;Jude Sharp,PP del equipo +2 %|Valor de foco en DF +3 %|Poder de supertécnicas de montaña +5 %
+A8BD8291,A8BD8291,Las gerentes más allegadas,defensiva,sp01002,7602,1019792507;634649914;1787980797,Silvia Woods;Celia Hills;Nelly Raimon,DF del muro +5 %|Valor de foco en DF +3 %|AT y DF del equipo durante la primera mitad +2 %
+3E8D85E6,3E8D85E6,El fénix y su ala,defensiva,sp01003,7603,-1424960657;-2143453012,Erik Eagle;Bobby Shearer,Valor de foco en DF +7 %|Poder de supertécnicas de bosque +5 %
+FC433E1A,FC433E1A,Las inquebrantables,defensiva,sp02001,7604,-656049099;1111223376,Victoria Vanguard;Suzette Hartland,Valor de foco en DF +8 % en campo propio|Enfriamiento de campo de foco propio -10 %
+992482A2,992482A2,Cicatrices de la Royal Redux,defensiva,sp03001,7605,-597163897;-995009551,Caleb Stonewall;Joseph King,DF del equipo +4 %|AT y DF del equipo durante la primera mitad +2 %|PP del equipo +2 %
+23758B3B,23758B3B,El heredero del Rai Rai,defensiva,sp03002,7606,-982306362;925201769;1655961962,David Samford;Seymour Hillman;Archer Hawkins,DF del muro +5 %|Reducción de Tensión -5 %
+B5458C4C,B5458C4C,El mejor aprendiz de la Leyenda,defensiva,sp03003,7607,-535579060;-1288390853,Hector Helio;David Arrows,PP del equipo +5 %|Poder de supertécnicas de montaña +5 %
+201C553F,201C553F,"Pese a todo, compañeros",defensiva,sp04001,7608,-105935755;-1372110396,Gabriel García;Aitor Cazador,DF del muro +10 %|AT y DF del equipo durante la primera mitad +2 %
+9A4D5CA6,9A4D5CA6,Las gerentes de GO,defensiva,sp04002,7609,-2036414871;-1618610392;404614119,Skie Blue;Rosie Redd;Jade Greene,DF del muro +5 %|Valor de foco en DF +4 % en campo propio|Reducción de Tensión -5 %
+0C7D5BD1,0C7D5BD1,El linaje oscuro,defensiva,sp04003,7610,717846277;-1677647034,Ray Dark;Lucian Dark,DF del equipo +4 %|Enfriamiento de tácticas especiales propias -5 %
+457BE987,457BE987,Lazos más allá del tiempo,defensiva,sp05001,7611,384621588;1805330513;54551807,Fei Rune;Goldie Lemmon;Riccardo Di Rigo,PP del equipo +2 %|Valor de foco en DF +5 % en campo contrario
+ABD45C95,ABD45C95,Ardiente rivalidad,defensiva,sp06001,7612,463897870;-1110339910;-1761813127,Terry Archibald;Heath Moore;Duske Grayling,Poder de supertécnicas de bosque +5 %|PP del equipo +2 %
+CEB3E02D,CEB3E02D,El emperador y su vasallo,defensiva,sp07001,7613,443875056;19523314;1751902334,Lucas Star;Alexander Allegrov;Destin Billows,Valor de foco en DF +5 % en campo contrario|Reducción de Tensión -5 %
+98A38375,98A38375,La luz de Orión,defensiva,sp08001,7614,801870510;313244446,Harper Evans;Nikas Himmelstein,PP del equipo +2 %|Valor de foco en DF +4 % en campo propio
+FDC43FCD,FDC43FCD,Promesa del camino a la victoria,defensiva,sp09001,7615,965142749;354163771;1128709053,Ivan Mercer;Thierry Reyes;Briar Bloomhurst,Enfriamiento de campo de foco propio -10 %|Valor de foco en DF +8 % en campo propio
+47953654,47953654,Pilares del fútbol perfecto,defensiva,sp09002,7616,-2097394104;717846277;-1738298521,Jude Sharp;Ray Dark;Kevin Dragonfly,Enfriamiento de tácticas especiales propias -5 %|DF del muro +5 %
+D1A53123,D1A53123,Nacido del privilegio,defensiva,sp09003,7617,330834515;1828597027;-1002208669,Shawn Froste;Xene;Torch,Valor de foco en DF +3 %|Reducción de Tensión -5 %
+89979984,5CC6CBCB,El príncipe del campo de nieve,ofensiva,sf01000010,0,-1717452464;-2122802650,Mark Evans;Axel Blaze,Tasa de obtención del equipo (comunes) +10%|Tasa de brecha del equipo +20 %
+940D04DD,940D04DD,Mi mejor creación,ofensiva,sf01001,7618,339956509;887709420,Gazelle;Xavier Foster,DF del equipo +2 %|Valor de foco en DF +3 %
+7AA2B1CF,7AA2B1CF,Convirtámonos en el viento,ofensiva,sf02001,7619,115293294;442193342,Jordan Greenway;Arion Sherwind,Enfriamiento de tácticas especiales propias -5 %|DF del equipo +2 %
+C0F3B856,C0F3B856,Los maestros de Alius,ofensiva,sf02002,7620,-750733951;54551807,Victor Blade;Riccardo Di Rigo,DF del muro +5 %|Enfriamiento de campo de foco propio -10 %|Valor de foco en AT +7 %
+1FC50D77,1FC50D77,Así es mi fútbol,ofensiva,sf03001,7621,-956517709;-981965091;2034859274,Bai Long;Tezcat;Njord Snio,Poder de supertécnicas de viento +5 %|AT de tiro del equipo +4 % en campo contrario
+A6FDDAEA,A6FDDAEA,El vínculo definitivo,ofensiva,sf04001,7622,-2078800208;150881673;192582119,Shawn Froste;Alfa;Beta,Efecto de afinidad elemental +5 %|AT del equipo +2 %|Efecto de afinidad elemental +5 %
+1CACD373,1CACD373,Los guerreros de Santuario,ofensiva,sf04002,7623,2545370;-1337842964,Gamma;Zanark Avalonic,AT del equipo +1 %|Valor de foco en AT +3 %
+8A9CD404,8A9CD404,Admiración traicionera,ofensiva,sf04003,7624,826916090;-955130406,Zack Avalon;Sonny Wright,AT y DF del equipo durante la segunda mitad +2 %|AT de tiro del equipo +3 % en campo propio
+C39A6652,C39A6652,Líderes del Protocolo Omega,ofensiva,sf05001,7625,-2135841014;-1110339910,Elliot Ember;Heath Moore,Valor de foco en AT +4 % en campo contrario|Poder de supertécnicas de fuego +5 %|AT de tiro del equipo +4 % en campo contrario
+2D35D340,2D35D340,El linaje todopoderoso,ofensiva,sf06001,7626,436237324;825042895;-144599525,Xavier Schiller;Hunter Foster;Shawn Froste,Velocidad de movimiento +5 %|AT de tiro del equipo +6 % en campo propio
+48526FF8,48526FF8,Tres firmes convicciones,ofensiva,sf07001,7627,-598948392;1388038762,Aiden Froste;Jackie Tan,Poder de supertécnicas de viento +5 %|Valor de foco en AT +10 % en campo propio|Efecto de afinidad elemental +5 %
+F2036661,F2036661,El príncipe y su fiel ayudante,ofensiva,sf07002,7628,1268841259;-1769449595;-740524563,Jimmy Wongfu;Jade Beor;Yekaterina Stronov,AT de tiro del equipo +2 % en campo contrario|Valor de foco en AT +4 % en campo contrario
+64336116,64336116,El gélido lazo fraternal,ofensiva,sf07003,7629,801870510;82231661,Harper Evans;Darian Moonward,Resistencia al esprintar -10 %|Valor de foco en AT +10 % en campo propio
+1E420CA0,1E420CA0,Las estrellas de China,ofensiva,sf08001,7630,1751902334;1128709053,Destin Billows;Briar Bloomhurst,AT y DF del equipo durante la segunda mitad +2 %|AT de tiro del equipo +2 % en campo contrario
+A4130539,A4130539,La reina y su arma viviente,ofensiva,sf08002,7631,1128709053;657096377;-2091769133,Briar Bloomhurst;Raika Shinohara;Victorio Cryptix,Valor de foco en AT +4 % en campo contrario|Velocidad de movimiento +5 %
+7B25B018,7B25B018,El alma de los Campeones Raimon,ofensiva,sf09001,7632,1644376997,Keines Elvain,AT de tiro del equipo +6 % en campo propio|Poder de supertécnicas de fuego +5 %
+C174B981,C174B981,¡Dame esa oportunidad!,ofensiva,sf09002,7633,,,Valor de foco en AT +8 % en campo contrario|Velocidad de movimiento +5 %
+5744BEF6,5744BEF6,El dúo del Trueno de primavera,ofensiva,sf09003,7634,,,AT de tiro del equipo +3 % en campo propio|Valor de foco en AT +3 %
+4143D858,4143D858,Viejos amigos con una misión,ofensiva,sf10001,7635,,,Resistencia al esprintar -10 %|AT del equipo +2 %

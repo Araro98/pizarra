@@ -630,6 +630,25 @@ def personajes_creables(plain):
     return unicos
 
 
+def sinergias():
+    """Las 37 sinergias del juego, de `sinergias.csv` (NOTAS O-191)."""
+    def construir():
+        fuera = []
+        for f in reglas._tabla("sinergias.csv"):
+            fuera.append({"id": f["id"].upper(), "item_id": f["item_id"].upper(),
+                          "nombre": f["nombre"], "tipo": f["tipo"], "icono": f["icono"],
+                          "orden": int(f.get("orden") or 0),
+                          "personajes": [x for x in f["personajes"].split(";") if x],
+                          "efectos": [x for x in f["efectos"].split("|") if x]})
+        return fuera
+    return _indice("sinergias", construir)
+
+
+def sinergia_por_objeto():
+    """{id del objeto de la mochila: sinergia}."""
+    return _indice("sinergia_por_objeto", lambda: {s["item_id"]: s for s in sinergias()})
+
+
 def objetos_creables(plain):
     """Lo que se puede meter en la mochila y todavia no se tiene."""
     poseidas = inventario.filas_poseidas(plain)
@@ -662,7 +681,22 @@ def objetos_creables(plain):
                       "rango": esp["rango"] if esp else 0,
                       "lleva_cantidad": categoria not in E.CATEGORIAS_SIN_CANTIDAD,
                       "cantidad": poseidas[idh][0].get("cantidad", 0) if idh in poseidas else 0})
-    return sorted(fuera, key=lambda x: (x["categoria"], x["nombre"]))
+    fuera.sort(key=lambda x: (x["categoria"], x["nombre"]))
+    # Las sinergias (NOTAS O-191): se ensenan con todo lo suyo, pero no se
+    # pueden crear: en la partida de Aaron no hay ninguna y no se sabe en que
+    # tramo de la mochila las guarda el juego.
+    for sn in sinergias():
+        fuera.append({"id": sn["item_id"], "nombre": sn["nombre"], "categoria": "sinergia",
+                      "tipo": "", "subtipo": "", "elemento": "", "poder": 0, "tp": 0,
+                      "bonus": "", "tengo": sn["item_id"] in poseidas,
+                      "icono": "", "icono200": "", "familia": "", "rango": 0,
+                      "lleva_cantidad": False, "cantidad": 0,
+                      "sinergia": sn["tipo"], "personajes": sn["personajes"],
+                      "efectos": sn["efectos"],
+                      "no_se_puede_crear": "Las sinergias todavia no se pueden crear con el "
+                                           "editor: hace falta ver una en una partida para "
+                                           "saber donde las guarda el juego."})
+    return fuera
 
 
 def variante_por_rareza(pid, rareza):

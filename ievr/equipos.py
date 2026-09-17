@@ -26,6 +26,20 @@ Que hay dentro, todo comprobado contra la captura del equipo ECLIPSE de Aaron:
 | `0x3A0D9419` (4) | el jugador de ese hueco (su slot) |
 | `0x70730B76` (2) | su dorsal |
 | `0x709A88E9` (1) | donde juega: 0 el portero, 1-10 el resto, 16+ entrenador y gerentes |
+| `0x627F2D54` (4) | el **hueco de la mochila** del objeto de la equipacion (NOTAS O-190) |
+| `0xF863CD5D` (16) | los huecos de la mochila de las tres tacticas |
+| `0x20D7819C` (4, x3) | `synergyFlagItemId`: las sinergias puestas (NOTAS O-191) |
+
+**Los codigos de campo son crc32 del nombre en ingles** (O-190): `teamName`,
+`uniformId`, `emblemId`, `formationId`, `tacticsId`, `uniformNo` (el dorsal),
+`memberList`, `synergyFlagItemId`, `captainParamId` (`0x58C985AC`),
+`skillId` (`0xEDA4D49F`, cinco), `titleFlag` (`0xE2A3657B`).
+
+**Dos numeros por pieza.** La equipacion y las tacticas guardan el id de la
+pieza Y el hueco de la mochila del objeto que la da. El juego ensena la
+equipacion del hueco en la vista del equipo, y la del id en el menu de
+uniformes: si solo se cambia el id (lo que hacia el editor) el menu dice
+"Alpino" y el equipo sale con la equipacion sencilla (NOTAS O-190).
 """
 import struct
 
@@ -42,6 +56,9 @@ F_HUECO = 0x98356E87
 F_JUGADOR = 0x3A0D9419
 F_DORSAL = 0x70730B76
 F_PUESTO = 0x709A88E9
+F_HUECO_EQUIPACION = 0x627F2D54     # hueco de mochila del objeto de la equipacion
+F_HUECOS_TACTICAS = 0xF863CD5D      # 16 bytes: los huecos de las tres tacticas
+F_SINERGIA = 0x20D7819C             # synergyFlagItemId, tres veces
 
 LARGO_NOMBRE = 128
 HUECOS = 30
@@ -140,6 +157,7 @@ def leer(plain, i):
     simples = {}
     tacticas = []
     huecos = []
+    sinergias = []
     actual = None
     for off, fh, tipo, ln, d in campos:
         if fh == F_HUECO:
@@ -161,7 +179,13 @@ def leer(plain, i):
         if fh == F_TACTICAS and ln == 16:
             tacticas = [struct.unpack_from("<I", d, 4 * k)[0] for k in range(4)]
             simples["off_tacticas"] = off + 8
-        elif fh in (F_ESCUDO, F_FORMACION, F_EQUIPACION, F_ENTRENADOR, F_CAPITAN) and ln == 4:
+        elif fh == F_HUECOS_TACTICAS and ln == 16:
+            simples["huecos_tacticas"] = [struct.unpack_from("<I", d, 4 * k)[0] for k in range(4)]
+            simples["off_huecos_tacticas"] = off + 8
+        elif fh == F_SINERGIA and ln == 4:
+            sinergias.append({"id": _u(d), "off": off + 8})
+        elif fh in (F_ESCUDO, F_FORMACION, F_EQUIPACION, F_ENTRENADOR, F_CAPITAN,
+                    F_HUECO_EQUIPACION) and ln == 4:
             simples[fh] = _u(d)
             simples["off_%08X" % fh] = off + 8
     if actual is not None:
@@ -170,6 +194,9 @@ def leer(plain, i):
     return {"hueco": i, "nombre": nombre, "off_nombre": a[i] + 8,
             "de_la_historia": i in EQUIPOS_DE_LA_HISTORIA,
             "tacticas": tacticas, "miembros": huecos, "campos": simples,
+            "sinergias": sinergias,
+            "hueco_equipacion": simples.get(F_HUECO_EQUIPACION, 0),
+            "huecos_tacticas": simples.get("huecos_tacticas", [0, 0, 0, 0]),
             "escudo": simples.get(F_ESCUDO, 0),
             "formacion": simples.get(F_FORMACION, 0),
             "equipacion": simples.get(F_EQUIPACION, 0),
@@ -285,8 +312,21 @@ def poner_nombre(plain, i, nombre):
                         "antes": e["nombre"], "despues": nombre}
 
 
+def _dorsal_libre(e, sin=(), ocupados=()):
+    """El dorsal mas bajo (1-99) que nadie lleva en ese equipo, sin contar los
+    huecos de `sin`. Un numero libre entre medias antes que uno nuevo, como
+    pidio Aaron (NOTAS O-192)."""
+    usados = {x["dorsal"] for k, x in enumerate(e["miembros"])
+              if x["jugador"] and k not in sin} | set(ocupados)
+    for n in range(1, 100):
+        if n not in usados:
+            return n
+    return 0
+
+
 def poner_dorsal(plain, i, hueco, dorsal):
-    """Cambia el dorsal de un miembro."""
+    """Cambia el dorsal de un miembro. Dos no pueden llevar el mismo: si otro
+    lo tenia, ese otro pasa al primer dorsal libre (NOTAS O-192)."""
     e = leer(plain, i)
     _protege(e)
     if not 0 <= hueco < len(e["miembros"]):
@@ -294,16 +334,64 @@ def poner_dorsal(plain, i, hueco, dorsal):
     m = e["miembros"][hueco]
     if not m["jugador"]:
         raise Ilegal("en ese hueco no hay nadie")
-    if not 0 <= dorsal <= 99:
-        raise Ilegal("el dorsal va de 0 a 99")
-    otros = {x["dorsal"] for k, x in enumerate(e["miembros"])
-             if k != hueco and x["jugador"]}
-    if dorsal in otros:
-        raise Ilegal("ya hay otro con el dorsal %d en ese equipo" % dorsal)
+    if not 1 <= dorsal <= 99:
+        raise Ilegal("el dorsal va de 1 a 99")
     buf = bytearray(plain)
     struct.pack_into("<H", buf, m["off_dorsal"], dorsal)
+    movido = None
+    for k, x in enumerate(e["miembros"]):
+        if k != hueco and x["jugador"] and x["dorsal"] == dorsal:
+            nuevo = _dorsal_libre(e, sin=(k,), ocupados=(dorsal,))
+            struct.pack_into("<H", buf, x["off_dorsal"], nuevo)
+            movido = {"nombre": _nombre_de_slot(plain, x["jugador"]), "dorsal": nuevo}
     return bytes(buf), {"equipo": i, "que": "dorsal",
-                        "antes": m["dorsal"], "despues": dorsal}
+                        "antes": m["dorsal"], "despues": dorsal, "movido": movido}
+
+
+def dorsales_repetidos(plain):
+    """[(equipo, nombre, [dorsales repetidos o a cero])] (NOTAS O-192)."""
+    fuera = []
+    for i in range(len(anclas(plain))):
+        try:
+            e = leer(plain, i)
+        except Ilegal:
+            continue
+        if not e["nombre"].strip() or e["de_la_historia"]:
+            continue
+        vistos, mal = set(), []
+        for x in e["miembros"]:
+            if not x["jugador"]:
+                continue
+            if x["dorsal"] in vistos or x["dorsal"] == 0:
+                mal.append(x["dorsal"])
+            vistos.add(x["dorsal"])
+        if mal:
+            fuera.append((i, e["nombre"], mal))
+    return fuera
+
+
+def arreglar_dorsales(plain):
+    """A cada equipo con dorsales repetidos (o a cero) le da al segundo que lo
+    lleva el primer dorsal libre. El que lo tenia primero se lo queda."""
+    mal = dorsales_repetidos(plain)
+    if not mal:
+        raise Ilegal("no hay dorsales repetidos en ningun equipo")
+    buf = bytearray(plain)
+    cambiados = 0
+    for i, _n, _d in mal:
+        e = leer(plain, i)
+        vistos = set()
+        for k, x in enumerate(e["miembros"]):
+            if not x["jugador"]:
+                continue
+            if x["dorsal"] in vistos or x["dorsal"] == 0:
+                nuevo = _dorsal_libre(e, sin=(k,), ocupados=vistos)
+                struct.pack_into("<H", buf, x["off_dorsal"], nuevo)
+                x["dorsal"] = nuevo
+                cambiados += 1
+            vistos.add(x["dorsal"])
+    return bytes(buf), {"equipos": len(mal), "jugadores": cambiados,
+                        "que": "dorsales repetidos cambiados por uno libre"}
 
 
 def poner_capitan(plain, i, hueco):
@@ -703,9 +791,19 @@ def meter_jugador(plain, i, puesto, fila):
     buf[e["miembros"][destino]["off_puesto"]] = puesto
     if repe is not None and repe != destino:
         struct.pack_into("<I", buf, e["miembros"][repe]["off_jugador"], 0)
+    # el que entra lleva un dorsal que nadie mas tenga (NOTAS O-192)
+    d = e["miembros"][destino]["dorsal"]
+    fuera_del_equipo = {k for k in (ocupa, repe) if k is not None and k != destino}
+    otros = {x["dorsal"] for k, x in enumerate(e["miembros"])
+             if x["jugador"] and k != destino and k not in fuera_del_equipo}
+    if repe is not None and repe != destino:
+        d = e["miembros"][repe]["dorsal"]     # se trae el suyo si cambia de hueco
+    if d == 0 or d in otros:
+        d = _dorsal_libre(e, sin=fuera_del_equipo | {destino})
+    struct.pack_into("<H", buf, e["miembros"][destino]["off_dorsal"], d)
     return bytes(buf), {"equipo": i, "que": "jugador en el puesto %d" % puesto,
                         "despues": nombre or "fila %d" % fila,
-                        "saco": ocupa}
+                        "saco": ocupa, "dorsal": d}
 
 
 def sacar_jugador(plain, i, hueco):
@@ -723,6 +821,66 @@ def sacar_jugador(plain, i, hueco):
                         "antes": _nombre_de_slot(plain, m["jugador"])}
 
 
+def hueco_de_pieza(plain, tipo, valor):
+    """El hueco de la mochila del objeto que da esa equipacion o tactica
+    (NOTAS O-190), o 0 si no se tiene. `valor` es lo que guarda el equipo."""
+    from ievr import inventario
+    if not valor:
+        return 0
+    quiero = {"%08X" % valor, _al_reves("%08X" % valor)}
+    poseidas = inventario.filas_poseidas(plain)
+    for f in reglas._tabla("equipo-objetos.csv"):
+        if f["tipo"] != tipo or f["valor_equipo"].upper() not in quiero:
+            continue
+        for fila in poseidas.get(f["id_objeto"].upper(), []):
+            if fila.get("slot"):
+                return fila["slot"]
+    return 0
+
+
+def piezas_desajustadas(plain):
+    """[(equipo, que)] de los equipos cuya equipacion o tacticas no llevan el
+    hueco de mochila que les toca (NOTAS O-190). Solo se dice algo cuando el
+    objeto se tiene, que es cuando se sabe el hueco bueno."""
+    fuera = []
+    for i in range(len(anclas(plain))):
+        try:
+            e = leer(plain, i)
+        except Ilegal:
+            continue
+        if not e["nombre"].strip() or e["de_la_historia"]:
+            continue
+        if "off_%08X" % F_HUECO_EQUIPACION in e["campos"]:
+            bueno = hueco_de_pieza(plain, "equipacion", e["equipacion"])
+            if bueno and bueno != e["hueco_equipacion"]:
+                fuera.append((i, "equipacion"))
+        if "off_huecos_tacticas" in e["campos"]:
+            for k in range(3):
+                bueno = hueco_de_pieza(plain, "tactica", e["tacticas"][k])
+                if bueno and bueno != e["huecos_tacticas"][k]:
+                    fuera.append((i, "tactica %d" % (k + 1)))
+    return fuera
+
+
+def arreglar_piezas(plain):
+    """Pone a cada equipo el hueco de mochila de su equipacion y sus tacticas."""
+    mal = piezas_desajustadas(plain)
+    if not mal:
+        raise Ilegal("todos los equipos tienen sus piezas bien enlazadas")
+    buf = bytearray(plain)
+    for i, que in mal:
+        e = leer(plain, i)
+        if que == "equipacion":
+            struct.pack_into("<I", buf, e["campos"]["off_%08X" % F_HUECO_EQUIPACION],
+                             hueco_de_pieza(plain, "equipacion", e["equipacion"]))
+        else:
+            k = int(que.split()[1]) - 1
+            struct.pack_into("<I", buf, e["campos"]["off_huecos_tacticas"] + 4 * k,
+                             hueco_de_pieza(plain, "tactica", e["tacticas"][k]))
+    return bytes(buf), {"equipos": len({i for i, _ in mal}), "piezas": len(mal),
+                        "que": "equipacion y tacticas enlazadas con su objeto de la mochila"}
+
+
 def poner_simple(plain, i, cual, valor):
     """Cambia formacion, escudo o equipacion."""
     # `F_ENTRENADOR` no esta: en los once equipos de Aaron vale cero siempre,
@@ -738,6 +896,11 @@ def poner_simple(plain, i, cual, valor):
         raise Ilegal("ese equipo no tiene el campo de %s" % cual)
     buf = bytearray(plain)
     struct.pack_into("<I", buf, e["campos"][clave], valor & 0xFFFFFFFF)
+    if cual == "equipacion" and "off_%08X" % F_HUECO_EQUIPACION in e["campos"]:
+        # y el hueco de la mochila del objeto, que es lo que ensena el equipo
+        # en el juego (NOTAS O-190)
+        struct.pack_into("<I", buf, e["campos"]["off_%08X" % F_HUECO_EQUIPACION],
+                         hueco_de_pieza(plain, "equipacion", valor & 0xFFFFFFFF))
     return bytes(buf), {"equipo": i, "que": cual,
                         "antes": "%08X" % e[cual], "despues": "%08X" % valor}
 
@@ -756,5 +919,9 @@ def poner_tactica(plain, i, ranura, id_hex):
             raise Ilegal("esa tactica ya esta en la ranura %d" % (repes[0] + 1))
     buf = bytearray(plain)
     struct.pack_into("<I", buf, e["campos"]["off_tacticas"] + 4 * (ranura - 1), valor)
+    if "off_huecos_tacticas" in e["campos"]:
+        # y el hueco de la mochila del objeto (NOTAS O-190)
+        struct.pack_into("<I", buf, e["campos"]["off_huecos_tacticas"] + 4 * (ranura - 1),
+                         hueco_de_pieza(plain, "tactica", valor))
     return bytes(buf), {"equipo": i, "que": "tactica %d" % ranura,
                         "despues": id_hex or "ninguna"}

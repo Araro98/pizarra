@@ -4456,6 +4456,107 @@ Dos cosas mas que salieron al comprobarlo:
   distingue de los demas: ahora `construir_tecnicas.py` los llama "normal" y
   quedan 353 tiros normales, 47 largos y 33 bloqueos.
 
+### O-189 · El anillo del arbol: por que salia "desconectado"
+
+Aaron: "al entrar al arbol de un jugador subido con el editor sale como si
+los arboles no estuvieran conectados; le haces clic y ya se conecta. Anastasia
+Mingler, Iggie y Joaquine lo tienen; Bunny y Kevin bien".
+
+Comparando los cinco en la partida, los tres "mal" y los dos "bien" tienen el
+mismo mapa de casillas 0-27 y las mismas tecnicas confirmadas; lo que cambia
+son **tres cosas** que el editor no tocaba:
+
+| | Kevin, Bunny, Gael (bien) | Anastasia, Iggie, Joaquine (mal) |
+|---|---|---|
+| mapa, casillas 28-32 | abiertas | cerradas |
+| `0x3CAEA0BD` (30 bytes) | `07 ff ff...` | `ff ff...` |
+| `0x38AFC2B8` (30 bytes) | `01` / `04` / `04` | `00` |
+
+La casilla 7 del tronco es un **anillo giratorio** (el circulo con flechas de
+la foto): al llegar a el hay que girarlo para que conecte con la rama.
+`0x3CAEA0BD` es la lista de anillos girados (ff = vacio; en todo el juego solo
+existe el 07) y `0x38AFC2B8` hacia donde quedo cada uno (1-8). Contado en los
+2.700 normales de la partida: con la rama 1, el giro 7 en 144 de 323 (luego 6,
+1, 8, 4); con la rama 2, el 5 en 11 de 27 (luego 8, 1, 4); los Diamantes
+llevan casi siempre el 8. Un Idolo no tiene anillo (tablero seguido).
+
+El editor ahora, al abrir un arbol cuya rama ya empieza y con el anillo sin
+girar, pone `07`, el giro que mas usa el juego para esa rama (7, 5 u 8 en un
+Diamante) y abre las casillas 28-32, como en Kevin y Bunny. Si el anillo ya
+esta girado no se toca nada. Entra en `arboles_rotos` / `arreglar_arboles`,
+asi que se repasa solo al guardar: en la partida de Aaron eran 16 jugadores.
+
+### O-190 · La equipacion del equipo no se veia: van dos numeros, id y hueco
+
+Aaron: "tengo puesto el uniforme Alpino en el Super Alpino, pero en la vista
+del equipo no se aplica; si entro a los uniformes si sale el Alpino".
+
+**Los codigos de campo de la partida son crc32 del nombre en ingles.** Con un
+diccionario de palabras salieron `teamName`, `uniformId`, `emblemId`,
+`formationId`, `tacticsId`, `uniformNo` (el dorsal), `memberList`,
+`synergyFlagItemId`, `captainParamId`, `skillId`, `titleFlag`. Los ids de las
+tecnicas tambien son crc32 de su nombre interno (300 de 300).
+
+El equipo guarda de la equipacion **dos numeros**: `uniformId` (el id del
+uniforme, lo que el editor ya escribia) y `0x627F2D54`, el **hueco de la
+mochila** del objeto que lo da, con el mismo formato de hueco que usa la
+mochila (`((pos+1)<<18) | (clase<<16) | (tipo<<13) | pos`). Igual las
+tacticas: `tacticsId` y `0xF863CD5D` con los tres huecos. La vista del equipo
+lee el hueco y el menu de uniformes el id, por eso pasaba lo que decia Aaron:
+el Super Alpino tenia el hueco 0, que es la "Equipacion sencilla" (la camiseta
+blanca de la foto).
+
+Comprobado en los once equipos que hizo el juego: el hueco que calcula el
+editor (`equipo-objetos.csv` + la fila de la mochila) coincide con el guardado
+en los 11 uniformes y las 33 tacticas, sin una sola diferencia.
+`EQ.hueco_de_pieza`, `piezas_desajustadas`, `arreglar_piezas`; se escribe al
+cambiar equipacion o tactica y se repasa al guardar.
+
+### O-191 · Las sinergias: que son y donde estan
+
+Aaron: "revisa las sinergias ofensivas y defensivas, mete una pestana en la
+mochila y que se puedan poner en el editor de equipo; no tengo ninguna".
+
+**En los datos del juego** (`skill/synergy_flag_config`,
+`soccer/synergy_flag_effect_config`, `item_config` tabla
+`ITEM_SYNERGY_FLAG_INFO_LIST`, textos en `item_text` y `skill_text`): 37
+sinergias, 19 ofensivas y 18 defensivas (columna 7 del objeto: 221 / 222; casa
+con los efectos, las 221 suben AT y foco en AT y las 222 DF y muro). Cada una
+pide unos personajes en el equipo (por `chara_base_id`, todos identificados
+menos las tres ultimas, que no piden ninguno) y da dos o tres efectos ("PP
+del equipo +2 %", "DF del muro +5 %"...). `construir_sinergias.py` ->
+`sinergias.csv`. El dibujo de cada una esta en una sola lamina
+(`30_icon_synergy/icon_synergy.png`, 42 casillas) sin los nombres, asi que de
+momento llevan una marca: bandera las ofensivas y castillo las defensivas,
+como las dos pestanas del juego.
+
+**En la partida**: el equipo tiene dos huecos `synergyFlagItemId`
+(`0x20D7819C`, cada uno con un `0x585CA018` detras, seguramente el hueco de
+mochila como en O-190). Lo que NO se sabe: **en que tramo de la mochila van
+los objetos de sinergia**. La mochila de Aaron tiene 15 tramos y ninguno es de
+sinergias (el juego los crea al recibir el primero), asi que crear una a ciegas
+seria inventar la estructura de un tramo. Por eso el editor las ensena (base
+de datos, pestana de la mochila y los dos huecos del equipo) pero no las crea
+ni las pone. **Hace falta una partida con al menos una sinergia** para
+terminarlo.
+
+### O-192 · Dorsales: dos no pueden llevar el mismo
+
+Aaron: "el desplegable de dorsales se cierra al hacer un cambio, y el editor
+deja dos jugadores con el mismo dorsal". El editor rechazaba el repetido en
+`poner_dorsal`, pero al meter a alguien en el equipo se quedaba con el dorsal
+que tuviera el hueco (o 0). Ahora: al poner un dorsal que otro lleva, ese otro
+pasa al **primer dorsal libre** (un hueco entre medias antes que uno nuevo,
+como pidio Aaron) y se avisa; al meter a uno en el equipo se le da uno libre
+si el suyo esta cogido o es 0; y `dorsales_repetidos` / `arreglar_dorsales`
+se repasan al guardar y salen en el Resumen. El desplegable recuerda si estaba
+abierto.
+
+### O-193 · Las pasivas sumadas del equipo: sin suplentes
+
+Aaron: "en las pasivas sumadas los suplentes no entran; entrenador y gerentes
+si". `pasivas_de_equipo` salta los puestos 11-15.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

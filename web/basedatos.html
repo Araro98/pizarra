@@ -61,6 +61,7 @@
       <button data-p="espiritus"><span>Espiritus</span></button>
       <button data-p="pasivas"><span>Pasivas</span></button>
       <button data-p="objetos"><span>Objetos</span></button>
+      <button data-p="sinergias"><span>Sinergias</span></button>
       <a href="/"><span>Inicio</span></a>
     </nav>
   </div>
@@ -117,6 +118,16 @@
     <div class="contador" id="contador-obj"></div>
     <div class="obj-rejilla" id="lista-obj"></div>
   </section>
+
+  <section id="p-sinergias" hidden class="marco">
+    <h2 class="titulo-seccion">Sinergias</h2>
+    <p class="nota">Las 37 sinergias del juego: se equipan en el equipo, una ofensiva y una defensiva,
+      y se activan cuando esos personajes estan en el equipo.</p>
+    <input type="search" id="buscar-sin" placeholder="Buscar sinergia o personaje...">
+    <div class="filtros" id="filtros-sin"></div>
+    <div class="contador" id="contador-sin"></div>
+    <div class="lista-sinergias" id="lista-sin"></div>
+  </section>
 </main>
 
 <script src="/web/comun.js"></script>
@@ -125,7 +136,8 @@ const NOMBRE_CAT = {"equipo-1-botas":"Botas", "equipo-2-brazalete":"Brazaletes",
   "equipo-3-colgante":"Colgantes", "equipo-4-especial":"Especiales", "consumible":"Consumibles",
   "tactica":"Tacticas", "escudo":"Escudos", "emblema-jugador":"Emblemas", "formacion":"Formaciones",
   "equipacion-equipo":"Equipaciones", "tactica-objeto":"Tacticas de equipo",
-  "supertactica":"Supertacticas", "kizuna":"Vinculos", "placa":"Placas", "material":"Materiales"};
+  "supertactica":"Supertacticas", "kizuna":"Vinculos", "placa":"Placas", "material":"Materiales",
+  "sinergia":"Sinergias"};
 const NOMBRE_FAMILIA = {kenshin:"Kenshin", alma:"Alma", armadura:"Armadura", mixi:"Mixi", especial:"Especial"};
 const datos = {};
 let pantalla = "personajes";
@@ -143,6 +155,7 @@ async function abre(p) {
   if (p === "espiritus") await cargaEspiritus();
   if (p === "pasivas") await cargaPasivas();
   if (p === "objetos") await cargaObjetos();
+  if (p === "sinergias") await cargaSinergias();
 }
 
 /* ---------------- personajes ---------------- */
@@ -488,9 +501,36 @@ function pintaObjetos() {
   $("#contador-obj").textContent = ves.length + " objetos" + (ves.length > 600 ? " (se ensenan 600)" : "");
 }
 
+/* ---------------- sinergias (NOTAS O-191) ---------------- */
+const FILTROS_SIN = [{campo:"tipo", etiqueta:"Tipo"}];
+const estadoSin = {};
+async function cargaSinergias() {
+  if (!datos.sinergias) {
+    datos.sinergias = (await pedir("/api/bd/sinergias")).sinergias;
+    montaFiltros($("#filtros-sin"), datos.sinergias, FILTROS_SIN, estadoSin, pintaSinergias);
+    $("#buscar-sin").oninput = pintaSinergias;
+  }
+  pintaSinergias();
+}
+function pintaSinergias() {
+  const q = $("#buscar-sin").value.trim().toLowerCase();
+  const ves = datos.sinergias.filter(x => pasaFiltros(x, FILTROS_SIN, estadoSin)
+    && (!q || x.nombre.toLowerCase().includes(q) || x.personajes.join(" ").toLowerCase().includes(q)));
+  const r = $("#lista-sin"); r.textContent = "";
+  for (const x of ves) r.appendChild(el("div", {class:"sinergia"}, [
+    el("div", {class:"marca " + x.tipo, text:x.tipo === "ofensiva" ? "\u2691" : "\u265C"}),
+    el("div", {class:"cuerpo"}, [
+      el("div", {class:"n"}, [el("b", {text:x.nombre}),
+        el("span", {class:"chip " + (x.tipo === "ofensiva" ? "naranja" : ""), text:x.tipo})]),
+      el("div", {class:"quien", text:x.personajes.length
+        ? "Con " + x.personajes.join(", ") + " en el equipo" : "Sin condicion de personajes"}),
+      el("ul", {class:"efectos"}, x.efectos.map(e => el("li", {text:e})))])]));
+  $("#contador-sin").textContent = ves.length + " sinergias";
+}
+
 // la direccion puede decir la pestana: /bd?p=tecnicas (desde el menu de inicio)
 const pedida = new URLSearchParams(location.search).get("p");
-abre(["personajes", "tecnicas", "espiritus", "pasivas", "objetos"].includes(pedida) ? pedida : "personajes");
+abre(["personajes", "tecnicas", "espiritus", "pasivas", "objetos", "sinergias"].includes(pedida) ? pedida : "personajes");
 </script>
 </body>
 </html>
