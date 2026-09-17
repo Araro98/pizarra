@@ -865,6 +865,51 @@ def clave_personal(identidad_hex):
         return None
 
 
+def pasivas_de_personal_del_rol(rol):
+    """{id} de las pasivas que puede llevar un gerente o un entrenador. No se
+    mezclan: en la partida de Aaron los 110 gerentes llevan de gerente y los 82
+    entrenadores de entrenador, sin una sola cruzada (NOTAS O-185)."""
+    def construir():
+        d = {}
+        for f in reglas._tabla("pasivas-personal.csv"):
+            d.setdefault(f["rol"], set()).add(f["pasiva_id"].upper())
+        return d
+    return _indice("pasivas_por_rol", construir).get(rol, set())
+
+
+def valor_de_pasiva(id_hex):
+    """El numero propio de esa pasiva (`pasivas-valor.csv`)."""
+    f = _valores_pasiva().get((id_hex or "").upper()) or {}
+    try:
+        return float(f.get("valor") or 0)
+    except ValueError:
+        return 0.0
+
+
+def personales(plain, fila):
+    """Las pasivas de personal que se le pueden poner a ese gerente o
+    entrenador: las de SU rol que tengas en la mochila (NOTAS O-185)."""
+    from ievr import escribir as E
+    rol = E.rol_de_personal(plain, fila)
+    if rol not in ("gerente", "entrenador"):
+        return {"puede": False, "rol": rol,
+                "motivo": "solo tienen pasivas de personal los gerentes y los entrenadores",
+                "opciones": []}
+    poseidas = inventario.filas_poseidas(plain)
+    fuera = []
+    for idh in pasivas_de_personal_del_rol(rol):
+        if idh not in poseidas:
+            continue
+        fuera.append({"id": idh, "nombre": nombre_pasiva(idh, idh),
+                      "icono200": iconos_de_pasiva().get(idh, ""),
+                      "cantidad": poseidas[idh][0].get("cantidad", 0)})
+    fuera.sort(key=lambda x: x["nombre"])
+    return {"puede": bool(fuera), "rol": rol,
+            "motivo": "" if fuera else "no tienes ningun manual de pasiva de %s "
+                                       "en la mochila" % rol,
+            "opciones": fuera}
+
+
 def pasivas_personal(rol, arquetipo, clave=100):
     """Las 5 pasivas que lleva un gerente o entrenador de ese arquetipo
     (`pasivas-personal.csv`, del juego; NOTAS O-163). La clave 100 es la de los

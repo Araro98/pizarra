@@ -358,6 +358,23 @@ def _quien_es(plain, slot, ident, nivel, rareza, per):
             **O.datos_cuerpo(clave)}
 
 
+def _pasivas_de_personal_reales(plain, fila):
+    """Las cinco pasivas de personal que tiene puestas en la partida, para poder
+    cambiarlas (NOTAS O-185). None si no es gerente ni entrenador."""
+    rol = E.rol_de_personal(plain, fila)
+    if rol not in ("gerente", "entrenador"):
+        return None
+    iconos = O.iconos_de_pasiva()
+    lista = []
+    for ranura, idh, valor in E.pasivas_personal_puestas(plain, fila):
+        vacia = idh == "00000000"
+        lista.append({"ranura": ranura, "id": "" if vacia else idh,
+                      "texto": "vacia" if vacia else O.texto_con_valor(idh, valor, idh),
+                      "icono200": "" if vacia else iconos.get(idh, "")})
+    return {"rol": rol, "lista": lista, "se_puede_cambiar": True,
+            "motivo": ""}
+
+
 def _pasivas_de_personal(rol, rareza, arq, identidad_hex):
     """Lo que ensena el juego en "Pasivas de equipo" a un gerente o entrenador:
     otra lista, que no es la del jugador (NOTAS O-163, O-164).
@@ -970,7 +987,7 @@ def detalle_jugador(plain, fila):
         "arquetipos": O.arquetipos() if rareza[fila] < 5 or rareza[fila] == 8 else [],
         "arquetipo_motivo": "viene fijo de fabrica" if 5 <= rareza[fila] <= 7 else "",
         # si la tabla ya trae lo que ensena el juego, no hace falta la lista aparte
-        "pasivas_personal": None if tabla else _pasivas_de_personal(
+        "pasivas_personal": _pasivas_de_personal_reales(plain, fila) or _pasivas_de_personal(
             rol, rareza[fila], E._arquetipo_diamante(plain, fila) if rareza[fila] == 8 else arq[fila],
             "%08X" % ident[fila]),
         "partidos": struct.unpack_from("<H", plain, offp)[0], "partidos_limites": O.partidos(),
@@ -1166,6 +1183,8 @@ class Manejador(BaseHTTPRequestHandler):
                         return self._responder(200, O.heredadas(p, fila))
                     if tipo == "personalizada":
                         return self._responder(200, O.personalizadas(p, fila))
+                    if tipo == "personal":
+                        return self._responder(200, O.personales(p, fila))
                     return self._responder(400, {"error": "no se que opciones son %r" % tipo})
             if u.path == "/api/inventario":
                 with sesion.lock:
@@ -1262,6 +1281,11 @@ class Manejador(BaseHTTPRequestHandler):
             return sesion.aplicar(E.arreglar_arboles)
         if t == "dar_personalizadas":
             return sesion.aplicar(E.dar_personalizadas, int(c.get("cantidad") or 99))
+        if t == "dar_pasivas_personal":
+            return sesion.aplicar(E.dar_pasivas_personal, int(c.get("cantidad") or 99))
+        if t == "pasiva_personal":
+            return sesion.aplicar(E.poner_pasiva_personal, fila, int(c["ranura"]),
+                                  c.get("id") or c.get("nombre") or "")
         if t == "personalizada":
             return sesion.aplicar(E.poner_personalizada, fila, c.get("id") or c.get("nombre") or "")
         if t == "pasiva":

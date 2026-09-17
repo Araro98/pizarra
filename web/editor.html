@@ -820,6 +820,8 @@
         <button class="btn verde" id="todo-99">Conseguir 99 de todo</button>
         <button class="btn verde" id="pers-99"
           title="Las 37 pasivas personalizadas del juego, 99 de cada una">Conseguir 99 pasivas personalizadas</button>
+        <button class="btn verde" id="personal-99"
+          title="Las pasivas de gerente y de entrenador, 99 de cada una">Conseguir 99 pasivas de personal</button>
       </div>
       <div class="filtros" id="filtros-obj"></div>
       <div class="rejilla-obj" id="lista-obj"></div>
@@ -1454,7 +1456,19 @@ function seccionPasivas(d) {
           el("div", {class:"marca", text:String(x.ranura)}),
           x.icono200 ? el("img", {class:"ico-pasiva", loading:"lazy", alt:"", src:"/icono/" + x.icono200}) : null,
           el("div", {class:"texto"}, [el("b", {text:x.texto})]),
-          el("span", {class:"bloqueada", text:"las pone el juego"})]));
+          // se pueden cambiar: un gerente solo con pasivas de gerente y un
+          // entrenador solo con las suyas (NOTAS O-185)
+          pp.se_puede_cambiar
+            ? el("button", {class:"elegir", text:"Cambiar",
+                onclick:() => abrePicker("Pasiva de " + pp.rol + " " + x.ranura,
+                  () => pedir("/api/opciones?tipo=personal&fila=" + d.fila)
+                          .then(r => ({...r, ordenes:[{campo:"etiqueta", etiqueta:"nombre"}],
+                            de_donde:"solo pasivas de " + r.rol,
+                            actual:x.id || null,
+                            opciones:r.opciones.map(o => ({...o, valor:o.id, etiqueta:o.nombre,
+                                                           icono200:o.icono200 || ""}))})),
+                  v => manda({tipo:"pasiva_personal", fila:d.fila, ranura:x.ranura, id:v}))})
+            : el("span", {class:"bloqueada", text:"las pone el juego"})]));
     else
       caja.appendChild(el("p", {class:"pie-seccion", text:"Como " + pp.rol + " sus pasivas " + pp.motivo + "."}));
     caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Pasivas como jugador"})]));
@@ -2803,6 +2817,15 @@ $("#pers-99").onclick = async () => {
       "Se ponen 99 unidades de cada una de las 37 pasivas personalizadas en la "
       + "mochila, creando las que no tengas. Se puede deshacer.")) return;
   await manda({tipo:"dar_personalizadas", cantidad:99});
+  await cargaInventario();
+};
+// Las pasivas de gerente y entrenador: tambien son objetos de mochila, y se
+// consiguen quitandoselas a uno en el juego (Aaron, NOTAS O-185).
+$("#personal-99").onclick = async () => {
+  if (!await confirma("Conseguir 99 pasivas de personal",
+      "Se ponen 99 unidades de cada pasiva de gerente y de entrenador en la "
+      + "mochila, creando las que no tengas. Se puede deshacer.")) return;
+  await manda({tipo:"dar_pasivas_personal", cantidad:99});
   await cargaInventario();
 };
 $("#buscar-obj").oninput = () => { clearTimeout(temporizador);

@@ -1490,13 +1490,111 @@ def poner_personalizada(plain, fila, nombre):
                    "despues": O.nombre_pasiva(id_hex, nombres.get(id_hex, (texto,))[0])}
 
 
-def dar_personalizadas(plain, cantidad=99):
-    """Pone `cantidad` de cada una de las 37 pasivas personalizadas en la
-    mochila, creando la fila de las que no se tengan (NOTAS O-179)."""
+# --- Las pasivas de un gerente o un entrenador (NOTAS O-185) -------------------
+#
+# No van en las cinco ranuras de la ficha (`0x66B81DAF`), que siguen con las de
+# jugador: van en la **tabla de pasivas con numero** (la de O-166), cinco por
+# persona. Un gerente o entrenador de fabrica llega con ellas puestas; a uno
+# convertido la tabla se le queda a cero, y por eso salian vacias. Cada una es
+# ademas un objeto de la mochila y el contador "cuantos la llevan"
+# (`0xEDC3670F`) cuadra exactamente con las veces que aparece en las tablas
+# (comprobado en la partida de Aaron: 83 de 83, sin un solo descuadre).
+
+
+def rol_de_personal(plain, fila):
+    """"gerente", "entrenador" o "" segun la medalla que lleve puesta."""
+    from ievr import equipos as EQ
+    try:
+        return EQ.medalla_de(plain, fila << 16) or ""
+    except Exception:
+        return ""
+
+
+def pasivas_personal_puestas(plain, fila):
+    """[(ranura, id, valor)] de las cinco ranuras de personal de ese jugador."""
+    fuera = []
+    for k, x in enumerate(J.tabla_pasivas(plain, fila) or []):
+        fuera.append((k + 1, x["id"], x["valor"]))
+    return fuera
+
+
+def poner_pasiva_personal(plain, fila, ranura, nombre):
+    """Cambia una de las cinco pasivas de un gerente o entrenador (O-185).
+
+    Un gerente solo puede llevar pasivas de gerente y un entrenador solo de
+    entrenador: en la partida de Aaron no hay ni una sola mezclada.
+    """
+    from ievr import opciones as O
+    if not 1 <= ranura <= 5:
+        raise Ilegal("la ranura de pasiva tiene que ir de 1 a 5")
+    ident = J.array(plain, J.ARRAY_IDENTIDAD)
+    if fila >= min(6000, len(ident)) or not ident[fila]:
+        raise Ilegal("en la fila %d no hay ningun jugador" % fila)
+    rol = rol_de_personal(plain, fila)
+    if rol not in ("gerente", "entrenador"):
+        raise Ilegal("ese no es gerente ni entrenador: las pasivas de personal "
+                     "solo las tiene quien lleva la medalla")
+
+    texto = (nombre or "").strip()
+    id_hex = None
+    de_rol = O.pasivas_de_personal_del_rol(rol)
+    if len(texto) == 8 and all(c in "0123456789abcdefABCDEF" for c in texto):
+        id_hex = texto.upper()
+    else:
+        for k in de_rol:
+            if _sin_marcadores(O.nombre_pasiva(k, "")) == _sin_marcadores(texto):
+                id_hex = k
+                break
+        if id_hex is None:
+            raise Ilegal("no encuentro ninguna pasiva de %s que se llame %r" % (rol, texto))
+    if id_hex not in de_rol:
+        otro = "entrenador" if rol == "gerente" else "gerente"
+        if id_hex in O.pasivas_de_personal_del_rol(otro):
+            raise Ilegal("esa es una pasiva de %s y este es %s: no se mezclan" % (otro, rol))
+        raise Ilegal("%s no es una pasiva de %s" % (id_hex, rol))
+    poseidas = inventario.filas_poseidas(plain).get(id_hex)
+    if not poseidas:
+        raise Ilegal("no tienes ningun manual de esa pasiva en la mochila")
+
+    pos = J.pos_tabla_pasivas(plain, fila, ranura - 1)
+    if pos is None:
+        raise Ilegal("esa fila no esta en la tabla de pasivas de la partida")
+    antes = plain[pos + 8:pos + 12].hex().upper()
+    if antes == id_hex:
+        raise Ilegal("ya lleva esa pasiva en esa ranura")
+    valor = O.valor_de_pasiva(id_hex)
+    buf = bytearray(plain)
+    buf[pos + 8:pos + 12] = bytes.fromhex(id_hex)
+    struct.pack_into("<f", buf, pos + 20, float(valor))
+    if not buf[pos + 32]:
+        buf[pos + 32] = 1               # desbloqueada, como las de fabrica
+    plain = bytes(buf)
+    # el contador de "cuantos la llevan", como con la equipacion
+    porid = {f["id"].upper(): f for f in inventario.todas_las_filas(plain)}
+    if antes != "00000000" and antes in porid:
+        plain = inventario.ajustar_equipada(plain, porid[antes], -1)
+    porid = {f["id"].upper(): f for f in inventario.todas_las_filas(plain)}
+    if id_hex in porid:
+        plain = inventario.ajustar_equipada(plain, porid[id_hex], +1)
+    return plain, {"fila": fila, "ranura": ranura, "rol": rol,
+                   "antes": O.nombre_pasiva(antes, "vacia") if antes != "00000000" else "vacia",
+                   "despues": O.nombre_pasiva(id_hex, id_hex)}
+
+
+def dar_pasivas_personal(plain, cantidad=99):
+    """Pone `cantidad` de cada pasiva de gerente y de entrenador en la mochila,
+    creando la fila de las que no se tengan (NOTAS O-185)."""
     from ievr import opciones as O
     if not 1 <= cantidad <= TOPE_CANTIDAD:
         raise Ilegal("la cantidad va de 1 a %d" % TOPE_CANTIDAD)
-    todas = sorted(O.pasivas_personalizadas())
+    todas = sorted(O.pasivas_de_personal_del_rol("gerente")
+                   | O.pasivas_de_personal_del_rol("entrenador"))
+    return _dar_de_todo(plain, todas, cantidad, "pasivas de gerente y entrenador")
+
+
+def _dar_de_todo(plain, todas, cantidad, que):
+    """Pone `cantidad` de cada cosa de la lista en la mochila, creando la fila
+    de las que falten copiando la forma de una hermana."""
     poseidas = inventario.filas_poseidas(plain)
     modelo = None
     for idh in todas:
@@ -1505,8 +1603,8 @@ def dar_personalizadas(plain, cantidad=99):
             modelo = f
             break
     if modelo is None:
-        raise Ilegal("no tienes ninguna pasiva personalizada en la mochila, asi "
-                     "que no se de que tramo copiar la forma. No escribo nada.")
+        raise Ilegal("no tienes ninguna en la mochila, asi que no se de que tramo "
+                     "copiar la forma. No escribo nada.")
     bloque = None
     for b in inventario.bloques(plain):
         if any(x["slot_off"] == modelo["slot_off"] for x in b["filas"]):
@@ -1514,7 +1612,6 @@ def dar_personalizadas(plain, cantidad=99):
             break
     if bloque is None:
         raise Ilegal("no encuentro el tramo de la mochila donde van")
-
     creadas = subidas = 0
     buf = bytearray(plain)
     libres = [(i, f) for i, f in enumerate(bloque["filas"])
@@ -1540,9 +1637,18 @@ def dar_personalizadas(plain, cantidad=99):
         buf[libre["sub_off"]] = modelo.get("sub", 2)
         struct.pack_into("<I", buf, libre["cantidad_off"], cantidad)
         creadas += 1
-    return bytes(buf), {"que": "pasivas personalizadas en la mochila",
-                        "cuantas": cantidad, "creadas": creadas,
+    return bytes(buf), {"que": que, "cuantas": cantidad, "creadas": creadas,
                         "actualizadas": subidas, "total": len(todas)}
+
+
+def dar_personalizadas(plain, cantidad=99):
+    """Pone `cantidad` de cada una de las 37 pasivas personalizadas en la
+    mochila, creando la fila de las que no se tengan (NOTAS O-179)."""
+    from ievr import opciones as O
+    if not 1 <= cantidad <= TOPE_CANTIDAD:
+        raise Ilegal("la cantidad va de 1 a %d" % TOPE_CANTIDAD)
+    return _dar_de_todo(plain, sorted(O.pasivas_personalizadas()), cantidad,
+                        "pasivas personalizadas en la mochila")
 
 
 def sincronizar_tabla_pasivas(plain, fila):

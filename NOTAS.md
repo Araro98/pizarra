@@ -4335,6 +4335,40 @@ base de datos de espiritus, y con el **boton "i"** de la ranura del arbol, que
 abre la ficha del espiritu (nombre largo, familia, rango, dueno, pasiva,
 supertecnica propia y descripcion).
 
+### O-185 · Las pasivas de un gerente o un entrenador se pueden cambiar
+
+Aaron convirtio a Robert Cottontail de entrenador a gerente y no podia tocarle
+las pasivas: "es verdad que salen vacias, pero aun asi se pueden cambiar".
+
+**Donde estaban.** No en las cinco ranuras de la ficha (`0x66B81DAF`), que se
+quedan con las de jugador, sino en la **tabla de pasivas con numero** (la de
+O-166), cinco por persona:
+
+| | ranuras de la ficha | tabla con numero |
+|---|---|---|
+| entrenador de fabrica (Clark) | vacias | sus 5 de entrenador |
+| gerente de fabrica (Juno) | vacias | sus 5 de gerente |
+| gerente convertido (Robert) | sus pasivas de jugador | **a cero** |
+
+Por eso a un convertido le salen vacias, y por eso `sincronizar_tabla_pasivas`
+deja en paz al personal: ahi no se sincroniza nada, se escribe a mano.
+
+Cada pasiva es ademas un objeto de la mochila, y el contador "cuantos la
+llevan" (`0xEDC3670F`) cuadra **exacto** con las veces que aparece en las
+tablas: 83 de 83 sin un solo descuadre. Al cambiarla se ajusta igual que la
+equipacion.
+
+**Los roles no se mezclan**, como dice Aaron: de los 192 con medalla de la
+partida, los 110 gerentes llevan pasivas de gerente y los 82 entrenadores de
+entrenador, ni una cruzada. El editor ofrece solo las del rol que tenga puesto
+y se niega si se intenta cruzar.
+
+`E.poner_pasiva_personal(plain, fila, ranura, id)`, `E.rol_de_personal`,
+`O.personales(plain, fila)` (las de su rol que tengas en la mochila) y el boton
+**"Conseguir 99 pasivas de personal"** en la Mochila (las 112 de los dos roles,
+`E.dar_pasivas_personal`), que son las mismas que salen al quitarselas a
+alguien en el juego.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
