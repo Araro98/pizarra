@@ -138,6 +138,12 @@ function pintaPartida() {
     $("#partida").textContent = (partes.length ? "Partida: " + partes.slice(-2).join(" / ") : "Sin partida")
       + (e.version ? "   ·   Pizarra " + e.version : "");
     $("#partida").title = e.origen || "";
+    // si faltan los dibujos, que lo diga con la carpeta que esta mirando (O-202)
+    const d = e.dibujos || {};
+    if (!d.caras || !d.recortes)
+      avisa("Faltan los dibujos del juego" + (!d.caras ? " (caras de personajes)" : "") + (!d.recortes ? " (objetos)" : "")
+        + ". El programa los busca en " + (e.raiz || "?") + "\datos\iconos. Descomprime el zip portable ENTERO "
+        + "(unos 21.400 ficheros) en una carpeta y abre Pizarra.exe desde ahi.", "mal");
   }).catch(() => { $("#partida").textContent = "Sin partida"; });
 }
 pintaPartida();

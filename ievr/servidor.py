@@ -1253,7 +1253,13 @@ class Manejador(BaseHTTPRequestHandler):
                         "origen": sesion.origen,
                         "cambios": sesion.cambios,
                         "puede_deshacer": bool(sesion.historial),
-                        "version": _version_instalada()})
+                        "version": _version_instalada(),
+                        # para que el propio programa diga si le faltan los
+                        # dibujos (al amigo de Aaron no le salian las caras, O-202)
+                        "raiz": RAIZ,
+                        "dibujos": {"caras": len(_listar(CARAS)),
+                                    "recortes": len(_listar(os.path.join(RECORTES, "laminas"))),
+                                    "ui": len(_listar(UI))}})
             if u.path == "/api/jugadores":
                 filtros = {c: (q.get(c) or [""])[0]
                            for c in ("elemento", "posicion", "rareza",

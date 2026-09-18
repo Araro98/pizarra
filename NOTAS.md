@@ -4774,6 +4774,19 @@ Aaron va a pasarle el programa a un amigo. Repaso:
 - **Guardar siempre**: el boton ya no se apaga sin cambios (Aaron tuvo que
   bajar de nivel a uno para poder guardar y que se aplicaran los arreglos).
 
+### O-202 · Al amigo de Aaron no le salen las caras
+
+Primer uso del zip portable en otro ordenador: la pantalla de inicio sale
+entera pero las caras de los personajes son la silueta blanca. El zip esta
+completo (5.685 caras y 12.560 uniformes en `datos/iconos/data/.../10_icon_chr`,
+igual que en disco), la actualizacion automatica no borra nada y las rutas
+del zip no pasan de 115 letras, asi que lo que falla esta en su ordenador (lo
+mas probable: el zip descomprimido a medias o abierto sin descomprimir del
+todo). Como desde aqui no se ve, el programa lo dice el mismo: `/api/estado`
+devuelve cuantas caras, recortes y piezas de interfaz encuentra y la carpeta
+raiz que esta mirando, y la pantalla de inicio saca un aviso rojo con eso
+cuando falta algo.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
