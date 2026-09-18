@@ -928,17 +928,17 @@ def poner_sinergia(plain, i, ranura, item_id):
 # configuracion Justicia). El juego lo dice asi en su ayuda: "La configuracion
 # del equipo se define segun el NUMERO DE PASIVAS que poseas de cada tipo;
 # Libertad aparece al no cumplir los requisitos de ninguna otra". Se cuentan
-# las pasivas de arquetipo (ranuras 3-5 de cada jugador que cuenta, las cinco
+# las pasivas de arquetipo (ranuras 4 y 5 de cada jugador que cuenta, las cinco
 # de personal de cada gerente o entrenador, las fijas de un Idolo o Diamante)
 # y gana el tipo con mas si llega al minimo. El minimo no esta en ninguna
-# tabla del juego: con los equipos de Aaron esta entre 13 y 22 pasivas (test2
-# con 12 de Tension es Libertad, ECLIPSE-9 con 22 es Tension); 15 (cinco
-# personas con sus tres) hasta que se afine en el juego. Good Losers es
+# tabla del juego: con los equipos de Aaron esta entre 9 y 18 pasivas (test2
+# con 8 de Tension es Libertad, ECLIPSE-9 con 18 es Tension); 10 (cinco
+# personas con su pareja) hasta que se afine en el juego. Good Losers es
 # Libertad porque sus once llevan medalla.
 NOMBRE_CONFIGURACION = {0: "Brecha", 1: "Contraataque", 2: "Vinculo", 3: "Tension",
                         4: "Juego sucio", 5: "Justicia"}
 PRIORIDAD_CONFIGURACION = {3: 0, 4: 1, 2: 2, 5: 3, 1: 4, 0: 5}
-MINIMO_CONFIGURACION = 15         # pasivas del mismo tipo (medido entre 13 y 22)
+MINIMO_CONFIGURACION = 10         # pasivas del mismo tipo (medido entre 9 y 18)
 
 
 def arquetipo_de(plain, fila):
@@ -1011,9 +1011,11 @@ def pasivas_de_arquetipo_de(plain, fila):
             fijas = []
         n = sum(1 for x in fijas if tabla.get(x) == a)
         if a is not None:
-            votos[a] += n or 3          # las tres de arquetipo, como un normal
+            votos[a] += n or 2          # su pareja de arquetipo, como un normal
         return votos
-    for k in range(2, 5):
+    # solo las ranuras 4 y 5 son pasivas de arquetipo: la 3 la elige el
+    # arquetipo pero es del monton, como la 1 y la 2 (Aaron, O-204)
+    for k in (3, 4):
         x = her[k] if her[k] != "00000000" else ids[k]
         if x in tabla:
             votos[tabla[x]] += 1

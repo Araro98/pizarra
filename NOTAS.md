@@ -4842,18 +4842,20 @@ Good Losers Libertad, calvos Justicia):
    personal y el cuerpo tecnico que SI la lleva. El banquillo no. Good Losers
    es Libertad porque sus once son gerentes y entrenadores con medalla (los
    triangulos rojos de la foto).
-2. De cada una cuentan sus **pasivas de arquetipo**: las ranuras 3-5 de un
-   jugador (la heredada tapa a la normal), las cinco de personal de un gerente
+2. De cada una cuentan sus **pasivas de arquetipo**: las ranuras 4 y 5 de un
+   jugador (la 3 la elige el arquetipo pero es del monton, como la 1 y la 2,
+   dicho por Aaron; la heredada tapa a la normal), las cinco de personal de un gerente
    o entrenador (las que son de un solo arquetipo en `pasivas-personal.csv`),
    y las fijas de un Idolo o Diamante con la ficha vacia (las de su
    arquetipo, O-163). El arquetipo que lleva puesto el jugador no cuenta:
    en calvos los once son de arquetipos de todo tipo pero todos llevan
    pasivas de Justicia y la configuracion es Justicia.
 3. Gana el tipo con mas pasivas si llega al minimo; si no, Libertad. test2
-   tiene 14 de Tension y es Libertad; ECLIPSE-9 tiene 19 y es Tension: el
-   minimo esta entre 15 y 19. Se usa **15** (cinco personas con sus tres)
-   hasta afinarlo en el juego: con test2, dando una pasiva de Tension mas se
-   sabe si es 15.
+   tiene 8 de Tension y es Libertad; ECLIPSE-9 tiene 18 (cuatro jugadores y
+   dos del cuerpo tecnico con las cinco) y es Tension: el minimo esta entre
+   9 y 18. Se usa **10** (cinco personas con su pareja) hasta afinarlo en el
+   juego: Aaron va cambiando jugadores de test2 por otros de Tension (cada
+   uno suma dos) hasta que cambie.
 
 Lo primero que se probo (contar arquetipos puestos de los 16) cuadraba 5 de
 7; fue Aaron quien apunto a las pasivas. `EQ.configuracion_de_equipo` ->
