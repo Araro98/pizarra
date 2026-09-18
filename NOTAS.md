@@ -4860,13 +4860,14 @@ Good Losers Libertad, calvos Justicia):
    (4 de Vinculo, 4 de Juego sucio, 4 de Brecha, 2 de Contraataque), salio
    **Tension**. Lo dijo Aaron ("salen Libertad porque estan bajos de nivel y
    aun no desbloquean las dos ultimas").
-4. Gana el tipo con mas pasivas si llega al minimo; si no, Libertad. Good
-   Losers tiene 1 de Vinculo (un gerente con una sola de arquetipo) y es
-   Libertad; test2 al 99 con 8 es Tension: el minimo esta entre 2 y 8. Se usa
-   **6** (tres jugadores con su pareja) hasta afinarlo: la prueba que queda es
-   test2 con solo dos o tres jugadores de Tension al 99 y el resto al nivel 1
-   (candado, cuentan 0). Los empates (ECLIPSE-12 al principio, 4 y 4) siguen
-   sin resolverse: se dan por Libertad.
+4. Gana el tipo con mas pasivas si llega al minimo, que es **5**; si no,
+   Libertad. Lo midio Aaron en test2 con el resto al nivel 1 (candado, cuentan
+   0): tres jugadores de Tension al 99 (6 pasivas) -> Tension; dos (4) ->
+   Libertad; dos mas una heredada de Tension en un jugador de otro arquetipo
+   (5) -> Tension. Comprobado con su partida: test2 tiene 5 de Tension, 4 de
+   Vinculo, 4 de Brecha, 3 de Juego sucio y 2 de Contraataque y sale Tension.
+   Los empates (dos tipos con las mismas pasivas) siguen sin verse en el
+   juego: se dan por Libertad.
 
 Lo primero que se probo (contar arquetipos puestos de los 16) cuadraba 5 de
 7; fue Aaron quien apunto a las pasivas. `EQ.configuracion_de_equipo` ->

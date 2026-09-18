@@ -931,14 +931,12 @@ def poner_sinergia(plain, i, ranura, item_id):
 # las pasivas de arquetipo DESBLOQUEADAS (ranuras 4 y 5 de cada jugador que
 # cuenta, las cinco de personal de cada gerente o entrenador, las fijas de un
 # Idolo o Diamante) y gana el tipo con mas si llega al minimo. El minimo no
-# esta en ninguna tabla del juego: con los equipos de Aaron esta entre 2 y 8
-# pasivas (test2 al nivel 22, todo con candado, es Libertad; al 99, con 8 de
-# Tension, es Tension; Good Losers con 1 de Vinculo es Libertad); 6 (tres
-# jugadores con su pareja) hasta que se afine en el juego.
+# esta en ninguna tabla del juego: lo midio Aaron en test2 (O-204): con 4
+# pasivas de Tension desbloqueadas sale Libertad, con 5 sale Tension.
 NOMBRE_CONFIGURACION = {0: "Brecha", 1: "Contraataque", 2: "Vinculo", 3: "Tension",
                         4: "Juego sucio", 5: "Justicia"}
 PRIORIDAD_CONFIGURACION = {3: 0, 4: 1, 2: 2, 5: 3, 1: 4, 0: 5}
-MINIMO_CONFIGURACION = 6          # pasivas del mismo tipo (medido entre 2 y 8)
+MINIMO_CONFIGURACION = 5          # pasivas del mismo tipo (medido en el juego)
 
 
 def arquetipo_de(plain, fila):
