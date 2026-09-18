@@ -4787,6 +4787,29 @@ devuelve cuantas caras, recortes y piezas de interfaz encuentra y la carpeta
 raiz que esta mirando, y la pantalla de inicio saca un aviso rojo con eso
 cuando falta algo.
 
+### O-203 · Filtros plegados, "Mi equipo" destacado y orden por cada stat
+
+Aaron: "que los filtros no salgan directamente, que haya un boton; menos el de
+mi equipo en Jugadores, que destaque; y en Fichar, Equipos y Jugadores, poder
+ordenar por cada stat en los dos sentidos; y que todo se combine bien".
+
+- **Boton "Filtros y orden"** en Jugadores, Equipos (reservas), Fichar y
+  Mochila (`botonFiltros`): la caja de filtros sale plegada, el boton lleva
+  un numero naranja con cuantos filtros hay puestos (contando el orden si no
+  es el de siempre), y se recuerda por pantalla si estaba abierta.
+- **"Mi equipo"** va fuera de la caja, al lado del boton, en naranja y con
+  estrella; cuando hay uno elegido el desplegable se pone en naranja entero.
+- **Orden por stat**: la lista de Jugadores lleva ahora los siete stats base
+  de cada jugador (`_stats7`, la misma tabla de 48 filas que `_poder`, sin
+  coste) y el servidor ordena por `st0`..`st6`; las reservas y Fichar ordenan
+  en la pantalla (Fichar con los stats a nivel 99 de su rareza, o de Diamante
+  en la pestana "con semilla"). La tarjeta ensena el stat por el que se
+  ordena (`AGI 358`) abajo a la izquierda, y el poder a la derecha.
+- **El sentido con palabras**: "De mayor a menor / De menor a mayor" para
+  numeros, "De la A a la Z" para nombres, "Primeros huecos"... Los filtros
+  siguen combinandose (posicion + afinidad + equipo + orden por stat, etc.),
+  porque el orden se aplica sobre lo ya filtrado, como antes.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

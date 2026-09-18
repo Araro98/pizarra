@@ -146,6 +146,23 @@
   .filtro span { font-size:var(--t-xs); font-weight:800; color:var(--azul-osc);
     text-transform:uppercase; letter-spacing:.05em; }
   .filtro select { max-width:220px; }
+  /* Los filtros van plegados tras un boton (Aaron: "mas limpio"); "Mi equipo"
+     va aparte y destacado porque es el que mas usa (NOTAS O-203). */
+  .filtros[hidden] { display:none !important; }
+  .barra-filtros { display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; margin:-4px 0 10px; }
+  .btn-filtros { display:inline-flex; align-items:center; gap:6px; }
+  .btn-filtros .cuantos { background:var(--naranja); color:#fff; border-radius:999px;
+    padding:0 7px; font-size:var(--t-xs); line-height:18px; min-width:18px; text-align:center; }
+  .btn-filtros[aria-expanded="true"] { background:linear-gradient(180deg,#5c9cea,#1c4fa4); color:#fff; }
+  .mi-equipo { display:flex; flex-direction:column; gap:2px; }
+  .mi-equipo > span { font-size:var(--t-xs); font-weight:800; color:#b3520e;
+    text-transform:uppercase; letter-spacing:.05em; }
+  .mi-equipo select { border-color:var(--naranja); background-color:#fff7ec; color:#8a3d05;
+    font-weight:800; min-width:210px; box-shadow:0 2px 8px rgba(240,138,28,.25); }
+  .mi-equipo select.puesto { background-color:var(--naranja); color:#fff;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/></svg>"); }
+  .ficha-mini .stat-orden { position:absolute; left:4px; bottom:3px; z-index:1; color:#fff;
+    font-size:var(--t-xs); font-weight:800; background:rgba(12,40,80,.75); border-radius:5px; padding:0 5px; }
   .contador button { padding:2px 10px; }
   .rejilla-jug { display:grid; gap:8px; max-height:64vh; overflow:auto;
     grid-template-columns:repeat(auto-fill,minmax(104px,1fr)); }
@@ -1061,6 +1078,10 @@ function fichaMini(j) {
   }
   if (j.poder) t.appendChild(el("div", {class:"poder", text:String(j.poder),
     title:"Suma de los siete stats base"}));
+  // si se ordena por un stat, ese stat en la tarjeta (O-203)
+  const k = statDe(modo === "equipos" ? ordenRes : orden);
+  if (k >= 0 && j.stats) t.appendChild(el("div", {class:"stat-orden", text:STAT_ABREV[k] + " " + j.stats[k],
+    title:STATS[k] + " base"}));
   if (j.rol && j.rol !== "jugador")
     t.appendChild(el("span", {class:"chapa-rol " + j.rol,
       text:j.rol === "entrenador" ? "ENT" : "GER",
@@ -1070,11 +1091,73 @@ function fichaMini(j) {
   return t;
 }
 
+/* Los siete stats, para ordenar por cada uno en Jugadores, Equipos y Fichar
+   (NOTAS O-203). "st0".."st6" son los codigos que entiende el servidor. */
+const STATS = ["Potencia", "Control", "Tecnica", "Presion", "Fisico", "Agilidad", "Inteligencia"];
+const STAT_ABREV = ["POT", "CON", "TEC", "PRE", "FIS", "AGI", "INT"];
+function esStat(o) { return /^st[0-6]$/.test(o || ""); }
+function statDe(o) { return esStat(o) ? Number(o.slice(2)) : -1; }
+/* Las dos direcciones de un orden, dichas con palabras que se entiendan. */
+function sentidosDe(orden) {
+  if (orden === "llegada") return [["asc","Los primeros que llegaron"],["desc","Los ultimos que llegaron"]];
+  if (orden === "nombre" || orden === "equipo") return [["asc","De la A a la Z"],["desc","De la Z a la A"]];
+  if (orden === "fila") return [["asc","Primeros huecos"],["desc","Ultimos huecos"]];
+  return [["asc","De mayor a menor"],["desc","De menor a mayor"]];
+}
+function rellenaSentido(sel, orden, valor) {
+  sel.textContent = "";
+  for (const [v, t] of sentidosDe(orden)) sel.appendChild(el("option", {value:v, text:t, selected:valor === v}));
+  sel.value = valor;
+}
+function opcionesDeOrden(sel, basicos, valor) {
+  sel.textContent = "";
+  for (const [v, t] of basicos) sel.appendChild(el("option", {value:v, text:t}));
+  const g = el("optgroup", {label:"Por stat"});
+  STATS.forEach((n, k) => g.appendChild(el("option", {value:"st" + k, text:n})));
+  sel.appendChild(g);
+  sel.value = valor;
+}
+/* El boton "Filtros" que pliega una caja de filtros y dice cuantos hay puestos.
+   Se recuerda por pantalla si estaba abierta. */
+function botonFiltros(caja, clave, activos) {
+  let b = caja.parentNode.querySelector(".btn-filtros[data-para='" + clave + "']");
+  if (!b) {
+    let abierto = false;
+    try { abierto = localStorage.getItem("ievr-filtros-" + clave) === "si"; } catch (e) {}
+    b = el("button", {class:"btn btn-filtros", "data-para":clave, "aria-expanded":String(abierto),
+      onclick:() => {
+        const ahora = caja.hidden;
+        caja.hidden = !ahora; b.setAttribute("aria-expanded", String(ahora));
+        try { localStorage.setItem("ievr-filtros-" + clave, ahora ? "si" : "no"); } catch (e) {}
+      }});
+    caja.hidden = !abierto;
+    let barra = caja.parentNode.querySelector(".barra-filtros[data-para='" + clave + "']");
+    if (!barra) { barra = el("div", {class:"barra-filtros", "data-para":clave}); caja.parentNode.insertBefore(barra, caja); }
+    barra.appendChild(b);
+  }
+  b.textContent = "";
+  b.appendChild(el("span", {text:"\u2699 Filtros y orden"}));
+  if (activos) b.appendChild(el("span", {class:"cuantos", text:String(activos), title:activos + " puestos"}));
+  return b;
+}
+function cuantosActivos(estado, extra) {
+  return Object.keys(estado).filter(k => estado[k]).length + (extra || 0);
+}
+
 function pintaFiltros(d) {
   const caja = $("#filtros");
   if (caja.dataset.listo === "si") return actualizaFiltros(d);
   caja.textContent = "";
+  // "Mi equipo" fuera de la caja plegable y destacado (O-203)
+  const barra = (() => { let b = caja.parentNode.querySelector(".barra-filtros[data-para='jug']");
+    if (!b) { b = el("div", {class:"barra-filtros", "data-para":"jug"}); caja.parentNode.insertBefore(b, caja); }
+    b.textContent = ""; return b; })();
+  const selMi = el("select", {id:"f-mi_equipo", onchange:e => {
+    filtros.mi_equipo = e.target.value; desde = 0; recuerda(); cargaLista(); }});
+  barra.appendChild(el("label", {class:"mi-equipo", title:"Uno de tus equipos guardados, con su cuerpo tecnico"},
+    [el("span", {text:"\u2B50 Mi equipo"}), selMi]));
   for (const [campo, etiqueta] of CAMPOS_FILTRO) {
+    if (campo === "mi_equipo") continue;
     const sel = el("select", {id:"f-" + campo, onchange:e => {
       filtros[campo] = e.target.value; desde = 0; recuerda(); cargaLista(); }});
     caja.appendChild(el("label", {class:"filtro"},
@@ -1083,16 +1166,12 @@ function pintaFiltros(d) {
   const so = el("select", {id:"f-orden", onchange:e => {
     orden = e.target.value; desde = 0; recuerda(); cargaLista(); }});
   // "llegada": el orden en que fueron llegando a la partida (lo pidio Aaron)
-  const NOMBRE_ORDEN = {llegada:"Por orden de llegada"};
-  for (const o of ["nivel","poder","nombre","rareza","equipo","fila","llegada"])
-    so.appendChild(el("option", {value:o, text:NOMBRE_ORDEN[o] || ("Por " + o), selected:orden === o}));
-  caja.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Orden"}), so]));
+  opcionesDeOrden(so, [["nivel","Nivel"],["poder","Poder (suma de stats)"],["nombre","Nombre"],
+    ["rareza","Rareza"],["equipo","Equipo"],["fila","Hueco de la partida"],["llegada","Orden de llegada"]], orden);
+  caja.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Ordenar por"}), so]));
   const ss = el("select", {id:"f-sentido", onchange:e => {
     sentido = e.target.value; desde = 0; recuerda(); cargaLista(); }});
-  const SENTIDOS = orden === "llegada"
-    ? [["asc","Los primeros que llegaron"],["desc","Los ultimos que llegaron"]]
-    : [["asc","Normal"],["desc","Al reves"]];
-  for (const [v, t] of SENTIDOS) ss.appendChild(el("option", {value:v, text:t, selected:sentido === v}));
+  rellenaSentido(ss, orden, sentido);
   caja.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Sentido"}), ss]));
 
   const sp = el("select", {id:"f-pag", onchange:e => {
@@ -1103,7 +1182,7 @@ function pintaFiltros(d) {
   caja.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Cuantos"}), sp]));
 
   caja.appendChild(el("button", {class:"btn", text:"Limpiar filtros", onclick:() => {
-    filtros = {}; $("#buscar").value = ""; desde = 0; recuerda();
+    filtros = {}; orden = "nivel"; sentido = "asc"; $("#buscar").value = ""; desde = 0; recuerda();
     caja.dataset.listo = ""; cargaLista(); }}));
   caja.dataset.listo = "si";
   actualizaFiltros(d);
@@ -1114,12 +1193,18 @@ function actualizaFiltros(d) {
     if (!sel) continue;
     const antes = filtros[campo] || "";
     sel.textContent = "";
-    sel.appendChild(el("option", {value:"", text:"Todos"}));
+    sel.appendChild(el("option", {value:"", text:campo === "mi_equipo" ? "Todos mis jugadores" : "Todos"}));
     for (const o of d.filtros[campo] || [])
       sel.appendChild(el("option", {value:o.valor,
         text:bonito(o.valor) + "  (" + o.cuantos + ")", selected:o.valor === antes}));
     sel.value = antes;
+    if (campo === "mi_equipo") sel.classList.toggle("puesto", !!antes);
   }
+  // el sentido cambia de nombre segun por que se ordena
+  const ss = $("#f-sentido"); if (ss) rellenaSentido(ss, orden, sentido);
+  const activos = Object.keys(filtros).filter(k => filtros[k] && k !== "mi_equipo").length
+    + (orden !== "nivel" ? 1 : 0) + (sentido !== "asc" ? 1 : 0);
+  botonFiltros($("#filtros"), "jug", activos);
 }
 function pintaPaginas(d) {
   const c = $("#contador"); c.textContent = "";
@@ -2173,6 +2258,7 @@ function pintaInventario() {
   // los filtros se montan sobre lo que hay en ESTA pestana, no sobre todo
   const deLaPestana = inventario.filter(o => o.categoria === categoria);
   montaFiltros($("#filtros-obj"), deLaPestana, FILTROS_OBJ, estadoObj, pintaInventario);
+  botonFiltros($("#filtros-obj"), "obj", cuantosActivos(estadoObj, ordenObj !== "etiqueta" ? 1 : 0));
   let ves = deLaPestana.filter(o => pasaFiltros(o, FILTROS_OBJ, estadoObj) &&
     (!q || o.nombre.toLowerCase().includes(q)));
   // en botas, brazaletes, colgantes y especiales se puede ordenar por lo que suben
@@ -2286,6 +2372,7 @@ const CLAVES_ORDEN_RES = {
   rareza: j => [-(j.rareza_valor || 0), -(j.nivel || 0), j.nombre.toLowerCase()],
   llegada: j => [j.serie || 0, j.fila],
 };
+for (let k = 0; k < 7; k++) CLAVES_ORDEN_RES["st" + k] = j => [-((j.stats || [])[k] || 0), j.nombre.toLowerCase()];
 function comparaClaves(a, b) {
   for (let i = 0; i < a.length; i++) {
     if (a[i] < b[i]) return -1;
@@ -2346,15 +2433,12 @@ async function cargaReservas(recargar) {
   const caja = $("#filtros-res");
   const guarda = () => { try { localStorage.setItem("ievr-res", JSON.stringify({orden:ordenRes, sentido:sentidoRes})); } catch (e) {} };
   const so = el("select", {onchange:e => { ordenRes = e.target.value; desdeRes = 0; guarda(); cargaReservas(); }});
-  for (const [v, t] of [["nivel","Por nivel"],["poder","Por poder"],["nombre","Por nombre"],["rareza","Por rareza"],["llegada","Por orden de llegada"]])
-    so.appendChild(el("option", {value:v, text:t, selected:ordenRes === v}));
-  caja.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Orden"}), so]));
+  opcionesDeOrden(so, [["nivel","Nivel"],["poder","Poder (suma de stats)"],["nombre","Nombre"],["rareza","Rareza"],["llegada","Orden de llegada"]], ordenRes);
+  caja.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Ordenar por"}), so]));
   const ss = el("select", {onchange:e => { sentidoRes = e.target.value; desdeRes = 0; guarda(); pintaReservas(); }});
-  const SENT = ordenRes === "llegada"
-    ? [["asc","Los primeros que llegaron"],["desc","Los ultimos que llegaron"]]
-    : [["asc","Normal"],["desc","Al reves"]];
-  for (const [v, t] of SENT) ss.appendChild(el("option", {value:v, text:t, selected:sentidoRes === v}));
+  rellenaSentido(ss, ordenRes, sentidoRes);
   caja.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Sentido"}), ss]));
+  botonFiltros(caja, "res", cuantosActivos(estadoRes, (ordenRes !== "nivel" ? 1 : 0) + (sentidoRes !== "asc" ? 1 : 0)));
   pintaReservas();
 }
 
@@ -2897,6 +2981,14 @@ const FILTROS_PER = [
   {campo:"cuerpo_tipo", etiqueta:"Cuerpo"},
 ];
 const estadoPer = {};
+let ordenPer = "nombre", sentidoPer = "asc";
+const CLAVES_ORDEN_PER = {
+  nombre: c => [c.nombre.toLowerCase()],
+  poder: c => [-(c.poder || 0), c.nombre.toLowerCase()],
+  rareza: c => [-(c.rareza_valor || 0), c.nombre.toLowerCase()],
+  equipo: c => [(c.equipo || "").toLowerCase(), c.nombre.toLowerCase()],
+};
+for (let k = 0; k < 7; k++) CLAVES_ORDEN_PER["st" + k] = c => [-((c.stats || [])[k] || 0), c.nombre.toLowerCase()];
 // Los Idolos y los Diamantes van en su pestana: si no, se pierden entre 5.400
 // normales. La familia sale de la rareza que trae el personaje de fabrica.
 // "Con semilla": cualquier normal fichado directamente como Diamante, que es lo
@@ -2921,11 +3013,24 @@ async function cargaPersonajes(recargar) {
   }
   const deLaFamilia = personajes.filter(x => enFamilia(x, familiaPer));
   const comoDiamante = familiaPer === "semilla";
+  // con semilla, todos son Diamantes: sus stats son los de Diamante
+  for (const c of deLaFamilia) { c.stats = comoDiamante ? c.stats_diamante : c.stats_propios; c.poder = (c.stats || []).reduce((a, b) => a + b, 0); }
   montaFiltros($("#filtros-per"), deLaFamilia, FILTROS_PER, estadoPer,
                () => { desdePer = 0; cargaPersonajes(); });
+  const cajaPer = $("#filtros-per");
+  const soP = el("select", {onchange:e => { ordenPer = e.target.value; desdePer = 0; cargaPersonajes(); }});
+  opcionesDeOrden(soP, [["nombre","Nombre"],["poder","Poder a nivel 99"],["rareza","Rareza"],["equipo","Equipo"]], ordenPer);
+  cajaPer.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Ordenar por"}), soP]));
+  const ssP = el("select", {onchange:e => { sentidoPer = e.target.value; desdePer = 0; cargaPersonajes(); }});
+  rellenaSentido(ssP, ordenPer, sentidoPer);
+  cajaPer.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Sentido"}), ssP]));
+  botonFiltros(cajaPer, "per", cuantosActivos(estadoPer, (ordenPer !== "nombre" ? 1 : 0) + (sentidoPer !== "asc" ? 1 : 0)));
   const q = $("#buscar-per").value.trim().toLowerCase();
   const ves = deLaFamilia.filter(x => pasaFiltros(x, FILTROS_PER, estadoPer) &&
     (!q || (x.nombre + " " + x.equipo + " " + x.posicion).toLowerCase().includes(q)));
+  const clavePer = CLAVES_ORDEN_PER[ordenPer] || CLAVES_ORDEN_PER.nombre;
+  ves.sort((a, b) => comparaClaves(clavePer(a), clavePer(b)));
+  if (sentidoPer === "desc") ves.reverse();
   if (desdePer >= ves.length) desdePer = 0;
   const r = $("#lista-per"); r.textContent = "";
   for (const c of ves.slice(desdePer, desdePer + POR_PAGINA_PER)) {
@@ -2940,6 +3045,9 @@ async function cargaPersonajes(recargar) {
     if (!c.se_puede) t.style.filter = "grayscale(.75) brightness(.85)";
     if (c.cara) for (const capa of capasRetrato(c, true)) t.appendChild(capa);
     t.appendChild(el("div", {class:"nombre-mini", text:c.nombre}));
+    if (c.poder) t.appendChild(el("div", {class:"poder", text:String(c.poder), title:"Suma de los siete stats base a nivel 99"}));
+    const kP = statDe(ordenPer);
+    if (kP >= 0 && c.stats) t.appendChild(el("div", {class:"stat-orden", text:STAT_ABREV[kP] + " " + c.stats[kP], title:STATS[kP] + " base a nivel 99"}));
     // Nada de banda de rareza aqui: a este tamano tapa la cara. El color del
     // fondo ya dice la rareza, que es lo que Aaron pidio.
     const abajo = el("div", {class:"abajo"});

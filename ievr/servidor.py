@@ -274,6 +274,13 @@ def _poder(plain, fila, ident, nivel, rareza):
     return sum(b["valores"]) if b else 0
 
 
+def _stats7(plain, fila, ident, nivel, rareza):
+    """Los siete stats base (mismo orden que `ST.NOMBRES`), para poder ordenar
+    la lista por cada uno (Aaron, NOTAS O-203). Solo la base, como `_poder`."""
+    b = ST.base(ident[fila], nivel[fila], rareza[fila])
+    return list(b["valores"]) if b else [0] * 7
+
+
 def _campos_ficha(plain, fila):
     """{hash: (offset de los datos, longitud)} de todos los campos de la ficha."""
     from ievr import tlv
@@ -364,6 +371,7 @@ def _ficha_corta(plain, fila, ident, nivel, rareza, arq, jugadores):
                 or ((f or {}).get("string_id") or ""),
         **O.datos_cuerpo("%08X" % ident[fila]),
         "poder": _poder(plain, fila, ident, nivel, rareza),
+        "stats": _stats7(plain, fila, ident, nivel, rareza),
         "partidos": estado["partidos"],
         # Que es esa persona: jugador, gerente o entrenador. Sale de la medalla
         # que lleve puesta y de su aptitud de fabrica (NOTAS O-132). Va aqui
@@ -386,6 +394,9 @@ ORDENES = {
     # el numero de serie de adquisicion: el orden en que fueron llegando
     "llegada": lambda d: (d.get("serie", 0), d["fila"]),
 }
+# y por cada uno de los siete stats base, de mayor a menor (O-203)
+for _k in range(7):
+    ORDENES["st%d" % _k] = (lambda k: lambda d: (-(d.get("stats") or [0] * 7)[k], d["nombre"].lower()))(_k)
 
 
 def listar_carpetas(ruta):

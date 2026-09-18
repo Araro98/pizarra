@@ -593,6 +593,12 @@ def partidos():
 
 # --- crear cosas ---------------------------------------------------------------
 
+def _stats99(clave, rareza):
+    from ievr import stats as ST
+    b = ST.base(int(clave, 16), 99, rareza)
+    return list(b["valores"]) if b else [0] * 7
+
+
 def personajes_creables(plain):
     """Los personajes que se pueden meter en la partida, con lo que se elige.
 
@@ -632,6 +638,10 @@ def personajes_creables(plain):
             "elige_rareza": not fijo, "elige_arquetipo": not fijo,
             "se_puede": True, "motivo": "",
             "tengo": int(clave, 16) in tengo,
+            # los siete stats base a nivel 99, con su rareza y como Diamante,
+            # para ordenar la lista de Fichar por cada uno (NOTAS O-203)
+            "stats_propios": _stats99(clave, int(ficha.get("rareza_valor") or 0)),
+            "stats_diamante": _stats99(clave, 8),
         })
     vistos, unicos = set(), []
     for o in sorted(fuera, key=lambda x: (x["nombre"] or "").lower()):
