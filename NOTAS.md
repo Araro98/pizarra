@@ -4847,7 +4847,11 @@ Good Losers Libertad, calvos Justicia):
    dicho por Aaron; la heredada tapa a la normal), las cinco de personal de un gerente
    o entrenador (las que son de un solo arquetipo en `pasivas-personal.csv`),
    y las fijas de un Idolo o Diamante con la ficha vacia (las de su
-   arquetipo, O-163). El arquetipo que lleva puesto el jugador no cuenta:
+   arquetipo, O-163). Las **heredadas cuentan** (tapan a la normal de su
+   ranura): calvos y gordos son Justicia justo por las heredadas de Justicia
+   que Aaron les puso. Las heredadas que vienen de un tablero de Idolo se
+   tipifican por su grupo de rareza (`pasivas-rareza.csv`). El arquetipo que
+   lleva puesto el jugador no cuenta:
    en calvos los once son de arquetipos de todo tipo pero todos llevan
    pasivas de Justicia y la configuracion es Justicia.
 3. Gana el tipo con mas pasivas si llega al minimo; si no, Libertad. test2

@@ -962,6 +962,17 @@ def _arquetipo_de_pasiva():
             g = (f.get("grupo") or "").split(" (")[0]
             if "(ranura" in (f.get("grupo") or "") and g in nombres:
                 d[f["id"].upper()] = nombres[g]
+        # las versiones por rareza de una misma pasiva son del mismo tipo: asi
+        # se cubren las que vienen de un tablero de Idolo o Diamante (las
+        # heredadas de Shawn, Raika, Zanark...), que no estan en las ranuras
+        grupos = {}
+        for f in reglas._tabla("pasivas-rareza.csv"):
+            grupos.setdefault(f["grupo"], []).append(f["id"].upper())
+        for ids in grupos.values():
+            tipos = {d[x] for x in ids if x in d}
+            if len(tipos) == 1:
+                for x in ids:
+                    d.setdefault(x, next(iter(tipos)))
         return d
     return _O._indice("arquetipo_de_pasiva", construir)
 
