@@ -4866,8 +4866,9 @@ Good Losers Libertad, calvos Justicia):
    Libertad; dos mas una heredada de Tension en un jugador de otro arquetipo
    (5) -> Tension. Comprobado con su partida: test2 tiene 5 de Tension, 4 de
    Vinculo, 4 de Brecha, 3 de Juego sucio y 2 de Contraataque y sale Tension.
-   Los empates (dos tipos con las mismas pasivas) siguen sin verse en el
-   juego: se dan por Libertad.
+   **Empate** entre los dos primeros (test2 con 5 de Tension y 5 de Juego
+   sucio, forzado por Aaron): el juego pone **Libertad**; el editor lo dice
+   ("empate") y ya no desempata por las pasivas del campo.
 
 Lo primero que se probo (contar arquetipos puestos de los 16) cuadraba 5 de
 7; fue Aaron quien apunto a las pasivas. `EQ.configuracion_de_equipo` ->

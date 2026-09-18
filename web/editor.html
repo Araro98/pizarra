@@ -2827,16 +2827,18 @@ function textoConfiguracion(c) {
   // el juego cuenta PASIVAS DESBLOQUEADAS de cada tipo (ranuras 4 y 5 de los once
   // sin medalla y las de personal del cuerpo tecnico con ella), no arquetipos
   // puestos; con candado no cuentan (O-204)
-  return c.arquetipo != null
-    ? c.cuenta + " pasivas desbloqueadas de " + c.nombre + " entre " + c.personas + " personas (" + c.en_campo + " en el campo). Reparto: " + reparto
-    : "Ningun tipo llega a " + c.minimo + " pasivas desbloqueadas (cuentan " + c.de + " personas; las que siguen con candado no cuentan). Reparto: " + (reparto || "nadie");
+  if (c.arquetipo != null)
+    return c.cuenta + " pasivas desbloqueadas de " + c.nombre + " entre " + c.personas + " personas (" + c.en_campo + " en el campo). Reparto: " + reparto;
+  if (c.empate)
+    return "Empate entre dos tipos con las mismas pasivas: el juego no elige y pone Libertad. Reparto: " + reparto;
+  return "Ningun tipo llega a " + c.minimo + " pasivas desbloqueadas (cuentan " + c.de + " personas; las que siguen con candado no cuentan). Reparto: " + (reparto || "nadie");
 }
 function piezaConfiguracion(c) {
   const b = el("div", {class:"pieza conf-equipo", title:"Conf. de equipo, como la ensena el juego. No se elige: "
     + "la dan las pasivas de arquetipo de los once y del cuerpo tecnico (los que llevan medalla en el campo no cuentan). " + textoConfiguracion(c)});
   b.appendChild(el("span", {class:"eti", text:"Conf. de equipo"}));
   b.appendChild(el("span", {class:"val", text:c.nombre}));
-  b.appendChild(el("span", {class:"sub", text:c.arquetipo != null ? c.cuenta + " pasivas" : "sin " + c.minimo + " pasivas iguales"}));
+  b.appendChild(el("span", {class:"sub", text:c.arquetipo != null ? c.cuenta + " pasivas" : c.empate ? "empate" : "sin " + c.minimo + " pasivas iguales"}));
   return b;
 }
 

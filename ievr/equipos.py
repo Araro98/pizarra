@@ -1057,13 +1057,16 @@ def configuracion_de_equipo(plain, e):
             personas[a] = personas.get(a, 0) + 1
             if en_campo:
                 campo[a] = campo.get(a, 0) + n
-    orden = sorted(reparto, key=lambda a: (-reparto[a], -campo.get(a, 0), PRIORIDAD_CONFIGURACION.get(a, 9)))
+    orden = sorted(reparto, key=lambda a: (-reparto[a], PRIORIDAD_CONFIGURACION.get(a, 9)))
     mejor = orden[0] if orden and reparto[orden[0]] >= MINIMO_CONFIGURACION else None
-    if mejor is not None and len(orden) > 1 and reparto[orden[1]] == reparto[mejor] and campo.get(orden[1], 0) == campo.get(mejor, 0):
-        mejor = None          # empate total: el juego no elige
+    empate = False
+    if mejor is not None and len(orden) > 1 and reparto[orden[1]] == reparto[mejor]:
+        # empate: el juego no elige y pone Libertad (Aaron, test2 con 5 de
+        # Tension y 5 de Juego sucio); da igual donde esten las pasivas
+        mejor, empate = None, True
     cuenta = reparto.get(mejor, 0) if mejor is not None else 0
     return {"nombre": NOMBRE_CONFIGURACION[mejor] if mejor is not None else "Libertad",
-            "arquetipo": mejor, "cuenta": cuenta,
+            "arquetipo": mejor, "cuenta": cuenta, "empate": empate,
             "en_campo": campo.get(mejor, 0) if mejor is not None else 0, "de": validos,
             "minimo": MINIMO_CONFIGURACION,
             "personas": personas.get(mejor, 0) if mejor is not None else 0,
