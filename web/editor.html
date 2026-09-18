@@ -2824,13 +2824,15 @@ let bonifAbierto = false;
    se repite entre los 16 (once + banquillo) si llega a 5; si no, Libertad. */
 function textoConfiguracion(c) {
   const reparto = (c.reparto || []).map(r => r.nombre + " " + r.cuenta).join(", ");
+  // cuentan los del campo sin medalla y el cuerpo tecnico con ella, cada uno
+  // por el arquetipo de SUS PASIVAS (no por el arquetipo puesto), O-204
   return c.arquetipo != null
-    ? c.cuenta + " de " + c.de + " son de " + c.nombre + " (" + c.en_campo + " en el campo). Reparto: " + reparto
-    : "Ningun arquetipo llega a " + c.minimo + " de " + c.de + ". Reparto: " + (reparto || "nadie");
+    ? c.cuenta + " de " + c.de + " personas que cuentan llevan pasivas de " + c.nombre + " (" + c.en_campo + " en el campo). Reparto: " + reparto
+    : "Ningun arquetipo llega a " + c.minimo + " personas (cuentan " + c.de + "). Reparto: " + (reparto || "nadie");
 }
 function piezaConfiguracion(c) {
   const b = el("div", {class:"pieza conf-equipo", title:"Conf. de equipo, como la ensena el juego. No se elige: "
-    + "la dan los arquetipos de los jugadores. " + textoConfiguracion(c)});
+    + "la dan las pasivas de arquetipo de los once y del cuerpo tecnico (los que llevan medalla en el campo no cuentan). " + textoConfiguracion(c)});
   b.appendChild(el("span", {class:"eti", text:"Conf. de equipo"}));
   b.appendChild(el("span", {class:"val", text:c.nombre}));
   b.appendChild(el("span", {class:"sub", text:c.arquetipo != null ? c.cuenta + " de " + c.de : "sin " + c.minimo + " iguales"}));

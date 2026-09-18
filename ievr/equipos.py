@@ -919,12 +919,14 @@ def poner_sinergia(plain, i, ranura, item_id):
 # --- La "Configuracion de equipo" del juego (NOTAS O-204) --------------------
 #
 # Lo que sale en el juego debajo de la formacion ("Conf. de equipo: Tension").
-# No se guarda en la partida: el juego lo calcula con los arquetipos de los
-# jugadores. Con los equipos de Aaron cuadra asi: se cuentan los arquetipos
-# de los 16 (los once y el banquillo, sin cuerpo tecnico), gana el que mas
-# tenga si llega a 5, y si no llega ninguno es "Libertad". Con empate manda el
-# que tenga mas en el campo y luego el orden de `team_build_config`
-# (Tension, Juego sucio, Vinculo, Justicia, Contraataque, Brecha).
+# No se guarda en la partida: el juego la calcula. Con los siete equipos de
+# Aaron cuadra asi: cuentan las PERSONAS VALIDAS (los del campo sin medalla de
+# personal y el cuerpo tecnico con su medalla; el banquillo no), cada una por
+# el arquetipo de SUS PASIVAS (las de arquetipo, ranuras 3-5; las de personal
+# en el cuerpo tecnico; un Idolo o Diamante por sus fijas), no por el arquetipo
+# que lleve puesto (calvos: arquetipos de todo tipo, pasivas de Justicia,
+# configuracion Justicia). Gana el que mas personas tenga si llega a 5; si no,
+# "Libertad". Good Losers es Libertad porque sus once llevan medalla.
 NOMBRE_CONFIGURACION = {0: "Brecha", 1: "Contraataque", 2: "Vinculo", 3: "Tension",
                         4: "Juego sucio", 5: "Justicia"}
 PRIORIDAD_CONFIGURACION = {3: 0, 4: 1, 2: 2, 5: 3, 1: 4, 0: 5}
@@ -942,25 +944,98 @@ def arquetipo_de(plain, fila):
     return a if a in J.ARQUETIPOS else None
 
 
+def _arquetipo_de_pasiva():
+    """{id de pasiva: arquetipo} para las pasivas de arquetipo (ranuras 3-5)."""
+    from ievr import opciones as _O
+    nombres = {"Brecha": 0, "Contra": 1, "Afinidad": 2, "Tension": 3, "Juego sucio": 4, "Justicia": 5}
+    def construir():
+        d = {}
+        for f in reglas._tabla("pasivas-por-ranura.csv"):
+            g = (f.get("grupo") or "").split(" (")[0]
+            if "(ranura" in (f.get("grupo") or "") and g in nombres:
+                d[f["id"].upper()] = nombres[g]
+        return d
+    return _O._indice("arquetipo_de_pasiva", construir)
+
+
+def _arquetipo_de_pasiva_personal():
+    """{(rol, id): arquetipo} de las pasivas de personal que son de UN solo
+    arquetipo (las que valen para todos no dicen nada)."""
+    from ievr import opciones as _O
+    def construir():
+        d = {}
+        for f in reglas._tabla("pasivas-personal.csv"):
+            d.setdefault((f["rol"], f["pasiva_id"].upper()), set()).add(int(f["arquetipo"]))
+        return {k: next(iter(v)) for k, v in d.items() if len(v) == 1}
+    return _O._indice("arquetipo_de_personal", construir)
+
+
+def arquetipo_por_pasivas(plain, fila):
+    """El arquetipo que dicen las pasivas de esa persona (O-204), o None."""
+    from ievr import escribir as E
+    import collections
+    votos = collections.Counter()
+    rol = E.rol_de_personal(plain, fila)
+    if rol in ("gerente", "entrenador"):
+        tabla = _arquetipo_de_pasiva_personal()
+        for x in J.tabla_pasivas(plain, fila) or []:
+            a = tabla.get((rol, x["id"]))
+            if a is not None:
+                votos[a] += 1
+    else:
+        try:
+            off, _ = E._campo(plain, fila, J.F_PASIVAS)
+            offh, _ = E._campo(plain, fila, J.F_HEREDADAS)
+        except E.Ilegal:
+            return None
+        ids = [plain[off + 4 * k:off + 4 * k + 4].hex().upper() for k in range(5)]
+        her = [plain[offh + 4 * k:offh + 4 * k + 4].hex().upper() for k in range(5)]
+        if not any(int(x, 16) for x in ids + her):
+            # Idolo o Diamante: sus pasivas fijas son las de su arquetipo (O-163)
+            return arquetipo_de(plain, fila)
+        tabla = _arquetipo_de_pasiva()
+        for k in range(2, 5):
+            x = her[k] if her[k] != "00000000" else ids[k]
+            if x in tabla:
+                votos[tabla[x]] += 1
+    if not votos:
+        return None
+    top = votos.most_common(2)
+    if len(top) > 1 and top[0][1] == top[1][1]:
+        return None
+    return top[0][0]
+
+
 def configuracion_de_equipo(plain, e):
-    """{nombre, arquetipo, cuenta, en_campo, de, reparto} de ese equipo (O-204)."""
-    reparto, campo = {}, {}
-    total = 0
+    """{nombre, arquetipo, cuenta, de, rango, reparto} de ese equipo (O-204)."""
+    from ievr import escribir as E
+    reparto, campo, validos = {}, {}, 0
     for m in e["miembros"]:
-        if not m["jugador"] or m["puesto"] >= PUESTO_STAFF:
+        if not m["jugador"]:
             continue
-        total += 1
-        a = arquetipo_de(plain, m["jugador"] >> 16)
+        fila = m["jugador"] >> 16
+        rol = E.rol_de_personal(plain, fila)
+        en_campo = m["puesto"] < EN_EL_CAMPO
+        es_staff = m["puesto"] >= PUESTO_STAFF
+        # solo cuentan los que el juego acepta ahi: en el campo sin medalla, y
+        # en el cuerpo tecnico con ella (Good Losers: once con medalla -> Libertad)
+        if not ((en_campo and rol not in ("gerente", "entrenador")) or (es_staff and rol in ("gerente", "entrenador"))):
+            continue
+        validos += 1
+        a = arquetipo_por_pasivas(plain, fila)
         if a is None:
             continue
         reparto[a] = reparto.get(a, 0) + 1
-        if m["puesto"] < EN_EL_CAMPO:
+        if en_campo:
             campo[a] = campo.get(a, 0) + 1
     orden = sorted(reparto, key=lambda a: (-reparto[a], -campo.get(a, 0), PRIORIDAD_CONFIGURACION.get(a, 9)))
     mejor = orden[0] if orden and reparto[orden[0]] >= MINIMO_CONFIGURACION else None
+    if mejor is not None and len(orden) > 1 and reparto[orden[1]] == reparto[mejor] and campo.get(orden[1], 0) == campo.get(mejor, 0):
+        mejor = None          # empate total: el juego no elige
+    cuenta = reparto.get(mejor, 0) if mejor is not None else 0
     return {"nombre": NOMBRE_CONFIGURACION[mejor] if mejor is not None else "Libertad",
-            "arquetipo": mejor, "cuenta": reparto.get(mejor, 0) if mejor is not None else 0,
-            "en_campo": campo.get(mejor, 0) if mejor is not None else 0, "de": total,
+            "arquetipo": mejor, "cuenta": cuenta,
+            "en_campo": campo.get(mejor, 0) if mejor is not None else 0, "de": validos,
             "minimo": MINIMO_CONFIGURACION,
             "reparto": sorted(({"arquetipo": a, "nombre": NOMBRE_CONFIGURACION[a], "cuenta": n,
                                 "en_campo": campo.get(a, 0)} for a, n in reparto.items()),

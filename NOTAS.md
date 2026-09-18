@@ -4816,24 +4816,40 @@ Aaron: "en cada equipo el juego ensena una configuracion (Tension en el Super
 Alpino), fija, que solo cambia cambiando jugadores, e importa para algunas
 pasivas ('Por cada rango de Conf. Tension...'). Averigua como la decide".
 
-No se guarda en la partida: el juego la calcula. `skill/team_build_config`
-trae seis configuraciones (una por arquetipo; "Vinculo" es la del arquetipo
-Afinidad) con cinco rangos de efecto cada una (`TEAM_BUILD_EFFECT_DATA_LIST`,
-0/5/10/15/20...) y las reglas que suben y bajan la "Carga de configuracion"
-durante el partido. La regla de QUE configuracion toca se saco de los equipos
-de Aaron (Super Alpino Tension, test2 Libertad, ECLIPSE-9 Tension, ECLIPSE-12
-Justicia, ZeusAllStars Contraataque): se cuentan los arquetipos de los 16
-jugadores (los once y el banquillo, sin cuerpo tecnico; el de un Diamante va
-en su array), gana el que mas tenga **si llega a 5**, y si no "Libertad".
-test2 (4 de Tension) es Libertad y ECLIPSE-9 (5 de Tension) es Tension. Con
-empate (ECLIPSE-9: Tension 5 y Justicia 5) manda el que tenga mas en el campo
-y luego el orden de `TEAM_BUILD_INFO_LIST` (Tension, Juego sucio, Vinculo,
-Justicia, Contraataque, Brecha), que da lo mismo. Cinco de cinco cuadran; el
-umbral exacto (5) esta medido entre 4 y 5, pendiente de mas equipos.
+No se guarda en la partida (ningun campo del equipo cambia con ella): el
+juego la calcula. `skill/team_build_config` trae seis configuraciones (una
+por arquetipo; "Vinculo" es la del arquetipo Afinidad) con cinco rangos de
+efecto y las reglas que suben y bajan la "Carga de configuracion" durante el
+partido, pero no dice como se elige. Se saco de siete equipos de Aaron con
+la configuracion vista en el juego (Super Alpino Tension, test2 Libertad,
+ECLIPSE-9 Tension, ECLIPSE-12 Justicia, ZeusAllStars Contraataque, Good
+Losers Libertad, calvos Justicia):
 
-`EQ.configuracion_de_equipo` -> sale en la cabecera del equipo (pieza "Conf.
-de equipo", con el reparto al pasar el raton) y en las pasivas sumadas, tanto
-en Equipos como en Jugadores al elegir un "Mi equipo".
+1. **Cuentan las personas validas**: los once del campo que NO llevan medalla
+   de personal y el cuerpo tecnico que SI la lleva. El banquillo no. Good
+   Losers es Libertad porque sus once son gerentes y entrenadores con medalla
+   (los triangulos rojos de la foto).
+2. **Cada persona vale por el arquetipo de SUS PASIVAS**, no por el arquetipo
+   que lleva puesto: en calvos los once son de arquetipos de todo tipo pero
+   todos llevan pasivas de Justicia (Aaron se las puso) y la configuracion es
+   Justicia. Para un jugador, la mayoria de sus ranuras 3-5 (la heredada tapa
+   a la normal); un Idolo o Diamante con la ficha vacia, por sus fijas, que son
+   las de su arquetipo (O-163); el cuerpo tecnico, por sus pasivas de personal
+   (las que son de un solo arquetipo en `pasivas-personal.csv`).
+3. Gana el arquetipo con mas personas **si llega a 5**; si no, Libertad. test2
+   (Tension 4, sin cuerpo tecnico) es Libertad; ECLIPSE-9 llega a 6 con los
+   cuatro del campo y dos del cuerpo tecnico. El umbral esta medido entre 4 y
+   6 (no hay ningun equipo con 5 justo). Empate total: Libertad.
+
+Lo primero que se probo, contar arquetipos de los 16, cuadraba 5 de 7 y
+fallaba en Good Losers y calvos; fue Aaron quien dijo "tiene que ver con las
+pasivas". Se rastrearon las 3.000 tablas de todos los `.cfg.bin` del juego
+buscando "build": solo `basara_chara_config` y `seasonal_chara_param`, que
+no son esto.
+
+`EQ.configuracion_de_equipo` -> pieza "Conf. de equipo" en la cabecera del
+equipo (con el reparto al pasar el raton) y linea en las pasivas sumadas, en
+Equipos y en Jugadores al elegir un "Mi equipo".
 
 ## SUPUESTO
 
