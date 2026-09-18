@@ -4810,6 +4810,31 @@ ordenar por cada stat en los dos sentidos; y que todo se combine bien".
   siguen combinandose (posicion + afinidad + equipo + orden por stat, etc.),
   porque el orden se aplica sobre lo ya filtrado, como antes.
 
+### O-204 · La "Configuracion de equipo" (Tension, Justicia, Contraataque, Libertad...)
+
+Aaron: "en cada equipo el juego ensena una configuracion (Tension en el Super
+Alpino), fija, que solo cambia cambiando jugadores, e importa para algunas
+pasivas ('Por cada rango de Conf. Tension...'). Averigua como la decide".
+
+No se guarda en la partida: el juego la calcula. `skill/team_build_config`
+trae seis configuraciones (una por arquetipo; "Vinculo" es la del arquetipo
+Afinidad) con cinco rangos de efecto cada una (`TEAM_BUILD_EFFECT_DATA_LIST`,
+0/5/10/15/20...) y las reglas que suben y bajan la "Carga de configuracion"
+durante el partido. La regla de QUE configuracion toca se saco de los equipos
+de Aaron (Super Alpino Tension, test2 Libertad, ECLIPSE-9 Tension, ECLIPSE-12
+Justicia, ZeusAllStars Contraataque): se cuentan los arquetipos de los 16
+jugadores (los once y el banquillo, sin cuerpo tecnico; el de un Diamante va
+en su array), gana el que mas tenga **si llega a 5**, y si no "Libertad".
+test2 (4 de Tension) es Libertad y ECLIPSE-9 (5 de Tension) es Tension. Con
+empate (ECLIPSE-9: Tension 5 y Justicia 5) manda el que tenga mas en el campo
+y luego el orden de `TEAM_BUILD_INFO_LIST` (Tension, Juego sucio, Vinculo,
+Justicia, Contraataque, Brecha), que da lo mismo. Cinco de cinco cuadran; el
+umbral exacto (5) esta medido entre 4 y 5, pendiente de mas equipos.
+
+`EQ.configuracion_de_equipo` -> sale en la cabecera del equipo (pieza "Conf.
+de equipo", con el reparto al pasar el raton) y en las pasivas sumadas, tanto
+en Equipos como en Jugadores al elegir un "Mi equipo".
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

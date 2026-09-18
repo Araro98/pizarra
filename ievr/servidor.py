@@ -612,6 +612,7 @@ def detalle_equipo(plain, i):
                           "cumple": all(esta for _, esta in quien)})
     return {"hueco": i, "nombre": O.sin_marcadores(e["nombre"]),
             "sinergias": sinergias,
+            "configuracion": EQ.configuracion_de_equipo(plain, e),
             "nombre_crudo": e["nombre"], "de_la_historia": e["de_la_historia"],
             "formacion": "%08X" % e["formacion"], "escudo": "%08X" % e["escudo"],
             "equipacion": "%08X" % e["equipacion"], "entrenador": entre,
@@ -717,7 +718,8 @@ def pasivas_de_equipo(plain, i):
                        "justo" if abs(abs(g["valor"]) - limite) < 1e-9 else "bien")
         fuera.append(g)
     fuera.sort(key=lambda x: (x["familia"], -x["valor"]))
-    return {"equipo": O.sin_marcadores(e["nombre"]), "pasivas": fuera}
+    return {"equipo": O.sin_marcadores(e["nombre"]), "pasivas": fuera,
+            "configuracion": EQ.configuracion_de_equipo(plain, e)}
 
 
 def _tacticas_que_tienes(plain, nombres_tac):

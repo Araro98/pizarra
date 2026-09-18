@@ -408,6 +408,11 @@
   .pieza .sin-dibujo { font-size:var(--t-3xl); line-height:44px; color:#9db8d4; }
   .pieza .eti { font-size:var(--t-xxs); font-weight:800; text-transform:uppercase;
     letter-spacing:.05em; color:var(--suave); }
+  .pieza.conf-equipo { cursor:help; border-style:dashed; }
+  .pieza.conf-equipo .val { color:#b3520e; font-size:var(--t-sm); }
+  .pieza .sub { font-size:var(--t-xxs); color:#5a6f8c; }
+  .conf-linea { font-size:var(--t-sm); padding:4px 8px 8px; color:#35507a; }
+  .conf-linea b { color:#b3520e; }
   .pieza .val { font-size:var(--t-xs); font-weight:700; color:var(--azul-osc);
     max-width:110px; text-align:center; line-height:1.15; }
 
@@ -2677,6 +2682,8 @@ function pintaEquipo() {
     b.appendChild(el("span", {class:"val", text:nombre || d[cual]}));
     cab.appendChild(b);
   }
+  // "Conf. de equipo", como en el juego: no se elige, sale de los arquetipos (O-204)
+  if (d.configuracion) cab.appendChild(piezaConfiguracion(d.configuracion));
   marco.appendChild(cab);
 
   // tacticas, en fila y compactas
@@ -2813,6 +2820,23 @@ function pintaEquipo() {
    vez, con la suma de lo que aportan todos los que la llevan. Es lo que ensena
    el juego en Equipo > Bonificaciones > Pasivas de equipo (NOTAS O-145). */
 let bonifAbierto = false;
+/* La "Configuracion de equipo" del juego (NOTAS O-204): el arquetipo que mas
+   se repite entre los 16 (once + banquillo) si llega a 5; si no, Libertad. */
+function textoConfiguracion(c) {
+  const reparto = (c.reparto || []).map(r => r.nombre + " " + r.cuenta).join(", ");
+  return c.arquetipo != null
+    ? c.cuenta + " de " + c.de + " son de " + c.nombre + " (" + c.en_campo + " en el campo). Reparto: " + reparto
+    : "Ningun arquetipo llega a " + c.minimo + " de " + c.de + ". Reparto: " + (reparto || "nadie");
+}
+function piezaConfiguracion(c) {
+  const b = el("div", {class:"pieza conf-equipo", title:"Conf. de equipo, como la ensena el juego. No se elige: "
+    + "la dan los arquetipos de los jugadores. " + textoConfiguracion(c)});
+  b.appendChild(el("span", {class:"eti", text:"Conf. de equipo"}));
+  b.appendChild(el("span", {class:"val", text:c.nombre}));
+  b.appendChild(el("span", {class:"sub", text:c.arquetipo != null ? c.cuenta + " de " + c.de : "sin " + c.minimo + " iguales"}));
+  return b;
+}
+
 function panelBonificaciones(hueco) {
   const det = el("details", {class:"plegado bonif"});
   det.open = bonifAbierto;
@@ -2821,15 +2845,18 @@ function panelBonificaciones(hueco) {
   const cuerpo = el("div", {class:"bonif-lista"}, [el("p", {class:"vacio", text:"Cargando..."})]);
   det.appendChild(cuerpo);
   const carga = async () => {
-    try { pintaBonificaciones(cuerpo, (await pedir("/api/equipo/" + hueco + "/pasivas")).pasivas); }
+    try { const r = await pedir("/api/equipo/" + hueco + "/pasivas"); pintaBonificaciones(cuerpo, r.pasivas, r.configuracion); }
     catch (e) { cuerpo.textContent = ""; cuerpo.appendChild(el("p", {class:"vacio", text:e.message})); }
   };
   det.ontoggle = () => { bonifAbierto = det.open; if (det.open) carga(); };
   if (det.open) carga();
   return det;
 }
-function pintaBonificaciones(caja, lista) {
+function pintaBonificaciones(caja, lista, conf) {
   caja.textContent = "";
+  if (conf) caja.appendChild(el("div", {class:"conf-linea", title:textoConfiguracion(conf)}, [
+    el("b", {text:"Conf. de equipo: " + conf.nombre}),
+    el("span", {text:" · " + textoConfiguracion(conf)})]));
   if (!lista.length) {
     caja.appendChild(el("p", {class:"vacio", text:"Nadie del equipo lleva pasivas."}));
     return;

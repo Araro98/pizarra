@@ -916,6 +916,57 @@ def poner_sinergia(plain, i, ranura, item_id):
                         "despues": sn["nombre"]}
 
 
+# --- La "Configuracion de equipo" del juego (NOTAS O-204) --------------------
+#
+# Lo que sale en el juego debajo de la formacion ("Conf. de equipo: Tension").
+# No se guarda en la partida: el juego lo calcula con los arquetipos de los
+# jugadores. Con los equipos de Aaron cuadra asi: se cuentan los arquetipos
+# de los 16 (los once y el banquillo, sin cuerpo tecnico), gana el que mas
+# tenga si llega a 5, y si no llega ninguno es "Libertad". Con empate manda el
+# que tenga mas en el campo y luego el orden de `team_build_config`
+# (Tension, Juego sucio, Vinculo, Justicia, Contraataque, Brecha).
+NOMBRE_CONFIGURACION = {0: "Brecha", 1: "Contraataque", 2: "Vinculo", 3: "Tension",
+                        4: "Juego sucio", 5: "Justicia"}
+PRIORIDAD_CONFIGURACION = {3: 0, 4: 1, 2: 2, 5: 3, 1: 4, 0: 5}
+MINIMO_CONFIGURACION = 5
+
+
+def arquetipo_de(plain, fila):
+    """El arquetipo (0-5) de ese jugador; el de un Diamante va en su array."""
+    from ievr import escribir as E
+    a = J.array(plain, (J.F_ARQUETIPO, 6000, "B", 1))[fila]
+    if a not in J.ARQUETIPOS or J.array(plain, J.ARRAY_RAREZA)[fila] == 8:
+        d = E._arquetipo_diamante(plain, fila)
+        if d is not None:
+            return d
+    return a if a in J.ARQUETIPOS else None
+
+
+def configuracion_de_equipo(plain, e):
+    """{nombre, arquetipo, cuenta, en_campo, de, reparto} de ese equipo (O-204)."""
+    reparto, campo = {}, {}
+    total = 0
+    for m in e["miembros"]:
+        if not m["jugador"] or m["puesto"] >= PUESTO_STAFF:
+            continue
+        total += 1
+        a = arquetipo_de(plain, m["jugador"] >> 16)
+        if a is None:
+            continue
+        reparto[a] = reparto.get(a, 0) + 1
+        if m["puesto"] < EN_EL_CAMPO:
+            campo[a] = campo.get(a, 0) + 1
+    orden = sorted(reparto, key=lambda a: (-reparto[a], -campo.get(a, 0), PRIORIDAD_CONFIGURACION.get(a, 9)))
+    mejor = orden[0] if orden and reparto[orden[0]] >= MINIMO_CONFIGURACION else None
+    return {"nombre": NOMBRE_CONFIGURACION[mejor] if mejor is not None else "Libertad",
+            "arquetipo": mejor, "cuenta": reparto.get(mejor, 0) if mejor is not None else 0,
+            "en_campo": campo.get(mejor, 0) if mejor is not None else 0, "de": total,
+            "minimo": MINIMO_CONFIGURACION,
+            "reparto": sorted(({"arquetipo": a, "nombre": NOMBRE_CONFIGURACION[a], "cuenta": n,
+                                "en_campo": campo.get(a, 0)} for a, n in reparto.items()),
+                              key=lambda x: -x["cuenta"])}
+
+
 def hueco_de_pieza(plain, tipo, valor):
     """El hueco de la mochila del objeto que da esa equipacion o tactica
     (NOTAS O-190), o 0 si no se tiene. `valor` es lo que guarda el equipo."""
