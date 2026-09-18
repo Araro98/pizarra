@@ -1611,6 +1611,20 @@ def abrir_arbol(plain, fila):
     return bytes(buf)
 
 
+def _marcas_por_mapa(mapa, rareza, rama):
+    """La marca de cada ranura de pasiva segun un mapa del arbol (40 bytes)."""
+    fuera = []
+    for k in range(5):
+        if 5 <= rareza <= 7:
+            celda = CELDA_PASIVA_IDOLO[k]
+        elif rareza == 8:
+            celda = CELDA_PASIVA_DIAMANTE[k]
+        else:
+            celda = CELDA_PASIVA_NORMAL[k] + (10 if (k >= 2 and rama == 1) else 0)
+        fuera.append(1 if mapa[celda] else 0)
+    return fuera
+
+
 def _marcas_por_arbol(plain, fila):
     """La marca de desbloqueada de cada ranura de pasiva: 1 si su casilla del
     arbol esta abierta (O-177, O-178). None si no se sabe."""
@@ -1623,16 +1637,32 @@ def _marcas_por_arbol(plain, fila):
     if n != 60:
         return None
     rama = struct.unpack_from("<I", plain, offr)[0]
-    fuera = []
-    for k in range(5):
-        if 5 <= rareza <= 7:
-            celda = CELDA_PASIVA_IDOLO[k]
-        elif rareza == 8:
-            celda = CELDA_PASIVA_DIAMANTE[k]
-        else:
-            celda = CELDA_PASIVA_NORMAL[k] + (10 if (k >= 2 and rama == 1) else 0)
-        fuera.append(1 if plain[off + celda] else 0)
-    return fuera
+    return _marcas_por_mapa(plain[off:off + 40], rareza, rama)
+
+
+def marcas_previstas(plain, fila):
+    """La marca de desbloqueada de cada ranura de la tabla con numero (O-166)
+    tal y como quedara AL GUARDAR, cuando se abre el arbol hasta el nivel que
+    tenga puesto (arreglar_arboles): asi la configuracion de equipo (O-204) ya
+    dice lo que dira el juego con el nivel recien cambiado en el editor, sin
+    esperar a guardar. Si no se puede saber, las marcas que hay en la tabla."""
+    tabla = J.tabla_pasivas(plain, fila) or []
+    de_tabla = [x["marca"] for x in tabla]
+    esperado = _arbol_esperado(plain, fila)
+    if esperado is None:
+        return de_tabla
+    mapa = esperado[1]
+    if rol_de_personal(plain, fila) in ("gerente", "entrenador"):
+        if all(mapa[c] for c in CASILLAS_DE_PERSONAL):
+            return [1 if x["id"] != "00000000" else x["marca"] for x in tabla]
+        return de_tabla
+    rareza = J.array(plain, J.ARRAY_RAREZA)[fila]
+    try:
+        offr, _ = _campo(plain, fila, J.F_RAMA)
+    except Ilegal:
+        return de_tabla
+    rama = struct.unpack_from("<I", plain, offr)[0]
+    return _marcas_por_mapa(mapa, rareza, rama)
 
 
 def arboles_rotos(plain):

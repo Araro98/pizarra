@@ -928,17 +928,17 @@ def poner_sinergia(plain, i, ranura, item_id):
 # configuracion Justicia). El juego lo dice asi en su ayuda: "La configuracion
 # del equipo se define segun el NUMERO DE PASIVAS que poseas de cada tipo;
 # Libertad aparece al no cumplir los requisitos de ninguna otra". Se cuentan
-# las pasivas de arquetipo (ranuras 4 y 5 de cada jugador que cuenta, las cinco
-# de personal de cada gerente o entrenador, las fijas de un Idolo o Diamante)
-# y gana el tipo con mas si llega al minimo. El minimo no esta en ninguna
-# tabla del juego: con los equipos de Aaron esta entre 9 y 18 pasivas (test2
-# con 8 de Tension es Libertad, ECLIPSE-9 con 18 es Tension); 10 (cinco
-# personas con su pareja) hasta que se afine en el juego. Good Losers es
-# Libertad porque sus once llevan medalla.
+# las pasivas de arquetipo DESBLOQUEADAS (ranuras 4 y 5 de cada jugador que
+# cuenta, las cinco de personal de cada gerente o entrenador, las fijas de un
+# Idolo o Diamante) y gana el tipo con mas si llega al minimo. El minimo no
+# esta en ninguna tabla del juego: con los equipos de Aaron esta entre 2 y 8
+# pasivas (test2 al nivel 22, todo con candado, es Libertad; al 99, con 8 de
+# Tension, es Tension; Good Losers con 1 de Vinculo es Libertad); 6 (tres
+# jugadores con su pareja) hasta que se afine en el juego.
 NOMBRE_CONFIGURACION = {0: "Brecha", 1: "Contraataque", 2: "Vinculo", 3: "Tension",
                         4: "Juego sucio", 5: "Justicia"}
 PRIORIDAD_CONFIGURACION = {3: 0, 4: 1, 2: 2, 5: 3, 1: 4, 0: 5}
-MINIMO_CONFIGURACION = 10         # pasivas del mismo tipo (medido entre 9 y 18)
+MINIMO_CONFIGURACION = 6          # pasivas del mismo tipo (medido entre 2 y 8)
 
 
 def arquetipo_de(plain, fila):
@@ -990,46 +990,39 @@ def _arquetipo_de_pasiva_personal():
 
 
 def pasivas_de_arquetipo_de(plain, fila):
-    """{arquetipo: cuantas pasivas de ese tipo lleva esa persona} (O-204):
-    las ranuras 3-5 de un jugador (la heredada tapa a la normal), las cinco de
-    personal de un gerente o entrenador, y en un Idolo o Diamante con la ficha
-    vacia sus fijas, que son las de su arquetipo (O-163)."""
-    from ievr import escribir as E, opciones as _O
+    """{arquetipo: cuantas pasivas de ese tipo lleva DESBLOQUEADAS esa persona}
+    (O-204). Se lee la tabla de pasivas con numero, que es lo que ensena el
+    juego (O-166): en un jugador las ranuras 4 y 5 (la heredada ya tapa a la
+    normal ahi), en un gerente o entrenador sus cinco de personal; y solo las
+    que tienen la marca de desbloqueada, porque "las pasivas que poseas" no
+    incluyen las que siguen con candado (test2 al nivel 22 las tiene todas
+    cerradas y es Libertad; al 99 es Tension, lo vio Aaron). La marca se toma
+    como quedara al guardar con el nivel puesto (E.marcas_previstas), para que
+    subir de nivel en el editor ya se note. Un Idolo o Diamante sin tabla: su
+    pareja de arquetipo (O-163)."""
+    from ievr import escribir as E
     import collections
     votos = collections.Counter()
     rol = E.rol_de_personal(plain, fila)
+    tabla = J.tabla_pasivas(plain, fila) or []
+    marcas = E.marcas_previstas(plain, fila)
     if rol in ("gerente", "entrenador"):
-        tabla = _arquetipo_de_pasiva_personal()
-        for x in J.tabla_pasivas(plain, fila) or []:
-            a = tabla.get((rol, x["id"]))
-            if a is not None:
+        tipos = _arquetipo_de_pasiva_personal()
+        for x, m in zip(tabla, marcas):
+            a = tipos.get((rol, x["id"]))
+            if a is not None and m:
                 votos[a] += 1
         return votos
-    try:
-        off, _ = E._campo(plain, fila, J.F_PASIVAS)
-        offh, _ = E._campo(plain, fila, J.F_HEREDADAS)
-    except E.Ilegal:
+    tipos = _arquetipo_de_pasiva()
+    if len(tabla) == 5 and any(x["id"] != "00000000" for x in tabla):
+        for x, m in list(zip(tabla, marcas))[3:5]:
+            a = tipos.get(x["id"])
+            if a is not None and m:
+                votos[a] += 1
         return votos
-    ids = [plain[off + 4 * k:off + 4 * k + 4].hex().upper() for k in range(5)]
-    her = [plain[offh + 4 * k:offh + 4 * k + 4].hex().upper() for k in range(5)]
-    tabla = _arquetipo_de_pasiva()
-    if not any(int(x, 16) for x in ids + her):
-        a = arquetipo_de(plain, fila)
-        ident = "%08X" % J.array(plain, J.ARRAY_IDENTIDAD)[fila]
-        try:
-            fijas = [x for x in (_O.pasivas_fijas(ident, 1, a) or []) if x and x != "00000000"]
-        except Exception:
-            fijas = []
-        n = sum(1 for x in fijas if tabla.get(x) == a)
-        if a is not None:
-            votos[a] += n or 2          # su pareja de arquetipo, como un normal
-        return votos
-    # solo las ranuras 4 y 5 son pasivas de arquetipo: la 3 la elige el
-    # arquetipo pero es del monton, como la 1 y la 2 (Aaron, O-204)
-    for k in (3, 4):
-        x = her[k] if her[k] != "00000000" else ids[k]
-        if x in tabla:
-            votos[tabla[x]] += 1
+    a = arquetipo_de(plain, fila)
+    if a is not None:
+        votos[a] += 2
     return votos
 
 

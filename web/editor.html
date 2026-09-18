@@ -2824,11 +2824,12 @@ let bonifAbierto = false;
    se repite entre los 16 (once + banquillo) si llega a 5; si no, Libertad. */
 function textoConfiguracion(c) {
   const reparto = (c.reparto || []).map(r => r.nombre + " " + r.cuenta + " (" + r.personas + " pers.)").join(", ");
-  // el juego cuenta PASIVAS de cada tipo (ranuras 3-5 de los once sin medalla y
-  // las de personal del cuerpo tecnico con ella), no arquetipos puestos (O-204)
+  // el juego cuenta PASIVAS DESBLOQUEADAS de cada tipo (ranuras 4 y 5 de los once
+  // sin medalla y las de personal del cuerpo tecnico con ella), no arquetipos
+  // puestos; con candado no cuentan (O-204)
   return c.arquetipo != null
-    ? c.cuenta + " pasivas de " + c.nombre + " entre " + c.personas + " personas (" + c.en_campo + " pasivas en el campo). Reparto: " + reparto
-    : "Ningun tipo llega a " + c.minimo + " pasivas (cuentan " + c.de + " personas). Reparto: " + (reparto || "nadie");
+    ? c.cuenta + " pasivas desbloqueadas de " + c.nombre + " entre " + c.personas + " personas (" + c.en_campo + " en el campo). Reparto: " + reparto
+    : "Ningun tipo llega a " + c.minimo + " pasivas desbloqueadas (cuentan " + c.de + " personas; las que siguen con candado no cuentan). Reparto: " + (reparto || "nadie");
 }
 function piezaConfiguracion(c) {
   const b = el("div", {class:"pieza conf-equipo", title:"Conf. de equipo, como la ensena el juego. No se elige: "

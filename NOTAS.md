@@ -4854,12 +4854,19 @@ Good Losers Libertad, calvos Justicia):
    lleva puesto el jugador no cuenta:
    en calvos los once son de arquetipos de todo tipo pero todos llevan
    pasivas de Justicia y la configuracion es Justicia.
-3. Gana el tipo con mas pasivas si llega al minimo; si no, Libertad. test2
-   tiene 8 de Tension y es Libertad; ECLIPSE-9 tiene 18 (cuatro jugadores y
-   dos del cuerpo tecnico con las cinco) y es Tension: el minimo esta entre
-   9 y 18. Se usa **10** (cinco personas con su pareja) hasta afinarlo en el
-   juego: Aaron va cambiando jugadores de test2 por otros de Tension (cada
-   uno suma dos) hasta que cambie.
+3. Solo cuentan las pasivas **desbloqueadas** (marca 1 en la tabla con numero,
+   O-166): test2 al nivel 22 tiene las ranuras 4 y 5 con candado en los once
+   y es Libertad; Aaron los subio al 99 con el editor y, con 8 de Tension
+   (4 de Vinculo, 4 de Juego sucio, 4 de Brecha, 2 de Contraataque), salio
+   **Tension**. Lo dijo Aaron ("salen Libertad porque estan bajos de nivel y
+   aun no desbloquean las dos ultimas").
+4. Gana el tipo con mas pasivas si llega al minimo; si no, Libertad. Good
+   Losers tiene 1 de Vinculo (un gerente con una sola de arquetipo) y es
+   Libertad; test2 al 99 con 8 es Tension: el minimo esta entre 2 y 8. Se usa
+   **6** (tres jugadores con su pareja) hasta afinarlo: la prueba que queda es
+   test2 con solo dos o tres jugadores de Tension al 99 y el resto al nivel 1
+   (candado, cuentan 0). Los empates (ECLIPSE-12 al principio, 4 y 4) siguen
+   sin resolverse: se dan por Libertad.
 
 Lo primero que se probo (contar arquetipos puestos de los 16) cuadraba 5 de
 7; fue Aaron quien apunto a las pasivas. `EQ.configuracion_de_equipo` ->
