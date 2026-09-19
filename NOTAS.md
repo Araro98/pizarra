@@ -4876,6 +4876,49 @@ pieza "Conf. de equipo" en la cabecera del equipo (con el reparto de pasivas
 y personas al pasar el raton) y linea en las pasivas sumadas, en Equipos y en
 Jugadores al elegir un "Mi equipo".
 
+### O-205 · Quien se puede fichar de verdad (el Byron del modo Aphrody no)
+
+Aaron: "en Fichar hay varios Byron Love y uno (delantero, 1330 de poder) es el
+resultado del modo Aphrody de Thaddeus: no se puede fichar en el juego. Hay
+mas con modos parecidos (Beta modo Reina, Buddy Fury, Seth, Cascada Perfecta,
+Epsilon); investiga en los archivos del juego antes de quitar nada".
+
+**Las formas de partido**: `character/chara_change` trae CHARA_MODE_CHANGE_LIST
+(12 parejas "de -> a": Shawn Froste, Scott Banyan, Buddy Fury x4, Bilal Kalil,
+Aitor Cazador, Beta, Hekyll Jyde, Thaddeus Bellefax -> Byron Love `C68B09DE`,
+Seth Bael) y CHARA_CHANGE_AWAKENING_POWER_LIST (31 despertares: los once de
+Epsilon y los dieciseis de Cascada Perfecta, que ni estan en `jugadores.csv`,
+mas Seth Bael `3E55F38F -> A75CA235` y los tres Dvalin de Epsilon Plus). Esas
+segundas formas no se fichan nunca.
+
+**Las vias por las que el juego da personajes** (todo tablas del juego, ver
+`herramientas/construir_fichables.py`): el Universo de jugadores
+(`players_universe_config` m_starSignCharaInfoList, 5.010 identidades: la
+lista grande), los Diamantes Basara (`basara_chara_config`, 70), la tienda de
+espiritus Basara (134), los de rareza unica (141), los regalos por correo
+(`delivery_config`, 9), las plantillas de los equipos rivales de la Cronica
+(`team_config`, equipos `tm_cro_*`; de ahi salen el Zanark con Cao Cao
+`1EC03F8D` y la Beta modo Reina `8842AB42`, que Aaron da por fichables y no
+estan en el Universo; la otra Beta, `B0069AEE`, es la del cambio de modo) y el
+archivo de datos (`data_file_config`, 550: los clubes del instituto y demas
+gente de la historia, que Aaron tiene en su partida). Un Diamante de Axel
+Blaze (`A41870E9`) no sale en ninguna tabla pero esta en la partida de Aaron
+desde el principio: se conserva como "extra".
+
+Comprobado contra la partida original de Aaron (2.645 personajes: todos salen
+por alguna via) y contra sus certezas (Zanark Cao Cao y una Beta Reina si;
+Byron Aphrody, dos Seth, Buddy Furia, Shawn con Axel, Jude con Caleb no). Lo
+unico que pide excepcion es la regla de las formas de partido: la Seth
+despertada esta en un equipo rival de Orion y aun asi no se ficha.
+
+Resultado: `fichables.csv` (5.618) y `no-fichables.csv` (103 entradas de
+`jugadores.csv`: 16 formas de partido y 87 sin via, casi todos figurantes:
+Umibozu, UM-BZ9, Cien Peldanos, caras `npc`, los mixi max de Chrono Storm
+`06E25622` Mark Evans / `2DCF05E1` Jude Sharp / `3CFE7E61` Shawn Froste, el
+avatar Destin Billows...). `personajes_creables` solo ofrece los fichables; la
+base de datos sigue ensenando a todos. Los que ya esten en la partida no se
+tocan.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

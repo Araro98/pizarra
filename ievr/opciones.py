@@ -608,9 +608,15 @@ def personajes_creables(plain):
     ident = J.array(plain, J.ARRAY_IDENTIDAD)
     tengo = {ident[i] for i in range(min(6000, len(ident))) if ident[i]}
     per = reglas.personajes()
+    # solo los que el juego da por alguna via (NOTAS O-205): fuera las formas
+    # a las que se llega en un partido (el Byron del modo Aphrody, el Buddy
+    # del modo Furia...) y los figurantes de la historia (Umibozu, UM-BZ9)
+    fichables = {f["identidad"].upper() for f in reglas._tabla("fichables.csv")}
     fuera = []
     for f in reglas._tabla("jugadores.csv"):
         clave = f["identidad"].upper()
+        if fichables and clave not in fichables:
+            continue
         familia = (per.get(clave) or {}).get("rareza")
         if familia not in E.FAMILIAS_DE_RAREZA:
             continue

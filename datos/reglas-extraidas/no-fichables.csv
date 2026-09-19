@@ -1,0 +1,105 @@
+# Entradas de jugadores.csv que el juego no da por ninguna via (NOTAS O-205). Lo genera herramientas/construir_fichables.py.
+identidad,nombre,rareza,posicion,equipo,cara,motivo
+54920923,Aitor Cazador,normal,DEF,Primer equipo del Raimon,c11904010,cambio de modo de Aitor Cazador
+B0069AEE,Beta,normal,DEL,Protocolo Omega 2.0,c11905050,cambio de modo de Beta
+AD29F49E,Bilal Kalil,normal,DEF,Leones del Desierto,c11903050,cambio de modo de Bilal Kalil
+77E6A393,Buddy Fury,normal,MED,Earth Eleven,c06038010,cambio de modo de Buddy Fury
+C95E9877,Buddy Fury,hero,MED,Earth Eleven,c06038010,cambio de modo de Buddy Fury
+E0962C85,Buddy Fury,hero,MED,Earth Eleven,c06038010,cambio de modo de Buddy Fury
+FB72472E,Buddy Fury,fabled,MED,Earth Eleven,c06038010,cambio de modo de Buddy Fury
+C68B09DE,Byron Love,normal,DEL,Zeus,c01001900,cambio de modo de Thaddeus Bellefax
+CCC5B975,Dvalin,hero,POR,Épsilon Plus,c11902210,despertar de Dvalin
+E50D0D87,Dvalin,hero,POR,Épsilon Plus,c11902210,despertar de Dvalin
+FEE9662C,Dvalin,fabled,POR,Épsilon Plus,c11902210,despertar de Dvalin
+CC7CEFB0,Hekyll Jyde,normal,DEF,Occult,c11801050,cambio de modo de Hekyll Jyde
+41898A24,Scott Banyan,normal,DEF,Claustro Sagrado,c11902330,cambio de modo de Scott Banyan
+D05B92A3,Seth Bael,normal,MED,Demonios Brillantes,c08030030,cambio de modo de Seth Bael
+A75CA235,Seth Bael,normal,MED,Demonios Brillantes,c08030031,despertar de Seth Bael
+EBBD5BFF,Shawn Froste,normal,DEL,Alpino,c02023370,cambio de modo de Shawn Froste
+F6CBEDD0,,normal,MED,,npc2323,sin ninguna via
+696F1C32,,normal,DEL,,an000150,sin ninguna via
+3ED67BC3,,normal,DEF,,npc2520,sin ninguna via
+866A1CA6,,normal,DEF,,npc2521,sin ninguna via
+FF6413AF,,normal,MED,,npc3200,sin ninguna via
+88632339,,normal,MED,,npc3200,sin ninguna via
+116A7283,,normal,MED,,npc3200,sin ninguna via
+29B9001C,,normal,MED,,npc0243,sin ninguna via
+551D4B24,,normal,DEL,,npc0603,sin ninguna via
+47A8E4CA,,normal,DEL,,npc0603,sin ninguna via
+10895DAB,,normal,MED,,npc2102,sin ninguna via
+05262A85,,normal,DEF,,npc2312,sin ninguna via
+AC654EC9,,normal,POR,,npc0252,sin ninguna via
+391E6729,,normal,MED,,npc2542,sin ninguna via
+1B9F46E8,,normal,MED,,npc2542,sin ninguna via
+4604E078,,normal,DEL,,npc1101,sin ninguna via
+56D3174D,,normal,DEL,,npc1101,sin ninguna via
+B9E662B0,,normal,MED,,npc0384,sin ninguna via
+0377CEAB,,normal,MED,,npc0405,sin ninguna via
+733B0A77,,normal,POR,,npc0259,sin ninguna via
+2C23705E,,normal,DEL,,npc2316,sin ninguna via
+21CAE110,,normal,DEL,,npc0260,sin ninguna via
+E836B902,,normal,MED,,npc0307,sin ninguna via
+5085C785,,normal,MED,,npc0382,sin ninguna via
+BCCD18F0,,normal,MED,,npc0080,sin ninguna via
+3FC200D0,,normal,MED,,npc2902,sin ninguna via
+48C53046,,normal,MED,,npc2903,sin ninguna via
+22DEC83F,,normal,MED,,npc2547,sin ninguna via
+33A09645,,normal,MED,,npc5005,sin ninguna via
+36BC9571,,normal,DEF,,npc2106,sin ninguna via
+B261D5AE,,normal,MED,,npc2548,sin ninguna via
+A1A69573,,normal,MED,,npc2905,sin ninguna via
+C22D1172,,normal,MED,,npc2314,sin ninguna via
+D6A1A5E5,,normal,MED,,npc2904,sin ninguna via
+E49BF37A,,normal,DEL,,stairs000001,sin ninguna via
+B826B2E2,,normal,DEL,,stairs000001,sin ninguna via
+BDA25E76,,normal,DEL,,stairs000001,sin ninguna via
+F56FFCCE,,normal,DEL,,stairs000001,sin ninguna via
+A445897D,,normal,DEL,,stairs000001,sin ninguna via
+961C3AB7,,normal,DEL,,stairs000001,sin ninguna via
+0A287FB9,,normal,DEL,,stairs000001,sin ninguna via
+3855B5EA,,normal,DEL,,i000122,sin ninguna via
+7F820E51,,normal,DEL,,npc2322,sin ninguna via
+F4AB83DC,,normal,DEL,,,sin ninguna via
+45FA2779,,normal,DEL,,,sin ninguna via
+AF0720CB,[海坊主/うみぼうず]（ジグザグドリブル[用/よう]）,normal,DEL,No afiliados,c11501000,sin ninguna via
+45E9D15E,Caelum Wade,normal,DEF,Personajes secundarios,c11500860,sin ninguna via
+BCC3EB16,Destin Billows,normal,MED,<MNT:NAGUMOHARA>,c11010010,sin ninguna via
+2DCF05E1,Jude Sharp,normal,MED,Inazuma Japón,c11901160,sin ninguna via
+06E25622,Mark Evans,normal,POR,,c11901150,sin ninguna via
+CC5885FA,Nikas Himmelstein,normal,DEL,Northbright,c11030011,sin ninguna via
+2D1E497B,Quetzalcoatlus,normal,DEF,Personajes secundarios,c11806100,sin ninguna via
+F3827DD1,Raika Shinohara,normal,DEL,<MNT:NAGUMOHARA>,c11010060,sin ninguna via
+97B4EDED,Rey Umibozu Gigante,normal,DEF,,c11500560,sin ninguna via
+3CFE7E61,Shawn Froste,normal,DEL,,c11902360,sin ninguna via
+8CAFB760,UM-BZ9,normal,DEL,Personajes secundarios,c11500880,sin ninguna via
+15A6E6DA,UM-BZ9,normal,DEL,Personajes secundarios,c11500880,sin ninguna via
+62A1D64C,UM-BZ9,normal,DEL,Personajes secundarios,c11500880,sin ninguna via
+FCC543EF,UM-BZ9,normal,DEL,Personajes secundarios,c11500880,sin ninguna via
+8BC27379,UM-BZ9,normal,DEL,Personajes secundarios,c11500880,sin ninguna via
+12CB22C3,UM-BZ9,normal,DEL,Personajes secundarios,c11500880,sin ninguna via
+65CC1255,UM-BZ9,normal,DEL,Personajes secundarios,c11500880,sin ninguna via
+F5730FC4,UM-BZ9,normal,DEL,Personajes secundarios,c11500880,sin ninguna via
+82743F52,UM-BZ9,normal,DEL,Personajes secundarios,c11500880,sin ninguna via
+725E8515,UM-BZ9,normal,POR,Personajes secundarios,c11500880,sin ninguna via
+EB57D4AF,UM-BZ9,normal,POR,Personajes secundarios,c11500880,sin ninguna via
+9C50E439,UM-BZ9,normal,POR,Personajes secundarios,c11500880,sin ninguna via
+0234719A,UM-BZ9,normal,POR,Personajes secundarios,c11500880,sin ninguna via
+7533410C,UM-BZ9,normal,POR,Personajes secundarios,c11500880,sin ninguna via
+EC3A10B6,UM-BZ9,normal,POR,Personajes secundarios,c11500880,sin ninguna via
+9B3D2020,UM-BZ9,normal,POR,Personajes secundarios,c11500880,sin ninguna via
+0B823DB1,UM-BZ9,normal,POR,Personajes secundarios,c11500880,sin ninguna via
+7C850D27,UM-BZ9,normal,POR,Personajes secundarios,c11500880,sin ninguna via
+1C4284C2,UM-BZ9,normal,POR,Personajes secundarios,c11500880,sin ninguna via
+6B45B454,UM-BZ9,normal,POR,Personajes secundarios,c11500880,sin ninguna via
+8AB1DD55,Umibozu,normal,DEL,Personajes secundarios,c11500260,sin ninguna via
+FF01726E,Umibozu,normal,DEL,Personajes secundarios,c11500260,sin ninguna via
+362F6511,Umibozu,normal,DEL,Personajes secundarios,c11500260,sin ninguna via
+D230648A,Umibozu,normal,DEL,Personajes secundarios,c11500260,sin ninguna via
+4B393530,Umibozu,normal,DEL,Personajes secundarios,c11500260,sin ninguna via
+3C3E05A6,Umibozu,normal,DEL,Personajes secundarios,c11500260,sin ninguna via
+A25A9005,Umibozu,normal,DEL,Personajes secundarios,c11500260,sin ninguna via
+A34BE7DE,Umibozu,normal,DEL,Personajes secundarios,c11500260,sin ninguna via
+3A42B664,Umibozu,normal,DEL,Personajes secundarios,c11500260,sin ninguna via
+D476C9C8,Umibozu,normal,DEL,Personajes secundarios,c11500260,sin ninguna via
+B3E5FA36,Umibozu,normal,DEL,Personajes secundarios,c11500260,sin ninguna via
+BF6F85F7,Umibozu,normal,DEL,Personajes secundarios,c11500260,sin ninguna via
