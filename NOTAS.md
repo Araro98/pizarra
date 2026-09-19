@@ -4926,12 +4926,33 @@ Umibozu, UM-BZ9, Cien Peldanos, caras `npc`, el Destin de campo...).
 `personajes_creables` solo ofrece los fichables; la base de datos sigue
 ensenando a todos. Los que ya esten en la partida no se tocan.
 
-Pendiente con Aaron: "Guardia sombria" (`DD1DC90C`) es la tecnica del kenshin
-Sombra de plasma DF (`espiritus.csv`) y a la vez esta en el arbol de dos
-Guardianes de la Reina (Dardinello Foscari `1CB0E623` y Camilla Gonzaga
-`4B282B92`, fichables), por lo que `tecnicas-origen.csv` la da por "personaje"
-y obtenible (O-171). Aaron cree que es ilegal; falta que mire en el juego si
-esos dos la aprenden de verdad.
+### O-206 · La tecnica de un kenshin no se aprende aunque venga en el arbol
+
+"Guardia sombria" (`DD1DC90C`) es la tecnica del kenshin Sombra de plasma DF
+(`espiritus.csv`) y a la vez `chara_param` la trae en el arbol de dos
+Guardianes de la Reina: Dardinello Foscari `1CB0E623` (rama 2, nivel 30) y
+Camilla Gonzaga `4B282B92` (rama 1, nivel 38). `tecnicas-origen.csv` la daba
+por "personaje" y obtenible (O-171), y al fichar un Dardinello Diamante el
+editor la ponia en la ranura 7.
+
+Aaron lo comprobo en el juego con dos Dardinello Diamante, uno fichado en el
+juego y otro con el editor: en el arbol esa casilla sale VACIA en los dos; en
+la ficha del del editor aparecia "Guardia sombria" y al subirlo a 30
+desaparecia. En su partida, la ranura 7 del Dardinello del juego esta a 0 y la
+del editor llevaba `DD1DC90C`. Con Camilla, igual (probado en una partida sin
+editor).
+
+En cambio "Rizo de dragon" (`467E091C`), que es la tecnica de una ARMADURA
+(Guiverno blanco) y esta en 19 arboles, si se aprende: los Bai Long Idolo y
+Diamante de la partida original de Aaron la llevan en las ranuras 3-5 (y 7).
+Son las dos unicas tecnicas de arbol que ademas son de un espiritu (aparte de
+unas "especial" sin nombre que el editor nunca ofrecio).
+
+Arreglo: en `construir_tecnicas_origen.py` la tecnica de un espiritu de
+familia kenshin es "kenshin" (no obtenible) antes que "personaje"; y
+`_tecnicas_de_salida` (fichar y `poner_diamante`) deja a 0 la ranura de una
+tecnica no obtenible, como el juego. Los Dardinello del editor ya hechos se
+arreglan solos al subir de nivel (el juego la quita).
 
 ## SUPUESTO
 

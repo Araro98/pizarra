@@ -2377,15 +2377,24 @@ def _tecnicas_de_salida(plain, ficha_base, identidad_hex, cuantas):
     # nombre no esta entre las "supertecnica" (Miximax Trans: Raika es un
     # "aura") y con el nombre no se podia fichar a quien las lleva (NOTAS O-161).
     ficha_juego = reglas.personajes().get(identidad_hex) or {}
+    # las que el juego no da aunque el arbol las traiga (la tecnica de un
+    # kenshin: Guardia sombria en Dardinello, NOTAS O-206): esa ranura se deja
+    # vacia, que es como la entrega el juego
+    no_se_dan = {f["id"].upper() for f in reglas._tabla("tecnicas-origen.csv")
+                 if f.get("obtenible") == "no"}
     for k in range(1, cuantas + 1):
         nom_tec = (ficha_base.get("r%d_tecnica" % k) or "").strip()
         id_tec = (ficha_juego.get("tec%d" % k) or "").strip().upper() or None
         if not nom_tec and not id_tec:
+            refs.append(0)
             continue
         if id_tec is None:
             id_tec = nombres_tec.get(nom_tec.lower())
         if id_tec is None:
             sin_nombre.append(nom_tec)
+            continue
+        if id_tec in no_se_dan:
+            refs.append(0)
             continue
         if id_tec in nuevas:
             # la misma tecnica repetida en el arbol (Frente frio x3 de Aiden):
@@ -2589,7 +2598,7 @@ def anadir_jugador(plain, nombre, rareza=None, arquetipo=None, nivel=1):
     info = {"fila": fila, "nombre": ficha_base.get("nombre"),
             "rareza": J.RAREZAS[rareza], "arquetipo": arquetipo,
             "nivel": nivel, "familia": familia,
-            "tecnicas": len(refs), "copiado_de": modelo,
+            "tecnicas": sum(1 for r in refs if r), "copiado_de": modelo,
             "pasivas_de": de_quien, "serie": serie, "creadas": creadas,
             "aspecto": de_donde_aspecto,
             "slot": a_poner[0x918020D9]}
@@ -3093,7 +3102,7 @@ def poner_diamante(plain, fila):
         struct.pack_into("<I", buf, off, refs[k] if k < len(refs) else 0)
     return bytes(buf), {"fila": fila, "que": "rareza",
                         "antes": J.RAREZAS.get(antes, antes), "despues": "Diamante",
-                        "tecnicas": len(refs), "creadas": creadas}
+                        "tecnicas": sum(1 for r in refs if r), "creadas": creadas}
 
 
 def anadir_jugador_diamante(plain, nombre):

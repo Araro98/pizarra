@@ -91,10 +91,19 @@ def main():
             override.add(como_en_partida(c[0]))
         except (ValueError, IndexError):
             pass
+    # La tecnica de un kenshin (familia "kenshin" en espiritus.csv) manda sobre
+    # el arbol: el juego deja esa ranura VACIA aunque chara_param la traiga
+    # (Guardia sombria en Dardinello Foscari y Camilla Gonzaga, visto en el
+    # juego por Aaron, NOTAS O-206). La de una armadura si se aprende (Rizo de
+    # dragon, Bai Long).
+    de_kenshin = {(f.get("tecnica") or "").upper() for f in reglas._tabla("espiritus.csv")
+                  if f.get("familia") == "kenshin"} & ids
     filas = []
     for i, f in sorted(tec.items(), key=lambda x: (x[1].get("nombre") or "").lower()):
         interno = f.get("nombre_interno") or ""
-        if i in personaje:
+        if i in de_kenshin:
+            origen = "kenshin"
+        elif i in personaje:
             origen = "personaje"
         elif i in tienda:
             origen = "tienda"
