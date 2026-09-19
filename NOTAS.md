@@ -5140,16 +5140,19 @@ de pasivas de Kreaton Coco, Paco Dermott y Terry Pinn (ranuras 3-5, llevan la
 misma heredada TRES veces, de las de Cheat Engine, O-107) y del Seymour
 Hillman Diamante entrenador (sus casillas 33-39 no estan abiertas, O-200).
 
-### O-216 · La ranura 3 es una pasiva normal: vale la de cualquier arquetipo
+### O-216 · La ranura 3: al cambiarla, la del arquetipo; al heredar, cualquiera de 1-3
 
-Aaron: "la ranura 3, aunque al invocar dependa del arquetipo, no es pasiva
-de arquetipo, es normal; las de arquetipo son solo la 4 y la 5; esos
-jugadores (Kreaton, Paco, Terry, con una pasiva de la ranura 3 de otro
-arquetipo) son legales". El selector y `poner_pasiva` limitaban la ranura 3
-al grupo "<arquetipo> (ranura 3)" del que llevara puesto; ahora admiten
-cualquier grupo "(ranura 3)" (los seis arquetipos) y las 4 y 5 siguen siendo
-del arquetipo puesto. El grupo de heredables (O-213) ya trataba la 3 como
-normal.
+Aaron, en dos pasos. Primero "la ranura 3 no es pasiva de arquetipo, es
+normal, aunque al invocar dependa del arquetipo; las de arquetipo son solo la
+4 y la 5", y con eso se abrio la ranura 3 a las de cualquier arquetipo
+(version 2026.09.19.13). Luego lo afino: "al CAMBIAR la pasiva de la ranura 3
+salen unas u otras segun el arquetipo, como te explique; al HEREDAR se puede
+pillar cualquier pasiva de las ranuras 1, 2 o 3". Asi que se deshizo lo de
+la .13: `O.pasivas` y `poner_pasiva` vuelven a dar en la ranura 3 solo el
+grupo "<arquetipo> (ranura 3)" del arquetipo puesto (O-51, O-57), y las
+heredadas siguen como en O-213: a las ranuras 1-3 cualquiera de los grupos
+de 1-3, a las 4-5 solo las de arquetipo. Kreaton, Paco y Terry (pasiva de la
+ranura 3 de otro arquetipo) son legales por la via de heredar.
 
 Al repasar la partida con el criterio viejo salian 1.085 jugadores "raros"
 (ranura 2 fuera de su pool observado, o la misma pasiva en 4 y 5); los pools
