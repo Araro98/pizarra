@@ -1133,11 +1133,15 @@ def espiritu_sin_tecnica(id_hex):
 
 
 def espiritu_permitido(id_hex, identidad_hex):
-    """Si ese jugador puede llevar ese espiritu. Las armaduras y los mixi max
-    son de un personaje concreto (regla de Aaron: la armadura del Pegaso solo
-    la lleva Arion); se compara por nombre para que valgan todas sus versiones.
-    Las armaduras y mixis sin dueno conocido no se dejan a NADIE (Aaron: "mejor
-    que nadie pueda usarlos antes de que todos puedan usarlos")."""
+    """Si ese jugador puede llevar ese espiritu. Las armaduras, los mixi max y
+    los modos son de un personaje concreto (regla de Aaron: la armadura del
+    Pegaso solo la lleva Arion) y se compara por IDENTIDAD exacta (O-209): el
+    Modo Atacante es del Shawn Froste de defensa con bufanda y no de otro
+    Shawn, porque el modelo cambia y el juego no lo deja. Las versiones que
+    valen (normal, Idolos, Diamante del mismo personaje) ya vienen en
+    `espiritus-duenos.csv`. Las armaduras y mixis sin dueno conocido no se
+    dejan a NADIE (Aaron: "mejor que nadie pueda usarlos antes de que todos
+    puedan usarlos")."""
     if espiritu_de_escena(id_hex) or espiritu_sin_tecnica(id_hex):
         return False        # copias de escena y el Protoanimador (O-182)
     d = duenos_de_espiritu(id_hex)
@@ -1145,11 +1149,7 @@ def espiritu_permitido(id_hex, identidad_hex):
         return True
     if not d["identidades"]:
         return (_espiritus().get(id_hex.upper()) or {}).get("familia") not in ("armadura", "mixi", "especial")
-    ident = (identidad_hex or "").upper()
-    if ident in d["identidades"]:
-        return True
-    nombre = (reglas.personajes().get(ident) or {}).get("nombre_es") or ""
-    return bool(nombre) and nombre in d["nombres"]
+    return (identidad_hex or "").upper() in d["identidades"]
 
 
 def pasiva_de_espiritu(id_hex):

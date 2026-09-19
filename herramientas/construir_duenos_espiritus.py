@@ -13,17 +13,27 @@ son de todos (fila con personaje "todos") y el resto de su personaje (O-174).
 
 Fuentes, en los datos del juego:
 
-- `aura_skill_config` / `AURA_CMD_INFO_LIST`, columna 13: para una armadura, la
-  identidad del personaje con el modelo de la armadura puesta (`col13`). Para
-  un mixi esa columna es el companero con el que se hace, no el dueno, y no se usa.
+- `aura_skill_config` / `AURA_CMD_INFO_LIST`, columna 13: la identidad del
+  MODELO transformado (el personaje con la armadura puesta o ya mixi-maxeado;
+  son filas de chara_param sin arbol, no fichables). La fila de chara_base de
+  ese modelo lleva en la columna 9 el chara_base del personaje original, y
+  todas las identidades de ese chara_base (normal, Idolos, Diamante) son sus
+  usuarios (`modelo`, NOTAS O-209). Cuadra con lo que ensena la tienda del
+  juego en "Usuarios" (Aaron: el mixi con Shawn lo usa Axel, el de Raika Cade,
+  el de Cao Cao Zanark...).
 - `change_aura_skill_config` / `m_ChangeAuraSkillDataList`: pares (espiritu,
   identidad) de quien puede cambiar a esa armadura o mixi (`change`; 0 = nadie
   apuntado).
-- `chara_param`: las columnas 11, 15, 19, 21 y 27 llevan la armadura o el mixi
-  propio de algunas versiones del personaje (`cpN`).
+- `chara_param`: las columnas 11, 15, 19, 21 y 27 llevan la armadura, el mixi
+  o el modo propio de algunas versiones del personaje (`cpN`). Los modos
+  (Aphrody, Atacante...) solo salen de aqui: el Modo Atacante es de UNA
+  version de Shawn Froste, la de defensa con bufanda.
+- Dos mixi sin nada de lo anterior heredan los usuarios de otro del mismo
+  personaje (`aaron`, comprobado en su partida): Cao Cao los de Zeta (Zanark)
+  y Tiranosaurio los de Big (Fei Rune).
 
-Un mismo personaje tiene muchas identidades (normal, Idolo, version de la
-historia...), asi que el editor compara por NOMBRE del personaje.
+El editor compara por IDENTIDAD exacta (O-209): otras versiones del mismo
+nombre no valen, porque el modelo cambia y el juego no lo deja.
 """
 import csv
 import glob
@@ -88,9 +98,22 @@ def main():
                 return      # esas son de todos: no se apunta a miles de personajes
             fuentes.setdefault((espiritu, ident), set()).add(fuente)
 
+    # el modelo transformado (col 13) -> su chara_base -> col 9 = el chara_base
+    # del personaje original -> todas sus identidades (O-209)
+    por_base = {}
+    for ident, f in personajes.items():
+        if f.get("chara_base_id"):
+            por_base.setdefault(int(f["chara_base_id"]), set()).add(ident)
+    original = {}
+    for c in volcar(unico("character", "chara_base_"), "CHARA_BASE_INFO_LIST"):
+        if len(c) > 9 and es_entero(c[0]) and es_entero(c[9]) and int(c[9]):
+            original[int(c[0])] = int(c[9])
     for c in volcar(unico("skill", "aura_skill_config"), "AURA_CMD_INFO_LIST"):
-        if len(c) > 13 and c[10] == "1" and es_entero(c[13]) and int(c[13]):
-            apunta(en_partida(c[0]), identidad(c[13]), "col13")
+        if len(c) > 13 and es_entero(c[13]) and int(c[13]):
+            modelo = personajes.get(identidad(c[13]))
+            base = original.get(int(modelo["chara_base_id"])) if modelo and modelo.get("chara_base_id") else None
+            for ident in por_base.get(base, ()):
+                apunta(en_partida(c[0]), ident, "modelo")
     for c in volcar(unico("skill", "change_aura_skill_config"), "m_ChangeAuraSkillDataList"):
         if len(c) == 2 and es_entero(c[1]) and int(c[1]):
             apunta(en_partida(c[0]), identidad(c[1]), "change")
@@ -102,6 +125,22 @@ def main():
             for i in COLUMNAS_CHARA_PARAM:
                 if i < len(c) and es_entero(c[i]):
                     apunta(en_partida(c[i]), identidad(c[0]), "cp%d" % i)
+
+    # los dos mixi sin nada en los datos heredan los usuarios de otro mixi del
+    # mismo personaje (Aaron; su partida lleva Cao Cao en un Zanark Idolo y
+    # Tiranosaurio en un Fei Rune Idolo puestos por el juego)
+    # (la copia de historia del mixi de Raika toma los de la normal, que son
+    # los Cade Shelby)
+    HEREDA = {"Miximax Trans: Cao Cao": "Miximax Trans: Zeta",
+              "Miximax Trans: Tiranosaurio": "Miximax Trans: Big",
+              "Miximax Trans: Raika": "Miximax Trans: Raika"}
+    for hijo, padre in HEREDA.items():
+        ids_hijo = [a for a in de_dueno if nombres.get(a) == hijo]
+        ids_padre = [a for a in de_dueno if nombres.get(a) == padre]
+        for a in ids_hijo:
+            for (b, ident) in list(fuentes):
+                if b in ids_padre and b != a:
+                    apunta(a, ident, "aaron")
 
     filas = []
     for (espiritu, ident), fs in fuentes.items():
@@ -115,8 +154,8 @@ def main():
             filas.append([espiritu, nombres.get(espiritu, ""), "especial", "*", "todos", "aaron"])
     filas.sort(key=lambda f: (f[2], f[1], f[4], f[3]))
     with open(SALIDA, "w", newline="", encoding="utf-8") as fh:
-        fh.write("# De quien es cada armadura y cada mixi max (NOTAS O-172): solo ese personaje\n"
-                 "# (por nombre, en cualquiera de sus versiones) puede llevarlo.\n"
+        fh.write("# De quien es cada armadura, mixi max y modo (NOTAS O-172, O-209): solo esas\n"
+                 "# identidades exactas pueden llevarlo (otras versiones del mismo nombre, no).\n"
                  "# Lo genera herramientas/construir_duenos_espiritus.py.\n")
         w = csv.writer(fh)
         w.writerow(["id", "nombre", "familia", "identidad", "personaje", "fuente"])

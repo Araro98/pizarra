@@ -4997,6 +4997,35 @@ builder), en Fichar y en la base de datos, y admite `saga=` como filtro;
 `montaFiltros` (comun.js) acepta `orden` para listar los juegos en su orden
 y no por abecedario.
 
+### O-209 · Armaduras, mixi max y modos: por identidad exacta, no por nombre
+
+Aaron: "el Modo Atacante solo lo puede tener el Shawn de defensa con bufanda y
+creo que el editor me dejaba darselo a otro Shawn; mira que las armaduras y
+mixi solo las tengan las versiones que de verdad pueden (cambian el modelo)".
+En O-172 se comparaba por NOMBRE porque no se sabia que versiones valian.
+
+Lo que dicen los datos: la columna 13 de AURA_CMD_INFO_LIST no es "el
+companero" (O-172 se equivocaba) sino el MODELO transformado: una fila de
+chara_param sin arbol (no fichable) con el nombre del usuario. El mixi "con
+Shawn" (FUBUKI) apunta a un Axel Blaze, el "con Axel" (GOENJI) a un Shawn, el
+de Raika a Cade Shelby, el de Cao Cao al Zanark `1EC03F8D`: justo la lista de
+usuarios que ensena la tienda del juego y que Aaron dio de memoria. Y la fila
+de chara_base de ese modelo lleva en la columna 9 el chara_base del personaje
+ORIGINAL (144 de 172 espiritus con dueno conocido lo cumplen; los demas tienen
+0 ahi). Todas las identidades de ese chara_base (normal, los Idolos y el
+Diamante) son los usuarios: fuente `modelo` en `espiritus-duenos.csv`, que se
+suma a `change` y a las columnas de chara_param (`cpN`). Los modos solo tienen
+`cpN` y por eso el Modo Atacante queda para `A2957757` y nadie mas.
+
+Dos mixi sin nada (col 9 a 0): Cao Cao y Tiranosaurio; en la partida original
+de Aaron los lleva un Zanark Idolo y un Fei Rune Idolo puestos por el juego,
+asi que heredan los usuarios de Zeta y de Big (fuente `aaron`). La copia de
+historia del mixi de Raika toma los de la normal.
+
+`espiritu_permitido` ya solo mira la identidad exacta. Comprobado: de los 646
+espiritus puestos por el juego en la partida original y los 454 de la actual,
+todos pasan. La tabla pasa de 428 parejas a 722.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
