@@ -1,5 +1,5 @@
 # Personajes que el juego da por alguna via (NOTAS O-205). Lo genera herramientas/construir_fichables.py.
-# fuentes: universo | basara | tienda | unica | correo | cronica | archivo | extra
+# fuentes: universo | basara | tienda | unica | correo | cronica | archivo
 identidad,nombre,fuentes
 000CCA62,Ignacio Gerhardt,cronica|archivo
 002513F9,Cliff Tomlinson,universo|cronica
@@ -145,6 +145,7 @@ identidad,nombre,fuentes
 06A62EF9,Quint Hampton,universo|cronica
 06ADF6AF,Philippa Konik,universo
 06D3089B,Fletch Blitzen,universo
+06E25622,Mark Evans,tienda
 06ED94DD,Noelle Harmon,archivo
 06EED112,Wilson Fishman,universo|cronica
 06F6F352,Circe Roundella,archivo
@@ -376,6 +377,7 @@ identidad,nombre,fuentes
 114135DE,Ches Nutcracker,universo
 114F13CA,Harper Evans,universo|tienda|unica
 11574FC4,Kim Knotted,universo
+115B612B,,tienda
 115C9792,Norbert Poindexter,universo|cronica
 1161C156,Pete Nokeyo,universo
 11878E9D,Sworm,universo|cronica
@@ -1022,6 +1024,7 @@ identidad,nombre,fuentes
 2DB0BE2E,Lucas Star,universo|cronica
 2DBC391E,Mario Nette,universo
 2DC0C71E,Grace Starlet,archivo
+2DCF05E1,Jude Sharp,tienda
 2DEC08C2,Shawn Froste,universo|cronica
 2DF7E000,Garry Planer,universo
 2DFE5B58,Mickey Schmitt,universo
@@ -1357,6 +1360,7 @@ identidad,nombre,fuentes
 3CEF5B1D,Rio Shoring,universo
 3CF2F951,Lou Beigh,universo
 3CFA07F2,Dan Drobium,universo
+3CFE7E61,Shawn Froste,tienda
 3CFEACDB,Maribelle Flanmir,universo|cronica
 3D07D742,Mark Osman,universo
 3D0D4AEF,Gamal Everlast,universo|cronica
@@ -3586,7 +3590,7 @@ A3C474C9,Senna Regan,universo|cronica
 A3C4FB84,Marcus Train,universo|cronica
 A3D9D685,Namak Haumea,universo|cronica
 A405B041,Oralyn Everfable,archivo
-A41870E9,Axel Blaze,extra
+A41870E9,Axel Blaze,tienda
 A4222886,Ian Flappable,universo
 A422A7CB,Cameron Cambridge,universo|cronica
 A429F0D0,Tytan,universo|cronica
@@ -3742,6 +3746,7 @@ AAC32FE1,Daren Blakh,universo|cronica
 AAEF4B3F,Jordan Greenway,universo|cronica
 AAF46BC5,Chip Flashman,universo|cronica
 AAF99CE4,Nelly Evans,universo
+AAFC1156,,tienda
 AB0145D6,Sigfryd Roi,universo|cronica
 AB0A12CD,Seats,universo|cronica
 AB2C3BD1,Wesley Knox,universo|cronica

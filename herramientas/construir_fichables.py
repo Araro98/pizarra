@@ -15,7 +15,7 @@ Las vias, todas en tablas del juego:
 |----------|-----------------------------------------------------------------------|
 | universo | `players_universe_config` m_starSignCharaInfoList (5.010): el Universo de jugadores |
 | basara   | `basara_chara_config` m_basaraBuildInfoList: los Diamantes (Basara)    |
-| tienda   | `shop_config` SHOP_BASARA_SPIRIT_LIST: espiritus Basara de la tienda   |
+| tienda   | `shop_config`, todas sus SHOP_INFO_ITEM_LIST (una por tienda, con las de eventos: el Mark nino sin bandana, el Jude sin gafas, el Shawn de ojos de dos colores y el Axel Diamante) y SHOP_BASARA_SPIRIT_LIST |
 | unica    | `soccer_chara_unique_rarity_config`: los de rareza unica (Idolos)      |
 | correo   | `delivery_config` m_DeliveryContentsDataList: regalos por correo       |
 | cronica  | plantillas de los equipos rivales de la Cronica (`team_config`, equipos `tm_cro_*`): se fichan tras jugar contra ellos (Zanark con Cao Cao, la Beta del modo Reina que si se ficha) |
@@ -37,12 +37,6 @@ VOLCADO = os.path.join(RAIZ, "referencia", "volcado", "target", "release", "volc
 GD = os.path.join(RAIZ, "datos", "juego", "extracted", "data", "common", "gamedata")
 EXTRAIDAS = os.path.join(RAIZ, "datos", "reglas-extraidas")
 
-# Sin tabla que los de, pero en la partida de origen del proyecto desde el
-# principio (un Diamante de Axel Blaze de la primera entrega, seguramente un
-# extra de reserva o de codigo): se conservan.
-EXTRAS = {"A41870E9": "extra"}
-
-
 def unico(carpeta, prefijo):
     for f in sorted(os.listdir(carpeta)):
         if f.startswith(prefijo) and f.endswith(".cfg.bin"):
@@ -56,6 +50,20 @@ def volcar(fichero, tabla):
     if r.returncode != 0:
         raise SystemExit("no pude volcar %s / %s" % (fichero, tabla))
     return [l.split("\t") for l in r.stdout.splitlines()[1:] if l]
+
+
+def volcar_todas(fichero, tabla):
+    """Las filas de TODAS las tablas que se llamen asi (un fichero repite el
+    nombre, una tabla por tienda; `volcar` solo da la primera)."""
+    r = subprocess.run([VOLCADO, fichero, "--todas"], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
+    fuera, dentro = [], False
+    for l in r.stdout.splitlines():
+        if l.startswith("#TABLA"):
+            dentro = l.split("\t")[2] == tabla
+        elif dentro and l:
+            fuera.append(l.split("\t"))
+    return fuera
 
 
 def hexa(x):
@@ -127,14 +135,13 @@ def main():
     ch = os.path.join(GD, "character")
     anade("universo", identidades(volcar(unico(os.path.join(GD, "players_universe"), "players_universe_config"), "m_starSignCharaInfoList"), conocidas))
     anade("basara", identidades(volcar(unico(ch, "basara_chara_config"), "m_basaraBuildInfoList"), conocidas))
-    anade("tienda", identidades(volcar(unico(os.path.join(GD, "shop"), "shop_config"), "SHOP_BASARA_SPIRIT_LIST"), conocidas))
+    tienda = unico(os.path.join(GD, "shop"), "shop_config")
+    anade("tienda", identidades(volcar_todas(tienda, "SHOP_INFO_ITEM_LIST"), conocidas)
+          | identidades(volcar(tienda, "SHOP_BASARA_SPIRIT_LIST"), conocidas))
     anade("unica", identidades(volcar(unico(os.path.join(GD, "soccer"), "soccer_chara_unique_rarity_config"), "m_soccerCharaUniqueRarityList"), conocidas))
     anade("correo", identidades(volcar(unico(os.path.join(GD, "post"), "delivery_config"), "m_DeliveryContentsDataList"), conocidas))
     anade("cronica", equipos_de_cronica(conocidas))
     anade("archivo", identidades(volcar(unico(os.path.join(GD, "data_file"), "data_file_config"), "m_MenuDataFileConfigList"), conocidas))
-    for k, v in EXTRAS.items():
-        fuentes.setdefault(k, []).append(v)
-
     cambio = unico(ch, "chara_change")
     transformadas = {}
     for tabla, nombre in (("CHARA_MODE_CHANGE_LIST", "cambio de modo"),
@@ -154,7 +161,7 @@ def main():
     legales = sorted(k for k in fuentes if k not in transformadas)
     with open(os.path.join(EXTRAIDAS, "fichables.csv"), "w", encoding="utf-8", newline="") as f:
         f.write("# Personajes que el juego da por alguna via (NOTAS O-205). Lo genera herramientas/construir_fichables.py.\n")
-        f.write("# fuentes: universo | basara | tienda | unica | correo | cronica | archivo | extra\n")
+        f.write("# fuentes: universo | basara | tienda | unica | correo | cronica | archivo\n")
         w = csv.writer(f)
         w.writerow(["identidad", "nombre", "fuentes"])
         for k in legales:

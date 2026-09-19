@@ -4894,16 +4894,25 @@ segundas formas no se fichan nunca.
 **Las vias por las que el juego da personajes** (todo tablas del juego, ver
 `herramientas/construir_fichables.py`): el Universo de jugadores
 (`players_universe_config` m_starSignCharaInfoList, 5.010 identidades: la
-lista grande), los Diamantes Basara (`basara_chara_config`, 70), la tienda de
-espiritus Basara (134), los de rareza unica (141), los regalos por correo
+lista grande), los Diamantes Basara (`basara_chara_config`, 70), la tienda
+(`shop_config`: TODAS sus SHOP_INFO_ITEM_LIST, que hay una por tienda y
+`volcado` sin `--todas` solo da la primera, mas SHOP_BASARA_SPIRIT_LIST; ahi
+estan los tres de evento que Aaron recordo, el Mark nino sin bandana
+`06E25622`, el Jude sin gafas `2DCF05E1` y el Shawn de ojos de dos colores
+`3CFE7E61`, y el Axel Blaze Diamante `A41870E9`), los de rareza unica (141), los regalos por correo
 (`delivery_config`, 9), las plantillas de los equipos rivales de la Cronica
 (`team_config`, equipos `tm_cro_*`; de ahi salen el Zanark con Cao Cao
 `1EC03F8D` y la Beta modo Reina `8842AB42`, que Aaron da por fichables y no
 estan en el Universo; la otra Beta, `B0069AEE`, es la del cambio de modo) y el
 archivo de datos (`data_file_config`, 550: los clubes del instituto y demas
-gente de la historia, que Aaron tiene en su partida). Un Diamante de Axel
-Blaze (`A41870E9`) no sale en ninguna tabla pero esta en la partida de Aaron
-desde el principio: se conserva como "extra".
+gente de la historia, que Aaron tiene en su partida).
+
+**Destin Billows** (el protagonista, avatar de Aaron): el que se ficha como
+jugador de campo (`BCC3EB16`, en `jugadores.csv`) no sale por ninguna via y
+se quita; Aaron: "Destin solo puede ser entrenador o gerente, lo tienes por la
+historia y suelta espiritus suyos que luego invocas". Los suyos son la version
+de entrenador `C19FE60C` (siete en su partida, rarezas 3, 4 y 8), que no esta
+en `jugadores.csv` (sin arbol) y el editor nunca ofrecio: no se tocan.
 
 Comprobado contra la partida original de Aaron (2.645 personajes: todos salen
 por alguna via) y contra sus certezas (Zanark Cao Cao y una Beta Reina si;
@@ -4911,13 +4920,18 @@ Byron Aphrody, dos Seth, Buddy Furia, Shawn con Axel, Jude con Caleb no). Lo
 unico que pide excepcion es la regla de las formas de partido: la Seth
 despertada esta en un equipo rival de Orion y aun asi no se ficha.
 
-Resultado: `fichables.csv` (5.618) y `no-fichables.csv` (103 entradas de
-`jugadores.csv`: 16 formas de partido y 87 sin via, casi todos figurantes:
-Umibozu, UM-BZ9, Cien Peldanos, caras `npc`, los mixi max de Chrono Storm
-`06E25622` Mark Evans / `2DCF05E1` Jude Sharp / `3CFE7E61` Shawn Froste, el
-avatar Destin Billows...). `personajes_creables` solo ofrece los fichables; la
-base de datos sigue ensenando a todos. Los que ya esten en la partida no se
-tocan.
+Resultado: `fichables.csv` (5.623) y `no-fichables.csv` (100 entradas de
+`jugadores.csv`: 16 formas de partido y 84 sin via, casi todos figurantes:
+Umibozu, UM-BZ9, Cien Peldanos, caras `npc`, el Destin de campo...).
+`personajes_creables` solo ofrece los fichables; la base de datos sigue
+ensenando a todos. Los que ya esten en la partida no se tocan.
+
+Pendiente con Aaron: "Guardia sombria" (`DD1DC90C`) es la tecnica del kenshin
+Sombra de plasma DF (`espiritus.csv`) y a la vez esta en el arbol de dos
+Guardianes de la Reina (Dardinello Foscari `1CB0E623` y Camilla Gonzaga
+`4B282B92`, fichables), por lo que `tecnicas-origen.csv` la da por "personaje"
+y obtenible (O-171). Aaron cree que es ilegal; falta que mire en el juego si
+esos dos la aprenden de verdad.
 
 ## SUPUESTO
 
