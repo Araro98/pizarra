@@ -483,7 +483,12 @@ def poner_tecnica(plain, fila, ranura, nombre):
         plain, slot_nuevo, creada = _fila_tecnica_aprendida(plain, id_hex, nombre)
     else:
         poseidas = inventario.filas_poseidas(plain)
-        montones = [f for f in poseidas.get(id_hex, []) if f.get("sub") == 2
+        # el monton de manuales lleva sub 2 casi siempre, pero 57 tecnicas de la
+        # partida de Aaron lo llevan con sub 1 (Tiro con efecto, Entrada
+        # rodante...) y el juego los usa igual; las filas de tecnica aprendida
+        # son sub 9 o 10 con una unidad (O-168). Al amigo de Aaron le fallaba
+        # Aceleron por esto.
+        montones = [f for f in poseidas.get(id_hex, []) if f.get("sub") not in (9, 10)
                     and f.get("kind") == inventario.KIND_REAL and f.get("cantidad", 0) > 0]
         if not montones:
             raise Ilegal("no tienes el manual de %s en la mochila: en el juego una tecnica "
