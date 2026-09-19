@@ -3286,6 +3286,24 @@ def conseguir_todo(plain, categoria, cantidad):
     ids = [f["id"].upper() for f in reglas._tabla("nombres-es.csv")
            if f.get("categoria") == categoria
            and (f.get("nombre_es") or f.get("nombre_en"))]
+    # solo lo que se puede conseguir de verdad (Aaron, O-214): ni las tecnicas
+    # de la historia ("... EV"), de kenshin o de combinacion (O-171), ni los
+    # espiritus que son copias de escena, sin tecnica o que nadie puede llevar
+    if categoria == "supertecnica":
+        from ievr import opciones as O
+        obtenibles = {f["id"].upper() for f in reglas._tabla("tecnicas-origen.csv")
+                      if f.get("obtenible") == "si"}
+        ids = [i for i in ids if i in obtenibles]
+    elif categoria == "aura":
+        from ievr import opciones as O
+        def se_puede(i):
+            if O.espiritu_de_escena(i) or O.espiritu_sin_tecnica(i):
+                return False
+            d = O.duenos_de_espiritu(i)
+            if d.get("todos") or d["identidades"]:
+                return True
+            return (O._espiritus().get(i) or {}).get("familia") not in ("armadura", "mixi", "especial")
+        ids = [i for i in ids if se_puede(i)]
     if not ids:
         raise Ilegal("no hay ningun objeto de %r en las tablas del juego" % categoria)
 

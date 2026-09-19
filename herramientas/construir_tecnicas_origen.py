@@ -102,10 +102,15 @@ def main():
     # dragon, Bai Long).
     de_kenshin = {(f.get("tecnica") or "").upper() for f in reglas._tabla("espiritus.csv")
                   if f.get("familia") == "kenshin"} & ids
+    # las que Aaron ha visto conseguir en el juego aunque no esten en ninguna
+    # tabla de tienda ni en el arbol de un fichable (O-214)
+    DE_AARON = {"32DBF59E"}     # Parada celestial TURBO
     filas = []
     for i, f in sorted(tec.items(), key=lambda x: (x[1].get("nombre") or "").lower()):
         interno = f.get("nombre_interno") or ""
-        if i in de_kenshin:
+        if i in DE_AARON:
+            origen = "tienda"
+        elif i in de_kenshin:
             origen = "kenshin"
         elif i in personaje:
             origen = "personaje"

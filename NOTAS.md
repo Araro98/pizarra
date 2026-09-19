@@ -5084,6 +5084,31 @@ Idolo por la casilla de su tablero propio en `pasivas-fijas.csv` (tronco 1,
 `poner_heredada` rechaza las cruzadas. Cuadra con la partida: de las 667
 heredadas puestas, ninguna cruza de grupo.
 
+### O-214 · "Conseguir 1 de todo" solo da lo que se consigue de verdad
+
+Aaron: "en la mochila, conseguir 1 de todo te sigue dando tecnicas EV e
+ilegales; y la Parada celestial TURBO es legal, que se pueda conseguir".
+`conseguir_todo` daba las 994 tecnicas y los 443 espiritus de `nombres-es.csv`
+tal cual. Ahora, para "supertecnica" solo las `obtenible = si` de
+`tecnicas-origen.csv` (784: fuera las 29 de la historia "... EV" / "de la
+amistad" / "Ensueno", las 152 de kenshin, las 32 de combinacion y las 9 de
+prueba), y para "aura" solo los espiritus que alguien puede llevar (fuera las
+copias de escena, los sin tecnica y las armaduras, mixi y modos sin dueno,
+O-209): 426 de 443. Lo que ya estuviera en la mochila no se toca. Ojo: "Mano
+celestial EV" y "Mano celestial de la amistad" siguen entrando porque las
+venden El atrio de los indomables y la Tienda Vs (O-207).
+
+Parada celestial TURBO (`32DBF59E`) no esta en ninguna tienda ni arbol de
+fichable, pero Aaron la ha visto conseguir: lista `DE_AARON` en
+`construir_tecnicas_origen.py`, origen "tienda", obtenible.
+
+Pendiente (Aaron): al cambiar una tecnica con el editor, en el juego sale
+como "usar nuevas posibilidades" en vez de aprendida. En la partida todas las
+ranuras con tecnica estan confirmadas en `45E2D879` y el mapa cuadra (Adam
+Ropes), asi que la marca de "aprendida por posibilidades" tiene que estar en
+otro sitio: hace falta una partida de antes y despues de usar "nuevas
+posibilidades" en el juego con un jugador concreto para localizarla.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
