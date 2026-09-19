@@ -5102,12 +5102,43 @@ Parada celestial TURBO (`32DBF59E`) no esta en ninguna tienda ni arbol de
 fichable, pero Aaron la ha visto conseguir: lista `DE_AARON` en
 `construir_tecnicas_origen.py`, origen "tienda", obtenible.
 
-Pendiente (Aaron): al cambiar una tecnica con el editor, en el juego sale
-como "usar nuevas posibilidades" en vez de aprendida. En la partida todas las
-ranuras con tecnica estan confirmadas en `45E2D879` y el mapa cuadra (Adam
-Ropes), asi que la marca de "aprendida por posibilidades" tiene que estar en
-otro sitio: hace falta una partida de antes y despues de usar "nuevas
-posibilidades" en el juego con un jugador concreto para localizarla.
+(Lo de "usar nuevas posibilidades" quedo resuelto en O-215.)
+
+### O-215 · Una tecnica que no es del arbol se pone como "Nuevas posibilidades"
+
+Aaron: "si cambio una tecnica con el editor, en el juego sale 'usar nuevas
+posibilidades' en vez de aprendida; asi es ilegal". Hizo la prueba: partidas
+`nuevas posibilidades 1` y `2` (Kevin Dragonfly fila 840, ranura 2, Arcoiris
+luminoso -> Ataque condor usando "Nuevas posibilidades" en el juego). Byte a
+byte, lo que hace el juego:
+
+- la ranura 2 (`DDC45584`) pasa a apuntar al **monton de manuales** de Ataque
+  condor (fila de mochila kind 3, sub 2, 99 unidades) y ese monton cuenta un
+  jugador mas (`equipada` 0 -> 1); las 99 unidades no bajan;
+- el consumible **"Nuevas posibilidades"** (`63166002`, sub 1) baja de 99.221
+  a 99.220;
+- la fila de Arcoiris (aprendida, sub 10) pierde un equipado y su referencia
+  se escribe en la **fila espejo** del jugador (registro de tecnicas
+  `fila + 6000`, misma ranura): S-05 confirmado, ahi guarda el juego "aprendida
+  sin equipar";
+- `45E2D879`, el mapa del arbol y `BB459017` no cambian;
+- y ademas el juego recuenta equipadas de otras filas (Vaselina 79 -> 78,
+  Despeje explosivo 27 -> 22...) y rellena listas de novedades (`E2C66FA7`
+  x muchas, pares de 16 bits en `11076639`), que no hacen falta.
+
+Asi que O-168 era verdad a medias: las tecnicas DE SALIDA apuntan a filas
+aprendidas, pero una tecnica que no es la propia del arbol apunta al monton.
+`poner_tecnica` ahora hace las dos cosas: si la tecnica es la propia de esa
+ranura (`personajes.csv` tec1..9) o una hipertecnica, fila aprendida como
+antes; si no, monton de manuales (hace falta tener el manual) mas una
+"Nuevas posibilidades" (hace falta tener alguna) y la que sale a la fila
+espejo. Reproducido sobre `nuevas posibilidades 1`: ranuras, espejo, monton y
+consumible salen identicos a la partida 2.
+
+De paso, en la misma comparacion: el juego puso a 0 las marcas de la tabla
+de pasivas de Kreaton Coco, Paco Dermott y Terry Pinn (ranuras 3-5, llevan la
+misma heredada TRES veces, de las de Cheat Engine, O-107) y del Seymour
+Hillman Diamante entrenador (sus casillas 33-39 no estan abiertas, O-200).
 
 ## SUPUESTO
 

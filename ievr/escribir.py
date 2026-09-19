@@ -468,8 +468,33 @@ def poner_tecnica(plain, fila, ranura, nombre):
     if admite == "?":
         raise Ilegal("la ranura %d de %s no existe en su arbol" % (ranura, ficha["nombre"]))
 
-    # una fila de tecnica APRENDIDA, como las que deja el juego (O-171)
-    plain, slot_nuevo, creada = _fila_tecnica_aprendida(plain, id_hex, nombre)
+    # Dos caminos, los dos del juego (O-215):
+    # - la tecnica PROPIA de esa ranura del arbol (chara_param): una fila de
+    #   tecnica aprendida, como las que deja el juego al subir de nivel (O-171);
+    # - cualquier otra: como "Nuevas posibilidades" en el juego (Kevin
+    #   Dragonfly, Ataque condor en la ranura 2): la ranura apunta al MONTON de
+    #   manuales de esa tecnica (sub 2), el monton cuenta un jugador mas, se
+    #   gasta una "Nuevas posibilidades" y la tecnica que salio se guarda en la
+    #   fila espejo del jugador (fila + 6000), que es como el juego recuerda que
+    #   la tiene aprendida sin equipar.
+    propia = ((reglas.personajes().get("%08X" % identidad) or {}).get("tec%d" % ranura) or "").upper() == id_hex
+    posibilidades = None
+    if propia or categoria == "Hipertecnica":
+        plain, slot_nuevo, creada = _fila_tecnica_aprendida(plain, id_hex, nombre)
+    else:
+        poseidas = inventario.filas_poseidas(plain)
+        montones = [f for f in poseidas.get(id_hex, []) if f.get("sub") == 2
+                    and f.get("kind") == inventario.KIND_REAL and f.get("cantidad", 0) > 0]
+        if not montones:
+            raise Ilegal("no tienes el manual de %s en la mochila: en el juego una tecnica "
+                         "que no es del arbol se aprende con su manual y una \"Nuevas "
+                         "posibilidades\". Consigue el manual primero (pestana Mochila)." % nombre)
+        posibilidades = next((f for f in poseidas.get(POSIBILIDADES, []) if f.get("cantidad", 0) > 0), None)
+        if posibilidades is None:
+            raise Ilegal("no tienes ninguna \"Nuevas posibilidades\" en la mochila, y el juego "
+                         "gasta una por cada tecnica que no es del arbol. Consigue alguna "
+                         "primero (pestana Mochila).")
+        slot_nuevo, creada = montones[0]["slot"], False
     tecnicas = J.ocurrencias(plain, *J.ANCLA_TECNICAS)
     ini, _ = tlv.inicio_registro(plain, tecnicas[fila])
     off = None
@@ -486,6 +511,18 @@ def poner_tecnica(plain, fila, ranura, nombre):
     porslot = inventario.por_slot(plain)
     buf = bytearray(plain)
     struct.pack_into("<I", buf, off, slot_nuevo)
+    if posibilidades is not None:
+        # se gasta una "Nuevas posibilidades"
+        struct.pack_into("<I", buf, posibilidades["cantidad_off"], posibilidades["cantidad"] - 1)
+        # y la tecnica aprendida que sale se guarda en la fila espejo
+        fila_antes = porslot.get(antes) if antes else None
+        if fila_antes and fila_antes.get("sub") in (9, 10) and fila + 6000 < len(tecnicas):
+            ini_e, _ = tlv.inicio_registro(plain, tecnicas[fila + 6000])
+            for o, fh, n, _ in tlv.campos_desde(plain, ini_e, maximo=12):
+                if fh == J.RANURAS_TECNICAS[ranura - 1] and n == 4:
+                    if struct.unpack_from("<I", plain, o + 8)[0] == 0:
+                        struct.pack_into("<I", buf, o + 8, antes)
+                    break
     plain = bytes(buf)
     if antes and antes in porslot:
         plain = inventario.ajustar_equipada(plain, porslot[antes], -1)
@@ -569,6 +606,10 @@ def _quitar_repetidas_sueltas(plain, fila):
 
 
 # --- pasivas heredadas ---------------------------------------------------------
+
+# el consumible "Nuevas posibilidades": el juego gasta uno por cada tecnica
+# que se pone en una ranura sin ser la propia del arbol (O-215)
+POSIBILIDADES = "63166002"
 
 TOPE_HEREDADAS = 3      # Aaron lo comprobo en el juego el 2026-09-14.
                         # Antes se creia que eran 2; ver pasivas.md.
