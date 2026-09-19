@@ -4954,6 +4954,31 @@ familia kenshin es "kenshin" (no obtenible) antes que "personaje"; y
 tecnica no obtenible, como el juego. Los Dardinello del editor ya hechos se
 arreglan solos al subir de nivel (el juego la quita).
 
+### O-207 · Repaso de todas las tecnicas contra las tiendas (todo se queda)
+
+Aaron: "revisa todas las tiendas, de historia, normales, de espiritus, y dime
+que tecnicas ofrece el editor que no se consigan; sospecho de Soy
+todopoderoso". Se cruzaron las 1.004 tecnicas con las 16 listas de
+`shop_config` (con `--todas`: G-Mart x3, Pingui Go x2, Movimientos magicos
+x2, Tienda de Cronica, Tienda Vs, Tienda vinculo, Mercado BB, Mercado de
+espiritus, El atrio de los indomables, Tienda del torneo y una sin nombre en
+ningun idioma; el volcador desordena las filas padre de SHOP_INFO_LIST, asi
+que dos listas no se pudieron nombrar con seguridad), los trofeos, el correo,
+los botines (`common_item_table` ITBL) y los arboles SOLO de fichables
+(`fichables.csv`).
+
+- Todas las de arbol las aprende algun fichable; ninguna depende solo de una
+  forma de partido (Byron Aphrody, Buddy Furia...).
+- Soy todopoderoso `332A85B6`: la vende la Tienda Vs y la aprenden Huracan
+  Zeta y Zack Avalon, fichables. Se queda.
+- La Tierra: Infinito, Pinguinos de luz y sombra, Tiro aereo triple: solo
+  aparecen en una lista secundaria (CONSUME) de una tienda, no como
+  articulo; Fuego cruzado y Gota de la quietud: solo en la lista de tienda que
+  no se pudo nombrar. Aaron: "dejalas todas".
+- Mano matriarcal `945A81A9`: llega por correo (`delivery_config`) y estaba
+  como "ninguna". Ahora `delivery_config` cuenta como tienda en
+  `construir_tecnicas_origen.py` y se ofrece.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

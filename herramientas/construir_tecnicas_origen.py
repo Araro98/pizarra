@@ -8,7 +8,8 @@ Escribe `datos/reglas-extraidas/tecnicas-origen.csv`: id, nombre, origen y
 obtenible. Origenes, por este orden:
 
 - personaje: la aprende algun personaje en su arbol (chara_param tec1..tec9).
-- tienda: esta en la tienda, en los objetos comunes o en los trofeos.
+- tienda: esta en la tienda, en los objetos comunes, en los trofeos o llega
+  por correo (delivery_config).
 - kenshin: es la tecnica de un espiritu (la referencia aura_skill_config); no
   se le da a un jugador, la usa el kenshin.
 - override: es el resultado de combinar dos tecnicas en el partido
@@ -69,7 +70,10 @@ def main():
     per = reglas.personajes()
     personaje = {(f.get("tec%d" % k) or "").upper() for f in per.values() for k in range(1, 10)} & ids
     tienda = set()
-    for carpeta, prefijo in (("shop", "shop_config"), ("item", "common_item_table"), ("trophy", "trophy_config")):
+    # tienda, objetos comunes, trofeos y regalos por correo (delivery_config:
+    # Mano matriarcal, que Aaron quiere ofrecer, NOTAS O-207)
+    for carpeta, prefijo in (("shop", "shop_config"), ("item", "common_item_table"),
+                             ("trophy", "trophy_config"), ("post", "delivery_config")):
         try:
             tienda |= ids_en(unico(os.path.join(GAMEDATA, carpeta), prefijo), ids)
         except SystemExit:
