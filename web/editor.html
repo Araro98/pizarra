@@ -2431,11 +2431,14 @@ function pintaTabsEquipos() {
         {texto:"Cancelar", accion:cerrar => cerrar(null)},
         {texto:"Crear", clase:"verde", accion:cerrar => cerrar(inp.value.trim() || null)}]);
       if (!nombre) return;
-      try {
-        const r = await manda({tipo:"crear_equipo", nombre});
-        if (r && r.equipo != null) { equipoAbierto = r.equipo; marcado = null; pintaTabsEquipos(); await abreEquipo(); }
-        aviso("Equipo \"" + nombre + "\" creado" + (r && r.quedan != null ? " (quedan " + r.quedan + " huecos)" : "") + ".", "bien");
-      } catch (e) { aviso(e.message, "mal"); }
+      // manda() ya ensena el error del servidor (por ejemplo "ya tienes 11
+      // equipos") y devuelve nada: solo se canta exito si vuelve el hueco
+      const r = await manda({tipo:"crear_equipo", nombre});
+      if (r && r.equipo != null) {
+        equipoAbierto = r.equipo; marcado = null; pintaTabsEquipos(); await abreEquipo();
+        aviso("Equipo \"" + nombre + "\" creado en el hueco " + r.equipo
+              + (r.quedan != null ? " (quedan " + r.quedan + " huecos)" : "") + ".", "bien");
+      }
     }}));
 }
 
