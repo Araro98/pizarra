@@ -5070,6 +5070,20 @@ mismo grupo que las normales del mismo texto, y en "quienes" sale marcada
 "(personalizada)". Comprobado en la partida: en Super Alpino suman Njord,
 Shawn y Aiden con la 29 y no los suplentes Fifi, Grisley o Adam.
 
+### O-213 · Las heredadas van a su grupo de ranuras: 1-3 con 1-3 y 4-5 con 4-5
+
+Aaron: "solo puedes heredar pasivas de los 3 primeros slots a los 3
+primeros, y las de los 2 ultimos (las de arquetipo) a los 2 ultimos; nunca
+cruzadas". `O.grupo_de_heredable(id)` da "1-3" o "4-5": en un normal por el
+grupo de `pasivas-por-ranura.csv` ("(ranuras 1-2)" y "(ranura 3)" contra
+"(ranura 4)" y "(ranura 5)": 36 y 27 de las 63, ninguna en los dos); en un
+Idolo por la casilla de su tablero propio en `pasivas-fijas.csv` (tronco 1,
+3, 7 y rama 8/18 son las ranuras 1-3; tronco 11, 14 y rama 12, 15/22, 25 las
+4-5; tampoco hay cruces). El selector "Heredar aqui" pide
+`/api/opciones?tipo=heredada&ranura=N` y solo ensena las de ese grupo;
+`poner_heredada` rechaza las cruzadas. Cuadra con la partida: de las 667
+heredadas puestas, ninguna cruza de grupo.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

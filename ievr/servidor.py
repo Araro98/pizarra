@@ -1332,7 +1332,9 @@ class Manejador(BaseHTTPRequestHandler):
                     if tipo == "pasiva":
                         return self._responder(200, O.pasivas(p, fila, ranura))
                     if tipo == "heredada":
-                        return self._responder(200, O.heredadas(p, fila))
+                        # con ranura, solo las que pueden ir ahi (O-213)
+                        return self._responder(200, O.heredadas(
+                            p, fila, int(q["ranura"][0]) if q.get("ranura") else None))
                     if tipo == "personalizada":
                         return self._responder(200, O.personalizadas(p, fila))
                     if tipo == "personal":

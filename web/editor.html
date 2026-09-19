@@ -1642,7 +1642,7 @@ function seccionPasivas(d) {
       f.appendChild(el("button", {class:"elegir heredar", text:"Heredar aqui",
         title:"Tapa la pasiva de esta ranura con una heredada",
         onclick:() => abrePicker("Heredar en la ranura " + x.ranura,
-          () => pedir("/api/opciones?tipo=heredada&fila=" + d.fila)
+          () => pedir("/api/opciones?tipo=heredada&fila=" + d.fila + "&ranura=" + x.ranura)
                   .then(r => ({...r, ordenes:[{campo:"etiqueta", etiqueta:"nombre"}],
                     actual_etiqueta:x.heredada || null,
                     opciones:r.opciones.map(o => ({...o, valor:o.id, etiqueta:o.nombre,

@@ -490,8 +490,37 @@ def pasivas_heredables(rareza):
     return d["normales"]
 
 
-def heredadas(plain, fila):
-    """Las pasivas que se le pueden heredar, y cuantas ranuras quedan.
+def grupo_de_heredable(id_hex):
+    """"1-3" o "4-5": en que ranuras puede ir esa pasiva heredada (O-213).
+    Regla de Aaron: una pasiva de las ranuras 1-3 (las normales) solo se
+    hereda a las ranuras 1-3, y una de las 4-5 (las de arquetipo) solo a las
+    4-5. En un normal lo dice `pasivas-por-ranura.csv` (grupo "(ranuras 1-2)"
+    o "(ranura 3)" contra "(ranura 4)" y "(ranura 5)"); en un Idolo, la casilla
+    de su tablero propio (`pasivas-fijas.csv`: tronco 1, 3, 7 y rama 8/18 son
+    las ranuras 1-3; tronco 11, 14 y rama 12, 15/22, 25 las 4-5). Ninguna
+    pasiva esta en los dos grupos. None si no se sabe."""
+    import re
+
+    def construir():
+        d = {}
+        for f in reglas._tabla("pasivas-por-ranura.csv"):
+            m = re.search(r"ranuras? ([\d-]+)", f.get("grupo") or "")
+            if not m:
+                continue
+            d[variante_por_rareza(f["id"].upper(), 0)] = "4-5" if m.group(1) in ("4", "5") else "1-3"
+        de_1_3 = {"1", "3", "7", "8", "18"}
+        for f in reglas._tabla("pasivas-fijas.csv"):
+            if f.get("origen") != "propio":
+                continue
+            d.setdefault(variante_por_rareza(f["pasiva_id"].upper(), 0),
+                         "1-3" if f.get("casilla") in de_1_3 else "4-5")
+        return d
+    return _indice("grupo_heredable", construir).get(variante_por_rareza((id_hex or "").upper(), 0))
+
+
+def heredadas(plain, fila, ranura=None):
+    """Las pasivas que se le pueden heredar, y cuantas ranuras quedan. Con
+    `ranura`, solo las que pueden ir en esa ranura (O-213).
 
     Reglas de Aaron (NOTAS O-173, `pasivas_heredables`): a un Diamante nada; a
     un Idolo solo las de otro Idolo; a un normal solo pasivas de jugador. Cada
@@ -514,7 +543,11 @@ def heredadas(plain, fila):
     opciones = []
     if libres:
         nombres_tlv = tlv.nombres()
+        grupo_pedido = None if ranura is None else ("1-3" if int(ranura) <= 3 else "4-5")
         for id_hex in sorted(pasivas_heredables(rareza)):
+            # solo las de ese grupo de ranuras (O-213)
+            if grupo_pedido and grupo_de_heredable(id_hex) != grupo_pedido:
+                continue
             # el numero que ensenaria ESTE jugador (su rareza manda, O-165)
             version = variante_por_rareza(id_hex, rareza)
             texto = nombres_tlv.get(version) or nombres_tlv.get(id_hex)
@@ -533,7 +566,10 @@ def heredadas(plain, fila):
             unicas.append(o)
     return {"puede": libres > 0 and bool(unicas),
             "de_donde": ("solo pasivas de Idolo" if solo_de_idolo else
-                         "pasivas de jugador normal"),
+                         "pasivas de jugador normal")
+                        + ("" if ranura is None else
+                           (" de las ranuras 1-3 (normales)" if int(ranura) <= 3
+                            else " de las ranuras 4-5 (de arquetipo)")),
             "motivo": "" if libres else "ya lleva las %d que caben"
             % E.TOPE_HEREDADAS, "libres": libres, "opciones": unicas}
 

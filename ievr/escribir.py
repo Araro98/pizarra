@@ -621,6 +621,13 @@ def poner_heredada(plain, fila, ranura, nombre):
         raise Ilegal("%s no se puede heredar: solo las pasivas de jugador (ni las de "
                      "Idolo, ni las de stats, ni las de entrenador o gerente, ni las "
                      "personalizadas)" % que)
+    # y solo a su grupo de ranuras (O-213): las de las ranuras 1-3 (normales)
+    # a las 1-3 y las de las 4-5 (de arquetipo) a las 4-5, nunca cruzadas
+    grupo = O.grupo_de_heredable(id_hex)
+    if grupo and (grupo == "1-3") != (ranura <= 3):
+        raise Ilegal("%s es una pasiva de las ranuras %s y no puede heredarse en la ranura %d: "
+                     "las de las ranuras 1-3 solo van a las 1-3 y las de arquetipo (4-5) "
+                     "solo a las 4-5" % (O.nombre_pasiva(id_hex, nombre), grupo, ranura))
 
     fichas = J.ocurrencias(plain, *J.ANCLA_FICHA)
     ini, _ = tlv.inicio_registro(plain, fichas[fila])
