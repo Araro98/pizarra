@@ -118,6 +118,7 @@ def personajes():
             ident = ident.upper()
             jug = jugs.get(ident) or {}
             r = _resumen(ident, f, jug)
+            r["saga"] = f.get("saga") or ""          # el juego de origen (O-208)
             # Sin posicion no es alineable: son las versiones de historia
             # (c04002410_5000...) que no tienen cara, stats ni nada que ensenar.
             if not r["nombre"] or not r["posicion"]:

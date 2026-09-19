@@ -66,6 +66,38 @@ def entero(x):
         return None
 
 
+def sagas_del_juego():
+    """{clave de serie (u32): (numero 1-9, nombre)}: `chara_series_config`
+    (clave, numero, clave de texto) y el nombre en espanol de
+    `chara_add_info_text` (NOTAS O-208)."""
+    serie = os.path.join(GAMEDATA, "character", "chara_series_config.cfg.bin")
+    texto = os.path.join(JUEGO, "extracted", "data", "common", "text", "es",
+                         "chara_add_info_text.cfg.bin")
+    if not os.path.isfile(serie) or not os.path.isfile(texto):
+        return {}
+    nombres = {}
+    r = subprocess.run([VOLCADO, texto, "NOUN_INFO"], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
+    # el volcador solo pone la linea de recuento cuando la tabla la tiene
+    for linea in r.stdout.splitlines():
+        c = linea.split("\t")
+        if len(c) < 2:
+            continue
+        textos = [x[len('String("'):-2] for x in c if x.startswith('String("') and len(x) > 10]
+        if c and entero(c[0]) is not None and textos:
+            nombres[entero(c[0]) & 0xFFFFFFFF] = textos[0]
+    fuera = {}
+    r = subprocess.run([VOLCADO, serie, "m_charaSeriesInfoList"], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
+    for linea in r.stdout.splitlines():
+        c = linea.split("\t")
+        if len(c) < 3 or entero(c[0]) is None:
+            continue
+        num = entero(c[1].replace("Byte(", "").rstrip(")")) or 0
+        fuera[entero(c[0]) & 0xFFFFFFFF] = (num, nombres.get(entero(c[2]) & 0xFFFFFFFF, ""))
+    return fuera
+
+
 def nombres_del_juego(lengua):
     """{clave: nombre} leyendo `chara_text.cfg.bin` del idioma que se pida."""
     ruta = os.path.join(JUEGO, "extracted", "data", "common", "text", lengua,
@@ -138,14 +170,18 @@ def main():
         param[ident & 0xFFFFFFFF] = (base_id, rareza, apt_e, apt_g, tecnicas, arquetipo, clave_personal,
                                      "%08X" % (tablero & 0xFFFFFFFF) if tablero else "")
 
-    # chara_base: 0 = chara_base_id, 2 = indice de catalogo, 3 = name_id
+    # chara_base: 0 = chara_base_id, 2 = indice de catalogo, 3 = name_id,
+    # 15 = la saga (juego) de la que viene, clave de chara_series_config
+    sagas = sagas_del_juego()
+    print("sagas: %s" % ", ".join("%d %s" % v for v in sorted(sagas.values())))
     base = {}
     for c in filas(p_base):
         if len(c) < 4:
             continue
         base_id, indice, name_id = entero(c[0]), entero(c[2]), entero(c[3])
+        serie = entero(c[15]) if len(c) > 15 else None
         if base_id is not None:
-            base[base_id] = (indice, name_id)
+            base[base_id] = (indice, name_id, sagas.get(serie & 0xFFFFFFFF if serie is not None else -1, (0, "")))
 
     # Los nombres se leen del PROPIO fichero de textos del juego. Antes se
     # cogian del volcado a sqlite, y ese volcado venia incompleto: 154
@@ -181,14 +217,17 @@ def main():
         # `rareza` es la familia (normal / hero / fabled) y `rareza_valor` el
         # numero exacto, que es lo que distingue los tres Idolos entre si:
         # 5 roja, 6 plateada, 7 rosa (NOTAS O-58).
+        # `saga` es el juego del que viene el personaje (el filtro "Juego" del
+        # propio juego, NOTAS O-208) y `saga_num` su orden, 1 a 9.
         w.writerow(["identidad", "chara_base_id", "indice", "rareza", "rareza_valor",
                     "nombre_es", "nombre_en", "apt_entrenador", "apt_gerente"]
                    + ["tec%d" % k for k in range(1, 10)]
-                   + ["tec%d_nivel" % k for k in range(1, 10)] + ["arquetipo_valor", "clave_personal", "tablero"])
+                   + ["tec%d_nivel" % k for k in range(1, 10)]
+                   + ["arquetipo_valor", "clave_personal", "tablero", "saga", "saga_num"])
         for ident, (base_id, rareza, apt_e, apt_g, tecnicas, arquetipo, clave_personal, tablero) in sorted(param.items()):
             if base_id not in base:
                 continue
-            indice, name_id = base[base_id]
+            indice, name_id, (saga_num, saga) = base[base_id]
             w.writerow(["%08X" % ident, base_id, indice,
                         RAREZAS.get(rareza, "desconocida(%s)" % rareza), rareza,
                         idiomas.get("es", {}).get(name_id, ""),
@@ -196,7 +235,8 @@ def main():
                         "1" if apt_e else "", "1" if apt_g else ""]
                        + [t for t, _ in tecnicas] + [lv for _, lv in tecnicas]
                        + ["" if arquetipo is None else arquetipo,
-                          "" if clave_personal is None else clave_personal, tablero])
+                          "" if clave_personal is None else clave_personal, tablero,
+                          saga, saga_num or ""])
             n += 1
     print("Escritos %d personajes en %s" % (n, SALIDA))
     return 0

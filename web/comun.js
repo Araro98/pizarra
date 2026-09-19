@@ -175,8 +175,11 @@ function montaFiltros(caja, datos, campos, estado, alCambiar) {
       if (v) cuenta.set(v, (cuenta.get(v) || 0) + 1);
     }
     if (cuenta.size < 2) continue;
-    const orden = [...cuenta.keys()].sort(c.numerico
-      ? (a, b) => Number(a) - Number(b) : (a, b) => a.localeCompare(b));
+    // c.orden: funcion valor -> posicion, para listas con su propio orden
+    // (los juegos: IE1, IE2... Victory Road, y no por abecedario)
+    const orden = [...cuenta.keys()].sort(c.orden
+      ? (a, b) => c.orden(a) - c.orden(b) || a.localeCompare(b)
+      : c.numerico ? (a, b) => Number(a) - Number(b) : (a, b) => a.localeCompare(b));
     const sel = el("select");
     sel.appendChild(el("option", {value:"", text:c.etiqueta + ": todos"}));
     for (const v of orden)

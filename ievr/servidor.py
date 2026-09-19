@@ -367,6 +367,8 @@ def _ficha_corta(plain, fila, ident, nivel, rareza, arq, jugadores):
         "posicion": (f or {}).get("posicion") or "",
         "elemento": (f or {}).get("elemento") or "",
         "equipo": O.sin_marcadores((f or {}).get("equipo") or ""),
+        # el juego de origen, el filtro "Juego" del propio juego (O-208)
+        "saga": (reglas.personajes().get(clave) or {}).get("saga") or "",
         "cara": O._cara_por_identidad().get(clave, "")
                 or ((f or {}).get("string_id") or ""),
         **O.datos_cuerpo("%08X" % ident[fila]),
@@ -868,7 +870,7 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
 
     import collections
     cuentas = {c: collections.Counter() for c in
-               ("elemento", "posicion", "rareza", "arquetipo", "equipo",
+               ("elemento", "posicion", "rareza", "arquetipo", "equipo", "saga",
                 "nivel_grupo", "judias", "heredadas", "equipacion", "rol",
                 "cuerpo_tipo", "mi_equipo")}
     for d in todos:
@@ -914,7 +916,9 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
                              **({"hueco": huecos_equipo[v]}
                                 if c == "mi_equipo" and v in huecos_equipo else {}))
                         for v, n in sorted(cuentas[c].items(),
-                                           key=lambda x: (-x[1], x[0]))]
+                                           # los juegos en su orden (IE1, IE2... Victory Road), lo demas por cuantos
+                                           key=(lambda x: (O.orden_de_sagas().get(x[0], 99), x[0])) if c == "saga"
+                                           else (lambda x: (-x[1], x[0])))]
                     for c in cuentas},
         "ordenes": sorted(ORDENES),
     }
@@ -1099,6 +1103,7 @@ def detalle_jugador(plain, fila):
         **O.datos_cuerpo("%08X" % ident[fila]),
         "posicion": base.get("posicion") or "", "elemento": base.get("elemento") or "",
         "equipo": O.sin_marcadores(base.get("equipo") or ""),
+        "saga": (reglas.personajes().get("%08X" % ident[fila]) or {}).get("saga") or "",
         "descripcion": O.sin_marcadores(
             O._descripcion_por_identidad().get("%08X" % ident[fila], "")),
         "nivel": nivel[fila], "niveles": O.niveles(),
@@ -1276,7 +1281,7 @@ class Manejador(BaseHTTPRequestHandler):
             if u.path == "/api/jugadores":
                 filtros = {c: (q.get(c) or [""])[0]
                            for c in ("elemento", "posicion", "rareza",
-                                     "arquetipo", "equipo", "nivel_grupo",
+                                     "arquetipo", "equipo", "saga", "nivel_grupo",
                                      "judias", "heredadas", "equipacion", "rol",
                                      "cuerpo_tipo", "mi_equipo")}
                 with sesion.lock:

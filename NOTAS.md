@@ -4979,6 +4979,24 @@ los botines (`common_item_table` ITBL) y los arboles SOLO de fichables
   como "ninguna". Ahora `delivery_config` cuenta como tienda en
   `construir_tecnicas_origen.py` y se ofrece.
 
+### O-208 · Filtro "Juego" (la saga de cada personaje)
+
+Aaron: "anade en Jugadores, Fichar y Equipos un filtro por juego o saga, que
+el juego lo tiene". `chara_base` columna 15 es la clave de serie;
+`chara_series_config` (m_charaSeriesInfoList, 9 filas) la lleva a un numero
+1-9 y a una clave de texto, y el nombre esta en `text/es/chara_add_info_text`
+(NOUN_INFO): Inazuma Eleven, 2, 3, GO, GO 2 (Chrono Stones), GO Galaxy,
+Ares, Orion y Heroes' Victory Road. `construir_personajes.py` escribe `saga` y
+`saga_num` en `personajes.csv` (6.091 de 6.151 con saga; los 60 sin ella son
+figurantes: Cien Peldanos, Profe de ciencias...). Ojo: el volcador solo pone
+linea de recuento cuando la tabla la tiene, y saltarla a ciegas se comia
+Inazuma Eleven 1.
+
+El servidor lo manda en la ficha corta (Jugadores y reserva del Team
+builder), en Fichar y en la base de datos, y admite `saga=` como filtro;
+`montaFiltros` (comun.js) acepta `orden` para listar los juegos en su orden
+y no por abecedario.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

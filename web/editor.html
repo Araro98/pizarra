@@ -1010,8 +1010,13 @@ function pintaCambios() {
 }
 
 /* ---- lista de jugadores: filtros, orden y paginas ---- */
+// El juego de origen de cada personaje, en el orden del propio juego (O-208)
+const ORDEN_SAGA = ["Inazuma Eleven", "Inazuma Eleven 2", "Inazuma Eleven 3", "Inazuma Eleven GO",
+  "Inazuma Eleven GO 2", "Inazuma Eleven GO Galaxy", "Inazuma Eleven: Ares", "Inazuma Eleven: Orión",
+  "Inazuma Eleven: Heroes' Victory Road"];
+const posSaga = v => { const i = ORDEN_SAGA.indexOf(v); return i < 0 ? 99 : i; };
 const CAMPOS_FILTRO = [["elemento","Afinidad"],["posicion","Posicion"],
-  ["rareza","Rareza"],["arquetipo","Arquetipo"],["equipo","Equipo"],
+  ["rareza","Rareza"],["arquetipo","Arquetipo"],["equipo","Equipo"],["saga","Juego"],
   // "Mi equipo" son los equipos guardados de Aaron, con su cuerpo tecnico;
   // "Equipo" a secas es el equipo del personaje en la historia (NOTAS O-181)
   ["mi_equipo","Mi equipo"],
@@ -2392,6 +2397,7 @@ const FILTROS_RES = [
   {campo:"elemento", etiqueta:"Afinidad"},
   {campo:"rareza",   etiqueta:"Rareza"},
   {campo:"equipo",   etiqueta:"Equipo"},
+  {campo:"saga",     etiqueta:"Juego", orden:posSaga},
   {campo:"nivel_grupo", etiqueta:"Nivel"},
   {campo:"cuerpo_tipo", etiqueta:"Cuerpo"},
 ];
@@ -3008,6 +3014,7 @@ const FILTROS_PER = [
   {campo:"elemento", etiqueta:"Afinidad"},
   {campo:"rareza",   etiqueta:"Rareza"},
   {campo:"equipo",   etiqueta:"Equipo"},
+  {campo:"saga",     etiqueta:"Juego", orden:posSaga},
   {campo:"se_puede", etiqueta:"Se puede fichar",
    valor:d => d.se_puede ? "si" : "no"},
   {campo:"cuerpo_tipo", etiqueta:"Cuerpo"},

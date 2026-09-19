@@ -166,6 +166,10 @@ const FILTROS_PER = [
   {campo:"rareza_nombre", etiqueta:"Rareza"},
   {campo:"arquetipo", etiqueta:"Arquetipo"},
   {campo:"equipo", etiqueta:"Equipo"},
+  {campo:"saga", etiqueta:"Juego", orden:v => { const i = ["Inazuma Eleven", "Inazuma Eleven 2",
+    "Inazuma Eleven 3", "Inazuma Eleven GO", "Inazuma Eleven GO 2", "Inazuma Eleven GO Galaxy",
+    "Inazuma Eleven: Ares", "Inazuma Eleven: Orión", "Inazuma Eleven: Heroes' Victory Road"].indexOf(v);
+    return i < 0 ? 99 : i; }},
   {campo:"apt", etiqueta:"Aptitud"},
   {campo:"cuerpo_tipo", etiqueta:"Cuerpo"},
 ];

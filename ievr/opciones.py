@@ -637,6 +637,7 @@ def personajes_creables(plain):
             **datos_cuerpo(clave),
             "posicion": f.get("posicion"), "elemento": f.get("elemento"),
             "equipo": _limpio(f.get("equipo") or ""), "familia": familia,
+            "saga": ficha.get("saga") or "",       # el juego de origen (O-208)
             # el numero exacto de rareza: los tres Idolos (roja 5, plateada 6,
             # rosa 7) salian todos con el mismo fondo por no tenerlo
             "rareza_valor": int(ficha.get("rareza_valor") or 0),
@@ -655,6 +656,18 @@ def personajes_creables(plain):
             vistos.add(o["identidad"])
             unicos.append(o)
     return unicos
+
+
+def orden_de_sagas():
+    """{nombre de la saga: su numero 1-9} de `personajes.csv` (O-208), para
+    ordenar el filtro "Juego" como el propio juego y no por abecedario."""
+    def construir():
+        fuera = {}
+        for f in reglas.personajes().values():
+            if f.get("saga") and f.get("saga_num"):
+                fuera[f["saga"]] = int(f["saga_num"])
+        return fuera
+    return _indice("orden_de_sagas", construir)
 
 
 def sinergias():
