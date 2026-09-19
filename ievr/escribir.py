@@ -488,8 +488,12 @@ def poner_tecnica(plain, fila, ranura, nombre):
         # rodante...) y el juego los usa igual; las filas de tecnica aprendida
         # son sub 9 o 10 con una unidad (O-168). Al amigo de Aaron le fallaba
         # Aceleron por esto.
-        montones = [f for f in poseidas.get(id_hex, []) if f.get("sub") not in (9, 10)
-                    and f.get("kind") == inventario.KIND_REAL and f.get("cantidad", 0) > 0]
+        # Y "Conseguir 1 de todo" de versiones anteriores dejo montones con sub
+        # 10 y 99 unidades (Parada peliaguda): una fila aprendida es sub 9/10
+        # con UNA unidad; lo demas es monton.
+        montones = [f for f in poseidas.get(id_hex, [])
+                    if f.get("kind") == inventario.KIND_REAL and f.get("cantidad", 0) > 0
+                    and not (f.get("sub") in (9, 10) and f.get("cantidad", 0) == 1)]
         if not montones:
             raise Ilegal("no tienes el manual de %s en la mochila: en el juego una tecnica "
                          "que no es del arbol se aprende con su manual y una \"Nuevas "
@@ -1031,9 +1035,15 @@ def anadir_objeto(plain, nombre, cantidad=1):
     # el tramo de lo que se aprende mezcla supertecnicas, espiritus y pasivas, y
     # copiar la forma de una supertecnica para crear un espiritu seria copiar la
     # forma equivocada.
-    modelo = next((f for f in bloque["filas"]
-                   if f.get("id") in hermanos
-                   and f.get("kind") == inventario.KIND_REAL and f["slot"] != 0), None)
+    candidatos = [f for f in bloque["filas"]
+                  if f.get("id") in hermanos
+                  and f.get("kind") == inventario.KIND_REAL and f["slot"] != 0]
+    # una tecnica se da como MONTON de manuales (sub 2, como los de la tienda),
+    # no copiando una fila de tecnica aprendida (sub 9/10): asi lo dejaba antes
+    # y salian montones raros como el de Parada peliaguda (O-215)
+    if categoria == "supertecnica":
+        candidatos.sort(key=lambda f: 0 if f.get("sub") == 2 else 1)
+    modelo = candidatos[0] if candidatos else None
     if modelo is None:
         raise Ilegal("no hay ninguna fila de %s que copiar como plantilla" % categoria)
 
@@ -3358,9 +3368,15 @@ def conseguir_todo(plain, categoria, cantidad):
     if bloque is None:
         raise Ilegal("no hay en la partida ni una sola fila de %s, asi que no "
                      "puedo saber en que tramo va. No escribo nada." % categoria)
-    modelo = next((f for f in bloque["filas"]
-                   if f.get("id") in hermanos
-                   and f.get("kind") == inventario.KIND_REAL and f["slot"] != 0), None)
+    candidatos = [f for f in bloque["filas"]
+                  if f.get("id") in hermanos
+                  and f.get("kind") == inventario.KIND_REAL and f["slot"] != 0]
+    # una tecnica se da como MONTON de manuales (sub 2, como los de la tienda),
+    # no copiando una fila de tecnica aprendida (sub 9/10): asi lo dejaba antes
+    # y salian montones raros como el de Parada peliaguda (O-215)
+    if categoria == "supertecnica":
+        candidatos.sort(key=lambda f: 0 if f.get("sub") == 2 else 1)
+    modelo = candidatos[0] if candidatos else None
     if modelo is None:
         raise Ilegal("no hay ninguna fila de %s que copiar como plantilla" % categoria)
 
