@@ -5059,6 +5059,17 @@ quedaba a medias, sin su hueco, en TODOS los equipos. Ventana a 600 (se para
 en `033925BC` igualmente). Probado con la partida: ofensivas y defensivas
 entran en su ranura (ECLIPSE con "Promesa del camino a la victoria" en la 2).
 
+### O-212 · La pasiva personalizada suma en las pasivas de equipo
+
+Aaron: "las pasivas personalizadas cuentan para la suma de bonificaciones
+del equipo igual que las normales: todos menos los suplentes". No estaba:
+`pasivas_de_equipo` solo recorria las cinco de la tabla con numero. Ahora
+anade la personalizada de cada miembro que cuenta (`E.pasiva_personalizada`,
+O-179; su texto y valor estan en `pasivas-valor.csv`, `ss_ps5xxxx`), en el
+mismo grupo que las normales del mismo texto, y en "quienes" sale marcada
+"(personalizada)". Comprobado en la partida: en Super Alpino suman Njord,
+Shawn y Aiden con la 29 y no los suplentes Fifi, Grisley o Adam.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

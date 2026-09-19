@@ -707,6 +707,21 @@ def pasivas_de_equipo(plain, i):
             g["valor"] += v
             g["cuantos"] += 1
             g["quienes"].append("%s (%s)" % (quien, EQ.nombre_de_puesto(m["puesto"])))
+        # la pasiva personalizada (una por jugador, O-179) suma igual que las
+        # normales, para todos menos los suplentes (Aaron, O-212)
+        pid_p, _slot = E.pasiva_personalizada(plain, fila)
+        f = valores.get(pid_p or "")
+        if f:
+            g = grupos.setdefault(f["texto"], {"texto": f["texto"], "familia": f["familia"],
+                                               "icono": iconos.get(pid_p, ""), "valor": 0.0,
+                                               "id_pasiva": pid_p,
+                                               "cuantos": 0, "quienes": [], "sitio": []})
+            try:
+                g["valor"] += float(f["valor"])
+            except ValueError:
+                pass
+            g["cuantos"] += 1
+            g["quienes"].append("%s (%s, personalizada)" % (quien, EQ.nombre_de_puesto(m["puesto"])))
     fuera = []
     for g in grupos.values():
         g["valor"] = round(g["valor"], 2)
