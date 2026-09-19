@@ -2078,6 +2078,41 @@ def dar_personalizadas(plain, cantidad=99):
                         "pasivas personalizadas en la mochila")
 
 
+def juego_de_personal(plain, fila, rol):
+    """Los 5 ids del juego de pasivas de personal que le toca a ese gerente o
+    entrenador (O-210): un Diamante el de su arquetipo elegido con la clave
+    100 (siempre el mismo, sea quien sea; Aaron); un normal el de su clave de
+    fabrica, su rol y su arquetipo (`pasivas-personal.csv`, O-164). [] si no
+    se sabe."""
+    from ievr import opciones as O
+    rareza = J.array(plain, J.ARRAY_RAREZA)[fila]
+    ident_hex = "%08X" % J.array(plain, J.ARRAY_IDENTIDAD)[fila]
+    if rareza == 8:
+        arq = _arquetipo_diamante(plain, fila)
+        return O.pasivas_personal(rol, arq if arq is not None else 0, 100) if arq is not None else []
+    clave = O.clave_personal(ident_hex)
+    arq = J.array(plain, (J.F_ARQUETIPO, 6000, "B", 1))[fila]
+    if clave is None or arq not in J.ARQUETIPOS:
+        return []
+    return O.pasivas_personal(rol, arq, clave)
+
+
+def _escribir_juego_de_personal(plain, fila, ids, marcas):
+    """Escribe esos ids en la tabla con numero, con el valor de su rareza
+    (O-197) y las marcas que se le pasen."""
+    buf = bytearray(plain)
+    for k in range(5):
+        p = J.pos_tabla_pasivas(plain, fila, k)
+        if p is None:
+            return plain
+        pid = ids[k] if k < len(ids) and ids[k] else "00000000"
+        buf[p + 8:p + 12] = bytes.fromhex(pid)
+        struct.pack_into("<f", buf, p + 20,
+                         float(valor_de_pasiva_personal(plain, fila, pid)) if pid != "00000000" else 0.0)
+        buf[p + 32] = (marcas[k] if k < len(marcas) else 0) if pid != "00000000" else 0
+    return bytes(buf)
+
+
 def sincronizar_tabla_pasivas(plain, fila):
     """Deja la tabla de pasivas con numero de ese jugador (NOTAS O-166) como la
     dejaria el juego con lo que hay ahora en su ficha:
@@ -2126,6 +2161,22 @@ def sincronizar_tabla_pasivas(plain, fila):
             # (0 = Brecha; Raika: Afinidad 2 -> Brecha 0, confirmado en el juego)
             arq_eff = _arquetipo_diamante(plain, fila)
         if rol in ("entrenador", "gerente"):
+            # Su juego de pasivas de personal (O-210): un gerente o entrenador
+            # DE FABRICA llega del juego con el juego de su clave, rol y
+            # arquetipo (O-164), y un Diamante de personal lleva siempre el de
+            # su arquetipo elegido (clave 100), sea quien sea (Aaron: "una Nelly
+            # gerente Diamante de Tension tiene las mismas que una Celia"). Se
+            # escribe si la tabla esta vacia (recien fichado) o si es Diamante
+            # y no lleva el de su arquetipo (acaba de elegirlo). Un normal
+            # convertido con la medalla se queda vacio (O-164).
+            de_fabrica = bool((reglas.personajes().get(ident_hex) or {}).get("apt_" + rol))
+            esperado = juego_de_personal(plain, fila, rol)
+            ids_actual = [x["id"] for x in (actual or [])]
+            vacia = not any(x != "00000000" for x in ids_actual)
+            if esperado and ((vacia and (de_fabrica or rareza == 8))
+                             or (rareza == 8 and ids_actual != esperado)):
+                plain = _escribir_juego_de_personal(plain, fila, esperado, marcas)
+                actual = J.tabla_pasivas(plain, fila)
             # Los numeros de las pasivas de personal van por su rareza (O-197) y
             # la marca de desbloqueada la dan las casillas 33-39 del arbol, que
             # el juego abre al entrar en el (O-200): con ellas abiertas, marca 1
@@ -2614,6 +2665,8 @@ def anadir_jugador(plain, nombre, rareza=None, arquetipo=None, nivel=1):
         try:
             plain, _ = poner_medalla(plain, fila, apt)
             info["rol"] = apt
+            # y con su juego de pasivas de personal, como llega del juego (O-210)
+            plain = sincronizar_tabla_pasivas(plain, fila)
         except Ilegal as ex:
             info["aviso"] = "Es %s de fabrica pero se queda de jugador: %s" % (apt, ex)
     return plain, info

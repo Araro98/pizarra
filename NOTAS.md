@@ -5026,6 +5026,29 @@ historia del mixi de Raika toma los de la normal.
 espiritus puestos por el juego en la partida original y los 454 de la actual,
 todos pasan. La tabla pasa de 428 parejas a 722.
 
+### O-210 · Un gerente o entrenador recien fichado llega con sus pasivas
+
+Aaron: "cuando ficho un entrenador o gerente me salen sus pasivas vacias y en
+el juego si las tiene". `anadir_jugador` vaciaba la tabla con numero
+(`_vaciar_tabla_pasivas`), le ponia la medalla y no la volvia a rellenar; y
+`sincronizar_tabla_pasivas` en la rama de personal solo tocaba las marcas.
+
+Ahora `juego_de_personal(plain, fila, rol)` da los 5 ids que le tocan: un
+normal DE FABRICA el de su clave (chara_param col 6), su rol y su arquetipo
+(`pasivas-personal.csv`, O-164); un Diamante de personal el de su arquetipo
+elegido con la clave 100, sea quien sea (Aaron: "una Nelly gerente Diamante
+de Tension tiene las mismas que una Celia"). La rama de personal de
+`sincronizar_tabla_pasivas` los escribe (valor de su rareza, O-197; marca 0
+hasta que el arbol abra las casillas 33-39, O-200) cuando la tabla esta vacia
+y es de fabrica o Diamante, y cuando un Diamante no lleva el juego de su
+arquetipo (acaba de elegirlo con `poner_arquetipo_diamante`). Un normal
+convertido con la medalla sigue vacio (O-164). Fichar llama a la
+sincronizacion tras poner la medalla.
+
+Comprobado con la partida de Aaron: los 4 Diamantes de personal llevan justo
+ese juego; de los 148 normales de fabrica cuadran 86 y los otros 62 son los
+que Aaron cambio a mano (cinco copias de la misma pasiva, o una ranura vacia).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
