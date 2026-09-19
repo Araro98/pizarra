@@ -5140,6 +5140,22 @@ de pasivas de Kreaton Coco, Paco Dermott y Terry Pinn (ranuras 3-5, llevan la
 misma heredada TRES veces, de las de Cheat Engine, O-107) y del Seymour
 Hillman Diamante entrenador (sus casillas 33-39 no estan abiertas, O-200).
 
+### O-216 · La ranura 3 es una pasiva normal: vale la de cualquier arquetipo
+
+Aaron: "la ranura 3, aunque al invocar dependa del arquetipo, no es pasiva
+de arquetipo, es normal; las de arquetipo son solo la 4 y la 5; esos
+jugadores (Kreaton, Paco, Terry, con una pasiva de la ranura 3 de otro
+arquetipo) son legales". El selector y `poner_pasiva` limitaban la ranura 3
+al grupo "<arquetipo> (ranura 3)" del que llevara puesto; ahora admiten
+cualquier grupo "(ranura 3)" (los seis arquetipos) y las 4 y 5 siguen siendo
+del arquetipo puesto. El grupo de heredables (O-213) ya trataba la 3 como
+normal.
+
+Al repasar la partida con el criterio viejo salian 1.085 jugadores "raros"
+(ranura 2 fuera de su pool observado, o la misma pasiva en 4 y 5); los pools
+de las ranuras 1-2 son observados, no del juego, y Aaron da esos jugadores
+por legales: no se toca nada ahi.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

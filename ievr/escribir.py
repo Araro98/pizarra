@@ -841,6 +841,15 @@ def poner_pasiva(plain, fila, ranura, nombre):
     if ranura <= 2:
         permitidas = {f["pasiva_id"].upper(): f["pasiva"] for f in _pool_del_personaje(identidad)}
         de_donde = "las que puede sacar este personaje"
+    elif ranura == 3:
+        # la ranura 3 es una pasiva NORMAL: al invocar sale del grupo del
+        # arquetipo, pero no es de arquetipo y vale la de cualquiera (Aaron,
+        # O-216); solo las 4 y 5 son de arquetipo
+        permitidas = {}
+        for f in reglas._tabla("pasivas-por-ranura.csv"):
+            if f["grupo"].endswith("(ranura 3)"):
+                permitidas[f["id"].upper()] = f["nombre"]
+        de_donde = "las de la ranura 3 (de cualquier arquetipo)"
     else:
         permitidas = {}
         for f in reglas._tabla("pasivas-por-ranura.csv"):

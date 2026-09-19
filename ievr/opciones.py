@@ -376,7 +376,9 @@ def pasivas(plain, fila, ranura):
     - **1 y 2**: solo las del sorteo de ese personaje concreto. No es una lista
       generica: una portera del equipo Guardianas puede sacar pasivas de tiro y
       otra portera no.
-    - **3, 4 y 5**: las del arquetipo que tenga puesto AHORA, no el que le
+    - **3**: las de la ranura 3 de cualquier arquetipo: al invocar sale la del
+      suyo, pero es una pasiva normal, no de arquetipo (Aaron, O-216).
+    - **4 y 5**: las de arquetipo, del que tenga puesto AHORA, no el que le
       corresponde de fabrica.
     """
     if not 1 <= ranura <= 5:
@@ -400,9 +402,16 @@ def pasivas(plain, fila, ranura):
                                                   _limpio(f.get("pasiva"))),
                           "icono200": iconos_de_pasiva().get(f["pasiva_id"].upper(), "")})
     else:
-        de_donde = "las del arquetipo %s en la ranura %d" % (arquetipo, ranura)
-        grupo = "%s (ranura %d)" % (arquetipo, ranura)
-        for f in _por_grupo_de_ranura().get(grupo, []):
+        if ranura == 3:
+            # la ranura 3 es una pasiva NORMAL: al invocar sale del grupo del
+            # arquetipo, pero no es de arquetipo y vale la de cualquiera
+            # (Aaron, O-216); solo las 4 y 5 son de arquetipo
+            de_donde = "las de la ranura 3 (de cualquier arquetipo; al invocar sale la del suyo)"
+            filas = [f for g, fs in _por_grupo_de_ranura().items() if g.endswith("(ranura 3)") for f in fs]
+        else:
+            de_donde = "las del arquetipo %s en la ranura %d" % (arquetipo, ranura)
+            filas = _por_grupo_de_ranura().get("%s (ranura %d)" % (arquetipo, ranura), [])
+        for f in filas:
             fuera.append({"id": f["id"].upper(),
                           "nombre": nombre_pasiva(variante_por_rareza(f["id"].upper(), rareza),
                                                   _limpio(f.get("nombre"))),
