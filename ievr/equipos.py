@@ -200,7 +200,9 @@ def leer(plain, i):
     # un byte, las cinco `skillId` y las dos sinergias, y son de ESTE equipo.
     # Se leen desde el final del nombre hasta la marca `0x033925BC`.
     fin_nombre = a[i] + 8 + LARGO_NOMBRE
-    for off, fh, tipo, ln, d in _campos(plain, fin_nombre, min(len(plain), fin_nombre + 200)):
+    # (el bloque mide unos 220 bytes: con 200 se quedaba fuera el hueco de la
+    # segunda sinergia y la defensiva no se podia poner, O-211)
+    for off, fh, tipo, ln, d in _campos(plain, fin_nombre, min(len(plain), fin_nombre + 600)):
         if fh == F_SINERGIA and ln == 4:
             sinergias.append({"id": _u(d), "off": off + 8, "hueco": 0, "off_hueco": None})
         elif fh == F_SINERGIA_HUECO and ln == 4 and sinergias:

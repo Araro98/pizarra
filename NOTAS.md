@@ -5049,6 +5049,16 @@ Comprobado con la partida de Aaron: los 4 Diamantes de personal llevan justo
 ese juego; de los 148 normales de fabrica cuadran 86 y los otros 62 son los
 que Aaron cambio a mano (cinco copias de la misma pasiva, o una ranura vacia).
 
+### O-211 · La sinergia defensiva no se podia poner ("no tiene el hueco 2")
+
+Aaron: "intento equipar una sinergia defensiva a un equipo que cumple y me
+sale 'ese equipo no tiene el hueco de sinergia 2 en la partida'". `leer()`
+recorria el bloque de detras del nombre con una ventana de 200 bytes y el
+bloque mide unos 220: la segunda pareja (id `20D7819C` + hueco `585CA018`)
+quedaba a medias, sin su hueco, en TODOS los equipos. Ventana a 600 (se para
+en `033925BC` igualmente). Probado con la partida: ofensivas y defensivas
+entran en su ranura (ECLIPSE con "Promesa del camino a la victoria" en la 2).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
