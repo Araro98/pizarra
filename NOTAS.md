@@ -5159,6 +5159,26 @@ Al repasar la partida con el criterio viejo salian 1.085 jugadores "raros"
 de las ranuras 1-2 son observados, no del juego, y Aaron da esos jugadores
 por legales: no se toca nada ahi.
 
+### O-217 · Crear un equipo: ponerle nombre a un hueco vacio ("+ Equipo nuevo")
+
+Aaron: "que alguien sin equipos pueda darle a + y crear otro, con el tope de
+11 del juego. En el juego no se borran equipos: si los vacias se quedan
+vacios pero el hueco sigue; y creo que hasta que no abres un equipo no sale
+el hueco". Su amigo solo ve 3 en el editor (los 3 con nombre).
+
+En la partida los huecos de equipo del jugador van de tres en tres desde el
+6 (`huecos_de_equipo`: 6, 9, ... 45, catorce; el segundo de cada tres es la
+copia de partido y el tercero va a cero). Un hueco recien preparado por el
+juego (33, 34, 43, 46 de la partida de Aaron: sin nombre, sin nadie) lleva
+formacion 2484170522, equipacion 2961452819 (con su hueco de mochila en
+`627F2D54`) y escudo 1456326706; el resto de campos a cero. `crear_equipo`
+coge el primer hueco de esos catorce sin nombre y sin nadie, le pone eso
+mismo (a el y a su copia de partido), y el nombre. Tope: 11 con nombre
+(`TOPE_EQUIPOS`), que es lo que ensena el juego. Como jugando solo se llega a
+los equipos con nombre (O-120), ponerle nombre deberia bastar para que salga
+en el juego; falta que el amigo de Aaron lo confirme (Aaron no puede: sus 11
+estan usados).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

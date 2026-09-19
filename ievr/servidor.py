@@ -1472,6 +1472,8 @@ class Manejador(BaseHTTPRequestHandler):
             return sesion.aplicar(E.quitar_heredada, fila, int(c["ranura"]))
         if t == "equipo_nombre":
             return sesion.aplicar(EQ.poner_nombre, int(c["equipo"]), c["nombre"])
+        if t == "crear_equipo":
+            return sesion.aplicar(EQ.crear_equipo, c.get("nombre") or "")
         if t == "equipo_dorsal":
             return sesion.aplicar(EQ.poner_dorsal, int(c["equipo"]),
                                   int(c["hueco"]), int(c["valor"]))

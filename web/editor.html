@@ -2419,6 +2419,24 @@ function pintaTabsEquipos() {
     c.appendChild(el("button", {"aria-selected":String(e.hueco === equipoAbierto),
       onclick:() => { equipoAbierto = e.hueco; marcado = null; abreEquipo(); pintaTabsEquipos(); }},
       [el("span", {class:"rotulo", text:e.nombre || "hueco " + e.hueco})]));
+  // "+": crear un equipo en un hueco vacio de la partida (O-217). En el juego
+  // los huecos existen siempre y solo se ven los que tienen nombre; el tope
+  // son los 11 que ensena el juego, y el servidor lo comprueba.
+  c.appendChild(el("button", {class:"btn chico", text:"+ Equipo nuevo",
+    title:"Prepara un hueco vacio de la partida como equipo nuevo (maximo 11)",
+    onclick:async () => {
+      const inp = el("input", {type:"text", maxlength:"30", placeholder:"Nombre del equipo"});
+      const nombre = await ventanaPregunta("Equipo nuevo", "Se prepara un hueco vacio de la partida con la "
+        + "formacion, la equipacion y el escudo de serie, como hace el juego.", inp, [
+        {texto:"Cancelar", accion:cerrar => cerrar(null)},
+        {texto:"Crear", clase:"verde", accion:cerrar => cerrar(inp.value.trim() || null)}]);
+      if (!nombre) return;
+      try {
+        const r = await manda({tipo:"crear_equipo", nombre});
+        if (r && r.equipo != null) { equipoAbierto = r.equipo; marcado = null; pintaTabsEquipos(); await abreEquipo(); }
+        aviso("Equipo \"" + nombre + "\" creado" + (r && r.quedan != null ? " (quedan " + r.quedan + " huecos)" : "") + ".", "bien");
+      } catch (e) { aviso(e.message, "mal"); }
+    }}));
 }
 
 async function abreEquipo() {

@@ -332,6 +332,63 @@ def poner_nombre(plain, i, nombre):
                         "antes": e["nombre"], "despues": nombre}
 
 
+# Lo que el juego deja en un hueco de equipo recien preparado (huecos 33, 34,
+# 43 y 46 de la partida de Aaron, sin nombre y sin nadie): formacion,
+# equipacion y escudo de serie (O-217).
+FORMACION_DE_SERIE = 2484170522
+EQUIPACION_DE_SERIE = 2961452819
+ESCUDO_DE_SERIE = 1456326706
+TOPE_EQUIPOS = 11           # huecos de equipo que ensena el juego (Aaron)
+
+
+def huecos_de_equipo(plain):
+    """Los huecos donde van los equipos del jugador: de tres en tres desde el
+    6 (los tuyos de Aaron: 6, 9, ... 30, 42, 45; el segundo de cada tres es su
+    copia de partido y el tercero va vacio, O-120, O-217)."""
+    a = anclas(plain)
+    return [i for i in range(6, len(a) - 1, 3)]
+
+
+def crear_equipo(plain, nombre):
+    """Prepara un hueco libre como equipo nuevo, con el nombre que se pida y lo
+    de serie que deja el juego (O-217). En el juego no se borran equipos: el
+    hueco existe siempre, y solo se llega a los que tienen nombre (O-120); asi
+    que crear un equipo es ponerle nombre a un hueco vacio. Tope: los 11 que
+    ensena el juego."""
+    nombre = (nombre or "").strip()
+    b = nombre.encode("utf-8")
+    if not b:
+        raise Ilegal("el equipo tiene que tener nombre")
+    if len(b) > 30:
+        raise Ilegal("el nombre no puede pasar de 30 letras")
+    con_nombre = [i for i in huecos_de_equipo(plain) if leer(plain, i)["nombre"].strip()]
+    if len(con_nombre) >= TOPE_EQUIPOS:
+        raise Ilegal("ya tienes %d equipos, que son los que ensena el juego; vacia o "
+                     "renombra uno" % TOPE_EQUIPOS)
+    libres = [i for i in huecos_de_equipo(plain)
+              if not leer(plain, i)["nombre"].strip()
+              and not any(m["jugador"] for m in leer(plain, i)["miembros"])]
+    if not libres:
+        raise Ilegal("no queda ningun hueco de equipo vacio en la partida")
+    i = libres[0]
+    buf = bytearray(plain)
+    for h in (i, i + 1):
+        e = leer(plain, h)
+        c = e["campos"]
+        for fh, valor in ((F_FORMACION, FORMACION_DE_SERIE), (F_EQUIPACION, EQUIPACION_DE_SERIE),
+                          (F_ESCUDO, ESCUDO_DE_SERIE)):
+            off = c.get("off_%08X" % fh)
+            if off is not None and not c.get(fh):
+                struct.pack_into("<I", buf, off, valor)
+        off = c.get("off_%08X" % F_HUECO_EQUIPACION)
+        if off is not None and not c.get(F_HUECO_EQUIPACION):
+            struct.pack_into("<I", buf, off, hueco_de_pieza(plain, "equipacion", EQUIPACION_DE_SERIE))
+    e = leer(plain, i)
+    buf[e["off_nombre"]:e["off_nombre"] + LARGO_NOMBRE] = b + bytes(LARGO_NOMBRE - len(b))
+    return bytes(buf), {"equipo": i, "que": "equipo nuevo", "nombre": nombre,
+                        "quedan": TOPE_EQUIPOS - len(con_nombre) - 1}
+
+
 def _dorsal_libre(e, sin=(), ocupados=()):
     """El dorsal mas bajo (1-99) que nadie lleva en ese equipo, sin contar los
     huecos de `sin`. Un numero libre entre medias antes que uno nuevo, como
