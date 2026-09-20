@@ -63,8 +63,8 @@ PARTIDOS_MAX = 30
 def _solo_normales(plain, fila):
     rareza = J.array(plain, J.ARRAY_RAREZA)[fila]
     if rareza >= 5:
-        raise E.Ilegal("los presets y el MAX son para futbolistas normales: un %s "
-                       "tiene sus cosas fijas" % J.RAREZAS.get(rareza, "Idolo"))
+        raise E.Ilegal("el preset de pasivas es para futbolistas normales: un %s "
+                       "tiene sus pasivas fijas" % J.RAREZAS.get(rareza, "Idolo"))
 
 
 def _texto(id_hex, rareza=RAREZA_MAX):
