@@ -1154,7 +1154,22 @@ def detalle_jugador(plain, fila):
 
 # --- el servidor ----------------------------------------------------------------
 
+class ServidorPizarra(ThreadingHTTPServer):
+    """El servidor de siempre, con cola de conexiones grande: la pantalla de
+    inicio pide una veintena de imagenes de golpe y con la cola de serie (5)
+    el sistema rechazaba conexiones de vez en cuando y salian imagenes rotas
+    hasta recargar (Aaron, O-221)."""
+    request_queue_size = 128
+    daemon_threads = True
+    allow_reuse_address = True
+
+
 class Manejador(BaseHTTPRequestHandler):
+    # HTTP/1.1 con la conexion abierta: el navegador reutiliza unas pocas
+    # conexiones en vez de abrir una por imagen (todas las respuestas llevan
+    # Content-Length, que es lo que hace falta para esto; O-221)
+    protocol_version = "HTTP/1.1"
+
     def log_message(self, *a):
         pass
 
@@ -1573,7 +1588,7 @@ def preparar(origen, puerto=PUERTO):
         except OSError:
             pass
         try:
-            return ThreadingHTTPServer(("127.0.0.1", p), Manejador), p
+            return ServidorPizarra(("127.0.0.1", p), Manejador), p
         except OSError as e:
             ultimo = e
     raise SystemExit("no encuentro un puerto libre a partir del %d: %s" % (puerto, ultimo))

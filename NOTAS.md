@@ -5244,6 +5244,20 @@ CS, GX, ARES, ORI, VR) y el nombre completo al pasar el raton. Va en todas
 las tarjetas (Jugadores, reserva del Team builder, Fichar y base de datos),
 en la linea de datos de la ficha y como chip en la ficha de la base de datos.
 
+### O-221 · Imagenes rotas al arrancar: la cola de conexiones del servidor
+
+Aaron: "a veces al iniciar salen imagenes sin cargar (iconos de Fichar y
+Supertecnicas, el fondo de Base de datos); al entrar y salir del editor se
+corrige". El servidor iba con `ThreadingHTTPServer` tal cual: HTTP/1.0 (una
+conexion por peticion) y cola de conexiones pendientes de 5. La pantalla de
+inicio pide de golpe una veintena de imagenes, el css y el js; cuando la
+ventana abria mas conexiones de las que cabian en la cola, Windows las
+rechazaba y esas imagenes quedaban rotas hasta recargar (por eso "a veces").
+Ahora `ServidorPizarra` lleva cola de 128 y hilos daemon, y `Manejador` va
+por HTTP/1.1 con la conexion abierta (todas las respuestas llevan
+Content-Length: `_responder` y `_fichero`), asi que el navegador reutiliza
+unas pocas conexiones. Probado con 150 peticiones a la vez: 150 de 150 bien.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
