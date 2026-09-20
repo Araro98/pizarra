@@ -675,6 +675,7 @@ def personajes_creables(plain):
             "equipo": _limpio(f.get("equipo") or ""), "familia": familia,
             "saga": ficha.get("saga") or "",       # el juego de origen (O-208)
             "apodo": ficha.get("apodo") or "",     # el apodo del juego, para buscar (O-219)
+            **puede_llevar(clave),                 # armadura, mixi max, modo (O-222)
             # el numero exacto de rareza: los tres Idolos (roja 5, plateada 6,
             # rosa 7) salian todos con el mismo fondo por no tenerlo
             "rareza_valor": int(ficha.get("rareza_valor") or 0),
@@ -1127,6 +1128,25 @@ def _iconos_de_objeto():
                   for f in reglas._tabla("iconos-objeto.csv") if f.get("icono")})
         return d
     return _indice("iconos_objeto", construir)
+
+
+def puede_llevar(identidad_hex):
+    """{"armadura", "mixi", "modo"} -> "si" o "": que espiritus puede llevar de
+    forma legal esa identidad exacta, segun `espiritus-duenos.csv` (O-209).
+    "modo" son las hipertecnicas especiales de un personaje (Modo Reina,
+    Modo Aphrody...), no las cinco que son de todos (O-174). Es el filtro
+    "Armadura / Mixi max / Modo" de Jugadores, Equipos y Fichar (O-222)."""
+    def construir():
+        d = {}
+        for f in reglas._tabla("espiritus-duenos.csv"):
+            if f.get("personaje") == "todos" or not f.get("identidad"):
+                continue
+            fam = {"armadura": "armadura", "mixi": "mixi", "especial": "modo"}.get(f.get("familia"))
+            if fam:
+                d.setdefault(f["identidad"].upper(), set()).add(fam)
+        return d
+    tiene = _indice("puede_llevar", construir).get((identidad_hex or "").upper(), set())
+    return {k: ("si" if k in tiene else "") for k in ("armadura", "mixi", "modo")}
 
 
 def duenos_de_espiritu(id_hex):

@@ -1061,6 +1061,8 @@ const ORDEN_SAGA = ["Inazuma Eleven", "Inazuma Eleven 2", "Inazuma Eleven 3", "I
 const posSaga = v => { const i = ORDEN_SAGA.indexOf(v); return i < 0 ? 99 : i; };
 const CAMPOS_FILTRO = [["elemento","Afinidad"],["posicion","Posicion"],
   ["rareza","Rareza"],["arquetipo","Arquetipo"],["equipo","Equipo"],["saga","Juego"],
+  // que espiritus puede llevar de forma legal (O-222): "si" o nada
+  ["armadura","Armadura"],["mixi","Mixi max"],["modo","Modo"],
   // "Mi equipo" son los equipos guardados de Aaron, con su cuerpo tecnico;
   // "Equipo" a secas es el equipo del personaje en la historia (NOTAS O-181)
   ["mi_equipo","Mi equipo"],
@@ -2531,6 +2533,9 @@ const FILTROS_RES = [
   {campo:"rareza",   etiqueta:"Rareza"},
   {campo:"equipo",   etiqueta:"Equipo"},
   {campo:"saga",     etiqueta:"Juego", orden:posSaga},
+  {campo:"armadura", etiqueta:"Armadura"},
+  {campo:"mixi",     etiqueta:"Mixi max"},
+  {campo:"modo",     etiqueta:"Modo"},
   {campo:"nivel_grupo", etiqueta:"Nivel"},
   {campo:"cuerpo_tipo", etiqueta:"Cuerpo"},
 ];
@@ -3169,6 +3174,9 @@ const FILTROS_PER = [
   {campo:"rareza",   etiqueta:"Rareza"},
   {campo:"equipo",   etiqueta:"Equipo"},
   {campo:"saga",     etiqueta:"Juego", orden:posSaga},
+  {campo:"armadura", etiqueta:"Armadura"},
+  {campo:"mixi",     etiqueta:"Mixi max"},
+  {campo:"modo",     etiqueta:"Modo"},
   {campo:"se_puede", etiqueta:"Se puede fichar",
    valor:d => d.se_puede ? "si" : "no"},
   {campo:"cuerpo_tipo", etiqueta:"Cuerpo"},

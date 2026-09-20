@@ -5265,6 +5265,17 @@ por HTTP/1.1 con la conexion abierta (todas las respuestas llevan
 Content-Length: `_responder` y `_fichero`), asi que el navegador reutiliza
 unas pocas conexiones. Probado con 150 peticiones a la vez: 150 de 150 bien.
 
+### O-222 · Filtros "Armadura", "Mixi max" y "Modo"
+
+Aaron: "en Jugadores, Equipos y Fichar, un filtro de personajes que puedan
+llevar armadura, mixi max o modo (Reina, Aphrody...) de forma legal".
+`O.puede_llevar(identidad)` lo saca de `espiritus-duenos.csv` (O-209): por
+identidad exacta, y "modo" son las especiales de un personaje (no las cinco
+de todos, O-174). En la partida de Aaron y en las tablas: 151 identidades
+solo armadura, 81 armadura y mixi, 24 solo mixi, 11 solo modo, 2 mixtas. Van
+como tres campos "si"/vacio en la ficha corta y en Fichar, con su filtro en
+las tres pantallas (el recuento solo cuenta los "si").
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

@@ -372,6 +372,8 @@ def _ficha_corta(plain, fila, ident, nivel, rareza, arq, jugadores):
         # el apodo que ensena el juego bajo el nombre ("Phoenix"), que tambien
         # vale para buscar (O-219)
         "apodo": (reglas.personajes().get(clave) or {}).get("apodo") or "",
+        # que espiritus puede llevar de forma legal: armadura, mixi max, modo (O-222)
+        **O.puede_llevar(clave),
         "cara": O._cara_por_identidad().get(clave, "")
                 or ((f or {}).get("string_id") or ""),
         **O.datos_cuerpo("%08X" % ident[fila]),
@@ -889,6 +891,7 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
     import collections
     cuentas = {c: collections.Counter() for c in
                ("elemento", "posicion", "rareza", "arquetipo", "equipo", "saga",
+                "armadura", "mixi", "modo",
                 "nivel_grupo", "judias", "heredadas", "equipacion", "rol",
                 "cuerpo_tipo", "mi_equipo")}
     for d in todos:
@@ -1315,7 +1318,7 @@ class Manejador(BaseHTTPRequestHandler):
             if u.path == "/api/jugadores":
                 filtros = {c: (q.get(c) or [""])[0]
                            for c in ("elemento", "posicion", "rareza",
-                                     "arquetipo", "equipo", "saga", "nivel_grupo",
+                                     "arquetipo", "equipo", "saga", "armadura", "mixi", "modo", "nivel_grupo",
                                      "judias", "heredadas", "equipacion", "rol",
                                      "cuerpo_tipo", "mi_equipo")}
                 with sesion.lock:
