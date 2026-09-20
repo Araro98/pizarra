@@ -369,6 +369,9 @@ def _ficha_corta(plain, fila, ident, nivel, rareza, arq, jugadores):
         "equipo": O.sin_marcadores((f or {}).get("equipo") or ""),
         # el juego de origen, el filtro "Juego" del propio juego (O-208)
         "saga": (reglas.personajes().get(clave) or {}).get("saga") or "",
+        # el apodo que ensena el juego bajo el nombre ("Phoenix"), que tambien
+        # vale para buscar (O-219)
+        "apodo": (reglas.personajes().get(clave) or {}).get("apodo") or "",
         "cara": O._cara_por_identidad().get(clave, "")
                 or ((f or {}).get("string_id") or ""),
         **O.datos_cuerpo("%08X" % ident[fila]),
@@ -897,7 +900,7 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
                 cuentas[c][d[c]] += 1
 
     def pasa(d):
-        if texto and texto not in (d["nombre"] + " " + d["equipo"] + " "
+        if texto and texto not in (d["nombre"] + " " + d.get("apodo", "") + " " + d["equipo"] + " "
                                    + d["posicion"] + " " + d["elemento"]).lower():
             return False
         for campo, valor in filtros.items():
@@ -1119,6 +1122,7 @@ def detalle_jugador(plain, fila):
         "posicion": base.get("posicion") or "", "elemento": base.get("elemento") or "",
         "equipo": O.sin_marcadores(base.get("equipo") or ""),
         "saga": (reglas.personajes().get("%08X" % ident[fila]) or {}).get("saga") or "",
+        "apodo": (reglas.personajes().get("%08X" % ident[fila]) or {}).get("apodo") or "",
         "descripcion": O.sin_marcadores(
             O._descripcion_por_identidad().get("%08X" % ident[fila], "")),
         "nivel": nivel[fila], "niveles": O.niveles(),

@@ -179,9 +179,12 @@ def main():
         if len(c) < 4:
             continue
         base_id, indice, name_id = entero(c[0]), entero(c[2]), entero(c[3])
+        # 4 = la clave de texto del APODO (Cerise Crane -> "Phoenix", Mark
+        # Evans -> "Mark"), lo que el juego ensena bajo el nombre (O-219)
+        apodo_id = entero(c[4]) if len(c) > 4 else None
         serie = entero(c[15]) if len(c) > 15 else None
         if base_id is not None:
-            base[base_id] = (indice, name_id, sagas.get(serie & 0xFFFFFFFF if serie is not None else -1, (0, "")))
+            base[base_id] = (indice, name_id, sagas.get(serie & 0xFFFFFFFF if serie is not None else -1, (0, "")), apodo_id)
 
     # Los nombres se leen del PROPIO fichero de textos del juego. Antes se
     # cogian del volcado a sqlite, y ese volcado venia incompleto: 154
@@ -223,11 +226,11 @@ def main():
                     "nombre_es", "nombre_en", "apt_entrenador", "apt_gerente"]
                    + ["tec%d" % k for k in range(1, 10)]
                    + ["tec%d_nivel" % k for k in range(1, 10)]
-                   + ["arquetipo_valor", "clave_personal", "tablero", "saga", "saga_num"])
+                   + ["arquetipo_valor", "clave_personal", "tablero", "saga", "saga_num", "apodo"])
         for ident, (base_id, rareza, apt_e, apt_g, tecnicas, arquetipo, clave_personal, tablero) in sorted(param.items()):
             if base_id not in base:
                 continue
-            indice, name_id, (saga_num, saga) = base[base_id]
+            indice, name_id, (saga_num, saga), apodo_id = base[base_id]
             w.writerow(["%08X" % ident, base_id, indice,
                         RAREZAS.get(rareza, "desconocida(%s)" % rareza), rareza,
                         idiomas.get("es", {}).get(name_id, ""),
@@ -236,7 +239,8 @@ def main():
                        + [t for t, _ in tecnicas] + [lv for _, lv in tecnicas]
                        + ["" if arquetipo is None else arquetipo,
                           "" if clave_personal is None else clave_personal, tablero,
-                          saga, saga_num or ""])
+                          saga, saga_num or "",
+                          idiomas.get("es", {}).get(apodo_id, "") or idiomas.get("en", {}).get(apodo_id, "")])
             n += 1
     print("Escritos %d personajes en %s" % (n, SALIDA))
     return 0

@@ -674,6 +674,7 @@ def personajes_creables(plain):
             "posicion": f.get("posicion"), "elemento": f.get("elemento"),
             "equipo": _limpio(f.get("equipo") or ""), "familia": familia,
             "saga": ficha.get("saga") or "",       # el juego de origen (O-208)
+            "apodo": ficha.get("apodo") or "",     # el apodo del juego, para buscar (O-219)
             # el numero exacto de rareza: los tres Idolos (roja 5, plateada 6,
             # rosa 7) salian todos con el mismo fondo por no tenerlo
             "rareza_valor": int(ficha.get("rareza_valor") or 0),

@@ -236,6 +236,8 @@
   .cabecera .retrato { position:relative; }
   .cabecera .retrato img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
   .cabecera .datos { flex:1; min-width:0; position:relative; z-index:1; }
+  .cabecera .apodo { display:inline-block; margin:2px 0 4px; padding:1px 10px; border-radius:6px;
+    background:rgba(255,255,255,.85); color:#3a4a63; font-weight:700; font-size:var(--t-sm); }
   .cabecera h3 { margin:0; font-size:var(--t-xl); color:#fff; font-weight:800;
     text-shadow:2px 2px 0 rgba(0,0,0,.35); }
   .chips { display:flex; gap:8px; align-items:center; margin-top:5px; flex-wrap:wrap; }
@@ -895,7 +897,7 @@
       <div class="marco">
         <h2>Plantilla</h2>
         <div class="buscador"><input type="search" id="buscar"
-          placeholder="Buscar por nombre, equipo, posicion..."></div>
+          placeholder="Buscar por nombre, apodo, equipo, posicion..."></div>
         <div class="filtros" id="filtros"></div>
         <div id="bonif-jug"></div>
         <div class="rejilla-jug" id="lista"></div>
@@ -1307,7 +1309,9 @@ function pintaFicha() {
         onclick:() => manda({tipo:"maximo", fila:d.fila})})
     : null;
   const cab = el("div", {class:"cabecera"}, [retrato,
-    el("div", {class:"datos"}, [el("h3", {text:d.nombre}), chips]),
+    el("div", {class:"datos"}, [el("h3", {text:d.nombre}),
+      // el apodo, como lo ensena el juego bajo el nombre (O-219)
+      d.apodo && d.apodo !== d.nombre ? el("div", {class:"apodo", text:d.apodo}) : null, chips]),
     max,
     el("div", {class:"nivel-grande"}, [el("small", {text:"Nv."}),
       el("b", {text:String(d.nivel)})])]);
@@ -2614,7 +2618,7 @@ function pintaReservas() {
   if (!reservas) return;
   const q = $("#buscar-res").value.trim().toLowerCase();
   const ves = reservas.jugadores.filter(j => pasaFiltros(j, FILTROS_RES, estadoRes) &&
-    (!q || (j.nombre + " " + j.equipo + " " + j.posicion).toLowerCase().includes(q)));
+    (!q || (j.nombre + " " + (j.apodo || "") + " " + j.equipo + " " + j.posicion).toLowerCase().includes(q)));
   const clave = CLAVES_ORDEN_RES[ordenRes] || CLAVES_ORDEN_RES.nivel;
   ves.sort((a, b) => comparaClaves(clave(a), clave(b)));
   if (sentidoRes === "desc") ves.reverse();
@@ -3219,7 +3223,7 @@ async function cargaPersonajes(recargar) {
   botonFiltros(cajaPer, "per", cuantosActivos(estadoPer, (ordenPer !== "nombre" ? 1 : 0) + (sentidoPer !== "asc" ? 1 : 0)));
   const q = $("#buscar-per").value.trim().toLowerCase();
   const ves = deLaFamilia.filter(x => pasaFiltros(x, FILTROS_PER, estadoPer) &&
-    (!q || (x.nombre + " " + x.equipo + " " + x.posicion).toLowerCase().includes(q)));
+    (!q || (x.nombre + " " + (x.apodo || "") + " " + x.equipo + " " + x.posicion).toLowerCase().includes(q)));
   const clavePer = CLAVES_ORDEN_PER[ordenPer] || CLAVES_ORDEN_PER.nombre;
   ves.sort((a, b) => comparaClaves(clavePer(a), clavePer(b)));
   if (sentidoPer === "desc") ves.reverse();

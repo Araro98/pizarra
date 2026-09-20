@@ -187,7 +187,7 @@ async function cargaPersonajes() {
 function pintaPersonajes() {
   const q = $("#buscar-per").value.trim().toLowerCase();
   const ves = datos.personajes.filter(p => pasaFiltros(p, FILTROS_PER, estadoPer)
-    && (!q || (p.nombre + " " + p.equipo + " " + p.posicion + " " + p.elemento).toLowerCase().includes(q)));
+    && (!q || (p.nombre + " " + (p.apodo || "") + " " + p.equipo + " " + p.posicion + " " + p.elemento).toLowerCase().includes(q)));
   const r = $("#lista-per"); r.textContent = "";
   for (const p of ves.slice(0, 600)) {
     const t = fichaMini(p, abrePersonaje);

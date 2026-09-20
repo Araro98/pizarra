@@ -5219,6 +5219,19 @@ cosas", con popup bonito e iconos, y nada de esto para Idolos ni Diamantes.
   `pasivas-por-ranura.csv` (grupos Contra 4 y 5) y `EXCLUIR` en
   `construir_pasivas_jugador.py` para que no vuelva.
 
+### O-219 · El apodo de cada personaje, y buscar por el
+
+Aaron: "cada personaje tiene un apodo (Mark Evans es 'Mark', Cerise Crane es
+'Phoenix'); que al buscar en Jugadores, Fichar, Equipos... salga tambien por
+el apodo". Esta en `chara_base` columna 4: la clave de texto del apodo en
+`chara_text` (col 3 es la del nombre). `construir_personajes.py` la escribe
+como `apodo` en `personajes.csv` (6.072 de 6.151 lo tienen; 509 son distintos
+del nombre: Byron Love "Aphrody", Terry Pinn "Tortoise"...). Va en la ficha
+corta, en Fichar y en la base de datos, entra en todas las busquedas (la del
+servidor en Jugadores, la reserva del Team builder, Fichar y la base de
+datos) y la cabecera de la ficha lo ensena bajo el nombre como el juego,
+cuando no es el propio nombre.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
