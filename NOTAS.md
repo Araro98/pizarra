@@ -5219,6 +5219,13 @@ cosas", con popup bonito e iconos, y nada de esto para Idolos ni Diamantes.
   `pasivas-por-ranura.csv` (grupos Contra 4 y 5) y `EXCLUIR` en
   `construir_pasivas_jugador.py` para que no vuelva.
 
+Segunda vuelta (Aaron): los presets de judias y de equipacion valen tambien
+para Idolos y Diamantes; el de pasivas no. El MAX sale en todos, pero a un
+Idolo o Diamante solo le sube el nivel a 99 y le pone 30 partidos (la rareza
+es fija). Y se quito el boton "Convertir en Diamante" de la ficha: Aaron
+prefiere que la unica forma de conseguir uno sea Fichar (la accion
+`diamante` sigue en el servidor por si hiciera falta, sin boton).
+
 ### O-219 · El apodo de cada personaje, y buscar por el
 
 Aaron: "cada personaje tiene un apodo (Mark Evans es 'Mark', Cerise Crane es

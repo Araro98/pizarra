@@ -113,8 +113,8 @@ def _asegura_objeto(plain, id_hex):
 
 
 def preset_judias(plain, fila, clave):
-    """Las tres judias del preset, al tope que permite el nivel."""
-    _solo_normales(plain, fila)
+    """Las tres judias del preset, al tope que permite el nivel. Tambien para
+    Idolos y Diamantes (Aaron)."""
     p = next((x for x in PRESETS_JUDIAS if x["clave"] == clave), None)
     if p is None:
         raise E.Ilegal("no conozco el preset de judias %r" % clave)
@@ -138,8 +138,8 @@ def preset_judias(plain, fila, clave):
 
 
 def preset_equipacion(plain, fila, clave):
-    """Las cuatro piezas del preset; si falta alguna en la mochila se crea."""
-    _solo_normales(plain, fila)
+    """Las cuatro piezas del preset; si falta alguna en la mochila se crea.
+    Tambien para Idolos y Diamantes (Aaron)."""
     p = next((x for x in PRESETS_EQUIPACION if x["clave"] == clave), None)
     if p is None:
         raise E.Ilegal("no conozco el preset de equipacion %r" % clave)
@@ -198,13 +198,14 @@ def preset_pasivas(plain, fila, arquetipo, clave):
 
 
 def maximo(plain, fila):
-    """Nivel 99, Leyenda del futbol y 30 partidos, de una vez."""
-    _solo_normales(plain, fila)
+    """Nivel 99, Leyenda del futbol y 30 partidos, de una vez. A un Idolo o
+    Diamante, que tienen la rareza fija, solo el nivel y los partidos (Aaron)."""
     hecho = []
     if J.array(plain, J.ARRAY_NIVEL)[fila] != NIVEL_MAX:
         plain, _ = E.poner_nivel(plain, fila, NIVEL_MAX)
         hecho.append("nivel %d" % NIVEL_MAX)
-    if J.array(plain, J.ARRAY_RAREZA)[fila] != RAREZA_MAX:
+    rareza = J.array(plain, J.ARRAY_RAREZA)[fila]
+    if rareza < 5 and rareza != RAREZA_MAX:
         plain, _ = E.poner_rareza(plain, fila, RAREZA_MAX)
         hecho.append(J.RAREZAS.get(RAREZA_MAX, "Leyenda"))
     try:

@@ -1305,14 +1305,13 @@ function pintaFicha() {
   // juego un comun sale verde y un Idolo rojo. El color sale de la propia banda
   // de rareza del juego (NOTAS O-89).
   // MAX: nivel 99, Leyenda del futbol y 30 partidos de una vez (Aaron, O-218).
-  // Solo futbolistas normales: Idolos y Diamantes tienen la rareza fija.
-  const alMax = d.nivel >= 99 && d.rareza_valor === 4 && d.partidos >= 30;
-  const max = d.rareza_valor < 5
-    ? el("button", {class:"btn-max" + (alMax ? " hecho" : ""), text:"MAX",
-        title:alMax ? "Ya esta al maximo: nivel 99, Leyenda del futbol y 30 partidos"
-                    : "Nivel 99, Leyenda del futbol y 30 partidos de una vez",
-        onclick:() => manda({tipo:"maximo", fila:d.fila})})
-    : null;
+  // A un Idolo o Diamante, que tienen la rareza fija, solo el nivel y los partidos.
+  const fijo = d.rareza_valor >= 5;
+  const alMax = d.nivel >= 99 && d.partidos >= 30 && (fijo || d.rareza_valor === 4);
+  const max = el("button", {class:"btn-max" + (alMax ? " hecho" : ""), text:"MAX",
+        title:alMax ? "Ya esta al maximo" + (fijo ? ": nivel 99 y 30 partidos" : ": nivel 99, Leyenda del futbol y 30 partidos")
+                    : (fijo ? "Nivel 99 y 30 partidos de una vez" : "Nivel 99, Leyenda del futbol y 30 partidos de una vez"),
+        onclick:() => manda({tipo:"maximo", fila:d.fila})});
   const cab = el("div", {class:"cabecera"}, [retrato,
     el("div", {class:"datos"}, [el("h3", {text:d.nombre}),
       // el apodo, como lo ensena el juego bajo el nombre (O-219)
@@ -1581,15 +1580,8 @@ function seccionAtributos(d) {
       "Un gerente o un entrenador no pisa el campo ni el banquillo, y un jugador "
       + "normal no se sienta en el cuerpo tecnico. Es lo que hace el juego."}));
   }
-  // Pasar a Diamante: en el juego se hace con una semilla Diamante o
-  // comprandolo en la tienda, y vale para cualquier jugador normal.
-  if (d.rareza_valor < 5)
-    caja.appendChild(el("p", {class:"pie-seccion"}, [
-      el("button", {class:"btn chico", text:"Convertir en Diamante",
-        title:"Como con una semilla Diamante en el juego",
-        onclick:async () => { if (await confirma("Convertir en Diamante",
-                                  "Se convierte en Diamante. Se puede deshacer."))
-                          manda({tipo:"diamante", fila}); }})]));
+  // (El boton "Convertir en Diamante" se quito: Aaron prefiere que la unica
+  // forma de conseguir un Diamante sea desde Fichar, O-218.)
   // La pasiva personalizada: una por jugador, de las que tengas en la mochila
   // (NOTAS O-179).
   caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Pasiva personalizada"})]));
@@ -1629,7 +1621,7 @@ function seccionAtributos(d) {
       }}),
     enEquipo ? el("span", {class:"bloqueada", text:"esta en " + d.equipos.join(", ")}) : null]));
   caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Judias"})]));
-  if (d.rareza_valor < 5 && d.judias.some(x => x.tope)) caja.appendChild(barraPresets(d, "judias"));
+  if (d.judias.some(x => x.tope)) caja.appendChild(barraPresets(d, "judias"));
   const j = el("div", {});
   for (const x of d.judias)
     j.appendChild(x.tope ? filaJudia(fila, x)
@@ -1695,7 +1687,7 @@ const ORDENES_EQUIPO = [{campo:"etiqueta", etiqueta:"nombre"}, {campo:"total", e
 
 function seccionEquipacion(d) {
   const caja = el("div", {});
-  if (d.rareza_valor < 5) caja.appendChild(barraPresets(d, "equipacion"));
+  caja.appendChild(barraPresets(d, "equipacion"));
   d.equipacion.forEach(e => caja.appendChild(ranura(
     String(e.ranura), e.puesto || "vacio",
     e.etiqueta.replace(/^\d+\s*/, ""),
