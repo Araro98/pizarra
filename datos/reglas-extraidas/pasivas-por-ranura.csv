@@ -36,13 +36,11 @@ Contra (ranura 4),40E5AA62,"Tras recuperar el balón sin una captura directa, du
 Contra (ranura 4),335C6A75,"Tras recuperar el balón sin una captura directa, durante los \\npróximos 30 segundos AT y DF de foco de MC [CPASSIVE01]+<VALUE> %[C]",Foco,equipo,16
 Contra (ranura 4),06F9099C,"Tras recuperar el balón sin una captura directa, durante los \\npróximos 30 segundos AT y DF de ataque duro (equipo) [CPASSIVE01]+<VALUE> %[C]",otra,equipo,10
 Contra (ranura 4),1F3D649B,"Por cada rango de Conf. Contraataque, \\nvalor de foco del equipo [CPASSIVE01]+<VALUE> %[C]",Foco,equipo,9
-Contra (ranura 4),5E0C7F82,"Cuando el equipo gana en foco o disputa, \\ntensión [CPASSIVE01]+<VALUE> %[C]",Foco,equipo,1
 Contra (ranura 5),2A980772,"Tras recuperar el balón sin una captura directa, durante los \\npróximos 15 segundos PP aumenta [CPASSIVE01]+<VALUE> %[C]",otra,equipo,79
 Contra (ranura 5),40E5AA62,"Tras recuperar el balón sin una captura directa, durante los \\npróximos 30 segundos AT de tiro del equipo [CPASSIVE01]+<VALUE> %[C]",Tiro,equipo,38
 Contra (ranura 5),335C6A75,"Tras recuperar el balón sin una captura directa, durante los \\npróximos 30 segundos AT y DF de foco de MC [CPASSIVE01]+<VALUE> %[C]",Foco,equipo,15
 Contra (ranura 5),06F9099C,"Tras recuperar el balón sin una captura directa, durante los \\npróximos 30 segundos AT y DF de ataque duro (equipo) [CPASSIVE01]+<VALUE> %[C]",otra,equipo,7
 Contra (ranura 5),1F3D649B,"Por cada rango de Conf. Contraataque, \\nvalor de foco del equipo [CPASSIVE01]+<VALUE> %[C]",Foco,equipo,6
-Contra (ranura 5),5E0C7F82,"Cuando el equipo gana en foco o disputa, \\ntensión [CPASSIVE01]+<VALUE> %[C]",Foco,equipo,1
 DEF (ranuras 1-2),539A23C0,Valor propio de foco [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,propio,30
 DEF (ranuras 1-2),D2D1040E,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] \\ncuando se está fuera del área,Foco,equipo,15
 DEF (ranuras 1-2),A1A90166,"Cuando un jugador de otro elemento está cerca, \\nvalor propio de foco [CPASSIVE01]+<VALUE> %[C]",Foco,propio,14

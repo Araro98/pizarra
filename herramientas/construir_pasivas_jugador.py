@@ -136,8 +136,15 @@ def main():
                 grupo = "%s (ranura %d)" % (arq, r + 1)
             visto[(grupo, h)] += 1
 
+    # Lo visto en la partida que NO es del grupo (Aaron, O-218): "Cuando el
+    # equipo gana en foco o disputa, tension" es de Tension, no de Contra; en
+    # la partida la llevaban jugadores de Contra por heredarla o por un cambio
+    # de arquetipo, y se colaba en el selector de Contra.
+    EXCLUIR = {("Contra (ranura 4)", "5E0C7F82"), ("Contra (ranura 5)", "5E0C7F82")}
     filas = []
     for (grupo, h), n in sorted(visto.items(), key=lambda kv: (kv[0][0], -kv[1])):
+        if (grupo, h.upper()) in EXCLUIR:
+            continue
         nombre = nombres.get(h, ("", ""))[0]
         filas.append({"grupo": grupo, "id": h, "nombre": nombre,
                       "familia": familia(nombre), "alcance": alcance(nombre),

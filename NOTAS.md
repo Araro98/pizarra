@@ -5179,6 +5179,46 @@ los equipos con nombre (O-120), ponerle nombre deberia bastar para que salga
 en el juego; falta que el amigo de Aaron lo confirme (Aaron no puede: sus 11
 estan usados).
 
+### O-218 · Presets (judias, equipacion, pasivas), boton MAX y panel de stats como el juego
+
+Aaron pidio atajos de clics, "aunque tengas un preset puesto puedes cambiar
+cosas", con popup bonito e iconos, y nada de esto para Idolos ni Diamantes.
+`ievr/presets.py` los define y los aplica con las mismas funciones de
+`escribir.py` (y sus reglas) que ir ranura por ranura:
+
+- **Judias** (encima de las judias): Delantero (Potencia, Control, Tecnica),
+  MD (Control, Tecnica, Inteligencia), Defensa (Inteligencia, Presion,
+  Fisico), Portero (Presion, Fisico, Agilidad); siempre al tope del nivel.
+  Se vacian las tres ranuras antes para que no choque el "no repetir tipo".
+- **Equipacion** (encima de la equipacion): Delantero (Botas con tacos,
+  Pulsera del abismo, Bufanda del campeon, Brazalete Omega), MD (Zapatillas
+  Tormenta cortante, Pulsera luz de luna, Collar azul celeste, Pegatina de
+  Pegaso), MD/DF focos (las dos primeras, Capa de Sharp = `Capa de <FLC:YUTO>`,
+  Gafas deportivas Neo), Defensa muros (Zapatillas Aplastarocas, Guantes
+  legendarios, Capa de comandante, Accesorio de profesor Layton), Portero
+  (Zapatillas Llamarada volcanica, Guantes legendarios, Colgante del guardian,
+  Talisman de Evans). Si falta la pieza en la mochila se crea (como "Conseguir").
+- **Pasivas** (encima de las pasivas), en dos pasos: el arquetipo (el jugador
+  pasa a el y lleva su pareja x2 en las ranuras 4 y 5 por "Cambiar": Justicia
+  `5590EE4C`, Brecha `9D5F52A9`, Contra `1F3D649B`, Afinidad `01D4B17B`,
+  Tension `7467BCE0`, Juego sucio `2B41EE9C`), y el subpreset: la heredada x3
+  en las ranuras 1-3 por "Heredar" mas la pasiva personalizada equivalente
+  (foco/tiro por posicion o elemento, tiro propio, PP; PP no tiene equivalente
+  y lleva la de foco de distintas posiciones, `269B0969`). Los textos se
+  ensenan con el numero de Leyenda, que es como los dio Aaron.
+- **MAX** (cabecera, a la izquierda del nivel): nivel 99, Leyenda del futbol
+  y 30 partidos de una vez.
+- **Panel de stats** como la pantalla del juego: fondo claro con hexagonos,
+  numeros azul marino, debajo de cada uno la posicion a la que mas le rinde
+  (`POS_OPTIMA`: Potencia DC; Tecnica y Control DC/MC; Inteligencia DF/MC;
+  Presion POR/DF; Agilidad POR; Fisico POR/DF, en chapitas de color) y el
+  disco oscuro con la figura roja y el icono de cada stat en su punta. El
+  desglose (judias, equipacion, arbol) pasa al tooltip de cada numero.
+- De paso: "Cuando el equipo gana en foco o disputa, tension" (`5E0C7F82`)
+  se colaba en el selector de Contra; es de Tension. Fuera de
+  `pasivas-por-ranura.csv` (grupos Contra 4 y 5) y `EXCLUIR` en
+  `construir_pasivas_jugador.py` para que no vuelva.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

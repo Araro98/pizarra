@@ -33,7 +33,7 @@ if __package__ in (None, ""):
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from ievr import (basedatos as BD, codec, equipos as EQ, escribir as E, inventario, jugador as J,
-                  opciones as O, reglas, stats as ST)
+                  opciones as O, presets as PR, reglas, stats as ST)
 
 # La raiz del proyecto. Cuando esto corre como programa (.exe, ver lanzador.py)
 # el codigo va empaquetado en una carpeta temporal y la raiz de verdad la
@@ -1362,6 +1362,8 @@ class Manejador(BaseHTTPRequestHandler):
             if u.path == "/api/personajes":
                 with sesion.lock:
                     return self._responder(200, O.personajes_creables(sesion.plain))
+            if u.path == "/api/presets":
+                return self._responder(200, PR.definiciones())
             return self._responder(404, {"error": "no existe esa direccion"})
         except (E.Ilegal, EQ.Ilegal) as e:
             return self._responder(400, {"error": str(e)})
@@ -1470,6 +1472,15 @@ class Manejador(BaseHTTPRequestHandler):
             return sesion.aplicar(E.poner_pasiva, fila, int(c["ranura"]), c.get("id") or c["nombre"])
         if t == "quitar_heredada":
             return sesion.aplicar(E.quitar_heredada, fila, int(c["ranura"]))
+        # presets y MAX: atajos que hacen lo mismo que ir ranura por ranura (O-218)
+        if t == "preset_judias":
+            return sesion.aplicar(PR.preset_judias, fila, c.get("clave") or "")
+        if t == "preset_equipacion":
+            return sesion.aplicar(PR.preset_equipacion, fila, c.get("clave") or "")
+        if t == "preset_pasivas":
+            return sesion.aplicar(PR.preset_pasivas, fila, int(c.get("arquetipo", -1)), c.get("clave") or "")
+        if t == "maximo":
+            return sesion.aplicar(PR.maximo, fila)
         if t == "equipo_nombre":
             return sesion.aplicar(EQ.poner_nombre, int(c["equipo"]), c["nombre"])
         if t == "crear_equipo":
