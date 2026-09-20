@@ -196,7 +196,9 @@ function montaFiltros(caja, datos, campos, estado, alCambiar) {
       const v = String(c.valor ? c.valor(d) : (d[c.campo] ?? ""));
       if (v) cuenta.set(v, (cuenta.get(v) || 0) + 1);
     }
-    if (cuenta.size < 2) continue;
+    // un filtro con un solo valor no dice nada... salvo los de "si"/nada
+    // (Armadura, Mixi max, Modo), que se piden aunque solo haya "si" (O-222)
+    if (cuenta.size < 2 && !c.siempre) continue;
     // c.orden: funcion valor -> posicion, para listas con su propio orden
     // (los juegos: IE1, IE2... Victory Road, y no por abecedario)
     const orden = [...cuenta.keys()].sort(c.orden

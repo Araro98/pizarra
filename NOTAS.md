@@ -5275,6 +5275,11 @@ de todos, O-174). En la partida de Aaron y en las tablas: 151 identidades
 solo armadura, 81 armadura y mixi, 24 solo mixi, 11 solo modo, 2 mixtas. Van
 como tres campos "si"/vacio en la ficha corta y en Fichar, con su filtro en
 las tres pantallas (el recuento solo cuenta los "si").
+En Fichar y en la reserva no salian: `montaFiltros` (comun.js) esconde un
+filtro con menos de dos valores distintos, y estos solo tienen "si". Ahora
+las definiciones llevan `siempre:true` y se pintan aunque solo haya un valor
+(2026.09.20.8). Comprobado en el navegador: Fichar Modo 9, Mixi 26, Armadura
+136 (pestana de jugadores); reserva 13 / 104 / 190, igual que `/api/jugadores`.
 
 ## SUPUESTO
 
