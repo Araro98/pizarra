@@ -220,6 +220,7 @@ async function abrePersonaje(p) {
   if (d.posicion) sub.appendChild(el("span", {class:"chip", text:d.posicion + (d.posicion_alt ? " / " + d.posicion_alt : "")}));
   sub.appendChild(el("span", {class:"chip naranja", text:d.rareza_nombre || d.rareza}));
   if (d.arquetipo) sub.appendChild(el("span", {class:"chip gris", text:d.arquetipo}));
+  if (d.saga) sub.appendChild(el("span", {class:"chip gris", text:d.saga}));     // el juego de origen (O-220)
   if (d.apt !== "jugador") sub.appendChild(el("span", {class:"chip gris", text:d.apt + " de fabrica"}));
   if (d.equipo) sub.appendChild(el("span", {text:d.equipo, style:"font-size:var(--t-md);color:var(--suave)"}));
   t.appendChild(sub);

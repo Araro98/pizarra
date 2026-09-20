@@ -185,7 +185,11 @@
     box-shadow:inset 0 -22px 26px -18px rgba(0,0,0,.45),
                inset 0 14px 18px -14px rgba(255,255,255,.35); }
   .ficha-mini > img, .ficha-mini > .nv, .ficha-mini > .abajo,
-  .ficha-mini > .nombre-mini { z-index:1; }
+  .ficha-mini > .nombre-mini, .ficha-mini > .chapa-saga { z-index:1; }
+  /* el juego de origen, arriba a la derecha (O-220) */
+  .ficha-mini .chapa-saga { position:absolute; right:3px; top:3px; color:#fff; font-weight:900;
+    font-style:italic; font-size:9px; line-height:14px; padding:0 4px; border-radius:4px;
+    letter-spacing:.03em; border:1px solid rgba(255,255,255,.75); box-shadow:0 1px 2px rgba(0,0,0,.4); }
   .ficha-mini .nv { position:absolute; left:4px; top:1px; color:#fff;
     font-weight:800; font-style:italic; font-size:var(--t-xl); line-height:1.1;
     text-shadow:0 0 3px #000,1px 1px 0 #000,-1px 1px 0 #000; }
@@ -1132,6 +1136,7 @@ function fichaMini(j) {
   const k = statDe(modo === "equipos" ? ordenRes : orden);
   if (k >= 0 && j.stats) t.appendChild(el("div", {class:"stat-orden", text:STAT_ABREV[k] + " " + j.stats[k],
     title:STATS[k] + " base"}));
+  const cs = chapaSaga(j.saga); if (cs) t.appendChild(cs);     // el juego de origen (O-220)
   if (j.rol && j.rol !== "jugador")
     t.appendChild(el("span", {class:"chapa-rol " + j.rol,
       text:j.rol === "entrenador" ? "ENT" : "GER",
@@ -1321,7 +1326,7 @@ function pintaFicha() {
   if (d.descripcion)
     p.appendChild(el("div", {class:"descripcion", text:d.descripcion}));
   p.appendChild(el("div", {class:"sub-datos",
-    text:[d.equipo, "Arquetipo " + d.arquetipo, "Fila " + d.fila]
+    text:[d.equipo, d.saga, "Arquetipo " + d.arquetipo, "Fila " + d.fila]
           .filter(Boolean).join("   ·   ")}));
 
   p.appendChild(el("div", {class:"seccion-nav"}, [
@@ -3241,6 +3246,7 @@ async function cargaPersonajes(recargar) {
     if (!c.se_puede) t.style.filter = "grayscale(.75) brightness(.85)";
     if (c.cara) for (const capa of capasRetrato(c, true)) t.appendChild(capa);
     t.appendChild(el("div", {class:"nombre-mini", text:c.nombre}));
+    const csP = chapaSaga(c.saga); if (csP) t.appendChild(csP);     // el juego de origen (O-220)
     if (c.poder) t.appendChild(el("div", {class:"poder", text:String(c.poder), title:"Suma de los siete stats base a nivel 99"}));
     const kP = statDe(ordenPer);
     if (kP >= 0 && c.stats) t.appendChild(el("div", {class:"stat-orden", text:STAT_ABREV[kP] + " " + c.stats[kP], title:STATS[kP] + " base a nivel 99"}));

@@ -133,6 +133,27 @@ function capasRetrato(j, perezoso) {
 /* La tarjeta de un personaje, calcada de la del editor: fondo del color de la
    rareza, la cara encima, nivel arriba (si lo hay), afinidad y posicion abajo,
    poder abajo a la derecha. Si no hay cara, una silueta del juego y el nombre. */
+/* La chapita del juego de origen, arriba a la derecha de cada tarjeta (O-220):
+   hay personajes iguales de juegos distintos y asi se distinguen de un vistazo.
+   Los nombres son los del propio juego (personajes.csv, saga). */
+const CHAPA_SAGA = {
+  "Inazuma Eleven":                      ["IE1",  "#1f63c8"],
+  "Inazuma Eleven 2":                    ["IE2",  "#1f9a54"],
+  "Inazuma Eleven 3":                    ["IE3",  "#c8871f"],
+  "Inazuma Eleven GO":                   ["GO",   "#1fb0c8"],
+  "Inazuma Eleven GO 2":                 ["CS",   "#7a3fc8"],
+  "Inazuma Eleven GO Galaxy":            ["GX",   "#2b3a9c"],
+  "Inazuma Eleven: Ares":                ["ARES", "#e0651f"],
+  "Inazuma Eleven: Orión":               ["ORI",  "#c8281f"],
+  "Inazuma Eleven: Heroes' Victory Road": ["VR",  "#b8901a"],
+};
+function chapaSaga(saga) {
+  const c = CHAPA_SAGA[saga];
+  if (!c) return null;
+  const s = el("span", {class:"chapa-saga", text:c[0], title:saga});
+  s.style.background = c[1];
+  return s;
+}
 function fichaMini(j, alPulsar) {
   const t = el("button", {class:"ficha-mini",
     title:j.nombre + " — " + (j.rareza_nombre || j.rareza || "") + (j.equipo ? " — " + j.equipo : ""),
@@ -154,6 +175,7 @@ function fichaMini(j, alPulsar) {
     abajo.appendChild(pp);
   }
   if (j.poder) t.appendChild(el("div", {class:"poder", text:String(j.poder), title:"Suma de los siete stats base a nivel 99"}));
+  const cs = chapaSaga(j.saga); if (cs) t.appendChild(cs);
   t.appendChild(abajo);
   return t;
 }

@@ -5232,6 +5232,18 @@ servidor en Jugadores, la reserva del Team builder, Fichar y la base de
 datos) y la cabecera de la ficha lo ensena bajo el nombre como el juego,
 cuando no es el propio nombre.
 
+### O-220 · La chapita del juego de origen en cada tarjeta
+
+Aaron: "arriba a la derecha de cada personaje, en pequeno, el icono de cada
+juego, porque hay jugadores iguales de juegos distintos". El juego no trae
+un icono por saga (se miraron las laminas de `200_icon`: `icon_common2` son
+las chapas de posicion, `icon_list_tab_filter` los iconos del filtro, y en
+`220_img` solo hay logos de DLC y del titulo), asi que la chapa es nuestra:
+`chapaSaga` en `comun.js`, con siglas y color por juego (IE1, IE2, IE3, GO,
+CS, GX, ARES, ORI, VR) y el nombre completo al pasar el raton. Va en todas
+las tarjetas (Jugadores, reserva del Team builder, Fichar y base de datos),
+en la linea de datos de la ficha y como chip en la ficha de la base de datos.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
