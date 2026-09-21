@@ -401,8 +401,12 @@ def pasivas(plain, fila, ranura):
                           "icono200": iconos_de_pasiva().get(f["pasiva_id"].upper(), "")})
     else:
         de_donde = "las del arquetipo %s en la ranura %d" % (arquetipo, ranura)
-        grupo = "%s (ranura %d)" % (arquetipo, ranura)
-        for f in _por_grupo_de_ranura().get(grupo, []):
+        # las ranuras 4 y 5 comparten la lista del arquetipo: en la partida de
+        # Aaron sale la misma en las dos para todos los arquetipos, y la unica
+        # que solo se habia visto en la 4 (Brecha, tasa de parada) tambien va
+        # en la 5 (O-226)
+        grupos = ["%s (ranura 4)" % arquetipo, "%s (ranura 5)" % arquetipo] if ranura >= 4             else ["%s (ranura %d)" % (arquetipo, ranura)]
+        for f in [x for g in grupos for x in _por_grupo_de_ranura().get(g, [])]:
             fuera.append({"id": f["id"].upper(),
                           "nombre": nombre_pasiva(variante_por_rareza(f["id"].upper(), rareza),
                                                   _limpio(f.get("nombre"))),

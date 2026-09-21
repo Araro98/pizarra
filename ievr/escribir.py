@@ -852,8 +852,10 @@ def poner_pasiva(plain, fila, ranura, nombre):
         de_donde = "las que puede sacar este personaje"
     else:
         permitidas = {}
+        # las ranuras 4 y 5 comparten la lista del arquetipo (O-226)
+        grupos = {"%s (ranura 4)" % arquetipo, "%s (ranura 5)" % arquetipo} if ranura >= 4             else {"%s (ranura %d)" % (arquetipo, ranura)}
         for f in reglas._tabla("pasivas-por-ranura.csv"):
-            if f["grupo"] == "%s (ranura %d)" % (arquetipo, ranura):
+            if f["grupo"] in grupos:
                 permitidas[f["id"].upper()] = f["nombre"]
         de_donde = "las del arquetipo %s en la ranura %d" % (arquetipo, ranura)
     if not permitidas:

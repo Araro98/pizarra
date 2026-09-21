@@ -5370,6 +5370,17 @@ datos ensena la seccion "Cambio de modo" (forma, efectos, stats frente a
 frente a nivel 99 por rareza, y las tecnicas de la forma) y en la forma, de
 quien es.
 
+### O-226 · Las ranuras 4 y 5 comparten la lista de pasivas del arquetipo
+
+Aaron: "a Tom Skipper (Brecha) le he puesto en la 4 'por cada rango de Conf.
+Brecha, tasa de parada del equipo +4 %' y en la 5 no me la deja poner".
+`pasivas-por-ranura.csv` se hizo observando su partida (O-54), y esa pasiva
+(`AEF0FCCC`) solo se habia visto una vez, en una ranura 4. Para los seis
+arquetipos la lista observada de la 4 y la de la 5 es identica salvo por
+esa; asi que la regla es una lista por arquetipo para las dos ranuras.
+`O.pasivas` y `E.poner_pasiva` juntan ahora los grupos "(ranura 4)" y
+"(ranura 5)" cuando se pide la 4 o la 5.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
