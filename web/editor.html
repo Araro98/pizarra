@@ -2226,6 +2226,19 @@ async function pintaResumen() {
         manda({tipo:"arreglar_piezas"}); }}));
     c.appendChild(g);
   }
+  if (d.cabeceras_desajustadas) {
+    const g = el("div", {class:"grupo-resumen"});
+    g.appendChild(el("h3", {text:"Arreglos"}));
+    g.appendChild(el("p", {text:d.cabeceras_desajustadas + " equipos tienen de capitan a alguien que ya "
+      + "no juega o el entrenador apuntado no es el del cuerpo tecnico (lo dejo asi una version "
+      + "anterior del editor). El juego no deja poner esos equipos de predeterminados."}));
+    g.appendChild(el("button", {class:"btn", text:"Arreglar capitan y entrenador",
+      onclick:async () => { if (await confirma("Capitan y entrenador", "A cada equipo se le pone de "
+        + "capitan al primero del campo (si el de antes ya no juega) y de entrenador al del puesto de "
+        + "entrenador, como lo deja el juego. Se puede deshacer."))
+        manda({tipo:"arreglar_cabeceras"}); }}));
+    c.appendChild(g);
+  }
   if (d.tecnicas_rotas) {
     const g = el("div", {class:"grupo-resumen"});
     g.appendChild(el("h3", {text:"Arreglos"}));
@@ -2297,7 +2310,9 @@ async function manda(cambio) {
       headers:{"Content-Type":"application/json"}, body:JSON.stringify(cambio)});
     // el servidor puede tener algo que decir (una tecnica repetida que se
     // quita sola, O-199); si no, "Hecho."
-    aviso(r && r.hecho && r.hecho.aviso ? r.hecho.aviso : "Hecho.", "bien");
+    // y si al mover la plantilla el capitan se ha ido, quien queda de capitan (O-223)
+    const h = r && r.hecho;
+    aviso(h && h.aviso ? h.aviso : (h && h.capitan_nuevo ? "Hecho. Capitan ahora: " + h.capitan_nuevo : "Hecho."), "bien");
     // La mochila se repinta **de inmediato** con el cambio ya hecho, sin esperar
     // a que el servidor vuelva a mandar los 3.000 objetos. Luego se refresca por
     // detras por si acaso. Antes se esperaba a las dos peticiones y se notaba el

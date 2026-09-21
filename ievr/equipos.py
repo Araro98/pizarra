@@ -471,6 +471,89 @@ def arreglar_dorsales(plain):
                         "que": "dorsales repetidos cambiados por uno libre"}
 
 
+# --- La cabecera del equipo: capitan y entrenador (NOTAS O-223) -----------
+#
+# En todos los equipos hechos por el juego, `F_ENTRENADOR` es la identidad del
+# personaje del puesto 19 y `F_CAPITAN` el slot de uno de los once del campo.
+# O-132 decia que el entrenador valia cero siempre; no es asi: en la partida
+# original de Aaron va relleno en los once. El juego no los borra cuando
+# alguien se va (los equipos vaciados conservan los dos), pero si no cuadran
+# con la plantilla no deja poner el equipo de predeterminado (sonido de
+# error): a Aaron le paso con TRAINERS (capitan Mark Evans, que ya no estaba,
+# y entrenador Briar con Axel en el 19) y a su amigo con un equipo nuevo.
+
+def _identidad_de_slot(plain, slot):
+    ident = J.array(plain, J.ARRAY_IDENTIDAD)
+    fila = slot >> 16
+    return ident[fila] if slot and fila < len(ident) else 0
+
+
+def cabecera_prevista(plain, e):
+    """(capitan, entrenador) que le tocan al equipo por su plantilla. Si no hay
+    ningun jugador o nadie en el 19 se deja lo que hubiera, como hace el juego."""
+    # el capitan puede estar en el banquillo: Good Losers, hecho en el juego,
+    # lo lleva en el puesto 15; lo que no puede es haberse ido del equipo
+    jugadores = [m for m in e["miembros"] if m["jugador"] and m["puesto"] < PUESTO_STAFF]
+    capitan = e["capitan"]
+    if jugadores and not any(m["jugador"] == capitan for m in jugadores):
+        capitan = min(jugadores, key=lambda m: m["puesto"])["jugador"]
+    en19 = [m for m in e["miembros"] if m["jugador"] and m["puesto"] == PUESTO_ENTRENADOR]
+    entrenador = _identidad_de_slot(plain, en19[0]["jugador"]) if en19 else e["entrenador"]
+    return capitan, entrenador
+
+
+def _sincroniza_cabecera(buf, i, info=None):
+    """Deja capitan y entrenador acordes con la plantilla que hay en `buf`.
+    Apunta en `info` lo que cambia (para ensenarlo)."""
+    plain = bytes(buf)
+    e = leer(plain, i)
+    cap, ent = cabecera_prevista(plain, e)
+    if cap != e["capitan"] and "off_%08X" % F_CAPITAN in e["campos"]:
+        struct.pack_into("<I", buf, e["campos"]["off_%08X" % F_CAPITAN], cap)
+        if info is not None:
+            info["capitan_nuevo"] = _nombre_de_slot(plain, cap)
+    if ent != e["entrenador"] and "off_%08X" % F_ENTRENADOR in e["campos"]:
+        struct.pack_into("<I", buf, e["campos"]["off_%08X" % F_ENTRENADOR], ent)
+        if info is not None:
+            info["entrenador_nuevo"] = "%08X" % ent
+    return buf
+
+
+def cabeceras_desajustadas(plain):
+    """[(equipo, nombre, que)]: equipos con nombre cuyo capitan ya no es uno de
+    sus jugadores o cuyo entrenador no es el del puesto 19."""
+    fuera = []
+    for i in range(len(anclas(plain))):
+        try:
+            e = leer(plain, i)
+        except Ilegal:
+            continue
+        if not e["nombre"].strip() or e["de_la_historia"]:
+            continue
+        cap, ent = cabecera_prevista(plain, e)
+        que = []
+        if cap != e["capitan"]:
+            que.append("capitan")
+        if ent != e["entrenador"]:
+            que.append("entrenador")
+        if que:
+            fuera.append((i, e["nombre"], que))
+    return fuera
+
+
+def arreglar_cabeceras(plain):
+    """A cada equipo desajustado le pone de capitan al del campo que ya lo era
+    (o al primero del campo) y de entrenador al del puesto 19."""
+    mal = cabeceras_desajustadas(plain)
+    if not mal:
+        raise Ilegal("el capitan y el entrenador de todos los equipos ya cuadran")
+    buf = bytearray(plain)
+    for i, _n, _q in mal:
+        _sincroniza_cabecera(buf, i)
+    return bytes(buf), {"equipos": len(mal),
+                        "que": "capitan y entrenador puestos como los lleva el juego"}
+
+
 def poner_capitan(plain, i, hueco):
     """Pone de capitan al que este en ese hueco."""
     e = leer(plain, i)
@@ -515,8 +598,10 @@ def poner_jugador(plain, i, hueco, slot):
         _comprueba_topes(*cuantos_caben(plain, e, None, {hueco: slot}))
     buf = bytearray(plain)
     struct.pack_into("<I", buf, m["off_jugador"], slot)
-    return bytes(buf), {"equipo": i, "que": "jugador del hueco %d" % hueco,
-                        "antes": m["jugador"], "despues": slot}
+    info = {"equipo": i, "que": "jugador del hueco %d" % hueco,
+            "antes": m["jugador"], "despues": slot}
+    _sincroniza_cabecera(buf, i, info)
+    return bytes(buf), info
 
 
 # **Correccion importante** (NOTAS O-132): el entrenador es el puesto **19** y
@@ -782,12 +867,13 @@ def poner_puesto(plain, i, hueco, puesto):
     buf = bytearray(plain)
     for k, p2 in nuevos.items():
         buf[e["miembros"][k]["off_puesto"]] = p2
-    # Antes aqui se escribia ademas el campo `F_ENTRENADOR` con la identidad del
-    # personaje. Era inventarse un dato: en los once equipos de Aaron ese campo
-    # vale **cero** siempre, o sea que el juego no lo usa para esto (O-132).
-    return bytes(buf), {"equipo": i, "que": "puesto",
-                        "antes": rol_de(m["puesto"]), "despues": rol_de(puesto),
-                        "tambien": otro}
+    # y el capitan y el entrenador, que el juego los lleva a juego con la
+    # plantilla (O-223; O-132 decia que el entrenador iba a cero: era falso)
+    info = {"equipo": i, "que": "puesto",
+            "antes": rol_de(m["puesto"]), "despues": rol_de(puesto),
+            "tambien": otro}
+    _sincroniza_cabecera(buf, i, info)
+    return bytes(buf), info
 
 
 def intercambiar(plain, i, hueco_a, hueco_b):
@@ -806,8 +892,9 @@ def intercambiar(plain, i, hueco_a, hueco_b):
     struct.pack_into("<I", buf, b["off_jugador"], a["jugador"])
     struct.pack_into("<H", buf, a["off_dorsal"], b["dorsal"])
     struct.pack_into("<H", buf, b["off_dorsal"], a["dorsal"])
-    return bytes(buf), {"equipo": i, "que": "cambio de sitio",
-                        "antes": hueco_a, "despues": hueco_b}
+    info = {"equipo": i, "que": "cambio de sitio", "antes": hueco_a, "despues": hueco_b}
+    _sincroniza_cabecera(buf, i, info)
+    return bytes(buf), info
 
 
 ARRAY_SLOT = (0x918020D9, 24000, "I", 4)
@@ -878,9 +965,10 @@ def meter_jugador(plain, i, puesto, fila):
     if d == 0 or d in otros:
         d = _dorsal_libre(e, sin=fuera_del_equipo | {destino})
     struct.pack_into("<H", buf, e["miembros"][destino]["off_dorsal"], d)
-    return bytes(buf), {"equipo": i, "que": "jugador en el puesto %d" % puesto,
-                        "despues": nombre or "fila %d" % fila,
-                        "saco": ocupa, "dorsal": d}
+    info = {"equipo": i, "que": "jugador en el puesto %d" % puesto,
+            "despues": nombre or "fila %d" % fila, "saco": ocupa, "dorsal": d}
+    _sincroniza_cabecera(buf, i, info)
+    return bytes(buf), info
 
 
 def sacar_jugador(plain, i, hueco):
@@ -894,8 +982,10 @@ def sacar_jugador(plain, i, hueco):
         raise Ilegal("en ese hueco no hay nadie")
     buf = bytearray(plain)
     struct.pack_into("<I", buf, m["off_jugador"], 0)
-    return bytes(buf), {"equipo": i, "que": "sacar del equipo",
-                        "antes": _nombre_de_slot(plain, m["jugador"])}
+    info = {"equipo": i, "que": "sacar del equipo",
+            "antes": _nombre_de_slot(plain, m["jugador"])}
+    _sincroniza_cabecera(buf, i, info)
+    return bytes(buf), info
 
 
 # --- Sinergias del equipo (NOTAS O-191, O-194) ----------------------------------
@@ -1207,8 +1297,8 @@ def arreglar_piezas(plain):
 
 def poner_simple(plain, i, cual, valor):
     """Cambia formacion, escudo o equipacion."""
-    # `F_ENTRENADOR` no esta: en los once equipos de Aaron vale cero siempre,
-    # el juego no lo usa y escribirlo seria inventar (NOTAS O-132).
+    # `F_ENTRENADOR` no va aqui: lo lleva `_sincroniza_cabecera` con el del
+    # puesto 19 (O-223).
     campos = {"formacion": F_FORMACION, "escudo": F_ESCUDO,
               "equipacion": F_EQUIPACION}
     if cual not in campos:

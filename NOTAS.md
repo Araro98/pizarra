@@ -2740,6 +2740,8 @@ y los dos que si deben pasar (34 partidos a gerente, gerente de 64 a jugador).
 
 ### O-132 · RESUELTO · Lo que decide si alguien es jugador, gerente o entrenador
 
+(Lo de que `F_ENTRENADOR` vale cero siempre era falso: ver O-223.)
+
 Aaron dijo que el editor seguia dejando poner a un gerente de la reserva en el
 campo, y que habia que mirar **la medalla**, no los partidos. Tenia razon y
 ademas la cosa estaba peor de lo que parecia: el puesto del entrenador estaba al
@@ -5280,6 +5282,40 @@ filtro con menos de dos valores distintos, y estos solo tienen "si". Ahora
 las definiciones llevan `siempre:true` y se pintan aunque solo haya un valor
 (2026.09.20.8). Comprobado en el navegador: Fichar Modo 9, Mixi 26, Armadura
 136 (pestana de jugadores); reserva 13 / 104 / 190, igual que `/api/jugadores`.
+
+### O-223 · El capitan y el entrenador del equipo: si no cuadran, no se puede poner de predeterminado
+
+Aaron: "intento poner TRAINERS de equipo predeterminado y suena el error, como
+si tuviera algo mal; a mi amigo le paso lo mismo con un equipo hecho con el
+editor, y al meter a los mismos jugadores a mano en otro hueco ya le dejo".
+
+En su partida de hoy, TRAINERS es el antiguo hueco 9 (ECLIPSE) con toda la
+plantilla cambiada por el editor. Comparando sus campos con los de los otros
+equipos: en **todos** los hechos por el juego (los once de la partida
+original, Furros, NEW Fauxshore, Super Alpino) `F_CAPITAN` es el slot de uno
+de sus jugadores (campo o banquillo: Good Losers lo lleva en el puesto 15) y
+`F_ENTRENADOR` es la identidad del personaje del **puesto 19**. En TRAINERS
+el capitan seguia siendo Mark Evans (fila 2714), que ya no esta en el
+equipo, y el entrenador seguia siendo Briar, con Axel Diamante en el 19. Son
+los dos unicos campos que no cuadran con la plantilla. Y el equipo nuevo del
+amigo (O-217) nace con los dos a cero, que tampoco cuadra.
+
+O-132 decia que `F_ENTRENADOR` "vale cero siempre" y por eso el editor dejo
+de escribirlo: era falso (en la partida original va relleno en los once
+equipos), y el capitan nunca se revisaba al sacar o mover gente.
+
+Ahora `cabecera_prevista` da lo que toca: el capitan de antes si sigue
+siendo jugador del equipo, y si no el del puesto mas bajo del campo; el
+entrenador, la identidad del que este en el 19. El juego no borra estos
+campos al vaciar un equipo (ECLIPSE, ESPANA... vaciados los conservan), asi
+que sin jugadores o sin nadie en el 19 se deja lo que hubiera.
+`_sincroniza_cabecera` lo aplica al meter, sacar, mover o intercambiar
+miembros (el aviso dice "Capitan ahora: X" cuando cambia);
+`cabeceras_desajustadas` / `arreglar_cabeceras` lo revisan en el Resumen y
+al guardar, como los dorsales y las piezas. En las partidas hechas por el
+juego no sale ningun equipo desajustado; en la de hoy, solo TRAINERS (8
+bytes: capitan Seymour Hillman, entrenador Axel). Queda que Aaron confirme
+que con eso el juego lo deja poner de predeterminado (2026.09.21.1).
 
 ## SUPUESTO
 

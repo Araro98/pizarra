@@ -229,6 +229,11 @@ class Sesion:
             plain, info = EQ.arreglar_piezas(self.plain)
             self._paso(plain, {"que": "piezas de equipo enlazadas", "equipos": info["equipos"]})
             fuera["piezas"] = info["equipos"]
+        fuera["cabeceras"] = 0
+        if EQ.cabeceras_desajustadas(self.plain):
+            plain, info = EQ.arreglar_cabeceras(self.plain)
+            self._paso(plain, {"que": "capitan y entrenador de equipo puestos al dia", "equipos": info["equipos"]})
+            fuera["cabeceras"] = info["equipos"]
         fuera["personal"] = 0
         if E.pasivas_personal_desajustadas(self.plain):
             plain, info = E.arreglar_pasivas_personal(self.plain)
@@ -929,6 +934,7 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
         "arboles_rotos": len(E.arboles_rotos(plain)) if not cuantos else 0,
         "dorsales_repetidos": len(EQ.dorsales_repetidos(plain)) if not cuantos else 0,
         "piezas_desajustadas": len({i for i, _ in EQ.piezas_desajustadas(plain)}) if not cuantos else 0,
+        "cabeceras_desajustadas": len(EQ.cabeceras_desajustadas(plain)) if not cuantos else 0,
         "personal_desajustado": len({f for f, _ in E.pasivas_personal_desajustadas(plain)}) if not cuantos else 0,
         "jugadores": trozo,
         # el hueco va con el nombre para poder ensenar las pasivas sumadas de
@@ -1479,6 +1485,8 @@ class Manejador(BaseHTTPRequestHandler):
             return sesion.aplicar(EQ.arreglar_dorsales)
         if t == "arreglar_piezas":
             return sesion.aplicar(EQ.arreglar_piezas)
+        if t == "arreglar_cabeceras":
+            return sesion.aplicar(EQ.arreglar_cabeceras)
         if t == "arreglar_pasivas_personal":
             return sesion.aplicar(E.arreglar_pasivas_personal)
         if t == "dar_personalizadas":
