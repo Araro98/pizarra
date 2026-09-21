@@ -189,6 +189,13 @@ def main():
     for idh, subs in sorted(fichas.items()):
         if not subs:
             continue
+        # Sin pareja UNIQUE (cuantos = 0) el espiritu no tiene pasiva propia:
+        # es el caso de todas las armaduras, mixi max y almas, y de los modos.
+        # Antes se caia en la fila 1 de la lista y salia el mismo texto de
+        # relleno en 296 espiritus ("AT propio de tiro +20 %"). Aaron: "quita
+        # los efectos de las pasivas de almas, armaduras y mixi" (O-224).
+        if subs[0][1] == 0:
+            continue
         k = subs[0][0] + DESPLAZAMIENTO
         if not (0 <= k < len(uni)):
             continue

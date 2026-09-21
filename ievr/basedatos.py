@@ -295,6 +295,40 @@ def _pasivas_personal_de(ident, f):
     return fuera or None
 
 
+# --- cambios de modo (NOTAS O-225) -------------------------------------------
+
+def _modos():
+    """({identidad: fila de modos.csv}, {identidad de la forma: fila})."""
+    def construir():
+        de, a = {}, {}
+        for f in reglas._tabla("modos.csv"):
+            de[f["de"].upper()] = f
+            a[f["a"].upper()] = f
+        return de, a
+    return O._indice("bd_modos", construir)
+
+
+def _forma_de_modo(f):
+    """La forma que toma un personaje con su modo, resumida para la ficha: lo
+    de siempre mas sus stats por rareza y sus tecnicas (sin repetir)."""
+    ident = f["a"].upper()
+    p = reglas.personajes().get(ident)
+    if not p:
+        return None
+    r = _resumen(ident, p, _jugadores().get(ident) or {})
+    tecnicas, vistas = [], set()
+    for k in range(1, 10):
+        idh = (p.get("tec%d" % k) or "").upper()
+        if idh and idh not in vistas:
+            vistas.add(idh)
+            t = _tecnica_de(idh, int(p.get("tec%d_nivel" % k) or 0))
+            if t:
+                tecnicas.append(t)
+    r["stats"] = _stats_por_rareza(ident, p.get("rareza"), int(p.get("rareza_valor") or 0))
+    r["tecnicas"] = tecnicas
+    return r
+
+
 def personaje(identidad):
     """La ficha entera de un personaje."""
     ident = identidad.upper()
@@ -326,6 +360,17 @@ def personaje(identidad):
         "variantes": [x for x in personajes()
                       if x["nombre"] == r["nombre"] and x["identidad"] != ident],
     })
+    # el cambio de modo, si lo tiene, y de quien es forma, si lo es (O-225)
+    de, a = _modos()
+    if ident in de:
+        f = de[ident]
+        r["modo"] = dict({"nombre": f["modo_nombre"], "id": f["modo"], "forma": _forma_de_modo(f)},
+                         **{k: f.get(k) or "" for k in ("tension", "duracion", "at", "df", "velocidad", "extra")})
+    if ident in a:
+        f = a[ident]
+        base = reglas.personajes().get(f["de"].upper()) or {}
+        r["forma_de"] = {"identidad": f["de"].upper(), "modo": f["modo_nombre"],
+                         "nombre": _limpio(base.get("nombre_es") or base.get("nombre_en") or "")}
     return r
 
 

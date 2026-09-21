@@ -5314,8 +5314,61 @@ miembros (el aviso dice "Capitan ahora: X" cuando cambia);
 `cabeceras_desajustadas` / `arreglar_cabeceras` lo revisan en el Resumen y
 al guardar, como los dorsales y las piezas. En las partidas hechas por el
 juego no sale ningun equipo desajustado; en la de hoy, solo TRAINERS (8
-bytes: capitan Seymour Hillman, entrenador Axel). Queda que Aaron confirme
-que con eso el juego lo deja poner de predeterminado (2026.09.21.1).
+bytes: capitan Seymour Hillman, entrenador Axel). **Confirmado por Aaron**
+con la 2026.09.21.1: "ya va el equipo, seguramente era eso".
+
+### O-224 · Las armaduras, mixi max y almas no tienen pasiva propia
+
+Aaron: "quita los efectos de las pasivas de almas, armaduras y mixi". Tenia
+razon: en `AURA_CMD_INFO_LIST` la pareja UNIQUE de esas familias (y de los
+modos) va con cuantos = 0, y `construir_pasivas_espiritu.py` caia en la fila
+1 de la lista y les ponia a los 296 el mismo texto de relleno ("Cuando un
+jugador de otro elemento esta cerca, AT propio de tiro +20 %"). Ahora se
+salta las fichas sin UNIQUE: quedan 103 kenshin y los 3 despertares con
+efecto propio (Sobrecarga ardiente, Impulso temporal, Catalizador
+elemental). Lo que si llevan todas las familias son los efectos genericos
+de `AURA_CMD_EFFECT_LIST`, distintos por familia (ver O-225).
+
+### O-225 · Los cambios de modo (Aphrody, Reina, Furia...): en que se convierte cada uno
+
+Aaron: "en el juego no te dice nada de lo que hace un modo; al activarlo te
+cambia el set y te da buffos; quiero saber cuales sin probar uno a uno".
+
+`CHARA_MODE_CHANGE_LIST` (`character/chara_change`) solo trae 12 parejas
+"personaje -> forma"; la forma es otro personaje entero de `chara_param`
+(no fichable, O-205). Comparando cada pareja con la base de datos:
+
+- **Stats**: los de la forma (su propia ficha, misma rareza y nivel). En 7
+  de los 12 son iguales; cambian en Shawn (Modo Atacante: pasa de DF a DEL
+  y de Afinidad a Brecha, con mas Potencia y Control y menos Presion y
+  Fisico), Aitor (Modo Dos Caras: -12 Tecnica, +11 Inteligencia...), Seth
+  (Modo Santurron: +27 de total), Bilal (solo cambia la posicion
+  alternativa, DEL -> MED) y Thaddeus (Modo Aphrody: **se convierte en Byron
+  Love**, de Tension a Brecha, 1097 -> 1330 a nivel 99 rareza comun).
+- **Tecnicas**: la forma lleva su propio arbol, casi siempre con 3-6
+  tecnicas repetidas (Beta: Disparo doble, Barrena voladora, Ataque Omega).
+  Es el "set" del modo.
+- **Efectos del modo**: la hipertecnica "Modo X" tiene ficha en
+  `AURA_CMD_INFO_LIST` como cualquier espiritu, con cuatro efectos genericos
+  en `AURA_CMD_EFFECT_LIST` (ids crc32, sin nombre en los ficheros):
+  `-1474450477` = 60, `823458409` = 60, `-663265444` = 80 y `913915504` =
+  10 (Modo Brutal sin el cuarto). Los tres primeros son los mismos ids que
+  llevan los despertares (Sobrecarga ardiente y compania) con 30, 30 y 50,
+  y la comunidad (inazumo.es, HyperMoves.csv) los tiene medidos como "Own
+  AT/DF +30 %" y "Movement Speed Increase": asi que un modo da AT +60 %, DF
+  +60 % y velocidad +80 %, y el cuarto no se sabe. Las variantes `_legend`
+  de Aphrody y Santurron (jefes de la historia) llevan 800/800/80. Cada
+  familia lleva su juego de ids: kenshin 50/50, armadura 30/30/50/50, mixi
+  50/50/20/50, alma tres sin numero. Se intento descifrar los nombres por
+  fuerza bruta con crc32 (120 millones de candidatos): nada fiable.
+- Columnas 4 y 5 de la ficha: 75 y 90 en todos los modos (kenshin 45/60,
+  despertares 30/90, almas 60/60). Probablemente tension y duracion; sin
+  confirmar.
+
+`herramientas/construir_modos.py` -> `modos.csv`; la ficha de la Base de
+datos ensena la seccion "Cambio de modo" (forma, efectos, stats frente a
+frente a nivel 99 por rareza, y las tecnicas de la forma) y en la forma, de
+quien es.
 
 ## SUPUESTO
 

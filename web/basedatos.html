@@ -13,6 +13,10 @@
     object-fit:cover; background:#5d7590; flex:none; }
   .cabecera-ficha h2 { font-size:var(--t-2xl); font-weight:900; font-style:italic; color:var(--azul-osc); }
   .cabecera-ficha .sub { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:4px; }
+  .sub { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .sub a.enlace { color:#7fb2ff; font-weight:800; }
+  .stats-tabla td.mas { color:#5cc46a; font-weight:700; }
+  .stats-tabla td.menos { color:#ff7a7a; font-weight:700; }
   .frase { font-style:italic; color:var(--suave); margin:8px 0 0; }
   .stats-tabla td:first-child { font-weight:800; }
   .rareza-tabs { display:flex; gap:6px; flex-wrap:wrap; margin:6px 0; }
@@ -232,6 +236,7 @@ async function abrePersonaje(p) {
   caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Stats"})]));
   let rarezaVista = d.stats.length ? d.stats[d.stats.length - 1].rareza : null;
   const textosPasivas = [];   // (nodo, pasiva): se repintan al cambiar la rareza
+  const alCambiarRareza = [];  // lo demas que se repinta con la rareza (el modo, O-225)
   const tabsR = el("div", {class:"rareza-tabs"});
   const tabla = el("table", {class:"tabla stats-tabla"});
   function pintaStats() {
@@ -239,7 +244,8 @@ async function abrePersonaje(p) {
     for (const s of d.stats)
       tabsR.appendChild(el("button", {"aria-selected":String(s.rareza === rarezaVista),
         text:s.nombre + " x" + s.multiplicador, onclick:() => { rarezaVista = s.rareza; pintaStats();
-          for (const [nodo, x] of textosPasivas) nodo.textContent = textoPasiva(x, rarezaVista); }}));
+          for (const [nodo, x] of textosPasivas) nodo.textContent = textoPasiva(x, rarezaVista);
+          for (const fn of alCambiarRareza) fn(); }}));
     tabla.textContent = "";
     const s = d.stats.find(x => x.rareza === rarezaVista);
     if (!s) return;
@@ -293,6 +299,62 @@ async function abrePersonaje(p) {
     tecs.appendChild(barraTecnica(t));
   }
   caja.appendChild(tecs);
+
+  // --- cambio de modo (NOTAS O-225): en que se convierte, que numeros lleva
+  // el modo, sus stats frente a los suyos y el set de tecnicas de la forma
+  if (d.modo && d.modo.forma) {
+    const m = d.modo, f = m.forma;
+    caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Cambio de modo: " + m.nombre})]));
+    const cab2 = el("div", {class:"sub"});
+    cab2.appendChild(el("span", {text:"Se convierte en"}));
+    cab2.appendChild(el("a", {href:"#", class:"enlace", text:f.nombre,
+      onclick:e => { e.preventDefault(); abrePersonaje(f); }}));
+    if (f.elemento) cab2.appendChild(iconoElemento(f.elemento, 20));
+    if (f.posicion) cab2.appendChild(el("span", {class:"chip", text:f.posicion + (f.posicion_alt ? " / " + f.posicion_alt : "")}));
+    if (f.arquetipo) cab2.appendChild(el("span", {class:"chip gris", text:f.arquetipo}));
+    caja.appendChild(cab2);
+    const cambios = [];
+    if (f.posicion !== d.posicion) cambios.push("pasa de " + d.posicion + " a " + f.posicion);
+    if (f.elemento !== d.elemento) cambios.push("la afinidad pasa de " + d.elemento + " a " + f.elemento);
+    if (f.arquetipo !== d.arquetipo) cambios.push("el arquetipo pasa de " + d.arquetipo + " a " + f.arquetipo);
+    caja.appendChild(el("p", {class:"nota", text:"Mientras dura el modo: AT +" + m.at + " % y DF +" + m.df
+      + " % (los mismos efectos que llevan los despertares, medidos por la comunidad como AT y DF), un tercero de +"
+      + m.velocidad + " % que la comunidad describe como velocidad de movimiento"
+      + (m.extra ? " y un cuarto de " + m.extra + " que no se sabe que es" : "") + ". "
+      + (cambios.length ? "Ademas " + cambios.join(", ") + "." : "No cambia de posicion, afinidad ni arquetipo.")}));
+    const tablaM = el("table", {class:"tabla stats-tabla"});
+    function pintaModo() {
+      tablaM.textContent = "";
+      const sa = d.stats.find(x => x.rareza === rarezaVista);
+      const sb = f.stats.find(x => x.rareza === rarezaVista) || f.stats[f.stats.length - 1];
+      if (!sa || !sb || !sa.niveles[99] || !sb.niveles[99]) return;
+      tablaM.appendChild(el("tr", {}, [el("th", {text:"Stat a nivel 99"}), el("th", {class:"num", text:d.nombre}),
+        el("th", {class:"num", text:"Con " + m.nombre}), el("th", {class:"num", text:"Cambio"})]));
+      let ta = 0, tb = 0;
+      d.nombres_stats.forEach((nombre, i) => {
+        const a = sa.niveles[99][i], b = sb.niveles[99][i]; ta += a; tb += b;
+        tablaM.appendChild(el("tr", {}, [el("td", {}, [iconoStat(nombre, 18), document.createTextNode(nombre)]),
+          el("td", {class:"num", text:String(a)}), el("td", {class:"num", text:String(b)}),
+          el("td", {class:"num " + (b > a ? "mas" : b < a ? "menos" : ""), text:(b - a > 0 ? "+" : "") + (b - a)})]));
+      });
+      tablaM.appendChild(el("tr", {}, [el("td", {text:"Total"}), el("td", {class:"num", text:String(ta)}),
+        el("td", {class:"num", text:String(tb)}), el("td", {class:"num " + (tb > ta ? "mas" : tb < ta ? "menos" : ""), text:(tb - ta > 0 ? "+" : "") + (tb - ta)})]));
+    }
+    pintaModo(); alCambiarRareza.push(pintaModo);
+    caja.appendChild(el("div", {style:"overflow-x:auto"}, [tablaM]));
+    caja.appendChild(el("p", {class:"nota", text:"Los stats de la forma son los de su propia ficha, a la misma rareza y nivel (sin judias, equipacion ni el arbol)."}));
+    const tecsM = el("div", {class:"tecs"});
+    tecsM.appendChild(el("div", {class:"nota", text:"TECNICAS DE LA FORMA (el set con el que juega en el modo)"}));
+    for (const t of f.tecnicas) tecsM.appendChild(barraTecnica(t));
+    caja.appendChild(tecsM);
+  }
+  if (d.forma_de) {
+    caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Es una forma de cambio de modo"})]));
+    caja.appendChild(el("p", {class:"nota"}, [document.createTextNode("Es en lo que se convierte "),
+      el("a", {href:"#", class:"enlace", text:d.forma_de.nombre,
+        onclick:e => { e.preventDefault(); abrePersonaje({identidad:d.forma_de.identidad}); }}),
+      document.createTextNode(" con " + d.forma_de.modo + ". No se puede fichar como personaje aparte.")]));
+  }
 
   // --- pasivas
   if (d.pasivas.fijas && d.pasivas.fijas.length) {

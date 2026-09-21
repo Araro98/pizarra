@@ -1859,7 +1859,9 @@ async function fichaEspiritu(id) {
     texto.appendChild(el("div", {class:"sub", text:"Habilidad pasiva"}));
     texto.appendChild(el("p", {class:"pasiva-esp grande", text:d.pasiva}));
   } else {
-    texto.appendChild(el("p", {class:"vacio", text:"De este no se sabe la pasiva."}));
+    // armaduras, mixi max y almas no llevan pasiva propia (NOTAS O-224)
+    texto.appendChild(el("p", {class:"vacio", text:["armadura", "mixi", "alma"].includes(d.familia)
+      ? "Sin pasiva propia: solo los kenshin la llevan." : "De este no se sabe la pasiva."}));
   }
   if (d.tecnica) {
     texto.appendChild(el("div", {class:"sub", text:"Supertecnica del espiritu"}));
