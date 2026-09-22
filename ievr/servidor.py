@@ -688,6 +688,12 @@ def pasivas_de_equipo(plain, i):
         tabla = J.tabla_pasivas(plain, fila)
         if not any(x["id"] != "00000000" for x in tabla):
             tabla = []
+        # el entrenador y los gerentes solo suman sus pasivas de personal (la
+        # tabla con numero, O-185): un convertido que aun no tiene ninguna no
+        # aporta nada, ni las que le quedan de jugador ni la personalizada
+        # (Aaron, O-228)
+        if m["puesto"] >= EQ.PUESTO_STAFF and not tabla:
+            continue
         # las fijas de un Idolo o Diamante nativo (campo a cero): las del tablero
         fijas = []
         if not tabla and not any(plain[off:off + 20]):
@@ -725,7 +731,7 @@ def pasivas_de_equipo(plain, i):
         # la pasiva personalizada (una por jugador, O-179) suma igual que las
         # normales, para todos menos los suplentes (Aaron, O-212)
         pid_p, _slot = E.pasiva_personalizada(plain, fila)
-        f = valores.get(pid_p or "")
+        f = valores.get(pid_p or "") if m["puesto"] < EQ.PUESTO_STAFF else None
         if f:
             g = grupos.setdefault(f["texto"], {"texto": f["texto"], "familia": f["familia"],
                                                "icono": iconos.get(pid_p, ""), "valor": 0.0,

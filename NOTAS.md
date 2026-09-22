@@ -5406,6 +5406,19 @@ selector le ofrece las 12 de Diamante de su rol sin pedir manual y
 jugador (ranuras 1-5) y las heredadas no son objetos de mochila, asi que
 ahi no hay nada que limpiar.
 
+### O-228 · Un gerente o entrenador sin pasivas de personal no suma nada
+
+Aaron: "cuando tienes un gerente o entrenador sin pasivas de gerente o
+entrenador, la suma de pasivas del equipo pone las que tiene como jugador;
+no deberia salir ninguna suya. Tanto en Jugadores como en Equipo".
+
+`pasivas_de_equipo` (la misma funcion sirve a las dos pantallas) leia la
+tabla con numero y, si estaba vacia, reconstruia desde las cinco ranuras de
+la ficha: para un jugador vale, pero un convertido a personal conserva ahi
+sus pasivas de jugador (O-185) y salian sumadas. Ahora un miembro del
+cuerpo tecnico solo suma su tabla de personal; si esta vacia, nada. Y su
+pasiva personalizada, tampoco.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
