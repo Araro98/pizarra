@@ -10,10 +10,12 @@ Afinidad (ranura 3),D210C171,"Cuando un jugador de otro elemento está cerca, \\
 Afinidad (ranura 4),D021FC1C,"Si el poder de afinidad es 20 % o más, \\nAT de tiro directo del equipo [CPASSIVE01]+<VALUE> %[C]",Tiro,equipo,6
 Afinidad (ranura 4),01D4B17B,"Al hacer un pase, poder de afinidad [CPASSIVE01]+<VALUE> %[C]",otra,equipo,6
 Afinidad (ranura 4),FC40F2F2,"Por cada rango de Conf. Vínculo, \\nvalor de disputa del equipo [CPASSIVE01]+<VALUE> %[C]",Disputa,equipo,5
+Afinidad (ranura 4),B019292C,"Conf. Vínculo: Por cada 1 % del poder de afinidad, \nAT/DF del equipo [CPASSIVE01]+<VALUE> %[C]",otra,equipo,17
 Afinidad (ranura 4),73B49882,"Por cada rango de Conf. Vínculo,\\npérdida de poder de afinidad [CPASSIVE01]－<VALUE> ％[C]",otra,equipo,4
 Afinidad (ranura 5),FC40F2F2,"Por cada rango de Conf. Vínculo, \\nvalor de disputa del equipo [CPASSIVE01]+<VALUE> %[C]",Disputa,equipo,7
 Afinidad (ranura 5),01D4B17B,"Al hacer un pase, poder de afinidad [CPASSIVE01]+<VALUE> %[C]",otra,equipo,6
 Afinidad (ranura 5),D021FC1C,"Si el poder de afinidad es 20 % o más, \\nAT de tiro directo del equipo [CPASSIVE01]+<VALUE> %[C]",Tiro,equipo,6
+Afinidad (ranura 5),B019292C,"Conf. Vínculo: Por cada 1 % del poder de afinidad, \nAT/DF del equipo [CPASSIVE01]+<VALUE> %[C]",otra,equipo,17
 Afinidad (ranura 5),73B49882,"Por cada rango de Conf. Vínculo,\\npérdida de poder de afinidad [CPASSIVE01]－<VALUE> ％[C]",otra,equipo,2
 Brecha (ranura 3),F17AFB5C,Valor de foco del equipo [CPASSIVE01]+<VALUE> %[C] en campo propio,Foco,propio,17
 Brecha (ranura 3),E0981A7F,"Cuando un jugador del mismo elemento está cerca, \\nAT propio de tiro [CPASSIVE01]+<VALUE> %[C]",Tiro,propio,9

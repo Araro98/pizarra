@@ -141,6 +141,14 @@ def main():
     # la partida la llevaban jugadores de Contra por heredarla o por un cambio
     # de arquetipo, y se colaba en el selector de Contra.
     EXCLUIR = {("Contra (ranura 4)", "5E0C7F82"), ("Contra (ranura 5)", "5E0C7F82")}
+    # Y lo que SI es del grupo aunque en la ficha no se vea (O-229): "Conf.
+    # Vinculo: por cada 1 % del poder de afinidad, AT/DF del equipo" es de
+    # Afinidad (familia afinidad en el juego); 17 jugadores de Afinidad de la
+    # partida original la llevaban en la 4 o la 5, pero como heredada, y aqui
+    # solo se miran las cinco ranuras normales. Lo vio Aaron con Cate Heckel.
+    INCLUIR = {("Afinidad (ranura 4)", "B019292C"): 17, ("Afinidad (ranura 5)", "B019292C"): 17}
+    for clave, n in INCLUIR.items():
+        visto.setdefault(clave, n)
     filas = []
     for (grupo, h), n in sorted(visto.items(), key=lambda kv: (kv[0][0], -kv[1])):
         if (grupo, h.upper()) in EXCLUIR:

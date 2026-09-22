@@ -5419,6 +5419,32 @@ sus pasivas de jugador (O-185) y salian sumadas. Ahora un miembro del
 cuerpo tecnico solo suma su tabla de personal; si esta vacia, nada. Y su
 pasiva personalizada, tampoco.
 
+### O-229 · Afinidad tambien tiene "Conf. Vinculo: por cada 1 % del poder de afinidad, AT/DF del equipo"
+
+Aaron: "a un Afinidad le puede salir una pasiva que el editor no ofrece; la
+tiene una Cate Heckel". Es `B019292C` (`ps10119`, familia afinidad en las
+tablas del juego, +0.04 % de base y +0.1 % en Leyenda; la de personal
+Diamante con el mismo texto es otra, `bcps10012`, +0.4 %). En la partida
+original 17 jugadores de Afinidad la llevaban en la 4 o la 5, todos como
+**heredada**, y `construir_pasivas_jugador.py` solo mira las cinco ranuras
+normales de la ficha: por eso no entro en `pasivas-por-ranura.csv`. Anadida
+a "Afinidad (ranura 4)" y "(ranura 5)" (`INCLUIR` en el generador).
+
+Repaso del resto de arquetipos con las tablas del juego: quedan 10 pasivas
+de familia afinidad/brecha/tension con id propio que no estan en las listas,
+pero todas repiten el texto de otra que si esta (otra version de "Tasa de
+brecha del equipo", de "Al hacer un pase, poder de afinidad"...) y no las
+lleva ningun jugador de ninguna partida: no se anaden sin que Aaron lo diga.
+
+De paso, otra cosa vista al comparar: entre la partida del 21 por la manana
+y la del 22, **104 heredadas de las ranuras 4 y 5** (todas de Leyendas fuera
+de equipo: 82 la pareja de Justicia, 12 la de Contra, 10 la de Juego sucio)
+desaparecieron de la ficha, y la tabla con numero (lo que ensena el juego)
+las conserva con la marca a 0. El editor no borra heredadas de la 4-5 por
+ningun sitio y cada accion suya deja la tabla al dia, asi que lo hizo el
+juego o algo que Aaron hizo en el juego. Pendiente de preguntarselo; no se
+toca hasta saberlo.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
