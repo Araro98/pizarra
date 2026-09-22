@@ -1043,14 +1043,19 @@ def personales(plain, fila):
     poseidas = inventario.filas_poseidas(plain)
     fuera = []
     legales = pasivas_personal_legales(plain, fila, rol)
+    # un Diamante lleva las 12 de Diamante de su rol, y sin manual: en la
+    # mochila del juego no existen (O-198, O-227)
+    es_diamante = J.array(plain, J.ARRAY_RAREZA)[fila] == 8
+    if es_diamante:
+        legales = pasivas_solo_de_diamante(rol)
     for idh in sorted(legales) if legales else pasivas_de_personal_del_rol(rol):
-        if idh not in poseidas:
+        if not es_diamante and idh not in poseidas:
             continue
         # con el numero que tendra en ESTE gerente o entrenador (O-197)
         valor = E.valor_de_pasiva_personal(plain, fila, idh)
         fuera.append({"id": idh, "nombre": texto_con_valor(idh, valor, idh),
                       "icono200": iconos_de_pasiva().get(idh, ""),
-                      "cantidad": poseidas[idh][0].get("cantidad", 0)})
+                      "cantidad": poseidas[idh][0].get("cantidad", 0) if idh in poseidas else 0})
     fuera.sort(key=lambda x: x["nombre"])
     return {"puede": bool(fuera), "rol": rol,
             "motivo": "" if fuera else "no tienes ningun manual de pasiva de %s "

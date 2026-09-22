@@ -5381,6 +5381,31 @@ esa; asi que la regla es una lista por arquetipo para las dos ranuras.
 `O.pasivas` y `E.poner_pasiva` juntan ahora los grupos "(ranura 4)" y
 "(ranura 5)" cuando se pide la 4 o la 5.
 
+### O-227 · En la mochila solo existen como manual las pasivas que el juego da
+
+Aaron: "puede ser que en la mochila aun se puedan conseguir pasivas que no
+estan permitidas? revisalo con las que el editor deja poner a jugadores,
+entrenadores y gerentes, y quita las ilegales de la mochila".
+
+Los manuales de pasiva de la mochila son solo dos familias: las 37
+personalizadas (O-179) y las de gerente y entrenador (O-185). No estan en
+las tablas de tienda, correo ni trofeos (se buscaron los 149 ids en
+shop_config, common_item_table, trophy_config y delivery_config: ninguno),
+asi que la referencia es la mochila del juego: en la partida original de
+Aaron hay 26 personalizadas, 44 de gerente y 43 de entrenador, y **ninguna
+de las 24 de Diamante** (clave 100, O-198) aunque sus 4 Diamantes las
+llevan puestas: los Diamantes las llevan sin objeto. En la de hoy hay 149,
+con las 24 de Diamante a 99, creadas por "Conseguir 99 pasivas de personal".
+
+Cambios: el boton ya no las crea; `pasivas_ilegales_en_mochila` /
+`quitar_pasivas_ilegales` (Resumen y al guardar) vacian esas filas, que es
+como estan las filas libres y los huecos que deja el propio juego (todo a
+cero: slot, id, serie, kind, sub, cantidad y contador); a un Diamante el
+selector le ofrece las 12 de Diamante de su rol sin pedir manual y
+`poner_pasiva_personal` no le exige el objeto ni toca contadores. Las de
+jugador (ranuras 1-5) y las heredadas no son objetos de mochila, asi que
+ahi no hay nada que limpiar.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

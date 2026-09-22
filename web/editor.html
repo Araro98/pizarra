@@ -921,7 +921,7 @@
         <button class="btn verde" id="pers-99"
           title="Las 37 pasivas personalizadas del juego, 99 de cada una">Conseguir 99 pasivas personalizadas</button>
         <button class="btn verde" id="personal-99"
-          title="Las pasivas de gerente y de entrenador, 99 de cada una">Conseguir 99 pasivas de personal</button>
+          title="Las pasivas de gerente y de entrenador que existen como manual (sin las de Diamante), 99 de cada una">Conseguir 99 pasivas de personal</button>
         <button class="btn verde" id="sin-todas"
           title="Las 37 sinergias del juego, en la mochila">Conseguir todas las sinergias</button>
       </div>
@@ -2239,6 +2239,18 @@ async function pintaResumen() {
         + "capitan al primero del campo (si el de antes ya no juega) y de entrenador al del puesto de "
         + "entrenador, como lo deja el juego. Se puede deshacer."))
         manda({tipo:"arreglar_cabeceras"}); }}));
+    c.appendChild(g);
+  }
+  if (d.pasivas_ilegales_mochila) {
+    const g = el("div", {class:"grupo-resumen"});
+    g.appendChild(el("h3", {text:"Arreglos"}));
+    g.appendChild(el("p", {text:"La mochila tiene " + d.pasivas_ilegales_mochila + " pasivas que el juego no da "
+      + "como manual (las de gerente y entrenador solo de Diamante, que creaba el boton de 99: los Diamantes "
+      + "las llevan sin objeto)."}));
+    g.appendChild(el("button", {class:"btn", text:"Quitarlas de la mochila",
+      onclick:async () => { if (await confirma("Pasivas de la mochila", "Se vacian esas filas de la mochila, "
+        + "como las deja el juego. A los Diamantes que las llevan no les pasa nada. Se puede deshacer."))
+        manda({tipo:"quitar_pasivas_ilegales"}); }}));
     c.appendChild(g);
   }
   if (d.tecnicas_rotas) {

@@ -1918,8 +1918,10 @@ def poner_pasiva_personal(plain, fila, ranura, nombre):
     if id_hex not in O.pasivas_personal_legales(plain, fila, rol):
         raise Ilegal("%s es una pasiva de Diamante: solo la lleva un %s Diamante"
                      % (O.nombre_pasiva(id_hex, id_hex), rol))
-    poseidas = inventario.filas_poseidas(plain).get(id_hex)
-    if not poseidas:
+    # un Diamante lleva las suyas sin manual: en la partida original de Aaron
+    # sus 4 Diamantes las tienen y en la mochila no hay ni una (O-227)
+    es_diamante = J.array(plain, J.ARRAY_RAREZA)[fila] == 8
+    if not es_diamante and not inventario.filas_poseidas(plain).get(id_hex):
         raise Ilegal("no tienes ningun manual de esa pasiva en la mochila")
 
     pos = J.pos_tabla_pasivas(plain, fila, ranura - 1)
@@ -1935,13 +1937,15 @@ def poner_pasiva_personal(plain, fila, ranura, nombre):
     if not buf[pos + 32]:
         buf[pos + 32] = 1               # desbloqueada, como las de fabrica
     plain = bytes(buf)
-    # el contador de "cuantos la llevan", como con la equipacion
-    porid = {f["id"].upper(): f for f in inventario.todas_las_filas(plain)}
-    if antes != "00000000" and antes in porid:
-        plain = inventario.ajustar_equipada(plain, porid[antes], -1)
-    porid = {f["id"].upper(): f for f in inventario.todas_las_filas(plain)}
-    if id_hex in porid:
-        plain = inventario.ajustar_equipada(plain, porid[id_hex], +1)
+    # el contador de "cuantos la llevan", como con la equipacion (un Diamante
+    # no tiene manual que contar)
+    if not es_diamante:
+        porid = {f["id"].upper(): f for f in inventario.todas_las_filas(plain)}
+        if antes != "00000000" and antes in porid:
+            plain = inventario.ajustar_equipada(plain, porid[antes], -1)
+        porid = {f["id"].upper(): f for f in inventario.todas_las_filas(plain)}
+        if id_hex in porid:
+            plain = inventario.ajustar_equipada(plain, porid[id_hex], +1)
     return plain, {"fila": fila, "ranura": ranura, "rol": rol,
                    "antes": O.nombre_pasiva(antes, "vacia") if antes != "00000000" else "vacia",
                    "despues": O.texto_con_valor(id_hex, valor, id_hex)}
@@ -2006,14 +2010,67 @@ def arreglar_pasivas_personal(plain):
                         "que": "pasivas de personal con el valor de su rareza"}
 
 
+def pasivas_legales_de_mochila():
+    """{id} de los manuales de pasiva que existen en la mochila del juego: las
+    37 personalizadas y las de gerente y entrenador que no son de Diamante
+    (NOTAS O-227)."""
+    from ievr import opciones as O
+    return (set(O.pasivas_personalizadas())
+            | ((O.pasivas_de_personal_del_rol("gerente") | O.pasivas_de_personal_del_rol("entrenador"))
+               - O.pasivas_solo_de_diamante("gerente") - O.pasivas_solo_de_diamante("entrenador")))
+
+
+def pasivas_ilegales_en_mochila(plain):
+    """[(id, nombre, cantidad)] de las filas de pasiva de la mochila que el
+    juego no da: las de Diamante que creaba el boton de 99 y cualquier otra
+    pasiva que no sea manual (O-227)."""
+    from ievr import opciones as O
+    legales = pasivas_legales_de_mochila()
+    categoria = {f["id"].upper(): f.get("categoria") for f in reglas._tabla("nombres-es.csv")}
+    fuera = []
+    for idh, filas in inventario.filas_poseidas(plain).items():
+        if categoria.get(idh) == "pasiva" and idh not in legales:
+            fuera.append((idh, O.nombre_pasiva(idh, idh), filas[0].get("cantidad", 0)))
+    return sorted(fuera, key=lambda x: x[1])
+
+
+def quitar_pasivas_ilegales(plain):
+    """Deja a cero las filas de esas pasivas, que es como estan las filas
+    libres de la mochila (y los huecos que deja el propio juego)."""
+    mal = {idh for idh, _n, _c in pasivas_ilegales_en_mochila(plain)}
+    if not mal:
+        raise Ilegal("en la mochila no hay ninguna pasiva que el juego no de")
+    buf = bytearray(plain)
+    filas = 0
+    for f in inventario.todas_las_filas(plain):
+        if f.get("id", "").upper() not in mal or f.get("kind") != inventario.KIND_REAL or not f["slot"]:
+            continue
+        struct.pack_into("<I", buf, f["slot_off"] + 8, 0)
+        buf[f["id_off"]:f["id_off"] + 4] = b"\0\0\0\0"
+        struct.pack_into("<I", buf, f["serie_off"], 0)
+        buf[f["kind_off"]] = 0
+        buf[f["sub_off"]] = 0
+        if "cantidad_off" in f:
+            struct.pack_into("<I", buf, f["cantidad_off"], 0)
+        if "equipada_off" in f:
+            struct.pack_into("<I", buf, f["equipada_off"], 0)
+        filas += 1
+    return bytes(buf), {"pasivas": len(mal), "filas": filas,
+                        "que": "pasivas que el juego no da quitadas de la mochila"}
+
+
 def dar_pasivas_personal(plain, cantidad=99):
     """Pone `cantidad` de cada pasiva de gerente y de entrenador en la mochila,
     creando la fila de las que no se tengan (NOTAS O-185)."""
     from ievr import opciones as O
     if not 1 <= cantidad <= TOPE_CANTIDAD:
         raise Ilegal("la cantidad va de 1 a %d" % TOPE_CANTIDAD)
-    todas = sorted(O.pasivas_de_personal_del_rol("gerente")
-                   | O.pasivas_de_personal_del_rol("entrenador"))
+    # sin las de Diamante (clave 100): en la mochila del juego no existen como
+    # manual, los Diamantes las llevan sin objeto (NOTAS O-198, O-227)
+    todas = sorted((O.pasivas_de_personal_del_rol("gerente")
+                    | O.pasivas_de_personal_del_rol("entrenador"))
+                   - O.pasivas_solo_de_diamante("gerente")
+                   - O.pasivas_solo_de_diamante("entrenador"))
     return _dar_de_todo(plain, todas, cantidad, "pasivas de gerente y entrenador")
 
 
