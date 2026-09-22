@@ -5202,7 +5202,9 @@ cosas", con popup bonito e iconos, y nada de esto para Idolos ni Diamantes.
   Talisman de Evans). Si falta la pieza en la mochila se crea (como "Conseguir").
 - **Pasivas** (encima de las pasivas), en dos pasos: el arquetipo (el jugador
   pasa a el y lleva su pareja x2 en las ranuras 4 y 5 por "Cambiar": Justicia
-  `5590EE4C`, Brecha `9D5F52A9`, Contra `1F3D649B`, Afinidad `01D4B17B`,
+  `5590EE4C`, Brecha `9D5F52A9`, Contra `1F3D649B`, Afinidad `B019292C` (Conf.
+  Vinculo por cada 1 % del poder de afinidad, desde 2026.09.22.5; antes
+  `01D4B17B`, O-229),
   Tension `7467BCE0`, Juego sucio `2B41EE9C`), y el subpreset: la heredada x3
   en las ranuras 1-3 por "Heredar" mas la pasiva personalizada equivalente
   (foco/tiro por posicion o elemento, tiro propio, PP; PP no tiene equivalente

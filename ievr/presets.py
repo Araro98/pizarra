@@ -35,7 +35,10 @@ PAREJA_DE_ARQUETIPO = {
     5: "5590EE4C",   # Justicia: Por cada rango de Conf. Justicia, AT y DF del equipo
     0: "9D5F52A9",   # Brecha: Tasa de brecha del equipo
     1: "1F3D649B",   # Contra: Por cada rango de Conf. Contraataque, valor de foco del equipo
-    2: "01D4B17B",   # Afinidad: Al hacer un pase, poder de afinidad
+    # Afinidad: Conf. Vinculo, por cada 1 % del poder de afinidad, AT/DF del
+    # equipo (O-229; antes "Al hacer un pase, poder de afinidad" 01D4B17B,
+    # Aaron: "mejor esa")
+    2: "B019292C",
     3: "7467BCE0",   # Tension: Por cada rango de Conf. Tension, tension
     4: "2B41EE9C",   # Juego sucio: al ser derribado en esprint, tension
 }
