@@ -2253,6 +2253,19 @@ async function pintaResumen() {
         manda({tipo:"quitar_pasivas_ilegales"}); }}));
     c.appendChild(g);
   }
+  if (d.tablas_desajustadas) {
+    const g = el("div", {class:"grupo-resumen"});
+    g.appendChild(el("h3", {text:"Arreglos"}));
+    g.appendChild(el("p", {text:d.tablas_desajustadas + " jugadores tienen la tabla de pasivas que ensena el "
+      + "juego distinta de su ficha (una version anterior de 'Dejarlos en 3' quitaba la heredada sin "
+      + "actualizarla): en el juego siguen viendo la heredada quitada."}));
+    g.appendChild(el("button", {class:"btn", text:"Poner la tabla como la ficha",
+      onclick:async () => { if (await confirma("Tabla de pasivas", "A cada uno se le deja la tabla con las "
+        + "pasivas de su ficha (la heredada tapa a la normal), con el numero de su rareza, como la deja el "
+        + "juego. Se puede deshacer."))
+        manda({tipo:"arreglar_tablas"}); }}));
+    c.appendChild(g);
+  }
   if (d.tecnicas_rotas) {
     const g = el("div", {class:"grupo-resumen"});
     g.appendChild(el("h3", {text:"Arreglos"}));

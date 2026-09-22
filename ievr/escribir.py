@@ -3079,6 +3079,7 @@ def arreglar_heredadas(plain):
     ident = J.array(plain, J.ARRAY_IDENTIDAD)
     buf = bytearray(plain)
     tocados = quitadas = 0
+    filas_tocadas = []
     for fila in range(min(6000, len(ident))):
         if not ident[fila]:
             continue
@@ -3095,11 +3096,67 @@ def arreglar_heredadas(plain):
             buf[off + 4 * k:off + 4 * k + 4] = bytes(4)
             quitadas += 1
         tocados += 1
+        filas_tocadas.append(fila)
     if not tocados:
         raise Ilegal("no hay ningun jugador con mas de %d pasivas heredadas"
                      % TOPE_HEREDADAS)
-    return bytes(buf), {"jugadores": tocados, "quitadas": quitadas,
-                        "que": "heredadas de mas quitadas"}
+    # y la tabla con numero de cada uno, que es lo que ensena el juego (O-166):
+    # sin esto se quedaba con la heredada quitada, y el juego la seguia
+    # ensenando (104 jugadores de Aaron, O-230)
+    plain = bytes(buf)
+    for fila in filas_tocadas:
+        plain = sincronizar_tabla_pasivas(plain, fila)
+    return plain, {"jugadores": tocados, "quitadas": quitadas,
+                   "que": "heredadas de mas quitadas"}
+
+
+def tablas_desajustadas(plain):
+    """[fila] de jugadores normales cuya tabla de pasivas con numero (lo que
+    ensena el juego, O-166) no cuadra con su ficha: la heredada tapa a la
+    normal y cada una va en la version de su rareza. Pasa cuando algo cambia
+    la ficha sin pasar por `sincronizar_tabla_pasivas` (O-230)."""
+    from ievr import opciones as O, equipos as EQ
+    if J.tabla_pasivas_base(plain) is None:
+        return []
+    ident = J.array(plain, J.ARRAY_IDENTIDAD)
+    rareza = J.array(plain, J.ARRAY_RAREZA)
+    fuera = []
+    for fila in range(min(6000, len(ident))):
+        if not ident[fila] or rareza[fila] >= 5:
+            continue
+        try:
+            if EQ.medalla_de(plain, fila << 16):
+                continue          # el personal va aparte (O-185)
+            off, _ = _campo(plain, fila, J.F_PASIVAS)
+            offh, _ = _campo(plain, fila, J.F_HEREDADAS)
+        except Exception:
+            continue
+        normales = [plain[off + 4 * k:off + 4 * k + 4].hex().upper() for k in range(5)]
+        heredadas = [plain[offh + 4 * k:offh + 4 * k + 4].hex().upper() for k in range(5)]
+        if not any(int(x, 16) for x in normales + heredadas):
+            continue          # ficha sin pasivas: la tabla la puso el juego
+        tabla = J.tabla_pasivas(plain, fila)
+        if not tabla or not any(x["id"] != "00000000" for x in tabla):
+            continue
+        for k in range(5):
+            quiero = heredadas[k] if heredadas[k] != "00000000" else normales[k]
+            if quiero == "00000000":
+                continue
+            if O.variante_por_rareza(quiero, rareza[fila]) != tabla[k]["id"].upper():
+                fuera.append(fila)
+                break
+    return fuera
+
+
+def arreglar_tablas(plain):
+    """Deja la tabla con numero de esos jugadores como la dejaria el juego."""
+    mal = tablas_desajustadas(plain)
+    if not mal:
+        raise Ilegal("la tabla de pasivas de todos los jugadores cuadra con su ficha")
+    for fila in mal:
+        plain = sincronizar_tabla_pasivas(plain, fila)
+    return plain, {"jugadores": len(mal),
+                   "que": "tabla de pasivas puesta como la ficha"}
 
 
 def tecnicas_rotas(plain):

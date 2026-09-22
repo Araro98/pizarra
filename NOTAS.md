@@ -5443,7 +5443,25 @@ desaparecieron de la ficha, y la tabla con numero (lo que ensena el juego)
 las conserva con la marca a 0. El editor no borra heredadas de la 4-5 por
 ningun sitio y cada accion suya deja la tabla al dia, asi que lo hizo el
 juego o algo que Aaron hizo en el juego. Pendiente de preguntarselo; no se
-toca hasta saberlo.
+toca hasta saberlo. (Resuelto: ver O-230.)
+
+### O-230 · "Dejarlos en 3" quitaba la heredada sin tocar la tabla del juego
+
+Aaron: "lo unico que hice fue usar la herramienta del editor que elimina
+heredadas cuando tienen 5, y quitar jugadores de equipos". Era eso:
+`arreglar_heredadas` (O-107) es una accion de toda la partida, y
+`Sesion.aplicar` solo sincroniza la tabla con numero (O-166) cuando el
+cambio trae una `fila`. Asi que la heredada se iba de la ficha y la tabla,
+que es lo que ensena el juego, se quedaba con ella (Cate Heckel con la
+pareja de Justicia en la 4 y la 5: en el editor las de Afinidad, en el
+juego "Conf. Justicia +0,4 %"). Ahora `arreglar_heredadas` sincroniza cada
+fila tocada, y `tablas_desajustadas` / `arreglar_tablas` (Resumen y al
+guardar) reparan a los que ya lo tenian: en la partida original el juego
+no deja ninguno desajustado; en la del 22 salen los 104.
+
+Y la foto de Mateo Bonachea (Leyenda de Afinidad recien fichado) confirma
+la pasiva de O-229 tal cual: "Conf. Vinculo: Por cada 1 % del poder de
+afinidad, AT/DF del equipo +0.10 %", en la ranura 5.
 
 ## SUPUESTO
 
