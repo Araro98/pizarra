@@ -5465,6 +5465,17 @@ Y la foto de Mateo Bonachea (Leyenda de Afinidad recien fichado) confirma
 la pasiva de O-229 tal cual: "Conf. Vinculo: Por cada 1 % del poder de
 afinidad, AT/DF del equipo +0.10 %", en la ranura 5.
 
+### O-231 · La tercera copia de una tecnica vale en CUALQUIER ranura, no solo en las de despues
+
+Aaron, con Goldus Janque (portero de ESPANA): Mano de pinguinos en la 1 y
+la 3 (Parada) y la tercera en la 2, que es de Defensa; el juego se lo dejo
+poner a mano y mando la captura. "Es indiferente el slot en el que esta:
+mientras tenga 2 mas iguales, la tercera se puede poner en cualquiera".
+O-199 lo tenia como "ranura posterior a sus dos copias" y el editor no
+ofrecia la tecnica en la ranura 2. Ahora `O.tecnicas`, `poner_tecnica` y
+`_quitar_repetidas_sueltas` cuentan las otras copias esten donde esten (y
+al quitar, se repite hasta que no caiga ninguna mas).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

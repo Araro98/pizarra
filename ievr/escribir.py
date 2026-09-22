@@ -448,13 +448,15 @@ def poner_tecnica(plain, fila, ranura, nombre):
         nombre = tlv.nombres().get(id_hex, (nombre,))[0]
 
     if admite != "LIBRE" and categoria != admite:
-        # La tercera copia de una tecnica vale en cualquier ranura de despues,
-        # sea del tipo que sea, si ya la lleva dos veces en ranuras anteriores
-        # (regla del juego que dio Aaron, NOTAS O-199).
-        previas = [x for x in _tecnicas_puestas(plain, fila)[:ranura - 1] if x["id"] == id_hex]
-        if len(previas) < 2:
+        # La tercera copia de una tecnica vale en cualquier ranura, sea del
+        # tipo que sea, si ya la lleva dos veces en otras ranuras: da igual
+        # cuales (Aaron con Goldus Janque: copias en la 1 y la 3 y la tercera
+        # en la 2, que es de Defensa; NOTAS O-199, O-231).
+        otras = [x for x in _tecnicas_puestas(plain, fila)
+                 if x["id"] == id_hex and x["ranura"] != ranura and x["slot"]]
+        if len(otras) < 2:
             raise Ilegal("la ranura %d de %s solo admite tecnicas de %s, y %r es de %s "
-                         "(solo entraria si ya la llevara dos veces en ranuras anteriores)"
+                         "(solo entraria si ya la llevara dos veces en otras ranuras)"
                          % (ranura, ficha["nombre"], admite, nombre, categoria))
     from ievr import opciones as O
     if categoria == "Hipertecnica" and not O.espiritu_permitido(id_hex, "%08X" % identidad):
@@ -537,15 +539,15 @@ def poner_tecnica(plain, fila, ranura, nombre):
         plain = inventario.ajustar_equipada(plain, porslot[antes], -1)
     if not creada:      # la fila nueva ya nace con un jugador que la lleva
         plain = inventario.ajustar_equipada(plain, inventario.por_slot(plain)[slot_nuevo], +1)
-    # si el cambio deja una copia repetida sin sus dos anteriores, el juego la
-    # quita: aqui tambien (O-199)
+    # si el cambio deja una copia repetida sin sus otras dos, el juego la
+    # quita: aqui tambien (O-199, O-231)
     plain, quitadas = _quitar_repetidas_sueltas(plain, fila)
 
     nombres = tlv.nombres()
     return plain, {"fila": fila, "ranura": ranura, "admite": admite,
                    "quitadas": quitadas,
-                   "aviso": ("El juego quitaria estas por quedarse sin sus dos copias "
-                             "anteriores, asi que se quitan: " + "; ".join(
+                   "aviso": ("El juego quitaria estas por quedarse sin sus otras dos "
+                             "copias, asi que se quitan: " + "; ".join(
                                  "ranura %d (%s)" % (r, n) for r, n in quitadas))
                             if quitadas else "",
                    # sin los marcadores del juego ("Talisman de <FLC:ENDO>"), O-187
@@ -577,8 +579,8 @@ def _tecnicas_puestas(plain, fila):
 
 def _quitar_repetidas_sueltas(plain, fila):
     """Quita las copias de una tecnica que estan en una ranura que no es de su
-    tipo y ya no tienen dos copias en ranuras anteriores (O-199). Devuelve
-    (plain, [(ranura, nombre)])."""
+    tipo y ya no tienen otras dos copias en el arbol, esten donde esten
+    (O-199, O-231). Devuelve (plain, [(ranura, nombre)])."""
     identidad = J.array(plain, J.ARRAY_IDENTIDAD)[fila]
     ficha = next((f for f in reglas._tabla("jugadores.csv")
                   if f["identidad"].upper() == "%08X" % identidad), None)
@@ -590,20 +592,25 @@ def _quitar_repetidas_sueltas(plain, fila):
     quitadas, soltadas = [], []
     buf = bytearray(plain)
     porslot = inventario.por_slot(plain)
-    for x in puestas:
-        if not x["id"] or x["off"] is None:
-            continue
-        admite = ficha.get("r%d_tipo" % x["ranura"], "?")
-        categoria = tec[x["id"]]["categoria"] if x["id"] in tec else "Hipertecnica"
-        if admite == "LIBRE" or categoria == admite:
-            continue
-        previas = [y for y in puestas[:x["ranura"] - 1] if y["id"] == x["id"] and y["slot"]]
-        if len(previas) >= 2:
-            continue
-        struct.pack_into("<I", buf, x["off"], 0)
-        soltadas.append(x["slot"])
-        x["slot"] = 0            # para que las de despues tampoco cuenten con ella
-        quitadas.append((x["ranura"], _limpio_nombre(nombres.get(x["id"], (x["id"],))[0])))
+    # hasta que no cambie nada: una copia quitada puede dejar coja a otra
+    cambio = True
+    while cambio:
+        cambio = False
+        for x in puestas:
+            if not x["id"] or x["off"] is None or not x["slot"]:
+                continue
+            admite = ficha.get("r%d_tipo" % x["ranura"], "?")
+            categoria = tec[x["id"]]["categoria"] if x["id"] in tec else "Hipertecnica"
+            if admite == "LIBRE" or categoria == admite:
+                continue
+            otras = [y for y in puestas if y is not x and y["id"] == x["id"] and y["slot"]]
+            if len(otras) >= 2:
+                continue
+            struct.pack_into("<I", buf, x["off"], 0)
+            soltadas.append(x["slot"])
+            x["slot"] = 0
+            quitadas.append((x["ranura"], _limpio_nombre(nombres.get(x["id"], (x["id"],))[0])))
+            cambio = True
     if not quitadas:
         return plain, []
     plain = bytes(buf)
