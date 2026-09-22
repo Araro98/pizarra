@@ -5476,6 +5476,17 @@ ofrecia la tecnica en la ranura 2. Ahora `O.tecnicas`, `poner_tecnica` y
 `_quitar_repetidas_sueltas` cuentan las otras copias esten donde esten (y
 al quitar, se repite hasta que no caiga ninguna mas).
 
+### O-232 · Que hace cada tactica de equipo, en el selector
+
+Aaron: "en las supertacticas, cuando le vas a dar una a un equipo, pon lo
+que hace cada una: una i, un hover, lo que sea, sin que abulte". Las
+descripciones estan en `item_text` (TEXT_INFO), apuntadas por la columna 3
+de `SPECIAL_TACTICS_INFO_LIST` y de `ITEM_SUPER_TACTICS_INFO_LIST` (la 2 es
+el nombre). `construir_tacticas.py` -> `tacticas.csv` (92: 86 tacticas y 6
+supertacticas, todas con texto). El selector de tacticas del Team builder
+ensena el texto al pasar el raton y con una "i" en la esquina que lo
+despliega debajo del nombre sin elegir la tactica.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

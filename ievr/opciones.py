@@ -1218,6 +1218,26 @@ def espiritu_permitido(id_hex, identidad_hex):
     return (identidad_hex or "").upper() in d["identidades"]
 
 
+def descripcion_de_tactica(valor, id_objeto="", nombre=""):
+    """Lo que hace una tactica de equipo o supertactica, en texto del juego
+    (`tacticas.csv`, O-232). Se busca por el valor del equipo, por sus bytes al
+    reves, por el objeto de la mochila y, si no, por el nombre."""
+    def construir():
+        por_id, por_nombre = {}, {}
+        for f in reglas._tabla("tacticas.csv"):
+            i = f["id"].upper()
+            por_id[i] = f["descripcion"]
+            por_id[bytes.fromhex(i)[::-1].hex().upper()] = f["descripcion"]
+            por_nombre[_limpio(f["nombre"]).lower()] = f["descripcion"]
+        return por_id, por_nombre
+    por_id, por_nombre = _indice("tacticas_desc", construir)
+    for k in (valor, id_objeto):
+        k = (k or "").upper()
+        if k and k in por_id:
+            return por_id[k]
+    return por_nombre.get(_limpio(nombre or "").lower(), "")
+
+
 def pasiva_de_espiritu(id_hex):
     """La habilidad pasiva de un espiritu, en texto (NOTAS O-184)."""
     return _indice("pasivas_espiritu", lambda: {

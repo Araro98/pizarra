@@ -768,7 +768,9 @@ def pasivas_de_equipo(plain, i):
 def _tacticas_que_tienes(plain, nombres_tac):
     """Las tacticas que hay en su mochila, con su nombre y su dibujo."""
     tengo = EQ.catalogo(plain, "tactica") + EQ.catalogo(plain, "supertactica")
-    return [{"id": t["valor"], "nombre": t["nombre"], "icono": t.get("icono") or ""}
+    # y lo que hace cada una, para el selector (Aaron, O-232)
+    return [{"id": t["valor"], "nombre": t["nombre"], "icono": t.get("icono") or "",
+             "descripcion": O.descripcion_de_tactica(t["valor"], t.get("id_objeto"), t["nombre"])}
             for t in tengo]
 
 
