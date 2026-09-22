@@ -5484,8 +5484,9 @@ descripciones estan en `item_text` (TEXT_INFO), apuntadas por la columna 3
 de `SPECIAL_TACTICS_INFO_LIST` y de `ITEM_SUPER_TACTICS_INFO_LIST` (la 2 es
 el nombre). `construir_tacticas.py` -> `tacticas.csv` (92: 86 tacticas y 6
 supertacticas, todas con texto). El selector de tacticas del Team builder
-ensena el texto al pasar el raton y con una "i" en la esquina que lo
-despliega debajo del nombre sin elegir la tactica.
+ensena el texto debajo del nombre, siempre a la vista y centrado (primero
+fue con una "i" que lo desplegaba; Aaron: "quita el i y dejalo abierto de
+base, asi es mas rapido").
 
 ## SUPUESTO
 
