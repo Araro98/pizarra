@@ -5499,6 +5499,35 @@ equipos, solo las legales. Con sus capturas de AURA FARMERS en Hexa, Caja,
 Equilibrio y Doble Volante se comprobo tambien `formaciones.csv` (O-160):
 los once de cada formacion caen donde los pinta el juego.
 
+### O-234 · Mas giros del anillo, y por que no se pueden sacar para todos
+
+Aaron: "mira los jugadores nuevos al 99 y guarda los giros; hice algunos en
+varios. Y si hay forma de encontrar el giro de todos, para que un amigo no
+tenga que girar a cada uno".
+
+- De su partida del 23: **42 personajes nuevos** (Goldus Janque, Silvain
+  Hache, Tom Skipper, Big, Quentin Rackner, Destin Billows normal y
+  Diamante...). Solo se aprenden los que el juego da por buenos: con las
+  pasivas 3-5 desbloqueadas, que es lo que el juego cierra al cargar si el
+  giro no conecta (O-195). Dos Dardinello girados con 3-5 cerradas se
+  dejan fuera. Ningun giro choca con los ya apuntados. `anillos.csv` pasa
+  de 2.632 a 2.674.
+- `construir_anillos.py` ahora SUMA: lee `anillos.csv` y le anade las
+  partidas que se le pasen (varias a la vez), en vez de reescribirla con una
+  sola. Sirve para meter partidas de los amigos de Aaron.
+- **No hay forma de sacarlo de los datos del juego.** Se probaron las 5.863
+  tablas de `gamedata`, columna por columna, contra los 2.506 giros
+  conocidos (contando cada personaje una vez): ninguna acierta mas del 60 %
+  (el giro mas comun por rama ya da el 41 %). Tampoco la posicion, la
+  alternativa, el rango, el arquetipo, la clave de personal, la identidad
+  modulo 8 ni el tablero guardado en la partida (los normales lo llevan a
+  0). Confirma O-195: el juego lo fija por personaje con algo que no esta en
+  los ficheros.
+- Cobertura: de los 5.410 fichables normales, 2.541 tienen giro conocido.
+  Para el resto el editor deja el anillo **sin girar** (O-200) y en el juego
+  basta un clic en el anillo; no se queda roto. Y el editor tambien usa las
+  otras copias del mismo personaje en la partida abierta.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
