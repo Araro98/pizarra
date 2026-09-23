@@ -1,95 +1,95 @@
 # Tacticas de equipo y supertacticas con su descripcion (NOTAS O-232).
 # Lo genera herramientas/construir_tacticas.py.
-id,categoria,nombre,descripcion
-ACB1D843,tactica,Cuernos de toro,"Divide y carga por ambos lados como toros bravos. Una maniobra ofensiva abrumadora, pero no exenta de riesgos."
-6FE2F568,tactica,Espadón,Dispersa al otro equipo como si blandieras una enorme espada y luego corre directamente hacia la portería.
-2ED3EE71,tactica,Monte Fuji,Potencia la Tensión adquirida a la vez que disminuye la reducción de Tensión.
-E945AF3E,tactica,Lanzas laterales,"Carga por ambos lados a la vez, presionando como el empuje repentino de lanzas afiladas."
-A874B427,tactica,Luna creciente,Rompe la línea de ataque del rival e infíltrate en su medio campo mientras formas una preciosa curva en forma de luna.
-6B27990C,tactica,Defensa del diamante,Clava los talones en la escuadra y bloquea el asalto del rival construyendo un muro que se asemeja a un brillante escudo.
-2A168215,tactica,Fortaleza de llamas,"Invoca un muro de llamas abrasadoras frente a la portería, y duplica temporalmente la potencia de tu defensa."
-E50A1A92,tactica,Protocolo de enlace,Haz que los lazos de tus compañeros de equipo resuenen como uno y aumenta así tu potencia de tiro.
-A43B018B,tactica,Ataque en tres frentes,Divide a los jugadores en tres direcciones para confundir al enemigo llevándote rápidamente el balón hacia delante.
-7CCB7804,tactica,Aislar al jugador clave,Aísla a un jugador del resto de su equipo para que no se pueda coordinar.
-9082AC87,tactica,Aislar al jugador clave,Aísla a un jugador del resto de su equipo para que no se pueda coordinar.
-BF98552F,tactica,Potenciar al jugador clave,Las expectativas del equipo recaen sobre este jugador y aumentan todos sus parámetros.
-393F0F79,tactica,Formación <FLC:SHINANO>,"Táctica ultraofensiva que utiliza oleadas de delanteros para atacar la portería, aunque deja la defensa expuesta."
-780E1460,tactica,Vínculo invisible,Enlaza los corazones de tus compañeros para potenciar movimientos combinados.
-BB5D394B,tactica,Empujón del quince,Libera tus reservas de energía y dalo todo en los últimos 15 minutos.
-FA6C2252,tactica,Recorrido estelar,Ataca con fuerza por el centro para dejar atrás a los defensas.
-FB14E3F8,tactica,Recorrido estelar,Ataca con fuerza por el centro para dejar atrás a los defensas.
-3570BAD5,tactica,Rugido decisivo,Lanza un rugido que levanta la moral y aumenta la potencia de tiros y regates.
-2ADB5A27,tactica,Rugido decisivo,Lanza un rugido que levanta la moral y aumenta la potencia de tiros y regates.
-7441A1CC,tactica,Muralla titánica,"Los jugadores forman un impenetrable muro, tan firme como el más enorme de los gigantes."
-69CF2130,tactica,Muralla titánica,"Los jugadores forman un impenetrable muro, tan firme como el más enorme de los gigantes."
-0A90A11C,tactica,Bosque encantado,Cambia entre múltiples efectos para desconcentrar a los oponentes.
-0C124073,tactica,Bosque encantado,Cambia entre múltiples efectos para desconcentrar a los oponentes.
-3822E016,tactica,Bosque encantado,Cambia entre múltiples efectos para desconcentrar a los oponentes.
-4BA1BA05,tactica,Carrera del dodo,Avanza con rapidez para abrumar al rival y debilitar sus supertécnicas.
-4F063B64,tactica,Carrera del dodo,Avanza con rapidez para abrumar al rival y debilitar sus supertécnicas.
-7E198773,tactica,Carrera del dodo,Avanza con rapidez para abrumar al rival y debilitar sus supertécnicas.
-88F2972E,tactica,Avance de caballería,No se puede detener una carga tan feroz. Arrasa con todo a tu paso y despeja el camino hasta la portería.
-8A3AB65D,tactica,Avance de caballería,No se puede detener una carga tan feroz. Arrasa con todo a tu paso y despeja el camino hasta la portería.
-4F64D661,tactica,Supresión inquebrantable,¡Muestra el resultado del entrenamiento! El trabajo duro merece la pena.
-743D1538,tactica,Supresión inquebrantable,¡Muestra el resultado del entrenamiento! El trabajo duro merece la pena.
-8C37FB4A,tactica,Virtuoso del éter,Echa un vistazo por el campo y guía a tu equipo con información aérea.
-B1019801,tactica,Virtuoso del éter,Echa un vistazo por el campo y guía a tu equipo con información aérea.
-CD06E053,tactica,Contra todo pronóstico,Usa tus reservas ocultas y alimenta tu espíritu de lucha. Las supertécnicas se recargan rápidamente en el lado rival.
-CCE21839,tactica,Bloqueo espectral,¡Fuerzas sobrenaturales detienen cualquier movimiento enemigo!
-0FB13512,tactica,Cielo infinito,¡Haz avanzar el balón con pases aéreos continuos y domina el campo!
-4E802E0B,tactica,Defensa en bloque,Cuatro jugadores rodean y acorralan al regateador para robarle el balón.
-89166F44,tactica,Tifones gemelos,Forma torbellinos dobles y pasa el balón para llevarlo hacia delante.
-C827745D,tactica,Caballeros perfectos,Interrumpe los regates y pases del rival y luego ataca para quitarle el balón.
-0B745976,tactica,Presión perfecta,Presiona sin descanso para aterrorizar y paralizar al rival.
-4A45426F,tactica,Lanza invencible,Avanza en formación de lanza con cuatro jugadores y derriba a tus rivales.
-8559DAE8,tactica,Trampa andina,Atrae a los rivales hacia tu trampa para inmovilizarlos y ralentizarlos.
-C468C1F1,tactica,Trueno rodante,Ataca con la ferocidad de un rugido atronador y obtén ventaja táctica.
-BAB9C121,tactica,Contraataque catenaccio,Atrapa al oponente con fuerza mientras potencias los pases y tiros del equipo.
-FB88DA38,tactica,Ola del Amazonas,Avanza como una ola embravecida mientras frenas a todos tus rivales.
-38DBF713,tactica,Impulso circular,Ocho jugadores crean un ciclón giratorio que bloquea pases y frena a los rivales.
-79EAEC0A,tactica,Trueno oscuro,¡Golpea a tus oponentes con rayos oscuros para ralentizarlos!
-BE7CAD45,tactica,Virtuoso,¡Domina el campo como un profesional y haz que cada pase sea perfecto!
-FF4DB65C,tactica,Trueno ilimitado,¡Encadena pases y lanza un tiro largo cargado de rayos!
-3C1E9B77,tactica,Alas gemelas,¡Ataca desde ambos laterales de la portería para que la defensa no pueda hacer nada!
-7D2F806E,tactica,Ataque táctico,Cuatro jugadores cambian de formación para despistar y se lanzan a la portería.
-B23318E9,tactica,Barrera absoluta,Crea una barrera de hielo que inmoviliza a todos los rivales cerca del balón.
-F30203F0,tactica,Triángulo perfecto,Seis jugadores forman tres triángulos y se pasan el balón con precisión.
-E3078723,tactica,Pases volantes,¡Ábrete camino hacia la meta con una alucinante cadena de pases en el aire!
-A2369C3A,tactica,Reflector 3D,"Ataca desde todos los ángulos, confunde al rival y hace avanzar el balón."
-6165B111,tactica,Virtuoso volcánico,Hace avanzar el balón de jugador en jugador por una estela llameante.
-2054AA08,tactica,Formación caparazón,Señala huecos a propósito para confundir e interrumpir los pases del enemigo.
-E7C2EB47,tactica,Gran plan,Crea una formación en rayo para aumentar la potencia de tus tiros.
-A6F3F05E,tactica,Vórtice de succión,Atrapa e inmoviliza a tus rivales en un vórtice giratorio que les hace perder el balón.
-65A0DD75,tactica,Derrape arenoso,Crea una furiosa tormenta de arena y avanza hacia las líneas delanteras en un instante.
-2491C66C,tactica,La Marca del Berserker,Traza un poderoso círculo mágico en el campo que anula los tótems activos del rival.
-EB8D5EEB,tactica,Ciclo imperial,Varios jugadores presionan para inmovilizar al rival y luego avanzar con rápidos pases.
-AABC45F2,tactica,Zona crítica,Confunde al rival y aumenta la fuerza del equipo con un preciso control de balón.
-D46D4522,tactica,Maelstrom Omega,Crea un tornado que avasalla a los rivales y machaca su cuerpo y espíritu.
-955C5E3B,tactica,Cuadrícula defensiva,Reduce los movimientos innecesarios para ahorrar energía y poder correr más.
-560F7310,tactica,Ataque marioneta,Manipula a los enemigos con una serie de pases para abrir espacio en el centro.
-173E6809,tactica,Supremacía de la espada,"Avanza por el centro, rompe la defensa y ataca con precisión."
-D0A82946,tactica,Desvanecimiento absoluto,Nubla la visión del equipo rival con una sutil ilusión que los deja desorientados.
-9199325F,tactica,Danza alineada,"Avanza con increíble resistencia, superando a los rivales con pura velocidad."
-52CA1F74,tactica,Velo luminoso,Despliega un velo por todo el campo para bloquear ataques y cubrir a tus compañeros.
-13FB046D,tactica,Maelstrom Omega 2.0,"Reúne múltiples tornados en uno solo, mandado a volar a los rivales de forma violenta e inmovilizándolos."
-DCE79CEA,tactica,Marcaje al hombre,Recopila información para dar órdenes precisas y elaborar una poderosa estrategia.
-9DD687F3,tactica,Regate abrasador,Irrumpe a una velocidad abrasadora y aprovecha la mínima fisura para atacar.
-517B0A27,tactica,Marcaje zombi,Bloquea las jugadas del rival con unos impredecibles movimientos de zombi.
-104A113E,tactica,Virtuoso imperial,"Convierte la solidaridad de tu equipo en poder, conectando pases eficaces bajo el mando del creador de juego."
-D3193C15,tactica,Cal y arena,Combina suaves y precisos pases que permiten atacar desde ángulos inesperados.
-9228270C,tactica,La Gran Muralla china,"Forma una gran muralla con tus compañeros, unificando el espíritu del equipo y aplastando a los rivales."
-55BE6643,tactica,Espejismo Shaolin,"Muévete a velocidad extrema, dejando imágenes residuales para lanzar un ataque sorpresa."
-148F7D5A,tactica,Polvareda cegadora,Convierte la feroz determinación de tus compañeros en una oleada imparable que arrasa con las líneas enemigas.
-D7DC5071,tactica,Campo explosivo,"Crea tornados invisibles que explotan al tacto, inmovilizando a los rivales y potenciando el ataque."
-96ED4B68,tactica,Aurora tenebrosa,"Oscurece la visión del rival, creando puntos ciegos que lo ralentizan y debilitan su ofensiva."
-1BD18E06,tactica,[必殺/ひっさつ]タクティクス[名/めい]1,[必殺/ひっさつ]タクティクス[説明/せつめい]テキスト1
-A180879F,tactica,[必殺/ひっさつ]タクティクス[名/めい]2,[必殺/ひっさつ]タクティクス[説明/せつめい]テキスト2
-37B080E8,tactica,[必殺/ひっさつ]タクティクス[名/めい]3,[必殺/ひっさつ]タクティクス[説明/せつめい]テキスト3
-9425E476,tactica,[必殺/ひっさつ]タクティクス[名/めい]4,[必殺/ひっさつ]タクティクス[説明/せつめい]テキスト4
-D305CFDA,tactica,Cuernos de toro,"Divide y carga por ambos lados como toros bravos. Una maniobra ofensiva intensamente abrumadora, pero no exenta de riesgos."
-D1E0C616,supertactica,Buena racha,30 seg.: 100 % en batallas de Foco y Disputas
-6BB1CF8F,supertactica,Explosión,30 seg.: tasa de Brecha +20 % y AT +50 %
-FD81C8F8,supertactica,Superbarrera,30 seg.: tasa de Parada +20 % y DF +100 %
-5E14AC66,supertactica,Fiebre de la suerte,"60 seg.: caída de objetos +100 %, Tasa de Brecha rival -10 %, Tasa de Parada de aliados +10 %"
-C824AB11,supertactica,Portero invicto,10 seg.: el portero puede parar cualquier disparo (solo una vez)
-7275A288,supertactica,Poder directo,30 seg.: AT de tiro directo +100 % (solo una vez)
+id,categoria,nombre,descripcion,efectos,duracion,recarga
+ACB1D843,tactica,Cuernos de toro,"Divide y carga por ambos lados como toros bravos. Una maniobra ofensiva abrumadora, pero no exenta de riesgos.",En el geoglifo: AT/DF de Foco +40 % | En el geoglifo: Tasa de Brecha +5 % | Tasa de faltas +25 %,40,90
+6FE2F568,tactica,Espadón,Dispersa al otro equipo como si blandieras una enorme espada y luego corre directamente hacia la portería.,AT/DF de Ataque duro +25 % | En el geoglifo: Tasa de Faltas en carrera -50 %,40,90
+2ED3EE71,tactica,Monte Fuji,Potencia la Tensión adquirida a la vez que disminuye la reducción de Tensión.,En el geoglifo: Reducción de Tensión -25 % | Aumento de Tensión +25 %,40,90
+E945AF3E,tactica,Lanzas laterales,"Carga por ambos lados a la vez, presionando como el empuje repentino de lanzas afiladas.",AT/DF de Foco +20 % | En el geoglifo: Velocidad en carrera +50 %,40,90
+A874B427,tactica,Luna creciente,Rompe la línea de ataque del rival e infíltrate en su medio campo mientras formas una preciosa curva en forma de luna.,"En el geoglifo: Cuando la Tensión es menor al 30 %, AT/DF de Foco +40 % | En el geoglifo: Cuando la Tensión es menor al 30 %, AT/DF de Disputa +50 % | Foco, Disputa AT/DF +10 %",40,90
+6B27990C,tactica,Defensa del diamante,Clava los talones en la escuadra y bloquea el asalto del rival construyendo un muro que se asemeja a un brillante escudo.,En el geoglifo: DF +30 % | En el geoglifo: Tasa de Parada +5 % | Poder de afinidad +25 % al dispersar,40,90
+2A168215,tactica,Fortaleza de llamas,"Invoca un muro de llamas abrasadoras frente a la portería, y duplica temporalmente la potencia de tu defensa.",En el geoglifo: DF +40 % | Aumento de PP +10 %,40,90
+E50A1A92,tactica,Protocolo de enlace,Haz que los lazos de tus compañeros de equipo resuenen como uno y aumenta así tu potencia de tiro.,"Reducción del Poder de afinidad -100 % | En el geoglifo: Cuando pases, Poder de afinidad +200 %",40,90
+A43B018B,tactica,Ataque en tres frentes,Divide a los jugadores en tres direcciones para confundir al enemigo llevándote rápidamente el balón hacia delante.,AT/DF de Disputa +25 % | En el geoglifo: Velocidad de regate +50 %,40,90
+7CCB7804,tactica,Aislar al jugador clave,Aísla a un jugador del resto de su equipo para que no se pueda coordinar.,Objetivo: desaparece las líneas de pase al objetivo | Objetivo: AT -20 % | Objetivo: DF -20 %,10,90
+9082AC87,tactica,Aislar al jugador clave,Aísla a un jugador del resto de su equipo para que no se pueda coordinar.,Objetivo: desaparece las líneas de pase al objetivo | Objetivo: AT -50 % | Objetivo: DF -50 %,40,90
+BF98552F,tactica,Potenciar al jugador clave,Las expectativas del equipo recaen sobre este jugador y aumentan todos sus parámetros.,Ignorar las batallas de foco,10,50
+393F0F79,tactica,Formación <FLC:SHINANO>,"Táctica ultraofensiva que utiliza oleadas de delanteros para atacar la portería, aunque deja la defensa expuesta.",Establece la formación y avanza | AT +15 %,30,90
+780E1460,tactica,Vínculo invisible,Enlaza los corazones de tus compañeros para potenciar movimientos combinados.,Poder de supertécnicas comb. +20 %,30,90
+BB5D394B,tactica,Empujón del quince,Libera tus reservas de energía y dalo todo en los últimos 15 minutos.,AT/DF de Disputa +25 % | AT/DF de Foco +25 %,,90
+FA6C2252,tactica,Recorrido estelar,Ataca con fuerza por el centro para dejar atrás a los defensas.,En el geoglifo: AT +15 % | En el geoglifo: DF +40 % | DF +10 %,30,90
+FB14E3F8,tactica,Recorrido estelar,Ataca con fuerza por el centro para dejar atrás a los defensas.,En el geoglifo: AT +15 % | En el geoglifo: DF +40 % | DF +10 %,,10
+3570BAD5,tactica,Rugido decisivo,Lanza un rugido que levanta la moral y aumenta la potencia de tiros y regates.,Poder de técnica de tiro +20 % | Poder de técnica de regateo +20 %,30,90
+2ADB5A27,tactica,Rugido decisivo,Lanza un rugido que levanta la moral y aumenta la potencia de tiros y regates.,Poder de técnica de tiro +20 % | Poder de técnica de regateo +20 %,,10
+7441A1CC,tactica,Muralla titánica,"Los jugadores forman un impenetrable muro, tan firme como el más enorme de los gigantes.",DF del contrincante -30 % en campo contrario | AT del contrincante -30 % en campo propio | Velocidad de mov. enemiga -10 %,30,90
+69CF2130,tactica,Muralla titánica,"Los jugadores forman un impenetrable muro, tan firme como el más enorme de los gigantes.",DF del contrincante -30 % en campo contrario | AT del contrincante -30 % en campo propio | Velocidad de mov. enemiga -10 %,,10
+0A90A11C,tactica,Bosque encantado,Cambia entre múltiples efectos para desconcentrar a los oponentes.,DF equipo enemigo -10 % | Velocidad de mov. enemiga -10 % | El rival tiende a fallar los pases,30,90
+0C124073,tactica,Bosque encantado,Cambia entre múltiples efectos para desconcentrar a los oponentes.,,,90
+3822E016,tactica,Bosque encantado,Cambia entre múltiples efectos para desconcentrar a los oponentes.,,,90
+4BA1BA05,tactica,Carrera del dodo,Avanza con rapidez para abrumar al rival y debilitar sus supertécnicas.,Poder de técnica de tiro enemiga -20 % | Poder de técnica de regateo enemiga -20 %,30,90
+4F063B64,tactica,Carrera del dodo,Avanza con rapidez para abrumar al rival y debilitar sus supertécnicas.,,,90
+7E198773,tactica,Carrera del dodo,Avanza con rapidez para abrumar al rival y debilitar sus supertécnicas.,,,90
+88F2972E,tactica,Avance de caballería,No se puede detener una carga tan feroz. Arrasa con todo a tu paso y despeja el camino hasta la portería.,DF del equipo +30 % en campo propio | AT del equipo +30 % en campo contrario | Velocidad de movimiento +10 %,30,90
+8A3AB65D,tactica,Avance de caballería,No se puede detener una carga tan feroz. Arrasa con todo a tu paso y despeja el camino hasta la portería.,DF del equipo +30 % en campo propio | AT del equipo +30 % en campo contrario | Velocidad de movimiento +10 %,,90
+4F64D661,tactica,Supresión inquebrantable,¡Muestra el resultado del entrenamiento! El trabajo duro merece la pena.,Disminuye el AT y DF de foco de tu rival de batalla de foco para igualarlos con los de tu equipo,30,90
+743D1538,tactica,Supresión inquebrantable,¡Muestra el resultado del entrenamiento! El trabajo duro merece la pena.,Disminuye el AT y DF de foco de tu rival de batalla de foco para igualarlos con los de tu equipo,,90
+8C37FB4A,tactica,Virtuoso del éter,Echa un vistazo por el campo y guía a tu equipo con información aérea.,Sin intercepción de pases | AT/DF de Foco +10 %,30,90
+B1019801,tactica,Virtuoso del éter,Echa un vistazo por el campo y guía a tu equipo con información aérea.,Sin intercepción de pases | AT/DF de Foco +10 %,,90
+CD06E053,tactica,Contra todo pronóstico,Usa tus reservas ocultas y alimenta tu espíritu de lucha. Las supertécnicas se recargan rápidamente en el lado rival.,En el geoglifo: Enfriamiento de supertécnicas propias -25 % | AT. de tiro +10 %,30,90
+CCE21839,tactica,Bloqueo espectral,¡Fuerzas sobrenaturales detienen cualquier movimiento enemigo!,Inhabilita a los rivales cerca del balón,5,90
+0FB13512,tactica,Cielo infinito,¡Haz avanzar el balón con pases aéreos continuos y domina el campo!,Sin intercepción de pases | Ignora las batallas de foco,10,90
+4E802E0B,tactica,Defensa en bloque,Cuatro jugadores rodean y acorralan al regateador para robarle el balón.,En el geoglifo: Aturde al rival con el balón | En el geoglifo: El rival pierde el balón,10,90
+89166F44,tactica,Tifones gemelos,Forma torbellinos dobles y pasa el balón para llevarlo hacia delante.,Establece la formación y avanza | AT. de tiro directo +10 %,30,90
+C827745D,tactica,Caballeros perfectos,Interrumpe los regates y pases del rival y luego ataca para quitarle el balón.,Velocidad de mov. enemiga -10 % | El rival tiende a fallar los pases,10,90
+0B745976,tactica,Presión perfecta,Presiona sin descanso para aterrorizar y paralizar al rival.,En el geoglifo: Aturde al rival con el balón | En el geoglifo: El rival pierde el balón | El rival tiende a fallar los pases,10,90
+4A45426F,tactica,Lanza invencible,Avanza en formación de lanza con cuatro jugadores y derriba a tus rivales.,Establece la formación y avanza | Tasa de brecha del equipo +5 %,30,90
+8559DAE8,tactica,Trampa andina,Atrae a los rivales hacia tu trampa para inmovilizarlos y ralentizarlos.,Velocidad de mov. enemiga -10 % | En el geoglifo: Aturde al rival con el balón | En el geoglifo: El rival pierde el balón,10,90
+C468C1F1,tactica,Trueno rodante,Ataca con la ferocidad de un rugido atronador y obtén ventaja táctica.,Sin intercepción de pases | Ignora las batallas de foco,10,90
+BAB9C121,tactica,Contraataque catenaccio,Atrapa al oponente con fuerza mientras potencias los pases y tiros del equipo.,En el geoglifo: Aturde al rival con el balón | En el geoglifo: El rival pierde el balón | AT. de tiro +10 %,10,90
+FB88DA38,tactica,Ola del Amazonas,Avanza como una ola embravecida mientras frenas a todos tus rivales.,Establece la formación y avanza | Velocidad de mov. enemiga -10 %,30,90
+38DBF713,tactica,Impulso circular,Ocho jugadores crean un ciclón giratorio que bloquea pases y frena a los rivales.,Objetivo: Velocidad de movimiento -10 % | Objetivo: DF -50 % | Objetivo: desaparece las líneas de pase al objetivo,10,90
+79EAEC0A,tactica,Trueno oscuro,¡Golpea a tus oponentes con rayos oscuros para ralentizarlos!,Inhabilita a los rivales cerca del balón | Velocidad de mov. enemiga -10 %,5,90
+BE7CAD45,tactica,Virtuoso,¡Domina el campo como un profesional y haz que cada pase sea perfecto!,"Sin intercepción de pases | Ignora las batallas de foco | Cuando pases, Poder de afinidad +100 %",10,90
+FF4DB65C,tactica,Trueno ilimitado,¡Encadena pases y lanza un tiro largo cargado de rayos!,Sin intercepción de pases | Ignora las batallas de foco | Poder de técnica de tiro +10 %,10,90
+3C1E9B77,tactica,Alas gemelas,¡Ataca desde ambos laterales de la portería para que la defensa no pueda hacer nada!,Establece la formación y avanza | Tasa de Faltas en carrera -50 %,30,90
+7D2F806E,tactica,Ataque táctico,Cuatro jugadores cambian de formación para despistar y se lanzan a la portería.,Establece la formación y avanza | Reducción de Tensión -25 %,30,90
+B23318E9,tactica,Barrera absoluta,Crea una barrera de hielo que inmoviliza a todos los rivales cerca del balón.,En el geoglifo: Aturde al rival con el balón | En el geoglifo: El rival pierde el balón | AT equipo enemigo -10 %,10,90
+F30203F0,tactica,Triángulo perfecto,Seis jugadores forman tres triángulos y se pasan el balón con precisión.,Establece la formación y avanza | DF equipo enemigo -15 %,30,90
+E3078723,tactica,Pases volantes,¡Ábrete camino hacia la meta con una alucinante cadena de pases en el aire!,Sin intercepción de pases | Ignora las batallas de foco | Velocidad de movimiento +10 %,10,90
+A2369C3A,tactica,Reflector 3D,"Ataca desde todos los ángulos, confunde al rival y hace avanzar el balón.",Sin intercepción de pases | Ignora las batallas de foco,10,90
+6165B111,tactica,Virtuoso volcánico,Hace avanzar el balón de jugador en jugador por una estela llameante.,Sin intercepción de pases | Ignora las batallas de foco | AT. de tiro +10 %,10,90
+2054AA08,tactica,Formación caparazón,Señala huecos a propósito para confundir e interrumpir los pases del enemigo.,Objetivo: desaparece las líneas de pase al objetivo | Objetivo: AT -50 % | Objetivo: DF -50 %,10,90
+E7C2EB47,tactica,Gran plan,Crea una formación en rayo para aumentar la potencia de tus tiros.,Establece la formación y avanza | AT. de tiro +10 %,30,90
+A6F3F05E,tactica,Vórtice de succión,Atrapa e inmoviliza a tus rivales en un vórtice giratorio que les hace perder el balón.,En el geoglifo: Aturde al rival con el balón | En el geoglifo: El rival pierde el balón | Velocidad de movimiento +10 %,10,90
+65A0DD75,tactica,Derrape arenoso,Crea una furiosa tormenta de arena y avanza hacia las líneas delanteras en un instante.,Establece la formación y avanza | Tasa de faltas -5 %,10,90
+2491C66C,tactica,La Marca del Berserker,Traza un poderoso círculo mágico en el campo que anula los tótems activos del rival.,Desactiva los tótems del rival,1,90
+EB8D5EEB,tactica,Ciclo imperial,Varios jugadores presionan para inmovilizar al rival y luego avanzar con rápidos pases.,Inhabilita a los rivales cerca del balón | Sin intercepción de pases | Ignora las batallas de foco,10,90
+AABC45F2,tactica,Zona crítica,Confunde al rival y aumenta la fuerza del equipo con un preciso control de balón.,"En el geoglifo: DF +60 % | Cuando pases, Poder de afinidad +100 %",40,90
+D46D4522,tactica,Maelstrom Omega,Crea un tornado que avasalla a los rivales y machaca su cuerpo y espíritu.,Inhabilita a los rivales cerca del balón | Desabilita temporalmente el esprint del rival | Desabilita temporalmente el campo de foco del rival,2.5,90
+955C5E3B,tactica,Cuadrícula defensiva,Reduce los movimientos innecesarios para ahorrar energía y poder correr más.,En el geoglifo: DF +10 % | En el geoglifo: Resistencia al esprintar -60 % | Tasa de Faltas en carrera -10 %,20,90
+560F7310,tactica,Ataque marioneta,Manipula a los enemigos con una serie de pases para abrir espacio en el centro.,Envía a los jugadores enemigos a la izquierda y a la derecha,5,90
+173E6809,tactica,Supremacía de la espada,"Avanza por el centro, rompe la defensa y ataca con precisión.",Establece la formación y avanza | Poder de supertécnicas +15 %,30,90
+D0A82946,tactica,Desvanecimiento absoluto,Nubla la visión del equipo rival con una sutil ilusión que los deja desorientados.,"Si el rival juega sucio, tasa de faltas +5 % | Velocidad de mov. enemiga -10 % | El rival tiende a fallar los pases",30,90
+9199325F,tactica,Danza alineada,"Avanza con increíble resistencia, superando a los rivales con pura velocidad.",Establece la formación y avanza | Velocidad en carrera +20 %,30,90
+52CA1F74,tactica,Velo luminoso,Despliega un velo por todo el campo para bloquear ataques y cubrir a tus compañeros.,"Cuando la tensión es 50 % o más, DF de muro +20 % | Cuando la tensión es 50 % o más, PP +20 %",30,90
+13FB046D,tactica,Maelstrom Omega 2.0,"Reúne múltiples tornados en uno solo, mandado a volar a los rivales de forma violenta e inmovilizándolos.",Inhabilita a los rivales cerca del balón | Desabilita temporalmente el esprint del rival | Tensión del rival -20 %,2.5,90
+DCE79CEA,tactica,Marcaje al hombre,Recopila información para dar órdenes precisas y elaborar una poderosa estrategia.,"Al recuperar el balón (sin captura directa), velocidad de regate +10 % durante 30 s | Al recuperar el balón (sin captura directa), AT +20 % durante 30 s | Al recuperar el balón (sin captura directa), DF +20 % durante 30 s",30,90
+9DD687F3,tactica,Regate abrasador,Irrumpe a una velocidad abrasadora y aprovecha la mínima fisura para atacar.,Establece la formación y avanza | Tasa de brecha del equipo +5 % | Tensión para brecha del equipo -15 %,30,90
+517B0A27,tactica,Marcaje zombi,Bloquea las jugadas del rival con unos impredecibles movimientos de zombi.,Foco AT y DF del rival -10 % | Enfriamiento de campo de foco propio -30 %,15,90
+104A113E,tactica,Virtuoso imperial,"Convierte la solidaridad de tu equipo en poder, conectando pases eficaces bajo el mando del creador de juego.","Sin intercepción de pases | Cuando el poder de afinidad es 20 % o más, AT +15 %",20,90
+D3193C15,tactica,Cal y arena,Combina suaves y precisos pases que permiten atacar desde ángulos inesperados.,"Sin intercepción de pases | Al ganar una batalla de foco, poder de afinidad +10 %",20,90
+9228270C,tactica,La Gran Muralla china,"Forma una gran muralla con tus compañeros, unificando el espíritu del equipo y aplastando a los rivales.","Cuando la tensión es 50 % o más, AT +20 % | Cuando la tensión es 50 % o más, DF +20 % | Cuando la tensión es 50 % o más, reducción de tensión +20 %",30,90
+55BE6643,tactica,Espejismo Shaolin,"Muévete a velocidad extrema, dejando imágenes residuales para lanzar un ataque sorpresa.","Al recuperar el balón (sin captura directa), poder de supertécnicas +25 % durante 30 s | Al recuperar el balón (sin captura directa), reducción de tensión +25 % durante 30 s",30,90
+148F7D5A,tactica,Polvareda cegadora,Convierte la feroz determinación de tus compañeros en una oleada imparable que arrasa con las líneas enemigas.,"Establece la formación y avanza | Al realizar pases dentro del área, poder de afinidad +200 %",30,90
+D7DC5071,tactica,Campo explosivo,"Crea tornados invisibles que explotan al tacto, inmovilizando a los rivales y potenciando el ataque.",En el geoglifo: Aturde al rival con el balón | En el geoglifo: El rival pierde el balón | AT/DF de Ataque duro +30 %,10,90
+96ED4B68,tactica,Aurora tenebrosa,"Oscurece la visión del rival, creando puntos ciegos que lo ralentizan y debilitan su ofensiva.",AT del contrincante -40 % en campo propio | Velocidad de mov. enemiga -10 %,30,90
+1BD18E06,tactica,[必殺/ひっさつ]タクティクス[名/めい]1,[必殺/ひっさつ]タクティクス[説明/せつめい]テキスト1,,10,30
+A180879F,tactica,[必殺/ひっさつ]タクティクス[名/めい]2,[必殺/ひっさつ]タクティクス[説明/せつめい]テキスト2,,15,40.5
+37B080E8,tactica,[必殺/ひっさつ]タクティクス[名/めい]3,[必殺/ひっさつ]タクティクス[説明/せつめい]テキスト3,,20,50
+9425E476,tactica,[必殺/ひっさつ]タクティクス[名/めい]4,[必殺/ひっさつ]タクティクス[説明/せつめい]テキスト4,,25,60.5
+D305CFDA,tactica,Cuernos de toro,"Divide y carga por ambos lados como toros bravos. Una maniobra ofensiva intensamente abrumadora, pero no exenta de riesgos.",,10,30
+D1E0C616,supertactica,Buena racha,30 seg.: 100 % en batallas de Foco y Disputas,,,
+6BB1CF8F,supertactica,Explosión,30 seg.: tasa de Brecha +20 % y AT +50 %,,,
+FD81C8F8,supertactica,Superbarrera,30 seg.: tasa de Parada +20 % y DF +100 %,,,
+5E14AC66,supertactica,Fiebre de la suerte,"60 seg.: caída de objetos +100 %, Tasa de Brecha rival -10 %, Tasa de Parada de aliados +10 %",,,
+C824AB11,supertactica,Portero invicto,10 seg.: el portero puede parar cualquier disparo (solo una vez),,,
+7275A288,supertactica,Poder directo,30 seg.: AT de tiro directo +100 % (solo una vez),,,

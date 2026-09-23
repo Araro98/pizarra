@@ -5528,6 +5528,23 @@ tenga que girar a cada uno".
   basta un clic en el anillo; no se queda roto. Y el editor tambien usa las
   otras copias del mismo personaje en la partida abierta.
 
+### O-235 · Los efectos de cada tactica de equipo, con sus numeros
+
+Aaron: "esta la descripcion de las tacticas pero no sus efectos; buscalos".
+Detras de cada fila de `SPECIAL_TACTICS_INFO_LIST` van parejas (indice,
+cuantos): la primera apunta a `SPECIAL_TACTICS_EFFECT_LIST` (tipo de efecto
+crc32, numero). El nombre de cada tipo esta en
+`soccer/special_tactics_effect_config`: filas (tipo, id del texto en
+skill_text TEXT_INFO, 1 si es del geoglifo), 120 tipos; las frases llevan
+`<VALUE>` y marcadores de color ([CTACTICS01] mejora, [CTACTICS02]
+empeora). Columnas 4 y 5 de la ficha: duracion y recarga en segundos
+(99999 = sin fin, variantes de la historia). Cotejado con la tabla de
+inazumo.es (Tactics.csv, 53 tacticas en ingles): coinciden numeros y
+geoglifo/general (Cuernos de toro: foco +40 y brecha +5 en el geoglifo,
+faltas +25 general). Las supertacticas (Buena racha, Explosion...) ya
+llevan los numeros en su descripcion. El selector del Team builder ensena
+los efectos y "dura X s · recarga Y s"; la descripcion, al pasar el raton.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

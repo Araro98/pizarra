@@ -1218,24 +1218,31 @@ def espiritu_permitido(id_hex, identidad_hex):
     return (identidad_hex or "").upper() in d["identidades"]
 
 
-def descripcion_de_tactica(valor, id_objeto="", nombre=""):
-    """Lo que hace una tactica de equipo o supertactica, en texto del juego
-    (`tacticas.csv`, O-232). Se busca por el valor del equipo, por sus bytes al
-    reves, por el objeto de la mochila y, si no, por el nombre."""
+def datos_de_tactica(valor, id_objeto="", nombre=""):
+    """Descripcion, efectos (con numero), duracion y recarga de una tactica de
+    equipo o supertactica (`tacticas.csv`, O-232, O-235). Se busca por el valor
+    del equipo, por sus bytes al reves, por el objeto de la mochila y, si no,
+    por el nombre (entre variantes con el mismo nombre, la que tiene efectos)."""
     def construir():
         por_id, por_nombre = {}, {}
         for f in reglas._tabla("tacticas.csv"):
+            d = {"descripcion": f.get("descripcion") or "",
+                 "efectos": [x for x in (f.get("efectos") or "").split(" | ") if x],
+                 "duracion": f.get("duracion") or "", "recarga": f.get("recarga") or ""}
             i = f["id"].upper()
-            por_id[i] = f["descripcion"]
-            por_id[bytes.fromhex(i)[::-1].hex().upper()] = f["descripcion"]
-            por_nombre[_limpio(f["nombre"]).lower()] = f["descripcion"]
+            por_id.setdefault(i, d)
+            por_id.setdefault(bytes.fromhex(i)[::-1].hex().upper(), d)
+            n = _limpio(f["nombre"]).lower()
+            if n not in por_nombre or (d["efectos"] and not por_nombre[n]["efectos"]):
+                por_nombre[n] = d
         return por_id, por_nombre
-    por_id, por_nombre = _indice("tacticas_desc", construir)
+    por_id, por_nombre = _indice("tacticas_datos", construir)
     for k in (valor, id_objeto):
         k = (k or "").upper()
         if k and k in por_id:
             return por_id[k]
-    return por_nombre.get(_limpio(nombre or "").lower(), "")
+    return por_nombre.get(_limpio(nombre or "").lower(),
+                          {"descripcion": "", "efectos": [], "duracion": "", "recarga": ""})
 
 
 def pasiva_de_espiritu(id_hex):
