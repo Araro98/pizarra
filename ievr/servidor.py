@@ -655,8 +655,7 @@ def detalle_equipo(plain, i):
             "tacticas_que_tienes": _tacticas_que_tienes(plain, nombres_tac),
             # solo las formaciones que un equipo puede llevar de verdad (las
             # "B-" son de equipos de la historia; Aaron pidio quitarlas)
-            "formaciones": [f for f in _valores_vistos(plain, "formacion")
-                            if _formacion_legal(f["valor"])],
+            "formaciones": _formaciones_ofrecidas(plain),
             "escudos": _valores_vistos(plain, "escudo"),
             "equipaciones": _valores_vistos(plain, "equipacion")}
 
@@ -831,6 +830,20 @@ def _puestos_de_formacion(valor_hex):
             valor_hex = f["id_objeto"]
             break
     return tabla.get(valor_hex.upper()) or tabla.get(EQ._al_reves(valor_hex).upper()) or []
+
+
+def _formaciones_ofrecidas(plain):
+    """Las ocho formaciones de 11 del juego, siempre. No estan en la mochila
+    (O-121), y ofrecer solo las que ya llevaba algun equipo dejaba fuera las
+    que nadie usaba en ese momento (Aaron: faltaban 3-6-1 Hexa, 4-4-2 Caja y
+    5-4-1 Doble Volante; O-233). Se juntan las que dijo Aaron con las que
+    lleven los equipos, y solo las legales."""
+    fuera = {f["valor"]: f for f in _valores_vistos(plain, "formacion")}
+    for (cual, valor), nombre in EQ.nombres_puestos().items():
+        if cual == "formacion" and valor not in fuera:
+            fuera[valor] = {"valor": valor, "nombre": nombre}
+    return sorted((f for f in fuera.values() if _formacion_legal(f["valor"])),
+                  key=lambda f: f["nombre"])
 
 
 def _formacion_legal(valor_hex):

@@ -5488,6 +5488,17 @@ ensena el texto debajo del nombre, siempre a la vista y centrado (primero
 fue con una "i" que lo desplegaba; Aaron: "quita el i y dejalo abierto de
 base, asi es mas rapido").
 
+### O-233 · El selector de formacion ofrece las ocho, no solo las que se usan
+
+Aaron: "faltan algunas formaciones". El desplegable salia de
+`_valores_vistos`: como las formaciones no estan en la mochila (O-121),
+caia en las que llevaba algun equipo en ese momento, y en su partida nadie
+llevaba 3-6-1 Hexa. Ahora `_formaciones_ofrecidas` da las ocho de
+`nombres-de-equipo.csv` (las que ve en el juego) mas las que usen los
+equipos, solo las legales. Con sus capturas de AURA FARMERS en Hexa, Caja,
+Equilibrio y Doble Volante se comprobo tambien `formaciones.csv` (O-160):
+los once de cada formacion caen donde los pinta el juego.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
