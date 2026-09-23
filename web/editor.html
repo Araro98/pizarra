@@ -161,8 +161,7 @@
     font-weight:800; min-width:210px; box-shadow:0 2px 8px rgba(240,138,28,.25); }
   .mi-equipo select.puesto { background-color:var(--naranja); color:#fff;
     background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/></svg>"); }
-  .ficha-mini .stat-orden { position:absolute; left:4px; bottom:3px; z-index:1; color:#fff;
-    font-size:var(--t-xs); font-weight:800; background:rgba(12,40,80,.75); border-radius:5px; padding:0 5px; }
+  .ficha-mini .poder small { font-size:.62em; opacity:.85; margin-right:1px; }
   .contador button { padding:2px 10px; }
   .rejilla-jug { display:grid; gap:8px; max-height:64vh; overflow:auto;
     grid-template-columns:repeat(auto-fill,minmax(104px,1fr)); }
@@ -1137,12 +1136,9 @@ function fichaMini(j) {
     pp.style.color = COLOR_POS[j.posicion] || "#fff";
     abajo.appendChild(pp);
   }
-  if (j.poder) t.appendChild(el("div", {class:"poder", text:String(j.poder),
-    title:"Suma de los siete stats base"}));
-  // si se ordena por un stat, ese stat en la tarjeta (O-203)
-  const k = statDe(modo === "equipos" ? ordenRes : orden);
-  if (k >= 0 && j.stats) t.appendChild(el("div", {class:"stat-orden", text:STAT_ABREV[k] + " " + j.stats[k],
-    title:STATS[k] + " base"}));
+  // el poder, o el stat por el que se ordena (O-203, O-236)
+  const num = numeroDeTarjeta(j, modo === "equipos" ? ordenRes : orden, "base");
+  if (num) t.appendChild(num);
   const cs = chapaSaga(j.saga); if (cs) t.appendChild(cs);     // el juego de origen (O-220)
   if (j.rol && j.rol !== "jugador")
     t.appendChild(el("span", {class:"chapa-rol " + j.rol,
@@ -1159,6 +1155,17 @@ const STATS = ["Potencia", "Control", "Tecnica", "Presion", "Fisico", "Agilidad"
 const STAT_ABREV = ["POT", "CON", "TEC", "PRE", "FIS", "AGI", "INT"];
 function esStat(o) { return /^st[0-6]$/.test(o || ""); }
 function statDe(o) { return esStat(o) ? Number(o.slice(2)) : -1; }
+/* El numero grande de abajo a la derecha de una tarjeta: el poder (suma de
+   los siete), o el stat por el que se ordena, con su abreviatura delante
+   (Aaron, O-236: "que salga el numero de ese stat en vez del poder"). */
+function numeroDeTarjeta(j, orden, deQue) {
+  const k = statDe(orden);
+  if (k >= 0 && j.stats && j.stats[k] != null)
+    return el("div", {class:"poder", title:STATS[k] + " " + deQue,
+      html:"<small>" + STAT_ABREV[k] + "</small> " + j.stats[k]});
+  if (!j.poder) return null;
+  return el("div", {class:"poder", text:String(j.poder), title:"Poder (suma de los siete stats) " + deQue});
+}
 /* Las dos direcciones de un orden, dichas con palabras que se entiendan. */
 function sentidosDe(orden) {
   if (orden === "llegada") return [["asc","Los primeros que llegaron"],["desc","Los ultimos que llegaron"]];
@@ -3277,12 +3284,14 @@ async function cargaPersonajes(recargar) {
   const deLaFamilia = personajes.filter(x => enFamilia(x, familiaPer));
   const comoDiamante = familiaPer === "semilla";
   // con semilla, todos son Diamantes: sus stats son los de Diamante
-  for (const c of deLaFamilia) { c.stats = comoDiamante ? c.stats_diamante : c.stats_propios; c.poder = (c.stats || []).reduce((a, b) => a + b, 0); }
+  for (const c of deLaFamilia) { c.stats = comoDiamante ? c.stats_diamante : c.stats_propios;
+    // el poder con el arbol cuenta el tronco y UNA rama (O-236)
+    c.poder = !comoDiamante && c.poder_propio ? c.poder_propio : (c.stats || []).reduce((a, b) => a + b, 0); }
   montaFiltros($("#filtros-per"), deLaFamilia, FILTROS_PER, estadoPer,
                () => { desdePer = 0; cargaPersonajes(); });
   const cajaPer = $("#filtros-per");
   const soP = el("select", {onchange:e => { ordenPer = e.target.value; desdePer = 0; cargaPersonajes(); }});
-  opcionesDeOrden(soP, [["nombre","Nombre"],["poder","Poder a nivel 99"],["rareza","Rareza"],["equipo","Equipo"]], ordenPer);
+  opcionesDeOrden(soP, [["nombre","Nombre"],["poder","Poder a nivel 99 (con su arbol)"],["rareza","Rareza"],["equipo","Equipo"]], ordenPer);
   cajaPer.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Ordenar por"}), soP]));
   const ssP = el("select", {onchange:e => { sentidoPer = e.target.value; desdePer = 0; cargaPersonajes(); }});
   rellenaSentido(ssP, ordenPer, sentidoPer);
@@ -3309,9 +3318,12 @@ async function cargaPersonajes(recargar) {
     if (c.cara) for (const capa of capasRetrato(c, true)) t.appendChild(capa);
     t.appendChild(el("div", {class:"nombre-mini", text:c.nombre}));
     const csP = chapaSaga(c.saga); if (csP) t.appendChild(csP);     // el juego de origen (O-220)
-    if (c.poder) t.appendChild(el("div", {class:"poder", text:String(c.poder), title:"Suma de los siete stats base a nivel 99"}));
-    const kP = statDe(ordenPer);
-    if (kP >= 0 && c.stats) t.appendChild(el("div", {class:"stat-orden", text:STAT_ABREV[kP] + " " + c.stats[kP], title:STATS[kP] + " base a nivel 99"}));
+    // a nivel 99 sin judias ni equipacion, con lo que suma su arbol si es un
+    // normal; el stat por el que se ordena en vez del poder (O-236)
+    const numP = numeroDeTarjeta(c, ordenPer, comoDiamante || c.rareza_valor >= 5
+      ? "a nivel 99, sin judias ni equipacion"
+      : "a nivel 99 con su arbol, sin judias ni equipacion");
+    if (numP) t.appendChild(numP);
     // Nada de banda de rareza aqui: a este tamano tapa la cara. El color del
     // fondo ya dice la rareza, que es lo que Aaron pidio.
     const abajo = el("div", {class:"abajo"});

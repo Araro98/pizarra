@@ -5545,6 +5545,22 @@ faltas +25 general). Las supertacticas (Buena racha, Explosion...) ya
 llevan los numeros en su descripcion. El selector del Team builder ensena
 los efectos y "dura X s · recarga Y s"; la descripcion, al pasar el raton.
 
+### O-236 · El numero de la tarjeta: el stat por el que se ordena, y Fichar al 99 con arbol
+
+Aaron: "cuando ordenas por un stat (Jugadores, Equipo, Fichar...), que en vez
+del poder total salga el numero de ese stat; y en Fichar, siempre, los stats
+al 99 sin judias ni equipacion pero con las pasivas de su arbol que dan
+stats". `numeroDeTarjeta` pone en el numero grande de abajo a la derecha el
+stat con su abreviatura ("POT 212") cuando se ordena por el, y el poder si
+no (antes el stat salia en una chapita aparte, O-203). En Fichar,
+`_stats99_con_arbol`: base a nivel 99 de su rareza + las casillas de stat
+del arbol de un normal (O-140: tronco +3/+5, rama 1 y rama 2 +3/+5/+7), con
+el tronco y, de cada stat, la rama que mas le da, que es lo maximo que puede
+llegar a tener de ese stat. Idolos y Diamantes (y "con semilla"), los base:
+su arbol de stats no esta descifrado. El poder (suma) cuenta el tronco y UNA
+rama (+23, `_poder99_con_arbol`): sumar la mejor rama de cada stat lo
+inflaria (Thaddeus: +33).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

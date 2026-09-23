@@ -639,6 +639,43 @@ def _stats99(clave, rareza):
     return list(b["valores"]) if b else [0] * 7
 
 
+def _stats99_con_arbol(clave, rareza):
+    """Los siete stats a nivel 99 sin judias ni equipacion, con lo que suman
+    las casillas de stat del arbol de un normal (O-140, O-236): las dos del
+    tronco y, de cada stat, la rama que mas le da (en el juego se juega una:
+    es lo maximo que puede llegar a tener de ese stat). De Idolos y Diamantes
+    el arbol de stats no esta descifrado: van los base."""
+    from ievr import stats as ST
+    base = _stats99(clave, rareza)
+    if rareza >= 5:
+        return base
+    cl = ST._claves().get(clave.upper())
+    if not cl:
+        return base
+    listas = ST._listas_del_arbol()
+    def suma(lista, codigo, casillas):
+        d = [0] * 7
+        nombres = listas.get((lista, codigo)) or []
+        for cual, cuanto in casillas:
+            if cual < len(nombres) and nombres[cual] in ST.NOMBRES:
+                d[ST.NOMBRES.index(nombres[cual])] += cuanto
+        return d
+    tronco = suma("principal", cl[0], [(0, 3), (1, 5)])
+    rama1 = suma("principal", cl[0], [(0, 3), (1, 5), (2, 7)])
+    rama2 = suma("secundaria", cl[1], [(0, 3), (1, 5), (2, 7)])
+    return [base[k] + tronco[k] + max(rama1[k], rama2[k]) for k in range(7)]
+
+
+def _poder99_con_arbol(clave, rareza):
+    """El poder (suma de los siete) a nivel 99 con el arbol: el tronco y UNA
+    rama, que en el juego no se juegan las dos (las dos suman lo mismo, 15)."""
+    base = sum(_stats99(clave, rareza))
+    if rareza >= 5:
+        return base
+    from ievr import stats as ST
+    return base + (3 + 5 + 3 + 5 + 7 if ST._claves().get(clave.upper()) else 0)
+
+
 def personajes_creables(plain):
     """Los personajes que se pueden meter en la partida, con lo que se elige.
 
@@ -689,7 +726,9 @@ def personajes_creables(plain):
             "tengo": int(clave, 16) in tengo,
             # los siete stats base a nivel 99, con su rareza y como Diamante,
             # para ordenar la lista de Fichar por cada uno (NOTAS O-203)
-            "stats_propios": _stats99(clave, int(ficha.get("rareza_valor") or 0)),
+            # (los de un normal, con lo que suma su arbol: Aaron, O-236)
+            "stats_propios": _stats99_con_arbol(clave, int(ficha.get("rareza_valor") or 0)),
+            "poder_propio": _poder99_con_arbol(clave, int(ficha.get("rareza_valor") or 0)),
             "stats_diamante": _stats99(clave, 8),
         })
     vistos, unicos = set(), []
