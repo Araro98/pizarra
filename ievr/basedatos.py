@@ -87,8 +87,10 @@ def _clave_stats(identidad):
 def _resumen(ident, f, jug):
     clave = _clave_stats(ident) or (0, 0, 0, 0)
     rareza_valor = int(f.get("rareza_valor") or 0)
-    b = ST.base(int(ident, 16), 99, rareza_valor)
-    poder = sum(b["valores"]) if b else 0
+    # a nivel 99, sin judias ni equipacion y con lo que suma su arbol si es
+    # un normal: lo mismo que Fichar (O-236)
+    stats = O._stats99_con_arbol(ident, rareza_valor)
+    poder = O._poder99_con_arbol(ident, rareza_valor) if any(stats) else 0
     return {
         "identidad": ident,
         "nombre": _limpio(jug.get("nombre") or f.get("nombre_es") or f.get("nombre_en")),
@@ -105,7 +107,7 @@ def _resumen(ident, f, jug):
         "rango": clave[3], "patron": clave[2],
         "apt": ("entrenador" if f.get("apt_entrenador") else
                 "gerente" if f.get("apt_gerente") else "jugador"),
-        "poder": poder,
+        "poder": poder, "stats": stats,
     }
 
 
@@ -113,6 +115,7 @@ def personajes():
     """Todos los personajes con nombre, en resumen, para la lista."""
     def construir():
         jugs = _jugadores()
+        fichables = {x["identidad"].upper() for x in reglas._tabla("fichables.csv")}
         fuera = []
         for ident, f in reglas.personajes().items():
             ident = ident.upper()
@@ -120,6 +123,8 @@ def personajes():
             r = _resumen(ident, f, jug)
             r["saga"] = f.get("saga") or ""          # el juego de origen (O-208)
             r["apodo"] = f.get("apodo") or ""        # el apodo, para buscar (O-219)
+            r.update(O.puede_llevar(ident))           # armadura / mixi / modo (O-222)
+            r["fichable"] = "si" if ident in fichables else "no"   # O-205
             # Sin posicion no es alineable: son las versiones de historia
             # (c04002410_5000...) que no tienen cara, stats ni nada que ensenar.
             if not r["nombre"] or not r["posicion"]:
@@ -139,6 +144,7 @@ def _tecnica_de(idh, nivel):
         return {"id": idh, "nombre": _limpio(t.get("nombre")), "tipo": t.get("categoria") or "",
                 "subtipo": t.get("subtipo") or "", "elemento": t.get("elemento") or "",
                 "poder": int(t.get("poder") or 0), "tp": int(t.get("tp") or 0),
+                "jugadores": O.jugadores_de_tecnica(t)[0],
                 "nivel": nivel}
     n = _nombres().get(idh) or {}
     esp = O._espiritus().get(idh) or {}
@@ -360,6 +366,21 @@ def personaje(identidad):
         "variantes": [x for x in personajes()
                       if x["nombre"] == r["nombre"] and x["identidad"] != ident],
     })
+    # si se puede fichar (O-205) y que armaduras, mixi max y modos puede llevar
+    # de forma legal (espiritus-duenos.csv, O-209, O-222)
+    r["fichable"] = ident in {x["identidad"].upper() for x in reglas._tabla("fichables.csv")}
+    esp = O._espiritus()
+    legales = []
+    for x in reglas._tabla("espiritus-duenos.csv"):
+        if (x.get("identidad") or "").upper() == ident and x.get("personaje") != "todos":
+            e = esp.get(x["id"].upper()) or {}
+            n = _nombres().get(x["id"].upper()) or {}
+            legales.append({"id": x["id"].upper(), "familia": e.get("familia") or x.get("familia") or "",
+                            "nombre": _limpio(n.get("nombre_es") or n.get("nombre_en") or e.get("nombre_largo") or ""),
+                            "icono": e.get("icono") or "", "rango": int(e.get("rango") or 0)})
+    vistos = set()
+    r["espiritus_legales"] = [x for x in sorted(legales, key=lambda x: (x["familia"], x["nombre"]))
+                              if not (x["id"] in vistos or vistos.add(x["id"]))]
     # el cambio de modo, si lo tiene, y de quien es forma, si lo es (O-225)
     de, a = _modos()
     if ident in de:
@@ -378,14 +399,31 @@ def personaje(identidad):
 
 def tecnicas():
     fuera = []
+    origen = {f["id"].upper(): f for f in reglas._tabla("tecnicas-origen.csv")}
     for idh, t in _tecnicas().items():
+        n_jug, comb = O.jugadores_de_tecnica(t)
+        og = origen.get(idh) or {}
         fuera.append({"id": idh, "nombre": _limpio(t.get("nombre")),
                       "tipo": t.get("categoria") or "", "subtipo": t.get("subtipo") or "",
                       "elemento": t.get("elemento") or "",
                       "poder": int(t.get("poder") or 0), "tp": int(t.get("tp") or 0),
-                      "interno": t.get("nombre_interno") or ""})
+                      "interno": t.get("nombre_interno") or "",
+                      # individual o combinada (O-237), y como se consigue (O-206)
+                      "jugadores": n_jug, "combinada": comb,
+                      "origen": og.get("origen") or "",
+                      "obtenible": og.get("obtenible") or "",
+                      "descripcion": t.get("descripcion") or ""})
     fuera.sort(key=lambda x: (x["tipo"], -x["poder"], x["nombre"].lower()))
     return fuera
+
+
+def _dueno_de_espiritu(idh, familia):
+    d = O.duenos_de_espiritu(idh)
+    if d.get("todos") or familia in ("kenshin", "alma"):
+        return {"quien": "Cualquiera", "dueno": "de cualquier jugador"}
+    if d["nombres"]:
+        return {"quien": "Solo su personaje", "dueno": "solo de " + ", ".join(sorted(d["nombres"]))}
+    return {"quien": "Sin dueno conocido", "dueno": ""}
 
 
 def espiritus():
@@ -400,7 +438,9 @@ def espiritus():
                       "icono": e.get("icono") or "", "modelo": e.get("modelo") or "",
                       # la habilidad pasiva de cada uno (NOTAS O-184)
                       "pasiva": O.pasiva_de_espiritu(idh),
-                      "nombre_largo": e.get("nombre_largo") or ""})
+                      "nombre_largo": e.get("nombre_largo") or "",
+                      # quien puede llevarlo (O-172, O-209)
+                      **_dueno_de_espiritu(idh, e.get("familia") or "")})
     fuera.sort(key=lambda x: (x["familia"], -x["rango"], x["nombre"].lower()))
     return fuera
 
@@ -459,9 +499,14 @@ def objetos():
         if cat in ("pasiva", "aura", "supertecnica"):
             continue
         b = bonus.get(idh) or {}
-        fuera.append({"id": idh, "nombre": _limpio(n.get("nombre_es") or n.get("nombre_en")),
-                      "categoria": cat, "icono": iconos.get(idh, ""),
-                      "bonus": [int(b.get(c) or 0) for c in ST.CLAVES] if b else None,
-                      "bonus_texto": O._bonus_de(idh)})
+        nombre = _limpio(n.get("nombre_es") or n.get("nombre_en"))
+        o = {"id": idh, "nombre": nombre,
+             "categoria": cat, "icono": iconos.get(idh, ""),
+             "bonus": [int(b.get(c) or 0) for c in ST.CLAVES] if b else None,
+             "bonus_texto": O._bonus_de(idh)}
+        if cat in ("tactica-objeto", "supertactica"):
+            # lo que hace, con sus numeros (O-232, O-235)
+            o.update(O.datos_de_tactica("", idh, nombre))
+        fuera.append(o)
     fuera.sort(key=lambda x: (x["categoria"], x["nombre"].lower()))
     return fuera

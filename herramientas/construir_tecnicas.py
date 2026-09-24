@@ -129,6 +129,32 @@ def textos_es(fichero, tabla):
     return fuera
 
 
+# Descripciones que dicen que es combinada, para las pocas que no lo llevan en
+# la columna 19 (Defensa radial, Trimano celestial, Bloqueo doble...). O-237.
+COMBINADA_POR_TEXTO = re.compile(
+    r"\b(dos|tres|cuatro) (jugadores|compa\u00f1eros)|con (un|otros dos|dos) compa\u00f1er"
+    r"|en combinaci\u00f3n|combinad[ao] (de|con|entre)|t\u00e9cnica combinada", re.I)
+
+
+def jugadores_de(c, descripcion):
+    """Cuantos jugadores hacen falta (1 = individual). Columna 19 de
+    m_skillInfoList: 0 en las individuales y 2, 3 o 4 en las combinadas (O-237);
+    si no, las columnas 20-22 (compa\u00f1eros concretos) o la descripcion."""
+    try:
+        n = int(c[19].replace("Byte(", "").replace(")", ""))
+    except (IndexError, ValueError):
+        n = 0
+    if n >= 2:
+        return n
+    otros = sum(1 for k in (20, 21, 22) if k < len(c) and c[k] not in ("0", ""))
+    if otros:
+        return otros + 1
+    m = COMBINADA_POR_TEXTO.search(descripcion or "")
+    if m:
+        return 3 if re.search(r"\btres\b|otros dos|dos compa\u00f1eros", descripcion, re.I) else 2
+    return 1
+
+
 def main():
     sys.path.insert(0, RAIZ)
     from ievr import tlv
@@ -158,6 +184,8 @@ def main():
             "tp": numero(c[10]),
             "nombre_interno": cadena(c[1]),
             "descripcion": descripciones.get(u32(c[7]), ""),
+            # 1 = individual; 2, 3 o 4 = combinada de tantos jugadores (O-237)
+            "jugadores": jugadores_de(c, descripciones.get(u32(c[7]), "")),
         })
 
     os.makedirs(os.path.dirname(SALIDA), exist_ok=True)
@@ -165,7 +193,8 @@ def main():
         fh.write("# Todas las supertecnicas del juego, de skill_config.\n"
                  "# categoria: columna 14, que separa las cuatro sin excepciones.\n"
                  "# subtipo: columna 9. Los nombres los aporto Aaron.\n"
-                 "# poder (AT): columna 11. tp: columna 10. elemento: columna 12.\n")
+                 "# poder (AT): columna 11. tp: columna 10. elemento: columna 12.\n"
+                 "# jugadores: columna 19 (0 individual; 2-4 combinada), O-237.\n")
         w = csv.DictWriter(fh, fieldnames=list(filas[0].keys()))
         w.writeheader()
         w.writerows(filas)
@@ -178,6 +207,7 @@ def main():
     print("   sin nombre en ningun idioma:", sum(1 for f in filas if not f["nombre"]))
     d = collections.Counter(f["elemento"] for f in filas)
     print("   por elemento:", dict(d))
+    print("   por jugadores:", dict(collections.Counter(f["jugadores"] for f in filas)))
     poderes = sorted(f["poder"] for f in filas if f["poder"])
     if poderes:
         print("   AT: de %d a %d" % (poderes[0], poderes[-1]))

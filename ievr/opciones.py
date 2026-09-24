@@ -330,8 +330,11 @@ def tecnicas(plain, fila, ranura):
             continue
         if admite != "LIBRE" and f.get("categoria") != admite and not repetida:
             continue
+        n_jug, comb = jugadores_de_tecnica(f)
         fuera.append({"id": idh, "nombre": _limpio(f.get("nombre")),
                       "repetida": repetida,
+                      # individual o combinada, y de cuantos (O-237)
+                      "jugadores": n_jug, "combinada": comb,
                       "categoria": f.get("categoria"),
                       "subtipo": f.get("subtipo") or "",
                       "elemento": f.get("elemento") or "sin elemento",
@@ -633,6 +636,15 @@ def partidos():
 
 # --- crear cosas ---------------------------------------------------------------
 
+def jugadores_de_tecnica(fila_tecnica):
+    """(jugadores, "Individual"/"Combinada") de una fila de tecnicas.csv (O-237)."""
+    try:
+        n = int((fila_tecnica or {}).get("jugadores") or 1)
+    except ValueError:
+        n = 1
+    return n, ("Combinada" if n > 1 else "Individual")
+
+
 def _stats99(clave, rareza):
     from ievr import stats as ST
     b = ST.base(int(clave, 16), 99, rareza)
@@ -824,6 +836,9 @@ def objetos_creables(plain):
                       # deja filtrar por tipo, que es lo que pidio Aaron.
                       "tipo": tec.get("categoria") or "",
                       "subtipo": tec.get("subtipo") or "",
+                      # individual o combinada (O-237), solo en las supertecnicas
+                      **({"jugadores": jugadores_de_tecnica(tec)[0],
+                          "combinada": jugadores_de_tecnica(tec)[1]} if tec else {}),
                       "elemento": tec.get("elemento") or "",
                       "poder": int(tec.get("poder") or 0),
                       "tp": int(tec.get("tp") or 0),

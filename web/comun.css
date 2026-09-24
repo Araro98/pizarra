@@ -234,3 +234,9 @@ input[type=search] { width:100%; }
   box-shadow:0 6px 16px rgba(10,30,60,.3); max-width:min(720px,92vw); cursor:pointer; }
 .toast.mal { background:#fde8e6; color:#a8202e; border:2px solid #f0b6b1; }
 .toast.bien { background:#e4f7ec; color:#17734b; border:2px solid #a9e3c3; }
+
+/* tecnica combinada: "x3" en la barra (O-237) */
+.marca-comb { flex:none; font-size:var(--t-xxs); font-weight:800; font-style:normal; color:#fff;
+  background:rgba(12,30,60,.55); border:1px solid rgba(255,255,255,.55); border-radius:6px;
+  padding:0 5px; line-height:1.5; }
+.ficha-mini .poder small { font-size:.62em; opacity:.85; margin-right:1px; }

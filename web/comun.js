@@ -90,6 +90,13 @@ function fondoBarra(elemento, tipo) {
   const c = BARRA_ELEM[elemento] || (tipo === "Hipertecnica" ? BARRA_ESPIRITU : BARRA_SIN);
   return "linear-gradient(90deg," + c[0] + " 0%," + c[1] + " 62%," + c[1] + " 100%)";
 }
+/* La marca de tecnica combinada, "x3" en una chapita, con la explicacion al
+   pasar el raton (O-237). Nada si es individual. */
+function marcaCombinada(n) {
+  n = Number(n || 1);
+  if (n < 2) return null;
+  return el("span", {class:"marca-comb", text:"x" + n, title:"Tecnica combinada de " + n + " jugadores"});
+}
 /* Una tecnica con la pinta del juego: icono del tipo, barra del color de su
    afinidad, nombre, nivel, TP y AT/DF. */
 function barraTecnica(t, extra) {
@@ -99,6 +106,9 @@ function barraTecnica(t, extra) {
                                     src:"/espiritu/" + t.icono}) : iconoTipo(t.tipo);
   if (ico) barra.appendChild(ico);
   barra.appendChild(el("span", {class:"nom", text:t.nombre}));
+  // combinada: de cuantos jugadores (O-237)
+  const comb = marcaCombinada(t.jugadores);
+  if (comb) barra.appendChild(comb);
   if (extra) barra.appendChild(extra);
   if (t.nivel) barra.appendChild(el("span", {class:"niv", text:"Nv. " + t.nivel}));
   if (t.tp) barra.appendChild(el("span", {class:"tp", text:"TP " + t.tp}));
@@ -154,7 +164,11 @@ function chapaSaga(saga) {
   s.style.background = c[1];
   return s;
 }
-function fichaMini(j, alPulsar) {
+/* ordenStat: el numero del stat (0-6) por el que se ordena; entonces la
+   tarjeta ensena ese stat en vez del poder (O-236). */
+const ABREV_STAT = ["POT", "CON", "TEC", "PRE", "FIS", "AGI", "INT"];
+const NOMBRE_STAT = ["Potencia", "Control", "Tecnica", "Presion", "Fisico", "Agilidad", "Inteligencia"];
+function fichaMini(j, alPulsar, ordenStat) {
   const t = el("button", {class:"ficha-mini",
     title:j.nombre + " — " + (j.rareza_nombre || j.rareza || "") + (j.equipo ? " — " + j.equipo : ""),
     onclick:() => alPulsar && alPulsar(j)});
@@ -174,7 +188,11 @@ function fichaMini(j, alPulsar) {
     pp.style.color = COLOR_POS[j.posicion] || "#fff";
     abajo.appendChild(pp);
   }
-  if (j.poder) t.appendChild(el("div", {class:"poder", text:String(j.poder), title:"Suma de los siete stats base a nivel 99"}));
+  if (ordenStat >= 0 && j.stats && j.stats[ordenStat] != null)
+    t.appendChild(el("div", {class:"poder", title:NOMBRE_STAT[ordenStat] + " a nivel 99",
+      html:"<small>" + ABREV_STAT[ordenStat] + "</small> " + j.stats[ordenStat]}));
+  else if (j.poder) t.appendChild(el("div", {class:"poder", text:String(j.poder),
+    title:"Poder a nivel 99 (suma de los siete stats; en un normal, con su arbol)"}));
   const cs = chapaSaga(j.saga); if (cs) t.appendChild(cs);
   t.appendChild(abajo);
   return t;

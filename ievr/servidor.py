@@ -1096,6 +1096,7 @@ def detalle_jugador(plain, fila):
                       "elemento": tec.get("elemento") or "",
                       "poder": int(tec.get("poder") or 0),
                       "tp": int(tec.get("tp") or 0),
+                      "jugadores": O.jugadores_de_tecnica(tec)[0] if tec else 1,
                       "icono": esp.get("icono") or "",
                       "abierta": trozo == "tronco" or
                                  trozo == "rama %d" % rama.get("cual", 1)})

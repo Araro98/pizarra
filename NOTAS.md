@@ -5561,6 +5561,42 @@ su arbol de stats no esta descifrado. El poder (suma) cuenta el tronco y UNA
 rama (+23, `_poder99_con_arbol`): sumar la mejor rama de cada stat lo
 inflaria (Thaddeus: +33).
 
+### O-237 · Tecnicas individuales y combinadas
+
+Aaron: "en los filtros de supertecnicas, de todos los sitios, filtrar si es
+individual o combinada, y ponerlo al lado del elemento (que salga entero)".
+Columna 19 de `m_skillInfoList`: 0 en las individuales y 2, 3 o 4 (cuantos
+jugadores) en las combinadas: Remate combinado 2, Tripegaso 3, Muro
+colectivo 4, Inazuma Drop 2, Relampago salton 2. Siete combinadas la llevan
+a 0 (Defensa radial, Trimano celestial, Bloqueo doble, Defensa triple,
+Muralla infinita, Ruptura relampago CG): se completan con las columnas
+20-22 (compañeros concretos) o con la descripcion ("dos jugadores", "con un
+compañero"...). Total: 803 individuales, 106 de 2, 87 de 3, 8 de 4.
+`tecnicas.csv` columna `jugadores`; `O.jugadores_de_tecnica`. Filtro
+"Individual o combinada" en el selector de tecnicas del editor, en la
+Mochila y en la Base de datos (mas "Jugadores" y "Como se consigue");
+chapa "Combinada · N jugadores" / "Individual" en el selector y "xN" en la
+barra de la tecnica (ficha del jugador, Base de datos, Calculadora). La
+chapa del elemento salia "B..": usaba la clase `elem`, que es el cuadradito
+de 21 px de las tarjetas; ahora `chip-elem`.
+
+### O-238 · Base de datos al dia
+
+Aaron: "actualiza la base de datos, la calculadora... con todo lo nuevo".
+- Personajes: ordenar por nombre, poder o cada stat (con el stat en la
+  tarjeta, O-236), stats y poder a nivel 99 con su arbol (como Fichar),
+  filtros Armadura / Mixi max / Modo (O-222) y "Se puede fichar" (O-205);
+  en la ficha, "se puede fichar / no", y la lista de armaduras, mixi max y
+  modos que solo puede llevar el (espiritus-duenos.csv, O-209).
+- Supertecnicas: individual o combinada, jugadores, como se consigue
+  (tecnicas-origen.csv), orden por poder / TP / nombre, descripcion al pasar
+  el raton y se busca tambien en ella.
+- Espiritus: "Quien lo lleva" (cualquiera / solo su personaje) y "Pasiva
+  propia" (solo kenshin y 3 despertares, O-224); se ensena de quien es.
+- Objetos: las tacticas de equipo con sus efectos, duracion y recarga
+  (O-235); las supertacticas con su texto.
+- La Calculadora usa las mismas barras de tecnica: tambien sale "xN".
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

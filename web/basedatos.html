@@ -13,6 +13,13 @@
     object-fit:cover; background:#5d7590; flex:none; }
   .cabecera-ficha h2 { font-size:var(--t-2xl); font-weight:900; font-style:italic; color:var(--azul-osc); }
   .cabecera-ficha .sub { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:4px; }
+  .legales { display:flex; flex-wrap:wrap; gap:8px; }
+  .legal { display:flex; align-items:center; gap:6px; background:#fff; border:2px solid var(--azul-marco);
+    border-radius:9px; padding:3px 9px 3px 4px; font-weight:700; font-size:var(--t-sm); }
+  .legal img { width:34px; height:34px; object-fit:contain; }
+  .efectos-tac { margin:3px 0 0; padding:0; list-style:none; font-size:var(--t-xs); color:#1f4f8f; }
+  .efectos-tac li { line-height:1.3; }
+  .obj .tiempos { font-size:var(--t-xxs); color:var(--suave); }
   .sub { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
   .sub a.enlace { color:#7fb2ff; font-weight:800; }
   .stats-tabla td.mas { color:#5cc46a; font-weight:700; }
@@ -176,14 +183,44 @@ const FILTROS_PER = [
     return i < 0 ? 99 : i; }},
   {campo:"apt", etiqueta:"Aptitud"},
   {campo:"cuerpo_tipo", etiqueta:"Cuerpo"},
+  // que puede llevar de forma legal (O-222) y si se puede fichar (O-205)
+  {campo:"armadura", etiqueta:"Armadura", siempre:true},
+  {campo:"mixi", etiqueta:"Mixi max", siempre:true},
+  {campo:"modo", etiqueta:"Modo", siempre:true},
+  {campo:"fichable", etiqueta:"Se puede fichar"},
 ];
 const estadoPer = {};
 let abierto = null;
+// ordenar la lista, como en el editor: por poder, rareza, nombre o un stat (O-236)
+let ordenPerBD = "nombre", sentidoPerBD = "asc";
+const CLAVES_PER_BD = {
+  nombre: p => [p.nombre.toLowerCase()],
+  poder: p => [-(p.poder || 0), p.nombre.toLowerCase()],
+  rareza: p => [-(p.rareza_valor || 0), p.nombre.toLowerCase()],
+};
+for (let k = 0; k < 7; k++) CLAVES_PER_BD["st" + k] = p => [-((p.stats || [])[k] || 0), p.nombre.toLowerCase()];
+function comparaBD(a, b) { for (let i = 0; i < a.length; i++) { if (a[i] < b[i]) return -1; if (a[i] > b[i]) return 1; } return 0; }
+function montaOrdenPer() {
+  const caja = $("#filtros-per");
+  const so = el("select", {onchange:e => { ordenPerBD = e.target.value; pintaPersonajes(); }});
+  for (const [v, t] of [["nombre","Nombre"],["poder","Poder a nivel 99 (con su arbol)"],["rareza","Rareza"]])
+    so.appendChild(el("option", {value:v, text:t}));
+  const g = el("optgroup", {label:"Por stat"});
+  NOMBRE_STAT.forEach((n, k) => g.appendChild(el("option", {value:"st" + k, text:n})));
+  so.appendChild(g); so.value = ordenPerBD;
+  caja.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Ordenar por"}), so]));
+  const ss = el("select", {onchange:e => { sentidoPerBD = e.target.value; pintaPersonajes(); }});
+  ss.appendChild(el("option", {value:"asc", text:"Normal"}));
+  ss.appendChild(el("option", {value:"desc", text:"Al reves"}));
+  ss.value = sentidoPerBD;
+  caja.appendChild(el("label", {class:"filtro"}, [el("span", {text:"Sentido"}), ss]));
+}
 
 async function cargaPersonajes() {
   if (!datos.personajes) {
     datos.personajes = (await pedir("/api/bd/personajes")).personajes;
-    montaFiltros($("#filtros-per"), datos.personajes, FILTROS_PER, estadoPer, pintaPersonajes);
+    const rehacer = () => { montaFiltros($("#filtros-per"), datos.personajes, FILTROS_PER, estadoPer, () => { rehacer(); pintaPersonajes(); }); montaOrdenPer(); };
+    rehacer();
     $("#buscar-per").oninput = pintaPersonajes;
   }
   pintaPersonajes();
@@ -192,9 +229,13 @@ function pintaPersonajes() {
   const q = $("#buscar-per").value.trim().toLowerCase();
   const ves = datos.personajes.filter(p => pasaFiltros(p, FILTROS_PER, estadoPer)
     && (!q || (p.nombre + " " + (p.apodo || "") + " " + p.equipo + " " + p.posicion + " " + p.elemento).toLowerCase().includes(q)));
+  const clave = CLAVES_PER_BD[ordenPerBD] || CLAVES_PER_BD.nombre;
+  ves.sort((a, b) => comparaBD(clave(a), clave(b)));
+  if (sentidoPerBD === "desc") ves.reverse();
+  const kSt = /^st[0-6]$/.test(ordenPerBD) ? Number(ordenPerBD.slice(2)) : -1;
   const r = $("#lista-per"); r.textContent = "";
   for (const p of ves.slice(0, 600)) {
-    const t = fichaMini(p, abrePersonaje);
+    const t = fichaMini(p, abrePersonaje, kSt);
     if (abierto === p.identidad) t.setAttribute("aria-current", "true");
     r.appendChild(t);
   }
@@ -226,6 +267,11 @@ async function abrePersonaje(p) {
   if (d.arquetipo) sub.appendChild(el("span", {class:"chip gris", text:d.arquetipo}));
   if (d.saga) sub.appendChild(el("span", {class:"chip gris", text:d.saga}));     // el juego de origen (O-220)
   if (d.apt !== "jugador") sub.appendChild(el("span", {class:"chip gris", text:d.apt + " de fabrica"}));
+  // si se puede conseguir en el juego (O-205)
+  sub.appendChild(el("span", {class:"chip " + (d.fichable ? "" : "gris"),
+    text:d.fichable ? "se puede fichar" : "no se puede fichar",
+    title:d.fichable ? "Sale en el Universo de jugadores, la tienda, el correo o la Cronica"
+                     : "Es de la historia o la forma de un modo: el juego no lo da"}));
   if (d.equipo) sub.appendChild(el("span", {text:d.equipo, style:"font-size:var(--t-md);color:var(--suave)"}));
   t.appendChild(sub);
   if (d.descripcion) t.appendChild(el("p", {class:"frase", text:d.descripcion}));
@@ -299,6 +345,19 @@ async function abrePersonaje(p) {
     tecs.appendChild(barraTecnica(t));
   }
   caja.appendChild(tecs);
+
+  // --- armaduras, mixi max y modos que puede llevar de forma legal (O-222)
+  if (d.espiritus_legales && d.espiritus_legales.length) {
+    caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Espiritus solo suyos (armaduras, mixi max, modos)"})]));
+    const lg = el("div", {class:"legales"});
+    for (const e of d.espiritus_legales)
+      lg.appendChild(el("div", {class:"legal", title:e.nombre}, [
+        e.icono ? el("img", {loading:"lazy", alt:"", src:"/espiritu/" + e.icono}) : null,
+        el("span", {text:e.nombre}),
+        el("span", {class:"chip gris", text:NOMBRE_FAMILIA[e.familia] || e.familia})]));
+    caja.appendChild(lg);
+    caja.appendChild(el("p", {class:"nota", text:"Los kenshin, las almas y las hipertecnicas especiales de todos los puede llevar cualquiera; estos solo este personaje."}));
+  }
 
   // --- cambio de modo (NOTAS O-225): en que se convierte, que numeros lleva
   // el modo, sus stats frente a los suyos y el set de tecnicas de la forma
@@ -451,23 +510,43 @@ async function abrePersonaje(p) {
 }
 
 /* ---------------- supertecnicas ---------------- */
+const NOMBRE_ORIGEN = {personaje:"La aprende un personaje", tienda:"Tienda, correo o premio",
+  kenshin:"De un kenshin (no se aprende)", override:"Version mejorada en partido", ninguna:"No se consigue",
+  rara:"Especial de la historia"};
 const FILTROS_TEC = [
   {campo:"tipo", etiqueta:"Tipo"}, {campo:"subtipo", etiqueta:"Clase"}, {campo:"elemento", etiqueta:"Afinidad"},
+  // individual o combinada (O-237) y como se consigue (O-206)
+  {campo:"combinada", etiqueta:"Individual o combinada"},
+  {campo:"jugadores", etiqueta:"Jugadores", numerico:true, nombre:v => v === "1" ? "1 (individual)" : v + " jugadores"},
+  {campo:"origen", etiqueta:"Como se consigue", nombre:v => NOMBRE_ORIGEN[v] || v},
 ];
 const estadoTec = {};
+let ordenTec = "tipo";
+const ORDENES_TEC = {tipo:null, poder:(a, b) => b.poder - a.poder || a.nombre.localeCompare(b.nombre),
+  tp:(a, b) => a.tp - b.tp || b.poder - a.poder, nombre:(a, b) => a.nombre.localeCompare(b.nombre)};
 async function cargaTecnicas() {
   if (!datos.tecnicas) {
     datos.tecnicas = (await pedir("/api/bd/tecnicas")).tecnicas;
     montaFiltros($("#filtros-tec"), datos.tecnicas, FILTROS_TEC, estadoTec, pintaTecnicas);
+    const so = el("select", {onchange:e => { ordenTec = e.target.value; pintaTecnicas(); }});
+    for (const [v, t] of [["tipo","Tipo y poder"],["poder","Mas poder"],["tp","Menos TP"],["nombre","Nombre"]])
+      so.appendChild(el("option", {value:v, text:t}));
+    $("#filtros-tec").appendChild(el("label", {class:"filtro"}, [el("span", {text:"Ordenar por"}), so]));
     $("#buscar-tec").oninput = pintaTecnicas;
   }
   pintaTecnicas();
 }
 function pintaTecnicas() {
   const q = $("#buscar-tec").value.trim().toLowerCase();
-  const ves = datos.tecnicas.filter(t => pasaFiltros(t, FILTROS_TEC, estadoTec) && (!q || t.nombre.toLowerCase().includes(q)));
+  let ves = datos.tecnicas.filter(t => pasaFiltros(t, FILTROS_TEC, estadoTec)
+    && (!q || t.nombre.toLowerCase().includes(q) || (t.descripcion || "").toLowerCase().includes(q)));
+  if (ORDENES_TEC[ordenTec]) ves = ves.slice().sort(ORDENES_TEC[ordenTec]);
   const r = $("#lista-tec"); r.textContent = "";
-  for (const t of ves.slice(0, 500)) r.appendChild(barraTecnica(t, el("span", {class:"tp", text:t.subtipo})));
+  for (const t of ves.slice(0, 500)) {
+    const b = barraTecnica(t, el("span", {class:"tp", text:t.subtipo}));
+    b.title = [t.descripcion, NOMBRE_ORIGEN[t.origen] || ""].filter(Boolean).join("\n");
+    r.appendChild(b);
+  }
   $("#contador-tec").textContent = ves.length + " supertecnicas" + (ves.length > 500 ? " (se ensenan 500)" : "");
 }
 
@@ -475,6 +554,9 @@ function pintaTecnicas() {
 const FILTROS_ESP = [
   {campo:"familia", etiqueta:"Familia", nombre:v => NOMBRE_FAMILIA[v] || v},
   {campo:"rango", etiqueta:"Rango", numerico:true, nombre:v => "★" + v},
+  // quien lo puede llevar (O-172, O-209)
+  {campo:"quien", etiqueta:"Quien lo lleva"},
+  {campo:"con_pasiva", etiqueta:"Pasiva propia", valor:e => e.pasiva ? "si" : "no"},
 ];
 const estadoEsp = {};
 async function cargaEspiritus() {
@@ -490,14 +572,17 @@ function pintaEspiritus() {
   const ves = datos.espiritus.filter(e => pasaFiltros(e, FILTROS_ESP, estadoEsp)
     && (!q || e.nombre.toLowerCase().includes(q)
           || (e.pasiva || "").toLowerCase().includes(q)
+          || (e.dueno || "").toLowerCase().includes(q)
           || (e.nombre_largo || "").toLowerCase().includes(q)));
   const r = $("#lista-esp"); r.textContent = "";
   for (const e of ves) r.appendChild(el("div", {class:"obj", title:e.nombre_largo || ""}, [
     el("img", {loading:"lazy", alt:"", src:e.icono ? "/espiritu/" + e.icono : "/categoria/aura"}),
     el("div", {class:"n", text:e.nombre}),
     el("div", {class:"b", text:(NOMBRE_FAMILIA[e.familia] || e.familia || "") + (e.rango ? "  ★" + e.rango : "")}),
-    // la habilidad pasiva de cada espiritu (NOTAS O-184)
-    e.pasiva ? el("div", {class:"pasiva-esp", text:e.pasiva}) : null]));
+    // la habilidad pasiva de cada espiritu (NOTAS O-184); armaduras, mixi y
+    // almas no tienen (O-224)
+    e.pasiva ? el("div", {class:"pasiva-esp", text:e.pasiva}) : null,
+    e.dueno && e.quien !== "Cualquiera" ? el("div", {class:"b", text:e.dueno}) : null]));
   $("#contador-esp").textContent = ves.length + " espiritus";
 }
 
@@ -561,10 +646,19 @@ function pintaObjetos() {
   const q = $("#buscar-obj").value.trim().toLowerCase();
   const ves = datos.objetos.filter(o => pasaFiltros(o, FILTROS_OBJ, estadoObj) && (!q || o.nombre.toLowerCase().includes(q)));
   const r = $("#lista-obj"); r.textContent = "";
-  for (const o of ves.slice(0, 600)) r.appendChild(el("div", {class:"obj"}, [
-    el("img", {loading:"lazy", alt:"", src:o.icono ? "/icono/" + o.icono : "/categoria/" + encodeURIComponent(o.categoria)}),
-    el("div", {class:"n", text:o.nombre}),
-    el("div", {class:"b", text:o.bonus_texto || (NOMBRE_CAT[o.categoria] || o.categoria)})]));
+  for (const o of ves.slice(0, 600)) {
+    // las tacticas: sus efectos con numero, cuanto duran y su recarga (O-235)
+    const efectos = o.efectos && o.efectos.length
+      ? el("ul", {class:"efectos-tac"}, o.efectos.map(e => el("li", {text:e}))) : null;
+    const tiempos = o.duracion || o.recarga
+      ? el("div", {class:"tiempos", text:[o.duracion ? "dura " + o.duracion + " s" : "",
+                                         o.recarga ? "recarga " + o.recarga + " s" : ""].filter(Boolean).join(" · ")}) : null;
+    r.appendChild(el("div", {class:"obj", title:o.descripcion || ""}, [
+      el("img", {loading:"lazy", alt:"", src:o.icono ? "/icono/" + o.icono : "/categoria/" + encodeURIComponent(o.categoria)}),
+      el("div", {class:"n", text:o.nombre}),
+      efectos || el("div", {class:"b", text:o.bonus_texto || o.descripcion || (NOMBRE_CAT[o.categoria] || o.categoria)}),
+      tiempos]));
+  }
   $("#contador-obj").textContent = ves.length + " objetos" + (ves.length > 600 ? " (se ensenan 600)" : "");
 }
 
