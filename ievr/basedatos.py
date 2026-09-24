@@ -426,6 +426,16 @@ def _dueno_de_espiritu(idh, familia):
     return {"quien": "Sin dueno conocido", "dueno": ""}
 
 
+def caras_sin_usar():
+    """Las caras que el juego trae pero no usa (`caras-sin-usar.csv`, O-239)."""
+    fuera = []
+    for f in reglas._tabla("caras-sin-usar.csv"):
+        ids = [x for x in (f.get("identidades") or "").split() if x]
+        fuera.append({"cara": f["cara"], "grupo": f["grupo"], "nombre": f.get("nombre") or "",
+                      "identidad": ids[0] if ids else ""})
+    return fuera
+
+
 def espiritus():
     esp = O._espiritus()
     fuera = []

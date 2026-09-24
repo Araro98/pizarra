@@ -5597,6 +5597,21 @@ Aaron: "actualiza la base de datos, la calculadora... con todo lo nuevo".
   (O-235); las supertacticas con su texto.
 - La Calculadora usa las mismas barras de tecnica: tambien sale "xN".
 
+### O-239 · Caras que el juego trae y no usa
+
+Aaron: "pon en la base de datos sprites o modelos de jugadores que no se
+usen: que haya su modelo pero no sean fichables o esten sin asignar a
+ningun jugador o npc". De las 5.685 caras de `10_icon_chr/face`
+(`construir_sin_usar.py` -> `caras-sin-usar.csv`):
+- 73 que ninguna fila de `chara_base` usa como string_id: de nadie;
+- 121 con fila en `chara_base` y nombre (Thomas Feldt, Harry Leading...)
+  pero sin fila en `chara_param`: no existen como jugador;
+- 83 de jugadores de `chara_param` que no estan en `fichables.csv` (O-205)
+  y cuya cara no la usa ningun fichable (las otras versiones de Jude,
+  Arion, Fei... de la historia).
+Pestana "Sin usar" en la Base de datos, con filtro por grupo y buscador; los
+no fichables abren su ficha. Los modelos 3D no se ensenan (no hay visor).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

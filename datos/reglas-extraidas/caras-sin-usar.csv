@@ -1,0 +1,280 @@
+# Caras que el juego trae pero no usa (NOTAS O-239).
+# Lo genera herramientas/construir_sin_usar.py.
+cara,grupo,nombre,identidades
+an000150,no_fichable,Josefina,696F1C32
+c01000815,sin_ficha,Thomas,
+c01000825,sin_ficha,Harry Leading,
+c01000835,sin_ficha,Terry Stronger,
+c01000845,sin_ficha,Philip Marvel,
+c01000855,sin_ficha,Noel Good,
+c01000865,sin_ficha,Tyron Rock,
+c01000875,sin_ficha,Francis Tell,
+c01000885,sin_ficha,Samuel Buster,
+c01000895,sin_ficha,Jonathan Seller,
+c01000905,sin_ficha,Victor Kind,
+c01000915,sin_ficha,Neil Turner,
+c01000925,sin_ficha,Reg Underwood,
+c01000935,sin_ficha,Patrick Stiller,
+c01000945,sin_ficha,Charles Oughtry,
+c01000965,sin_ficha,Neil Waters,
+c01009360,sin_personaje,,
+c01010120,sin_personaje,,
+c01010660,sin_personaje,,
+c01010970,no_fichable,Jude Sharp,260C33A3
+c02023385,sin_ficha,Shawn Froste,
+c02023390,sin_ficha,Shawn Froste,
+c02024071,sin_ficha,Cadence Soundtown,
+c02024320,sin_ficha,Nathan Swift,
+c02024741,sin_ficha,Celia,
+c02024760,sin_personaje,,
+c02025310,sin_personaje,,
+c02026260,sin_personaje,,
+c02028550,sin_personaje,,
+c03030110,sin_personaje,,
+c03030120,sin_personaje,,
+c03030130,sin_personaje,,
+c03030140,sin_personaje,,
+c03030961,sin_ficha,Sean Pounding,
+c03033330,sin_personaje,,
+c03033340,sin_personaje,,
+c03033350,sin_personaje,,
+c03033370,sin_personaje,,
+c03033401,sin_ficha,Karl Kappa,
+c03039250,sin_personaje,,
+c04016010,sin_personaje,,
+c04016020,sin_personaje,,
+c04016030,sin_personaje,,
+c04016040,sin_personaje,,
+c05020701,sin_ficha,Bestia Negra,
+c05023810,sin_personaje,,
+c05023820,sin_personaje,,
+c05023830,sin_personaje,,
+c05023840,sin_personaje,,
+c05023850,sin_personaje,,
+c05023860,sin_personaje,,
+c05023870,sin_personaje,,
+c05023880,sin_personaje,,
+c05023890,sin_personaje,,
+c05023900,sin_personaje,,
+c05023910,sin_personaje,,
+c05024671,sin_ficha,Jude Sharp,
+c05028010,no_fichable,Fei Rune,7B6E90BE
+c05028020,no_fichable,Vladimir Blade,5043C37D
+c05028030,no_fichable,Arion Sherwind,4958F23C
+c05028040,no_fichable,Riccardo Di Rigo,061964FB
+c05028050,no_fichable,Gabriel García,1F0255BA
+c05028060,no_fichable,Sol Daystar,342F0679
+c05028070,no_fichable,Jean-Pierre Lapin,2D343738
+c05028080,no_fichable,Sor,AAAC2BF7
+c05028090,no_fichable,Fei Rune,B3B71AB6
+c05028100,no_fichable,Ryoma Nishiki,63B7CBC8
+c05028110,no_fichable,Victor Blade,7AACFA89
+c05028120,no_fichable,Goldie Lemmon,5181A94A
+c05028130,no_fichable,Arion Sherwind,489A980B
+c05028140,no_fichable,Bai Long,07DB0ECC
+c05028160,no_fichable,Zanark Avalonic,35ED6C4E
+c05028410,no_fichable,Vee Wai,7C673862
+c05028420,no_fichable,Dee Vee,574A6BA1
+c05028430,no_fichable,Ayt Bee,4E515AE0
+c05028440,no_fichable,En Sicks,0110CC27
+c05028450,no_fichable,Wun Ell,180BFD66
+c05028460,no_fichable,Zed Kyu,3326AEA5
+c05028470,no_fichable,Kay Zirro,2A3D9FE4
+c05028480,no_fichable,Cee Eff,ADA5832B
+c05028490,no_fichable,Ar Ecks,B4BEB26A 9C9ABBD0
+c05028500,no_fichable,Em Tee,64BE6314
+c05028510,no_fichable,Ough Cee,7DA55255
+c05028520,no_fichable,Jay Yuu,56880196
+c05028530,no_fichable,Faiv Ess,4F9330D7
+c05028540,no_fichable,Tu Eigh,00D2A610
+c05028550,no_fichable,Aye Nort,19C99751
+c05028560,no_fichable,Ji Tenn,32E4C492
+c05028610,no_fichable,Flora,7FE3EC0C
+c05028620,no_fichable,Simeon Ayp,54CEBFCF
+c05028630,no_fichable,Wolfram Vulpeen,4DD58E8E
+c05028640,no_fichable,Desmodus Drakul,02941849
+c05029410,no_fichable,Victor Blade,C4DB5F07
+c05029420,no_fichable,Gabriel García,EFF60CC4
+c05029430,no_fichable,Gabriel García,F6ED3D85
+c05029440,no_fichable,Victor Blade,B9ACAB42
+c05029450,no_fichable,Bai Long,A0B79A03
+c05029460,no_fichable,Mark Evans,8B9AC9C0
+c05029470,no_fichable,Axel Blaze,9281F881
+c05029480,no_fichable,Caleb Stonewall,1519E44E
+c05029700,sin_personaje,,
+c05029730,sin_personaje,,
+c06037850,sin_personaje,,
+c06037970,sin_personaje,,
+c06037980,sin_personaje,,
+c06037990,sin_personaje,,
+c06038000,sin_personaje,,
+c06038010,no_fichable,Buddy Fury,77E6A393 C95E9877 E0962C85 FB72472E
+c06039011,sin_ficha,David Evans,
+c06039350,sin_ficha,Circulus Corona,
+c06039360,sin_ficha,Arculus Orbes,
+c07060120,sin_ficha,Thomas Feldt,
+c07060130,sin_ficha,Tyron Rock,
+c07060140,sin_ficha,Samuel Buster,
+c07060150,sin_ficha,Reg Underwood,
+c07060160,sin_ficha,Patrick Stiller,
+c07060170,sin_ficha,Charles Oughtry,
+c07060180,sin_ficha,Clive Mooney,
+c07060190,sin_ficha,Neil Waters,
+c07150010,sin_personaje,,
+c07150020,sin_personaje,,
+c07150030,sin_personaje,,
+c07150040,sin_personaje,,
+c07150050,sin_personaje,,
+c07150060,sin_personaje,,
+c07150070,sin_personaje,,
+c07150080,sin_personaje,,
+c07150090,sin_personaje,,
+c07150100,sin_personaje,,
+c07170010,sin_personaje,,
+c07170020,sin_personaje,,
+c07170050,sin_personaje,,
+c07170090,sin_personaje,,
+c07180010,sin_personaje,,
+c07180020,sin_personaje,,
+c07180050,sin_personaje,,
+c07180080,sin_personaje,,
+c07190010,sin_personaje,,
+c07190050,sin_personaje,,
+c07190110,sin_personaje,,
+c07240290,sin_personaje,,
+c07240370,sin_personaje,,
+c07240530,sin_personaje,,
+c07290020,sin_personaje,,
+c08030030,no_fichable,Seth Bael,D05B92A3
+c08030031,no_fichable,Seth Bael,A75CA235
+c08090220,sin_personaje,,
+c08130040,sin_personaje,,
+c08130070,sin_personaje,,
+c11010011,sin_ficha,Destin,
+c11010012,no_fichable,Destin Billows,073A8B76
+c11010013,sin_ficha,Destin,
+c11010052,sin_ficha,Cedric,
+c11010061,sin_personaje,,
+c11010115,sin_ficha,Lycus Foxworth,
+c11010230,no_fichable,Cade Shelby,F02D50E0
+c11010510,sin_ficha,Edwin,
+c11020011,sin_ficha,Harper,
+c11020019,sin_personaje,,
+c11020170,sin_ficha,Harper Evans,
+c11020520,sin_ficha,Grenson Veteran,
+c11030011,no_fichable,Nikas Himmelstein,CC5885FA
+c11040011,sin_ficha,Kendrick,
+c11040021,sin_ficha,Flynn,
+c11040031,sin_ficha,Zayn,
+c11040041,sin_ficha,Eamon,
+c11040051,sin_ficha,Maximus,
+c11040061,sin_ficha,Paxton Plumfield,
+c11040071,sin_ficha,Godfrey Shahmann,
+c11040081,sin_ficha,Nico Kensee,
+c11040091,sin_ficha,Kurtis Loafinn,
+c11080520,sin_ficha,Alice,
+c11130130,sin_ficha,Saburo Mizuki,
+c11130140,sin_ficha,Bogdan Berglund,
+c11130150,sin_ficha,Frederick Brandt,
+c11130160,sin_ficha,Veril Golding,
+c11130520,sin_ficha,El Segundo,
+c11200010,no_fichable,Once de Mary Times,B1376EB7
+c11200020,no_fichable,Once de Mary Times,9A1A3D74
+c11200030,no_fichable,Once de Mary Times,83010C35
+c11200040,no_fichable,Once de Mary Times,CC409AF2
+c11200500,no_fichable,Hurley Kane,AEE79D1D
+c11500019,sin_ficha,Elaine,
+c11500121,sin_ficha,Verity Billows,
+c11500190,sin_ficha,審判,
+c11500200,sin_ficha,Benjamin Tibault,
+c11500210,sin_ficha,Lorien,
+c11500211,sin_ficha,Lorien,
+c11500220,sin_ficha,Guarda,
+c11500251,sin_ficha,Juno,
+c11500260,no_fichable,Umibozu,8AB1DD55 FF01726E 362F6511 D230648A 4B393530 3C3E05A6 A25A9005 A34BE7DE 3A42B664 D476C9C8 B3E5FA36 BF6F85F7
+c11500501,sin_ficha,Mark Evans,
+c11500531,sin_ficha,Axel Blaze,
+c11500700,sin_ficha,過去南雲原サッカー部A,
+c11500710,sin_ficha,過去南雲原サッカー部B,
+c11500720,sin_ficha,過去南雲原サッカー部C,
+c11500730,sin_ficha,過去南雲原サッカー部D,
+c11500740,sin_ficha,過去南雲原サッカー部E,
+c11500750,sin_ficha,過去南雲原サッカー部F,
+c11500760,sin_ficha,過去南雲原サッカー部G,
+c11500770,sin_ficha,過去南雲原サッカー部H,
+c11500780,sin_ficha,過去南雲原サッカー部I,
+c11500790,sin_ficha,過去南雲原サッカー部J,
+c11500800,sin_ficha,過去南雲原サッカー部K,
+c11500810,sin_ficha,過去南雲原サッカー部L,
+c11500820,sin_ficha,過去南雲原サッカー部M,
+c11500830,sin_ficha,過去南雲原サッカー部N,
+c11500840,sin_ficha,過去南雲原サッカー部O,
+c11500850,sin_ficha,過去南雲原サッカー部P,
+c11500880,no_fichable,UM-BZ9,8CAFB760 15A6E6DA 62A1D64C FCC543EF 8BC27379 12CB22C3 65CC1255 F5730FC4 82743F52 725E8515 EB57D4AF 9C50E439 0234719A 7533410C EC3A10B6 9B3D2020 0B823DB1 7C850D27 1C4284C2 6B45B454
+c11500890,sin_ficha,Diane Chantry,
+c11500910,sin_ficha,Jack,
+c11500940,sin_ficha,Cyber Red,
+c11500970,sin_ficha,Hombre sombrío,
+c11500980,sin_ficha,Reportero extranjero,
+c11600021,sin_ficha,Fei Rune,
+c11600041,sin_ficha,Cross Word Cryptix,
+c11600050,sin_ficha,Clark von Wunderbar,
+c11600060,sin_ficha,Misty,
+c11600061,sin_ficha,Misty,
+c11600070,sin_ficha,Maestra Goverm,
+c11600080,sin_ficha,Maestra Goverm,
+c11700670,sin_personaje,,
+c11801050,no_fichable,Hekyll Jyde,CC7CEFB0
+c11805020,sin_ficha,Bestia Negra,
+c11806100,no_fichable,Quetzalcoatlus,2D1E497B
+c11901020,sin_ficha,Nathan Swift,
+c11901030,sin_ficha,Erik Eagle,
+c11901100,sin_ficha,帝国学園モブ,
+c11902010,sin_personaje,,
+c11902020,sin_personaje,,
+c11902030,sin_personaje,,
+c11902040,sin_personaje,,
+c11902060,sin_ficha,Astram B. Schiller,
+c11902210,no_fichable,Dvalin,727D8291 CCC5B975 E50D0D87 FEE9662C
+c11902220,no_fichable,Kenville,5950D152
+c11902230,no_fichable,Mole,404BE013
+c11902240,no_fichable,Kayson,0F0A76D4
+c11902250,no_fichable,Tytan,16114795
+c11902260,no_fichable,Fedora,3D3C1456
+c11902270,no_fichable,Krypto,24272517
+c11902280,no_fichable,Sworm,A3BF39D8
+c11902290,no_fichable,Mercury,BAA40899
+c11902300,no_fichable,Metron,6AA4D9E7
+c11902310,no_fichable,Zell,73BFE8A6
+c11902320,sin_ficha,Suzette Hartland,
+c11902330,no_fichable,Scott Banyan,41898A24
+c11902340,sin_ficha,Xavier Foster,
+c11902350,sin_ficha,Shawn Froste,
+c11903010,sin_ficha,Jude Sharp,
+c11903030,sin_ficha,Julio Acuto,
+c11903050,no_fichable,Bilal Kalil,AD29F49E
+c11903060,sin_ficha,Jude Sharp,
+c11904010,no_fichable,Aitor Cazador,54920923
+c11904020,sin_ficha,Sra. Han,
+c11904040,sin_ficha,Vladimir Blade,
+c11905040,sin_ficha,Benefactor,
+c11905060,sin_ficha,Gammon,
+c11905070,sin_ficha,Gammon,
+c11905080,sin_ficha,Gammon,
+c11905090,sin_ficha,Gammon,
+c11906010,sin_ficha,Reina de los dragones,
+c11906030,sin_ficha,Loras Gordon,
+c11907010,sin_ficha,Bob Carlton,
+c11907020,sin_ficha,Barry Potts,
+c11908010,sin_ficha,Martemeli Prestov,
+c11908020,sin_ficha,Mister Yi,
+c11908140,no_fichable,Arion Sherwind,62F128E9
+c11908150,no_fichable,Riccardo Di Rigo,7BEA19A8
+c11908160,no_fichable,Aitor Cazador,50C74A6B
+c11908170,no_fichable,Bai Long,49DC7B2A
+c11908180,no_fichable,Tezcat,CE4467E5
+c11908190,no_fichable,Arion Sherwind,D75F56A4
+c11908200,no_fichable,Shawn Froste,04DB53B4
+c11908210,no_fichable,Jude Sharp,1DC062F5
+c11908300,sin_ficha,Alexander,
+npc2323,no_fichable,Profe de ciencias,F6CBEDD0

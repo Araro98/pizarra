@@ -1279,6 +1279,8 @@ class Manejador(BaseHTTPRequestHandler):
                 return self._responder(200, {"pasivas": BD.pasivas()})
             if u.path == "/api/bd/objetos":
                 return self._responder(200, {"objetos": BD.objetos()})
+            if u.path == "/api/bd/sin_usar":
+                return self._responder(200, {"caras": BD.caras_sin_usar()})
             if u.path == "/api/bd/sinergias":
                 return self._responder(200, {"sinergias": BD.sinergias()})
             if u.path.startswith("/api/bd/stats/"):

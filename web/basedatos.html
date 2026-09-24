@@ -13,6 +13,16 @@
     object-fit:cover; background:#5d7590; flex:none; }
   .cabecera-ficha h2 { font-size:var(--t-2xl); font-weight:900; font-style:italic; color:var(--azul-osc); }
   .cabecera-ficha .sub { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:4px; }
+  .rejilla-caras { display:grid; grid-template-columns:repeat(auto-fill,minmax(112px,1fr)); gap:8px; }
+  .cara-su { display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 4px;
+    border-radius:10px; border:2px solid var(--azul-marco); background:#fff; font:inherit; color:inherit; }
+  button.cara-su { cursor:pointer; }
+  button.cara-su:hover { background:#e8f6ff; }
+  .cara-su img { width:88px; height:88px; object-fit:contain; background:#dfe9f5; border-radius:8px; }
+  .cara-su b { font-size:var(--t-xs); text-align:center; line-height:1.15; }
+  .cara-su small { font-size:var(--t-xxs); color:var(--suave); }
+  .cara-su.sin_personaje { border-color:#9aa8b8; }
+  .cara-su.sin_ficha { border-color:#e0a030; }
   .legales { display:flex; flex-wrap:wrap; gap:8px; }
   .legal { display:flex; align-items:center; gap:6px; background:#fff; border:2px solid var(--azul-marco);
     border-radius:9px; padding:3px 9px 3px 4px; font-weight:700; font-size:var(--t-sm); }
@@ -73,6 +83,7 @@
       <button data-p="pasivas"><span>Pasivas</span></button>
       <button data-p="objetos"><span>Objetos</span></button>
       <button data-p="sinergias"><span>Sinergias</span></button>
+      <button data-p="sinusar"><span>Sin usar</span></button>
       <a href="/"><span>Inicio</span></a>
     </nav>
   </div>
@@ -139,6 +150,17 @@
     <div class="contador" id="contador-sin"></div>
     <div class="lista-sinergias" id="lista-sin"></div>
   </section>
+
+  <section id="p-sinusar" hidden class="marco">
+    <h2 class="titulo-seccion">Caras sin usar</h2>
+    <p class="nota">Caras de personaje que vienen en los ficheros del juego pero no se usan: de nadie,
+      de personajes que no existen como jugador, o de jugadores que no se pueden fichar.
+      Solo caras: los modelos 3D no se pueden ensenar aqui.</p>
+    <input type="search" id="buscar-su" placeholder="Buscar por nombre o codigo...">
+    <div class="filtros" id="filtros-su"></div>
+    <div class="contador" id="contador-su"></div>
+    <div class="rejilla-caras" id="lista-su"></div>
+  </section>
 </main>
 
 <script src="/web/comun.js"></script>
@@ -167,6 +189,7 @@ async function abre(p) {
   if (p === "pasivas") await cargaPasivas();
   if (p === "objetos") await cargaObjetos();
   if (p === "sinergias") await cargaSinergias();
+  if (p === "sinusar") await cargaSinUsar();
 }
 
 /* ---------------- personajes ---------------- */
@@ -690,9 +713,41 @@ function pintaSinergias() {
   $("#contador-sin").textContent = ves.length + " sinergias";
 }
 
+/* ---------------- caras sin usar (NOTAS O-239) ---------------- */
+const GRUPO_SU = {sin_personaje:"De nadie (sin personaje)", sin_ficha:"Personaje sin ficha de jugador",
+                  no_fichable:"Jugador que no se puede fichar"};
+const FILTROS_SU = [{campo:"grupo", etiqueta:"Que es", nombre:v => GRUPO_SU[v] || v}];
+const estadoSu = {};
+async function cargaSinUsar() {
+  if (!datos.sinusar) {
+    datos.sinusar = (await pedir("/api/bd/sin_usar")).caras;
+    montaFiltros($("#filtros-su"), datos.sinusar, FILTROS_SU, estadoSu, pintaSinUsar);
+    $("#buscar-su").oninput = pintaSinUsar;
+  }
+  pintaSinUsar();
+}
+function pintaSinUsar() {
+  const q = $("#buscar-su").value.trim().toLowerCase();
+  const ves = datos.sinusar.filter(x => pasaFiltros(x, FILTROS_SU, estadoSu)
+    && (!q || (x.nombre + " " + x.cara).toLowerCase().includes(q)));
+  const r = $("#lista-su"); r.textContent = "";
+  for (const x of ves) {
+    const img = el("img", {loading:"lazy", alt:"", src:"/cara/" + x.cara});
+    img.onerror = () => { img.src = SILUETA; };
+    // un jugador no fichable tiene su ficha en Personajes: se puede abrir
+    const t = el(x.identidad ? "button" : "div", {class:"cara-su " + x.grupo,
+      title:(x.nombre ? x.nombre + " — " : "") + x.cara + " — " + GRUPO_SU[x.grupo]
+            + (x.identidad ? "\nPulsa para ver su ficha" : ""),
+      onclick:x.identidad ? () => { abre("personajes").then(() => abrePersonaje({identidad:x.identidad})); } : null}, [
+      img, el("b", {text:x.nombre || "sin nombre"}), el("small", {text:x.cara})]);
+    r.appendChild(t);
+  }
+  $("#contador-su").textContent = ves.length + " caras";
+}
+
 // la direccion puede decir la pestana: /bd?p=tecnicas (desde el menu de inicio)
 const pedida = new URLSearchParams(location.search).get("p");
-abre(["personajes", "tecnicas", "espiritus", "pasivas", "objetos", "sinergias"].includes(pedida) ? pedida : "personajes");
+abre(["personajes", "tecnicas", "espiritus", "pasivas", "objetos", "sinergias", "sinusar"].includes(pedida) ? pedida : "personajes");
 </script>
 </body>
 </html>
