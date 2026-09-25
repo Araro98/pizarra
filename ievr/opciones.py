@@ -1019,6 +1019,25 @@ def _pasivas_fijas_por_identidad(identidad_hex, rama=1, arquetipo=None):
     return ids
 
 
+def tablero_diamante_parecido(posicion, elemento, tipo, arquetipo):
+    """Para un Diamante con semilla cuya combinacion (posicion, elemento, tipo,
+    arquetipo) no esta en `tableros-diamante.csv`: el tablero de la mas
+    parecida (misma posicion, tipo y arquetipo; si no, misma posicion,
+    elemento y arquetipo; si no, el mas comun de su posicion y arquetipo).
+    Las ranuras 4-5 salen seguras (la pareja del arquetipo); las 1-3 son
+    aproximadas (O-240). 0 si no hay nada."""
+    import collections
+    filas = reglas._tabla("tableros-diamante.csv")
+    arq = str(arquetipo if arquetipo in PAREJA_ARQUETIPO else 0)
+    for cond in (lambda f: f["posicion"] == posicion and f["tipo"] == str(tipo) and f["arquetipo"] == arq,
+                 lambda f: f["posicion"] == posicion and f["elemento"] == elemento and f["arquetipo"] == arq,
+                 lambda f: f["posicion"] == posicion and f["arquetipo"] == arq):
+        c = collections.Counter(f["tablero"] for f in filas if cond(f))
+        if c:
+            return int(c.most_common(1)[0][0], 16)
+    return 0
+
+
 def tablero_del_juego(identidad_hex, rareza, arquetipo, posicion="", elemento="", tipo=""):
     """La clave del tablero que el juego le asigna (0xBAFA8DBD, NOTAS O-169):
     Idolo -> el suyo (`tablero` de personajes.csv); Diamante -> el basara de su

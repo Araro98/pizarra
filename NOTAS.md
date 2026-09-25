@@ -5612,6 +5612,24 @@ ningun jugador o npc". De las 5.685 caras de `10_icon_chr/face`
 Pestana "Sin usar" en la Base de datos, con filtro por grupo y buscador; los
 no fichables abren su ficha. Los modelos 3D no se ensenan (no hay visor).
 
+### O-240 · Las pasivas fijas de Idolos y Diamantes, visibles en la ficha
+
+Aaron: "aunque sean fijas, no hay forma de verlas? en vez de vacias deberian
+salir las que tienen, sin poder cambiarlas" (Blazer Firefoot, Diamante).
+La ficha solo las sacaba de la tabla con numero o de `pasivas_fijas` sin el
+tablero; a un Diamante con semilla que el juego nunca sincronizo (tabla a
+cero) le salian cinco "vacia". `fijas_de_jugador` (servidor) las saca del
+tablero que el juego le tiene asignado (0xBAFA8DBD) y, en un Diamante, con su
+arquetipo elegido; lo usan la ficha y la suma de pasivas del equipo. Y a un
+Idolo o Diamante se le ensenan las fijas aunque la ficha traiga pasivas
+sueltas, porque el juego las ignora (Abuelo Danger llevaba dos).
+Blazer (POR, Fuego, tipo 4, Justicia) no tiene tablero apuntado y esa
+combinacion no esta en `tableros-diamante.csv` (O-169):
+`tablero_diamante_parecido` coge el de misma posicion, tipo y arquetipo, y
+la ficha avisa "las 4 y 5 seguras, las 1 a 3 sin confirmar". En la partida
+del 25: 59+30+34 Idolos y 128 Diamantes con las cinco; 2 aproximados
+(Blazer y Abuelo Danger); Destin Billows (entrenador) sin pasivas de jugador.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

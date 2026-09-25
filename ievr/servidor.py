@@ -660,6 +660,32 @@ def detalle_equipo(plain, i):
             "equipaciones": _valores_vistos(plain, "equipacion")}
 
 
+def fijas_de_jugador(plain, fila):
+    """(fijas, aproximadas): las 5 pasivas fijas que ensena el juego a un Idolo
+    o Diamante, del tablero que tiene asignado (0xBAFA8DBD) y, en un Diamante,
+    con su arquetipo elegido. Un Diamante con semilla sin tablero apuntado usa
+    el tablero mas parecido y lo dice (O-240). ([], False) si no es de esos."""
+    rareza = J.array(plain, J.ARRAY_RAREZA)[fila]
+    if rareza < 5:
+        return [], False
+    ident = "%08X" % J.array(plain, J.ARRAY_IDENTIDAD)[fila]
+    rama = _rama_abierta(plain, fila).get("cual", 1)
+    tablero_j = (J.array(plain, (J.F_TABLERO_JUEGO, 24000, "I", 4))[fila]
+                 if J.ocurrencias(plain, J.F_TABLERO_JUEGO, 24000) else 0)
+    arq = (E._arquetipo_diamante(plain, fila) if rareza == 8
+           else J.array(plain, (J.F_ARQUETIPO, 6000, "B", 1))[fila])
+    fijas = O.pasivas_fijas(ident, rama, arq, tablero_j or None)
+    if fijas or rareza != 8 or tablero_j:
+        return fijas, False
+    jug = O._por_identidad().get(ident) or {}
+    t = (O.tablero_del_juego(ident, 8, arq, jug.get("posicion") or "", jug.get("elemento") or "",
+                             O._tipo_fc(ident))
+         or O.tablero_diamante_parecido(jug.get("posicion") or "", jug.get("elemento") or "",
+                                        O._tipo_fc(ident), arq))
+    fijas = O.pasivas_de_tablero(t, rama) if t else []
+    return fijas, bool(fijas)
+
+
 def pasivas_de_equipo(plain, i):
     """Las pasivas de los miembros de un equipo, sumadas como las ensena el juego.
 
@@ -670,8 +696,6 @@ def pasivas_de_equipo(plain, i):
     e = EQ.leer(plain, i)
     valores = {f["id"].upper(): f for f in reglas._tabla("pasivas-valor.csv")}
     iconos = O.iconos_de_pasiva()
-    identidades = J.array(plain, J.ARRAY_IDENTIDAD)
-    arquetipos = J.array(plain, (J.F_ARQUETIPO, 6000, "B", 1))
     rarezas = J.array(plain, J.ARRAY_RAREZA)
     grupos = {}
     for m in e["miembros"]:
@@ -700,13 +724,13 @@ def pasivas_de_equipo(plain, i):
             continue
         # las fijas de un Idolo o Diamante nativo (campo a cero): las del tablero
         fijas = []
-        if not tabla and not any(plain[off:off + 20]):
-            fijas = O.pasivas_fijas("%08X" % identidades[fila], _rama_abierta(plain, fila).get("cual", 1),
-                                    arquetipos[fila])
+        if not tabla:
+            # las fijas de un Idolo o Diamante, como en su ficha (O-240)
+            fijas, _aprox = fijas_de_jugador(plain, fila)
         for k in range(5):
             idh = plain[offh + 4 * k:offh + 4 * k + 4].hex().upper()
             idn = plain[off + 4 * k:off + 4 * k + 4].hex().upper()
-            if idn == "00000000" and k < len(fijas):
+            if k < len(fijas) and fijas[k]:
                 idn = fijas[k]
             pid = idh if idh != "00000000" else idn
             valor_tabla = None
@@ -1105,8 +1129,13 @@ def detalle_jugador(plain, fila):
     offh, _ = E._campo(plain, fila, J.F_HEREDADAS)
     # Un Idolo o Diamante nativo lleva el campo a cero y el juego ensena las de
     # su tablero (NOTAS O-162): aqui se ensenan esas mismas
-    fijas = O.pasivas_fijas("%08X" % ident[fila], rama.get("cual", 1), arq[fila])
-    if fijas and not any(plain[off:off + 20]):
+    # con el tablero que le tiene puesto el juego y, en un Diamante, el
+    # arquetipo que eligio; un Diamante con semilla sin tablero, con el mas
+    # parecido, avisando (Aaron, O-240; O-169)
+    fijas, fijas_aproximadas = fijas_de_jugador(plain, fila)
+    # a un Idolo o Diamante el juego le ignora lo que haya en la ficha y
+    # ensena sus fijas (O-162; Abuelo Danger llevaba dos sueltas, O-240)
+    if fijas:
         fijas = fijas + [""] * 5
     else:
         fijas = []
@@ -1122,7 +1151,7 @@ def detalle_jugador(plain, fila):
     pasivas = []
     for k in range(5):
         idn = plain[off + 4 * k:off + 4 * k + 4].hex().upper()
-        if idn == "00000000" and fijas and fijas[k]:
+        if fijas and fijas[k]:
             idn = fijas[k]
         idh = plain[offh + 4 * k:offh + 4 * k + 4].hex().upper()
         iconos_p = O.iconos_de_pasiva()
@@ -1187,8 +1216,10 @@ def detalle_jugador(plain, fila):
         "equipos": E.equipos_del_jugador(plain, fila),
         "personalizada": _personalizada_de(plain, fila),
         "pasivas_bloqueadas": rareza[fila] >= 5,
-        "motivo_pasivas": (("fija: la pone el juego desde su tablero" if fijas
-                            else "son fijas y las pone el juego")
+        "motivo_pasivas": (("fijas del tablero de Diamante mas parecido: las 4 y 5 seguras, "
+                             "las 1 a 3 sin confirmar en el juego" if fijas_aproximadas
+                             else "fija: la pone el juego desde su tablero" if fijas
+                             else "son fijas y las pone el juego")
                            if rareza[fila] >= 5 else ""),
         "stats": ST.de_jugador(plain, fila),
         "equipacion": equipacion, "rama": rama, "tecnicas": arbol, "pasivas": pasivas,
