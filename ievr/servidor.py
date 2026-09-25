@@ -684,10 +684,14 @@ def fijas_de_jugador(plain, fila):
     if fijas or rareza != 8 or tablero_j:
         return fijas, False
     jug = O._por_identidad().get(ident) or {}
-    t = (O.tablero_del_juego(ident, 8, arq, jug.get("posicion") or "", jug.get("elemento") or "",
-                             O._tipo_fc(ident))
-         or O.tablero_diamante_parecido(jug.get("posicion") or "", jug.get("elemento") or "",
-                                        O._tipo_fc(ident), arq))
+    # el que pondria el juego para su combinacion, si se conoce: seguro
+    t = O.tablero_del_juego(ident, 8, arq, jug.get("posicion") or "", jug.get("elemento") or "",
+                            O._tipo_fc(ident))
+    if t:
+        return O.pasivas_de_tablero(t, rama), False
+    # si no, el mas parecido, avisando
+    t = O.tablero_diamante_parecido(jug.get("posicion") or "", jug.get("elemento") or "",
+                                    O._tipo_fc(ident), arq)
     fijas = O.pasivas_de_tablero(t, rama) if t else []
     return fijas, bool(fijas)
 

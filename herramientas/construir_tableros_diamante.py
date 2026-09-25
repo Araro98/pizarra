@@ -47,6 +47,12 @@ def volcar(fichero, tabla):
     return [l.split("\t") for l in r.stdout.splitlines()[1:] if l]
 
 
+# (posicion, elemento, tipo, arquetipo) -> tablero, visto en la partida de
+# Aaron. Blazer Firefoot (POR, Fuego, tipo 4) al elegir Justicia en el juego:
+# el de Justicia de Quentin Cinquedea (O-242).
+APRENDIDOS = {("POR", "Fuego", "4", 5): "EE48C1B3"}
+
+
 def main():
     chara = os.path.join(GAMEDATA, "character")
     b_info = volcar(unico(chara, "basara_chara_config"), "m_basaraBuildInfoList")
@@ -74,6 +80,11 @@ def main():
                 votos[clave + (int(t[0]),)]["%08X" % (int(t[1]) & 0xFFFFFFFF)] += 1
             except (ValueError, IndexError):
                 pass
+    # Lo visto en partidas: combinaciones que ningun Diamante basara tiene y
+    # que el juego ha asignado de verdad a un ascendido con semilla al elegir
+    # su arquetipo (O-242). Mandan sobre la votacion.
+    for clave, tablero in APRENDIDOS.items():
+        votos[clave] = collections.Counter({tablero: 10 ** 6})
     filas = [[*k, v.most_common(1)[0][0]] for k, v in sorted(votos.items())]
     with open(SALIDA, "w", newline="", encoding="utf-8") as fh:
         fh.write("# Tablero que le pone el juego a un Diamante sin tableros propios, por posicion, elemento, tipo (col 4 de chara_param) y arquetipo. NOTAS O-169.\n"

@@ -5647,6 +5647,19 @@ ficha lo explica. Arreglo propuesto: elegir su arquetipo de Diamante en el
 juego, que le asigna tablero y rellena las 3-5; con esa partida se aprende
 el tablero de POR/Fuego/tipo 4/Justicia para `tableros-diamante.csv`.
 
+### O-242 · Blazer, arreglado en el juego: su tablero de Justicia
+
+Aaron eligio en el juego el arquetipo de Diamante de Blazer (O-241) y le
+salieron las cinco: DF del muro +3,5 % cercanos, Valor propio de foco +7 % en
+campo propio, DF del muro +1,5 % distintos elementos y la pareja de
+Justicia. La partida lleva ahora el tablero `EE48C1B3` en 0xBAFA8DBD, que es
+el de Justicia de Quentin Cinquedea (POR, Fuego, tipo 3) y de Alexander
+Allegrov; la votacion de `tableros-diamante.csv` daba para POR/Fuego/Justicia
+`E358A3C2`. Apuntado como aprendido (`APRENDIDOS` en
+`construir_tableros_diamante.py`): POR, Fuego, tipo 4, Justicia ->
+`EE48C1B3`. El editor lo enseñaba ya igual que el juego; y con la partida de
+antes (sin tablero) ahora acierta las cinco sin avisar de aproximacion.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
