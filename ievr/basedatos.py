@@ -124,6 +124,7 @@ def personajes():
             r["saga"] = f.get("saga") or ""          # el juego de origen (O-208)
             r["apodo"] = f.get("apodo") or ""        # el apodo, para buscar (O-219)
             r.update(O.puede_llevar(ident))           # armadura / mixi / modo (O-222)
+            r["arbol_sube"] = O.stats_que_sube_el_arbol(ident, r["rareza_valor"])   # O-244
             r["fichable"] = "si" if ident in fichables else "no"   # O-205
             # Sin posicion no es alineable: son las versiones de historia
             # (c04002410_5000...) que no tienen cara, stats ni nada que ensenar.
@@ -170,6 +171,17 @@ def _stats_por_rareza(ident, familia, rareza_propia):
             fuera.append({"rareza": r, "nombre": NOMBRE_RAREZA.get(r, ""),
                           "multiplicador": ST.MULTIPLICADOR.get(r, 1.0),
                           "niveles": filas})
+    return fuera
+
+
+def _arbol_de_tablero_bd(ident, rareza):
+    """El arbol de stats de un Idolo o Diamante, con la misma forma que
+    `_arbol_de`: [{stat, suma}] por trozo (O-244)."""
+    t = O.tablero_de_personaje(ident, rareza)
+    fuera = {"tronco": [], "rama1": [], "rama2": []}
+    for _c, tramo, stat, valor in sorted(O.stats_de_tablero(t)):
+        if tramo in fuera:
+            fuera[tramo].append({"stat": stat, "suma": valor})
     return fuera
 
 
@@ -356,8 +368,10 @@ def personaje(identidad):
         "equipacion_icono": O._equipacion_por_identidad().get(ident, ""),
         "stats": _stats_por_rareza(ident, f.get("rareza"), int(f.get("rareza_valor") or 0)),
         "nombres_stats": ST.NOMBRES,
-        "arbol": _arbol_de(clave[0], clave[1]),
-        "arbol_conocido": (f.get("rareza") == "normal"),
+        "arbol": (_arbol_de(clave[0], clave[1]) if f.get("rareza") == "normal"
+                  else _arbol_de_tablero_bd(ident, int(f.get("rareza_valor") or 0))),
+        # el de Idolos y Diamantes sale de las casillas de stat de su tablero (O-244)
+        "arbol_conocido": True,
         "tecnicas": tecnicas,
         "pasivas": _pasivas_de(ident, r),
         "apt_entrenador": bool(f.get("apt_entrenador")),

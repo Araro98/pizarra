@@ -5672,6 +5672,28 @@ Contraataque 16 -> "+15 %", PP 21 -> "+20 %"); la pastilla sigue con
 suma/tope. Y la Calculadora sumaba la suma entera: ahora cuenta el tope,
 que es lo que vale en el partido.
 
+### O-244 · Las casillas de stat de los tableros de Idolos y Diamantes
+
+Aaron: "busca en las tablas de los Diamantes las pasivas que suben stats
+(Agilidad +x...); en el juego todas suman +10; quiero ver en que stat cada
+uno y filtrarlo". `construir_tableros.py` dejaba fuera las pasivas de stat
+(`ps2FFTT`, O-110); ahora las escribe en `tableros-stats.csv` (7.330
+casillas de 871 tableros). Un tablero de Diamante (28 casillas) lleva 8: dos
+en el tronco (5, 6) y tres en cada rama (10, 14, 16 / 20, 24, 26), casi
+siempre +10 (algunos basara mezclan +3/+5/+7). Blazer (EE48C1B3): tronco
+Fisico y Tecnica; rama 1 Agilidad y Presion x2; rama 2 Tecnica y Fisico x2.
+Los de Idolo tienen 17-27 casillas con +3 a +10.
+- `stats.de_arbol` suma a Idolos y Diamantes las casillas abiertas de su
+  tablero, del tronco y de la rama que juega (hay Diamantes con las dos
+  ramas abiertas en el mapa). En la partida: Diamantes al 99 con +50 casi
+  todos, Idolos +15 a +28. Se quita el aviso "les falta lo del arbol".
+- Fichar y la Base de datos: stats y poder al 99 de Idolos y Diamantes
+  (y "con semilla") con su tablero, como los normales (O-236).
+- Filtro "El arbol sube" (varios valores: `multi` en `montaFiltros`) en
+  Jugadores, la reserva, Fichar y la Base de datos. Para un jugador de la
+  partida, con su tablero real; en Fichar y la Base de datos, con el que le
+  tocaria recien fichado. La ficha de la Base de datos ensena su arbol.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

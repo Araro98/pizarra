@@ -211,8 +211,10 @@ function montaFiltros(caja, datos, campos, estado, alCambiar) {
   for (const c of campos) {
     const cuenta = new Map();
     for (const d of datos) {
-      const v = String(c.valor ? c.valor(d) : (d[c.campo] ?? ""));
-      if (v) cuenta.set(v, (cuenta.get(v) || 0) + 1);
+      // c.multi: el valor es una lista (un Diamante sube varios stats, O-244)
+      const vs = c.multi ? [].concat(c.valor ? c.valor(d) : (d[c.campo] || []))
+                         : [c.valor ? c.valor(d) : (d[c.campo] ?? "")];
+      for (const x of vs) { const v = String(x ?? ""); if (v) cuenta.set(v, (cuenta.get(v) || 0) + 1); }
     }
     // un filtro con un solo valor no dice nada... salvo los de "si"/nada
     // (Armadura, Mixi max, Modo), que se piden aunque solo haya "si" (O-222)
@@ -238,6 +240,11 @@ function pasaFiltros(d, campos, estado) {
   for (const c of campos) {
     const q = estado[c.campo];
     if (!q) continue;
+    if (c.multi) {
+      const vs = [].concat(c.valor ? c.valor(d) : (d[c.campo] || [])).map(String);
+      if (!vs.includes(q)) return false;
+      continue;
+    }
     const v = String(c.valor ? c.valor(d) : (d[c.campo] ?? ""));
     if (v !== q) return false;
   }

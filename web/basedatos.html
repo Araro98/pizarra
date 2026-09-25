@@ -211,6 +211,8 @@ const FILTROS_PER = [
   {campo:"mixi", etiqueta:"Mixi max", siempre:true},
   {campo:"modo", etiqueta:"Modo", siempre:true},
   {campo:"fichable", etiqueta:"Se puede fichar"},
+  // que stats sube su arbol (en Idolos y Diamantes, por su tablero; O-244)
+  {campo:"arbol_sube", etiqueta:"El arbol sube", multi:true, orden:v => NOMBRE_STAT.indexOf(v)},
 ];
 const estadoPer = {};
 let abierto = null;
@@ -345,7 +347,7 @@ async function abrePersonaje(p) {
   caja.appendChild(el("div", {style:"overflow-x:auto"}, [tabla]));
   caja.appendChild(el("p", {class:"nota", text:"Sin judias ni equipacion. Rango " + d.rango
     + ", patron de crecimiento " + d.patron + ". La ultima columna suma el arbol entero"
-    + (d.arbol_conocido ? " (tronco, rama 1 y rama 2; en el juego solo se juega una rama)." : "; el arbol de Idolos y Diamantes no esta descifrado, asi que aqui no se suma.")}));
+    + " (tronco, rama 1 y rama 2; en el juego solo se juega una rama)."}));
 
   // --- arbol
   caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Arbol de habilidades: que stat sube"})]));

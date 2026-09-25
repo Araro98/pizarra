@@ -645,6 +645,35 @@ def jugadores_de_tecnica(fila_tecnica):
     return n, ("Combinada" if n > 1 else "Individual")
 
 
+def stats_que_sube_el_arbol_de(plain, fila):
+    """Lo mismo para un jugador de la partida: un Idolo o Diamante con el
+    tablero que tiene de verdad (el de su arquetipo elegido)."""
+    from ievr import stats as ST
+    rareza = J.array(plain, J.ARRAY_RAREZA)[fila]
+    if rareza < 5:
+        return stats_que_sube_el_arbol("%08X" % J.array(plain, J.ARRAY_IDENTIDAD)[fila], rareza)
+    a = arbol_de_tablero(tablero_de_jugador(plain, fila)[0])
+    return [ST.NOMBRES[k] for k in range(7) if a["tronco"][k] or a["rama1"][k] or a["rama2"][k]]
+
+
+def stats_que_sube_el_arbol(clave, rareza):
+    """Los stats que sube el arbol de ese personaje con esa rareza (tronco y
+    las dos ramas), para filtrar (O-244). Normales: los de su posicion."""
+    from ievr import stats as ST
+    if rareza >= 5:
+        a = arbol_de_tablero(tablero_de_personaje(clave, rareza))
+        return [ST.NOMBRES[k] for k in range(7) if a["tronco"][k] or a["rama1"][k] or a["rama2"][k]]
+    cl = ST._claves().get(clave.upper())
+    if not cl:
+        return []
+    listas = ST._listas_del_arbol()
+    fuera = set()
+    for lista, codigo, cuales in (("principal", cl[0], (0, 1, 2)), ("secundaria", cl[1], (0, 1, 2))):
+        nombres = listas.get((lista, codigo)) or []
+        fuera.update(nombres[k] for k in cuales if k < len(nombres) and nombres[k])
+    return [n for n in ST.NOMBRES if n in fuera]
+
+
 def _stats99(clave, rareza):
     from ievr import stats as ST
     b = ST.base(int(clave, 16), 99, rareza)
@@ -660,7 +689,9 @@ def _stats99_con_arbol(clave, rareza):
     from ievr import stats as ST
     base = _stats99(clave, rareza)
     if rareza >= 5:
-        return base
+        # Idolos y Diamantes: las casillas de stat de su tablero (O-244)
+        a = arbol_de_tablero(tablero_de_personaje(clave, rareza))
+        return [base[k] + a["tronco"][k] + max(a["rama1"][k], a["rama2"][k]) for k in range(7)]
     cl = ST._claves().get(clave.upper())
     if not cl:
         return base
@@ -683,7 +714,8 @@ def _poder99_con_arbol(clave, rareza):
     rama, que en el juego no se juegan las dos (las dos suman lo mismo, 15)."""
     base = sum(_stats99(clave, rareza))
     if rareza >= 5:
-        return base
+        a = arbol_de_tablero(tablero_de_personaje(clave, rareza))
+        return base + sum(a["tronco"]) + max(sum(a["rama1"]), sum(a["rama2"]))
     from ievr import stats as ST
     return base + (3 + 5 + 3 + 5 + 7 if ST._claves().get(clave.upper()) else 0)
 
@@ -741,7 +773,11 @@ def personajes_creables(plain):
             # (los de un normal, con lo que suma su arbol: Aaron, O-236)
             "stats_propios": _stats99_con_arbol(clave, int(ficha.get("rareza_valor") or 0)),
             "poder_propio": _poder99_con_arbol(clave, int(ficha.get("rareza_valor") or 0)),
-            "stats_diamante": _stats99(clave, 8),
+            # como Diamante (con semilla), con su tablero de Diamante (O-244)
+            "stats_diamante": _stats99_con_arbol(clave, 8),
+            "poder_diamante": _poder99_con_arbol(clave, 8),
+            "arbol_sube": stats_que_sube_el_arbol(clave, int(ficha.get("rareza_valor") or 0)),
+            "arbol_sube_diamante": stats_que_sube_el_arbol(clave, 8),
         })
     vistos, unicos = set(), []
     for o in sorted(fuera, key=lambda x: (x["nombre"] or "").lower()):
@@ -1017,6 +1053,78 @@ def _pasivas_fijas_por_identidad(identidad_hex, rama=1, arquetipo=None):
             pareja = tuple(del_tablero[-2:])
         ids = ids[:3] + list(pareja)
     return ids
+
+
+def stats_de_tablero(tablero):
+    """[(casilla, tramo, stat, valor)] de las casillas de stat de un tablero
+    (`tableros-stats.csv`, O-244). [] si no se conoce."""
+    def construir():
+        d = {}
+        for f in reglas._tabla("tableros-stats.csv"):
+            d.setdefault(int(f["tablero"], 16), []).append(
+                (int(f["casilla"]), f["tramo"], f["stat"], int(float(f["valor"] or 0))))
+        return d
+    return _indice("stats_de_tablero", construir).get(int(tablero or 0), [])
+
+
+def arbol_de_tablero(tablero):
+    """{"tronco": [7], "rama1": [7], "rama2": [7]}: cuanto suma a cada stat
+    cada trozo del tablero (O-244), en el orden de ST.NOMBRES."""
+    from ievr import stats as ST
+    fuera = {"tronco": [0] * 7, "rama1": [0] * 7, "rama2": [0] * 7}
+    for _c, tramo, stat, valor in stats_de_tablero(tablero):
+        if stat in ST.NOMBRES and tramo in fuera:
+            fuera[tramo][ST.NOMBRES.index(stat)] += valor
+    return fuera
+
+
+def tablero_de_personaje(identidad_hex, rareza):
+    """El tablero que tendria ese personaje con esa rareza recien fichado:
+    un Idolo, el suyo; un Diamante nativo, el basara de su primer arquetipo;
+    un normal hecho Diamante con semilla, el generico (o el mas parecido)
+    con su arquetipo de normal. 0 si es un normal (O-244)."""
+    ident = identidad_hex.upper()
+    if rareza < 5:
+        return 0
+    if 5 <= rareza <= 7:
+        return tablero_del_juego(ident, rareza, None)
+    ficha = reglas.personajes().get(ident) or {}
+    jug = _por_identidad().get(ident) or {}
+    arq = None
+    if not arquetipos_elegibles(ident):
+        try:
+            arq = int(ficha.get("arquetipo_valor") or 0)
+        except ValueError:
+            arq = 0
+    t = tablero_del_juego(ident, 8, arq, jug.get("posicion") or "", jug.get("elemento") or "",
+                          _tipo_fc(ident))
+    return t or tablero_diamante_parecido(jug.get("posicion") or "", jug.get("elemento") or "",
+                                          _tipo_fc(ident), arq)
+
+
+def tablero_de_jugador(plain, fila):
+    """(tablero, aproximado) del jugador de esa fila: el que le tiene puesto el
+    juego (0xBAFA8DBD); un Diamante con semilla sin tablero, el que le pondria
+    el juego por su combinacion o, si no se conoce, el mas parecido (O-240,
+    O-244). (0, False) si es un normal."""
+    rareza = J.array(plain, J.ARRAY_RAREZA)[fila]
+    if rareza < 5:
+        return 0, False
+    ident = "%08X" % J.array(plain, J.ARRAY_IDENTIDAD)[fila]
+    t = (J.array(plain, (J.F_TABLERO_JUEGO, 24000, "I", 4))[fila]
+         if J.ocurrencias(plain, J.F_TABLERO_JUEGO, 24000) else 0)
+    if t:
+        return t, False
+    from ievr import escribir as E
+    arq = (E._arquetipo_diamante(plain, fila) if rareza == 8
+           else J.array(plain, (J.F_ARQUETIPO, 6000, "B", 1))[fila])
+    jug = _por_identidad().get(ident) or {}
+    t = tablero_del_juego(ident, rareza, arq, jug.get("posicion") or "", jug.get("elemento") or "",
+                          _tipo_fc(ident))
+    if t or rareza != 8:
+        return t, False
+    return tablero_diamante_parecido(jug.get("posicion") or "", jug.get("elemento") or "",
+                                     _tipo_fc(ident), arq), True
 
 
 def tablero_diamante_parecido(posicion, elemento, tipo, arquetipo):

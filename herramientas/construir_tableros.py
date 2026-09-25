@@ -24,6 +24,9 @@ from ievr import reglas  # noqa: E402
 VOLCADO = os.path.join(RAIZ, "referencia", "volcado", "target", "release", "volcado.exe")
 GAMEDATA = os.path.join(RAIZ, "datos", "juego", "extracted", "data", "common", "gamedata")
 SALIDA = os.path.join(RAIZ, "datos", "reglas-extraidas", "tableros.csv")
+# las casillas de stat de cada tablero (Idolos y Diamantes): +3/+5/+7/+10 a un
+# stat, O-244
+SALIDA_STATS = os.path.join(RAIZ, "datos", "reglas-extraidas", "tableros-stats.csv")
 
 
 def unico(carpeta, prefijo):
@@ -55,9 +58,12 @@ def main():
     skill = unico(os.path.join(GAMEDATA, "skill"), "ability_learning_config")
     info = volcar(skill, "ABILITY_LEARNING_BOARD_INFO_LIST")
     efectos = volcar(skill, "ABILITY_LEARNING_BOARD_EFFECT_LIST")
-    pasivas = {f["id"].upper() for f in reglas._tabla("pasivas-valor.csv")
-               if not (f.get("familia") or "").startswith("stat_")}
-    filas = []
+    valores = {f["id"].upper(): f for f in reglas._tabla("pasivas-valor.csv")}
+    pasivas = {i for i, f in valores.items() if not (f.get("familia") or "").startswith("stat_")}
+    nombre_stat = {"stat_potencia": "Potencia", "stat_control": "Control", "stat_tecnica": "Tecnica",
+                   "stat_presion": "Presion", "stat_fisico": "Fisico", "stat_agilidad": "Agilidad",
+                   "stat_inteligencia": "Inteligencia"}
+    filas, filas_stats = [], []
     for i in range(0, len(info) - 1, 2):
         if len(info[i]) != 2 or len(info[i + 1]) != 2:
             continue
@@ -72,6 +78,10 @@ def main():
             pid = como_en_partida(e[0]) if e else ""
             if pid in pasivas:
                 filas.append(["%08X" % clave, n, tramo_de(k, n), k, e[1] if len(e) > 1 else "", pid])
+            f = valores.get(pid) or {}
+            if f.get("familia") in nombre_stat:
+                filas_stats.append(["%08X" % clave, n, tramo_de(k, n), k,
+                                    nombre_stat[f["familia"]], f.get("valor") or "0"])
     with open(SALIDA, "w", newline="", encoding="utf-8") as fh:
         fh.write("# Las pasivas de cada tablero de habilidades del juego, por casilla (NOTAS O-169).\n"
                  "# tablero = la clave que la partida guarda por jugador en 0xBAFA8DBD; pasiva_id como en la partida.\n"
@@ -80,6 +90,14 @@ def main():
         w.writerow(["tablero", "casillas", "tramo", "casilla", "nivel", "pasiva_id"])
         w.writerows(filas)
     print("Escritas %d filas (%d tableros) en %s" % (len(filas), len({f[0] for f in filas}), SALIDA))
+    with open(SALIDA_STATS, "w", newline="", encoding="utf-8") as fh:
+        fh.write("# Las casillas de stat de cada tablero de habilidades (NOTAS O-244): tramo, casilla,\n"
+                 "# stat y cuanto suma. Lo genera herramientas/construir_tableros.py.\n")
+        w = csv.writer(fh)
+        w.writerow(["tablero", "casillas", "tramo", "casilla", "stat", "valor"])
+        w.writerows(filas_stats)
+    print("Escritas %d casillas de stat (%d tableros) en %s"
+          % (len(filas_stats), len({f[0] for f in filas_stats}), SALIDA_STATS))
     return 0
 
 

@@ -364,6 +364,8 @@ def _ficha_corta(plain, fila, ident, nivel, rareza, arq, jugadores):
     f = jugadores.get(clave)
     estado = _estado_de(plain, fila, nivel[fila])
     return {
+        # que stats sube su arbol (O-244), para el filtro "El arbol sube"
+        "arbol_sube": O.stats_que_sube_el_arbol_de(plain, fila),
         "nivel_grupo": "99" if nivel[fila] >= 99 else
                        "80-98" if nivel[fila] >= 80 else
                        "50-79" if nivel[fila] >= 50 else
@@ -969,11 +971,14 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
                ("elemento", "posicion", "rareza", "arquetipo", "equipo", "saga",
                 "armadura", "mixi", "modo",
                 "nivel_grupo", "judias", "heredadas", "equipacion", "rol",
-                "cuerpo_tipo", "mi_equipo")}
+                "cuerpo_tipo", "mi_equipo", "arbol_sube")}
     for d in todos:
         for c in cuentas:
             if c == "mi_equipo":
                 for n in d["mis_equipos"]:
+                    cuentas[c][n] += 1
+            elif c == "arbol_sube":
+                for n in d.get("arbol_sube") or []:
                     cuentas[c][n] += 1
             elif d.get(c):
                 cuentas[c][d[c]] += 1
@@ -988,6 +993,9 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
             # "mi_equipo" es una lista: un jugador puede estar en varios
             if campo == "mi_equipo":
                 if valor not in d["mis_equipos"]:
+                    return False
+            elif campo == "arbol_sube":
+                if valor not in (d.get("arbol_sube") or []):
                     return False
             elif d.get(campo) != valor:
                 return False
@@ -1412,7 +1420,7 @@ class Manejador(BaseHTTPRequestHandler):
                            for c in ("elemento", "posicion", "rareza",
                                      "arquetipo", "equipo", "saga", "armadura", "mixi", "modo", "nivel_grupo",
                                      "judias", "heredadas", "equipacion", "rol",
-                                     "cuerpo_tipo", "mi_equipo")}
+                                     "cuerpo_tipo", "mi_equipo", "arbol_sube")}
                 with sesion.lock:
                     return self._responder(200, listar_jugadores(
                         sesion.plain, (q.get("q") or [""])[0], filtros,

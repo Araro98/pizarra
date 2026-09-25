@@ -182,7 +182,32 @@ def de_arbol(plain, fila):
     detalle = []
     rareza = J.array(plain, J.ARRAY_RAREZA)[fila]
     if rareza not in RAREZAS_CON_ARBOL_CONOCIDO:
-        return suma, detalle, False
+        # Idolos y Diamantes: las casillas de stat de su tablero que tenga
+        # abiertas (O-244). Los numeros van por casilla del propio tablero.
+        tablero, _aprox = O.tablero_de_jugador(plain, fila)
+        casillas = O.stats_de_tablero(tablero)
+        if not casillas:
+            return suma, detalle, False
+        try:
+            off, n = E._campo(plain, fila, J.F_TABLERO)
+        except E.Ilegal:
+            return suma, detalle, False
+        mapa = plain[off:off + n]
+        # solo el tronco y la rama que juega: hay Diamantes con las casillas de
+        # las dos ramas abiertas en el mapa, y en el juego se juega una
+        try:
+            import struct as _st
+            offr, _ = E._campo(plain, fila, J.F_RAMA)
+            rama = "rama2" if _st.unpack_from("<I", plain, offr)[0] == 1 else "rama1"
+        except E.Ilegal:
+            rama = "rama1"
+        for casilla, tramo, stat, valor in casillas:
+            if tramo not in ("tronco", rama):
+                continue
+            if casilla < len(mapa) and mapa[casilla] and stat in NOMBRES:
+                suma[NOMBRES.index(stat)] += valor
+                detalle.append({"casilla": casilla, "stat": stat, "suma": valor})
+        return suma, detalle, True
     identidad = J.array(plain, J.ARRAY_IDENTIDAD)[fila]
     clave = _claves().get("%08X" % identidad)
     if not clave:

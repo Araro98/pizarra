@@ -1073,6 +1073,8 @@ const CAMPOS_FILTRO = [["elemento","Afinidad"],["posicion","Posicion"],
   // "Mi equipo" son los equipos guardados de Aaron, con su cuerpo tecnico;
   // "Equipo" a secas es el equipo del personaje en la historia (NOTAS O-181)
   ["mi_equipo","Mi equipo"],
+  // que stats sube su arbol (O-244)
+  ["arbol_sube","El arbol sube"],
   // Estos cuatro no vienen del personaje sino de COMO esta el jugador, que es
   // lo que hace falta para buscar "a quien le queda algo por terminar".
   ["nivel_grupo","Nivel"],["judias","Judias"],["heredadas","Heredadas"],
@@ -1426,8 +1428,7 @@ function panelStats(d) {
   caja.appendChild(el("div", {class:"nota", text:
     (s.exacto ? "Base del juego x rareza + arbol + judias + equipacion."
               : "Aproximado al nivel " + s.nivel + " (exacto a 1, 30, 50 y 99).") +
-    (s.arbol_sabido ? "" : " A los Idolos y Diamantes les falta lo del arbol de "
-      + "habilidades (unos 20-50 puntos), que tienen tablero propio.")}));
+    (s.arbol_sabido ? "" : " De este no se conoce el tablero, asi que falta lo del arbol.")}));
   return caja;
 }
 
@@ -2607,6 +2608,10 @@ const FILTROS_RES = [
   {campo:"armadura", etiqueta:"Armadura", siempre:true},
   {campo:"mixi",     etiqueta:"Mixi max", siempre:true},
   {campo:"modo",     etiqueta:"Modo", siempre:true},
+  // que stats sube su arbol, en Diamantes por el tablero (O-244)
+  {campo:"arbol_sube", etiqueta:"El arbol sube", multi:true,
+   valor:d => (familiaPer === "semilla" && d.arbol_sube_diamante) ? d.arbol_sube_diamante : (d.arbol_sube || []),
+   orden:v => STATS.indexOf(v)},
   {campo:"nivel_grupo", etiqueta:"Nivel"},
   {campo:"cuerpo_tipo", etiqueta:"Cuerpo"},
 ];
@@ -3263,6 +3268,10 @@ const FILTROS_PER = [
   {campo:"armadura", etiqueta:"Armadura", siempre:true},
   {campo:"mixi",     etiqueta:"Mixi max", siempre:true},
   {campo:"modo",     etiqueta:"Modo", siempre:true},
+  // que stats sube su arbol, en Diamantes por el tablero (O-244)
+  {campo:"arbol_sube", etiqueta:"El arbol sube", multi:true,
+   valor:d => (familiaPer === "semilla" && d.arbol_sube_diamante) ? d.arbol_sube_diamante : (d.arbol_sube || []),
+   orden:v => STATS.indexOf(v)},
   {campo:"se_puede", etiqueta:"Se puede fichar",
    valor:d => d.se_puede ? "si" : "no"},
   {campo:"cuerpo_tipo", etiqueta:"Cuerpo"},
@@ -3302,8 +3311,9 @@ async function cargaPersonajes(recargar) {
   const comoDiamante = familiaPer === "semilla";
   // con semilla, todos son Diamantes: sus stats son los de Diamante
   for (const c of deLaFamilia) { c.stats = comoDiamante ? c.stats_diamante : c.stats_propios;
-    // el poder con el arbol cuenta el tronco y UNA rama (O-236)
-    c.poder = !comoDiamante && c.poder_propio ? c.poder_propio : (c.stats || []).reduce((a, b) => a + b, 0); }
+    // el poder con el arbol cuenta el tronco y UNA rama (O-236, O-244)
+    const pp = comoDiamante ? c.poder_diamante : c.poder_propio;
+    c.poder = pp || (c.stats || []).reduce((a, b) => a + b, 0); }
   montaFiltros($("#filtros-per"), deLaFamilia, FILTROS_PER, estadoPer,
                () => { desdePer = 0; cargaPersonajes(); });
   const cajaPer = $("#filtros-per");
