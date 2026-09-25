@@ -50,7 +50,10 @@ def volcar(fichero, tabla):
 # (posicion, elemento, tipo, arquetipo) -> tablero, visto en la partida de
 # Aaron. Blazer Firefoot (POR, Fuego, tipo 4) al elegir Justicia en el juego:
 # el de Justicia de Quentin Cinquedea (O-242).
-APRENDIDOS = {("POR", "Fuego", "4", 5): "EE48C1B3"}
+# Abuelo Danger (DEF, Fuego, tipo 3) al elegir Justicia: 0C00C5E1, el que el
+# editor ya suponia por parecido.
+APRENDIDOS = {("POR", "Fuego", "4", 5): "EE48C1B3",
+              ("DEF", "Fuego", "3", 5): "0C00C5E1"}
 
 
 def main():

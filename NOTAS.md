@@ -5659,6 +5659,9 @@ Allegrov; la votacion de `tableros-diamante.csv` daba para POR/Fuego/Justicia
 `construir_tableros_diamante.py`): POR, Fuego, tipo 4, Justicia ->
 `EE48C1B3`. El editor lo enseñaba ya igual que el juego; y con la partida de
 antes (sin tablero) ahora acierta las cinco sin avisar de aproximacion.
+Lo mismo con Abuelo Danger (DEF, Fuego, tipo 3, Justicia): el juego le
+puso `0C00C5E1`, justo el que el editor habia supuesto por parecido (sus
+cinco pasivas coinciden con la captura). Apuntado tambien.
 
 ## SUPUESTO
 
