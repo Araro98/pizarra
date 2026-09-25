@@ -5663,6 +5663,15 @@ Lo mismo con Abuelo Danger (DEF, Fuego, tipo 3, Justicia): el juego le
 puso `0C00C5E1`, justo el que el editor habia supuesto por parecido (sus
 cinco pasivas coinciden con la captura). Apuntado tambien.
 
+### O-243 · Suma de pasivas: si se pasa del tope, el texto dice el tope
+
+Aaron: "cuando te pasas del limite, en el texto de la pasiva pon el numero
+del tope, no la suma; la pastilla roja esta perfecta". `pasivas_de_equipo`
+rellena `<VALUE>` con el tope cuando `estado` es "pasa" (TRAINERS: Conf.
+Contraataque 16 -> "+15 %", PP 21 -> "+20 %"); la pastilla sigue con
+suma/tope. Y la Calculadora sumaba la suma entera: ahora cuenta el tope,
+que es lo que vale en el partido.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

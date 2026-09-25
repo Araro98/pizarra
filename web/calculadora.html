@@ -429,7 +429,9 @@ function elementoFactor(L, R) {
 /* la suma de las pasivas encendidas del equipo de L que tocan esas familias */
 function pasivasDe(L, familias) {
   let pct = 0;
-  for (const g of L.pasivasEquipo) if (g.activa && familias.includes(g.familia)) pct += g.valor;
+  // lo que pasa del tope no cuenta en el partido (O-176, O-243)
+  for (const g of L.pasivasEquipo) if (g.activa && familias.includes(g.familia))
+    pct += g.estado === "pasa" && g.limite != null ? Math.sign(g.valor) * g.limite : g.valor;
   return Math.round(pct * 100) / 100;
 }
 function signo(n) { return (n >= 0 ? "+" : "") + n + "%"; }
