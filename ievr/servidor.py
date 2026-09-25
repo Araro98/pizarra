@@ -660,6 +660,12 @@ def detalle_equipo(plain, i):
             "equipaciones": _valores_vistos(plain, "equipacion")}
 
 
+# `swap_team_passive_03..05`: lo que deja el juego en las ranuras 3-5 de la
+# tabla de un Diamante con semilla sin tablero ni arquetipo aplicado; en el
+# juego salen vacias (Blazer Firefoot, O-241)
+HUECOS_SIN_ARQUETIPO = {"D49FB96D", "770ADDF3", "E13ADA84"}
+
+
 def fijas_de_jugador(plain, fila):
     """(fijas, aproximadas): las 5 pasivas fijas que ensena el juego a un Idolo
     o Diamante, del tablero que tiene asignado (0xBAFA8DBD) y, en un Diamante,
@@ -1216,8 +1222,11 @@ def detalle_jugador(plain, fila):
         "equipos": E.equipos_del_jugador(plain, fila),
         "personalizada": _personalizada_de(plain, fila),
         "pasivas_bloqueadas": rareza[fila] >= 5,
-        "motivo_pasivas": (("fijas del tablero de Diamante mas parecido: las 4 y 5 seguras, "
-                             "las 1 a 3 sin confirmar en el juego" if fijas_aproximadas
+        "motivo_pasivas": (("las que ensena el juego; las vacias son huecos a la espera de "
+                             "que elijas su arquetipo de Diamante en el juego"
+                             if tabla and rareza[fila] == 8 and any(x["id"] in HUECOS_SIN_ARQUETIPO for x in tabla)
+                             else "fijas del tablero de Diamante mas parecido: las 4 y 5 seguras, "
+                             "las 1 a 3 sin confirmar en el juego" if fijas_aproximadas and not tabla
                              else "fija: la pone el juego desde su tablero" if fijas
                              else "son fijas y las pone el juego")
                            if rareza[fila] >= 5 else ""),

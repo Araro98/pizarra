@@ -5630,6 +5630,23 @@ la ficha avisa "las 4 y 5 seguras, las 1 a 3 sin confirmar". En la partida
 del 25: 59+30+34 Idolos y 128 Diamantes con las cinco; 2 aproximados
 (Blazer y Abuelo Danger); Destin Billows (entrenador) sin pasivas de jugador.
 
+### O-241 · Blazer en el juego: dos pasivas y tres huecos (`swap_team_passive`)
+
+Aaron mando la foto del juego: Blazer Firefoot (Diamante con semilla, sin
+tablero apuntado) ensena "PP del equipo +3,5 %" y "DF del muro +1,5 % mismo
+elemento" y las ranuras 3-5 vacias (sale MC porque esta de MC en la
+formacion: es portero, esta bien). En la partida de la manana del 25 el
+juego le escribio la ficha (ranuras 1-2: `38C0FBBB` y `CFAFEE09`, sorteadas
+como a un fichado del universo, O-169) y en la tabla con numero las 1-2 en
+version Leyenda y en las 3-5 tres ids sin texto: `D49FB96D`, `770ADDF3`,
+`E13ADA84` = `swap_team_passive_03..05` (valor 0). Son huecos que el juego
+rellena al aplicar un arquetipo de Diamante. Es el unico jugador de la
+partida con ellos.
+El editor ya ensena lo mismo que el juego (la tabla manda), y el aviso de la
+ficha lo explica. Arreglo propuesto: elegir su arquetipo de Diamante en el
+juego, que le asigna tablero y rellena las 3-5; con esa partida se aprende
+el tablero de POR/Fuego/tipo 4/Justicia para `tableros-diamante.csv`.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
