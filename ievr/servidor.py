@@ -234,6 +234,11 @@ class Sesion:
             plain, info = EQ.arreglar_cabeceras(self.plain)
             self._paso(plain, {"que": "capitan y entrenador de equipo puestos al dia", "equipos": info["equipos"]})
             fuera["cabeceras"] = info["equipos"]
+        fuera["diamantes"] = 0
+        if E.diamantes_desajustados(self.plain):
+            plain, info = E.arreglar_diamantes(self.plain)
+            self._paso(plain, {"que": "pasivas de Diamante con su arquetipo", "jugadores": info["jugadores"]})
+            fuera["diamantes"] = info["jugadores"]
         fuera["tablas"] = 0
         if E.tablas_desajustadas(self.plain):
             plain, info = E.arreglar_tablas(self.plain)
@@ -668,6 +673,11 @@ def detalle_equipo(plain, i):
 HUECOS_SIN_ARQUETIPO = {"D49FB96D", "770ADDF3", "E13ADA84"}
 
 
+def _tablero_guardado(plain, fila):
+    return (J.array(plain, (J.F_TABLERO_JUEGO, 24000, "I", 4))[fila]
+            if J.ocurrencias(plain, J.F_TABLERO_JUEGO, 24000) else 0)
+
+
 def fijas_de_jugador(plain, fila):
     """(fijas, aproximadas): las 5 pasivas fijas que ensena el juego a un Idolo
     o Diamante, del tablero que tiene asignado (0xBAFA8DBD) y, en un Diamante,
@@ -728,6 +738,8 @@ def pasivas_de_equipo(plain, i):
         tabla = J.tabla_pasivas(plain, fila)
         if not any(x["id"] != "00000000" for x in tabla):
             tabla = []
+        if tabla and rarezas[fila] >= 5 and _tablero_guardado(plain, fila):
+            tabla = []          # manda su tablero, como en la ficha (O-245)
         # el entrenador y los gerentes solo suman sus pasivas de personal (la
         # tabla con numero, O-185): un convertido que aun no tiene ninguna no
         # aporta nada, ni las que le quedan de jugador ni la personalizada
@@ -1016,6 +1028,7 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
         "cabeceras_desajustadas": len(EQ.cabeceras_desajustadas(plain)) if not cuantos else 0,
         "pasivas_ilegales_mochila": len(E.pasivas_ilegales_en_mochila(plain)) if not cuantos else 0,
         "tablas_desajustadas": len(E.tablas_desajustadas(plain)) if not cuantos else 0,
+        "diamantes_desajustados": len(E.diamantes_desajustados(plain)) if not cuantos else 0,
         "personal_desajustado": len({f for f, _ in E.pasivas_personal_desajustadas(plain)}) if not cuantos else 0,
         "jugadores": trozo,
         # el hueco va con el nombre para poder ensenar las pasivas sumadas de
@@ -1170,6 +1183,11 @@ def detalle_jugador(plain, fila):
     if E.rol_de_personal(plain, fila) in ("gerente", "entrenador"):
         tabla = []
     if not any(x["id"] != "00000000" for x in tabla):
+        tabla = []
+    # un Idolo o Diamante con tablero puesto ensena las de su tablero: la
+    # tabla se queda con las del arquetipo anterior hasta que el juego la
+    # refresca (Raika, O-166; O-245). Sin tablero manda la tabla (Blazer, O-241)
+    if tabla and _tablero_guardado(plain, fila) and fijas:
         tabla = []
     pasivas = []
     for k in range(5):
@@ -1585,6 +1603,8 @@ class Manejador(BaseHTTPRequestHandler):
             return sesion.aplicar(E.quitar_pasivas_ilegales)
         if t == "arreglar_tablas":
             return sesion.aplicar(E.arreglar_tablas)
+        if t == "arreglar_diamantes":
+            return sesion.aplicar(E.arreglar_diamantes)
         if t == "arreglar_pasivas_personal":
             return sesion.aplicar(E.arreglar_pasivas_personal)
         if t == "dar_personalizadas":

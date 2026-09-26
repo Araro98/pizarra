@@ -2280,6 +2280,17 @@ async function pintaResumen() {
         manda({tipo:"quitar_pasivas_ilegales"}); }}));
     c.appendChild(g);
   }
+  if (d.diamantes_desajustados) {
+    const g = el("div", {class:"grupo-resumen"});
+    g.appendChild(el("h3", {text:"Arreglos"}));
+    g.appendChild(el("p", {text:d.diamantes_desajustados + " Diamantes tienen un arquetipo elegido pero las "
+      + "pasivas del de antes (una version anterior del editor no les cambiaba el tablero)."}));
+    g.appendChild(el("button", {class:"btn", text:"Poner las de su arquetipo",
+      onclick:async () => { if (await confirma("Pasivas de Diamante", "A cada uno se le ponen el tablero y las "
+        + "pasivas de su arquetipo, como al elegirlo en el juego. Se puede deshacer."))
+        manda({tipo:"arreglar_diamantes"}); }}));
+    c.appendChild(g);
+  }
   if (d.tablas_desajustadas) {
     const g = el("div", {class:"grupo-resumen"});
     g.appendChild(el("h3", {text:"Arreglos"}));

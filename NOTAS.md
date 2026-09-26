@@ -5694,6 +5694,31 @@ Los de Idolo tienen 17-27 casillas con +3 a +10.
   partida, con su tablero real; en Fichar y la Base de datos, con el que le
   tocaria recien fichado. La ficha de la Base de datos ensena su arbol.
 
+### O-245 · Cambiar el arquetipo de un Diamante no cambiaba sus pasivas (Billy Dash)
+
+Aaron: "a Billy Dash le he puesto Tension con el editor (era Justicia) y no
+se le cambian las pasivas". `poner_arquetipo_diamante` escribe el arquetipo
+(14CDA97F) y el tablero (0xBAFA8DBD) con `_tablero_para`; para una
+combinacion de Diamante con semilla que no esta en `tableros-diamante.csv`
+daba 0, se escribia 0 y `sincronizar_tabla_pasivas` no encontraba fijas, asi
+que la tabla se quedaba con las de Justicia. Ahora `_tablero_para` cae en
+`tablero_diamante_parecido` (O-240) y el aviso lo dice: 4-5 seguras (la
+pareja del arquetipo), 1-3 del Diamante mas parecido; para las exactas,
+cambiar el arquetipo dentro del juego (y mandar la partida para apuntarlo,
+como Blazer y Abuelo, O-242). Para los que ya quedaron asi:
+`diamantes_desajustados` (tabla 4-5 de otra familia que las del tablero de
+su arquetipo) / `arreglar_diamantes` en el Resumen y al guardar. Las 4-5 de
+todos los tableros de un mismo arquetipo son siempre las mismas (30 de 30 en
+cada uno), asi que se comparan por familia de pasiva.
+En la partida del 26 salen Billy, Cedric Freud y Raika Shinohara. Los dos
+ultimos no estaban mal: tienen tablero puesto (el basara de su arquetipo) y
+la tabla con la pareja anterior, que el juego tarda en refrescar (O-166:
+Raika sale de Brecha en el juego). Por eso la ficha y la suma del equipo
+ahora ensenan las del tablero cuando el Idolo o Diamante tiene uno puesto
+(`_tablero_guardado`), y la tabla solo cuando no lo tiene (Blazer, O-241).
+El arreglo a esos dos solo les reescribe su mismo tablero y pone la tabla al
+dia; a Billy le pone el de Tension.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

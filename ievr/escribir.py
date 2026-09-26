@@ -1334,6 +1334,58 @@ def _arquetipo_de_serie(identidad_hex):
     return _arquetipo_de_pareja([{"id": x} for x in fijas], O.PAREJA_ARQUETIPO) or 0
 
 
+def _familia_pasiva(id_hex):
+    """La familia de una pasiva sin su version de rareza: `ps10100` para
+    ps10100, ps10100_04 y hps10100 (para comparar tablas, O-245)."""
+    import re
+    from ievr import opciones as O
+    f = O._indice("valor_por_id", lambda: {x["id"].upper(): x for x in reglas._tabla("pasivas-valor.csv")})
+    interno = (f.get((id_hex or "").upper()) or {}).get("interno") or id_hex or ""
+    return re.sub(r"^h?(ps\d+).*$", r"\1", interno)
+
+
+def diamantes_desajustados(plain):
+    """[fila] de Diamantes cuya tabla de pasivas no lleva en las ranuras 4-5
+    la pareja del arquetipo que tienen elegido (Billy Dash: Tension en el
+    array y las de Justicia en la tabla, porque el editor escribia tablero 0;
+    O-245). Los que el juego dejo bien no salen."""
+    from ievr import opciones as O
+    ident = J.array(plain, J.ARRAY_IDENTIDAD)
+    rareza = J.array(plain, J.ARRAY_RAREZA)
+    fuera = []
+    for fila in range(min(6000, len(ident))):
+        if not ident[fila] or rareza[fila] != 8:
+            continue
+        try:
+            if rol_de_personal(plain, fila) in ("gerente", "entrenador"):
+                continue
+        except Exception:
+            continue
+        arq = _arquetipo_diamante(plain, fila)
+        if arq not in J.ARQUETIPOS:
+            continue
+        tabla = J.tabla_pasivas(plain, fila)
+        if not tabla or not any(x["id"] != "00000000" for x in tabla):
+            continue
+        t, _aprox = O.tablero_de_jugador(plain, fila)
+        esperadas = O.pasivas_de_tablero(t, 1) if t else []
+        if len(esperadas) < 5:
+            continue
+        if [_familia_pasiva(x["id"]) for x in tabla[3:5]] != [_familia_pasiva(x) for x in esperadas[3:5]]:
+            fuera.append(fila)
+    return fuera
+
+
+def arreglar_diamantes(plain):
+    """Vuelve a aplicar a cada uno su propio arquetipo, como al elegirlo."""
+    mal = diamantes_desajustados(plain)
+    if not mal:
+        raise Ilegal("todos los Diamantes llevan las pasivas de su arquetipo")
+    for fila in mal:
+        plain, _info = poner_arquetipo_diamante(plain, fila, _arquetipo_diamante(plain, fila))
+    return plain, {"jugadores": len(mal), "que": "pasivas de Diamante puestas con su arquetipo"}
+
+
 def poner_arquetipo_diamante(plain, fila, arquetipo):
     """Elige el arquetipo de un Diamante, como se hace dentro del juego: se
     escribe en el array `14CDA97F` y la pareja 4-5 de su tabla de pasivas pasa
@@ -1352,8 +1404,22 @@ def poner_arquetipo_diamante(plain, fila, arquetipo):
     identidad_hex = "%08X" % J.array(plain, J.ARRAY_IDENTIDAD)[fila]
     _escribir_tablero(buf, plain, fila, identidad_hex, 8, arquetipo)
     plain = sincronizar_tabla_pasivas(bytes(buf), fila)
+    # si el tablero exacto no se conoce, se dice (las 1-3 pueden no ser las del juego)
+    from ievr import opciones as O
+    try:
+        ficha = _personaje_por_nombre(identidad_hex)
+    except Ilegal:
+        ficha = {}
+    exacto = O.tablero_del_juego(identidad_hex, 8, arquetipo, ficha.get("posicion") or "",
+                                 ficha.get("elemento") or "",
+                                 J.array(plain, (0xFC830AAC, 6000, "B", 1))[fila])
     return plain, {"fila": fila, "que": "arquetipo", "antes": J.ARQUETIPOS.get(antes, "?"),
-                   "despues": J.ARQUETIPOS[arquetipo]}
+                   "despues": J.ARQUETIPOS[arquetipo],
+                   "aviso": "" if exacto else
+                   ("Arquetipo %s puesto. De esta combinacion no se conoce el tablero exacto: "
+                    "las pasivas 4 y 5 son las de %s seguro, las 1 a 3 son las del Diamante mas "
+                    "parecido. Para las exactas, cambia el arquetipo dentro del juego."
+                    % (J.ARQUETIPOS[arquetipo], J.ARQUETIPOS[arquetipo]))}
 
 
 def _tablero_para(plain, fila, identidad_hex, rareza, arquetipo, tipo=None):
@@ -1366,8 +1432,15 @@ def _tablero_para(plain, fila, identidad_hex, rareza, arquetipo, tipo=None):
         ficha = {}
     if tipo is None:
         tipo = J.array(plain, (0xFC830AAC, 6000, "B", 1))[fila]
-    return O.tablero_del_juego(identidad_hex, rareza, arquetipo,
-                               ficha.get("posicion") or "", ficha.get("elemento") or "", tipo)
+    t = O.tablero_del_juego(identidad_hex, rareza, arquetipo,
+                            ficha.get("posicion") or "", ficha.get("elemento") or "", tipo)
+    if not t and rareza == 8:
+        # combinacion no vista: el del Diamante mas parecido, con la pareja 4-5
+        # de su arquetipo segura (O-240, O-245). Sin esto se escribia 0 y la
+        # tabla se quedaba con las pasivas del arquetipo de antes (Billy Dash)
+        t = O.tablero_diamante_parecido(ficha.get("posicion") or "", ficha.get("elemento") or "",
+                                        tipo, arquetipo)
+    return t
 
 
 def _escribir_tablero(buf, plain, fila, identidad_hex, rareza, arquetipo, tipo=None):
