@@ -121,6 +121,11 @@ def nombres_del_juego(lengua):
     return fuera
 
 
+# Genero dicho por Aaron donde la columna 11 no ayuda (O-246): la Josefina de
+# la historia (gata) lleva 0; la de su equipo ya lleva 2.
+GENERO_A_MANO = {"696F1C32": "Chica"}
+
+
 def main():
     if not os.path.isfile(VOLCADO):
         raise SystemExit("falta el volcador. Compilalo con: cargo build --release "
@@ -234,6 +239,7 @@ def main():
             if base_id not in base:
                 continue
             indice, name_id, (saga_num, saga), apodo_id, genero = base[base_id]
+            genero = GENERO_A_MANO.get("%08X" % ident, genero)
             w.writerow(["%08X" % ident, base_id, indice,
                         RAREZAS.get(rareza, "desconocida(%s)" % rareza), rareza,
                         idiomas.get("es", {}).get(name_id, ""),

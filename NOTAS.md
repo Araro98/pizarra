@@ -5728,6 +5728,9 @@ Emnator) y 0 (el Avatar y filas vacias), que van como sin genero.
 Comprobado con Celia, Katya, Nerina (2) y Mark, Axel, Tom (1).
 `personajes.csv` columna `genero` (construir_personajes.py); filtro
 "Genero" en Jugadores, la reserva, Fichar y la Base de datos.
+Aaron: Ptumri es un alien y la version payaso (la del 4) va a sin genero;
+Josefina es una gata (chica); Clark von Wunderbar es un robot (sin genero).
+Ya salian asi salvo la Josefina de la historia (0): `GENERO_A_MANO`.
 
 ## SUPUESTO
 
