@@ -1075,6 +1075,7 @@ const CAMPOS_FILTRO = [["elemento","Afinidad"],["posicion","Posicion"],
   ["mi_equipo","Mi equipo"],
   // que stats sube su arbol (O-244)
   ["arbol_sube","El arbol sube"],
+  ["genero","Genero"],
   // Estos cuatro no vienen del personaje sino de COMO esta el jugador, que es
   // lo que hace falta para buscar "a quien le queda algo por terminar".
   ["nivel_grupo","Nivel"],["judias","Judias"],["heredadas","Heredadas"],
@@ -2619,6 +2620,7 @@ const FILTROS_RES = [
   {campo:"armadura", etiqueta:"Armadura", siempre:true},
   {campo:"mixi",     etiqueta:"Mixi max", siempre:true},
   {campo:"modo",     etiqueta:"Modo", siempre:true},
+  {campo:"genero", etiqueta:"Genero"},                     // O-246
   // que stats sube su arbol, en Diamantes por el tablero (O-244)
   {campo:"arbol_sube", etiqueta:"El arbol sube", multi:true,
    valor:d => (familiaPer === "semilla" && d.arbol_sube_diamante) ? d.arbol_sube_diamante : (d.arbol_sube || []),
@@ -3279,6 +3281,7 @@ const FILTROS_PER = [
   {campo:"armadura", etiqueta:"Armadura", siempre:true},
   {campo:"mixi",     etiqueta:"Mixi max", siempre:true},
   {campo:"modo",     etiqueta:"Modo", siempre:true},
+  {campo:"genero", etiqueta:"Genero"},                     // O-246
   // que stats sube su arbol, en Diamantes por el tablero (O-244)
   {campo:"arbol_sube", etiqueta:"El arbol sube", multi:true,
    valor:d => (familiaPer === "semilla" && d.arbol_sube_diamante) ? d.arbol_sube_diamante : (d.arbol_sube || []),

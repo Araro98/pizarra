@@ -369,6 +369,8 @@ def _ficha_corta(plain, fila, ident, nivel, rareza, arq, jugadores):
     f = jugadores.get(clave)
     estado = _estado_de(plain, fila, nivel[fila])
     return {
+        # chico / chica / sin genero (O-246)
+        "genero": (reglas.personajes().get(clave) or {}).get("genero") or "",
         # que stats sube su arbol (O-244), para el filtro "El arbol sube"
         "arbol_sube": O.stats_que_sube_el_arbol_de(plain, fila),
         "nivel_grupo": "99" if nivel[fila] >= 99 else
@@ -983,7 +985,7 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
                ("elemento", "posicion", "rareza", "arquetipo", "equipo", "saga",
                 "armadura", "mixi", "modo",
                 "nivel_grupo", "judias", "heredadas", "equipacion", "rol",
-                "cuerpo_tipo", "mi_equipo", "arbol_sube")}
+                "cuerpo_tipo", "mi_equipo", "arbol_sube", "genero")}
     for d in todos:
         for c in cuentas:
             if c == "mi_equipo":
@@ -1438,7 +1440,7 @@ class Manejador(BaseHTTPRequestHandler):
                            for c in ("elemento", "posicion", "rareza",
                                      "arquetipo", "equipo", "saga", "armadura", "mixi", "modo", "nivel_grupo",
                                      "judias", "heredadas", "equipacion", "rol",
-                                     "cuerpo_tipo", "mi_equipo", "arbol_sube")}
+                                     "cuerpo_tipo", "mi_equipo", "arbol_sube", "genero")}
                 with sesion.lock:
                     return self._responder(200, listar_jugadores(
                         sesion.plain, (q.get("q") or [""])[0], filtros,

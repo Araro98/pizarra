@@ -760,6 +760,7 @@ def personajes_creables(plain):
             "equipo": _limpio(f.get("equipo") or ""), "familia": familia,
             "saga": ficha.get("saga") or "",       # el juego de origen (O-208)
             "apodo": ficha.get("apodo") or "",     # el apodo del juego, para buscar (O-219)
+            "genero": ficha.get("genero") or "",   # chico / chica / sin genero (O-246)
             **puede_llevar(clave),                 # armadura, mixi max, modo (O-222)
             # el numero exacto de rareza: los tres Idolos (roja 5, plateada 6,
             # rosa 7) salian todos con el mismo fondo por no tenerlo

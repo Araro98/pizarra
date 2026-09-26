@@ -5719,6 +5719,16 @@ ahora ensenan las del tablero cuando el Idolo o Diamante tiene uno puesto
 El arreglo a esos dos solo les reescribe su mismo tablero y pone la tabla al
 dia; a Billy le pone el de Tension.
 
+### O-246 · Chico, chica o sin genero
+
+Aaron: "filtros de si el jugador es chico, chica o sin genero". Es la
+columna 11 de `chara_base`: 1 chico (4.753), 2 chica (1.064), 5 sin genero
+(56: soldados de terracota, robots Gin, Tech Nobit...); hay un 4 (Ptumri
+Emnator) y 0 (el Avatar y filas vacias), que van como sin genero.
+Comprobado con Celia, Katya, Nerina (2) y Mark, Axel, Tom (1).
+`personajes.csv` columna `genero` (construir_personajes.py); filtro
+"Genero" en Jugadores, la reserva, Fichar y la Base de datos.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
