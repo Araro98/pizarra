@@ -5823,6 +5823,25 @@ se toca hasta "Importar equipo".
   moviendolo con su montaje a `partidas/draft/cerrados/` (no se borra). Lo
   ya importado a la partida se queda.
 
+### O-249 · Personalizar el draft
+
+Aaron: al invitar, un desplegable para personalizar el draft: de que juegos
+salen los personajes, si pueden salir ilegales "y cosas asi". En la sala,
+"Personalizar el draft" (plegado, con el resumen al lado): los nueve juegos
+como pastillas que se encienden y apagan (Todos / Ninguno), "Pueden salir
+jugadores ilegales" y cuantos Idolos (sin, pocos 2 %, algunos 6 %, muchos
+15 % por hueco). Debajo, cuantos pueden salir en cada ronda con esas reglas.
+Se recuerdan (localStorage `draft-reglas`).
+
+- Viajan con la invitacion (el invitado las ve antes de aceptar) y el que
+  invita las guarda en el estado (`estado.reglas`) y reparte con ellas; se
+  ven en el draft ("Reglas: ...") y se guardan con el resultado.
+- Hay juegos sin gerentes (IE2, GO 2) o con muy pocos: si con esos juegos no
+  hay bastantes para una ronda, esa ronda sale de todos los juegos (se avisa
+  en rojo en las cuentas). Los ilegales se respetan siempre.
+- Probado: IE1-IE3, sin ilegales, muchos Idolos: los 40 de esos juegos,
+  ninguno ilegal, 3 Idolos.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

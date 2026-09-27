@@ -58,6 +58,26 @@
   .opcion .st span b { display:block; font-size:var(--t-xs); color:var(--tinta); }
   .chip.ilegal { background:#c0392b; }
   .btn.rojo { background:#a8202e; border-color:#7a1622; color:#fff; }
+  /* personalizar el draft (O-249) */
+  .personalizar { margin:0 0 12px; border:2px solid var(--linea); border-radius:10px; background:#f6f9ff; }
+  .personalizar > summary { cursor:pointer; padding:9px 12px; font-weight:900; color:var(--azul-osc);
+    font-style:italic; list-style:none; display:flex; gap:8px; align-items:center; }
+  .personalizar > summary::before { content:"\25B8"; transition:transform .15s; }
+  .personalizar[open] > summary::before { transform:rotate(90deg); }
+  .personalizar > summary small { font-style:normal; font-weight:700; color:var(--suave); }
+  .personalizar .cuerpo-reglas { padding:0 12px 12px; display:flex; flex-direction:column; gap:10px; }
+  .personalizar h4 { margin:0 0 6px; font-size:var(--t-xs); letter-spacing:.06em; color:var(--suave);
+    text-transform:uppercase; }
+  .juegos { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .juego { border:2px solid transparent; border-radius:7px; padding:3px 9px; color:#fff; font-weight:900;
+    font-style:italic; cursor:pointer; font:inherit; font-weight:900; font-style:italic;
+    box-shadow:0 1px 2px rgba(0,0,0,.35); }
+  .juego.off { background:#c9d2de !important; color:#6b7a8d; box-shadow:none; text-decoration:line-through; }
+  .juego:focus-visible { outline:3px solid var(--cian); outline-offset:1px; }
+  .opcion-regla { display:flex; gap:8px; align-items:center; font-weight:700; }
+  .cuentas-reglas { font-size:var(--t-xs); color:var(--suave); font-weight:700; line-height:1.5; }
+  .cuentas-reglas .mal { color:#b3261e; }
+  .reglas-invitacion { display:block; font-weight:600; color:var(--suave); font-size:var(--t-xs); white-space:normal; }
   .botones-fin { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
   .chip.idolo { background:linear-gradient(180deg,#ef4fe3,#9e2596); }
   /* el juego de origen, con la misma pastilla que lleva la tarjeta arriba */
@@ -112,6 +132,10 @@
     <div class="sala">
       <div class="marco">
         <h2 class="titulo-seccion">Conectados ahora</h2>
+        <details class="personalizar" id="personalizar">
+          <summary>Personalizar el draft <small id="resumen-reglas"></small></summary>
+          <div class="cuerpo-reglas" id="cuerpo-reglas"></div>
+        </details>
         <input type="search" id="buscar-gente" placeholder="Buscar por nombre...">
         <div class="gente" id="gente" style="margin-top:8px"></div>
         <p class="nota">Si tu amigo no sale, que abra Pizarra, entre en el modo draft con su nombre y espere un momento.</p>
@@ -151,7 +175,18 @@ const RONDAS = [
 ];
 // cada ronda saca justo los que se reparten (8 delanteros para 4 y 4...): los
 // dos ven los mismos y se van quitando segun se eligen (Aaron)
-const PROB_IDOLO = 0.02;          // por cada hueco de jugador de la ronda
+// Idolos: la probabilidad de cada hueco de jugador de la ronda (O-249)
+const IDOLOS = [
+  {valor:"no",     nombre:"Sin Idolos",   prob:0},
+  {valor:"pocos",  nombre:"Pocos",        prob:0.02},
+  {valor:"algunos",nombre:"Algunos",      prob:0.06},
+  {valor:"muchos", nombre:"Muchos",       prob:0.15},
+];
+const SAGAS = Object.keys(CHAPA_SAGA);
+// las reglas de un draft (O-249): se eligen al invitar y viajan con la
+// invitacion; el que invita reparte con ellas
+const REGLAS_DE_SERIE = {sagas:SAGAS.slice(), ilegales:true, idolos:"pocos"};
+let reglas = Object.assign({}, REGLAS_DE_SERIE, leeLocal("draft-reglas") || {});
 const ARQUETIPOS = ["Brecha", "Contra", "Afinidad", "Tension", "Juego sucio", "Justicia"];
 const FRESCO_MS = 90000;          // un conectado sin senales en 90 s se da por ido
 
@@ -188,6 +223,7 @@ async function entrar() {
     catch (e) { avisa("No he podido cargar los jugadores: " + e.message, "mal"); return; }
     for (const c of pool) porId[c.identidad] = c;
   }
+  pintaReglas();
   red.alEstado = e => {
     const cab = $("#estado-red");
     cab.classList.toggle("si", e === "conectado");
@@ -234,6 +270,77 @@ function alMensaje(tema, msg, retenido, servidor) {
   if (activo && tema === "sala/" + activo.sala + "/acciones" && msg && activo.rol === "anfitrion") return alAccion(msg);
 }
 
+/* ---------------- personalizar el draft (O-249) ---------------- */
+function textoReglas(r) {
+  r = Object.assign({}, REGLAS_DE_SERIE, r || {});
+  const juegos = r.sagas.length === SAGAS.length ? "todos los juegos"
+               : r.sagas.map(x => (CHAPA_SAGA[x] || [x])[0]).join(", ") || "ningun juego";
+  const ido = (IDOLOS.find(i => i.valor === r.idolos) || IDOLOS[1]).nombre.toLowerCase();
+  return juegos + " · " + (r.ilegales ? "con ilegales" : "sin ilegales") + " · Idolos: " + ido;
+}
+// quien puede salir en cada ronda con esas reglas. Si de esos juegos no hay
+// bastantes (hay juegos sin gerentes), esa ronda sale de todos los juegos
+function candidatosDe(grupo, r) {
+  const base = grupo === "GER" ? pool.filter(c => c.apt === "gerente")
+             : grupo === "ENT" ? pool.filter(c => c.apt === "entrenador")
+             : pool.filter(c => c.posicion === grupo);
+  const permitidos = base.filter(c => r.ilegales || c.legal);
+  const deJuegos = permitidos.filter(c => r.sagas.includes(c.saga));
+  const hacen = 2 * RONDAS.find(x => x.grupo === grupo).cuantos;
+  return deJuegos.length >= hacen ? {lista:deJuegos, todos:false} : {lista:permitidos, todos:true};
+}
+function pintaReglas() {
+  $("#resumen-reglas").textContent = "(" + textoReglas(reglas) + ")";
+  const c = $("#cuerpo-reglas"); c.textContent = "";
+  const guarda = () => { guardaLocal("draft-reglas", reglas); pintaReglas(); };
+  // juegos
+  const juegos = el("div", {class:"juegos"});
+  for (const sg of SAGAS) {
+    const on = reglas.sagas.includes(sg);
+    const b = el("button", {class:"juego" + (on ? "" : " off"), text:CHAPA_SAGA[sg][0], title:sg,
+      "aria-pressed":String(on),
+      onclick:() => { reglas.sagas = on ? reglas.sagas.filter(x => x !== sg) : reglas.sagas.concat(sg); guarda(); }});
+    b.style.background = CHAPA_SAGA[sg][1];
+    juegos.appendChild(b);
+  }
+  juegos.appendChild(el("button", {class:"btn chico", text:"Todos",
+    onclick:() => { reglas.sagas = SAGAS.slice(); guarda(); }}));
+  juegos.appendChild(el("button", {class:"btn chico", text:"Ninguno",
+    onclick:() => { reglas.sagas = []; guarda(); }}));
+  c.appendChild(el("div", {}, [el("h4", {text:"De que juegos salen los personajes"}), juegos]));
+  // ilegales
+  const il = el("input", {type:"checkbox"});
+  il.checked = !!reglas.ilegales;
+  il.onchange = () => { reglas.ilegales = il.checked; guarda(); };
+  c.appendChild(el("label", {class:"opcion-regla"}, [il,
+    document.createTextNode("Pueden salir jugadores ilegales (formas de modo, mixi max, versiones de la historia...)")]));
+  // idolos
+  const sel = el("select", {});
+  for (const i of IDOLOS) {
+    const o = el("option", {value:i.valor, text:i.nombre + (i.prob ? " (" + Math.round(i.prob * 100) + " % por hueco)" : "")});
+    if (i.valor === reglas.idolos) o.selected = true;
+    sel.appendChild(o);
+  }
+  sel.onchange = () => { reglas.idolos = sel.value; guarda(); };
+  c.appendChild(el("label", {class:"opcion-regla"}, [document.createTextNode("Idolos:"), sel]));
+  // cuantos hay para cada ronda con estas reglas
+  if (pool.length) {
+    const cuentas = el("div", {class:"cuentas-reglas"});
+    const partes = [];
+    for (const r of RONDAS) {
+      const x = candidatosDe(r.grupo, reglas);
+      partes.push(el("span", {class:x.todos ? "mal" : "",
+        text:r.titulo + ": " + x.lista.length + (x.todos ? " (de esos juegos no hay bastantes: salen de todos)" : "")}));
+      partes.push(document.createTextNode("  ·  "));
+    }
+    partes.pop();
+    for (const p of partes) cuentas.appendChild(p);
+    c.appendChild(el("div", {}, [el("h4", {text:"Cuantos pueden salir con estas reglas"}), cuentas]));
+  }
+  c.appendChild(el("button", {class:"btn chico", text:"Volver a lo de serie", style:"align-self:flex-start",
+    onclick:() => { reglas = Object.assign({}, REGLAS_DE_SERIE, {sagas:SAGAS.slice()}); guarda(); }}));
+}
+
 /* ---------------- la sala ---------------- */
 $("#buscar-gente").oninput = pintaSala;
 function frescos() {
@@ -259,7 +366,8 @@ function pintaSala() {
   const inv = $("#invitaciones"); inv.textContent = "";
   for (const [s, i] of Object.entries(invitaciones)) {
     inv.appendChild(el("div", {class:"invitacion"}, [
-      el("span", {class:"quien", text:(i.nombre || s) + " te invita a un draft"}),
+      el("span", {class:"quien"}, [document.createTextNode((i.nombre || s) + " te invita a un draft"),
+        el("small", {class:"reglas-invitacion", text:textoReglas(i.reglas)})]),
       el("button", {class:"btn chico verde", text:"Aceptar", onclick:() => aceptar(s)}),
       el("button", {class:"btn chico", text:"Rechazar", onclick:() => rechazar(s)})]));
   }
@@ -269,7 +377,10 @@ function invitar(slug, nombre) {
   if (activo) return;
   const sala = yo.slug + "-" + slug + "-" + Math.random().toString(36).slice(2, 8);
   pendiente = {slug, nombre, sala};
-  const manda = () => red.publicar("buzon/" + slug, {tipo:"invita", de:yo.slug, nombre:yo.nombre, sala});
+  if (!reglas.sagas.length) { avisa("Elige al menos un juego en Personalizar el draft.", "mal"); return; }
+  pendiente.reglas = JSON.parse(JSON.stringify(reglas));
+  const manda = () => red.publicar("buzon/" + slug, {tipo:"invita", de:yo.slug, nombre:yo.nombre, sala,
+                                                      reglas:pendiente.reglas});
   manda();
   // la invitacion no se queda guardada en el servidor: se repite cada 3 s
   // mientras espera, por si el amigo aun se estaba conectando
@@ -307,14 +418,15 @@ function alBuzon(m) {
   if (m.tipo === "invita" && !activo) {
     // llega una vez por cada servidor: se avisa solo la primera
     const ya = invitaciones[m.de] && invitaciones[m.de].sala === m.sala;
-    invitaciones[m.de] = {nombre:m.nombre, sala:m.sala};
+    invitaciones[m.de] = {nombre:m.nombre, sala:m.sala, reglas:m.reglas || null};
     if (!ya) avisa(m.nombre + " te invita a un draft.");
     return pintaSala();
   }
   if (m.tipo === "cancela") { delete invitaciones[m.de]; return pintaSala(); }
   if (m.tipo === "rechaza" && pendiente && pendiente.sala === m.sala) { avisa((m.nombre || m.de) + " ha rechazado la invitacion.", "mal"); pendiente = null; return pintaSala(); }
   if (m.tipo === "acepta" && pendiente && pendiente.sala === m.sala && !activo) {
-    activo = {sala:m.sala, rol:"anfitrion", yo:yo.slug, rival:{slug:m.de, nombre:m.nombre}};
+    activo = {sala:m.sala, rol:"anfitrion", yo:yo.slug, rival:{slug:m.de, nombre:m.nombre},
+              reglas:pendiente.reglas || reglas};
     pendiente = null;
     guardaLocal("draft-activo", activo);
     estado = nuevoEstado();
@@ -391,14 +503,13 @@ function nuevoEstado() {
   return {v:1, sala:activo.sala, anfitrion:a, invitado:b,
           nombres:{[a]:yo.nombre, [b]:activo.rival.nombre},
           fase:"moneda", moneda:gana, turnos, turno:0, opciones:[],
+          reglas:Object.assign({}, REGLAS_DE_SERIE, activo.reglas || {}),
           equipos:{[a]:[], [b]:[]}, arquetipos:{}, diamantes:{[a]:null, [b]:null}, seq:1};
 }
 function elegibles(grupo) {
   const cogidos = new Set([].concat(...Object.values(estado.equipos)).map(x => x.id));
-  const base = grupo === "GER" ? pool.filter(c => c.apt === "gerente")
-             : grupo === "ENT" ? pool.filter(c => c.apt === "entrenador")
-             : pool.filter(c => c.posicion === grupo);
-  return base.filter(c => !cogidos.has(c.identidad));
+  const r = Object.assign({}, REGLAS_DE_SERIE, estado.reglas || {});
+  return candidatosDe(grupo, r).lista.filter(c => !cogidos.has(c.identidad));
 }
 function sacaOpciones(grupo) {
   const todos = elegibles(grupo);
@@ -407,7 +518,8 @@ function sacaOpciones(grupo) {
   let intentos = 0;
   const cuantos = 2 * RONDAS.find(r => r.grupo === grupo).cuantos;
   while (fuera.length < cuantos && intentos++ < 2000) {
-    const lista = (idolos.length && Math.random() < PROB_IDOLO) ? idolos : normales;
+    const prob = (IDOLOS.find(i => i.valor === (estado.reglas || {}).idolos) || IDOLOS[1]).prob;
+    const lista = (idolos.length && Math.random() < prob) || !normales.length ? idolos : normales;
     if (!lista.length) break;
     const c = lista[azar(lista.length)];
     // sin repetir personaje ni nombre en la misma tanda
@@ -576,6 +688,7 @@ function pintaZona() {
       text:"Moneda al aire: empieza " + (estado.moneda === yo.slug ? "tu" : nombreDe(estado.moneda)) + "."}));
     return;
   }
+  if (estado.reglas) z.appendChild(el("p", {class:"nota", text:"Reglas: " + textoReglas(estado.reglas)}));
   if (estado.fase === "picks") {
     const t = estado.turnos[estado.turno];
     const ronda = RONDAS.find(r => r.grupo === t.grupo);
@@ -650,7 +763,7 @@ async function guardaResultado() {
   });
   const resultado = {sala:estado.sala, yo:nombreDe(yo.slug), rival:nombreDe(riv),
     arquetipo:estado.arquetipos[yo.slug], arquetipo_nombre:ARQUETIPOS[estado.arquetipos[yo.slug]],
-    diamante:estado.diamantes[yo.slug], jugadores:lista(yo.slug),
+    diamante:estado.diamantes[yo.slug], jugadores:lista(yo.slug), reglas:estado.reglas || null,
     rival_arquetipo:ARQUETIPOS[estado.arquetipos[riv]], rival_equipo:lista(riv)};
   try { const r = await pedir("/api/draft/guardar", {method:"POST", headers:{"Content-Type":"application/json"},
                                            body:JSON.stringify({resultado})});
