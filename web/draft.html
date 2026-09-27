@@ -57,6 +57,7 @@
     text-align:center; color:var(--suave); font-weight:700; }
   .opcion .st span b { display:block; font-size:var(--t-xs); color:var(--tinta); }
   .chip.ilegal { background:#c0392b; }
+  .btn.rojo { background:#a8202e; border-color:#7a1622; color:#fff; }
   .botones-fin { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
   .chip.idolo { background:linear-gradient(180deg,#ef4fe3,#9e2596); }
   .equipos { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px; }
@@ -653,6 +654,17 @@ async function guardaResultado() {
         avisa("Draft guardado en Pizarra."); }
   catch (e) { guardadoDe = null; avisa("No he podido guardar el draft: " + e.message, "mal"); }
 }
+async function cerrarDraft(d) {
+  if (!(await confirma("Cerrar draft", "El draft contra " + (d.rival || "?") + " deja de salir aqui y "
+      + "ya no se puede seguir montando." + (d.importado ? " Lo que ya importaste a tu partida se queda." : "")
+      + " ¿Seguro?"))) return;
+  try {
+    await pedir("/api/draft/cerrar", {method:"POST", headers:{"Content-Type":"application/json"},
+                                      body:JSON.stringify({fichero:d.fichero})});
+    avisa("Draft cerrado.");
+  } catch (e) { avisa("No he podido cerrarlo: " + e.message, "mal"); }
+  cargaGuardados();
+}
 async function cargaGuardados() {
   const caja = $("#guardados"); caja.textContent = "";
   let g = [];
@@ -666,7 +678,10 @@ async function cargaGuardados() {
       el("small", {text:(d.fecha || "").replace("T", " ") + " · " + (d.arquetipo_nombre || "") + " · " + d.cuantos + " jugadores"
         + (d.importado ? " · importado a \"" + d.importado + "\"" : d.montado ? " · a medio montar" : "")})]),
       el("a", {class:"btn chico" + (d.importado ? "" : " verde"), href:"/draft/montar?f=" + encodeURIComponent(d.fichero),
-               text:d.montado ? "Seguir montando" : "Montar equipo"})]));
+               text:d.montado ? "Seguir montando" : "Montar equipo"}),
+      el("button", {class:"btn chico rojo", text:"Cerrar draft",
+        title:"Quitarlo de la lista (para dejarlo o empezar de cero)",
+        onclick:() => cerrarDraft(d)})]));
   if (!g.length) caja.appendChild(el("p", {class:"vacio", text:"Todavia no has terminado ningun draft."}));
 }
 

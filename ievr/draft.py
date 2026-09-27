@@ -136,6 +136,22 @@ def guardados():
     return fuera
 
 
+def cerrar(fichero):
+    """Quita un draft de la lista (Aaron: "cerrar draft", para dejarlo o
+    empezar de cero). No se borra: se mueve a partidas/draft/cerrados/ con su
+    montaje. Lo que ya se importara a la partida se queda en la partida."""
+    f = os.path.basename(fichero or "")
+    if not f.endswith(".json") or not os.path.isfile(os.path.join(_carpeta(), f)):
+        raise ValueError("no encuentro ese draft")
+    destino = os.path.join(_carpeta(), "cerrados")
+    os.makedirs(destino, exist_ok=True)
+    base = os.path.splitext(f)[0]
+    for n in (f, base + ".montaje"):
+        if os.path.isfile(os.path.join(_carpeta(), n)):
+            os.replace(os.path.join(_carpeta(), n), os.path.join(destino, n))
+    return f
+
+
 def leer(fichero):
     f = os.path.basename(fichero or "")
     with open(os.path.join(_carpeta(), f), encoding="utf-8") as fh:

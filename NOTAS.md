@@ -5819,6 +5819,9 @@ se toca hasta "Importar equipo".
 - "Tus drafts terminados" solo ensena los del nombre con el que entras:
   probando solo en el mismo PC con dos nombres, los dos lados se guardan en
   la misma carpeta y salia tambien el del rival (Aaron).
+- Boton rojo "Cerrar draft" en esa lista (Aaron): lo quita de la lista
+  moviendolo con su montaje a `partidas/draft/cerrados/` (no se borra). Lo
+  ya importado a la partida se queda.
 
 ## SUPUESTO
 

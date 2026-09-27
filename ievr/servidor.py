@@ -1656,6 +1656,12 @@ class Manejador(BaseHTTPRequestHandler):
                 if u.path == "/api/draft/guardar":
                     from ievr import draft as DR
                     return self._responder(200, {"fichero": DR.guardar(cuerpo.get("resultado"))})
+                if u.path == "/api/draft/cerrar":
+                    from ievr import draft as DR
+                    f = DR.cerrar(cuerpo.get("fichero"))
+                    with _cerrojo_montajes:
+                        montajes.pop(f, None)       # y fuera de memoria su montaje
+                    return self._responder(200, {"cerrado": f})
                 if u.path == "/api/deshacer":
                     self.ses.deshacer()
                     return self._responder(200, {"cambios": self.ses.cambios})
