@@ -366,3 +366,64 @@ function textoPasiva(x, rareza) {
     return x.plantilla.replace("<VALUE>", String(Number(x.por_rareza[rareza].valor))).replace(/\s+/g, " ");
   return x.texto;
 }
+
+/* La telarana de los siete stats, como la del juego (del editor, O-218;
+   aqui para que la use tambien el draft, O-253). */
+function telarana(valores, nombres) {
+  // Ojo con la escala: antes se dibujaba dividiendo por el stat mas alto DEL
+  // PROPIO jugador, asi que a todo el mundo le salia casi el mismo heptagono y
+  // la figura no decia nada. Ahora la escala es fija (TOPE_TELA), que es mas o
+  // menos el techo que se alcanza a nivel 99 con rareza maxima, judias y
+  // equipacion; asi dos jugadores distintos dan figuras distintas.
+  // El dibujo es el del juego (O-218): disco oscuro, anillos grises, el icono
+  // de cada stat en su punta y la figura roja con borde blanco.
+  const NS = "http://www.w3.org/2000/svg";
+  const lado = 170, c = lado / 2, radio = c - 26;
+  const TOPE_TELA = 260;
+  const tope = Math.max(TOPE_TELA, ...valores);
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("viewBox", "0 0 " + lado + " " + lado);
+  svg.setAttribute("class", "telarana");
+  const crea = (t, atributos) => {
+    const e = document.createElementNS(NS, t);
+    for (const k in atributos) e.setAttribute(k, atributos[k]);
+    svg.appendChild(e);
+    return e;
+  };
+  const punto = (k, f) => {
+    const a = -Math.PI / 2 + k * 2 * Math.PI / 7;
+    return [c + Math.cos(a) * radio * f, c + Math.sin(a) * radio * f];
+  };
+  const contorno = f => valores.map((_, k) => punto(k, f).join(",")).join(" ");
+
+  // el disco oscuro de fondo y los anillos, como la figura del juego
+  const defs = document.createElementNS(NS, "defs");
+  defs.innerHTML =
+    '<radialGradient id="tela-disco" cx="50%" cy="50%" r="55%">' +
+    '<stop offset="0%" stop-color="#2b3a52"/>' +
+    '<stop offset="100%" stop-color="#101a2b"/>' +
+    '</radialGradient>';
+  svg.appendChild(defs);
+  crea("circle", {cx:c, cy:c, r:c - 4, fill:"url(#tela-disco)", stroke:"#3a4a63", "stroke-width":1.5});
+  for (const f of [0.25, 0.5, 0.75, 1])
+    crea("polygon", {points:contorno(f), fill:"none",
+                     stroke:"rgba(255,255,255," + (f === 1 ? ".35" : ".14") + ")",
+                     "stroke-width":f === 1 ? 1.2 : 1});
+  for (let k = 0; k < 7; k++) {
+    const [x, y] = punto(k, 1);
+    crea("line", {x1:c, y1:c, x2:x, y2:y, stroke:"rgba(255,255,255,.14)"});
+  }
+  const fs = valores.map(v => Math.max(0.08, Math.min(1, v / tope)));
+  crea("polygon", {points:valores.map((_, k) => punto(k, fs[k]).join(",")).join(" "),
+                   fill:"rgba(226,58,58,.78)", stroke:"#ffd9d9", "stroke-width":1.6,
+                   "stroke-linejoin":"round"});
+  // el icono de cada stat en su punta, un poco por fuera de la figura
+  for (let k = 0; k < 7; k++) {
+    const [x, y] = punto(k, 1.24);
+    const n = ICONO_STAT[(nombres || [])[k]];
+    if (!n) continue;
+    const img = crea("image", {x:x - 8, y:y - 8, width:16, height:16, opacity:.85});
+    img.setAttribute("href", "/icono/icon_common/icon_btl02_parameter" + n + ".png");
+  }
+  return svg;
+}

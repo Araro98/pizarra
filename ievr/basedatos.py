@@ -364,6 +364,14 @@ def personaje(identidad):
             t["ranura"] = k
             t["trozo"] = "tronco" if k <= 3 else ("rama 1" if k <= 6 else "rama 2")
             tecnicas.append(t)
+    # que admite cada ranura del arbol (Tiro, Regate... o LIBRE), para la
+    # ficha del draft (O-253); las formas del draft tambien (O-252)
+    fila = O._por_identidad().get(ident) or {}
+    for t in tecnicas:
+        t["admite"] = fila.get("r%d_tipo" % t["ranura"]) or ""
+    r["ranuras"] = [{"ranura": k, "admite": fila.get("r%d_tipo" % k) or "",
+                     "trozo": "tronco" if k <= 3 else ("rama 1" if k <= 6 else "rama 2")}
+                    for k in range(1, 10)]
     r.update({
         "descripcion": O.sin_marcadores(O._descripcion_por_identidad().get(ident, "")),
         "equipacion_icono": O._equipacion_por_identidad().get(ident, ""),

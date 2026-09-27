@@ -5909,6 +5909,29 @@ queda igual) y:
   Creadas las 236 con cara en una copia (con MAX y un cuarto como Diamante).
   No estan probadas en el juego: son personajes de partidos de la historia.
 
+### O-253 · Moneda, blitz y ficha de cada jugador en el draft
+
+Aaron: una moneda mas guay con cara y cruz, un modo blitz de 5 segundos por
+eleccion y un desplegable en cada jugador con la informacion detallada.
+
+- Moneda: dorada, en 3D (CSS), con cara (un rayo, la del que invita) y cruz
+  (un balon, la del invitado). Sube girando, cae del lado que toco
+  (`--final`: 1800 o 1980 grados) y entonces se marca la apuesta ganadora y
+  "¡Sale cara! Empieza ...". Se pinta una sola vez (`zona.dataset.moneda`):
+  si se repintara con cada estado volveria a girar. La fase dura 5,2 s.
+  Sin animacion para quien la tenga quitada en el sistema.
+- Blitz: "Blitz 5 s" en el tiempo por turno. La cuenta atras se pone roja
+  en los ultimos segundos (un tercio del tiempo, como mucho 10). Las caras de
+  la tanda se cargan ya (con la carga perezosa no salian al repintar tan
+  rapido).
+- Ficha: boton "Ficha" en cada carta de la tanda y pulsando las de los
+  equipos. Stats a nivel 99 con arbol (barras y la telarana del editor,
+  que pasa a `comun.js`), lo que sube el arbol, y el arbol de tecnicas por
+  tronco y ramas: numero de ranura, lo que admite, la tecnica que trae (con
+  su barra de color, nivel, TP y poder) y si en el draft es fija o
+  cambiable. `basedatos.personaje` da ahora `admite` en cada tecnica y la
+  lista `ranuras` (las formas del draft tambien).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
