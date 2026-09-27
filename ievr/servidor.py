@@ -1335,6 +1335,18 @@ class Manejador(BaseHTTPRequestHandler):
                 return self._fichero(os.path.join(WEB, "basedatos.html"), "text/html; charset=utf-8")
             if u.path in ("/calc", "/calculadora", "/calculadora.html"):
                 return self._fichero(os.path.join(WEB, "calculadora.html"), "text/html; charset=utf-8")
+            # el modo draft entre dos jugadores (O-247)
+            if u.path in ("/draft", "/draft.html"):
+                return self._fichero(os.path.join(WEB, "draft.html"), "text/html; charset=utf-8")
+            if u.path == "/api/draft/candidatos":
+                from ievr import draft as DR
+                return self._responder(200, {"candidatos": DR.candidatos()})
+            if u.path == "/api/draft/guardados":
+                from ievr import draft as DR
+                return self._responder(200, {"guardados": DR.guardados()})
+            if u.path == "/api/draft/leer":
+                from ievr import draft as DR
+                return self._responder(200, DR.leer((q.get("fichero") or [""])[0]))
             if u.path.startswith("/web/"):
                 nombre = os.path.basename(unquote(u.path[5:]))
                 tipo = {"css": "text/css; charset=utf-8", "js": "text/javascript; charset=utf-8",
@@ -1525,6 +1537,9 @@ class Manejador(BaseHTTPRequestHandler):
                     info = self._cambiar(cuerpo)
                     return self._responder(200, {"hecho": info,
                                                  "cambios": sesion.cambios})
+                if u.path == "/api/draft/guardar":
+                    from ievr import draft as DR
+                    return self._responder(200, {"fichero": DR.guardar(cuerpo.get("resultado"))})
                 if u.path == "/api/deshacer":
                     sesion.deshacer()
                     return self._responder(200, {"cambios": sesion.cambios})

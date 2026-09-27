@@ -5732,6 +5732,40 @@ Aaron: Ptumri es un alien y la version payaso (la del 4) va a sin genero;
 Josefina es una gata (chica); Clark von Wunderbar es un robot (sin genero).
 Ya salian asi salvo la Josefina de la historia (0): `GENERO_A_MANO`.
 
+### O-247 · Modo draft en linea (primera parte: sala y elecciones)
+
+Aaron quiere un draft a tiempo real entre dos amigos, solo con nombre de
+usuario. Hecho de momento: entrar con nombre, ver quien esta conectado o
+buscarlo, invitar / aceptar / rechazar, la moneda, las 40 elecciones por
+turnos, el arquetipo al azar de cada uno y elegir el Diamante. El resultado se
+guarda en `partidas/draft/<fecha>-contra-<rival>.json` (jugadores con su
+grupo, arquetipo, Diamante) para la segunda parte (montar el equipo con las
+reglas del draft e importarlo a la partida), que falta.
+
+- Red: sin servidor propio ni cuenta. Cada Pizarra habla MQTT 3.1.1 por
+  WebSocket (`web/draft-red.js`, cliente escrito a mano) con tres servidores
+  publicos gratuitos a la vez (hivemq, emqx, mosquitto) y lo manda todo por
+  los tres. Primero iba a uno y saltaba al siguiente si fallaba, pero en la
+  prueba cada pestana acabo en uno distinto y no se veian. Los repetidos no
+  molestan: el estado va numerado (`seq`), la presencia se apunta por
+  servidor y las invitaciones se avisan una vez.
+- Temas bajo `pizarra-draft/v1/`: `conectados/<usuario>` (retenido, con
+  ultima voluntad vacia), `buzon/<usuario>`, `sala/<id>/estado` (lo publica
+  el que invita, retenido, cada 5 s) y `sala/<id>/acciones` (el invitado
+  repite su accion cada 2,5 s hasta verla en el estado). Al terminar o
+  cancelar, el que invito borra el estado retenido.
+- Reglas elegidas (Aaron no las fijo): 4 DEL, 5 MED, 3 DEF, 4 POR, 3
+  gerentes y 1 entrenador por cabeza (su texto decia "los 5" una vez en
+  delanteros, se toma el 4 que puso primero); 5 opciones por turno; la
+  moneda decide quien empieza y luego cada ronda empieza el otro; cada opcion
+  tiene un 4 % de ser un Idolo; los Diamantes nativos no salen (el Diamante
+  se elige al final, y puede ser un gerente o el entrenador, no un Idolo).
+- Candidatos (`ievr/draft.py`): todos con cara `c...` que existe y posicion,
+  legales o no (formas de modo, mixi max...), con stats a nivel 99 en Leyenda
+  con arbol; y el personal de fabrica. 5.609 en total.
+- Si se recarga la pagina a mitad se retoma (localStorage); probado con dos
+  pestanas: draft entero, recarga del invitado a mitad y abandonar.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

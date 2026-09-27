@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modo draft · Pizarra</title>
+<link rel="icon" type="image/png" href="/ui/pizarra-icono-64">
+<link rel="stylesheet" href="/web/comun.css">
+<style>
+  /* Modo draft (NOTAS O-247): entrar con un nombre, invitar a un amigo y
+     elegir por turnos. Mismo aire que el resto de Pizarra. */
+  .estado-red { display:inline-flex; align-items:center; gap:6px; font-size:var(--t-sm); font-weight:800;
+    color:var(--suave); }
+  .estado-red i { width:10px; height:10px; border-radius:50%; background:#c0392b; display:inline-block; }
+  .estado-red.si i { background:#2a9a48; box-shadow:0 0 0 3px rgba(42,154,72,.2); }
+  .pantalla[hidden] { display:none; }
+  .entrar { max-width:520px; margin:30px auto; display:flex; flex-direction:column; gap:12px; }
+  .entrar .fila-nombre { display:flex; gap:8px; }
+  .entrar .fila-nombre input { flex:1; font-size:var(--t-lg); }
+  .sala { display:grid; grid-template-columns:minmax(260px, 1fr) minmax(260px, 1fr); gap:16px; }
+  @media (max-width:860px) { .sala { grid-template-columns:1fr; } }
+  .gente { display:flex; flex-direction:column; gap:6px; max-height:52vh; overflow:auto; }
+  .persona { display:flex; align-items:center; gap:10px; padding:8px 10px; border:2px solid var(--linea);
+    border-radius:9px; background:#fff; font-weight:800; }
+  .persona .quien { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .persona small { color:var(--suave); font-weight:600; }
+  .invitacion { display:flex; align-items:center; gap:8px; padding:10px; border-radius:10px;
+    background:linear-gradient(180deg,#fff7e8,#ffe9c2); border:2px solid #f0b048; font-weight:800; }
+  .invitacion .quien { flex:1; }
+  /* el tablero del draft */
+  .marcador { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:12px;
+    padding:10px 14px; border-radius:10px; background:var(--panel, #1b2f5c); color:#fff; }
+  .marcador .lado { font-size:var(--t-lg); font-weight:900; font-style:italic; display:flex; flex-direction:column; }
+  .marcador .lado.der { text-align:right; }
+  .marcador .lado small { font-size:var(--t-xs); font-weight:700; font-style:normal; opacity:.85; }
+  .marcador .lado.turno { color:var(--cian); }
+  .marcador .centro { text-align:center; font-weight:900; font-size:var(--t-md); }
+  .marcador .centro small { display:block; font-weight:600; font-size:var(--t-xs); opacity:.85; }
+  .aviso-turno { margin:12px 0 8px; font-size:var(--t-lg); font-weight:900; font-style:italic; color:var(--azul-osc); }
+  .aviso-turno.mio { color:#1e8a4c; }
+  .opciones { display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:10px; }
+  .opcion { display:flex; flex-direction:column; gap:6px; padding:8px; border-radius:12px; background:#fff;
+    border:3px solid var(--azul-marco); font:inherit; color:inherit; text-align:left; cursor:default; }
+  .opcion.puede { cursor:pointer; }
+  .opcion.puede:hover { border-color:var(--cian); box-shadow:0 0 0 3px rgba(63,224,208,.35); transform:translateY(-2px); }
+  .opcion .ficha-mini { width:100%; pointer-events:none; }
+  .opcion b { font-size:var(--t-md); line-height:1.1; }
+  .opcion .chips { display:flex; gap:4px; flex-wrap:wrap; }
+  .opcion .st { display:grid; grid-template-columns:repeat(7, 1fr); gap:2px; font-size:var(--t-xxs);
+    text-align:center; color:var(--suave); font-weight:700; }
+  .opcion .st span b { display:block; font-size:var(--t-xs); color:var(--tinta); }
+  .chip.ilegal { background:#c0392b; }
+  .chip.idolo { background:linear-gradient(180deg,#ef4fe3,#9e2596); }
+  .equipos { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px; }
+  @media (max-width:860px) { .equipos { grid-template-columns:1fr; } }
+  .equipo-draft h3 { font-style:italic; color:var(--azul-osc); margin:0 0 6px; font-size:var(--t-lg); }
+  .grupo-draft { margin-bottom:8px; }
+  .grupo-draft > span { font-size:var(--t-xs); font-weight:900; letter-spacing:.06em; color:var(--suave); }
+  .grupo-draft .rej { display:grid; grid-template-columns:repeat(auto-fill, minmax(64px, 1fr)); gap:5px; }
+  .grupo-draft .hueco { aspect-ratio:1/1.1; border:2px dashed var(--linea); border-radius:8px; }
+  .moneda { font-size:64px; text-align:center; margin:20px; animation:gira 1s linear 2; }
+  @keyframes gira { from { transform:rotateY(0); } to { transform:rotateY(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .moneda { animation:none; } }
+  .arquetipos { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
+  .arquetipos .caja { padding:18px; border-radius:12px; text-align:center; background:linear-gradient(180deg,#ffb24a,#e8801c);
+    color:#fff; font-size:var(--t-2xl); font-weight:900; font-style:italic; text-shadow:0 2px 0 rgba(0,0,0,.3); }
+  .arquetipos .caja small { display:block; font-size:var(--t-sm); font-weight:700; font-style:normal; }
+  .elige-diamante { display:grid; grid-template-columns:repeat(auto-fill, minmax(84px, 1fr)); gap:8px; }
+  .elige-diamante .ficha-mini.elegido { outline:4px solid var(--cian); outline-offset:-4px; }
+  .guardados .persona { font-weight:700; }
+</style>
+</head>
+<body>
+<header class="cabecera">
+  <div class="fila">
+    <a class="titulo" href="/">Modo draft <small>contra un amigo, en linea</small></a>
+    <span class="estado-red" id="estado-red"><i></i><span>sin conectar</span></span>
+    <span style="flex:1"></span>
+    <span id="yo-nombre" style="font-weight:800"></span>
+    <a class="btn chico" href="/">Inicio</a>
+  </div>
+</header>
+
+<main class="contenido">
+  <!-- 1. entrar con un nombre -->
+  <section class="pantalla marco entrar" id="p-entrar">
+    <h2 class="titulo-seccion">Entrar al modo draft</h2>
+    <p>Elige un nombre de usuario. Es solo para que tus amigos te encuentren: no hay contraseña ni cuenta.</p>
+    <div class="fila-nombre">
+      <input id="nombre" maxlength="24" placeholder="Tu nombre (por ejemplo, Aaron)" autocomplete="off">
+      <button class="btn verde" id="entrar">Entrar</button>
+    </div>
+    <p class="nota">El draft va por internet: Pizarra se conecta a un servidor de mensajes publico y gratuito
+      para hablar con la Pizarra de tu amigo. Solo viajan vuestros nombres y los jugadores que elegis.</p>
+  </section>
+
+  <!-- 2. la sala: quien esta conectado e invitaciones -->
+  <section class="pantalla" id="p-sala" hidden>
+    <div class="sala">
+      <div class="marco">
+        <h2 class="titulo-seccion">Conectados ahora</h2>
+        <input type="search" id="buscar-gente" placeholder="Buscar por nombre...">
+        <div class="gente" id="gente" style="margin-top:8px"></div>
+        <p class="nota">Si tu amigo no sale, que abra Pizarra, entre en el modo draft con su nombre y espere un momento.</p>
+      </div>
+      <div class="marco">
+        <h2 class="titulo-seccion">Invitaciones</h2>
+        <div id="invitaciones"></div>
+        <p class="vacio" id="sin-invitaciones">No tienes ninguna invitacion.</p>
+        <h2 class="titulo-seccion" style="margin-top:18px">Tus drafts terminados</h2>
+        <div class="gente guardados" id="guardados"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. el draft -->
+  <section class="pantalla" id="p-draft" hidden>
+    <div class="marcador" id="marcador"></div>
+    <div id="zona"></div>
+    <div class="equipos" id="equipos"></div>
+    <p style="margin-top:14px"><button class="btn chico" id="abandonar">Abandonar el draft</button></p>
+  </section>
+</main>
+
+<script src="/web/comun.js"></script>
+<script src="/web/draft-red.js"></script>
+<script>
+/* ------------------------------------------------------------------------
+   Reglas del draft (Aaron, NOTAS O-247)
+   ------------------------------------------------------------------------ */
+const RONDAS = [
+  {grupo:"DEL", cuantos:4, texto:"delantero", titulo:"Delanteros"},
+  {grupo:"MED", cuantos:5, texto:"medio", titulo:"Medios"},
+  {grupo:"DEF", cuantos:3, texto:"defensa", titulo:"Defensas"},
+  {grupo:"POR", cuantos:4, texto:"portero", titulo:"Porteros"},
+  {grupo:"GER", cuantos:3, texto:"gerente", titulo:"Gerentes"},
+  {grupo:"ENT", cuantos:1, texto:"entrenador", titulo:"Entrenador"},
+];
+const OPCIONES_POR_TURNO = 5;
+const PROB_IDOLO = 0.04;          // por cada opcion de jugador
+const ARQUETIPOS = ["Brecha", "Contra", "Afinidad", "Tension", "Juego sucio", "Justicia"];
+const FRESCO_MS = 90000;          // un conectado sin senales en 90 s se da por ido
+
+/* ------------------------------------------------------------------------ */
+const red = new RedDraft();
+let yo = null;                    // {nombre, slug}
+let pool = [], porId = {};
+const gente = {};                 // slug -> {nombre, ts, estado, id}
+const invitaciones = {};          // slug -> {nombre, sala}
+let pendiente = null;             // invitacion que he mandado: {slug, sala}
+let activo = null;                // {sala, rol: "anfitrion"|"invitado", rival:{slug, nombre}}
+let estado = null;                // el estado del draft (el del anfitrion manda)
+let accionPendiente = null, reenvio = null, latido = null, presencia = null;
+
+function guardaLocal(k, v) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function leeLocal(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } }
+function muestra(p) { for (const s of document.querySelectorAll(".pantalla")) s.hidden = s.id !== "p-" + p; }
+function azar(n) { return Math.floor(Math.random() * n); }
+
+/* ---------------- entrar ---------------- */
+$("#nombre").value = (leeLocal("draft-nombre") || {}).nombre || "";
+$("#nombre").onkeydown = e => { if (e.key === "Enter") entrar(); };
+$("#entrar").onclick = entrar;
+
+async function entrar() {
+  const nombre = $("#nombre").value.trim();
+  const slug = slugUsuario(nombre);
+  if (!slug) { avisa("Escribe un nombre con alguna letra o numero.", "mal"); return; }
+  yo = {nombre, slug};
+  guardaLocal("draft-nombre", yo);
+  $("#yo-nombre").textContent = nombre;
+  if (!pool.length) {
+    try { pool = (await pedir("/api/draft/candidatos")).candidatos; }
+    catch (e) { avisa("No he podido cargar los jugadores: " + e.message, "mal"); return; }
+    for (const c of pool) porId[c.identidad] = c;
+  }
+  red.alEstado = e => {
+    const cab = $("#estado-red");
+    cab.classList.toggle("si", e === "conectado");
+    cab.querySelector("span").textContent = e === "conectado" ? "conectado" : "reconectando...";
+    if (e === "conectado") anunciarme();
+  };
+  red.alMensaje = alMensaje;
+  red.suscribir("conectados/+");
+  red.suscribir("buzon/" + slug);
+  red.conectar({tema:RAIZ_TEMAS + "conectados/" + slug, mensaje:"", retener:true});
+  clearInterval(presencia);
+  presencia = setInterval(anunciarme, 30000);
+  // un draft a medias de antes: se retoma
+  activo = leeLocal("draft-activo");
+  if (activo && activo.yo === slug) retomar(); else { activo = null; muestra("sala"); pintaSala(); }
+  cargaGuardados();
+}
+function anunciarme() {
+  if (!yo || !red.conectado) return;
+  red.publicar("conectados/" + yo.slug, {nombre:yo.nombre, ts:Date.now(), id:red.clientId,
+    estado:activo ? "en un draft" : "libre"}, true);
+}
+window.addEventListener("beforeunload", () => {
+  if (yo && red.conectado) red.publicar("conectados/" + yo.slug, null, true);
+  red.cerrar();
+});
+
+/* ---------------- mensajes ---------------- */
+// quien esta dentro, apuntado por servidor: si uno de los tres se cae y
+// borra a alguien, sigue dentro mientras los otros lo tengan
+const presentes = {};
+function alMensaje(tema, msg, retenido, servidor) {
+  if (tema.startsWith("conectados/")) {
+    const s = tema.slice("conectados/".length);
+    const p = presentes[s] = presentes[s] || {};
+    if (!msg) delete p[servidor || 0]; else p[servidor || 0] = msg;
+    const vistos = Object.values(p).sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    if (vistos.length) gente[s] = vistos[0]; else delete gente[s];
+    if (activo && activo.rival && s === activo.rival.slug) pintaMarcador();
+    return pintaSala();
+  }
+  if (tema === "buzon/" + (yo && yo.slug)) return alBuzon(msg);
+  if (activo && tema === "sala/" + activo.sala + "/estado" && msg) return alEstadoSala(msg);
+  if (activo && tema === "sala/" + activo.sala + "/acciones" && msg && activo.rol === "anfitrion") return alAccion(msg);
+}
+
+/* ---------------- la sala ---------------- */
+$("#buscar-gente").oninput = pintaSala;
+function frescos() {
+  const ahora = Date.now();
+  return Object.entries(gente).filter(([s, g]) => g && s !== (yo && yo.slug) && ahora - (g.ts || 0) < FRESCO_MS);
+}
+function pintaSala() {
+  if (!yo) return;
+  const q = $("#buscar-gente").value.trim().toLowerCase();
+  const caja = $("#gente"); caja.textContent = "";
+  const lista = frescos().filter(([s, g]) => !q || (g.nombre || s).toLowerCase().includes(q))
+                         .sort((a, b) => (a[1].nombre || "").localeCompare(b[1].nombre || ""));
+  for (const [s, g] of lista) {
+    const ocupado = g.estado && g.estado !== "libre";
+    const esperando = pendiente && pendiente.slug === s;
+    caja.appendChild(el("div", {class:"persona"}, [
+      el("span", {class:"quien"}, [document.createTextNode(g.nombre || s), el("br"),
+        el("small", {text:esperando ? "esperando a que acepte..." : ocupado ? g.estado : "libre"})]),
+      el("button", {class:"btn chico verde", text:esperando ? "Cancelar" : "Invitar", disabled:ocupado && !esperando ? "" : null,
+        onclick:() => esperando ? cancelaInvitacion() : invitar(s, g.nombre || s)})]));
+  }
+  if (!lista.length) caja.appendChild(el("p", {class:"vacio", text:q ? "Nadie con ese nombre." : "No hay nadie mas conectado ahora mismo."}));
+  const inv = $("#invitaciones"); inv.textContent = "";
+  for (const [s, i] of Object.entries(invitaciones)) {
+    inv.appendChild(el("div", {class:"invitacion"}, [
+      el("span", {class:"quien", text:(i.nombre || s) + " te invita a un draft"}),
+      el("button", {class:"btn chico verde", text:"Aceptar", onclick:() => aceptar(s)}),
+      el("button", {class:"btn chico", text:"Rechazar", onclick:() => rechazar(s)})]));
+  }
+  $("#sin-invitaciones").hidden = !!Object.keys(invitaciones).length;
+}
+function invitar(slug, nombre) {
+  if (activo) return;
+  const sala = yo.slug + "-" + slug + "-" + Math.random().toString(36).slice(2, 8);
+  pendiente = {slug, nombre, sala};
+  red.publicar("buzon/" + slug, {tipo:"invita", de:yo.slug, nombre:yo.nombre, sala});
+  avisa("Invitacion enviada a " + nombre + ".");
+  pintaSala();
+}
+function cancelaInvitacion() {
+  if (!pendiente) return;
+  red.publicar("buzon/" + pendiente.slug, {tipo:"cancela", de:yo.slug, sala:pendiente.sala});
+  pendiente = null; pintaSala();
+}
+function aceptar(slug) {
+  const i = invitaciones[slug]; if (!i || activo) return;
+  red.publicar("buzon/" + slug, {tipo:"acepta", de:yo.slug, nombre:yo.nombre, sala:i.sala});
+  for (const k in invitaciones) delete invitaciones[k];
+  activo = {sala:i.sala, rol:"invitado", yo:yo.slug, rival:{slug, nombre:i.nombre}};
+  guardaLocal("draft-activo", activo);
+  entrarEnSala();
+}
+function rechazar(slug) {
+  const i = invitaciones[slug]; if (!i) return;
+  red.publicar("buzon/" + slug, {tipo:"rechaza", de:yo.slug, nombre:yo.nombre, sala:i.sala});
+  delete invitaciones[slug]; pintaSala();
+}
+function alBuzon(m) {
+  if (!m || !m.tipo) return;
+  if (m.tipo === "invita" && !activo) {
+    // llega una vez por cada servidor: se avisa solo la primera
+    const ya = invitaciones[m.de] && invitaciones[m.de].sala === m.sala;
+    invitaciones[m.de] = {nombre:m.nombre, sala:m.sala};
+    if (!ya) avisa(m.nombre + " te invita a un draft.");
+    return pintaSala();
+  }
+  if (m.tipo === "cancela") { delete invitaciones[m.de]; return pintaSala(); }
+  if (m.tipo === "rechaza" && pendiente && pendiente.sala === m.sala) { avisa((m.nombre || m.de) + " ha rechazado la invitacion.", "mal"); pendiente = null; return pintaSala(); }
+  if (m.tipo === "acepta" && pendiente && pendiente.sala === m.sala && !activo) {
+    activo = {sala:m.sala, rol:"anfitrion", yo:yo.slug, rival:{slug:m.de, nombre:m.nombre}};
+    pendiente = null;
+    guardaLocal("draft-activo", activo);
+    estado = nuevoEstado();
+    guardaLocal("draft-estado", estado);
+    entrarEnSala();
+    publicaEstado();
+    setTimeout(() => { if (estado && estado.fase === "moneda") { empiezaRonda(); guardaLocal("draft-estado", estado); publicaEstado(); pinta(); } }, 3200);
+  }
+}
+
+/* ---------------- entrar o volver a la sala del draft ---------------- */
+function entrarEnSala() {
+  red.suscribir("sala/" + activo.sala + "/estado");
+  if (activo.rol === "anfitrion") red.suscribir("sala/" + activo.sala + "/acciones");
+  anunciarme();
+  muestra("draft");
+  clearInterval(latido);
+  // el anfitrion repite el estado cada 5 s por si algo se pierde
+  if (activo.rol === "anfitrion") latido = setInterval(publicaEstado, 5000);
+  pinta();
+}
+function retomar() {
+  if (activo.rol === "anfitrion") {
+    estado = leeLocal("draft-estado");
+    if (!estado || estado.sala !== activo.sala) { activo = null; guardaLocal("draft-activo", null); muestra("sala"); return pintaSala(); }
+  }
+  entrarEnSala();
+  if (activo.rol === "anfitrion") {
+    // si se recargo justo en la moneda o en los arquetipos, se sigue solo
+    if (estado.fase === "moneda") setTimeout(() => { if (estado && estado.fase === "moneda") { empiezaRonda(); guardaLocal("draft-estado", estado); publicaEstado(); pinta(); } }, 2500);
+    if (estado.fase === "arquetipos") setTimeout(() => { if (estado && estado.fase === "arquetipos") { estado.fase = "diamante"; estado.seq++; guardaLocal("draft-estado", estado); publicaEstado(); pinta(); } }, 2500);
+    publicaEstado();
+  }
+}
+$("#abandonar").onclick = async () => {
+  if (!(await confirma("Abandonar el draft", "Se deja el draft a medias para los dos. ¿Seguro?"))) return;
+  if (activo) {
+    if (activo.rol === "anfitrion" && estado) { estado.fase = "cancelado"; publicaEstado(); red.publicar("sala/" + activo.sala + "/estado", null, true); }
+    else red.publicar("sala/" + activo.sala + "/acciones", {tipo:"abandona", de:yo.slug});
+  }
+  salirDelDraft();
+};
+function salirDelDraft() {
+  clearInterval(latido); clearInterval(reenvio); accionPendiente = null;
+  // un draft terminado no se deja guardado en los servidores de mensajes
+  if (activo && activo.rol === "anfitrion" && estado && estado.fase === "fin")
+    red.publicar("sala/" + activo.sala + "/estado", null, true);
+  if (activo) { red.desuscribir("sala/" + activo.sala + "/estado"); red.desuscribir("sala/" + activo.sala + "/acciones"); }
+  activo = null; estado = null;
+  guardaLocal("draft-activo", null); guardaLocal("draft-estado", null);
+  anunciarme(); muestra("sala"); pintaSala(); cargaGuardados();
+}
+
+/* ---------------- el anfitrion lleva el draft ---------------- */
+function nuevoEstado() {
+  const a = yo.slug, b = activo.rival.slug;
+  const gana = Math.random() < 0.5 ? a : b;
+  // turnos: en cada ronda empieza uno y se alternan; la ronda siguiente la
+  // empieza el otro, para que nadie empiece siempre
+  const turnos = [];
+  RONDAS.forEach((r, k) => {
+    const primero = k % 2 === 0 ? gana : (gana === a ? b : a);
+    const segundo = primero === a ? b : a;
+    for (let n = 0; n < r.cuantos; n++) { turnos.push({grupo:r.grupo, quien:primero}); turnos.push({grupo:r.grupo, quien:segundo}); }
+  });
+  return {v:1, sala:activo.sala, anfitrion:a, invitado:b,
+          nombres:{[a]:yo.nombre, [b]:activo.rival.nombre},
+          fase:"moneda", moneda:gana, turnos, turno:0, opciones:[],
+          equipos:{[a]:[], [b]:[]}, arquetipos:{}, diamantes:{[a]:null, [b]:null}, seq:1};
+}
+function elegibles(grupo) {
+  const cogidos = new Set([].concat(...Object.values(estado.equipos)).map(x => x.id));
+  const base = grupo === "GER" ? pool.filter(c => c.apt === "gerente")
+             : grupo === "ENT" ? pool.filter(c => c.apt === "entrenador")
+             : pool.filter(c => c.posicion === grupo);
+  return base.filter(c => !cogidos.has(c.identidad));
+}
+function sacaOpciones(grupo) {
+  const todos = elegibles(grupo);
+  const idolos = todos.filter(c => c.idolo), normales = todos.filter(c => !c.idolo);
+  const fuera = [], vistos = new Set(), nombres = new Set();
+  let intentos = 0;
+  while (fuera.length < OPCIONES_POR_TURNO && intentos++ < 500) {
+    const lista = (idolos.length && Math.random() < PROB_IDOLO) ? idolos : normales;
+    if (!lista.length) break;
+    const c = lista[azar(lista.length)];
+    // sin repetir personaje ni nombre en la misma tanda
+    if (vistos.has(c.identidad) || nombres.has(c.nombre)) continue;
+    vistos.add(c.identidad); nombres.add(c.nombre); fuera.push(c.identidad);
+  }
+  return fuera;
+}
+function empiezaRonda() {
+  if (estado.turno >= estado.turnos.length) return empiezaArquetipos();
+  estado.fase = "picks";
+  estado.opciones = sacaOpciones(estado.turnos[estado.turno].grupo);
+  estado.seq++;
+}
+function aplicaEleccion(quien, turno, id) {
+  if (estado.fase !== "picks" || turno !== estado.turno) return false;
+  const t = estado.turnos[turno];
+  if (t.quien !== quien || !estado.opciones.includes(id)) return false;
+  estado.equipos[quien].push({id, grupo:t.grupo});
+  estado.turno++;
+  empiezaRonda();
+  guardaLocal("draft-estado", estado);
+  return true;
+}
+function empiezaArquetipos() {
+  estado.fase = "arquetipos";
+  for (const s of [estado.anfitrion, estado.invitado]) estado.arquetipos[s] = azar(ARQUETIPOS.length);
+  estado.opciones = []; estado.seq++;
+  guardaLocal("draft-estado", estado);
+  setTimeout(() => { if (estado && estado.fase === "arquetipos") { estado.fase = "diamante"; estado.seq++; guardaLocal("draft-estado", estado); publicaEstado(); pinta(); } }, 4500);
+}
+function aplicaDiamante(quien, id) {
+  if (estado.fase !== "diamante") return false;
+  const suyo = estado.equipos[quien].find(x => x.id === id);
+  if (!suyo || (porId[id] && porId[id].idolo)) return false;
+  estado.diamantes[quien] = id;
+  if (estado.diamantes[estado.anfitrion] && estado.diamantes[estado.invitado]) estado.fase = "fin";
+  estado.seq++;
+  guardaLocal("draft-estado", estado);
+  return true;
+}
+function alAccion(m) {
+  if (!estado || !m) return;
+  if (m.tipo === "abandona") {
+    if (estado.fase !== "cancelado") avisa(estado.nombres[m.de] + " ha abandonado el draft.", "mal");
+    estado.fase = "cancelado"; publicaEstado(); pinta(); return;
+  }
+  let ok = false;
+  if (m.tipo === "elige") ok = aplicaEleccion(estado.invitado, m.turno, m.id);
+  if (m.tipo === "diamante") ok = aplicaDiamante(estado.invitado, m.id);
+  // aunque no cambie nada (repetida), se vuelve a mandar el estado para que
+  // el invitado vea que ya esta; pero como cada accion llega por los tres
+  // servidores, las repetidas solo una vez por segundo
+  if (ok || Date.now() - ultimoEstado > 1000) publicaEstado();
+  if (ok) pinta();
+}
+let ultimoEstado = 0;
+function publicaEstado() {
+  if (!activo || activo.rol !== "anfitrion" || !estado) return;
+  ultimoEstado = Date.now();
+  red.publicar("sala/" + activo.sala + "/estado", estado, true);
+}
+function alEstadoSala(m) {
+  if (activo.rol === "anfitrion") return;         // el anfitrion ya lo tiene
+  if (estado && m.seq < estado.seq) return;
+  estado = m;
+  if (accionPendiente && accionPendiente.seq < estado.seq) { accionPendiente = null; clearInterval(reenvio); }
+  pinta();
+}
+
+/* ---------------- lo que hago yo ---------------- */
+function elegir(id) {
+  if (!estado || estado.fase !== "picks") return;
+  const t = estado.turnos[estado.turno];
+  if (t.quien !== yo.slug) return;
+  if (activo.rol === "anfitrion") { if (aplicaEleccion(yo.slug, estado.turno, id)) { publicaEstado(); pinta(); } return; }
+  mandaAccion({tipo:"elige", turno:estado.turno, id});
+}
+function elegirDiamante(id) {
+  if (!estado || estado.fase !== "diamante") return;
+  if (activo.rol === "anfitrion") { if (aplicaDiamante(yo.slug, id)) { publicaEstado(); pinta(); } return; }
+  mandaAccion({tipo:"diamante", id});
+  estado.diamantes[yo.slug] = id; pinta();
+}
+function mandaAccion(a) {
+  accionPendiente = Object.assign({seq:estado.seq, de:yo.slug}, a);
+  const manda = () => red.publicar("sala/" + activo.sala + "/acciones", accionPendiente);
+  manda(); clearInterval(reenvio);
+  reenvio = setInterval(() => { if (accionPendiente) manda(); else clearInterval(reenvio); }, 2500);
+  pinta();
+}
+
+/* ---------------- pintar ---------------- */
+function nombreDe(s) { return (estado && estado.nombres[s]) || s; }
+function rivalSlug() { return estado ? (estado.anfitrion === yo.slug ? estado.invitado : estado.anfitrion) : null; }
+function pintaMarcador() {
+  const m = $("#marcador"); m.textContent = "";
+  if (!estado) { m.appendChild(el("div", {class:"centro", text:"Esperando al anfitrion..."})); return; }
+  const riv = rivalSlug();
+  const t = estado.fase === "picks" ? estado.turnos[estado.turno] : null;
+  const rivalConectado = gente[riv] && Date.now() - (gente[riv].ts || 0) < FRESCO_MS;
+  const arq = s => estado.arquetipos[s] !== undefined ? ARQUETIPOS[estado.arquetipos[s]] : "";
+  m.appendChild(el("div", {class:"lado" + (t && t.quien === yo.slug ? " turno" : "")}, [
+    document.createTextNode(nombreDe(yo.slug) + " (tu)"), el("small", {text:arq(yo.slug)})]));
+  const ronda = t ? RONDAS.find(r => r.grupo === t.grupo) : null;
+  m.appendChild(el("div", {class:"centro"}, [
+    document.createTextNode(ronda ? ronda.titulo : {moneda:"Moneda al aire", arquetipos:"Arquetipos", diamante:"Diamantes", fin:"Draft terminado", cancelado:"Draft cancelado"}[estado.fase] || ""),
+    el("small", {text:estado.fase === "picks" ? "turno " + (estado.turno + 1) + " de " + estado.turnos.length : ""})]));
+  m.appendChild(el("div", {class:"lado der" + (t && t.quien === riv ? " turno" : "")}, [
+    document.createTextNode(nombreDe(riv)), el("small", {text:(rivalConectado ? "" : "desconectado · ") + arq(riv)})]));
+}
+function tarjeta(id, alPulsar, extra) {
+  const c = porId[id] || {identidad:id, nombre:"?" , rareza_valor:4};
+  const ficha = fichaMini(Object.assign({}, c, {nivel:99}), alPulsar);
+  if (extra) ficha.classList.add(extra);
+  return ficha;
+}
+function tarjetaOpcion(id, puede) {
+  const c = porId[id] || {identidad:id, nombre:"(no esta en tu Pizarra)", stats:[]};
+  const chips = el("div", {class:"chips"});
+  if (c.idolo) chips.appendChild(el("span", {class:"chip idolo", text:"Idolo"}));
+  if (!c.legal) chips.appendChild(el("span", {class:"chip ilegal", text:"ilegal"}));
+  if (c.apt && c.apt !== "jugador" && ["DEL", "MED", "DEF", "POR"].includes(c.posicion))
+    chips.appendChild(el("span", {class:"chip gris", text:c.apt + " de base"}));
+  if (c.saga) { const s = chapaSaga(c.saga); if (s) chips.appendChild(s); }
+  const st = el("div", {class:"st"});
+  ["POT", "CON", "TEC", "PRE", "FIS", "AGI", "INT"].forEach((n, k) =>
+    st.appendChild(el("span", {}, [el("b", {text:String((c.stats || [])[k] || "-")}), document.createTextNode(n)])));
+  return el("button", {class:"opcion" + (puede ? " puede" : ""), onclick:puede ? () => elegir(id) : null,
+                       title:c.nombre + (c.apodo ? " (" + c.apodo + ")" : "")}, [
+    fichaMini(Object.assign({}, c, {nivel:99})), el("b", {text:c.nombre}), chips,
+    c.poder ? st : null]);
+}
+function pintaEquipos() {
+  const caja = $("#equipos"); caja.textContent = "";
+  if (!estado) return;
+  for (const s of [yo.slug, rivalSlug()]) {
+    const col = el("div", {class:"marco equipo-draft"}, [el("h3", {text:s === yo.slug ? "Tu equipo" : "Equipo de " + nombreDe(s)})]);
+    for (const r of RONDAS) {
+      const suyos = estado.equipos[s].filter(x => x.grupo === r.grupo);
+      const rej = el("div", {class:"rej"});
+      for (const x of suyos) rej.appendChild(tarjeta(x.id, null, estado.diamantes[s] === x.id ? "elegido" : ""));
+      for (let n = suyos.length; n < r.cuantos; n++) rej.appendChild(el("div", {class:"hueco"}));
+      col.appendChild(el("div", {class:"grupo-draft"}, [el("span", {text:r.titulo.toUpperCase() + " " + suyos.length + "/" + r.cuantos}), rej]));
+    }
+    caja.appendChild(col);
+  }
+}
+function pintaZona() {
+  const z = $("#zona"); z.textContent = "";
+  if (!estado) { z.appendChild(el("p", {class:"vacio", text:"Conectando con el anfitrion..."})); return; }
+  if (estado.fase === "moneda") {
+    z.appendChild(el("div", {class:"moneda", text:"🪙"}));
+    z.appendChild(el("p", {class:"aviso-turno", style:"text-align:center",
+      text:"Moneda al aire: empieza " + (estado.moneda === yo.slug ? "tu" : nombreDe(estado.moneda)) + "."}));
+    return;
+  }
+  if (estado.fase === "picks") {
+    const t = estado.turnos[estado.turno];
+    const ronda = RONDAS.find(r => r.grupo === t.grupo);
+    const mio = t.quien === yo.slug;
+    const esperando = mio && accionPendiente && accionPendiente.tipo === "elige" && accionPendiente.turno === estado.turno;
+    z.appendChild(el("p", {class:"aviso-turno" + (mio ? " mio" : ""),
+      text:mio ? (esperando ? "Enviando tu eleccion..." : "Te toca: elige un " + ronda.texto)
+               : "Le toca a " + nombreDe(t.quien) + ": elige un " + ronda.texto}));
+    const ops = el("div", {class:"opciones"});
+    for (const id of estado.opciones) ops.appendChild(tarjetaOpcion(id, mio && !esperando));
+    z.appendChild(ops);
+    return;
+  }
+  if (estado.fase === "arquetipos" || estado.fase === "diamante" || estado.fase === "fin") {
+    const riv = rivalSlug();
+    z.appendChild(el("div", {class:"arquetipos"}, [
+      el("div", {class:"caja"}, [el("small", {text:"Tu arquetipo"}), document.createTextNode(ARQUETIPOS[estado.arquetipos[yo.slug]])]),
+      el("div", {class:"caja"}, [el("small", {text:"Arquetipo de " + nombreDe(riv)}), document.createTextNode(ARQUETIPOS[estado.arquetipos[riv]])])]));
+  }
+  if (estado.fase === "arquetipos") {
+    z.appendChild(el("p", {class:"aviso-turno", text:"Todos tus jugadores seran de este arquetipo (menos los Idolos)."}));
+    return;
+  }
+  if (estado.fase === "diamante") {
+    const elegido = estado.diamantes[yo.slug];
+    z.appendChild(el("p", {class:"aviso-turno" + (elegido ? "" : " mio"),
+      text:elegido ? "Esperando a que " + nombreDe(rivalSlug()) + " elija su Diamante..."
+                   : "Elige quien de tu equipo sera tu Diamante (de tu arquetipo). Los Idolos no pueden."}));
+    const rej = el("div", {class:"elige-diamante"});
+    for (const x of estado.equipos[yo.slug]) {
+      const c = porId[x.id] || {};
+      const f = tarjeta(x.id, c.idolo || elegido ? null : () => elegirDiamante(x.id), elegido === x.id ? "elegido" : "");
+      if (c.idolo) f.style.opacity = ".45";
+      rej.appendChild(f);
+    }
+    z.appendChild(rej);
+    return;
+  }
+  if (estado.fase === "fin") {
+    const d = porId[estado.diamantes[yo.slug]] || {};
+    z.appendChild(el("p", {class:"aviso-turno mio", text:"Draft terminado. Tu Diamante: " + (d.nombre || "?") + "."}));
+    z.appendChild(el("p", {class:"nota", text:"Tu equipo se ha guardado en Pizarra. El siguiente paso (montar el equipo, con sus reglas, e importarlo a tu partida) esta en camino."}));
+    guardaResultado();
+    z.appendChild(el("button", {class:"btn verde", text:"Volver a la sala", onclick:salirDelDraft}));
+    return;
+  }
+  if (estado.fase === "cancelado") {
+    z.appendChild(el("p", {class:"aviso-turno", text:"El draft se ha cancelado."}));
+    z.appendChild(el("button", {class:"btn", text:"Volver a la sala", onclick:salirDelDraft}));
+  }
+}
+function pinta() { pintaMarcador(); pintaZona(); pintaEquipos(); }
+
+/* ---------------- guardar el resultado ---------------- */
+let guardadoDe = null;
+async function guardaResultado() {
+  if (!estado || guardadoDe === estado.sala) return;
+  guardadoDe = estado.sala;
+  const riv = rivalSlug();
+  const lista = s => estado.equipos[s].map(x => {
+    const c = porId[x.id] || {};
+    return {identidad:x.id, grupo:x.grupo, nombre:c.nombre || "", posicion:c.posicion || "",
+            idolo:!!c.idolo, apt:c.apt || "jugador", legal:!!c.legal,
+            rol:x.grupo === "GER" ? "gerente" : x.grupo === "ENT" ? "entrenador" : "jugador",
+            diamante:estado.diamantes[s] === x.id};
+  });
+  const resultado = {sala:estado.sala, yo:nombreDe(yo.slug), rival:nombreDe(riv),
+    arquetipo:estado.arquetipos[yo.slug], arquetipo_nombre:ARQUETIPOS[estado.arquetipos[yo.slug]],
+    diamante:estado.diamantes[yo.slug], jugadores:lista(yo.slug),
+    rival_arquetipo:ARQUETIPOS[estado.arquetipos[riv]], rival_equipo:lista(riv)};
+  try { await pedir("/api/draft/guardar", {method:"POST", headers:{"Content-Type":"application/json"},
+                                           body:JSON.stringify({resultado})});
+        avisa("Draft guardado en Pizarra."); }
+  catch (e) { guardadoDe = null; avisa("No he podido guardar el draft: " + e.message, "mal"); }
+}
+async function cargaGuardados() {
+  const caja = $("#guardados"); caja.textContent = "";
+  let g = [];
+  try { g = (await pedir("/api/draft/guardados")).guardados; } catch (e) {}
+  for (const d of g.slice(0, 12))
+    caja.appendChild(el("div", {class:"persona"}, [el("span", {class:"quien"}, [
+      document.createTextNode("Contra " + (d.rival || "?")), el("br"),
+      el("small", {text:(d.fecha || "").replace("T", " ") + " · " + (d.arquetipo_nombre || "") + " · " + d.cuantos + " jugadores"})])]));
+  if (!g.length) caja.appendChild(el("p", {class:"vacio", text:"Todavia no has terminado ningun draft."}));
+}
+
+// si ya habia entrado antes, se entra solo con el mismo nombre
+if ((leeLocal("draft-nombre") || {}).nombre) entrar();
+</script>
+</body>
+</html>
