@@ -205,7 +205,7 @@ import zlib
 from ievr import equipos as EQ, escribir as E, inventario, jugador as J, presets as PR
 
 NOMBRE_EQUIPO = "Draft"
-GRUPOS_DE_JUGADOR = ("DEL", "MED", "DEF", "POR")
+GRUPOS_DE_JUGADOR = ("DEL", "MED", "DEF", "POR", "JUG")    # JUG: sin posiciones (O-254)
 # todo esto sale "libre" en el montaje: se consigue entero en la copia
 CATEGORIAS_LIBRES = tuple(E.CATEGORIA_RANURA.values()) + (
     "supertecnica", "aura", "escudo", "equipacion-equipo", "tactica-objeto")
@@ -295,6 +295,8 @@ def _coloca_en_el_equipo(plain, i, filas, resultado, avisos):
     campo, banquillo, gerentes = [], [], []
     for j, fila in zip(resultado["jugadores"], filas):
         g = j.get("grupo")
+        if g == "JUG":
+            j = dict(j, grupo=j.get("posicion") or "MED")     # sin posiciones: la suya
         if g == "ENT":
             plain = _mete(plain, i, 19, fila, j, avisos)
         elif g == "GER":
@@ -409,11 +411,24 @@ def leer_montaje(fichero):
         return zlib.decompress(fh.read()), d["montaje"]
 
 
-def comprueba_cambio(plain, info, c):
+# lo que cada regla del draft deja sin tocar al montar el equipo (O-254)
+CAMBIOS_POR_REGLA = {
+    "judias": ({"judia", "judias", "preset_judias"}, "en este draft no hay judias"),
+    "equipacion": ({"equipacion", "preset_equipacion"}, "en este draft no se cambia la equipacion de los jugadores"),
+    "tecnicas": ({"tecnica"}, "en este draft no se ponen tecnicas nuevas: cada uno lleva las suyas"),
+    "pasivas": ({"pasiva", "preset_pasivas", "personalizada", "pasiva_personal"},
+                "en este draft no se cambian las pasivas: cada uno lleva las suyas"),
+}
+
+
+def comprueba_cambio(plain, info, c, reglas_draft=None):
     """Las reglas del draft sobre un cambio del editor. Lanza Ilegal si no vale."""
     t = c.get("tipo")
     if t in ARREGLOS:
         return
+    for clave, (tipos, motivo) in CAMBIOS_POR_REGLA.items():
+        if t in tipos and (reglas_draft or {}).get(clave) is False:
+            raise E.Ilegal(motivo)
     if t not in CAMBIOS_DE_JUGADOR and t not in CAMBIOS_DE_EQUIPO:
         raise E.Ilegal("en el draft eso no se puede cambiar: nivel, rareza y arquetipo los "
                        "fija el draft, no hay heredadas y no se fichan jugadores")
@@ -432,7 +447,7 @@ def comprueba_cambio(plain, info, c):
     if fila not in filas:
         raise E.Ilegal("ese jugador no es de tu draft")
     if t == "tecnica":
-        motivo = tecnica_bloqueada(plain, fila, int(c.get("ranura", 0)))
+        motivo = tecnica_bloqueada(plain, fila, int(c.get("ranura", 0)), reglas_draft)
         if motivo:
             raise E.Ilegal(motivo)
     if t == "preset_pasivas":
@@ -443,8 +458,10 @@ def comprueba_cambio(plain, info, c):
                            "de %s" % J.ARQUETIPOS.get(mio, "?"))
 
 
-def tecnica_bloqueada(plain, fila, ranura):
+def tecnica_bloqueada(plain, fila, ranura, reglas_draft=None):
     """Por que no se puede tocar esa ranura de tecnica en el draft, o ''."""
+    if (reglas_draft or {}).get("tecnicas") is False:
+        return CAMBIOS_POR_REGLA["tecnicas"][1]
     if J.array(plain, J.ARRAY_RAREZA)[fila] >= 5:
         return "en el draft las tecnicas de un Idolo o un Diamante vienen fijas"
     if ranura <= 3:

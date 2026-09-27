@@ -280,6 +280,7 @@ class SesionDraft(Sesion):
         self.nombre = sesion.nombre
         self.plain = plain
         self.info = info
+        self.reglas = {}            # las del draft (O-254); las pone sesion_de_montaje
         self.historial = []
         self.cambios = []
         self.lock = threading.Lock()
@@ -325,7 +326,9 @@ def sesion_de_montaje(fichero, crear=False):
             with sesion.lock:
                 real = sesion.plain
             plain, info = DR.crear_montaje(real, sesion.nombre, fichero)
-        montajes[fichero] = SesionDraft(fichero, plain, info, DR.leer(fichero).get("rival"))
+        d = DR.leer(fichero)
+        montajes[fichero] = SesionDraft(fichero, plain, info, d.get("rival"))
+        montajes[fichero].reglas = d.get("reglas") or {}
         return montajes[fichero]
 
 
@@ -1571,7 +1574,7 @@ class Manejador(BaseHTTPRequestHandler):
                     if tipo == "tecnica":
                         if self.draft:
                             from ievr import draft as DR
-                            motivo = DR.tecnica_bloqueada(p, fila, ranura)
+                            motivo = DR.tecnica_bloqueada(p, fila, ranura, self.ses.reglas)
                             if motivo:
                                 return self._responder(200, {"admite": None, "puede": False,
                                                              "motivo": motivo, "opciones": []})
@@ -1639,7 +1642,7 @@ class Manejador(BaseHTTPRequestHandler):
                                "Importar equipo, no guardando aqui")
             if u.path == "/api/draft/montar":
                 ses = sesion_de_montaje(cuerpo.get("fichero") or "", crear=True)
-                return self._responder(200, {"montaje": ses.info, "origen": ses.origen})
+                return self._responder(200, {"montaje": dict(ses.info, reglas=ses.reglas), "origen": ses.origen})
             if u.path == "/api/draft/importar":
                 # a la partida de verdad, sea cual sea la pagina que lo pida
                 from ievr import draft as DR
@@ -1711,7 +1714,7 @@ class Manejador(BaseHTTPRequestHandler):
         t = c.get("tipo")
         if self.draft:
             from ievr import draft as DR
-            DR.comprueba_cambio(self.ses.plain, self.ses.info, c)
+            DR.comprueba_cambio(self.ses.plain, self.ses.info, c, self.ses.reglas)
         fila = int(c.get("fila", -1))
         if t == "nivel":
             return self.ses.aplicar(E.poner_nivel, fila, int(c["valor"]))

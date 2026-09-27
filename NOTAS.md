@@ -5932,6 +5932,32 @@ eleccion y un desplegable en cada jugador con la informacion detallada.
   cambiable. `basedatos.personaje` da ahora `admite` en cada tecnica y la
   lista `ranuras` (las formas del draft tambien).
 
+### O-254 · Draft: sin judias/equipacion/tecnicas/pasivas, sin posiciones, intercambio
+
+Aaron pidio modos nuevos. En la ventana de invitar:
+
+- "Al montar el equipo": Judias, Equipacion, Tecnicas nuevas y Cambiar
+  pasivas, cada una Si/No (`reglas.judias/equipacion/tecnicas/pasivas`).
+  Viajan con el resultado; el servidor las aplica en
+  `draft.comprueba_cambio` (`CAMBIOS_POR_REGLA`) y en `tecnica_bloqueada`,
+  y el editor del draft esconde lo que no se puede (`prohibidoDraft`).
+  "Cambiar pasivas" = No tambien fija la personalizada y las de personal
+  (decision mia: "sin cambiar pasivas" es llevar las que traen).
+- "Sin posiciones": los jugadores salen en rondas de 2 para cada uno (tanda
+  de 4) de cualquier posicion (grupo `JUG`), tantas como jugadores haya en
+  las cantidades (16 -> 8 rondas); gerentes y entrenador igual. Los turnos
+  llevan su `ronda` (antes la tanda cambiaba al cambiar de grupo, y aqui
+  todas son JUG). Al montar, cada JUG va a un puesto de SU posicion.
+- "Intercambio de jugadores" (No / hasta 1, 2, 3): al acabar las
+  elecciones, fase `intercambio` antes de los arquetipos. Cada uno elige a
+  quien da y a quien pide (los mismos de cada lado; jugador por jugador,
+  gerente por gerente, entrenador por entrenador) y propone; el otro acepta
+  o rechaza. Se puede retirar. Cuando los dos pulsan Listo, o se llega al
+  tope, se sigue. Queda un historial de lo propuesto.
+- Probado con dos ventanas: sin posiciones (10 rondas, posiciones
+  mezcladas), intercambio 1 por 1 aceptado y Listo de los dos, montaje con
+  judias y tecnicas nuevas rechazadas y la equipacion permitida.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

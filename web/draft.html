@@ -197,6 +197,16 @@
   .ranura-ficha .fija { font-size:var(--t-xs); font-weight:800; text-align:center; border-radius:6px; padding:2px 0;
     background:#e4ebf5; color:#5b6b80; }
   .ranura-ficha .fija.libre { background:#e4f7ec; color:#17734b; }
+  /* el intercambio (O-254) */
+  .oferta { background:#fff; border:2px solid var(--linea); border-radius:12px; padding:12px; margin:0 0 10px;
+    display:flex; flex-direction:column; gap:10px; }
+  .titulo-oferta { margin:0; font-weight:900; font-style:italic; color:var(--azul-osc); }
+  .lados-oferta { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:10px; align-items:start; }
+  @media (max-width:760px) { .lados-oferta { grid-template-columns:1fr; } }
+  .lado-oferta small { display:block; font-weight:900; font-size:var(--t-xs); letter-spacing:.05em; color:var(--suave);
+    text-transform:uppercase; margin-bottom:5px; }
+  .flecha-oferta { align-self:center; font-size:30px; color:var(--azul-marco); font-weight:900; }
+  .rej-inter { display:grid; grid-template-columns:repeat(auto-fill, minmax(72px, 1fr)); gap:6px; }
   .botones-fin { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
   .chip.idolo { background:linear-gradient(180deg,#ef4fe3,#9e2596); }
   /* el juego de origen, con la misma pastilla que lleva la tarjeta arriba */
@@ -289,6 +299,9 @@ const RONDAS_BASE = [
   {grupo:"ENT", cuantos:1, texto:"entrenador", titulo:"Entrenador"},
 ];
 const GRUPOS_JUGADOR = ["DEL", "MED", "DEF", "POR"];
+// "sin posiciones" (O-254): rondas de jugadores de cualquier posicion
+const RONDA_JUG = {grupo:"JUG", texto:"jugador (cualquier posicion)", titulo:"Jugadores"};
+function esJug(g) { return GRUPOS_JUGADOR.includes(g) || g === "JUG"; }
 // cada ronda saca una tanda para los dos (por defecto justo los que se
 // reparten) y se van quitando segun se eligen (Aaron)
 // Idolos: la probabilidad de cada hueco de jugador de la tanda y cuantos
@@ -315,7 +328,10 @@ const TIEMPOS = [[0, "Sin limite"], [5, "Blitz: 5 segundos"], [30, "30 segundos"
 // la invitacion; el que invita reparte con ellas
 const REGLAS_DE_SERIE = {sagas:SAGAS.slice(), ilegales:true, idolos:"pocos", genero:"todos",
   elementos:ELEMENTOS.map(e => e[0]), afinidad:"libre", tanda:"justa",
-  cantidades:{DEL:4, MED:5, DEF:3, POR:4, GER:3, ENT:1}, arquetipo:"azar", tiempo:0, repetidos:true};
+  cantidades:{DEL:4, MED:5, DEF:3, POR:4, GER:3, ENT:1}, arquetipo:"azar", tiempo:0, repetidos:true,
+  // al montar el equipo (O-254): que se puede cambiar
+  judias:true, equipacion:true, tecnicas:true, pasivas:true,
+  sin_posiciones:false, intercambio:0};
 function completa(r) {
   const x = JSON.parse(JSON.stringify(Object.assign({}, REGLAS_DE_SERIE, r || {})));
   x.cantidades = Object.assign({}, REGLAS_DE_SERIE.cantidades, (r || {}).cantidades || {});
@@ -323,10 +339,32 @@ function completa(r) {
 }
 let reglas = completa(leeLocal("draft-reglas"));
 function rondasDe(r) {
-  const c = completa(r).cantidades;
-  return RONDAS_BASE.map(x => Object.assign({}, x, {cuantos:Number(c[x.grupo]) || 0})).filter(x => x.cuantos > 0);
+  r = completa(r);
+  const c = r.cantidades;
+  let jug;
+  if (r.sin_posiciones) {
+    // los mismos jugadores en total, en rondas de 2 para cada uno
+    let total = GRUPOS_JUGADOR.reduce((a, g) => a + (Number(c[g]) || 0), 0);
+    jug = [];
+    while (total > 0) { const n = Math.min(2, total); jug.push(Object.assign({}, RONDA_JUG, {cuantos:n})); total -= n; }
+  } else jug = RONDAS_BASE.filter(x => esJug(x.grupo)).map(x => Object.assign({}, x, {cuantos:Number(c[x.grupo]) || 0}));
+  const staff = RONDAS_BASE.filter(x => !esJug(x.grupo)).map(x => Object.assign({}, x, {cuantos:Number(c[x.grupo]) || 0}));
+  return jug.concat(staff).filter(x => x.cuantos > 0).map((x, k) => Object.assign(x, {k}));
 }
-function rondaDe(grupo, r) { return rondasDe(r).find(x => x.grupo === grupo) || RONDAS_BASE.find(x => x.grupo === grupo); }
+// las rondas juntadas por grupo (para contar cuantos de cada hay)
+function gruposDe(r) {
+  const fuera = [];
+  for (const x of rondasDe(r)) {
+    const g = fuera.find(y => y.grupo === x.grupo);
+    if (g) g.cuantos += x.cuantos; else fuera.push(Object.assign({}, x));
+  }
+  return fuera;
+}
+function rondaDelTurno(t) {
+  const rs = rondasDe(estado.reglas);
+  return (t && t.ronda != null && rs[t.ronda]) || rondaDe(t ? t.grupo : "", estado.reglas);
+}
+function rondaDe(grupo, r) { return rondasDe(r).find(x => x.grupo === grupo) || RONDAS_BASE.find(x => x.grupo === grupo) || RONDA_JUG; }
 // cuantas cartas saca la tanda de una ronda
 function tamanoTanda(cuantos, r) {
   const extra = {justa:0, mas2:2, mas4:4, doble:2 * cuantos}[completa(r).tanda] || 0;
@@ -444,6 +482,11 @@ function textoReglas(r) {
   if (r.tiempo === 5) partes.push("BLITZ (5 s por eleccion)");
   else if (r.tiempo) partes.push(r.tiempo + " s por turno");
   if (!r.repetidos) partes.push("sin versiones repetidas");
+  if (r.sin_posiciones) partes.push("sin posiciones");
+  if (r.intercambio) partes.push("intercambio de hasta " + r.intercambio);
+  const sin = [["judias", "judias"], ["equipacion", "equipacion"], ["tecnicas", "tecnicas nuevas"], ["pasivas", "cambiar pasivas"]]
+    .filter(([k]) => r[k] === false).map(([, n]) => n);
+  if (sin.length) partes.push("sin " + sin.join(", sin "));
   return partes.join(" · ");
 }
 // quien puede salir en una ronda con esas reglas. Si de los juegos elegidos
@@ -452,10 +495,11 @@ function textoReglas(r) {
 // todos (Aaron, O-250)
 function candidatosDe(grupo, r, opc) {
   r = completa(r); opc = opc || {};
-  const esJugador = GRUPOS_JUGADOR.includes(grupo);
+  const esJugador = esJug(grupo);
   const hacen = opc.hacen || tamanoTanda(rondaDe(grupo, r).cuantos, r);
   let base = grupo === "GER" ? pool.filter(c => c.apt === "gerente")
            : grupo === "ENT" ? pool.filter(c => c.apt === "entrenador")
+           : grupo === "JUG" ? pool.filter(c => GRUPOS_JUGADOR.includes(c.posicion))
            : pool.filter(c => c.posicion === grupo);
   base = base.filter(c => r.ilegales || c.legal);
   const conGenero = r.genero === "todos" ? base
@@ -592,6 +636,22 @@ function abreInvitar(slug, nombre) {
     cuerpo.appendChild(tarjetaRegla("Cuantos para cada uno", "", el("div", {class:"pila"}, [pasos,
       el("span", {class:"total-jug" + (prob ? " mal" : ""), text:prob || (jug + " jugadores: " + Math.min(11, jug) + " en el campo y "
         + Math.max(0, jug - 11) + " suplentes")})]), true));
+    cuerpo.appendChild(tarjetaRegla("Posiciones", reglas.sin_posiciones
+        ? "Rondas de 2 para cada uno con jugadores de cualquier posicion (gerentes y entrenador igual)"
+        : "Una ronda por posicion: delanteros, medios, defensas y porteros",
+      segmento([[false, "Por posiciones"], [true, "Sin posiciones"]], reglas.sin_posiciones,
+               v => cambia(() => { reglas.sin_posiciones = v === true || v === "true"; }))));
+    cuerpo.appendChild(tarjetaRegla("Intercambio de jugadores", reglas.intercambio
+        ? "Al terminar, antes de los arquetipos, podeis cambiaros hasta " + reglas.intercambio + " (si quereis)"
+        : "Sin intercambio",
+      segmento([[0, "No"], [1, "Hasta 1"], [2, "Hasta 2"], [3, "Hasta 3"]], reglas.intercambio,
+               v => cambia(() => { reglas.intercambio = Number(v); }))));
+    const montar = el("div", {class:"pasos"});
+    for (const [k, n] of [["judias", "Judias"], ["equipacion", "Equipacion"], ["tecnicas", "Tecnicas nuevas"], ["pasivas", "Cambiar pasivas"]])
+      montar.appendChild(el("div", {class:"paso"}, [el("span", {class:"paso-nom", text:n}),
+        segmento([[true, "Si"], [false, "No"]], reglas[k] !== false, v => cambia(() => { reglas[k] = v === true || v === "true"; }))]));
+    cuerpo.appendChild(tarjetaRegla("Al montar el equipo", "Que se puede tocar despues del draft. \"Tecnicas nuevas\": poner tecnicas en su arbol; "
+      + "\"Cambiar pasivas\": tambien la personalizada", montar, true));
     cuerpo.appendChild(tarjetaRegla("Tamano de la tanda", "Cuantos salen en cada ronda: justa = los que se reparten",
       segmento([["justa", "Justa"], ["mas2", "+2"], ["mas4", "+4"], ["doble", "El doble"]], reglas.tanda,
                v => cambia(() => { reglas.tanda = v; }))));
@@ -613,7 +673,7 @@ function abreInvitar(slug, nombre) {
     if (faltas.length) cuentas.appendChild(el("span", {class:"mal", text:faltas.join(" ")}));
     else {
       cuentas.appendChild(el("span", {class:"eti", text:"Pueden salir:"}));
-      for (const r of rondasDe(reglas)) {
+      for (const r of gruposDe(reglas)) {
         const x = candidatosDe(r.grupo, reglas);
         cuentas.appendChild(el("span", {class:"cuenta" + (x.grave ? " mal" : x.notas.length ? " nota" : ""),
           title:x.notas.join(", "), text:r.titulo + " " + x.lista.length + (x.notas.length ? " (" + x.notas.join(", ") + ")" : "")}));
@@ -785,7 +845,7 @@ function nuevoEstado() {
   rondasDe(r).forEach((x, k) => {
     const primero = k % 2 === 0 ? gana : (gana === a ? b : a);
     const segundo = primero === a ? b : a;
-    for (let n = 0; n < x.cuantos; n++) { turnos.push({grupo:x.grupo, quien:primero}); turnos.push({grupo:x.grupo, quien:segundo}); }
+    for (let n = 0; n < x.cuantos; n++) { turnos.push({grupo:x.grupo, quien:primero, ronda:k}); turnos.push({grupo:x.grupo, quien:segundo, ronda:k}); }
   });
   const e = {v:2, sala:activo.sala, anfitrion:a, invitado:b,
              nombres:{[a]:yo.nombre, [b]:activo.rival.nombre},
@@ -823,15 +883,15 @@ function sacaDe(lista, n, usados, nombres) {
   }
   return fuera;
 }
-function sacaOpciones(grupo) {
+function sacaOpciones(grupo, k) {
   const r = reglasDelDraft();
-  const ronda = rondaDe(grupo, r);
+  const ronda = (k != null && rondasDe(r)[k]) || rondaDe(grupo, r);
   const ya = cogidos();
   // sin repetidos: ni el mismo nombre en todo el draft; con repetidos, solo
   // no en la misma tanda
   const usados = new Set(ya), nombres = new Set(r.repetidos ? [] : (estado.vistos || []));
   let fuera = [];
-  if (r.afinidad === "cada_uno" && GRUPOS_JUGADOR.includes(grupo)) {
+  if (r.afinidad === "cada_uno" && esJug(grupo)) {
     // media tanda de la afinidad de cada uno, mezclada
     const mitad = Math.ceil(tamanoTanda(ronda.cuantos, r) / 2);
     for (const s of [estado.anfitrion, estado.invitado]) {
@@ -849,12 +909,14 @@ function sacaOpciones(grupo) {
   return fuera;
 }
 function empiezaRonda() {
-  if (estado.turno >= estado.turnos.length) return empiezaArquetipos();
+  if (estado.turno >= estado.turnos.length)
+    return reglasDelDraft().intercambio > 0 ? empiezaIntercambio() : empiezaArquetipos();
   estado.fase = "picks";
   // la tanda sale al empezar cada ronda y dura toda la ronda
-  const grupo = estado.turnos[estado.turno].grupo;
-  const antes = estado.turno > 0 ? estado.turnos[estado.turno - 1].grupo : null;
-  if (grupo !== antes || !estado.opciones.length) estado.opciones = sacaOpciones(grupo);
+  const t = estado.turnos[estado.turno], grupo = t.grupo;
+  const deRonda = x => x.ronda != null ? x.ronda : x.grupo;
+  const antes = estado.turno > 0 ? deRonda(estado.turnos[estado.turno - 1]) : null;
+  if (deRonda(t) !== antes || !estado.opciones.length) estado.opciones = sacaOpciones(grupo, t.ronda);
   const r = reglasDelDraft();
   estado.limite = r.tiempo ? Date.now() + r.tiempo * 1000 : 0;
   estado.seq++;
@@ -869,7 +931,7 @@ function motivoNoPuede(quien, id) {
   const r = reglasDelDraft();
   const t = estado.turnos[estado.turno];
   const grupo = t ? t.grupo : "";
-  const propia = x => !(r.afinidad === "cada_uno" && GRUPOS_JUGADOR.includes(grupo) && estado.elementos_de)
+  const propia = x => !(r.afinidad === "cada_uno" && esJug(grupo) && estado.elementos_de)
                       || (porId[x] || {}).elemento === estado.elementos_de[quien];
   const mios = estado.equipos[quien].filter(x => esIdolo(x.id)).length;
   const caben = x => !esIdolo(x) || mios < IDOLOS_POR_CABEZA;
@@ -896,6 +958,85 @@ setInterval(() => {
   const libres = estado.opciones.filter(x => !motivoNoPuede(t.quien, x));
   if (libres.length && aplicaEleccion(t.quien, estado.turno, libres[azar(libres.length)])) { publicaEstado(); pinta(); }
 }, 1000);
+/* Intercambio de jugadores (O-254): al acabar las elecciones, antes de los
+   arquetipos, cada uno puede proponer cambiar jugadores (los mismos de cada
+   lado, gerente por gerente y entrenador por entrenador) hasta el tope de las
+   reglas. El otro acepta o rechaza. Cuando los dos dicen Listo (o se llega
+   al tope) se sigue. */
+function empiezaIntercambio() {
+  estado.fase = "intercambio"; estado.opciones = []; estado.limite = 0;
+  estado.intercambio = {oferta:null, listos:{}, hechos:0, historial:[]};
+  estado.seq++;
+  guardaLocal("draft-estado", estado);
+}
+function categoriaDe(x) { return x.grupo === "GER" || x.grupo === "ENT" ? x.grupo : "JUG"; }
+function problemaOferta(de, doy, pido) {
+  const ic = estado.intercambio, r = reglasDelDraft();
+  if (!ic || estado.fase !== "intercambio") return "no es momento de intercambiar";
+  if (ic.oferta) return "ya hay una propuesta en marcha";
+  if (!doy.length || !pido.length) return "elige a quien das y a quien pides";
+  if (doy.length !== pido.length) return "tienen que ser los mismos de cada lado";
+  const quedan = r.intercambio - ic.hechos;
+  if (doy.length > quedan) return "como mucho " + quedan + (quedan === 1 ? " cambio mas" : " cambios mas");
+  const otro = de === estado.anfitrion ? estado.invitado : estado.anfitrion;
+  const a = doy.map(id => estado.equipos[de].find(x => x.id === id));
+  const b = pido.map(id => estado.equipos[otro].find(x => x.id === id));
+  if (a.some(x => !x) || b.some(x => !x)) return "alguno ya no esta en su equipo";
+  const cuenta = l => l.map(categoriaDe).sort().join(",");
+  if (cuenta(a) !== cuenta(b)) return "jugador por jugador, gerente por gerente y entrenador por entrenador";
+  return "";
+}
+function aplicaOferta(de, doy, pido) {
+  if (problemaOferta(de, doy, pido)) return false;
+  estado.intercambio.oferta = {de, doy:doy.slice(), pido:pido.slice()};
+  estado.intercambio.listos = {};
+  estado.seq++; guardaLocal("draft-estado", estado);
+  return true;
+}
+function aplicaRespuesta(quien, acepta) {
+  const ic = estado.intercambio, o = ic && ic.oferta;
+  if (estado.fase !== "intercambio" || !o || o.de === quien) return false;
+  if (acepta) {
+    const de = o.de;
+    const salen = estado.equipos[de].filter(x => o.doy.includes(x.id));
+    const entran = estado.equipos[quien].filter(x => o.pido.includes(x.id));
+    estado.equipos[de] = estado.equipos[de].filter(x => !o.doy.includes(x.id)).concat(entran);
+    estado.equipos[quien] = estado.equipos[quien].filter(x => !o.pido.includes(x.id)).concat(salen);
+    ic.hechos += o.doy.length;
+  }
+  ic.historial.push({de:o.de, doy:o.doy, pido:o.pido, acepta:!!acepta});
+  ic.oferta = null;
+  if (ic.hechos >= reglasDelDraft().intercambio) return empiezaArquetipos() || true;
+  estado.seq++; guardaLocal("draft-estado", estado);
+  return true;
+}
+function aplicaRetira(quien) {
+  const ic = estado.intercambio;
+  if (estado.fase !== "intercambio" || !ic.oferta || ic.oferta.de !== quien) return false;
+  ic.oferta = null; estado.seq++; guardaLocal("draft-estado", estado);
+  return true;
+}
+function aplicaListo(quien) {
+  const ic = estado.intercambio;
+  if (estado.fase !== "intercambio" || ic.listos[quien]) return false;
+  ic.listos[quien] = true;
+  if (ic.listos[estado.anfitrion] && ic.listos[estado.invitado] && !ic.oferta) return empiezaArquetipos() || true;
+  estado.seq++; guardaLocal("draft-estado", estado);
+  return true;
+}
+function aplicaIntercambio(quien, a) {
+  if (a.tipo === "oferta") return aplicaOferta(quien, a.doy || [], a.pido || []);
+  if (a.tipo === "responde") return aplicaRespuesta(quien, a.acepta);
+  if (a.tipo === "retira") return aplicaRetira(quien);
+  if (a.tipo === "listo") return aplicaListo(quien);
+  return false;
+}
+let selInter = {mios:[], suyos:[]};
+function accionIntercambio(a) {
+  selInter = {mios:[], suyos:[]};
+  if (activo.rol === "anfitrion") { if (aplicaIntercambio(yo.slug, a)) { publicaEstado(); pinta(); } return; }
+  mandaAccion(a);
+}
 function empiezaArquetipos() {
   const r = reglasDelDraft();
   const a = estado.anfitrion, b = estado.invitado;
@@ -946,6 +1087,7 @@ function alAccion(m) {
   if (m.tipo === "elige") ok = aplicaEleccion(estado.invitado, m.turno, m.id);
   if (m.tipo === "arquetipo") ok = aplicaArquetipo(estado.invitado, Number(m.valor));
   if (m.tipo === "diamante") ok = aplicaDiamante(estado.invitado, m.id);
+  if (["oferta", "responde", "retira", "listo"].includes(m.tipo)) ok = aplicaIntercambio(estado.invitado, m);
   // aunque no cambie nada (repetida), se vuelve a mandar el estado para que
   // el invitado vea que ya esta; pero como cada accion llega por los tres
   // servidores, las repetidas solo una vez por segundo
@@ -1025,9 +1167,9 @@ function pintaMarcador() {
   };
   m.appendChild(el("div", {class:"lado" + (t && t.quien === yo.slug ? " turno" : "")}, [
     document.createTextNode(nombreDe(yo.slug) + " (tu)"), el("small", {text:arq(yo.slug)})]));
-  const ronda = t ? rondaDe(t.grupo, estado.reglas) : null;
+  const ronda = t ? rondaDelTurno(t) : null;
   m.appendChild(el("div", {class:"centro"}, [
-    document.createTextNode(ronda ? ronda.titulo : {moneda:"Moneda al aire", arquetipos:"Arquetipos", diamante:"Diamantes", fin:"Draft terminado", cancelado:"Draft cancelado"}[estado.fase] || ""),
+    document.createTextNode(ronda ? ronda.titulo : {moneda:"Moneda al aire", intercambio:"Intercambio", arquetipos:"Arquetipos", diamante:"Diamantes", fin:"Draft terminado", cancelado:"Draft cancelado"}[estado.fase] || ""),
     el("small", {text:estado.fase === "picks" ? "turno " + (estado.turno + 1) + " de " + estado.turnos.length : ""})]));
   m.appendChild(el("div", {class:"lado der" + (t && t.quien === riv ? " turno" : "")}, [
     document.createTextNode(nombreDe(riv)), el("small", {text:(rivalConectado ? "" : "desconectado · ") + arq(riv)})]));
@@ -1069,7 +1211,7 @@ function pintaEquipos() {
   if (!estado) return;
   for (const s of [yo.slug, rivalSlug()]) {
     const col = el("div", {class:"marco equipo-draft"}, [el("h3", {text:s === yo.slug ? "Tu equipo" : "Equipo de " + nombreDe(s)})]);
-    for (const r of rondasDe(estado.reglas)) {
+    for (const r of gruposDe(estado.reglas)) {
       const suyos = estado.equipos[s].filter(x => x.grupo === r.grupo);
       const rej = el("div", {class:"rej"});
       for (const x of suyos) rej.appendChild(tarjeta(x.id, () => abreFichaDraft(x.id), estado.diamantes[s] === x.id ? "elegido" : ""));
@@ -1094,10 +1236,10 @@ function pintaZona() {
   if (estado.reglas) z.appendChild(el("p", {class:"nota", text:"Reglas: " + textoReglas(estado.reglas)}));
   if (estado.fase === "picks") {
     const t = estado.turnos[estado.turno];
-    const ronda = rondaDe(t.grupo, estado.reglas);
+    const ronda = rondaDelTurno(t);
     const mio = t.quien === yo.slug;
     const esperando = mio && accionPendiente && accionPendiente.tipo === "elige" && accionPendiente.turno === estado.turno;
-    const deLaTuya = reglasDelDraft().afinidad === "cada_uno" && GRUPOS_JUGADOR.includes(t.grupo) && estado.elementos_de
+    const deLaTuya = reglasDelDraft().afinidad === "cada_uno" && esJug(t.grupo) && estado.elementos_de
       ? " de tu afinidad (" + (ELEMENTOS.find(x => x[0] === estado.elementos_de[yo.slug]) || ["", ""])[1] + ")" : "";
     z.appendChild(el("p", {class:"aviso-turno" + (mio ? " mio" : "")}, [
       document.createTextNode(mio ? (esperando ? "Enviando tu eleccion..." : "Te toca: elige un " + ronda.texto + deLaTuya)
@@ -1112,6 +1254,7 @@ function pintaZona() {
     z.appendChild(ops);
     return;
   }
+  if (estado.fase === "intercambio") { pintaIntercambio(z); return; }
   if (estado.fase === "arquetipos" || estado.fase === "diamante" || estado.fase === "fin") {
     const riv = rivalSlug();
     const listos = arquetiposListos();
@@ -1168,6 +1311,58 @@ function pintaZona() {
   }
 }
 function pinta() { pintaMarcador(); pintaZona(); pintaEquipos(); }
+
+/* ---------------- la pantalla del intercambio (O-254) ---------------- */
+function pintaIntercambio(z) {
+  const ic = estado.intercambio, r = reglasDelDraft(), riv = rivalSlug();
+  const quedan = r.intercambio - ic.hechos;
+  z.appendChild(el("p", {class:"aviso-turno mio", text:"Intercambio de jugadores: podeis cambiar hasta " + quedan
+    + (quedan === 1 ? " mas" : " mas") + ", uno por uno. Si no quereis, pulsad Listo."}));
+  const fila = ids => el("div", {class:"rej-inter"}, ids.map(id => tarjeta(id, () => abreFichaDraft(id))));
+  if (ic.oferta) {
+    const o = ic.oferta, mia = o.de === yo.slug;
+    z.appendChild(el("div", {class:"oferta"}, [
+      el("p", {class:"titulo-oferta", text:mia ? "Tu propuesta a " + nombreDe(riv) : nombreDe(o.de) + " te propone un cambio"}),
+      el("div", {class:"lados-oferta"}, [
+        el("div", {class:"lado-oferta"}, [el("small", {text:mia ? "Das" : "Te da"}), fila(o.doy)]),
+        el("span", {class:"flecha-oferta", text:"⇄"}),
+        el("div", {class:"lado-oferta"}, [el("small", {text:mia ? "A cambio de" : "A cambio de"}), fila(o.pido)])]),
+      mia ? el("div", {class:"botones-fin"}, [el("span", {class:"nota", text:"Esperando a que responda..."}),
+              el("button", {class:"btn", text:"Retirar la propuesta", onclick:() => accionIntercambio({tipo:"retira"})})])
+          : el("div", {class:"botones-fin"}, [
+              el("button", {class:"btn verde", text:"Aceptar", onclick:() => accionIntercambio({tipo:"responde", acepta:true})}),
+              el("button", {class:"btn rojo", text:"Rechazar", onclick:() => accionIntercambio({tipo:"responde", acepta:false})})])]));
+  } else {
+    // elegir a quien das y a quien pides
+    const lado = (s, clave, titulo) => {
+      const rej = el("div", {class:"rej-inter"});
+      for (const x of estado.equipos[s]) {
+        const sel = selInter[clave].includes(x.id);
+        const f = tarjeta(x.id, () => {
+          selInter[clave] = sel ? selInter[clave].filter(y => y !== x.id) : selInter[clave].concat(x.id);
+          pintaZona();
+        }, sel ? "elegido" : "");
+        rej.appendChild(f);
+      }
+      return el("div", {class:"lado-oferta"}, [el("small", {text:titulo}), rej]);
+    };
+    const motivo = problemaOferta(yo.slug, selInter.mios, selInter.suyos);
+    z.appendChild(el("div", {class:"oferta"}, [
+      el("div", {class:"lados-oferta"}, [lado(yo.slug, "mios", "Das (pulsa en los tuyos)"),
+        el("span", {class:"flecha-oferta", text:"⇄"}),
+        lado(riv, "suyos", "Pides (pulsa en los de " + nombreDe(riv) + ")")]),
+      el("div", {class:"botones-fin"}, [
+        el("button", {class:"btn verde", text:"Proponer el cambio", disabled:motivo ? "" : null,
+          title:motivo || "", onclick:() => { if (!motivo) accionIntercambio({tipo:"oferta", doy:selInter.mios, pido:selInter.suyos}); }}),
+        motivo && (selInter.mios.length || selInter.suyos.length) ? el("span", {class:"nota", text:motivo}) : null,
+        ic.listos[yo.slug] ? el("span", {class:"nota", text:"Estas listo; esperando a " + nombreDe(riv) + "..."})
+          : el("button", {class:"btn", text:"Listo, no quiero cambiar mas", onclick:() => accionIntercambio({tipo:"listo"})})])]));
+  }
+  if (ic.listos[riv]) z.appendChild(el("p", {class:"nota", text:nombreDe(riv) + " ya esta listo."}));
+  for (const h of ic.historial.slice().reverse())
+    z.appendChild(el("p", {class:"nota", text:nombreDe(h.de) + " propuso dar " + h.doy.map(i => (porId[i] || {}).nombre).join(", ")
+      + " por " + h.pido.map(i => (porId[i] || {}).nombre).join(", ") + ": " + (h.acepta ? "aceptado" : "rechazado") + "."}));
+}
 
 /* ---------------- la moneda (O-253) ----------------
    Una moneda dorada con cara (el rayo, para el que invita) y cruz (el balon,

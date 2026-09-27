@@ -1015,6 +1015,8 @@ let modo = "jugadores", seccion = 0, detalle = null, temporizador = null;
 // El editor del modo draft (O-248): el mismo editor, sobre la copia donde se
 // monta el equipo del draft, con sus reglas. Lo abre /draft/montar?f=...
 const DRAFT = window.DRAFT || null;
+// lo que las reglas de ese draft no dejan tocar al montar (O-254)
+function prohibidoDraft(k) { return !!(DRAFT && montaje && montaje.reglas && montaje.reglas[k] === false); }
 
 const MODOS = DRAFT ? [
   {id:"equipos",   nombre:"Equipo"},
@@ -1606,6 +1608,7 @@ function seccionAtributos(d) {
     el("div", {class:"texto"}, [el("b", {text:pz.nombre || "ninguna"}),
       el("span", {text:pz.numero ? "Pasiva personalizada " + pz.numero + ", una por jugador"
                                  : "una por jugador, sale de un manual de la mochila"})]),
+    prohibidoDraft("pasivas") ? el("span", {class:"bloqueada", text:"fija en este draft"}) :
     el("button", {class:"elegir", text:"Cambiar",
       onclick:() => abrePicker("Pasiva personalizada",
         () => pedir("/api/opciones?tipo=personalizada&fila=" + d.fila)
@@ -1614,7 +1617,7 @@ function seccionAtributos(d) {
                   opciones:r.opciones.map(o => ({...o, valor:o.id, etiqueta:o.nombre,
                                                  icono200:o.icono200 || ""}))})),
         v => manda({tipo:"personalizada", fila:d.fila, id:v}))}),
-    pz.id ? el("button", {class:"btn chico", text:"Quitar",
+    pz.id && !prohibidoDraft("pasivas") ? el("button", {class:"btn chico", text:"Quitar",
       onclick:() => manda({tipo:"personalizada", fila:d.fila, id:""})}) : null]);
   caja.appendChild(filaPz);
 
@@ -1634,6 +1637,10 @@ function seccionAtributos(d) {
       }}),
     enEquipo ? el("span", {class:"bloqueada", text:"esta en " + d.equipos.join(", ")}) : null]));
   caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Judias"})]));
+  if (prohibidoDraft("judias")) {
+    caja.appendChild(el("p", {class:"pie-seccion", text:"En este draft no hay judias."}));
+    return caja;
+  }
   if (d.judias.some(x => x.tope)) caja.appendChild(barraPresets(d, "judias"));
   const j = el("div", {});
   for (const x of d.judias)
@@ -1668,9 +1675,9 @@ function seccionTecnicas(d) {
               : t.trozo.toUpperCase() + (t.abierta ? " — la que juega" : " — cerrada")})]));
     }
     // en el draft las tres primeras (y todas en un Idolo o Diamante) son fijas
-    const fijaDraft = DRAFT && (d.rareza_valor >= 5 || t.ranura <= 3);
+    const fijaDraft = DRAFT && (d.rareza_valor >= 5 || t.ranura <= 3 || prohibidoDraft("tecnicas"));
     const fila = t.admite && fijaDraft
-      ? ranuraTecnica(t, null, null, d.rareza_valor >= 5 ? "fija (Idolo o Diamante)" : "fija, es de base")
+      ? ranuraTecnica(t, null, null, d.rareza_valor >= 5 ? "fija (Idolo o Diamante)" : t.ranura <= 3 ? "fija, es de base" : "fija en este draft")
       : t.admite
       ? ranuraTecnica(t,
           () => pedir(`/api/opciones?tipo=tecnica&fila=${d.fila}&ranura=${t.ranura}`)
@@ -1705,7 +1712,9 @@ const ORDENES_EQUIPO = [{campo:"etiqueta", etiqueta:"nombre"}, {campo:"total", e
 
 function seccionEquipacion(d) {
   const caja = el("div", {});
-  caja.appendChild(barraPresets(d, "equipacion"));
+  const fija = prohibidoDraft("equipacion");
+  if (fija) caja.appendChild(el("p", {class:"pie-seccion", text:"En este draft no se cambia la equipacion de los jugadores."}));
+  else caja.appendChild(barraPresets(d, "equipacion"));
   d.equipacion.forEach(e => caja.appendChild(ranura(
     String(e.ranura), e.puesto || "vacio",
     e.etiqueta.replace(/^\d+\s*/, ""),
@@ -1716,7 +1725,7 @@ function seccionEquipacion(d) {
                                              total:o.total || 0,
                                              ...Object.fromEntries((o.stats || []).map((v, i) => ["s" + i, v]))}))})),
     v => manda({tipo:"equipacion", fila:d.fila, ranura:e.ranura, id:v}),
-    false, e.etiqueta.replace(/^\d+\s*/, "").replace(/^./, c => c.toUpperCase()),
+    fija, e.etiqueta.replace(/^\d+\s*/, "").replace(/^./, c => c.toUpperCase()),
     e.icono200 ? el("img", {class:"mini-icono grande", loading:"lazy", alt:"",
                             src:"/icono/" + e.icono200}) : null)));
   return caja;
@@ -1731,7 +1740,9 @@ function seccionPasivas(d) {
     motivo:"En el draft no se heredan pasivas: cada uno lleva las suyas y las de su arquetipo."}
     : d.heredadas;
   // presets de pasivas (arquetipo + subpreset), solo futbolistas normales (O-218)
-  if (!d.pasivas_personal && d.rareza_valor < 5) caja.appendChild(barraPresets(d, "pasivas"));
+  const pasFijas = prohibidoDraft("pasivas");
+  if (pasFijas) caja.appendChild(el("p", {class:"pie-seccion", text:"En este draft no se cambian las pasivas: cada uno lleva las suyas."}));
+  else if (!d.pasivas_personal && d.rareza_valor < 5) caja.appendChild(barraPresets(d, "pasivas"));
   // Un gerente o entrenador lleva OTRA lista de pasivas (NOTAS O-163)
   if (d.pasivas_personal) {
     const pp = d.pasivas_personal;
@@ -1744,7 +1755,7 @@ function seccionPasivas(d) {
           el("div", {class:"texto"}, [el("b", {text:x.texto})]),
           // se pueden cambiar: un gerente solo con pasivas de gerente y un
           // entrenador solo con las suyas (NOTAS O-185)
-          pp.se_puede_cambiar
+          pp.se_puede_cambiar && !pasFijas
             ? el("button", {class:"elegir", text:"Cambiar",
                 onclick:() => abrePicker("Pasiva de " + pp.rol + " " + x.ranura,
                   () => pedir("/api/opciones?tipo=personal&fila=" + d.fila)
@@ -1775,8 +1786,8 @@ function seccionPasivas(d) {
         text:"heredada, tapa a: " + (x.normal || "vacia")}));
     f.appendChild(texto);
 
-    if (d.pasivas_bloqueadas)
-      f.appendChild(el("span", {class:"bloqueada", text:d.motivo_pasivas || "fijas"}));
+    if (d.pasivas_bloqueadas || pasFijas)
+      f.appendChild(el("span", {class:"bloqueada", text:pasFijas ? "fija en este draft" : d.motivo_pasivas || "fijas"}));
     else
       f.appendChild(el("button", {class:"elegir", text:"Cambiar",
         onclick:() => abrePicker("Pasiva " + x.ranura,
