@@ -5816,6 +5816,9 @@ se toca hasta "Importar equipo".
   el arbol y las tablas se ponen al dia una vez por jugador, no por cambio.
 - Candidatos: solo los que estan en `jugadores.csv` (los que Pizarra sabe
   crear) y el protagonista (Destin Billows) solo en las rondas de personal.
+- "Tus drafts terminados" solo ensena los del nombre con el que entras:
+  probando solo en el mismo PC con dos nombres, los dos lados se guardan en
+  la misma carpeta y salia tambien el del rival (Aaron).
 
 ## SUPUESTO
 

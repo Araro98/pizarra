@@ -657,6 +657,9 @@ async function cargaGuardados() {
   const caja = $("#guardados"); caja.textContent = "";
   let g = [];
   try { g = (await pedir("/api/draft/guardados")).guardados; } catch (e) {}
+  // solo los tuyos: si se juega en el mismo PC con dos nombres (para probar),
+  // los dos lados se guardan en la misma carpeta y salia tambien el del rival
+  g = g.filter(d => !yo || slugUsuario(d.yo) === yo.slug);
   for (const d of g.slice(0, 12))
     caja.appendChild(el("div", {class:"persona"}, [el("span", {class:"quien"}, [
       document.createTextNode("Contra " + (d.rival || "?")), el("br"),
