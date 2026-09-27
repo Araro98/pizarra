@@ -79,6 +79,38 @@ def candidatos():
                 "stats": stats, "poder": O._poder99_con_arbol(ident, rareza_draft),
                 "legal": ident in fichables,
             })
+        # las formas mixi max y los modos de la historia (Arion con el mixi
+        # max del Rey Arturo, los modos de la Cascada Perfecta...): no cuentan
+        # como jugables en las tablas y no estan en la base de datos, pero
+        # tienen cara y modelo; salen como ilegales (Aaron, O-252). Una forma
+        # con la misma cara que otro que ya sale es una copia de la historia
+        # y no aporta nada: fuera.
+        per = reglas.personajes()
+        caras_de = O._cara_por_identidad()
+        vistas = {x["cara"] for x in fuera}
+        for f in reglas._tabla("jugadores-formas.csv"):
+            ident = f["identidad"].upper()
+            cara = caras_de.get(ident, "")
+            ficha = per.get(ident) or {}
+            nombre = O._limpio(f.get("nombre") or ficha.get("nombre_es") or "")
+            if (not nombre or f.get("posicion") not in ("DEL", "MED", "DEF", "POR")
+                    or not re.match(r"^c\d", cara) or (caras and cara not in caras) or cara in vistas):
+                continue
+            if nombre == EQ.NOMBRE_SOLO_STAFF:
+                continue
+            vistas.add(cara)
+            try:
+                stats, poder = O._stats99_con_arbol(ident, 4), O._poder99_con_arbol(ident, 4)
+            except Exception:
+                continue            # sin stats no se puede ensenar ni crear bien
+            fuera.append({
+                "identidad": ident, "nombre": nombre, "apodo": ficha.get("apodo") or "",
+                "cara": cara, **O.datos_cuerpo(ident), "posicion": f["posicion"],
+                "elemento": f.get("elemento") if f.get("elemento") != "?" else "",
+                "rareza_valor": 4, "idolo": False, "apt": "jugador",
+                "saga": ficha.get("saga") or "", "genero": ficha.get("genero") or "",
+                "stats": stats, "poder": poder, "legal": False, "forma": True,
+            })
         # el cuerpo tecnico de fabrica que no tiene posicion de jugador (no
         # sale en la lista de la base de datos): para las rondas de gerentes y
         # entrenadores solo hace falta la cara

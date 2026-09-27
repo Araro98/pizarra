@@ -416,7 +416,7 @@ def poner_tecnica(plain, fila, ranura, nombre):
 
     identidad = J.array(plain, J.ARRAY_IDENTIDAD)[fila]
     ficha = None
-    for f in reglas._tabla("jugadores.csv"):
+    for f in reglas.jugadores_y_formas():
         if f["identidad"].upper() == "%08X" % identidad:
             ficha = f
             break
@@ -582,7 +582,7 @@ def _quitar_repetidas_sueltas(plain, fila):
     tipo y ya no tienen otras dos copias en el arbol, esten donde esten
     (O-199, O-231). Devuelve (plain, [(ranura, nombre)])."""
     identidad = J.array(plain, J.ARRAY_IDENTIDAD)[fila]
-    ficha = next((f for f in reglas._tabla("jugadores.csv")
+    ficha = next((f for f in reglas.jugadores_y_formas()
                   if f["identidad"].upper() == "%08X" % identidad), None)
     if ficha is None:
         return plain, []
@@ -825,8 +825,15 @@ def _pool_del_personaje(identidad):
     (NOTAS O-57), no de lo observado en una partida.
     """
     clave = "%08X" % identidad
-    return [f for f in reglas._tabla("pool-pasivas.csv")
+    pool = [f for f in reglas._tabla("pool-pasivas.csv")
             if f.get("identidad", "").upper() == clave]
+    if not pool and reglas.pariente_de_forma(clave):
+        # una forma mixi max o de la historia no trae lista: la de su
+        # personaje (O-252)
+        otro = reglas.pariente_de_forma(clave)
+        pool = [f for f in reglas._tabla("pool-pasivas.csv")
+                if f.get("identidad", "").upper() == otro]
+    return pool
 
 
 def poner_pasiva(plain, fila, ranura, nombre):
@@ -1187,7 +1194,9 @@ def _personaje_por_nombre(nombre):
     """La ficha de jugadores.csv del personaje que se llame asi. Exige que sea unico."""
     texto = nombre.strip().lower()
     if len(texto) == 8 and all(c in "0123456789abcdef" for c in texto):
-        for f in reglas._tabla("jugadores.csv"):
+        # por codigo tambien las formas del draft (O-252); por nombre no, que
+        # se llaman igual que el de siempre
+        for f in reglas.jugadores_y_formas():
             if f["identidad"].upper() == texto.upper():
                 return f
         raise Ilegal("no hay ningun personaje con el codigo %s" % nombre)

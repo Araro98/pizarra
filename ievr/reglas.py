@@ -38,6 +38,43 @@ def _tabla(fichero, carpeta=EXTRAIDAS):
     return _cache[clave]
 
 
+def jugadores_y_formas():
+    """jugadores.csv y detras jugadores-formas.csv: las formas mixi max y los
+    modos de la historia que no cuentan como jugables (sin segundo camino de
+    tecnicas). Solo las usa el draft con ilegales; se buscan aqui por codigo
+    para poder crearlas y editarlas (O-252)."""
+    clave = ("jugadores_y_formas",)
+    if clave not in _cache:
+        _cache[clave] = _tabla("jugadores.csv") + _tabla("jugadores-formas.csv")
+    return _cache[clave]
+
+
+def pariente_de_forma(ident_hex):
+    """De una forma de jugadores-formas.csv, el personaje jugable del que es
+    forma: el que se llama igual (del mismo juego si lo hay) o, si no hay
+    ninguno, uno de su misma posicion. Para sacar de el lo que la forma no
+    trae, como la lista de pasivas que puede sacar (O-252). None si no es
+    una forma."""
+    clave = ("parientes",)
+    if clave not in _cache:
+        per = personajes()
+        saga = lambda i: (per.get(i) or {}).get("saga") or ""
+        por_nombre, por_pos = {}, {}
+        for f in _tabla("jugadores.csv"):
+            i = f["identidad"].upper()
+            if f.get("nombre"):
+                por_nombre.setdefault(f["nombre"], []).append(i)
+            por_pos.setdefault(f.get("posicion"), []).append(i)
+        d = {}
+        for f in _tabla("jugadores-formas.csv"):
+            i = f["identidad"].upper()
+            mismos = por_nombre.get(f.get("nombre") or "", [])
+            mismo_juego = [x for x in mismos if saga(x) == saga(i)]
+            d[i] = (mismo_juego or mismos or sorted(por_pos.get(f.get("posicion"), [])) or [None])[0]
+        _cache[clave] = d
+    return _cache[clave].get((ident_hex or "").upper())
+
+
 def _ids(fichero):
     return {f["id_partida"].upper() for f in _tabla(fichero) if f.get("id_partida")}
 

@@ -29,6 +29,9 @@ RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VOLCADO = os.path.join(RAIZ, "referencia", "volcado", "target", "release", "volcado.exe")
 COMUN = os.path.join(RAIZ, "datos", "juego", "extracted", "data", "common")
 SALIDA = os.path.join(RAIZ, "datos", "reglas-extraidas", "jugadores.csv")
+# los descartados (formas mixi max, modos de la historia...), aparte: solo los
+# usa el draft con ilegales (Aaron, O-252)
+SALIDA_FORMAS = os.path.join(RAIZ, "datos", "reglas-extraidas", "jugadores-formas.csv")
 
 ELEMENTOS = {1: "Viento", 2: "Bosque", 3: "Fuego", 4: "Montana"}
 POSICIONES = {1: "POR", 2: "DEL", 3: "MED", 4: "DEF"}
@@ -146,7 +149,7 @@ def main():
     except OSError:
         pass
 
-    filas, descartados = [], 0
+    filas, descartados, formas = [], 0, []
     for c in param:
         if len(c) < 43:
             continue
@@ -155,9 +158,11 @@ def main():
         if ident is None or base_id is None:
             continue
         segundo_camino = [ent(c[i]) for i in range(23, 29)]
-        if rareza in (0, 8) and any(v in (None, 0) for v in segundo_camino):
-            descartados += 1
-            continue  # mismo filtro que usa el dataminer para "jugable"
+        forma = rareza in (0, 8) and any(v in (None, 0) for v in segundo_camino)
+        if forma:
+            descartados += 1   # mismo filtro que usa el dataminer para "jugable"
+            if rareza != 0:
+                continue
 
         indice, name_id, string_id, equipo = base.get(base_id, (None, None, "", ""))
         ident_hex = "%08X" % (ident & 0xFFFFFFFF)
@@ -183,7 +188,7 @@ def main():
             fila["r%d_tecnica" % ranura] = nombre
             fila["r%d_tipo" % ranura] = "LIBRE" if libre else (categoria or "?")
             fila["r%d_nivel" % ranura] = nivel if tid else ""
-        filas.append(fila)
+        (formas if forma else filas).append(fila)
 
     os.makedirs(os.path.dirname(SALIDA), exist_ok=True)
     campos = list(filas[0].keys()) if filas else []
@@ -194,8 +199,15 @@ def main():
         w = csv.DictWriter(fh, fieldnames=campos)
         w.writeheader()
         w.writerows(filas)
-    print("Escritos %d jugables en %s  (%d descartados por no tener segundo camino)"
-          % (len(filas), SALIDA, descartados))
+    with open(SALIDA_FORMAS, "w", newline="", encoding="utf-8") as fh:
+        fh.write("# Los que el dataminer no cuenta como jugables (sin segundo camino de tecnicas):\n"
+                 "# formas mixi max, modos de la historia... Solo para el draft con ilegales (O-252).\n"
+                 "# Lo genera herramientas/construir_base_jugadores.py.\n")
+        w = csv.DictWriter(fh, fieldnames=campos)
+        w.writeheader()
+        w.writerows(formas)
+    print("Escritos %d jugables en %s  (%d descartados por no tener segundo camino, %d formas aparte)"
+          % (len(filas), SALIDA, descartados, len(formas)))
     import collections
     print("por rareza:", dict(collections.Counter(f["rareza"] for f in filas)))
     print("por posicion:", dict(collections.Counter(f["posicion"] for f in filas)))

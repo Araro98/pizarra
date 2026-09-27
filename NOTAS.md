@@ -5884,6 +5884,31 @@ ronda (amarillo si se rellena con otro juego, rojo si no hay bastantes) y
 "Invitar a X", apagado si falta un juego, una afinidad o las cantidades no
 valen. Las reglas se recuerdan para la siguiente vez.
 
+### O-252 · Formas mixi max y modos en el draft con ilegales
+
+Aaron: con ilegales no le salian las formas mixi max (Arion con el mixi max
+del Rey Arturo) ni los modos hiperdrive de la Cascada Perfecta. No estaban
+en `jugadores.csv`: `construir_base_jugadores.py` descarta, como el
+dataminer, a los que no tienen segundo camino de tecnicas (columnas 23-28 de
+chara_param), y esas formas de la historia son asi. Ahora las normales
+descartadas se escriben aparte en `jugadores-formas.csv` (449; `jugadores.csv`
+queda igual) y:
+
+- `reglas.jugadores_y_formas()`: las busquedas POR CODIGO (crear, ficha,
+  tecnicas, `O._por_identidad`) ven tambien las formas; por nombre no (se
+  llaman igual que el normal). Fichar, la base de datos y los fichables
+  siguen solo con `jugadores.csv`.
+- No traen lista de pasivas: usan la de su personaje
+  (`reglas.pariente_de_forma`: el jugable con el mismo nombre, del mismo
+  juego si hay; si no, uno de su posicion).
+- Candidatos del draft: las que tienen cara, nombre y posicion, como
+  ilegales, sin repetir cara (las copias de la historia con la misma cara
+  que el normal no aportan). Salen 69, 52 de Chrono Stone (mixi max de Arion,
+  los modos con gafas de la Cascada Perfecta...).
+- Solo tienen el medio arbol que traen (sin las ranuras de la rama 2).
+  Creadas las 236 con cara en una copia (con MAX y un cuarto como Diamante).
+  No estan probadas en el juego: son personajes de partidos de la historia.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

@@ -27,7 +27,7 @@ def _indice(nombre, construir):
 def _por_identidad():
     def construir():
         d = {}
-        for f in reglas._tabla("jugadores.csv"):
+        for f in reglas.jugadores_y_formas():      # con las formas del draft (O-252)
             d.setdefault(f["identidad"].upper(), f)
         return d
     return _indice("jugadores", construir)
@@ -396,7 +396,11 @@ def pasivas(plain, fila, ranura):
     fuera = []
     if ranura <= 2:
         de_donde = "las que puede sacar este personaje"
-        for f in _pool_por_identidad().get("%08X" % identidad, []):
+        pool = _pool_por_identidad().get("%08X" % identidad, [])
+        if not pool and reglas.pariente_de_forma("%08X" % identidad):
+            # una forma del draft usa la lista de su personaje (O-252)
+            pool = _pool_por_identidad().get(reglas.pariente_de_forma("%08X" % identidad), [])
+        for f in pool:
             # con el numero que tendra en este jugador: la version de su rareza (O-165)
             fuera.append({"id": f["pasiva_id"].upper(),
                           "nombre": nombre_pasiva(variante_por_rareza(f["pasiva_id"].upper(), rareza),
