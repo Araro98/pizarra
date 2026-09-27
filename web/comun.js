@@ -15,6 +15,22 @@ function el(tag, props = {}, hijos = []) {
   return n;
 }
 
+// En el editor del modo draft (O-248) cada peticion a /api/ va a la copia del
+// draft: se avisa con una cabecera. Quien quiera la partida de verdad la
+// manda vacia.
+if (window.DRAFT) {
+  const fetchNormal = window.fetch.bind(window);
+  window.fetch = (url, opciones) => {
+    if (typeof url === "string" && url.startsWith("/api/")) {
+      opciones = Object.assign({}, opciones || {});
+      const cab = Object.assign({}, opciones.headers || {});
+      if (!("X-Pizarra-Draft" in cab)) cab["X-Pizarra-Draft"] = encodeURIComponent(window.DRAFT.fichero);
+      opciones.headers = cab;
+    }
+    return fetchNormal(url, opciones);
+  };
+}
+
 async function pedir(url, opciones) {
   const r = await fetch(url, opciones);
   const d = await r.json().catch(() => ({error:"respuesta ilegible"}));

@@ -5771,6 +5771,52 @@ reglas del draft e importarlo a la partida), que falta.
   "acepto" se repiten cada 3 s hasta llegar (no quedan guardados en el
   servidor y en una prueba se perdio uno).
 
+### O-248 · Draft: montar el equipo, revisarlo e importarlo
+
+Segunda y tercera parte del draft (O-247). "Montar equipo" (al terminar el
+draft o desde "Tus drafts terminados") abre `/draft/montar?f=<fichero>`: el
+editor de siempre (`web/editor.html` con `window.DRAFT`) sobre una COPIA de
+la partida, el "montaje", que se guarda solo en
+`partidas/draft/<fichero>.montaje` (zlib del plano). La partida de verdad no
+se toca hasta "Importar equipo".
+
+- Peticiones: `comun.js` anade la cabecera `X-Pizarra-Draft` a todo `/api/`
+  y el servidor elige la sesion por peticion (`self.ses`: la partida o el
+  `SesionDraft` de ese draft). Mandarla vacia = la partida de verdad.
+- Al crear el montaje (`draft.crear_montaje`, ~1 minuto): en la copia se
+  consigue todo lo "libre" (equipacion, tecnicas, espiritus, escudos,
+  equipaciones, tacticas, sinergias, personalizadas, pasivas de personal,
+  Nuevas posibilidades), se prepara un equipo "Draft" y se crean los 20:
+  `anadir_jugador` con el arquetipo del draft (los Idolos con el suyo), MAX
+  (99, Leyenda, 30 partidos), el personal de base que salio en una ronda de
+  jugadores pasado a jugador, y el Diamante con `poner_diamante` y el
+  arquetipo del draft. Caben justos en el equipo (11 + 5 + 3 gerentes +
+  entrenador) y se colocan cada uno en un puesto de su posicion.
+- Reglas (`draft.comprueba_cambio`): solo equipacion, tecnicas, pasivas,
+  personalizada, de personal, judias, presets (pasivas solo del arquetipo
+  del draft), rama y todo lo del equipo del draft. Nada de nivel, rareza,
+  arquetipo, heredadas, fichar, mochila ni otros equipos. Tecnicas: en un
+  normal las 3 primeras fijas; en un Idolo o Diamante todas fijas (Aaron
+  dijo "los idolos y diamantes, ninguna": lo tomo como que no se cambia
+  ninguna; si queria decir lo contrario es quitar una condicion).
+- "Revisar e importar": el equipo a la derecha (pulsar un jugador), su
+  ficha a la izquierda (tecnicas, pasivas, equipacion, judias) y el boton.
+  Importar (`draft.importar`, ~2 minutos): se vuelven a crear los 20 en la
+  partida de verdad y a cada uno se le copia lo del montaje: pasivas, rama
+  y judias tal cual (son codigos) y equipacion, tecnicas, personalizada y
+  de personal con las funciones del editor (varias pasadas para la tercera
+  copia de una tecnica, O-199), consiguiendo en la mochila lo que falte. El
+  equipo elegido se vacia y se llena como el del draft (puestos, dorsales,
+  capitan, formacion, escudo, equipacion, tacticas, sinergias y nombre). Al
+  final se compara cada jugador con el del montaje y se avisa de lo que no
+  quede igual. Un solo paso de deshacer. Probado: montaje con 115 cambios
+  sueltos, importado, 20 de 20 iguales, equipo igual, guardado y reabierto
+  sin nada desajustado.
+- Lento por las funciones del editor (cada una relee la mochila entera):
+  el arbol y las tablas se ponen al dia una vez por jugador, no por cambio.
+- Candidatos: solo los que estan en `jugadores.csv` (los que Pizarra sabe
+  crear) y el protagonista (Destin Billows) solo en las rondas de personal.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

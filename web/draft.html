@@ -57,6 +57,7 @@
     text-align:center; color:var(--suave); font-weight:700; }
   .opcion .st span b { display:block; font-size:var(--t-xs); color:var(--tinta); }
   .chip.ilegal { background:#c0392b; }
+  .botones-fin { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
   .chip.idolo { background:linear-gradient(180deg,#ef4fe3,#9e2596); }
   .equipos { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px; }
   @media (max-width:860px) { .equipos { grid-template-columns:1fr; } }
@@ -611,9 +612,15 @@ function pintaZona() {
   if (estado.fase === "fin") {
     const d = porId[estado.diamantes[yo.slug]] || {};
     z.appendChild(el("p", {class:"aviso-turno mio", text:"Draft terminado. Tu Diamante: " + (d.nombre || "?") + "."}));
-    z.appendChild(el("p", {class:"nota", text:"Tu equipo se ha guardado en Pizarra. El siguiente paso (montar el equipo, con sus reglas, e importarlo a tu partida) esta en camino."}));
+    z.appendChild(el("p", {class:"nota", text:"Tu equipo se ha guardado en Pizarra. Ahora toca montarlo "
+      + "(formacion, tecnicas, pasivas, equipacion...) y luego importarlo a tu partida."}));
     guardaResultado();
-    z.appendChild(el("button", {class:"btn verde", text:"Volver a la sala", onclick:salirDelDraft}));
+    z.appendChild(el("div", {class:"botones-fin"}, [
+      ficheroGuardado
+        ? el("a", {class:"btn verde", href:"/draft/montar?f=" + encodeURIComponent(ficheroGuardado),
+                   text:"Montar mi equipo"})
+        : el("span", {class:"nota", text:"Guardando..."}),
+      el("button", {class:"btn", text:"Volver a la sala", onclick:salirDelDraft})]));
     return;
   }
   if (estado.fase === "cancelado") {
@@ -624,7 +631,7 @@ function pintaZona() {
 function pinta() { pintaMarcador(); pintaZona(); pintaEquipos(); }
 
 /* ---------------- guardar el resultado ---------------- */
-let guardadoDe = null;
+let guardadoDe = null, ficheroGuardado = null;
 async function guardaResultado() {
   if (!estado || guardadoDe === estado.sala) return;
   guardadoDe = estado.sala;
@@ -640,8 +647,9 @@ async function guardaResultado() {
     arquetipo:estado.arquetipos[yo.slug], arquetipo_nombre:ARQUETIPOS[estado.arquetipos[yo.slug]],
     diamante:estado.diamantes[yo.slug], jugadores:lista(yo.slug),
     rival_arquetipo:ARQUETIPOS[estado.arquetipos[riv]], rival_equipo:lista(riv)};
-  try { await pedir("/api/draft/guardar", {method:"POST", headers:{"Content-Type":"application/json"},
+  try { const r = await pedir("/api/draft/guardar", {method:"POST", headers:{"Content-Type":"application/json"},
                                            body:JSON.stringify({resultado})});
+        ficheroGuardado = r.fichero; pintaZona();
         avisa("Draft guardado en Pizarra."); }
   catch (e) { guardadoDe = null; avisa("No he podido guardar el draft: " + e.message, "mal"); }
 }
@@ -652,7 +660,10 @@ async function cargaGuardados() {
   for (const d of g.slice(0, 12))
     caja.appendChild(el("div", {class:"persona"}, [el("span", {class:"quien"}, [
       document.createTextNode("Contra " + (d.rival || "?")), el("br"),
-      el("small", {text:(d.fecha || "").replace("T", " ") + " · " + (d.arquetipo_nombre || "") + " · " + d.cuantos + " jugadores"})])]));
+      el("small", {text:(d.fecha || "").replace("T", " ") + " · " + (d.arquetipo_nombre || "") + " · " + d.cuantos + " jugadores"
+        + (d.importado ? " · importado a \"" + d.importado + "\"" : d.montado ? " · a medio montar" : "")})]),
+      el("a", {class:"btn chico" + (d.importado ? "" : " verde"), href:"/draft/montar?f=" + encodeURIComponent(d.fichero),
+               text:d.montado ? "Seguir montando" : "Montar equipo"})]));
   if (!g.length) caja.appendChild(el("p", {class:"vacio", text:"Todavia no has terminado ningun draft."}));
 }
 

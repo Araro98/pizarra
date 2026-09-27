@@ -875,6 +875,34 @@
 
   .aviso { padding:9px 14px; border-radius:8px; font-size:var(--t-md); margin:0 0 10px;
     font-weight:600; }
+  /* modo draft (O-248): la franja que dice donde estas y la pantalla de revisar */
+  .franja-draft { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:0 0 10px;
+    padding:8px 14px; border-radius:9px; background:linear-gradient(90deg,#16325f,#1f5fae);
+    color:#fff; font-weight:700; }
+  .franja-draft b { color:#7ff0e4; }
+  .franja-draft .hueco { flex:1 1 auto; }
+  .revisar { display:grid; gap:14px; align-items:start;
+    grid-template-columns:minmax(320px,1fr) minmax(420px,1.25fr); }
+  @media (max-width:1100px) { .revisar { grid-template-columns:1fr; } }
+  .rev-lista { display:flex; flex-direction:column; gap:6px; }
+  .rev-bloque h4 { margin:12px 0 6px; font-size:var(--t-sm); letter-spacing:.06em;
+    color:var(--azul-osc); text-transform:uppercase; }
+  .rev-fila { display:flex; gap:8px; align-items:center; padding:5px 8px; border-radius:7px;
+    background:#f3f7fd; font-size:var(--t-sm); }
+  .rev-fila .num { flex:none; width:22px; height:22px; border-radius:50%; background:var(--azul-marco);
+    color:#fff; font-weight:800; display:grid; place-items:center; font-size:var(--t-xs); }
+  .rev-fila img { width:26px; height:26px; object-fit:contain; flex:none; }
+  .rev-fila .fijo { margin-left:auto; font-size:var(--t-xs); color:var(--suave); font-weight:700; }
+  .rev-cab { display:flex; gap:12px; align-items:center; }
+  .rev-cab .retrato { width:84px; height:84px; flex:none; position:relative; border-radius:10px; overflow:hidden; }
+  .rev-cab .retrato img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .rev-cab h3 { margin:0; font-size:var(--t-lg); }
+  .rev-cab small { display:block; color:var(--suave); font-weight:700; }
+  .sitio.elegido-rev { outline:4px solid #7ff0e4; outline-offset:1px; }
+  .barra-importar { display:flex; gap:10px; justify-content:flex-end; align-items:center;
+    flex-wrap:wrap; margin-top:12px; }
+  .lista-equipos-imp { display:flex; flex-direction:column; gap:6px; max-height:50vh; overflow:auto; }
+  .lista-equipos-imp button { text-align:left; }
   .aviso { padding-left:42px; background-repeat:no-repeat;
     background-position:12px center; background-size:20px auto; }
   .aviso.mal { background-color:#fde8e6; color:#a8202e; border:2px solid #f0b6b1;
@@ -967,6 +995,13 @@
       <div id="cuerpo-resumen"></div></div>
   </section>
 
+  <section id="p-revisar" class="oculto">
+    <div class="revisar">
+      <div class="marco"><h2>Jugador</h2><div id="rev-info"></div></div>
+      <div class="marco"><h2>Tu equipo del draft</h2><div id="rev-equipo"></div></div>
+    </div>
+  </section>
+
   <section id="p-cambios" class="oculto">
     <div class="marco"><h2>Lo que se va a escribir</h2>
       <div style="background:#fff;border-radius:8px;padding:12px" id="cuerpo-cambios"></div></div>
@@ -977,8 +1012,15 @@
 <script>
 let estado = {cambios:[], puede_deshacer:false}, jugadorAbierto = null;
 let modo = "jugadores", seccion = 0, detalle = null, temporizador = null;
+// El editor del modo draft (O-248): el mismo editor, sobre la copia donde se
+// monta el equipo del draft, con sus reglas. Lo abre /draft/montar?f=...
+const DRAFT = window.DRAFT || null;
 
-const MODOS = [
+const MODOS = DRAFT ? [
+  {id:"equipos",   nombre:"Equipo"},
+  {id:"jugadores", nombre:"Jugadores"},
+  {id:"revisar",   nombre:"Revisar e importar"},
+] : [
   {id:"jugadores", nombre:"Jugadores"},
   {id:"mochila",   nombre:"Mochila"},
   {id:"equipos",   nombre:"Equipos"},
@@ -1012,9 +1054,10 @@ avisa = (texto, clase) => aviso(texto, clase);
 
 function pintaModos() {
   const n = $("#modos"); n.textContent = "";
-  n.appendChild(el("a", {class:"rombo inicio", href:"/", title:"Volver al menu de inicio"}, [
+  n.appendChild(el("a", {class:"rombo inicio", href:DRAFT ? "/draft" : "/",
+      title:DRAFT ? "Volver al modo draft" : "Volver al menu de inicio"}, [
     el("span", {}, [el("img", {src:"/icono/icon_list_tab/icon_list_tab_town01.png", alt:""}),
-                    document.createTextNode("Inicio")])]));
+                    document.createTextNode(DRAFT ? "Draft" : "Inicio")])]));
   for (const m of MODOS)
     n.appendChild(el("button", {class:"rombo", role:"tab",
       "aria-selected":String(modo === m.id), onclick:() => cambiaModo(m.id)},
@@ -1031,6 +1074,7 @@ function cambiaModo(id) {
   if (id === "fichar") cargaPersonajes();
   if (id === "cambios") pintaCambios();
   if (id === "resumen") pintaResumen();
+  if (id === "revisar") pintaRevisar();
 }
 
 async function refrescaEstado() {
@@ -1038,7 +1082,7 @@ async function refrescaEstado() {
   $("#ruta").textContent = estado.origen;
   const n = estado.cambios.length;
   $("#pendientes").hidden = !n;
-  $("#pendientes").textContent = n + (n === 1 ? " cambio" : " cambios") + " sin guardar";
+  $("#pendientes").textContent = n + (n === 1 ? " cambio" : " cambios") + (DRAFT ? " (se guarda solo)" : " sin guardar");
   $("#deshacer").disabled = !estado.puede_deshacer;
   // Guardar siempre se puede, aunque no haya cambios: al guardar se repasan
   // los arboles, los dorsales y las piezas (Aaron tuvo que bajar de nivel a
@@ -1336,7 +1380,7 @@ function pintaFicha() {
     el("div", {class:"datos"}, [el("h3", {text:d.nombre}),
       // el apodo, como lo ensena el juego bajo el nombre (O-219)
       d.apodo && d.apodo !== d.nombre ? el("div", {class:"apodo", text:d.apodo}) : null, chips]),
-    max,
+    DRAFT ? null : max,
     el("div", {class:"nivel-grande"}, [el("small", {text:"Nv."}),
       el("b", {text:String(d.nivel)})])]);
   cab.style.background = "linear-gradient(180deg," + aclara(color, .3) + "," + color + ")";
@@ -1564,6 +1608,12 @@ function seccionAtributos(d) {
   // va lo que se puede cambiar.
   const fila = d.fila, caja = el("div", {});
   const campos = el("div", {class:"campos"});
+  if (DRAFT) {
+    campos.appendChild(bloqueado("Nivel", d.nivel + " — lo fija el draft"));
+    campos.appendChild(bloqueado("Rareza", d.rareza + " — la fija el draft"));
+    campos.appendChild(bloqueado("Arquetipo", d.arquetipo + (d.rareza_valor >= 5 && d.rareza_valor <= 7
+      ? " — el suyo, es un Idolo" : " — el que te toco en el draft")));
+  } else {
   campos.appendChild(numero("Nivel", d.nivel, d.niveles.minimo, d.niveles.maximo,
     v => manda({tipo:"nivel", fila, valor:v})));
   campos.appendChild(d.rarezas.puede
@@ -1576,11 +1626,12 @@ function seccionAtributos(d) {
     : bloqueado("Arquetipo", d.arquetipo + " — " + (d.arquetipo_motivo || "")));
   campos.appendChild(numero("Partidos jugados", d.partidos, d.partidos_limites.minimo,
     d.partidos_limites.maximo, v => manda({tipo:"partidos", fila, valor:v})));
+  }
   caja.appendChild(campos);
   // Jugador, gerente o entrenador. En el juego se hace equipandole la Medalla
   // de gerente o la de entrenador en la tabla de habilidades; quitarsela lo
   // devuelve a jugador (NOTAS O-132).
-  if (d.rol) {
+  if (d.rol && !DRAFT) {
     caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Rol en el equipo"})]));
     const r = el("div", {class:"roles"});
     r.appendChild(el("span", {class:"rol-ahora " + d.rol.ahora,
@@ -1626,9 +1677,9 @@ function seccionAtributos(d) {
 
   // Borrar al jugador de la partida, como desde el menu del juego. Si esta en
   // algun equipo no se puede: hay que sacarlo antes (regla de Aaron).
-  caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Borrar"})]));
   const enEquipo = (d.equipos || []).length > 0;
-  caja.appendChild(el("p", {class:"pie-seccion"}, [
+  if (!DRAFT) caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Borrar"})]));
+  if (!DRAFT) caja.appendChild(el("p", {class:"pie-seccion"}, [
     el("button", {class:"btn chico rojo" + (enEquipo ? " vetado" : ""),
       text:"Borrar jugador",
       title:enEquipo ? "Esta en el equipo " + d.equipos.join(", ") + ": sacalo primero"
@@ -1673,7 +1724,11 @@ function seccionTecnicas(d) {
         [el("span", {text:t.trozo === "tronco" ? "TRONCO — las tiene siempre"
               : t.trozo.toUpperCase() + (t.abierta ? " — la que juega" : " — cerrada")})]));
     }
-    const fila = t.admite
+    // en el draft las tres primeras (y todas en un Idolo o Diamante) son fijas
+    const fijaDraft = DRAFT && (d.rareza_valor >= 5 || t.ranura <= 3);
+    const fila = t.admite && fijaDraft
+      ? ranuraTecnica(t, null, null, d.rareza_valor >= 5 ? "fija (Idolo o Diamante)" : "fija, es de base")
+      : t.admite
       ? ranuraTecnica(t,
           () => pedir(`/api/opciones?tipo=tecnica&fila=${d.fila}&ranura=${t.ranura}`)
                   .then(r => ({de_donde:"solo admite tecnicas de " + r.admite,
@@ -1729,7 +1784,9 @@ function seccionPasivas(d) {
   // se ve con su punto azul, debajo en pequeno la que esta tapando, y un boton
   // para quitarla que devuelve la de siempre.
   const caja = el("div", {});
-  const h = d.heredadas;
+  const h = DRAFT ? {puede:false, corto:"sin herencia",
+    motivo:"En el draft no se heredan pasivas: cada uno lleva las suyas y las de su arquetipo."}
+    : d.heredadas;
   // presets de pasivas (arquetipo + subpreset), solo futbolistas normales (O-218)
   if (!d.pasivas_personal && d.rareza_valor < 5) caja.appendChild(barraPresets(d, "pasivas"));
   // Un gerente o entrenador lleva OTRA lista de pasivas (NOTAS O-163)
@@ -1802,7 +1859,7 @@ function seccionPasivas(d) {
                                                    icono200:o.icono200 || ""}))})),
           v => manda({tipo:"heredada", fila:d.fila, ranura:x.ranura, id:v}))}));
     else
-      f.appendChild(el("span", {class:"bloqueada", text:h.motivo || "—"}));
+      f.appendChild(el("span", {class:"bloqueada", text:h.corto || h.motivo || "—"}));
     caja.appendChild(f);
   });
   caja.appendChild(el("p", {class:"pie-seccion", text: h.puede
@@ -1854,8 +1911,9 @@ function ranuraTecnica(t, cargar, alElegir, titulo) {
   if (t.puesta && t.icono)      // es un espiritu: se puede ver su ficha (O-184)
     caja.appendChild(el("button", {class:"info", text:"i", title:"Ver la pasiva de este espiritu",
       onclick:() => fichaEspiritu(t.id)}));
-  caja.appendChild(el("button", {class:"elegir", text:"Cambiar",
-    onclick:() => abrePicker(titulo, cargar, alElegir)}));
+  caja.appendChild(alElegir
+    ? el("button", {class:"elegir", text:"Cambiar", onclick:() => abrePicker(titulo, cargar, alElegir)})
+    : el("span", {class:"bloqueada", text:titulo}));
   return caja;
 }
 
@@ -2649,7 +2707,7 @@ function pintaTabsEquipos() {
   // "+": crear un equipo en un hueco vacio de la partida (O-217). En el juego
   // los huecos existen siempre y solo se ven los que tienen nombre; el tope
   // son los 11 que ensena el juego, y el servidor lo comprueba.
-  c.appendChild(el("button", {class:"btn chico", text:"+ Equipo nuevo",
+  if (!DRAFT) c.appendChild(el("button", {class:"btn chico", text:"+ Equipo nuevo",
     title:"Prepara un hueco vacio de la partida como equipo nuevo (maximo 11)",
     onclick:async () => {
       const inp = el("input", {type:"text", maxlength:"30", placeholder:"Nombre del equipo"});
@@ -3520,10 +3578,205 @@ document.addEventListener("keydown", e => {
 recupera();
 // /editor#equipos abre directamente esa pestana (asi enlaza el menu de inicio)
 const pestanaPedida = location.hash.slice(1);
-if (MODOS.some(m => m.id === pestanaPedida)) cambiaModo(pestanaPedida); else pintaModos();
 // /editor#jugador=840 abre directamente esa ficha (para enlazar y para las capturas)
 const fichaPedida = /^jugador=(\d+)$/.exec(pestanaPedida);
-refrescaEstado().then(cargaLista).then(() => { if (fichaPedida) abreJugador(Number(fichaPedida[1])); });
+if (DRAFT) arrancaDraft(pestanaPedida);
+else {
+  if (MODOS.some(m => m.id === pestanaPedida)) cambiaModo(pestanaPedida); else pintaModos();
+  refrescaEstado().then(cargaLista).then(() => { if (fichaPedida) abreJugador(Number(fichaPedida[1])); });
+}
+
+/* ---------------- modo draft (O-248) ---------------- */
+let montaje = null;
+async function arrancaDraft(pestana) {
+  for (const b of ["#abrir", "#guardar", "#instalar"]) $(b).hidden = true;
+  document.title = "Equipo del draft · Pizarra";
+  pintaModos();
+  const franja = el("div", {class:"franja-draft"}, [
+    el("span", {class:"hueco", text:"Preparando tu equipo del draft... la primera vez tarda un minuto: "
+      + "se crean tus 20 jugadores a nivel 99 en una copia aparte de tu partida."})]);
+  $("main").insertBefore(franja, $("main").firstChild);
+  trabajando(true);
+  try {
+    // (sin la cabecera del draft: el montaje aun puede no existir)
+    montaje = (await pedir("/api/draft/montar", {method:"POST",
+      headers:{"Content-Type":"application/json", "X-Pizarra-Draft":""},
+      body:JSON.stringify({fichero:DRAFT.fichero})})).montaje;
+  } catch (e) {
+    franja.firstChild.textContent = "No he podido preparar el equipo: " + e.message;
+    trabajando(false); return;
+  } finally { trabajando(false); }
+  franja.textContent = "";
+  franja.appendChild(el("span", {class:"hueco"}, [
+    document.createTextNode("Montando tu equipo del draft. Lo que hagas aqui se guarda solo y "),
+    el("b", {text:"no toca tu partida"}),
+    document.createTextNode(" hasta que pulses Importar equipo.")]));
+  franja.appendChild(el("button", {class:"btn verde", text:"Finalizar",
+    onclick:() => cambiaModo("revisar")}));
+  if ((montaje.avisos || []).length)
+    aviso("Al preparar el equipo: " + montaje.avisos.join(" · "), "mal");
+  cambiaModo(MODOS.some(m => m.id === pestana) ? pestana : "equipos");
+  await refrescaEstado();
+  await cargaLista();
+}
+
+let revElegido = null;
+async function pintaRevisar() {
+  const caja = $("#rev-equipo"); caja.textContent = "";
+  caja.appendChild(el("p", {class:"vacio", text:"Cargando..."}));
+  let d;
+  try { d = await pedir("/api/equipo/" + montaje.equipo); }
+  catch (e) { aviso(e.message, "mal"); return; }
+  caja.textContent = "";
+  // lo del equipo, en una linea
+  const piezas = el("div", {class:"rev-lista"});
+  const filaDe = (etq, txt, icono) => el("div", {class:"rev-fila"}, [
+    icono ? el("img", {loading:"lazy", alt:"", src:"/icono/" + icono}) : el("span", {class:"num", text:"·"}),
+    el("b", {text:etq + ":"}), document.createTextNode(" " + (txt || "ninguna"))]);
+  piezas.appendChild(filaDe("Nombre", d.nombre));
+  piezas.appendChild(filaDe("Formacion", d.formacion_nombre));
+  piezas.appendChild(filaDe("Escudo", d.escudo_nombre, d.escudo_icono));
+  piezas.appendChild(filaDe("Equipacion", d.equipacion_nombre, d.equipacion_icono));
+  for (const t of d.tacticas) piezas.appendChild(filaDe("Tactica " + t.ranura, t.nombre, t.icono));
+  for (const x of d.sinergias || [])
+    piezas.appendChild(filaDe("Sinergia " + x.tipo, x.nombre + (x.id && !x.cumple ? " (faltan personajes)" : ""), x.icono_ruta));
+  caja.appendChild(piezas);
+  // el campo, como en el editor pero para mirar: pulsar = ver su ficha
+  const porPuesto = {};
+  for (const m of d.miembros) if (m.jugador) porPuesto[m.puesto] = m;
+  const sitio = puesto => {
+    const m = porPuesto[puesto];
+    if (!m) return el("div", {class:"sitio libre"}, [el("span", {class:"mas", text:"·"})]);
+    const j = m.jugador;
+    const t = el("button", {class:"sitio" + (revElegido === j.fila ? " elegido-rev" : ""),
+      title:j.nombre, onclick:() => { revElegido = j.fila; pintaRevisar(); }});
+    t.style.background = FONDO_RAREZA[j.rareza_valor] || "#2f6fd0";
+    if (j.cara) for (const c of capasRetrato(j, true)) t.appendChild(c);
+    t.appendChild(el("span", {class:"dorsal", text:String(m.dorsal)}));
+    t.appendChild(el("span", {class:"nombre-sitio", text:j.nombre}));
+    if (m.capitan) t.appendChild(el("span", {class:"brazalete", text:"C"}));
+    return t;
+  };
+  const campo = el("div", {class:"campo"});
+  if (d.formacion_puestos && d.formacion_puestos.length === 11) {
+    campo.classList.add("con-formacion");
+    campo.appendChild(el("div", {class:"area arriba"}));
+    campo.appendChild(el("div", {class:"area abajo"}));
+    for (const p of d.formacion_puestos) {
+      const c = el("div", {class:"puesto-abs"}, [sitio(p.puesto),
+        el("span", {class:"rol-puesto " + p.posicion, text:p.posicion})]);
+      c.style.left = ((p.px != null ? p.px : 0.5 + p.x * 0.4) * 100) + "%";
+      c.style.top = (4 + (p.py != null ? p.py : p.y) * 88) + "%";
+      campo.appendChild(c);
+    }
+  } else {
+    for (const linea of LINEAS_CAMPO) {
+      const f = el("div", {class:"linea-campo"});
+      for (const p of linea) f.appendChild(sitio(p));
+      campo.appendChild(f);
+    }
+  }
+  caja.appendChild(campo);
+  const bq = el("div", {class:"tira"}, [el("span", {class:"eti-tira", text:"Banquillo"})]);
+  for (const p of PUESTOS_BANQUILLO) bq.appendChild(sitio(p));
+  caja.appendChild(bq);
+  const st = el("div", {class:"tira"}, [el("span", {class:"eti-tira", text:"Tecnico"})]);
+  for (const [p, etq] of PUESTOS_STAFF) st.appendChild(el("div", {class:"con-eti"}, [sitio(p), el("small", {text:etq})]));
+  caja.appendChild(st);
+  const vacios = [...Array(20).keys()].filter(p => !porPuesto[p]).length;
+  caja.appendChild(el("div", {class:"barra-importar"}, [
+    vacios ? el("span", {class:"bloqueada", text:"Hay " + vacios + " huecos vacios en el equipo"}) : null,
+    el("button", {class:"btn", text:"Seguir montando", onclick:() => cambiaModo("equipos")}),
+    el("button", {class:"btn verde", text:"Importar equipo", onclick:importarDraft})]));
+  pintaRevInfo();
+}
+
+async function pintaRevInfo() {
+  const caja = $("#rev-info"); caja.textContent = "";
+  if (revElegido === null) {
+    caja.appendChild(el("p", {class:"vacio", text:"Pulsa un jugador del equipo para ver lo que le has dado: "
+      + "tecnicas, pasivas, equipacion y judias."}));
+    return;
+  }
+  let d;
+  try { d = await pedir("/api/jugador/" + revElegido); }
+  catch (e) { caja.appendChild(el("p", {class:"vacio", text:e.message})); return; }
+  const retrato = el("div", {class:"retrato"});
+  retrato.style.background = FONDO_RAREZA[d.rareza_valor] || "#2f6fd0";
+  if (d.cara) for (const c of capasRetrato(d)) retrato.appendChild(c);
+  caja.appendChild(el("div", {class:"rev-cab"}, [retrato, el("div", {}, [
+    el("h3", {text:d.nombre}),
+    el("small", {text:[d.posicion, d.elemento, "Nv. " + d.nivel, d.rareza, "Arquetipo " + d.arquetipo]
+                        .filter(Boolean).join("  ·  ")}),
+    el("button", {class:"btn chico", text:"Editarlo", style:"margin-top:6px",
+      onclick:() => { cambiaModo("jugadores"); abreJugador(d.fila); }})])]));
+  caja.appendChild(panelStats(d));
+  const bloque = (titulo, filas) => el("div", {class:"rev-bloque"}, [el("h4", {text:titulo}),
+    el("div", {class:"rev-lista"}, filas)]);
+  const fila = (num, texto, icono, extra) => el("div", {class:"rev-fila"}, [
+    el("span", {class:"num", text:String(num)}),
+    icono ? el("img", {loading:"lazy", alt:"", src:icono}) : null,
+    el("span", {text:texto || "vacia"}), extra ? el("span", {class:"fijo", text:extra}) : null]);
+  caja.appendChild(bloque("Supertecnicas", d.tecnicas.filter(t => t.admite).map(t =>
+    fila(t.ranura, t.puesta, "", (t.abierta === false ? "rama cerrada · " : "")
+      + (d.rareza_valor >= 5 || t.ranura <= 3 ? "fija" : "")))));
+  const pas = d.pasivas.map(x => fila(x.ranura, x.heredada || x.normal,
+    x.icono200 ? "/icono/" + x.icono200 : ""));
+  if (d.pasivas_personal && d.pasivas_personal.lista)
+    for (const x of d.pasivas_personal.lista)
+      pas.push(fila("P" + x.ranura, x.texto, x.icono200 ? "/icono/" + x.icono200 : "", "de " + d.pasivas_personal.rol));
+  if (d.personalizada && d.personalizada.nombre)
+    pas.push(fila("P", d.personalizada.nombre, d.personalizada.icono200 ? "/icono/" + d.personalizada.icono200 : "", "personalizada"));
+  caja.appendChild(bloque("Pasivas", pas));
+  caja.appendChild(bloque("Equipacion", d.equipacion.map(x =>
+    fila(x.ranura, x.puesto, x.icono200 ? "/icono/" + x.icono200 : "", x.etiqueta))));
+  caja.appendChild(bloque("Judias", d.judias.map(x =>
+    fila(x.ranura, x.tipo ? x.tipo + " x" + x.cantidad : "vacia"))));
+}
+
+async function importarDraft() {
+  // los equipos de TU partida (sin la cabecera del draft)
+  let equipos;
+  const real = {headers:{"X-Pizarra-Draft":""}};
+  try { equipos = await pedir("/api/equipos", real); }
+  catch (e) { aviso(e.message, "mal"); return; }
+  const est = await pedir("/api/estado", real).catch(() => ({}));
+  const lista = el("div", {class:"lista-equipos-imp"});
+  const elegido = await new Promise(resolver => {
+    for (const t of equipos.filter(t => !t.de_la_historia))
+      lista.appendChild(el("button", {class:"btn", onclick:() => resolver(t)},
+        [el("b", {text:t.nombre}), document.createTextNode("  ·  " + t.cuantos + " jugadores")]));
+    ventanaPregunta("Importar equipo", "Elige que equipo de tu partida (" + (est.origen || "la abierta")
+      + ") se sustituye por el del draft: formacion, equipacion, escudo, tacticas, sinergias, nombre y "
+      + "los 20 jugadores. Los jugadores de ese equipo no se borran, solo salen de el.", lista,
+      [{texto:"Cancelar", accion:cerrar => { cerrar(); resolver(null); }}]).then(() => resolver(null));
+  });
+  document.querySelectorAll(".fondo-modal").forEach(m => m.remove());
+  document.onkeydown = null;
+  if (!elegido) return;
+  if (!await confirma("Importar equipo", "El equipo \"" + elegido.nombre + "\" de tu partida pasa a ser tu "
+      + "equipo del draft y tus 20 jugadores se crean en tu partida. Tarda un par de minutos. "
+      + "Luego guardas e instalas como siempre desde el editor. Sigo?")) return;
+  aviso("Importando... tarda un par de minutos, no cierres Pizarra.", "bien");
+  trabajando(true);
+  try {
+    const r = await pedir("/api/draft/importar", {method:"POST",
+      headers:{"Content-Type":"application/json", "X-Pizarra-Draft":""},
+      body:JSON.stringify({fichero:DRAFT.fichero, equipo:elegido.hueco})});
+    const h = r.hecho;
+    const texto = "Hecho: el equipo \"" + h.antes + "\" de tu partida ahora es \"" + h.despues + "\" con tus "
+      + h.jugadores + " jugadores del draft."
+      + (h.anadidos.length ? " Se han anadido a tu mochila " + h.anadidos.length + " objetos que usa el equipo." : "")
+      + (h.avisos.length ? " Ojo: " + h.avisos.join(" · ") : "");
+    // este no se va solo (los "bien" desaparecen a los 5 s)
+    $("#mensaje").textContent = "";
+    $("#mensaje").appendChild(el("p", {class:"aviso " + (h.avisos.length ? "mal" : "bien"), text:texto}));
+    $("#mensaje").appendChild(el("p", {}, [el("a", {class:"btn verde", href:"/editor#equipos",
+      text:"Abrir el editor para guardar e instalar"})]));
+    window.scrollTo(0, 0);
+  } catch (e) { aviso(e.message, "mal"); }
+  finally { trabajando(false); }
+}
 </script>
 </body>
 </html>

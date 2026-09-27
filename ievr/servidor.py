@@ -267,6 +267,68 @@ sesion = None
 
 # --- lo que se le ensena a la pantalla -----------------------------------------
 
+class SesionDraft(Sesion):
+    """El montaje del equipo de un draft (O-248): una copia de la partida con
+    los 20 del draft, que se guarda sola en partidas/draft/ (no es una
+    partida del juego: se pasa a la de verdad con "Importar equipo")."""
+
+    PASOS = 10          # menos pasos de deshacer: son 12 MB cada uno
+
+    def __init__(self, fichero, plain, info, rival):
+        self.fichero = fichero
+        self.origen = "Equipo del draft contra %s" % (rival or "?")
+        self.nombre = sesion.nombre
+        self.plain = plain
+        self.info = info
+        self.historial = []
+        self.cambios = []
+        self.lock = threading.Lock()
+        self._temporizador = None
+
+    def _guardalo(self):
+        from ievr import draft as DR
+        if self._temporizador:
+            self._temporizador.cancel()
+        # se escribe un momento despues del ultimo cambio, no en cada uno
+        self._temporizador = threading.Timer(1.0, lambda: DR.guardar_montaje(self.fichero, self.plain))
+        self._temporizador.daemon = True
+        self._temporizador.start()
+
+    def aplicar(self, funcion, *args):
+        info = Sesion.aplicar(self, funcion, *args)
+        self._guardalo()
+        return info
+
+    def deshacer(self):
+        Sesion.deshacer(self)
+        self._guardalo()
+
+
+montajes = {}
+_cerrojo_montajes = threading.Lock()
+
+
+def sesion_de_montaje(fichero, crear=False):
+    """La sesion del montaje de ese draft: de memoria, del disco o, con
+    `crear`, nueva a partir de la partida abierta."""
+    from ievr import draft as DR
+    fichero = os.path.basename(fichero or "")
+    if not fichero:
+        raise E.Ilegal("falta decir que draft")
+    with _cerrojo_montajes:
+        if fichero in montajes:
+            return montajes[fichero]
+        plain, info = DR.leer_montaje(fichero)
+        if plain is None:
+            if not crear:
+                raise E.Ilegal("ese draft aun no tiene equipo montado")
+            with sesion.lock:
+                real = sesion.plain
+            plain, info = DR.crear_montaje(real, sesion.nombre, fichero)
+        montajes[fichero] = SesionDraft(fichero, plain, info, DR.leer(fichero).get("rival"))
+        return montajes[fichero]
+
+
 def _nombre_de(clave, f):
     """El nombre del personaje, mirando en las dos tablas.
 
@@ -957,7 +1019,7 @@ def equipos_por_fila(plain):
 
 
 def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
-                     desde=0, cuantos=120, sentido="asc"):
+                     desde=0, cuantos=120, sentido="asc", solo=None):
     """La plantilla, filtrada y por paginas.
 
     Devuelve tambien **de que se puede filtrar y cuantos hay de cada cosa**,
@@ -975,7 +1037,8 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
     mios, huecos_equipo = equipos_por_fila(plain)
     todos = []
     for i in range(min(6000, len(ident))):
-        if ident[i]:
+        # `solo`: en el editor del draft, solo los del draft (O-248)
+        if ident[i] and (solo is None or i in solo):
             d = _ficha_corta(plain, i, ident, nivel, rareza, arq, jugadores)
             d["mis_equipos"] = mios.get(i, [])
             todos.append(d)
@@ -1294,6 +1357,13 @@ class Manejador(BaseHTTPRequestHandler):
     def log_message(self, *a):
         pass
 
+    def _elige_sesion(self):
+        """La partida de verdad, o el montaje de un draft si la pagina lo pide
+        (el editor del draft manda la cabecera X-Pizarra-Draft, O-248)."""
+        fichero = unquote(self.headers.get("X-Pizarra-Draft") or "").strip()
+        self.ses = sesion_de_montaje(fichero) if fichero else sesion
+        self.draft = fichero and self.ses is not sesion
+
     def _responder(self, codigo, cuerpo, tipo="application/json; charset=utf-8"):
         if isinstance(cuerpo, (dict, list)):
             cuerpo = json.dumps(cuerpo, ensure_ascii=False).encode("utf-8")
@@ -1325,6 +1395,7 @@ class Manejador(BaseHTTPRequestHandler):
         u = urlparse(self.path)
         q = parse_qs(u.query)
         try:
+            self._elige_sesion()
             # El menu de inicio, y desde el las tres pantallas: el editor, la
             # base de datos del juego y la calculadora de poder.
             if u.path in ("/", "/index.html", "/inicio"):
@@ -1338,6 +1409,21 @@ class Manejador(BaseHTTPRequestHandler):
             # el modo draft entre dos jugadores (O-247)
             if u.path in ("/draft", "/draft.html"):
                 return self._fichero(os.path.join(WEB, "draft.html"), "text/html; charset=utf-8")
+            if u.path == "/draft/montar":
+                # el editor de siempre con las reglas del draft (O-248)
+                fichero = os.path.basename((q.get("f") or [""])[0])
+                with open(os.path.join(WEB, "editor.html"), encoding="utf-8") as fh:
+                    html = fh.read()
+                marca = '<script src="/web/comun.js"></script>'
+                html = html.replace(marca, "<script>window.DRAFT = %s;</script>\n%s"
+                                    % (json.dumps({"fichero": fichero}), marca), 1)
+                datos = html.encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(datos)))
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                return self.wfile.write(datos)
             if u.path == "/api/draft/candidatos":
                 from ievr import draft as DR
                 return self._responder(200, {"candidatos": DR.candidatos()})
@@ -1435,11 +1521,11 @@ class Manejador(BaseHTTPRequestHandler):
                     ruta = os.path.join(CUERPOS, nombre + "_00_l.png")
                 return self._fichero(ruta, "image/png")
             if u.path == "/api/estado":
-                with sesion.lock:
+                with self.ses.lock:
                     return self._responder(200, {
-                        "origen": sesion.origen,
-                        "cambios": sesion.cambios,
-                        "puede_deshacer": bool(sesion.historial),
+                        "origen": self.ses.origen,
+                        "cambios": self.ses.cambios,
+                        "puede_deshacer": bool(self.ses.historial),
                         "version": _version_instalada(),
                         # para que el propio programa diga si le faltan los
                         # dibujos (al amigo de Aaron no le salian las caras, O-202)
@@ -1453,22 +1539,23 @@ class Manejador(BaseHTTPRequestHandler):
                                      "arquetipo", "equipo", "saga", "armadura", "mixi", "modo", "nivel_grupo",
                                      "judias", "heredadas", "equipacion", "rol",
                                      "cuerpo_tipo", "mi_equipo", "arbol_sube", "genero")}
-                with sesion.lock:
+                with self.ses.lock:
                     return self._responder(200, listar_jugadores(
-                        sesion.plain, (q.get("q") or [""])[0], filtros,
+                        self.ses.plain, (q.get("q") or [""])[0], filtros,
                         (q.get("orden") or ["nivel"])[0],
                         int((q.get("desde") or ["0"])[0]),
                         int((q.get("cuantos") or ["120"])[0]),
-                        (q.get("sentido") or ["asc"])[0]))
+                        (q.get("sentido") or ["asc"])[0],
+                        solo=set(self.ses.info["filas"]) if self.draft else None))
             if u.path.startswith("/api/jugador/"):
                 fila = int(u.path.rsplit("/", 1)[1])
-                with sesion.lock:
-                    return self._responder(200, detalle_jugador(sesion.plain, fila))
+                with self.ses.lock:
+                    return self._responder(200, detalle_jugador(self.ses.plain, fila))
             if u.path.startswith("/api/espiritu/"):
                 # la ficha de un espiritu: su pasiva y su tecnica (O-184)
                 idh = u.path.rsplit("/", 1)[1].upper()
                 e = O._espiritus().get(idh) or {}
-                with sesion.lock:
+                with self.ses.lock:
                     return self._responder(200, dict(
                         {"id": idh, "nombre": O.nombre_de(idh) if hasattr(O, "nombre_de") else "",
                          "icono": e.get("icono") or ""},
@@ -1477,14 +1564,23 @@ class Manejador(BaseHTTPRequestHandler):
                 tipo = (q.get("tipo") or [""])[0]
                 fila = int((q.get("fila") or ["-1"])[0])
                 ranura = int((q.get("ranura") or ["1"])[0])
-                with sesion.lock:
-                    p = sesion.plain
+                with self.ses.lock:
+                    p = self.ses.plain
                     if tipo == "equipacion":
                         return self._responder(200, {"opciones": O.equipacion(p, ranura)})
                     if tipo == "tecnica":
+                        if self.draft:
+                            from ievr import draft as DR
+                            motivo = DR.tecnica_bloqueada(p, fila, ranura)
+                            if motivo:
+                                return self._responder(200, {"admite": None, "puede": False,
+                                                             "motivo": motivo, "opciones": []})
                         return self._responder(200, O.tecnicas(p, fila, ranura))
                     if tipo == "pasiva":
                         return self._responder(200, O.pasivas(p, fila, ranura))
+                    if tipo == "heredada" and self.draft:
+                        return self._responder(200, {"puede": False, "opciones": [],
+                                                     "motivo": "en el draft no hay heredadas"})
                     if tipo == "heredada":
                         # con ranura, solo las que pueden ir ahi (O-213)
                         return self._responder(200, O.heredadas(
@@ -1495,27 +1591,32 @@ class Manejador(BaseHTTPRequestHandler):
                         return self._responder(200, O.personales(p, fila))
                     return self._responder(400, {"error": "no se que opciones son %r" % tipo})
             if u.path == "/api/inventario":
-                with sesion.lock:
-                    return self._responder(200, O.objetos_creables(sesion.plain))
+                with self.ses.lock:
+                    return self._responder(200, O.objetos_creables(self.ses.plain))
             if u.path == "/api/equipos":
-                with sesion.lock:
-                    return self._responder(200, EQ.todos(sesion.plain))
+                with self.ses.lock:
+                    todos = EQ.todos(self.ses.plain)
+                    if self.draft:
+                        todos = [t for t in todos if t["hueco"] == self.ses.info["equipo"]]
+                    return self._responder(200, todos)
             if u.path.startswith("/api/equipo/") and u.path.endswith("/pasivas"):
                 n = int(u.path.split("/")[3])
-                with sesion.lock:
-                    return self._responder(200, pasivas_de_equipo(sesion.plain, n))
+                with self.ses.lock:
+                    return self._responder(200, pasivas_de_equipo(self.ses.plain, n))
             if u.path.startswith("/api/equipo/") and u.path.endswith("/sinergias"):
                 n = int(u.path.split("/")[3])
-                with sesion.lock:
-                    e = EQ.leer(sesion.plain, n)
-                    return self._responder(200, {"sinergias": O.sinergias_para_equipo(sesion.plain, e)})
+                with self.ses.lock:
+                    e = EQ.leer(self.ses.plain, n)
+                    return self._responder(200, {"sinergias": O.sinergias_para_equipo(self.ses.plain, e)})
             if u.path.startswith("/api/equipo/"):
                 n = int(u.path.rsplit("/", 1)[1])
-                with sesion.lock:
-                    return self._responder(200, detalle_equipo(sesion.plain, n))
+                with self.ses.lock:
+                    return self._responder(200, detalle_equipo(self.ses.plain, n))
             if u.path == "/api/personajes":
-                with sesion.lock:
-                    return self._responder(200, O.personajes_creables(sesion.plain))
+                if self.draft:
+                    return self._responder(200, [])
+                with self.ses.lock:
+                    return self._responder(200, O.personajes_creables(self.ses.plain))
             if u.path == "/api/presets":
                 return self._responder(200, PR.definiciones())
             return self._responder(404, {"error": "no existe esa direccion"})
@@ -1532,17 +1633,32 @@ class Manejador(BaseHTTPRequestHandler):
         except ValueError:
             return self._responder(400, {"error": "no entiendo la peticion"})
         try:
-            with sesion.lock:
+            self._elige_sesion()
+            if self.draft and u.path in ("/api/abrir", "/api/guardar", "/api/instalar"):
+                raise E.Ilegal("esto es el equipo del draft: se pasa a tu partida con "
+                               "Importar equipo, no guardando aqui")
+            if u.path == "/api/draft/montar":
+                ses = sesion_de_montaje(cuerpo.get("fichero") or "", crear=True)
+                return self._responder(200, {"montaje": ses.info, "origen": ses.origen})
+            if u.path == "/api/draft/importar":
+                # a la partida de verdad, sea cual sea la pagina que lo pida
+                from ievr import draft as DR
+                with sesion.lock:
+                    plain, resumen = DR.importar(sesion.plain, cuerpo.get("fichero") or "",
+                                                 int(cuerpo.get("equipo")))
+                    sesion._paso(plain, resumen)
+                    return self._responder(200, {"hecho": resumen, "cambios": sesion.cambios})
+            with self.ses.lock:
                 if u.path == "/api/cambiar":
                     info = self._cambiar(cuerpo)
                     return self._responder(200, {"hecho": info,
-                                                 "cambios": sesion.cambios})
+                                                 "cambios": self.ses.cambios})
                 if u.path == "/api/draft/guardar":
                     from ievr import draft as DR
                     return self._responder(200, {"fichero": DR.guardar(cuerpo.get("resultado"))})
                 if u.path == "/api/deshacer":
-                    sesion.deshacer()
-                    return self._responder(200, {"cambios": sesion.cambios})
+                    self.ses.deshacer()
+                    return self._responder(200, {"cambios": self.ses.cambios})
                 if u.path == "/api/abrir":
                     ruta = (cuerpo.get("ruta") or "").strip()
                     if not E.partida_en(ruta):
@@ -1550,34 +1666,34 @@ class Manejador(BaseHTTPRequestHandler):
                     nueva = Sesion(ruta)
                     sesion.origen, sesion.plain, sesion.nombre = nueva.origen, nueva.plain, nueva.nombre
                     sesion.historial, sesion.cambios = [], []
-                    return self._responder(200, {"origen": sesion.origen})
+                    return self._responder(200, {"origen": self.ses.origen})
                 if u.path == "/api/instalar":
                     carpeta = (cuerpo.get("carpeta") or "").strip()
                     if not carpeta:
                         raise E.Ilegal("primero guarda la copia")
                     # (el POST ya va con el cerrojo cogido: otro `with` aqui se
                     # queda esperando para siempre, como paso con /api/guardar)
-                    return self._responder(200, instalar_en_steam(carpeta, sesion.nombre))
+                    return self._responder(200, instalar_en_steam(carpeta, self.ses.nombre))
                 if u.path == "/api/guardar":
                     # antes de escribir, el arbol de todos como lo dejaria el
                     # juego: si no, las tecnicas puestas con el editor no se ven
                     # y las pasivas salen con candado (NOTAS O-177, O-178)
-                    arreglos = sesion.arreglar_al_guardar()
+                    arreglos = self.ses.arreglar_al_guardar()
                     carpeta = (cuerpo.get("carpeta") or "").strip()
                     if carpeta:
-                        E.guardar(sesion.plain, carpeta, sesion.nombre)
+                        E.guardar(self.ses.plain, carpeta, self.ses.nombre)
                         destino = carpeta
                     else:
                         nombre = (cuerpo.get("nombre") or "desde-la-interfaz").strip()
                         nombre = "".join(c for c in nombre
                                          if c.isalnum() or c in "-_") or "editada"
-                        destino = sesion.guardar(nombre)
+                        destino = self.ses.guardar(nombre)
                     return self._responder(200, {"carpeta": destino,
                                                  "arboles": arreglos["arboles"],
                                                  "dorsales": arreglos["dorsales"],
                                                  "piezas": arreglos["piezas"],
                                                  "personal": arreglos["personal"],
-                                                 "fichero": os.path.join(destino, sesion.nombre)})
+                                                 "fichero": os.path.join(destino, self.ses.nombre)})
             return self._responder(404, {"error": "no existe esa direccion"})
         except (E.Ilegal, EQ.Ilegal) as e:
             return self._responder(400, {"error": str(e)})
@@ -1587,131 +1703,134 @@ class Manejador(BaseHTTPRequestHandler):
     def _cambiar(self, c):
         """Aplica UN cambio. Cada tipo va a su funcion de `escribir`, que valida."""
         t = c.get("tipo")
+        if self.draft:
+            from ievr import draft as DR
+            DR.comprueba_cambio(self.ses.plain, self.ses.info, c)
         fila = int(c.get("fila", -1))
         if t == "nivel":
-            return sesion.aplicar(E.poner_nivel, fila, int(c["valor"]))
+            return self.ses.aplicar(E.poner_nivel, fila, int(c["valor"]))
         if t == "rareza":
-            return sesion.aplicar(E.poner_rareza, fila, int(c["valor"]))
+            return self.ses.aplicar(E.poner_rareza, fila, int(c["valor"]))
         if t == "arquetipo":
-            if J.array(sesion.plain, J.ARRAY_RAREZA)[fila] == 8:
-                return sesion.aplicar(E.poner_arquetipo_diamante, fila, int(c["valor"]))
-            return sesion.aplicar(E.poner_arquetipo, fila,
+            if J.array(self.ses.plain, J.ARRAY_RAREZA)[fila] == 8:
+                return self.ses.aplicar(E.poner_arquetipo_diamante, fila, int(c["valor"]))
+            return self.ses.aplicar(E.poner_arquetipo, fila,
                                   J.ARQUETIPOS[int(c["valor"])])
         if t == "partidos":
-            return sesion.aplicar(E.poner_partidos, fila, int(c["valor"]))
+            return self.ses.aplicar(E.poner_partidos, fila, int(c["valor"]))
         if t == "equipacion":
             # por codigo: los nombres con marcador ("Talisman de <FLC:ENDO>") no
             # se encontraban por el texto limpio (O-187)
-            return sesion.aplicar(E.poner_equipacion, fila, int(c["ranura"]),
+            return self.ses.aplicar(E.poner_equipacion, fila, int(c["ranura"]),
                                   c.get("id") or c["nombre"])
         if t == "tecnica":
-            return sesion.aplicar(E.poner_tecnica, fila, int(c["ranura"]), c.get("id") or c["nombre"])
+            return self.ses.aplicar(E.poner_tecnica, fila, int(c["ranura"]), c.get("id") or c["nombre"])
         if t == "arreglar_tecnicas":
-            return sesion.aplicar(E.arreglar_tecnicas)
+            return self.ses.aplicar(E.arreglar_tecnicas)
         if t == "arreglar_arboles":
-            return sesion.aplicar(E.arreglar_arboles)
+            return self.ses.aplicar(E.arreglar_arboles)
         if t == "arreglar_dorsales":
-            return sesion.aplicar(EQ.arreglar_dorsales)
+            return self.ses.aplicar(EQ.arreglar_dorsales)
         if t == "arreglar_piezas":
-            return sesion.aplicar(EQ.arreglar_piezas)
+            return self.ses.aplicar(EQ.arreglar_piezas)
         if t == "arreglar_cabeceras":
-            return sesion.aplicar(EQ.arreglar_cabeceras)
+            return self.ses.aplicar(EQ.arreglar_cabeceras)
         if t == "quitar_pasivas_ilegales":
-            return sesion.aplicar(E.quitar_pasivas_ilegales)
+            return self.ses.aplicar(E.quitar_pasivas_ilegales)
         if t == "arreglar_tablas":
-            return sesion.aplicar(E.arreglar_tablas)
+            return self.ses.aplicar(E.arreglar_tablas)
         if t == "arreglar_diamantes":
-            return sesion.aplicar(E.arreglar_diamantes)
+            return self.ses.aplicar(E.arreglar_diamantes)
         if t == "arreglar_pasivas_personal":
-            return sesion.aplicar(E.arreglar_pasivas_personal)
+            return self.ses.aplicar(E.arreglar_pasivas_personal)
         if t == "dar_personalizadas":
-            return sesion.aplicar(E.dar_personalizadas, int(c.get("cantidad") or 99))
+            return self.ses.aplicar(E.dar_personalizadas, int(c.get("cantidad") or 99))
         if t == "dar_pasivas_personal":
-            return sesion.aplicar(E.dar_pasivas_personal, int(c.get("cantidad") or 99))
+            return self.ses.aplicar(E.dar_pasivas_personal, int(c.get("cantidad") or 99))
         if t == "pasiva_personal":
-            return sesion.aplicar(E.poner_pasiva_personal, fila, int(c["ranura"]),
+            return self.ses.aplicar(E.poner_pasiva_personal, fila, int(c["ranura"]),
                                   c.get("id") or c.get("nombre") or "")
         if t == "personalizada":
-            return sesion.aplicar(E.poner_personalizada, fila, c.get("id") or c.get("nombre") or "")
+            return self.ses.aplicar(E.poner_personalizada, fila, c.get("id") or c.get("nombre") or "")
         if t == "pasiva":
-            return sesion.aplicar(E.poner_pasiva, fila, int(c["ranura"]), c.get("id") or c["nombre"])
+            return self.ses.aplicar(E.poner_pasiva, fila, int(c["ranura"]), c.get("id") or c["nombre"])
         if t == "quitar_heredada":
-            return sesion.aplicar(E.quitar_heredada, fila, int(c["ranura"]))
+            return self.ses.aplicar(E.quitar_heredada, fila, int(c["ranura"]))
         # presets y MAX: atajos que hacen lo mismo que ir ranura por ranura (O-218)
         if t == "preset_judias":
-            return sesion.aplicar(PR.preset_judias, fila, c.get("clave") or "")
+            return self.ses.aplicar(PR.preset_judias, fila, c.get("clave") or "")
         if t == "preset_equipacion":
-            return sesion.aplicar(PR.preset_equipacion, fila, c.get("clave") or "")
+            return self.ses.aplicar(PR.preset_equipacion, fila, c.get("clave") or "")
         if t == "preset_pasivas":
-            return sesion.aplicar(PR.preset_pasivas, fila, int(c.get("arquetipo", -1)), c.get("clave") or "")
+            return self.ses.aplicar(PR.preset_pasivas, fila, int(c.get("arquetipo", -1)), c.get("clave") or "")
         if t == "maximo":
-            return sesion.aplicar(PR.maximo, fila)
+            return self.ses.aplicar(PR.maximo, fila)
         if t == "equipo_nombre":
-            return sesion.aplicar(EQ.poner_nombre, int(c["equipo"]), c["nombre"])
+            return self.ses.aplicar(EQ.poner_nombre, int(c["equipo"]), c["nombre"])
         if t == "crear_equipo":
-            return sesion.aplicar(EQ.crear_equipo, c.get("nombre") or "")
+            return self.ses.aplicar(EQ.crear_equipo, c.get("nombre") or "")
         if t == "equipo_dorsal":
-            return sesion.aplicar(EQ.poner_dorsal, int(c["equipo"]),
+            return self.ses.aplicar(EQ.poner_dorsal, int(c["equipo"]),
                                   int(c["hueco"]), int(c["valor"]))
         if t == "equipo_capitan":
-            return sesion.aplicar(EQ.poner_capitan, int(c["equipo"]), int(c["hueco"]))
+            return self.ses.aplicar(EQ.poner_capitan, int(c["equipo"]), int(c["hueco"]))
         if t == "equipo_jugador":
-            return sesion.aplicar(EQ.poner_jugador, int(c["equipo"]),
+            return self.ses.aplicar(EQ.poner_jugador, int(c["equipo"]),
                                   int(c["hueco"]), int(c["slot"]))
         if t == "equipo_intercambiar":
-            return sesion.aplicar(EQ.intercambiar, int(c["equipo"]),
+            return self.ses.aplicar(EQ.intercambiar, int(c["equipo"]),
                                   int(c["a"]), int(c["b"]))
         if t == "equipo_meter":
-            return sesion.aplicar(EQ.meter_jugador, int(c["equipo"]),
+            return self.ses.aplicar(EQ.meter_jugador, int(c["equipo"]),
                                   int(c["puesto"]), int(c["fila"]))
         if t == "equipo_sacar":
-            return sesion.aplicar(EQ.sacar_jugador, int(c["equipo"]), int(c["hueco"]))
+            return self.ses.aplicar(EQ.sacar_jugador, int(c["equipo"]), int(c["hueco"]))
         if t == "equipo_puesto":
-            return sesion.aplicar(EQ.poner_puesto, int(c["equipo"]),
+            return self.ses.aplicar(EQ.poner_puesto, int(c["equipo"]),
                                   int(c["hueco"]), int(c["valor"]))
         if t == "equipo_simple":
-            return sesion.aplicar(EQ.poner_simple, int(c["equipo"]), c["cual"],
+            return self.ses.aplicar(EQ.poner_simple, int(c["equipo"]), c["cual"],
                                   int(c["valor"], 16))
         if t == "equipo_tactica":
-            return sesion.aplicar(EQ.poner_tactica, int(c["equipo"]),
+            return self.ses.aplicar(EQ.poner_tactica, int(c["equipo"]),
                                   int(c["ranura"]), c.get("id") or "")
         if t == "rol":
-            return sesion.aplicar(E.poner_medalla, fila, c["valor"])
+            return self.ses.aplicar(E.poner_medalla, fila, c["valor"])
         if t == "diamante":
-            return sesion.aplicar(E.poner_diamante, fila)
+            return self.ses.aplicar(E.poner_diamante, fila)
         if t == "cambiar_rama":
-            return sesion.aplicar(E.cambiar_rama, fila)
+            return self.ses.aplicar(E.cambiar_rama, fila)
         if t == "arreglar_heredadas":
-            return sesion.aplicar(E.arreglar_heredadas)
+            return self.ses.aplicar(E.arreglar_heredadas)
         if t == "conseguir_todo":
-            return sesion.aplicar(E.conseguir_todo, c["categoria"], int(c["cantidad"]))
+            return self.ses.aplicar(E.conseguir_todo, c["categoria"], int(c["cantidad"]))
         if t == "heredada":
-            return sesion.aplicar(E.poner_heredada, fila, int(c["ranura"]), c.get("id") or c["nombre"])
+            return self.ses.aplicar(E.poner_heredada, fila, int(c["ranura"]), c.get("id") or c["nombre"])
         if t == "judia":
-            return sesion.aplicar(E.poner_tipo_judia, fila, int(c["ranura"]),
+            return self.ses.aplicar(E.poner_tipo_judia, fila, int(c["ranura"]),
                                   c["nombre"], int(c["cantidad"]))
         if t == "judias":
-            return sesion.aplicar(E.poner_judias, fila, int(c["ranura"]), int(c["cantidad"]))
+            return self.ses.aplicar(E.poner_judias, fila, int(c["ranura"]), int(c["cantidad"]))
         # El editor manda el codigo del objeto ademas del nombre: hay cosas que
         # se llaman igual (dos "alfil negro" de aura) y el nombre no las separa.
         if t == "cantidad":
-            return sesion.aplicar(E.poner_cantidad, c.get("id") or c["nombre"], int(c["cantidad"]))
+            return self.ses.aplicar(E.poner_cantidad, c.get("id") or c["nombre"], int(c["cantidad"]))
         if t == "objeto":
             if (c.get("id") or "").upper() in O.sinergia_por_objeto():
-                return sesion.aplicar(E.anadir_sinergia, c["id"])
-            return sesion.aplicar(E.anadir_objeto, c.get("id") or c["nombre"], int(c.get("cantidad", 1)))
+                return self.ses.aplicar(E.anadir_sinergia, c["id"])
+            return self.ses.aplicar(E.anadir_objeto, c.get("id") or c["nombre"], int(c.get("cantidad", 1)))
         if t == "dar_sinergias":
-            return sesion.aplicar(E.dar_sinergias)
+            return self.ses.aplicar(E.dar_sinergias)
         if t == "equipo_sinergia":
-            return sesion.aplicar(EQ.poner_sinergia, int(c["equipo"]), int(c["ranura"]),
+            return self.ses.aplicar(EQ.poner_sinergia, int(c["equipo"]), int(c["ranura"]),
                                   c.get("id") or "")
         if t == "jugador":
             if c.get("diamante"):
-                return sesion.aplicar(E.anadir_jugador_diamante, c["nombre"])
-            return sesion.aplicar(E.anadir_jugador, c["nombre"],
+                return self.ses.aplicar(E.anadir_jugador_diamante, c["nombre"])
+            return self.ses.aplicar(E.anadir_jugador, c["nombre"],
                                   c.get("rareza") or None, c.get("arquetipo") or None)
         if t == "borrar_jugador":
-            return sesion.aplicar(E.borrar_jugador, fila)
+            return self.ses.aplicar(E.borrar_jugador, fila)
         raise E.Ilegal("no se que es %r" % t)
 
 
