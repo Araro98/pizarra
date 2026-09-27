@@ -5842,6 +5842,35 @@ Se recuerdan (localStorage `draft-reglas`).
 - Probado: IE1-IE3, sin ilegales, muchos Idolos: los 40 de esos juegos,
   ninguno ilegal, 3 Idolos.
 
+### O-250 · Mas opciones del draft
+
+Aaron pidio todas las que propuse y dos cambios:
+
+- Juegos sin bastantes para una ronda: se rellena con el juego ANTERIOR de
+  cada uno (IE2 con IE1, GO 2 con GO...; en el orden de la lista de juegos),
+  paso a paso, y solo si aun faltan, de todos. Luego, si hace falta, se
+  ignora la afinidad y despues el genero. Las cuentas del panel lo dicen.
+- Idolos: un equipo solo alinea 2, asi que cada opcion tiene tope en todo el
+  draft (pocos 2, algunos 4, muchos 6 ofrecidos) y nadie coge mas de 3
+  (2 + un suplente). Simulado 200 veces con "muchos": nunca mas de 6.
+- Nuevas: genero (chicos y chicas / solo chicos / solo chicas); afinidades
+  marcadas y como (mezcladas, una al azar para los dos, una al azar para
+  cada uno: la tanda sale mitad de cada una y cada uno solo coge de la suya,
+  el personal no mira afinidad); tamano de la tanda (justa, 2 de mas, 4 de
+  mas, el doble); cuantos de cada (DEL/MED/DEF/POR entre 11 y 16 jugadores,
+  al menos un portero; 0-3 gerentes, 0-1 entrenador); arquetipo (al azar
+  cada uno, el mismo para los dos, lo elige cada uno: el del rival no se ve
+  hasta que eligen los dos); tiempo por turno (30, 60, 90 s: si se acaba, el
+  anfitrion elige al azar por quien toque; el invitado corrige la diferencia
+  de hora con `estado.ahora`); y versiones repetidas (sin ellas, un nombre
+  no vuelve a salir en todo el draft).
+- Si con las reglas a alguien no le queda ninguna carta que pueda coger,
+  puede coger cualquiera (que nadie se atasque).
+- Probado con IE2, solo chicas, muchos Idolos, una afinidad para cada uno,
+  2 de mas, 3-4-3-1 + 2 + 1, arquetipo elegido, 30 s y sin repetidas: turno
+  agotado elegido solo y de su afinidad, cantidades justas, sin repetidos,
+  gerentes de IE1, y el montaje de 14 colocados (11 + 2 gerentes + 1).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

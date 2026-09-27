@@ -78,6 +78,16 @@
   .cuentas-reglas { font-size:var(--t-xs); color:var(--suave); font-weight:700; line-height:1.5; }
   .cuentas-reglas .mal { color:#b3261e; }
   .reglas-invitacion { display:block; font-weight:600; color:var(--suave); font-size:var(--t-xs); white-space:normal; }
+  .num-regla { width:58px; }
+  .juego.afin { display:inline-flex; align-items:center; gap:4px; }
+  .opcion.no-puede { opacity:.55; }
+  .opcion .no-puede-txt { position:absolute; top:40%; left:50%; transform:translate(-50%,-50%);
+    background:#3a4a63; color:#fff; font-weight:800; font-size:var(--t-xs); padding:3px 8px;
+    border-radius:7px; white-space:nowrap; z-index:2; }
+  .cuenta-atras { margin-left:12px; padding:2px 10px; border-radius:8px; background:var(--azul-osc);
+    color:#fff; font-style:normal; font-size:var(--t-md); }
+  .cuenta-atras.poco { background:#c0392b; }
+  .elige-arq { display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 12px; }
   .botones-fin { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
   .chip.idolo { background:linear-gradient(180deg,#ef4fe3,#9e2596); }
   /* el juego de origen, con la misma pastilla que lleva la tarjeta arriba */
@@ -165,7 +175,7 @@
 /* ------------------------------------------------------------------------
    Reglas del draft (Aaron, NOTAS O-247)
    ------------------------------------------------------------------------ */
-const RONDAS = [
+const RONDAS_BASE = [
   {grupo:"DEL", cuantos:4, texto:"delantero", titulo:"Delanteros"},
   {grupo:"MED", cuantos:5, texto:"medio", titulo:"Medios"},
   {grupo:"DEF", cuantos:3, texto:"defensa", titulo:"Defensas"},
@@ -173,20 +183,58 @@ const RONDAS = [
   {grupo:"GER", cuantos:3, texto:"gerente", titulo:"Gerentes"},
   {grupo:"ENT", cuantos:1, texto:"entrenador", titulo:"Entrenador"},
 ];
-// cada ronda saca justo los que se reparten (8 delanteros para 4 y 4...): los
-// dos ven los mismos y se van quitando segun se eligen (Aaron)
-// Idolos: la probabilidad de cada hueco de jugador de la ronda (O-249)
+const GRUPOS_JUGADOR = ["DEL", "MED", "DEF", "POR"];
+// cada ronda saca una tanda para los dos (por defecto justo los que se
+// reparten) y se van quitando segun se eligen (Aaron)
+// Idolos: la probabilidad de cada hueco de jugador de la tanda y cuantos
+// pueden salir como mucho en todo el draft: un equipo solo puede alinear 2,
+// asi que no tiene sentido que salgan muchos mas (Aaron, O-250)
 const IDOLOS = [
-  {valor:"no",     nombre:"Sin Idolos",   prob:0},
-  {valor:"pocos",  nombre:"Pocos",        prob:0.02},
-  {valor:"algunos",nombre:"Algunos",      prob:0.06},
-  {valor:"muchos", nombre:"Muchos",       prob:0.15},
+  {valor:"no",      nombre:"Sin Idolos", prob:0,    tope:0},
+  {valor:"pocos",   nombre:"Pocos",      prob:0.02, tope:2},
+  {valor:"algunos", nombre:"Algunos",    prob:0.06, tope:4},
+  {valor:"muchos",  nombre:"Muchos",     prob:0.15, tope:6},
 ];
+const IDOLOS_POR_CABEZA = 3;      // nadie se lleva mas de 3 (2 juegan y 1 suplente)
 const SAGAS = Object.keys(CHAPA_SAGA);
-// las reglas de un draft (O-249): se eligen al invitar y viajan con la
-// invitacion; el que invita reparte con ellas
-const REGLAS_DE_SERIE = {sagas:SAGAS.slice(), ilegales:true, idolos:"pocos"};
-let reglas = Object.assign({}, REGLAS_DE_SERIE, leeLocal("draft-reglas") || {});
+const ELEMENTOS = [["Fuego", "Fuego"], ["Viento", "Viento"], ["Bosque", "Bosque"], ["Montana", "Montaña"]];
+const GENEROS = [["todos", "Chicos y chicas"], ["chicos", "Solo chicos"], ["chicas", "Solo chicas"]];
+const AFINIDADES = [["libre", "Las marcadas, mezcladas"], ["una", "Una al azar para los dos"],
+                    ["cada_uno", "Una al azar para cada uno (solo puedes coger de la tuya)"]];
+const TANDAS = [["justa", "Justa (los que se reparten)"], ["mas2", "2 de mas"], ["mas4", "4 de mas"],
+                ["doble", "El doble"]];
+const ARQUETIPO_MODOS = [["azar", "Al azar, uno para cada uno"], ["mismo", "Al azar, el mismo para los dos"],
+                         ["elegir", "Lo elige cada uno"]];
+const TIEMPOS = [[0, "Sin limite"], [30, "30 segundos"], [60, "1 minuto"], [90, "1 minuto y medio"]];
+// las reglas de un draft (O-249, O-250): se eligen al invitar y viajan con
+// la invitacion; el que invita reparte con ellas
+const REGLAS_DE_SERIE = {sagas:SAGAS.slice(), ilegales:true, idolos:"pocos", genero:"todos",
+  elementos:ELEMENTOS.map(e => e[0]), afinidad:"libre", tanda:"justa",
+  cantidades:{DEL:4, MED:5, DEF:3, POR:4, GER:3, ENT:1}, arquetipo:"azar", tiempo:0, repetidos:true};
+function completa(r) {
+  const x = JSON.parse(JSON.stringify(Object.assign({}, REGLAS_DE_SERIE, r || {})));
+  x.cantidades = Object.assign({}, REGLAS_DE_SERIE.cantidades, (r || {}).cantidades || {});
+  return x;
+}
+let reglas = completa(leeLocal("draft-reglas"));
+function rondasDe(r) {
+  const c = completa(r).cantidades;
+  return RONDAS_BASE.map(x => Object.assign({}, x, {cuantos:Number(c[x.grupo]) || 0})).filter(x => x.cuantos > 0);
+}
+function rondaDe(grupo, r) { return rondasDe(r).find(x => x.grupo === grupo) || RONDAS_BASE.find(x => x.grupo === grupo); }
+// cuantas cartas saca la tanda de una ronda
+function tamanoTanda(cuantos, r) {
+  const extra = {justa:0, mas2:2, mas4:4, doble:2 * cuantos}[completa(r).tanda] || 0;
+  return 2 * cuantos + extra;
+}
+function problemaCantidades(r) {
+  const c = completa(r).cantidades;
+  const jug = GRUPOS_JUGADOR.reduce((a, g) => a + (Number(c[g]) || 0), 0);
+  if (jug < 11) return "Hacen falta al menos 11 jugadores (ahora " + jug + ").";
+  if (jug > 16) return "Como mucho 16 jugadores, que es lo que cabe en un equipo (11 + 5 suplentes); ahora " + jug + ".";
+  if (!(Number(c.POR) >= 1)) return "Hace falta al menos un portero.";
+  return "";
+}
 const ARQUETIPOS = ["Brecha", "Contra", "Afinidad", "Tension", "Juego sucio", "Justicia"];
 const FRESCO_MS = 90000;          // un conectado sin senales en 90 s se da por ido
 
@@ -272,73 +320,156 @@ function alMensaje(tema, msg, retenido, servidor) {
 
 /* ---------------- personalizar el draft (O-249) ---------------- */
 function textoReglas(r) {
-  r = Object.assign({}, REGLAS_DE_SERIE, r || {});
-  const juegos = r.sagas.length === SAGAS.length ? "todos los juegos"
-               : r.sagas.map(x => (CHAPA_SAGA[x] || [x])[0]).join(", ") || "ningun juego";
-  const ido = (IDOLOS.find(i => i.valor === r.idolos) || IDOLOS[1]).nombre.toLowerCase();
-  return juegos + " · " + (r.ilegales ? "con ilegales" : "sin ilegales") + " · Idolos: " + ido;
+  r = completa(r);
+  const partes = [];
+  partes.push(r.sagas.length === SAGAS.length ? "todos los juegos"
+              : r.sagas.map(x => (CHAPA_SAGA[x] || [x])[0]).join(", ") || "ningun juego");
+  partes.push(r.ilegales ? "con ilegales" : "sin ilegales");
+  partes.push("Idolos: " + (IDOLOS.find(i => i.valor === r.idolos) || IDOLOS[1]).nombre.toLowerCase());
+  if (r.genero !== "todos") partes.push(r.genero === "chicas" ? "solo chicas" : "solo chicos");
+  const nomElem = e => (ELEMENTOS.find(x => x[0] === e) || [e, e])[1];
+  if (r.afinidad === "una") partes.push("una afinidad al azar para los dos");
+  else if (r.afinidad === "cada_uno") partes.push("una afinidad al azar para cada uno");
+  if (r.elementos.length < ELEMENTOS.length) partes.push("afinidades: " + r.elementos.map(nomElem).join(", "));
+  if (r.tanda !== "justa") partes.push("tanda: " + (TANDAS.find(t => t[0] === r.tanda) || ["", ""])[1].toLowerCase());
+  const c = r.cantidades, s = REGLAS_DE_SERIE.cantidades;
+  if (Object.keys(s).some(k => Number(c[k]) !== s[k]))
+    partes.push(c.DEL + "-" + c.MED + "-" + c.DEF + "-" + c.POR + " (DEL-MED-DEF-POR), " + c.GER + " gerentes, " + c.ENT + " entrenador");
+  if (r.arquetipo !== "azar") partes.push("arquetipo: " + (ARQUETIPO_MODOS.find(a => a[0] === r.arquetipo) || ["", ""])[1].toLowerCase());
+  if (r.tiempo) partes.push(r.tiempo + " s por turno");
+  if (!r.repetidos) partes.push("sin versiones repetidas");
+  return partes.join(" · ");
 }
-// quien puede salir en cada ronda con esas reglas. Si de esos juegos no hay
-// bastantes (hay juegos sin gerentes), esa ronda sale de todos los juegos
-function candidatosDe(grupo, r) {
-  const base = grupo === "GER" ? pool.filter(c => c.apt === "gerente")
-             : grupo === "ENT" ? pool.filter(c => c.apt === "entrenador")
-             : pool.filter(c => c.posicion === grupo);
-  const permitidos = base.filter(c => r.ilegales || c.legal);
-  const deJuegos = permitidos.filter(c => r.sagas.includes(c.saga));
-  const hacen = 2 * RONDAS.find(x => x.grupo === grupo).cuantos;
-  return deJuegos.length >= hacen ? {lista:deJuegos, todos:false} : {lista:permitidos, todos:true};
+// quien puede salir en una ronda con esas reglas. Si de los juegos elegidos
+// no hay bastantes (IE2 y GO 2 no tienen gerentes), se rellena con el juego
+// anterior a cada uno (IE2 con IE1, GO 2 con GO...) y, si aun faltan, de
+// todos (Aaron, O-250)
+function candidatosDe(grupo, r, opc) {
+  r = completa(r); opc = opc || {};
+  const esJugador = GRUPOS_JUGADOR.includes(grupo);
+  const hacen = opc.hacen || tamanoTanda(rondaDe(grupo, r).cuantos, r);
+  let base = grupo === "GER" ? pool.filter(c => c.apt === "gerente")
+           : grupo === "ENT" ? pool.filter(c => c.apt === "entrenador")
+           : pool.filter(c => c.posicion === grupo);
+  base = base.filter(c => r.ilegales || c.legal);
+  const conGenero = r.genero === "todos" ? base
+                  : base.filter(c => c.genero === (r.genero === "chicas" ? "Chica" : "Chico"));
+  const elems = opc.elementos || r.elementos;
+  // la afinidad es cosa de los que juegan; al personal no se le mira
+  const conElem = esJugador ? conGenero.filter(c => elems.includes(c.elemento)) : conGenero;
+  let juegos = r.sagas.slice();
+  const deJuegos = () => conElem.filter(c => juegos.includes(c.saga));
+  let lista = deJuegos();
+  const anadidos = [], notas = [];
+  while (lista.length < hacen) {
+    const nuevos = [];
+    for (const s of juegos) {
+      const k = SAGAS.indexOf(s);
+      if (k > 0 && !juegos.includes(SAGAS[k - 1]) && !nuevos.includes(SAGAS[k - 1])) nuevos.push(SAGAS[k - 1]);
+    }
+    if (!nuevos.length) break;
+    juegos = juegos.concat(nuevos); anadidos.push(...nuevos);
+    lista = deJuegos();
+  }
+  if (lista.length < hacen) { lista = conElem; notas.push("de todos los juegos"); }
+  else if (anadidos.length) notas.push("rellena con " + anadidos.map(s => CHAPA_SAGA[s][0]).join(", "));
+  if (lista.length < hacen && conElem !== conGenero) { lista = conGenero; notas.push("de cualquier afinidad"); }
+  if (lista.length < hacen && conGenero !== base) { lista = base; notas.push("de cualquier genero"); }
+  const grave = notas.some(n => !n.startsWith("rellena"));
+  return {lista, notas, grave};
 }
 function pintaReglas() {
   $("#resumen-reglas").textContent = "(" + textoReglas(reglas) + ")";
   const c = $("#cuerpo-reglas"); c.textContent = "";
   const guarda = () => { guardaLocal("draft-reglas", reglas); pintaReglas(); };
+  const seccion = (titulo, ...hijos) => c.appendChild(el("div", {}, [el("h4", {text:titulo}), ...hijos]));
+  const desplegable = (etiqueta, opciones, actual, alCambiar) => {
+    const sel = el("select", {});
+    for (const [v, t] of opciones) {
+      const o = el("option", {value:String(v), text:t});
+      if (String(v) === String(actual)) o.selected = true;
+      sel.appendChild(o);
+    }
+    sel.onchange = () => alCambiar(sel.value);
+    return el("label", {class:"opcion-regla"}, [document.createTextNode(etiqueta), sel]);
+  };
+  const casilla = (texto, valor, alCambiar) => {
+    const i = el("input", {type:"checkbox"});
+    i.checked = !!valor;
+    i.onchange = () => alCambiar(i.checked);
+    return el("label", {class:"opcion-regla"}, [i, document.createTextNode(texto)]);
+  };
   // juegos
   const juegos = el("div", {class:"juegos"});
   for (const sg of SAGAS) {
     const on = reglas.sagas.includes(sg);
     const b = el("button", {class:"juego" + (on ? "" : " off"), text:CHAPA_SAGA[sg][0], title:sg,
       "aria-pressed":String(on),
-      onclick:() => { reglas.sagas = on ? reglas.sagas.filter(x => x !== sg) : reglas.sagas.concat(sg); guarda(); }});
+      onclick:() => { reglas.sagas = on ? reglas.sagas.filter(x => x !== sg) : SAGAS.filter(x => reglas.sagas.includes(x) || x === sg); guarda(); }});
     b.style.background = CHAPA_SAGA[sg][1];
     juegos.appendChild(b);
   }
-  juegos.appendChild(el("button", {class:"btn chico", text:"Todos",
-    onclick:() => { reglas.sagas = SAGAS.slice(); guarda(); }}));
-  juegos.appendChild(el("button", {class:"btn chico", text:"Ninguno",
-    onclick:() => { reglas.sagas = []; guarda(); }}));
-  c.appendChild(el("div", {}, [el("h4", {text:"De que juegos salen los personajes"}), juegos]));
-  // ilegales
-  const il = el("input", {type:"checkbox"});
-  il.checked = !!reglas.ilegales;
-  il.onchange = () => { reglas.ilegales = il.checked; guarda(); };
-  c.appendChild(el("label", {class:"opcion-regla"}, [il,
-    document.createTextNode("Pueden salir jugadores ilegales (formas de modo, mixi max, versiones de la historia...)")]));
-  // idolos
-  const sel = el("select", {});
-  for (const i of IDOLOS) {
-    const o = el("option", {value:i.valor, text:i.nombre + (i.prob ? " (" + Math.round(i.prob * 100) + " % por hueco)" : "")});
-    if (i.valor === reglas.idolos) o.selected = true;
-    sel.appendChild(o);
+  juegos.appendChild(el("button", {class:"btn chico", text:"Todos", onclick:() => { reglas.sagas = SAGAS.slice(); guarda(); }}));
+  juegos.appendChild(el("button", {class:"btn chico", text:"Ninguno", onclick:() => { reglas.sagas = []; guarda(); }}));
+  seccion("De que juegos salen los personajes", juegos,
+    el("p", {class:"cuentas-reglas", text:"Si de un juego no hay bastantes para una ronda (IE2 y GO 2 no tienen gerentes), se rellena con el juego anterior."}));
+  // jugadores
+  seccion("Jugadores",
+    casilla("Pueden salir jugadores ilegales (formas de modo, mixi max, versiones de la historia...)", reglas.ilegales,
+            v => { reglas.ilegales = v; guarda(); }),
+    casilla("Pueden salir varias versiones del mismo personaje (de otro juego, su forma de modo...)", reglas.repetidos,
+            v => { reglas.repetidos = v; guarda(); }),
+    desplegable("Idolos:", IDOLOS.map(i => [i.valor, i.nombre + (i.tope ? " (hasta " + i.tope + " en todo el draft)" : "")]),
+                reglas.idolos, v => { reglas.idolos = v; guarda(); }),
+    desplegable("Genero:", GENEROS, reglas.genero, v => { reglas.genero = v; guarda(); }));
+  // afinidad
+  const elems = el("div", {class:"juegos"});
+  for (const [e, nombre] of ELEMENTOS) {
+    const on = reglas.elementos.includes(e);
+    const b = el("button", {class:"juego afin" + (on ? "" : " off"), title:nombre, "aria-pressed":String(on),
+      onclick:() => { reglas.elementos = on ? reglas.elementos.filter(x => x !== e) : ELEMENTOS.map(x => x[0]).filter(x => reglas.elementos.includes(x) || x === e); guarda(); }},
+      [iconoElemento(e, 18), document.createTextNode(" " + nombre)]);
+    b.style.background = COLOR_ELEM[e] || "#888";
+    elems.appendChild(b);
   }
-  sel.onchange = () => { reglas.idolos = sel.value; guarda(); };
-  c.appendChild(el("label", {class:"opcion-regla"}, [document.createTextNode("Idolos:"), sel]));
+  seccion("Afinidad", elems, desplegable("Como:", AFINIDADES, reglas.afinidad, v => { reglas.afinidad = v; guarda(); }));
+  // rondas
+  const cant = el("div", {class:"juegos"});
+  for (const r of RONDAS_BASE) {
+    const inp = el("input", {type:"number", min:"0", max:r.grupo === "GER" ? "3" : r.grupo === "ENT" ? "1" : "8",
+                             value:String(reglas.cantidades[r.grupo]), class:"num-regla"});
+    inp.onchange = () => {
+      const tope = Number(inp.max);
+      reglas.cantidades[r.grupo] = Math.max(0, Math.min(tope, Math.round(Number(inp.value) || 0)));
+      guarda();
+    };
+    cant.appendChild(el("label", {class:"opcion-regla"}, [document.createTextNode(r.titulo), inp]));
+  }
+  const prob = problemaCantidades(reglas);
+  seccion("Cuantos para cada uno", cant,
+    prob ? el("p", {class:"cuentas-reglas"}, [el("span", {class:"mal", text:prob})]) : null,
+    desplegable("Tamano de la tanda:", TANDAS, reglas.tanda, v => { reglas.tanda = v; guarda(); }));
+  // arquetipo y tiempo
+  seccion("Arquetipo y turnos",
+    desplegable("Arquetipo:", ARQUETIPO_MODOS, reglas.arquetipo, v => { reglas.arquetipo = v; guarda(); }),
+    desplegable("Tiempo por turno:", TIEMPOS, reglas.tiempo, v => { reglas.tiempo = Number(v); guarda(); }),
+    reglas.tiempo ? el("p", {class:"cuentas-reglas", text:"Si se acaba el tiempo, se elige uno al azar por ti."}) : null);
   // cuantos hay para cada ronda con estas reglas
   if (pool.length) {
     const cuentas = el("div", {class:"cuentas-reglas"});
     const partes = [];
-    for (const r of RONDAS) {
+    for (const r of rondasDe(reglas)) {
       const x = candidatosDe(r.grupo, reglas);
-      partes.push(el("span", {class:x.todos ? "mal" : "",
-        text:r.titulo + ": " + x.lista.length + (x.todos ? " (de esos juegos no hay bastantes: salen de todos)" : "")}));
+      partes.push(el("span", {class:x.grave ? "mal" : "",
+        text:r.titulo + ": " + x.lista.length + (x.notas.length ? " (" + x.notas.join(", ") + ")" : "")}));
       partes.push(document.createTextNode("  ·  "));
     }
     partes.pop();
     for (const p of partes) cuentas.appendChild(p);
-    c.appendChild(el("div", {}, [el("h4", {text:"Cuantos pueden salir con estas reglas"}), cuentas]));
+    seccion("Cuantos pueden salir con estas reglas", cuentas);
   }
   c.appendChild(el("button", {class:"btn chico", text:"Volver a lo de serie", style:"align-self:flex-start",
-    onclick:() => { reglas = Object.assign({}, REGLAS_DE_SERIE, {sagas:SAGAS.slice()}); guarda(); }}));
+    onclick:() => { reglas = completa(null); reglas.sagas = SAGAS.slice(); guarda(); }}));
 }
 
 /* ---------------- la sala ---------------- */
@@ -378,6 +509,9 @@ function invitar(slug, nombre) {
   const sala = yo.slug + "-" + slug + "-" + Math.random().toString(36).slice(2, 8);
   pendiente = {slug, nombre, sala};
   if (!reglas.sagas.length) { avisa("Elige al menos un juego en Personalizar el draft.", "mal"); return; }
+  if (!reglas.elementos.length) { avisa("Elige al menos una afinidad en Personalizar el draft.", "mal"); return; }
+  const prob = problemaCantidades(reglas);
+  if (prob) { avisa(prob + " Cambialo en Personalizar el draft.", "mal"); return; }
   pendiente.reglas = JSON.parse(JSON.stringify(reglas));
   const manda = () => red.publicar("buzon/" + slug, {tipo:"invita", de:yo.slug, nombre:yo.nombre, sala,
                                                       reglas:pendiente.reglas});
@@ -465,7 +599,7 @@ function retomar() {
   if (activo.rol === "anfitrion") {
     // si se recargo justo en la moneda o en los arquetipos, se sigue solo
     if (estado.fase === "moneda") setTimeout(() => { if (estado && estado.fase === "moneda") { empiezaRonda(); guardaLocal("draft-estado", estado); publicaEstado(); pinta(); } }, 2500);
-    if (estado.fase === "arquetipos") setTimeout(() => { if (estado && estado.fase === "arquetipos") { estado.fase = "diamante"; estado.seq++; guardaLocal("draft-estado", estado); publicaEstado(); pinta(); } }, 2500);
+    if (estado.fase === "arquetipos" && arquetiposListos()) pasaADiamante(2500);
     publicaEstado();
   }
 }
@@ -491,41 +625,75 @@ function salirDelDraft() {
 /* ---------------- el anfitrion lleva el draft ---------------- */
 function nuevoEstado() {
   const a = yo.slug, b = activo.rival.slug;
+  const r = completa(activo.reglas);
   const gana = Math.random() < 0.5 ? a : b;
   // turnos: en cada ronda empieza uno y se alternan; la ronda siguiente la
   // empieza el otro, para que nadie empiece siempre
   const turnos = [];
-  RONDAS.forEach((r, k) => {
+  rondasDe(r).forEach((x, k) => {
     const primero = k % 2 === 0 ? gana : (gana === a ? b : a);
     const segundo = primero === a ? b : a;
-    for (let n = 0; n < r.cuantos; n++) { turnos.push({grupo:r.grupo, quien:primero}); turnos.push({grupo:r.grupo, quien:segundo}); }
+    for (let n = 0; n < x.cuantos; n++) { turnos.push({grupo:x.grupo, quien:primero}); turnos.push({grupo:x.grupo, quien:segundo}); }
   });
-  return {v:1, sala:activo.sala, anfitrion:a, invitado:b,
-          nombres:{[a]:yo.nombre, [b]:activo.rival.nombre},
-          fase:"moneda", moneda:gana, turnos, turno:0, opciones:[],
-          reglas:Object.assign({}, REGLAS_DE_SERIE, activo.reglas || {}),
-          equipos:{[a]:[], [b]:[]}, arquetipos:{}, diamantes:{[a]:null, [b]:null}, seq:1};
+  const e = {v:2, sala:activo.sala, anfitrion:a, invitado:b,
+             nombres:{[a]:yo.nombre, [b]:activo.rival.nombre},
+             fase:"moneda", moneda:gana, turnos, turno:0, opciones:[], reglas:r,
+             equipos:{[a]:[], [b]:[]}, arquetipos:{}, diamantes:{[a]:null, [b]:null}, seq:1,
+             idolos_ofrecidos:0, vistos:[], elementos_de:null, limite:0};
+  // la afinidad al azar (O-250): una para los dos o una para cada uno
+  const elems = r.elementos.length ? r.elementos : ELEMENTOS.map(x => x[0]);
+  if (r.afinidad === "una") { const x = elems[azar(elems.length)]; e.elementos_de = {[a]:x, [b]:x}; }
+  if (r.afinidad === "cada_uno") {
+    const x = elems[azar(elems.length)], resto = elems.filter(y => y !== x);
+    e.elementos_de = {[a]:x, [b]:resto.length ? resto[azar(resto.length)] : x};
+  }
+  return e;
 }
-function elegibles(grupo) {
-  const cogidos = new Set([].concat(...Object.values(estado.equipos)).map(x => x.id));
-  const r = Object.assign({}, REGLAS_DE_SERIE, estado.reglas || {});
-  return candidatosDe(grupo, r).lista.filter(c => !cogidos.has(c.identidad));
+function reglasDelDraft() { return completa(estado && estado.reglas); }
+function cogidos() { return new Set([].concat(...Object.values(estado.equipos)).map(x => x.id)); }
+function esIdolo(id) { return !!(porId[id] && porId[id].idolo); }
+// saca n cartas de una lista: sin repetir, y con los Idolos que tocan (cada
+// hueco tiene su probabilidad y en todo el draft salen como mucho `tope`)
+function sacaDe(lista, n, usados, nombres) {
+  const cfg = IDOLOS.find(i => i.valor === reglasDelDraft().idolos) || IDOLOS[1];
+  const idolos = lista.filter(c => c.idolo), normales = lista.filter(c => !c.idolo);
+  const fuera = [];
+  let intentos = 0;
+  while (fuera.length < n && intentos++ < 3000) {
+    const quedan = cfg.tope - (estado.idolos_ofrecidos || 0);
+    const usarIdolo = idolos.length && quedan > 0 && (Math.random() < cfg.prob || !normales.length);
+    const l = usarIdolo ? idolos : normales;
+    if (!l.length) break;
+    const c = l[azar(l.length)];
+    if (usados.has(c.identidad) || nombres.has(c.nombre)) continue;
+    usados.add(c.identidad); nombres.add(c.nombre); fuera.push(c.identidad);
+    if (c.idolo) estado.idolos_ofrecidos = (estado.idolos_ofrecidos || 0) + 1;
+  }
+  return fuera;
 }
 function sacaOpciones(grupo) {
-  const todos = elegibles(grupo);
-  const idolos = todos.filter(c => c.idolo), normales = todos.filter(c => !c.idolo);
-  const fuera = [], vistos = new Set(), nombres = new Set();
-  let intentos = 0;
-  const cuantos = 2 * RONDAS.find(r => r.grupo === grupo).cuantos;
-  while (fuera.length < cuantos && intentos++ < 2000) {
-    const prob = (IDOLOS.find(i => i.valor === (estado.reglas || {}).idolos) || IDOLOS[1]).prob;
-    const lista = (idolos.length && Math.random() < prob) || !normales.length ? idolos : normales;
-    if (!lista.length) break;
-    const c = lista[azar(lista.length)];
-    // sin repetir personaje ni nombre en la misma tanda
-    if (vistos.has(c.identidad) || nombres.has(c.nombre)) continue;
-    vistos.add(c.identidad); nombres.add(c.nombre); fuera.push(c.identidad);
+  const r = reglasDelDraft();
+  const ronda = rondaDe(grupo, r);
+  const ya = cogidos();
+  // sin repetidos: ni el mismo nombre en todo el draft; con repetidos, solo
+  // no en la misma tanda
+  const usados = new Set(ya), nombres = new Set(r.repetidos ? [] : (estado.vistos || []));
+  let fuera = [];
+  if (r.afinidad === "cada_uno" && GRUPOS_JUGADOR.includes(grupo)) {
+    // media tanda de la afinidad de cada uno, mezclada
+    const mitad = Math.ceil(tamanoTanda(ronda.cuantos, r) / 2);
+    for (const s of [estado.anfitrion, estado.invitado]) {
+      const lista = candidatosDe(grupo, r, {elementos:[estado.elementos_de[s]], hacen:mitad}).lista
+                      .filter(c => !ya.has(c.identidad));
+      fuera = fuera.concat(sacaDe(lista, mitad, usados, nombres));
+    }
+    fuera.sort(() => Math.random() - 0.5);
+  } else {
+    const opc = r.afinidad === "una" && estado.elementos_de ? {elementos:[estado.elementos_de[estado.anfitrion]]} : {};
+    const lista = candidatosDe(grupo, r, opc).lista.filter(c => !ya.has(c.identidad));
+    fuera = sacaDe(lista, tamanoTanda(ronda.cuantos, r), usados, nombres);
   }
+  if (!r.repetidos) estado.vistos = (estado.vistos || []).concat(fuera.map(id => (porId[id] || {}).nombre));
   return fuera;
 }
 function empiezaRonda() {
@@ -535,28 +703,76 @@ function empiezaRonda() {
   const grupo = estado.turnos[estado.turno].grupo;
   const antes = estado.turno > 0 ? estado.turnos[estado.turno - 1].grupo : null;
   if (grupo !== antes || !estado.opciones.length) estado.opciones = sacaOpciones(grupo);
+  const r = reglasDelDraft();
+  estado.limite = r.tiempo ? Date.now() + r.tiempo * 1000 : 0;
   estado.seq++;
 }
 function quienTiene(id) {
   for (const [s, eq] of Object.entries(estado.equipos)) if (eq.some(x => x.id === id)) return s;
   return null;
 }
+// por que `quien` no puede coger esa carta ahora ("" si puede)
+function motivoNoPuede(quien, id) {
+  if (quienTiene(id)) return "cogido";
+  const r = reglasDelDraft();
+  const t = estado.turnos[estado.turno];
+  const grupo = t ? t.grupo : "";
+  const propia = x => !(r.afinidad === "cada_uno" && GRUPOS_JUGADOR.includes(grupo) && estado.elementos_de)
+                      || (porId[x] || {}).elemento === estado.elementos_de[quien];
+  const mios = estado.equipos[quien].filter(x => esIdolo(x.id)).length;
+  const caben = x => !esIdolo(x) || mios < IDOLOS_POR_CABEZA;
+  if (propia(id) && caben(id)) return "";
+  // si no le queda ninguna que valga, vale cualquiera: que nadie se atasque
+  if (!estado.opciones.some(x => !quienTiene(x) && propia(x) && caben(x))) return "";
+  return !propia(id) ? "afinidad" : "idolos";
+}
 function aplicaEleccion(quien, turno, id) {
   if (estado.fase !== "picks" || turno !== estado.turno) return false;
   const t = estado.turnos[turno];
-  if (t.quien !== quien || !estado.opciones.includes(id) || quienTiene(id)) return false;
+  if (t.quien !== quien || !estado.opciones.includes(id) || motivoNoPuede(quien, id)) return false;
   estado.equipos[quien].push({id, grupo:t.grupo});
   estado.turno++;
   empiezaRonda();
   guardaLocal("draft-estado", estado);
   return true;
 }
+// si se acaba el tiempo del turno, el anfitrion elige al azar por quien toque
+setInterval(() => {
+  if (!activo || activo.rol !== "anfitrion" || !estado || estado.fase !== "picks" || !estado.limite) return;
+  if (Date.now() < estado.limite) return;
+  const t = estado.turnos[estado.turno];
+  const libres = estado.opciones.filter(x => !motivoNoPuede(t.quien, x));
+  if (libres.length && aplicaEleccion(t.quien, estado.turno, libres[azar(libres.length)])) { publicaEstado(); pinta(); }
+}, 1000);
 function empiezaArquetipos() {
-  estado.fase = "arquetipos";
-  for (const s of [estado.anfitrion, estado.invitado]) estado.arquetipos[s] = azar(ARQUETIPOS.length);
-  estado.opciones = []; estado.seq++;
+  const r = reglasDelDraft();
+  const a = estado.anfitrion, b = estado.invitado;
+  estado.fase = "arquetipos"; estado.opciones = []; estado.limite = 0;
+  if (r.arquetipo === "mismo") { const x = azar(ARQUETIPOS.length); estado.arquetipos = {[a]:x, [b]:x}; }
+  else if (r.arquetipo === "elegir") estado.arquetipos = {};
+  else for (const s of [a, b]) estado.arquetipos[s] = azar(ARQUETIPOS.length);
+  estado.seq++;
   guardaLocal("draft-estado", estado);
-  setTimeout(() => { if (estado && estado.fase === "arquetipos") { estado.fase = "diamante"; estado.seq++; guardaLocal("draft-estado", estado); publicaEstado(); pinta(); } }, 4500);
+  if (r.arquetipo !== "elegir") pasaADiamante(4500);
+}
+function arquetiposListos() {
+  return estado.arquetipos[estado.anfitrion] !== undefined && estado.arquetipos[estado.invitado] !== undefined;
+}
+function pasaADiamante(ms) {
+  setTimeout(() => {
+    if (estado && estado.fase === "arquetipos" && arquetiposListos()) {
+      estado.fase = "diamante"; estado.seq++; guardaLocal("draft-estado", estado); publicaEstado(); pinta();
+    }
+  }, ms);
+}
+function aplicaArquetipo(quien, valor) {
+  if (estado.fase !== "arquetipos" || reglasDelDraft().arquetipo !== "elegir") return false;
+  if (!(valor >= 0 && valor < ARQUETIPOS.length) || estado.arquetipos[quien] !== undefined) return false;
+  estado.arquetipos[quien] = valor;
+  estado.seq++;
+  guardaLocal("draft-estado", estado);
+  if (arquetiposListos()) pasaADiamante(2500);
+  return true;
 }
 function aplicaDiamante(quien, id) {
   if (estado.fase !== "diamante") return false;
@@ -576,6 +792,7 @@ function alAccion(m) {
   }
   let ok = false;
   if (m.tipo === "elige") ok = aplicaEleccion(estado.invitado, m.turno, m.id);
+  if (m.tipo === "arquetipo") ok = aplicaArquetipo(estado.invitado, Number(m.valor));
   if (m.tipo === "diamante") ok = aplicaDiamante(estado.invitado, m.id);
   // aunque no cambie nada (repetida), se vuelve a mandar el estado para que
   // el invitado vea que ya esta; pero como cada accion llega por los tres
@@ -583,16 +800,26 @@ function alAccion(m) {
   if (ok || Date.now() - ultimoEstado > 1000) publicaEstado();
   if (ok) pinta();
 }
-let ultimoEstado = 0;
+let ultimoEstado = 0, desfase = 0;
+// la cuenta atras del turno, si hay tiempo por turno
+setInterval(() => {
+  const c = document.getElementById("cuenta-atras");
+  if (!c || !estado || estado.fase !== "picks" || !estado.limite) return;
+  const quedan = Math.max(0, Math.ceil((estado.limite - (Date.now() + desfase)) / 1000));
+  c.textContent = quedan + " s";
+  c.classList.toggle("poco", quedan <= 10);
+}, 250);
 function publicaEstado() {
   if (!activo || activo.rol !== "anfitrion" || !estado) return;
   ultimoEstado = Date.now();
+  estado.ahora = Date.now();
   red.publicar("sala/" + activo.sala + "/estado", estado, true);
 }
 function alEstadoSala(m) {
   if (activo.rol === "anfitrion") return;         // el anfitrion ya lo tiene
   if (estado && m.seq < estado.seq) return;
   estado = m;
+  if (m.ahora) desfase = m.ahora - Date.now();
   guardaLocal("draft-estado", estado);
   if (accionPendiente && accionPendiente.seq < estado.seq) { accionPendiente = null; clearInterval(reenvio); }
   pinta();
@@ -612,6 +839,12 @@ function elegirDiamante(id) {
   mandaAccion({tipo:"diamante", id});
   estado.diamantes[yo.slug] = id; pinta();
 }
+function elegirArquetipo(v) {
+  if (!estado || estado.fase !== "arquetipos") return;
+  if (activo.rol === "anfitrion") { if (aplicaArquetipo(yo.slug, v)) { publicaEstado(); pinta(); } return; }
+  mandaAccion({tipo:"arquetipo", valor:v});
+  estado.arquetipos[yo.slug] = v; pinta();
+}
 function mandaAccion(a) {
   accionPendiente = Object.assign({seq:estado.seq, de:yo.slug}, a);
   const manda = () => red.publicar("sala/" + activo.sala + "/acciones", accionPendiente);
@@ -629,10 +862,17 @@ function pintaMarcador() {
   const riv = rivalSlug();
   const t = estado.fase === "picks" ? estado.turnos[estado.turno] : null;
   const rivalConectado = gente[riv] && Date.now() - (gente[riv].ts || 0) < FRESCO_MS;
-  const arq = s => estado.arquetipos[s] !== undefined ? ARQUETIPOS[estado.arquetipos[s]] : "";
+  // el arquetipo elegido del rival no se ve hasta que eligen los dos
+  const arq = s => {
+    const v = estado.arquetipos[s];
+    const oculto = s !== yo.slug && reglasDelDraft().arquetipo === "elegir" && !arquetiposListos();
+    const a = v === undefined ? "" : oculto ? "ya ha elegido arquetipo" : ARQUETIPOS[v];
+    const e = estado.elementos_de ? (ELEMENTOS.find(x => x[0] === estado.elementos_de[s]) || ["", ""])[1] : "";
+    return [e, a].filter(Boolean).join(" · ");
+  };
   m.appendChild(el("div", {class:"lado" + (t && t.quien === yo.slug ? " turno" : "")}, [
     document.createTextNode(nombreDe(yo.slug) + " (tu)"), el("small", {text:arq(yo.slug)})]));
-  const ronda = t ? RONDAS.find(r => r.grupo === t.grupo) : null;
+  const ronda = t ? rondaDe(t.grupo, estado.reglas) : null;
   m.appendChild(el("div", {class:"centro"}, [
     document.createTextNode(ronda ? ronda.titulo : {moneda:"Moneda al aire", arquetipos:"Arquetipos", diamante:"Diamantes", fin:"Draft terminado", cancelado:"Draft cancelado"}[estado.fase] || ""),
     el("small", {text:estado.fase === "picks" ? "turno " + (estado.turno + 1) + " de " + estado.turnos.length : ""})]));
@@ -645,7 +885,7 @@ function tarjeta(id, alPulsar, extra) {
   if (extra) ficha.classList.add(extra);
   return ficha;
 }
-function tarjetaOpcion(id, puede, dueno) {
+function tarjetaOpcion(id, puede, dueno, motivo) {
   const c = porId[id] || {identidad:id, nombre:"(no esta en tu Pizarra)", stats:[]};
   const chips = el("div", {class:"chips"});
   if (c.idolo) chips.appendChild(el("span", {class:"chip idolo", text:"Idolo"}));
@@ -656,20 +896,23 @@ function tarjetaOpcion(id, puede, dueno) {
   const st = el("div", {class:"st"});
   ["POT", "CON", "TEC", "PRE", "FIS", "AGI", "INT"].forEach((n, k) =>
     st.appendChild(el("span", {}, [el("b", {text:String((c.stats || [])[k] || "-")}), document.createTextNode(n)])));
-  if (dueno) puede = false;
-  return el("button", {class:"opcion" + (puede ? " puede" : "") + (dueno ? " cogido" : ""),
+  if (dueno || motivo) puede = false;
+  const aviso = motivo === "afinidad" ? "de la afinidad de " + nombreDe(rivalSlug())
+              : motivo === "idolos" ? "ya tienes " + IDOLOS_POR_CABEZA + " Idolos" : "";
+  return el("button", {class:"opcion" + (puede ? " puede" : "") + (dueno ? " cogido" : "") + (aviso ? " no-puede" : ""),
                        onclick:puede ? () => elegir(id) : null,
                        title:c.nombre + (c.apodo ? " (" + c.apodo + ")" : "")}, [
     fichaMini(Object.assign({}, c, {nivel:99})), el("b", {text:c.nombre}), chips,
     c.poder ? st : null,
-    dueno ? el("span", {class:"sello", text:"✕ " + (dueno === yo.slug ? "Tuyo" : nombreDe(dueno))}) : null]);
+    dueno ? el("span", {class:"sello", text:"✕ " + (dueno === yo.slug ? "Tuyo" : nombreDe(dueno))}) : null,
+    aviso ? el("span", {class:"no-puede-txt", text:aviso}) : null]);
 }
 function pintaEquipos() {
   const caja = $("#equipos"); caja.textContent = "";
   if (!estado) return;
   for (const s of [yo.slug, rivalSlug()]) {
     const col = el("div", {class:"marco equipo-draft"}, [el("h3", {text:s === yo.slug ? "Tu equipo" : "Equipo de " + nombreDe(s)})]);
-    for (const r of RONDAS) {
+    for (const r of rondasDe(estado.reglas)) {
       const suyos = estado.equipos[s].filter(x => x.grupo === r.grupo);
       const rej = el("div", {class:"rej"});
       for (const x of suyos) rej.appendChild(tarjeta(x.id, null, estado.diamantes[s] === x.id ? "elegido" : ""));
@@ -691,25 +934,40 @@ function pintaZona() {
   if (estado.reglas) z.appendChild(el("p", {class:"nota", text:"Reglas: " + textoReglas(estado.reglas)}));
   if (estado.fase === "picks") {
     const t = estado.turnos[estado.turno];
-    const ronda = RONDAS.find(r => r.grupo === t.grupo);
+    const ronda = rondaDe(t.grupo, estado.reglas);
     const mio = t.quien === yo.slug;
     const esperando = mio && accionPendiente && accionPendiente.tipo === "elige" && accionPendiente.turno === estado.turno;
-    z.appendChild(el("p", {class:"aviso-turno" + (mio ? " mio" : ""),
-      text:mio ? (esperando ? "Enviando tu eleccion..." : "Te toca: elige un " + ronda.texto)
-               : "Le toca a " + nombreDe(t.quien) + ": elige un " + ronda.texto}));
+    const deLaTuya = reglasDelDraft().afinidad === "cada_uno" && GRUPOS_JUGADOR.includes(t.grupo) && estado.elementos_de
+      ? " de tu afinidad (" + (ELEMENTOS.find(x => x[0] === estado.elementos_de[yo.slug]) || ["", ""])[1] + ")" : "";
+    z.appendChild(el("p", {class:"aviso-turno" + (mio ? " mio" : "")}, [
+      document.createTextNode(mio ? (esperando ? "Enviando tu eleccion..." : "Te toca: elige un " + ronda.texto + deLaTuya)
+               : "Le toca a " + nombreDe(t.quien) + ": elige un " + ronda.texto),
+      estado.limite ? el("span", {class:"cuenta-atras", id:"cuenta-atras"}) : null]));
     const ops = el("div", {class:"opciones"});
-    for (const id of estado.opciones) ops.appendChild(tarjetaOpcion(id, mio && !esperando, quienTiene(id)));
+    for (const id of estado.opciones)
+      ops.appendChild(tarjetaOpcion(id, mio && !esperando, quienTiene(id), quienTiene(id) ? "" : motivoNoPuede(yo.slug, id)));
     z.appendChild(ops);
     return;
   }
   if (estado.fase === "arquetipos" || estado.fase === "diamante" || estado.fase === "fin") {
     const riv = rivalSlug();
+    const listos = arquetiposListos();
+    const nomArq = (s, propio) => estado.arquetipos[s] === undefined ? "eligiendo..."
+      : (!propio && !listos ? "ya ha elegido" : ARQUETIPOS[estado.arquetipos[s]]);
     z.appendChild(el("div", {class:"arquetipos"}, [
-      el("div", {class:"caja"}, [el("small", {text:"Tu arquetipo"}), document.createTextNode(ARQUETIPOS[estado.arquetipos[yo.slug]])]),
-      el("div", {class:"caja"}, [el("small", {text:"Arquetipo de " + nombreDe(riv)}), document.createTextNode(ARQUETIPOS[estado.arquetipos[riv]])])]));
+      el("div", {class:"caja"}, [el("small", {text:"Tu arquetipo"}), document.createTextNode(nomArq(yo.slug, true))]),
+      el("div", {class:"caja"}, [el("small", {text:"Arquetipo de " + nombreDe(riv)}), document.createTextNode(nomArq(riv, false))])]));
   }
   if (estado.fase === "arquetipos") {
-    z.appendChild(el("p", {class:"aviso-turno", text:"Todos tus jugadores seran de este arquetipo (menos los Idolos)."}));
+    if (reglasDelDraft().arquetipo === "elegir" && estado.arquetipos[yo.slug] === undefined) {
+      z.appendChild(el("p", {class:"aviso-turno mio", text:"Elige tu arquetipo: todos tus jugadores seran de el (menos los Idolos)."}));
+      const b = el("div", {class:"elige-arq"});
+      ARQUETIPOS.forEach((a, k) => b.appendChild(el("button", {class:"btn verde", text:a, onclick:() => elegirArquetipo(k)})));
+      z.appendChild(b);
+    } else if (!arquetiposListos())
+      z.appendChild(el("p", {class:"aviso-turno", text:"Esperando a que " + nombreDe(rivalSlug()) + " elija su arquetipo..."}));
+    else
+      z.appendChild(el("p", {class:"aviso-turno", text:"Todos tus jugadores seran de este arquetipo (menos los Idolos)."}));
     return;
   }
   if (estado.fase === "diamante") {
