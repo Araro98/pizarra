@@ -5754,17 +5754,22 @@ reglas del draft e importarlo a la partida), que falta.
   el que invita, retenido, cada 5 s) y `sala/<id>/acciones` (el invitado
   repite su accion cada 2,5 s hasta verla en el estado). Al terminar o
   cancelar, el que invito borra el estado retenido.
-- Reglas elegidas (Aaron no las fijo): 4 DEL, 5 MED, 3 DEF, 4 POR, 3
-  gerentes y 1 entrenador por cabeza (su texto decia "los 5" una vez en
-  delanteros, se toma el 4 que puso primero); 5 opciones por turno; la
-  moneda decide quien empieza y luego cada ronda empieza el otro; cada opcion
-  tiene un 4 % de ser un Idolo; los Diamantes nativos no salen (el Diamante
+- Reglas: 4 DEL, 5 MED, 3 DEF, 4 POR, 3 gerentes y 1 entrenador por cabeza.
+  Aaron corrigio: cada ronda saca justo los que se reparten (8 delanteros,
+  10 medios, 6 defensas, 8 porteros, 6 gerentes, 2 entrenadores), los dos ven
+  la misma tanda y el elegido se queda en gris con una X hasta agotarla (no
+  "5 opciones por turno" como lo hice primero). Elegido por mi: la moneda
+  decide quien empieza y luego cada ronda empieza el otro; cada hueco de
+  jugador tiene un 2 % de ser un Idolo; los Diamantes nativos no salen (el Diamante
   se elige al final, y puede ser un gerente o el entrenador, no un Idolo).
 - Candidatos (`ievr/draft.py`): todos con cara `c...` que existe y posicion,
   legales o no (formas de modo, mixi max...), con stats a nivel 99 en Leyenda
   con arbol; y el personal de fabrica. 5.609 en total.
 - Si se recarga la pagina a mitad se retoma (localStorage); probado con dos
-  pestanas: draft entero, recarga del invitado a mitad y abandonar.
+  pestanas: draft entero, recarga del invitado a mitad y abandonar. Un draft
+  terminado o cancelado no se retoma al recargar. La invitacion y el
+  "acepto" se repiten cada 3 s hasta llegar (no quedan guardados en el
+  servidor y en una prueba se perdio uno).
 
 ## SUPUESTO
 

@@ -42,6 +42,13 @@
   .opcion { display:flex; flex-direction:column; gap:6px; padding:8px; border-radius:12px; background:#fff;
     border:3px solid var(--azul-marco); font:inherit; color:inherit; text-align:left; cursor:default; }
   .opcion.puede { cursor:pointer; }
+  .opcion { position:relative; }
+  .opcion.cogido { border-color:var(--linea); }
+  .opcion.cogido > :not(.sello) { filter:grayscale(1); opacity:.45; }
+  .opcion .sello { position:absolute; top:40%; left:50%; transform:translate(-50%,-50%) rotate(-12deg);
+    background:#c0392b; color:#fff; font-weight:900; font-size:var(--t-md); padding:4px 12px;
+    border-radius:8px; white-space:nowrap; z-index:2;
+    box-shadow:0 2px 6px rgba(0,0,0,.35); }
   .opcion.puede:hover { border-color:var(--cian); box-shadow:0 0 0 3px rgba(63,224,208,.35); transform:translateY(-2px); }
   .opcion .ficha-mini { width:100%; pointer-events:none; }
   .opcion b { font-size:var(--t-md); line-height:1.1; }
@@ -136,8 +143,9 @@ const RONDAS = [
   {grupo:"GER", cuantos:3, texto:"gerente", titulo:"Gerentes"},
   {grupo:"ENT", cuantos:1, texto:"entrenador", titulo:"Entrenador"},
 ];
-const OPCIONES_POR_TURNO = 5;
-const PROB_IDOLO = 0.04;          // por cada opcion de jugador
+// cada ronda saca justo los que se reparten (8 delanteros para 4 y 4...): los
+// dos ven los mismos y se van quitando segun se eligen (Aaron)
+const PROB_IDOLO = 0.02;          // por cada hueco de jugador de la ronda
 const ARQUETIPOS = ["Brecha", "Contra", "Afinidad", "Tension", "Juego sucio", "Justicia"];
 const FRESCO_MS = 90000;          // un conectado sin senales en 90 s se da por ido
 
@@ -255,7 +263,13 @@ function invitar(slug, nombre) {
   if (activo) return;
   const sala = yo.slug + "-" + slug + "-" + Math.random().toString(36).slice(2, 8);
   pendiente = {slug, nombre, sala};
-  red.publicar("buzon/" + slug, {tipo:"invita", de:yo.slug, nombre:yo.nombre, sala});
+  const manda = () => red.publicar("buzon/" + slug, {tipo:"invita", de:yo.slug, nombre:yo.nombre, sala});
+  manda();
+  // la invitacion no se queda guardada en el servidor: se repite cada 3 s
+  // mientras espera, por si el amigo aun se estaba conectando
+  const repite = setInterval(() => {
+    if (pendiente && pendiente.sala === sala && !activo) manda(); else clearInterval(repite);
+  }, 3000);
   avisa("Invitacion enviada a " + nombre + ".");
   pintaSala();
 }
@@ -266,7 +280,12 @@ function cancelaInvitacion() {
 }
 function aceptar(slug) {
   const i = invitaciones[slug]; if (!i || activo) return;
-  red.publicar("buzon/" + slug, {tipo:"acepta", de:yo.slug, nombre:yo.nombre, sala:i.sala});
+  const manda = () => red.publicar("buzon/" + slug, {tipo:"acepta", de:yo.slug, nombre:yo.nombre, sala:i.sala});
+  manda();
+  // se repite hasta que llegue el estado del draft, por si se perdio
+  const repite = setInterval(() => {
+    if (activo && activo.sala === i.sala && !estado) manda(); else clearInterval(repite);
+  }, 3000);
   for (const k in invitaciones) delete invitaciones[k];
   activo = {sala:i.sala, rol:"invitado", yo:yo.slug, rival:{slug, nombre:i.nombre}};
   guardaLocal("draft-activo", activo);
@@ -312,8 +331,16 @@ function entrarEnSala() {
   pinta();
 }
 function retomar() {
+  const guardado = leeLocal("draft-estado");
+  // un draft ya terminado o cancelado no se retoma: se vuelve a la sala
+  // (el terminado ya quedo guardado en "Tus drafts terminados")
+  if (guardado && guardado.sala === activo.sala && (guardado.fase === "fin" || guardado.fase === "cancelado")) {
+    if (activo.rol === "anfitrion" && guardado.fase === "fin") red.publicar("sala/" + activo.sala + "/estado", null, true);
+    activo = null; guardaLocal("draft-activo", null); guardaLocal("draft-estado", null);
+    muestra("sala"); return pintaSala();
+  }
   if (activo.rol === "anfitrion") {
-    estado = leeLocal("draft-estado");
+    estado = guardado;
     if (!estado || estado.sala !== activo.sala) { activo = null; guardaLocal("draft-activo", null); muestra("sala"); return pintaSala(); }
   }
   entrarEnSala();
@@ -372,7 +399,8 @@ function sacaOpciones(grupo) {
   const idolos = todos.filter(c => c.idolo), normales = todos.filter(c => !c.idolo);
   const fuera = [], vistos = new Set(), nombres = new Set();
   let intentos = 0;
-  while (fuera.length < OPCIONES_POR_TURNO && intentos++ < 500) {
+  const cuantos = 2 * RONDAS.find(r => r.grupo === grupo).cuantos;
+  while (fuera.length < cuantos && intentos++ < 2000) {
     const lista = (idolos.length && Math.random() < PROB_IDOLO) ? idolos : normales;
     if (!lista.length) break;
     const c = lista[azar(lista.length)];
@@ -385,13 +413,20 @@ function sacaOpciones(grupo) {
 function empiezaRonda() {
   if (estado.turno >= estado.turnos.length) return empiezaArquetipos();
   estado.fase = "picks";
-  estado.opciones = sacaOpciones(estado.turnos[estado.turno].grupo);
+  // la tanda sale al empezar cada ronda y dura toda la ronda
+  const grupo = estado.turnos[estado.turno].grupo;
+  const antes = estado.turno > 0 ? estado.turnos[estado.turno - 1].grupo : null;
+  if (grupo !== antes || !estado.opciones.length) estado.opciones = sacaOpciones(grupo);
   estado.seq++;
+}
+function quienTiene(id) {
+  for (const [s, eq] of Object.entries(estado.equipos)) if (eq.some(x => x.id === id)) return s;
+  return null;
 }
 function aplicaEleccion(quien, turno, id) {
   if (estado.fase !== "picks" || turno !== estado.turno) return false;
   const t = estado.turnos[turno];
-  if (t.quien !== quien || !estado.opciones.includes(id)) return false;
+  if (t.quien !== quien || !estado.opciones.includes(id) || quienTiene(id)) return false;
   estado.equipos[quien].push({id, grupo:t.grupo});
   estado.turno++;
   empiezaRonda();
@@ -419,7 +454,7 @@ function alAccion(m) {
   if (!estado || !m) return;
   if (m.tipo === "abandona") {
     if (estado.fase !== "cancelado") avisa(estado.nombres[m.de] + " ha abandonado el draft.", "mal");
-    estado.fase = "cancelado"; publicaEstado(); pinta(); return;
+    estado.fase = "cancelado"; guardaLocal("draft-estado", estado); publicaEstado(); pinta(); return;
   }
   let ok = false;
   if (m.tipo === "elige") ok = aplicaEleccion(estado.invitado, m.turno, m.id);
@@ -440,6 +475,7 @@ function alEstadoSala(m) {
   if (activo.rol === "anfitrion") return;         // el anfitrion ya lo tiene
   if (estado && m.seq < estado.seq) return;
   estado = m;
+  guardaLocal("draft-estado", estado);
   if (accionPendiente && accionPendiente.seq < estado.seq) { accionPendiente = null; clearInterval(reenvio); }
   pinta();
 }
@@ -491,7 +527,7 @@ function tarjeta(id, alPulsar, extra) {
   if (extra) ficha.classList.add(extra);
   return ficha;
 }
-function tarjetaOpcion(id, puede) {
+function tarjetaOpcion(id, puede, dueno) {
   const c = porId[id] || {identidad:id, nombre:"(no esta en tu Pizarra)", stats:[]};
   const chips = el("div", {class:"chips"});
   if (c.idolo) chips.appendChild(el("span", {class:"chip idolo", text:"Idolo"}));
@@ -502,10 +538,13 @@ function tarjetaOpcion(id, puede) {
   const st = el("div", {class:"st"});
   ["POT", "CON", "TEC", "PRE", "FIS", "AGI", "INT"].forEach((n, k) =>
     st.appendChild(el("span", {}, [el("b", {text:String((c.stats || [])[k] || "-")}), document.createTextNode(n)])));
-  return el("button", {class:"opcion" + (puede ? " puede" : ""), onclick:puede ? () => elegir(id) : null,
+  if (dueno) puede = false;
+  return el("button", {class:"opcion" + (puede ? " puede" : "") + (dueno ? " cogido" : ""),
+                       onclick:puede ? () => elegir(id) : null,
                        title:c.nombre + (c.apodo ? " (" + c.apodo + ")" : "")}, [
     fichaMini(Object.assign({}, c, {nivel:99})), el("b", {text:c.nombre}), chips,
-    c.poder ? st : null]);
+    c.poder ? st : null,
+    dueno ? el("span", {class:"sello", text:"✕ " + (dueno === yo.slug ? "Tuyo" : nombreDe(dueno))}) : null]);
 }
 function pintaEquipos() {
   const caja = $("#equipos"); caja.textContent = "";
@@ -540,7 +579,7 @@ function pintaZona() {
       text:mio ? (esperando ? "Enviando tu eleccion..." : "Te toca: elige un " + ronda.texto)
                : "Le toca a " + nombreDe(t.quien) + ": elige un " + ronda.texto}));
     const ops = el("div", {class:"opciones"});
-    for (const id of estado.opciones) ops.appendChild(tarjetaOpcion(id, mio && !esperando));
+    for (const id of estado.opciones) ops.appendChild(tarjetaOpcion(id, mio && !esperando, quienTiene(id)));
     z.appendChild(ops);
     return;
   }
