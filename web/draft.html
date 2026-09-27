@@ -58,25 +58,55 @@
   .opcion .st span b { display:block; font-size:var(--t-xs); color:var(--tinta); }
   .chip.ilegal { background:#c0392b; }
   .btn.rojo { background:#a8202e; border-color:#7a1622; color:#fff; }
-  /* personalizar el draft (O-249) */
-  .personalizar { margin:0 0 12px; border:2px solid var(--linea); border-radius:10px; background:#f6f9ff; }
-  .personalizar > summary { cursor:pointer; padding:9px 12px; font-weight:900; color:var(--azul-osc);
-    font-style:italic; list-style:none; display:flex; gap:8px; align-items:center; }
-  .personalizar > summary::before { content:"\25B8"; transition:transform .15s; }
-  .personalizar[open] > summary::before { transform:rotate(90deg); }
-  .personalizar > summary small { font-style:normal; font-weight:700; color:var(--suave); }
-  .personalizar .cuerpo-reglas { padding:0 12px 12px; display:flex; flex-direction:column; gap:10px; }
-  .personalizar h4 { margin:0 0 6px; font-size:var(--t-xs); letter-spacing:.06em; color:var(--suave);
-    text-transform:uppercase; }
-  .juegos { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
-  .juego { border:2px solid transparent; border-radius:7px; padding:3px 9px; color:#fff; font-weight:900;
-    font-style:italic; cursor:pointer; font:inherit; font-weight:900; font-style:italic;
+  .juego { border:2px solid transparent; border-radius:8px; padding:5px 12px; color:#fff; cursor:pointer;
+    font:inherit; font-size:var(--t-md); font-weight:900; font-style:italic;
     box-shadow:0 1px 2px rgba(0,0,0,.35); }
   .juego.off { background:#c9d2de !important; color:#6b7a8d; box-shadow:none; text-decoration:line-through; }
   .juego:focus-visible { outline:3px solid var(--cian); outline-offset:1px; }
   .opcion-regla { display:flex; gap:8px; align-items:center; font-weight:700; }
   .cuentas-reglas { font-size:var(--t-xs); color:var(--suave); font-weight:700; line-height:1.5; }
   .cuentas-reglas .mal { color:#b3261e; }
+  /* la ventana de invitar (O-251) */
+  .modal.reglas-modal { width:min(880px,100%); max-height:min(92vh,900px); }
+  .reglas-modal .cuerpo-reglas { overflow:auto; padding:12px 14px; display:grid; gap:10px;
+    grid-template-columns:repeat(2, minmax(0, 1fr)); background:#eef3fa; }
+  @media (max-width:720px) { .reglas-modal .cuerpo-reglas { grid-template-columns:1fr; } }
+  .regla { background:#fff; border:2px solid #d6e2f1; border-radius:10px; padding:10px 12px;
+    display:flex; flex-direction:column; gap:8px; }
+  .regla.ancha { grid-column:1 / -1; }
+  .regla-cab { display:flex; flex-direction:column; gap:1px; }
+  .regla-cab b { color:var(--azul-osc); font-size:var(--t-md); font-style:italic; font-weight:900; }
+  .regla-cab span { color:var(--suave); font-size:var(--t-xs); font-weight:600; }
+  .pastillas { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .pastillas .atajos { margin-left:auto; display:flex; gap:10px; }
+  .enlace { background:none; border:none; padding:0; font:inherit; font-size:var(--t-xs); font-weight:800;
+    color:var(--azul-marco); text-decoration:underline; cursor:pointer; }
+  .pila { display:flex; flex-direction:column; gap:8px; align-items:flex-start; }
+  .segmento { display:inline-flex; flex-wrap:wrap; border:2px solid var(--azul-marco); border-radius:9px;
+    overflow:hidden; background:#fff; }
+  .regla > .segmento, .pila > .segmento { align-self:flex-start; }
+  .segmento button { border:none; border-left:1px solid #c9d7ea; background:#fff; color:var(--azul-osc);
+    font:inherit; font-weight:800; font-size:var(--t-sm); padding:6px 12px; cursor:pointer; }
+  .segmento button:first-child { border-left:none; }
+  .segmento button:hover { background:#e7f0fc; }
+  .segmento button.on { background:var(--azul-marco); color:#fff; }
+  .segmento button:focus-visible { outline:3px solid var(--cian); outline-offset:-3px; }
+  .pasos { display:flex; gap:8px; flex-wrap:wrap; }
+  .paso { display:flex; flex-direction:column; align-items:center; gap:3px; min-width:92px; }
+  .paso-nom { font-size:var(--t-xs); font-weight:800; color:var(--suave); }
+  .paso-ctl { display:flex; align-items:center; border:2px solid var(--azul-marco); border-radius:9px; overflow:hidden; }
+  .paso-ctl button { width:30px; height:30px; border:none; background:#e7f0fc; color:var(--azul-osc);
+    font-size:18px; font-weight:900; cursor:pointer; line-height:1; }
+  .paso-ctl button:disabled { opacity:.35; cursor:default; }
+  .paso-ctl b { min-width:30px; text-align:center; font-size:var(--t-md); font-variant-numeric:tabular-nums; }
+  .total-jug { font-size:var(--t-sm); font-weight:800; color:#1e8a4c; }
+  .total-jug.mal { color:#b3261e; }
+  .reglas-modal .cuentas-reglas { display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:8px 14px;
+    border-top:1px solid var(--linea); background:#fff; font-size:var(--t-xs); font-weight:700; color:var(--suave); }
+  .cuentas-reglas .cuenta { background:#eef3fa; border-radius:6px; padding:2px 8px; color:var(--azul-osc); }
+  .cuentas-reglas .cuenta.nota { background:#fff4d6; color:#8a5a00; }
+  .cuentas-reglas .cuenta.mal, .cuentas-reglas > .mal { background:#fde8e6; color:#b3261e; border-radius:6px; padding:2px 8px; }
+  .reglas-modal .pie .hueco { flex:1; }
   .reglas-invitacion { display:block; font-weight:600; color:var(--suave); font-size:var(--t-xs); white-space:normal; }
   .num-regla { width:58px; }
   .juego.afin { display:inline-flex; align-items:center; gap:4px; }
@@ -142,10 +172,6 @@
     <div class="sala">
       <div class="marco">
         <h2 class="titulo-seccion">Conectados ahora</h2>
-        <details class="personalizar" id="personalizar">
-          <summary>Personalizar el draft <small id="resumen-reglas"></small></summary>
-          <div class="cuerpo-reglas" id="cuerpo-reglas"></div>
-        </details>
         <input type="search" id="buscar-gente" placeholder="Buscar por nombre...">
         <div class="gente" id="gente" style="margin-top:8px"></div>
         <p class="nota">Si tu amigo no sale, que abra Pizarra, entre en el modo draft con su nombre y espere un momento.</p>
@@ -271,7 +297,7 @@ async function entrar() {
     catch (e) { avisa("No he podido cargar los jugadores: " + e.message, "mal"); return; }
     for (const c of pool) porId[c.identidad] = c;
   }
-  pintaReglas();
+
   red.alEstado = e => {
     const cab = $("#estado-red");
     cab.classList.toggle("si", e === "conectado");
@@ -378,98 +404,144 @@ function candidatosDe(grupo, r, opc) {
   const grave = notas.some(n => !n.startsWith("rellena"));
   return {lista, notas, grave};
 }
-function pintaReglas() {
-  $("#resumen-reglas").textContent = "(" + textoReglas(reglas) + ")";
-  const c = $("#cuerpo-reglas"); c.textContent = "";
-  const guarda = () => { guardaLocal("draft-reglas", reglas); pintaReglas(); };
-  const seccion = (titulo, ...hijos) => c.appendChild(el("div", {}, [el("h4", {text:titulo}), ...hijos]));
-  const desplegable = (etiqueta, opciones, actual, alCambiar) => {
-    const sel = el("select", {});
-    for (const [v, t] of opciones) {
-      const o = el("option", {value:String(v), text:t});
-      if (String(v) === String(actual)) o.selected = true;
-      sel.appendChild(o);
-    }
-    sel.onchange = () => alCambiar(sel.value);
-    return el("label", {class:"opcion-regla"}, [document.createTextNode(etiqueta), sel]);
+/* La ventana de invitar (O-251): al pulsar Invitar salen las reglas del draft
+   y al pulsar Invitar otra vez se manda la invitacion con ellas. Cada regla
+   va en su tarjeta, con botones en vez de desplegables (Aaron: "se entiende
+   poco"). */
+function segmento(opciones, actual, alCambiar) {
+  const s = el("div", {class:"segmento", role:"group"});
+  for (const [v, t] of opciones)
+    s.appendChild(el("button", {class:String(v) === String(actual) ? "on" : "", text:t,
+      "aria-pressed":String(String(v) === String(actual)), onclick:() => alCambiar(v)}));
+  return s;
+}
+function tarjetaRegla(titulo, ayuda, control, ancha) {
+  return el("div", {class:"regla" + (ancha ? " ancha" : "")}, [
+    el("div", {class:"regla-cab"}, [el("b", {text:titulo}), ayuda ? el("span", {text:ayuda}) : null]),
+    control]);
+}
+function abreInvitar(slug, nombre) {
+  const cuerpo = el("div", {class:"cuerpo-reglas"});
+  const cuentas = el("div", {class:"cuentas-reglas"});
+  const botonInvitar = el("button", {class:"btn verde", text:"Invitar a " + nombre});
+  const caja = el("div", {class:"modal reglas-modal"}, [
+    el("div", {class:"cab"}, [el("h3", {text:"Invitar a " + nombre}),
+      el("p", {text:"Elige las reglas del draft. " + nombre + " las vera antes de aceptar."})]),
+    cuerpo, cuentas,
+    el("div", {class:"pie"}, [
+      el("button", {class:"btn chico", text:"Volver a lo de serie",
+        onclick:() => { reglas = completa(null); pinta(); }}),
+      el("span", {class:"hueco"}),
+      el("button", {class:"btn", text:"Cancelar", onclick:() => cierra()}),
+      botonInvitar])]);
+  const fondo = el("div", {class:"fondo-modal", onclick:e => { if (e.target === fondo) cierra(); }}, [caja]);
+  const antes = document.onkeydown;
+  function cierra() { fondo.remove(); document.onkeydown = antes; }
+  document.onkeydown = e => { if (e.key === "Escape") cierra(); };
+  botonInvitar.onclick = () => {
+    if (botonInvitar.disabled) return;
+    guardaLocal("draft-reglas", reglas);
+    cierra();
+    mandaInvitacion(slug, nombre);
   };
-  const casilla = (texto, valor, alCambiar) => {
-    const i = el("input", {type:"checkbox"});
-    i.checked = !!valor;
-    i.onchange = () => alCambiar(i.checked);
-    return el("label", {class:"opcion-regla"}, [i, document.createTextNode(texto)]);
-  };
-  // juegos
-  const juegos = el("div", {class:"juegos"});
-  for (const sg of SAGAS) {
-    const on = reglas.sagas.includes(sg);
-    const b = el("button", {class:"juego" + (on ? "" : " off"), text:CHAPA_SAGA[sg][0], title:sg,
-      "aria-pressed":String(on),
-      onclick:() => { reglas.sagas = on ? reglas.sagas.filter(x => x !== sg) : SAGAS.filter(x => reglas.sagas.includes(x) || x === sg); guarda(); }});
-    b.style.background = CHAPA_SAGA[sg][1];
-    juegos.appendChild(b);
-  }
-  juegos.appendChild(el("button", {class:"btn chico", text:"Todos", onclick:() => { reglas.sagas = SAGAS.slice(); guarda(); }}));
-  juegos.appendChild(el("button", {class:"btn chico", text:"Ninguno", onclick:() => { reglas.sagas = []; guarda(); }}));
-  seccion("De que juegos salen los personajes", juegos,
-    el("p", {class:"cuentas-reglas", text:"Si de un juego no hay bastantes para una ronda (IE2 y GO 2 no tienen gerentes), se rellena con el juego anterior."}));
-  // jugadores
-  seccion("Jugadores",
-    casilla("Pueden salir jugadores ilegales (formas de modo, mixi max, versiones de la historia...)", reglas.ilegales,
-            v => { reglas.ilegales = v; guarda(); }),
-    casilla("Pueden salir varias versiones del mismo personaje (de otro juego, su forma de modo...)", reglas.repetidos,
-            v => { reglas.repetidos = v; guarda(); }),
-    desplegable("Idolos:", IDOLOS.map(i => [i.valor, i.nombre + (i.tope ? " (hasta " + i.tope + " en todo el draft)" : "")]),
-                reglas.idolos, v => { reglas.idolos = v; guarda(); }),
-    desplegable("Genero:", GENEROS, reglas.genero, v => { reglas.genero = v; guarda(); }));
-  // afinidad
-  const elems = el("div", {class:"juegos"});
-  for (const [e, nombre] of ELEMENTOS) {
-    const on = reglas.elementos.includes(e);
-    const b = el("button", {class:"juego afin" + (on ? "" : " off"), title:nombre, "aria-pressed":String(on),
-      onclick:() => { reglas.elementos = on ? reglas.elementos.filter(x => x !== e) : ELEMENTOS.map(x => x[0]).filter(x => reglas.elementos.includes(x) || x === e); guarda(); }},
-      [iconoElemento(e, 18), document.createTextNode(" " + nombre)]);
-    b.style.background = COLOR_ELEM[e] || "#888";
-    elems.appendChild(b);
-  }
-  seccion("Afinidad", elems, desplegable("Como:", AFINIDADES, reglas.afinidad, v => { reglas.afinidad = v; guarda(); }));
-  // rondas
-  const cant = el("div", {class:"juegos"});
-  for (const r of RONDAS_BASE) {
-    const inp = el("input", {type:"number", min:"0", max:r.grupo === "GER" ? "3" : r.grupo === "ENT" ? "1" : "8",
-                             value:String(reglas.cantidades[r.grupo]), class:"num-regla"});
-    inp.onchange = () => {
-      const tope = Number(inp.max);
-      reglas.cantidades[r.grupo] = Math.max(0, Math.min(tope, Math.round(Number(inp.value) || 0)));
-      guarda();
-    };
-    cant.appendChild(el("label", {class:"opcion-regla"}, [document.createTextNode(r.titulo), inp]));
-  }
-  const prob = problemaCantidades(reglas);
-  seccion("Cuantos para cada uno", cant,
-    prob ? el("p", {class:"cuentas-reglas"}, [el("span", {class:"mal", text:prob})]) : null,
-    desplegable("Tamano de la tanda:", TANDAS, reglas.tanda, v => { reglas.tanda = v; guarda(); }));
-  // arquetipo y tiempo
-  seccion("Arquetipo y turnos",
-    desplegable("Arquetipo:", ARQUETIPO_MODOS, reglas.arquetipo, v => { reglas.arquetipo = v; guarda(); }),
-    desplegable("Tiempo por turno:", TIEMPOS, reglas.tiempo, v => { reglas.tiempo = Number(v); guarda(); }),
-    reglas.tiempo ? el("p", {class:"cuentas-reglas", text:"Si se acaba el tiempo, se elige uno al azar por ti."}) : null);
-  // cuantos hay para cada ronda con estas reglas
-  if (pool.length) {
-    const cuentas = el("div", {class:"cuentas-reglas"});
-    const partes = [];
-    for (const r of rondasDe(reglas)) {
-      const x = candidatosDe(r.grupo, reglas);
-      partes.push(el("span", {class:x.grave ? "mal" : "",
-        text:r.titulo + ": " + x.lista.length + (x.notas.length ? " (" + x.notas.join(", ") + ")" : "")}));
-      partes.push(document.createTextNode("  ·  "));
+  function cambia(fn) { fn(); guardaLocal("draft-reglas", reglas); pinta(); }
+  function pinta() {
+    const scroll = cuerpo.scrollTop;
+    cuerpo.textContent = "";
+    // juegos
+    const juegos = el("div", {class:"pastillas"});
+    for (const sg of SAGAS) {
+      const on = reglas.sagas.includes(sg);
+      const b = el("button", {class:"juego" + (on ? "" : " off"), text:CHAPA_SAGA[sg][0], title:sg,
+        "aria-pressed":String(on),
+        onclick:() => cambia(() => { reglas.sagas = on ? reglas.sagas.filter(x => x !== sg)
+                                                       : SAGAS.filter(x => reglas.sagas.includes(x) || x === sg); })});
+      b.style.background = CHAPA_SAGA[sg][1];
+      juegos.appendChild(b);
     }
-    partes.pop();
-    for (const p of partes) cuentas.appendChild(p);
-    seccion("Cuantos pueden salir con estas reglas", cuentas);
+    juegos.appendChild(el("span", {class:"atajos"}, [
+      el("button", {class:"enlace", text:"todos", onclick:() => cambia(() => { reglas.sagas = SAGAS.slice(); })}),
+      el("button", {class:"enlace", text:"ninguno", onclick:() => cambia(() => { reglas.sagas = []; })})]));
+    cuerpo.appendChild(tarjetaRegla("Juegos", "De que juegos salen los personajes. Si de uno no hay bastantes, se rellena con el anterior.", juegos, true));
+    // jugadores
+    cuerpo.appendChild(tarjetaRegla("Jugadores ilegales", "Formas de modo, mixi max, versiones de la historia...",
+      segmento([[true, "Si"], [false, "No"]], reglas.ilegales, v => cambia(() => { reglas.ilegales = v; }))));
+    cuerpo.appendChild(tarjetaRegla("Versiones del mismo personaje", "Que pueda salir el mismo de otro juego o su forma de modo",
+      segmento([[true, "Si"], [false, "No"]], reglas.repetidos, v => cambia(() => { reglas.repetidos = v; }))));
+    const ido = IDOLOS.find(i => i.valor === reglas.idolos) || IDOLOS[1];
+    cuerpo.appendChild(tarjetaRegla("Idolos", ido.tope ? "Como mucho " + ido.tope + " en todo el draft; nadie se lleva mas de " + IDOLOS_POR_CABEZA
+                                                       : "No sale ninguno",
+      segmento(IDOLOS.map(i => [i.valor, i.valor === "no" ? "Ninguno" : i.nombre]), reglas.idolos,
+               v => cambia(() => { reglas.idolos = v; }))));
+    cuerpo.appendChild(tarjetaRegla("Genero", "",
+      segmento([["todos", "Todos"], ["chicos", "Chicos"], ["chicas", "Chicas"]], reglas.genero,
+               v => cambia(() => { reglas.genero = v; }))));
+    // afinidad
+    const elems = el("div", {class:"pastillas"});
+    for (const [e, n] of ELEMENTOS) {
+      const on = reglas.elementos.includes(e);
+      const b = el("button", {class:"juego afin" + (on ? "" : " off"), title:n, "aria-pressed":String(on),
+        onclick:() => cambia(() => { reglas.elementos = on ? reglas.elementos.filter(x => x !== e)
+                                         : ELEMENTOS.map(x => x[0]).filter(x => reglas.elementos.includes(x) || x === e); })},
+        [iconoElemento(e, 18), document.createTextNode(n)]);
+      b.style.background = COLOR_ELEM[e] || "#888";
+      elems.appendChild(b);
+    }
+    const ayudaAfin = {libre:"Salen de las marcadas, mezcladas",
+                       una:"Se sortea una de las marcadas y todos los jugadores son de esa",
+                       cada_uno:"A cada uno le toca una de las marcadas y solo coge jugadores de la suya"}[reglas.afinidad];
+    cuerpo.appendChild(tarjetaRegla("Afinidad", ayudaAfin, el("div", {class:"pila"}, [elems,
+      segmento([["libre", "Mezcladas"], ["una", "Una para los dos"], ["cada_uno", "Una para cada uno"]], reglas.afinidad,
+               v => cambia(() => { reglas.afinidad = v; }))]), true));
+    // cuantos de cada
+    const pasos = el("div", {class:"pasos"});
+    for (const r of RONDAS_BASE) {
+      const tope = r.grupo === "GER" ? 3 : r.grupo === "ENT" ? 1 : 8;
+      const n = Number(reglas.cantidades[r.grupo]) || 0;
+      pasos.appendChild(el("div", {class:"paso"}, [
+        el("span", {class:"paso-nom", text:r.titulo}),
+        el("div", {class:"paso-ctl"}, [
+          el("button", {text:"−", "aria-label":"Menos " + r.titulo.toLowerCase(), disabled:n <= 0 ? "" : null,
+            onclick:() => cambia(() => { reglas.cantidades[r.grupo] = Math.max(0, n - 1); })}),
+          el("b", {text:String(n)}),
+          el("button", {text:"+", "aria-label":"Mas " + r.titulo.toLowerCase(), disabled:n >= tope ? "" : null,
+            onclick:() => cambia(() => { reglas.cantidades[r.grupo] = Math.min(tope, n + 1); })})])]));
+    }
+    const jug = GRUPOS_JUGADOR.reduce((a, g) => a + (Number(reglas.cantidades[g]) || 0), 0);
+    const prob = problemaCantidades(reglas);
+    cuerpo.appendChild(tarjetaRegla("Cuantos para cada uno", "", el("div", {class:"pila"}, [pasos,
+      el("span", {class:"total-jug" + (prob ? " mal" : ""), text:prob || (jug + " jugadores: " + Math.min(11, jug) + " en el campo y "
+        + Math.max(0, jug - 11) + " suplentes")})]), true));
+    cuerpo.appendChild(tarjetaRegla("Tamano de la tanda", "Cuantos salen en cada ronda: justa = los que se reparten",
+      segmento([["justa", "Justa"], ["mas2", "+2"], ["mas4", "+4"], ["doble", "El doble"]], reglas.tanda,
+               v => cambia(() => { reglas.tanda = v; }))));
+    cuerpo.appendChild(tarjetaRegla("Arquetipo", {azar:"Uno al azar para cada uno", mismo:"Uno al azar, el mismo para los dos",
+                                                  elegir:"Lo elige cada uno al terminar"}[reglas.arquetipo],
+      segmento([["azar", "Al azar"], ["mismo", "El mismo"], ["elegir", "Elegido"]], reglas.arquetipo,
+               v => cambia(() => { reglas.arquetipo = v; }))));
+    cuerpo.appendChild(tarjetaRegla("Tiempo por turno", reglas.tiempo ? "Si se acaba, se elige uno al azar" : "",
+      segmento([[0, "Sin limite"], [30, "30 s"], [60, "1 min"], [90, "1 min 30"]], reglas.tiempo,
+               v => cambia(() => { reglas.tiempo = Number(v); }))));
+    cuerpo.scrollTop = scroll;
+    // cuantos pueden salir, y si se puede invitar
+    cuentas.textContent = "";
+    const faltas = [];
+    if (!reglas.sagas.length) faltas.push("Marca al menos un juego.");
+    if (!reglas.elementos.length) faltas.push("Marca al menos una afinidad.");
+    if (prob) faltas.push(prob);
+    if (faltas.length) cuentas.appendChild(el("span", {class:"mal", text:faltas.join(" ")}));
+    else {
+      cuentas.appendChild(el("span", {class:"eti", text:"Pueden salir:"}));
+      for (const r of rondasDe(reglas)) {
+        const x = candidatosDe(r.grupo, reglas);
+        cuentas.appendChild(el("span", {class:"cuenta" + (x.grave ? " mal" : x.notas.length ? " nota" : ""),
+          title:x.notas.join(", "), text:r.titulo + " " + x.lista.length + (x.notas.length ? " (" + x.notas.join(", ") + ")" : "")}));
+      }
+    }
+    if (faltas.length) botonInvitar.setAttribute("disabled", ""); else botonInvitar.removeAttribute("disabled");
   }
-  c.appendChild(el("button", {class:"btn chico", text:"Volver a lo de serie", style:"align-self:flex-start",
-    onclick:() => { reglas = completa(null); reglas.sagas = SAGAS.slice(); guarda(); }}));
+  pinta();
+  document.body.appendChild(fondo);
 }
 
 /* ---------------- la sala ---------------- */
@@ -505,14 +577,13 @@ function pintaSala() {
   $("#sin-invitaciones").hidden = !!Object.keys(invitaciones).length;
 }
 function invitar(slug, nombre) {
-  if (activo) return;
+  if (activo || pendiente) return;
+  abreInvitar(slug, nombre);
+}
+function mandaInvitacion(slug, nombre) {
+  if (activo || pendiente) return;
   const sala = yo.slug + "-" + slug + "-" + Math.random().toString(36).slice(2, 8);
-  pendiente = {slug, nombre, sala};
-  if (!reglas.sagas.length) { avisa("Elige al menos un juego en Personalizar el draft.", "mal"); return; }
-  if (!reglas.elementos.length) { avisa("Elige al menos una afinidad en Personalizar el draft.", "mal"); return; }
-  const prob = problemaCantidades(reglas);
-  if (prob) { avisa(prob + " Cambialo en Personalizar el draft.", "mal"); return; }
-  pendiente.reglas = JSON.parse(JSON.stringify(reglas));
+  pendiente = {slug, nombre, sala, reglas:JSON.parse(JSON.stringify(reglas))};
   const manda = () => red.publicar("buzon/" + slug, {tipo:"invita", de:yo.slug, nombre:yo.nombre, sala,
                                                       reglas:pendiente.reglas});
   manda();

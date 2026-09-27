@@ -5871,6 +5871,19 @@ Aaron pidio todas las que propuse y dos cambios:
   agotado elegido solo y de su afinidad, cantidades justas, sin repetidos,
   gerentes de IE1, y el montaje de 14 colocados (11 + 2 gerentes + 1).
 
+### O-251 · Las reglas del draft, en la ventana de invitar
+
+Aaron: que el menu de reglas solo salga al darle a Invitar (una ventana, y
+al darle a Invitar otra vez se aplican), mejor maquetado: "se entiende
+poco". Fuera el desplegable de la sala. `abreInvitar` abre una ventana
+"Invitar a X" con cada regla en su tarjeta (titulo, una linea de ayuda que
+cambia con lo elegido y el control), botones de elegir (Si/No, Ninguno /
+Pocos / Algunos / Muchos...) en vez de desplegables y `- n +` para las
+cantidades con el total de jugadores debajo. Abajo, cuantos pueden salir por
+ronda (amarillo si se rellena con otro juego, rojo si no hay bastantes) y
+"Invitar a X", apagado si falta un juego, una afinidad o las cantidades no
+valen. Las reglas se recuerdan para la siguiente vez.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
