@@ -5958,6 +5958,14 @@ Aaron pidio modos nuevos. En la ventana de invitar:
   mezcladas), intercambio 1 por 1 aceptado y Listo de los dos, montaje con
   judias y tecnicas nuevas rechazadas y la equipacion permitida.
 
+### O-255 · Maestro Li no se ficha
+
+Aaron: el "maestro Yi" del casco raro tipo japones es ilegal. Es el Maestro
+Li (1F86DCAC, Orion, gorro azul con mono negro): salia como fichable porque
+esta en un equipo rival de la Cronica. `construir_fichables.py` tiene ahora
+`NO_FICHABLES_A_MANO` para lo que Aaron sabe del juego; con el se va a
+no-fichables.csv (es el unico cambio). En el draft pasa a salir como ilegal.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

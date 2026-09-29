@@ -37,6 +37,12 @@ VOLCADO = os.path.join(RAIZ, "referencia", "volcado", "target", "release", "volc
 GD = os.path.join(RAIZ, "datos", "juego", "extracted", "data", "common", "gamedata")
 EXTRAIDAS = os.path.join(RAIZ, "datos", "reglas-extraidas")
 
+# Los que salen en alguna via de las tablas pero Aaron sabe por el juego que
+# no se fichan (O-255)
+NO_FICHABLES_A_MANO = {
+    "1F86DCAC": "no se ficha (Maestro Li, el del gorro japones; dicho por Aaron)",
+}
+
 def unico(carpeta, prefijo):
     for f in sorted(os.listdir(carpeta)):
         if f.startswith(prefijo) and f.endswith(".cfg.bin"):
@@ -152,6 +158,7 @@ def main():
                 origen = (per.get(hexa(n[0])) or {}).get("nombre_es") or hexa(n[0])
                 transformadas[hexa(n[1])] = "%s de %s" % (nombre, origen)
     print("  formas transformadas: %d" % len(transformadas))
+    transformadas.update(NO_FICHABLES_A_MANO)
 
     def nombre_de(k):
         j = jug.get(k) or {}
