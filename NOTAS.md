@@ -6058,6 +6058,12 @@ borrar, heredar, mochila, fichar, crear equipo) ya estaba escondido.
   `PR.preset_pasivas(..., heredar=False)` en el draft: solo la pareja 4-5 y
   la personalizada (el texto del preset tambien lo dice).
 
+### O-262 · Sin presets de pasivas en el draft
+
+Aaron: en el draft no tiene sentido el preset de pasivas (la pareja 4-5 es
+siempre la del arquetipo y no se hereda). Fuera el boton en el editor del
+draft y `preset_pasivas` fuera de los cambios permitidos del draft.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

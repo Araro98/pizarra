@@ -1756,7 +1756,9 @@ function seccionPasivas(d) {
   // presets de pasivas (arquetipo + subpreset), solo futbolistas normales (O-218)
   const pasFijas = prohibidoDraft("pasivas");
   if (pasFijas) caja.appendChild(el("p", {class:"pie-seccion", text:"En este draft no se cambian las pasivas: cada uno lleva las suyas."}));
-  else if (!d.pasivas_personal && d.rareza_valor < 5) caja.appendChild(barraPresets(d, "pasivas"));
+  // en el draft no hay presets de pasivas: la pareja 4-5 ya es la de su
+  // arquetipo y no se hereda (Aaron, O-262)
+  else if (!DRAFT && !d.pasivas_personal && d.rareza_valor < 5) caja.appendChild(barraPresets(d, "pasivas"));
   // Un gerente o entrenador lleva OTRA lista de pasivas (NOTAS O-163)
   if (d.pasivas_personal) {
     const pp = d.pasivas_personal;

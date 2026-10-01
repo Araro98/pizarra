@@ -238,7 +238,7 @@ CATEGORIAS_LIBRES = tuple(E.CATEGORIA_RANURA.values()) + (
 # heredadas, fichar, mochila..., lo fija el draft)
 CAMBIOS_DE_JUGADOR = {"equipacion", "tecnica", "pasiva", "personalizada", "pasiva_personal",
                       "judia", "judias", "preset_judias", "preset_equipacion",
-                      "preset_pasivas", "cambiar_rama"}
+                      "cambiar_rama"}          # sin presets de pasivas (O-262)
 CAMBIOS_DE_EQUIPO = {"equipo_nombre", "equipo_dorsal", "equipo_capitan", "equipo_jugador",
                      "equipo_intercambiar", "equipo_meter", "equipo_sacar", "equipo_puesto",
                      "equipo_simple", "equipo_tactica", "equipo_sinergia"}
