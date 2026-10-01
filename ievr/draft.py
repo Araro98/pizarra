@@ -358,7 +358,7 @@ CATEGORIA_DE_POSICION = {"DEL": "Tiro", "MED": "Regate", "DEF": "Defensa", "POR"
 def _tecnicas_al_azar(plain, filas, resultado, avisos):
     """Modo de supertecnicas al azar (Aaron, O-258): las 3 primeras, las
     suyas; en las ranuras 4 a 6 (la rama que juega) una al azar de las que
-    admite cada ranura, legales e individuales. En la libre (la 6), si en la
+    admite cada ranura, legales (tambien combinadas, O-259). En la libre (la 6), si en la
     3 no lleva hipertecnica, una hipertecnica al azar de las que puede
     llevar; si ya la lleva, una tecnica de su posicion. Idolos y Diamantes y
     el personal se quedan como estan."""
@@ -379,7 +379,7 @@ def _tecnicas_al_azar(plain, filas, resultado, avisos):
             if not admite:
                 continue
             ops = [o for o in op.get("opciones") or []
-                   if (o.get("jugadores") or 1) < 2 and not o.get("repetida") and o["id"] not in usadas]
+                   if not o.get("repetida") and o["id"] not in usadas]   # combinadas tambien (Aaron, O-259)
             if admite == "LIBRE":
                 if not hiper3:
                     ops = [o for o in ops if o.get("categoria") == "Hipertecnica"]

@@ -6025,6 +6025,12 @@ Lo que pidio Aaron tras jugar con sus amigos:
   tacticas puestas y bloqueadas, bonificaciones en Jugadores y guardar la
   partida desde el draft.
 
+### O-259 · Tecnicas al azar: tambien combinadas
+
+Aaron: en el modo de supertecnicas al azar tambien pueden salir las
+combinadas (yo las habia quitado). Probado con 8 jugadores: 16 tecnicas en
+las ranuras 4-6, 3 combinadas.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
