@@ -194,6 +194,8 @@
     display:grid; place-items:center; font-weight:800; font-size:var(--t-xs); }
   .ranura-ficha .admite { font-size:var(--t-xs); font-weight:800; color:var(--azul-osc); text-transform:uppercase; }
   .ranura-ficha .vacia { color:var(--suave); font-style:italic; font-size:var(--t-sm); }
+  .ranura-ficha .vacia.azar { font-style:normal; font-weight:900; font-size:var(--t-lg); color:var(--azul-marco);
+    background:#e7f0fc; border-radius:7px; text-align:center; }
   .ranura-ficha .fija { font-size:var(--t-xs); font-weight:800; text-align:center; border-radius:6px; padding:2px 0;
     background:#e4ebf5; color:#5b6b80; }
   .ranura-ficha .fija.libre { background:#e4f7ec; color:#17734b; }
@@ -508,8 +510,9 @@ function textoReglas(r) {
   if (r.tecnicas_random) partes.push("supertecnicas al azar");
   if (r.tacticas_draft) partes.push("supertacticas drafteadas");
   if (r.intercambio) partes.push("intercambio de hasta " + r.intercambio);
-  const sin = [["judias", "judias"], ["equipacion", "equipacion"], ["tecnicas", "tecnicas nuevas"], ["pasivas", "cambiar pasivas"]]
+  const sin = [["judias", "judias"], ["equipacion", "equipacion"], ["pasivas", "cambiar pasivas"]]
     .filter(([k]) => r[k] === false).map(([, n]) => n);
+  if (r.tecnicas === false && !r.tecnicas_random) partes.push("supertecnicas vacias");
   if (sin.length) partes.push("sin " + sin.join(", sin "));
   return partes.join(" · ");
 }
@@ -658,11 +661,6 @@ function abreInvitar(slug, nombre) {
     cuerpo.appendChild(tarjetaRegla("Cuantos para cada uno", "", el("div", {class:"pila"}, [pasos,
       el("span", {class:"total-jug" + (prob ? " mal" : ""), text:prob || (jug + " jugadores: " + Math.min(11, jug) + " en el campo y "
         + Math.max(0, jug - 11) + " suplentes")})]), true));
-    cuerpo.appendChild(tarjetaRegla("Supertecnicas", reglas.tecnicas_random
-        ? "Las 3 primeras, las suyas; las 3 siguientes al azar de lo que admite cada ranura (en la libre, una hipertecnica si no lleva ya una en la 3). No se cambian."
-        : "Cada uno pone las que quiera en las ranuras libres",
-      segmento([[false, "Las elige cada uno"], [true, "Al azar"]], reglas.tecnicas_random,
-               v => cambia(() => { reglas.tecnicas_random = v === true || v === "true"; }))));
     cuerpo.appendChild(tarjetaRegla("Supertacticas", reglas.tacticas_draft
         ? "Al final sale una tanda de 6 y cada uno elige hasta tener 3; luego no se cambian"
         : "Cada uno pone las que quiera al montar el equipo",
@@ -679,11 +677,24 @@ function abreInvitar(slug, nombre) {
       segmento([[0, "No"], [1, "Hasta 1"], [2, "Hasta 2"], [3, "Hasta 3"]], reglas.intercambio,
                v => cambia(() => { reglas.intercambio = Number(v); }))));
     const montar = el("div", {class:"pasos"});
-    for (const [k, n] of [["judias", "Judias"], ["equipacion", "Equipacion"], ["tecnicas", "Tecnicas nuevas"], ["pasivas", "Cambiar pasivas"]])
+    for (const [k, n] of [["judias", "Judias"], ["equipacion", "Equipacion"]])
       montar.appendChild(el("div", {class:"paso"}, [el("span", {class:"paso-nom", text:n}),
         segmento([[true, "Si"], [false, "No"]], reglas[k] !== false, v => cambia(() => { reglas[k] = v === true || v === "true"; }))]));
-    cuerpo.appendChild(tarjetaRegla("Al montar el equipo", "Que se puede tocar despues del draft. \"Tecnicas nuevas\": poner tecnicas en su arbol; "
-      + "\"Cambiar pasivas\": tambien la personalizada", montar, true));
+    // las supertecnicas de las ranuras 4-9 (O-260): a tu gusto, vacias y sin
+    // poder cambiarlas, o al azar
+    const modoTec = reglas.tecnicas_random ? "azar" : reglas.tecnicas === false ? "vacias" : "libres";
+    montar.appendChild(el("div", {class:"paso"}, [el("span", {class:"paso-nom", text:"Supertecnicas"}),
+      segmento([["libres", "A tu gusto"], ["vacias", "Vacias"], ["azar", "Al azar"]], modoTec, v => cambia(() => {
+        reglas.tecnicas_random = v === "azar";
+        reglas.tecnicas = v === "libres";
+      }))]));
+    montar.appendChild(el("div", {class:"paso"}, [el("span", {class:"paso-nom", text:"Cambiar pasivas"}),
+      segmento([[true, "Si"], [false, "No"]], reglas.pasivas !== false, v => cambia(() => { reglas.pasivas = v === true || v === "true"; }))]));
+    const ayudaTec = {libres:"Supertecnicas: las 3 primeras son las suyas y las demas las pones tu",
+                      vacias:"Supertecnicas: solo las 3 primeras, las suyas; el resto se queda vacio",
+                      azar:"Supertecnicas: las 3 primeras, las suyas; las 3 siguientes al azar de lo que admite cada ranura (en la libre, una hipertecnica si no lleva ya una en la 3)"}[modoTec];
+    cuerpo.appendChild(tarjetaRegla("Al montar el equipo", "Que se puede tocar despues del draft. " + ayudaTec
+      + ". \"Cambiar pasivas\" incluye la personalizada.", montar, true));
     cuerpo.appendChild(tarjetaRegla("Tamano de la tanda", "Cuantos salen en cada ronda: justa = los que se reparten",
       segmento([["justa", "Justa"], ["mas2", "+2"], ["mas4", "+4"], ["doble", "El doble"]], reglas.tanda,
                v => cambia(() => { reglas.tanda = v; }))));
@@ -1521,6 +1532,13 @@ async function abreFichaDraft(id) {
   const porRanura = {};
   for (const t of d.tecnicas || []) porRanura[t.ranura] = t;
   const fijaEnDraft = k => c.idolo || k <= 3;
+  // un normal llega al draft solo con las 3 primeras: el resto de ranuras
+  // salen vacias (o con "?" si van al azar); un Idolo trae todas (O-260)
+  const rd = estado ? reglasDelDraft() : completa(null);
+  const modoTec = rd.tecnicas_random ? "azar" : rd.tecnicas === false ? "vacias" : "libres";
+  const enseña = k => c.idolo || k <= 3;
+  const etiquetaDraft = k => fijaEnDraft(k) ? "fija"
+    : modoTec === "azar" ? (k <= 6 ? "al azar" : "vacia") : modoTec === "vacias" ? "vacia" : "a tu gusto";
   const arbol = el("div", {class:"arbol-ficha"});
   for (const trozo of ["tronco", "rama 1", "rama 2"]) {
     const bloque = el("div", {class:"trozo-ficha"}, [el("b", {text:trozo === "tronco" ? "Tronco" : trozo === "rama 1" ? "Rama 1" : "Rama 2"})]);
@@ -1531,15 +1549,20 @@ async function abreFichaDraft(id) {
       bloque.appendChild(el("div", {class:"ranura-ficha" + (existe ? "" : " no-existe")}, [
         el("span", {class:"num-ranura", text:String(r.ranura)}),
         el("span", {class:"admite", text:eti}),
-        t ? barraTecnica(t) : el("span", {class:"vacia", text:existe ? "vacia" : ""}),
-        existe ? el("span", {class:"fija" + (fijaEnDraft(r.ranura) ? "" : " libre"),
-          text:fijaEnDraft(r.ranura) ? "fija" : "cambiable"}) : null]));
+        t && enseña(r.ranura) ? barraTecnica(t)
+          : el("span", {class:"vacia" + (existe && modoTec === "azar" && !enseña(r.ranura) && r.ranura <= 6 ? " azar" : ""),
+              text:!existe ? "" : !enseña(r.ranura) && modoTec === "azar" && r.ranura <= 6 ? "?" : "vacia"}),
+        existe ? el("span", {class:"fija" + (fijaEnDraft(r.ranura) || etiquetaDraft(r.ranura) === "vacia" ? "" : " libre"),
+          text:etiquetaDraft(r.ranura)}) : null]));
     }
     arbol.appendChild(bloque);
   }
   cuerpo.appendChild(el("div", {class:"seccion-ficha"}, [el("h4", {text:"Arbol de tecnicas"}), arbol,
-    el("p", {class:"nota", text:c.idolo ? "En el draft las tecnicas de un Idolo (y del Diamante) son fijas."
-      : "En el draft las 3 primeras son fijas; el resto se pueden cambiar al montar el equipo (si es tu Diamante, todas fijas)."})]));
+    el("p", {class:"nota", text:c.idolo ? "Un Idolo trae todas sus tecnicas y en el draft son fijas."
+      : {libres:"Llega con las 3 primeras (fijas); el resto las pones tu al montar el equipo.",
+         vacias:"Llega con las 3 primeras (fijas); el resto se queda vacio.",
+         azar:"Llega con las 3 primeras (fijas); en la 4, 5 y 6 le saldra una al azar del tipo de cada ranura."}[modoTec]
+        + " Si lo eliges de Diamante, trae las suyas de Diamante."})]));
 }
 
 /* ---------------- guardar el resultado ---------------- */

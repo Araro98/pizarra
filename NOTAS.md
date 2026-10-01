@@ -6031,6 +6031,15 @@ Aaron: en el modo de supertecnicas al azar tambien pueden salir las
 combinadas (yo las habia quitado). Probado con 8 jugadores: 16 tecnicas en
 las ranuras 4-6, 3 combinadas.
 
+### O-260 · Supertecnicas en "Al montar el equipo" y la ficha del draft
+
+Aaron: la opcion de supertecnicas va dentro de "Al montar el equipo", con
+tres: A tu gusto (`tecnicas` si), Vacias (`tecnicas:false`: solo las 3
+primeras y no se cambian) y Al azar (`tecnicas_random`). Fuera la tarjeta
+aparte. Y en la ficha del draft, un normal ensena en las ranuras 4-9 solo
+lo que admite cada una (llega al montaje solo con las 3 primeras): "vacia",
+o "?" en la 4-6 si van al azar; un Idolo ensena todas, que si las trae.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
