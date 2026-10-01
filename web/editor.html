@@ -903,6 +903,8 @@
     flex-wrap:wrap; margin-top:12px; }
   .lista-equipos-imp { display:flex; flex-direction:column; gap:6px; max-height:50vh; overflow:auto; }
   .lista-equipos-imp button { text-align:left; }
+  .pieza.tactica.fija { cursor:default; opacity:.92; }
+  .pieza-elige:disabled { cursor:not-allowed; }
   .botones-importado { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
   .aviso { padding-left:42px; background-repeat:no-repeat;
     background-position:12px center; background-size:20px auto; }
@@ -1538,17 +1540,22 @@ function barraPresets(d, cual) {
                                       iconos:p.objetos.map(o => iconoDe(o.icono200, 34))})));
         if (v) manda({tipo:"preset_equipacion", fila:d.fila, clave:v});
       } else if (cual === "pasivas") {
-        const arq = await abrePresets("Preset de pasivas: arquetipo",
+        // en el draft el arquetipo es el que toco: ni se ofrecen los demas (O-261)
+        const suyo = DRAFT ? P.arquetipos.find(a => a.nombre === d.arquetipo) : null;
+        const arq = suyo ? String(suyo.valor) : await abrePresets("Preset de pasivas: arquetipo",
           "El jugador pasa a ese arquetipo y lleva su pareja x2 en las ranuras 4 y 5 (por Cambiar).",
           P.arquetipos.map(a => ({valor:String(a.valor), nombre:a.nombre, detalle:a.texto + "  x2",
                                   iconos:[iconoDe(a.icono200, 40)], clase:"arq-" + a.nombre.toLowerCase().replace(/ /g, "-")})));
         if (arq == null) return;
         const nombreArq = (P.arquetipos.find(a => String(a.valor) === arq) || {}).nombre || "";
         const sub = await abrePresets("Preset de pasivas: " + nombreArq,
-          "La heredada x3 en las ranuras 1-3 (por Heredar) y su pasiva personalizada.",
+          DRAFT ? "La pareja del arquetipo x2 en las ranuras 4 y 5 y la pasiva personalizada (en el draft no se hereda)."
+                : "La heredada x3 en las ranuras 1-3 (por Heredar) y su pasiva personalizada.",
           P.subpresets.map((s, i) => ({valor:s.clave, nombre:(i + 1) + " · " + s.nombre,
-                                      detalle:s.heredada.texto + "  x3   +   personalizada: " + s.personalizada.texto,
-                                      iconos:[iconoDe(s.heredada.icono200, 34), el("i", {class:"mas", text:"+"}), iconoDe(s.personalizada.icono200, 34)]})));
+                                      detalle:DRAFT ? "personalizada: " + s.personalizada.texto
+                                                    : s.heredada.texto + "  x3   +   personalizada: " + s.personalizada.texto,
+                                      iconos:DRAFT ? [iconoDe(s.personalizada.icono200, 34)]
+                                                   : [iconoDe(s.heredada.icono200, 34), el("i", {class:"mas", text:"+"}), iconoDe(s.personalizada.icono200, 34)]})));
         if (sub) manda({tipo:"preset_pasivas", fila:d.fila, arquetipo:Number(arq), clave:sub});
       }
     }}));
@@ -2961,10 +2968,12 @@ function pintaEquipo() {
 
   // tacticas, en fila y compactas
   const tac = el("div", {class:"tacticas"});
+  // en el draft con supertacticas drafteadas no se cambian: ni se pulsan (O-261)
+  const tacFija = DRAFT && montaje && montaje.reglas && montaje.reglas.tacticas_draft;
   for (const t of d.tacticas)
-    tac.appendChild(el("button", {class:"pieza tactica",
-      title:"Cambiar la tactica " + t.ranura,
-      onclick:() => abrePiezas("tactica", "Tactica " + t.ranura, t.ranura)}, [
+    tac.appendChild(el(tacFija ? "div" : "button", {class:"pieza tactica" + (tacFija ? " fija" : ""),
+      title:tacFija ? "Supertactica drafteada: no se cambia" : "Cambiar la tactica " + t.ranura,
+      onclick:tacFija ? null : () => abrePiezas("tactica", "Tactica " + t.ranura, t.ranura)}, [
       el("span", {class:"num", text:String(t.ranura)}),
       // cada tactica tiene su dibujo dorado en el juego (NOTAS O-137)
       t.icono ? el("img", {class:"mini-tac", loading:"lazy", alt:"",
@@ -3203,6 +3212,7 @@ async function abreSinergias(ranura, tipo, actual) {
     for (const x of ves) {
       const vale = x.tengo && x.cumple;
       const b = el("button", {class:"pieza-elige sinergia" + (x.item_id === actual ? " puesta" : "") + (vale ? "" : " apagada"),
+        disabled:DRAFT && !vale ? "" : null,
         title:!x.tengo ? "No la tienes en la mochila" : !x.cumple ? "Faltan personajes en el equipo" : x.nombre,
         onclick:() => { if (!vale) { aviso(!x.tengo ? "No tienes esa sinergia en la mochila." : "Faltan personajes en el equipo.", "mal"); return; }
           cerrar(); manda({tipo:"equipo_sinergia", equipo:d.hueco, ranura, id:x.item_id}); }});

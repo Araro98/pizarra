@@ -165,7 +165,7 @@ def preset_equipacion(plain, fila, clave):
                             + (" Se crearon en la mochila: " + ", ".join(creados) + "." if creados else "")}
 
 
-def preset_pasivas(plain, fila, arquetipo, clave):
+def preset_pasivas(plain, fila, arquetipo, clave, heredar=True):
     """El arquetipo con su pareja en las ranuras 4 y 5 (por "Cambiar"), la
     heredada del subpreset tres veces en las ranuras 1-3 (por "Heredar") y la
     pasiva personalizada equivalente."""
@@ -183,12 +183,14 @@ def preset_pasivas(plain, fila, arquetipo, clave):
     for ranura in (4, 5):
         plain, _ = E.poner_pasiva(plain, fila, ranura, pareja)
     # las heredadas: fuera las que hubiera en 1-3 y la del preset tres veces
-    off, _ = E._campo(plain, fila, J.F_HEREDADAS)
-    for ranura in (1, 2, 3):
-        if any(plain[off + 4 * (ranura - 1):off + 4 * ranura]):
-            plain, _ = E.quitar_heredada(plain, fila, ranura)
-    for ranura in (1, 2, 3):
-        plain, _ = E.poner_heredada(plain, fila, ranura, s["heredada"])
+    # (en el draft no se hereda: solo la pareja y la personalizada, O-261)
+    if heredar:
+        off, _ = E._campo(plain, fila, J.F_HEREDADAS)
+        for ranura in (1, 2, 3):
+            if any(plain[off + 4 * (ranura - 1):off + 4 * ranura]):
+                plain, _ = E.quitar_heredada(plain, fila, ranura)
+        for ranura in (1, 2, 3):
+            plain, _ = E.poner_heredada(plain, fila, ranura, s["heredada"])
     # la personalizada equivalente (se crea el manual si no se tiene)
     plain, creado = _asegura_objeto(plain, s["personalizada"])
     try:
@@ -198,9 +200,11 @@ def preset_pasivas(plain, fila, arquetipo, clave):
             raise
     return plain, {"fila": fila, "que": "preset de pasivas", "preset": s["nombre"],
                    "arquetipo": J.ARQUETIPOS[arquetipo],
-                   "aviso": "Pasivas %s de %s: %s x2 en las ranuras 4 y 5, %s x3 heredada en las 1-3 y la personalizada %s."
-                            % (s["nombre"], J.ARQUETIPOS[arquetipo], _texto(pareja), _texto(s["heredada"]),
-                               _texto(s["personalizada"], 0))
+                   "aviso": ("Pasivas %s de %s: %s x2 en las ranuras 4 y 5, %s x3 heredada en las 1-3 y la personalizada %s."
+                             % (s["nombre"], J.ARQUETIPOS[arquetipo], _texto(pareja), _texto(s["heredada"]),
+                                _texto(s["personalizada"], 0)) if heredar else
+                             "Pasivas %s de %s: %s x2 en las ranuras 4 y 5 y la personalizada %s (en el draft no se hereda)."
+                             % (s["nombre"], J.ARQUETIPOS[arquetipo], _texto(pareja), _texto(s["personalizada"], 0)))
                             + (" Se creo el manual de la personalizada en la mochila." if creado else "")}
 
 

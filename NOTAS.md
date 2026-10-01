@@ -6040,6 +6040,24 @@ aparte. Y en la ficha del draft, un normal ensena en las ranuras 4-9 solo
 lo que admite cada una (llega al montaje solo con las 3 primeras): "vacia",
 o "?" en la 4-6 si van al azar; un Idolo ensena todas, que si las trae.
 
+### O-261 · En el draft, lo que no se puede cambiar ni se pulsa
+
+Aaron: que lo prohibido no se pueda ni pulsar (ejemplo: el preset de pasivas
+ofrecia todos los arquetipos y luego daba error; las supertacticas
+drafteadas se dejaban pulsar). Repasados todos los tipos de cambio que manda
+el editor: lo demas prohibido (nivel, rareza, arquetipo, partidos, rol, MAX,
+borrar, heredar, mochila, fichar, crear equipo) ya estaba escondido.
+
+- Preset de pasivas en el draft: salta la eleccion de arquetipo y va directo
+  al del jugador.
+- Supertacticas drafteadas: en el equipo salen como piezas sin boton.
+- Sinergias que no se cumplen: en el draft, desactivadas (antes se pulsaban
+  y daban aviso).
+- Y un fallo que salio al revisarlo: el preset de pasivas en el draft
+  ponia las 3 heredadas, y en el draft no se hereda.
+  `PR.preset_pasivas(..., heredar=False)` en el draft: solo la pareja 4-5 y
+  la personalizada (el texto del preset tambien lo dice).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

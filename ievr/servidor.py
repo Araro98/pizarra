@@ -1774,7 +1774,9 @@ class Manejador(BaseHTTPRequestHandler):
         if t == "preset_equipacion":
             return self.ses.aplicar(PR.preset_equipacion, fila, c.get("clave") or "")
         if t == "preset_pasivas":
-            return self.ses.aplicar(PR.preset_pasivas, fila, int(c.get("arquetipo", -1)), c.get("clave") or "")
+            # en el draft sin heredadas (O-261)
+            return self.ses.aplicar(PR.preset_pasivas, fila, int(c.get("arquetipo", -1)), c.get("clave") or "",
+                                    not self.draft)
         if t == "maximo":
             return self.ses.aplicar(PR.maximo, fila)
         if t == "equipo_nombre":
