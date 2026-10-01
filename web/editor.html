@@ -903,6 +903,7 @@
     flex-wrap:wrap; margin-top:12px; }
   .lista-equipos-imp { display:flex; flex-direction:column; gap:6px; max-height:50vh; overflow:auto; }
   .lista-equipos-imp button { text-align:left; }
+  .botones-importado { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
   .aviso { padding-left:42px; background-repeat:no-repeat;
     background-position:12px center; background-size:20px auto; }
   .aviso.mal { background-color:#fde8e6; color:#a8202e; border:2px solid #f0b6b1;
@@ -1016,7 +1017,12 @@ let modo = "jugadores", seccion = 0, detalle = null, temporizador = null;
 // monta el equipo del draft, con sus reglas. Lo abre /draft/montar?f=...
 const DRAFT = window.DRAFT || null;
 // lo que las reglas de ese draft no dejan tocar al montar (O-254)
-function prohibidoDraft(k) { return !!(DRAFT && montaje && montaje.reglas && montaje.reglas[k] === false); }
+function prohibidoDraft(k) {
+  if (!(DRAFT && montaje && montaje.reglas)) return false;
+  // supertecnicas al azar: tampoco se cambian (O-258)
+  if (k === "tecnicas" && montaje.reglas.tecnicas_random) return true;
+  return montaje.reglas[k] === false;
+}
 
 const MODOS = DRAFT ? [
   {id:"equipos",   nombre:"Equipo"},
@@ -1156,7 +1162,8 @@ async function cargaLista() {
   // que es lo que pidio Aaron para plantear pasivas sin cambiar de pestana
   // (NOTAS O-183).
   const panel = $("#bonif-jug"); panel.textContent = "";
-  if (filtros.mi_equipo) {
+  if (DRAFT && montaje) panel.appendChild(panelBonificaciones(montaje.equipo));   // O-258
+  else if (filtros.mi_equipo) {
     const opc = (ultima.filtros.mi_equipo || []).find(o => o.valor === filtros.mi_equipo);
     if (opc && opc.hueco !== undefined)
       panel.appendChild(panelBonificaciones(opc.hueco));
@@ -3477,14 +3484,17 @@ $("#abrir").onclick = () => elegirCarpeta("Abrir una partida", async ruta => {
   } catch (e) { aviso(e.message, "mal"); }
 }, "Abrir esta", true);
 
+// (siempre sobre la partida de verdad: en el draft, despues de importar, O-258)
+const PARTIDA = {"X-Pizarra-Draft":""};
 $("#guardar").onclick = async () => {
-  if (estado.cambios.length && !await confirma("Guardar copia", "Se va a guardar una COPIA con tus " +
-      estado.cambios.length + " cambios. La partida de origen no se toca. Sigo?"))
+  const est = DRAFT ? await pedir("/api/estado", {headers:PARTIDA}) : estado;
+  if (est.cambios.length && !await confirma("Guardar copia", "Se va a guardar una COPIA de tu partida con sus " +
+      est.cambios.length + " cambios. La partida de origen no se toca. Sigo?"))
     return;
   elegirCarpeta("Guardar la copia editada", async carpeta => {
     try {
       const d = await pedir("/api/guardar", {method:"POST",
-        headers:{"Content-Type":"application/json"},
+        headers:{"Content-Type":"application/json", ...PARTIDA},
         body:JSON.stringify({carpeta})});
       aviso("Guardada en " + d.carpeta + "."
             + (d.arboles ? " Se puso al dia el arbol de " + d.arboles + " jugadores." : "")
@@ -3508,7 +3518,7 @@ $("#instalar").onclick = async () => {
       + "(boton derecho en su icono junto al reloj, Salir). Sigo?")) return;
   try {
     const d = await pedir("/api/instalar", {method:"POST",
-      headers:{"Content-Type":"application/json"}, body:JSON.stringify({carpeta:ultimaGuardada})});
+      headers:{"Content-Type":"application/json", ...PARTIDA}, body:JSON.stringify({carpeta:ultimaGuardada})});
     aviso("Instalada en " + d.instalada + ". La de antes queda en " + d.copia
           + ". Ya puedes abrir Steam y el juego.", "bien");
   } catch (e) { aviso(e.message, "mal"); }
@@ -3725,8 +3735,12 @@ async function importarDraft() {
     // este no se va solo (los "bien" desaparecen a los 5 s)
     $("#mensaje").textContent = "";
     $("#mensaje").appendChild(el("p", {class:"aviso " + (h.avisos.length ? "mal" : "bien"), text:texto}));
-    $("#mensaje").appendChild(el("p", {}, [el("a", {class:"btn verde", href:"/editor#equipos",
-      text:"Abrir el editor para guardar e instalar"})]));
+    // guardar e instalar desde aqui mismo (Aaron, O-258)
+    $("#guardar").hidden = false; $("#instalar").hidden = false;
+    $("#mensaje").appendChild(el("p", {class:"botones-importado"}, [
+      el("button", {class:"btn verde", text:"Guardar copia de la partida", onclick:() => $("#guardar").click()}),
+      el("button", {class:"btn", text:"Instalar en Steam", onclick:() => $("#instalar").click()}),
+      el("span", {class:"pista", text:"Primero guarda la copia y luego instalala con Steam cerrado."})]));
     window.scrollTo(0, 0);
   } catch (e) { aviso(e.message, "mal"); }
   finally { trabajando(false); }

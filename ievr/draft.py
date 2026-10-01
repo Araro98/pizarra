@@ -134,6 +134,30 @@ def candidatos():
     return O._indice("draft_candidatos", construir)
 
 
+def tacticas_draft():
+    """Las tacticas de equipo y supertacticas que pueden salir en el draft de
+    supertacticas (O-258): todas las del juego con nombre y lo que hacen, con
+    el valor que guarda el equipo (el que usa poner_tactica)."""
+    def construir():
+        en_espanol = {f["id"].upper(): O._limpio(f.get("nombre_es") or f.get("nombre_en"))
+                      for f in reglas._tabla("nombres-es.csv")}
+        iconos = EQ._iconos_por_objeto()
+        fuera, vistos = [], set()
+        for f in reglas._tabla("equipo-objetos.csv"):
+            if f["tipo"] not in ("tactica", "supertactica"):
+                continue
+            valor, obj = f["valor_equipo"].upper(), f["id_objeto"].upper()
+            nombre = en_espanol.get(obj) or O._limpio(f.get("nombre") or "")
+            datos = O.datos_de_tactica(valor, obj, nombre)
+            if not nombre or valor in vistos or not datos.get("efectos"):
+                continue
+            vistos.add(valor)
+            fuera.append(dict({"id": valor, "nombre": nombre, "tipo": f["tipo"],
+                               "icono": iconos.get(obj, "") or f.get("icono") or ""}, **datos))
+        return sorted(fuera, key=lambda x: x["nombre"])
+    return O._indice("draft_tacticas", construir)
+
+
 def guardar(resultado):
     """Guarda el resultado de un draft. Devuelve el nombre del fichero."""
     if not isinstance(resultado, dict) or not resultado.get("jugadores"):
@@ -327,6 +351,55 @@ def _mete(plain, i, puesto, fila, j, avisos):
     return plain
 
 
+# la tecnica "de su posicion" para la ranura libre (O-258)
+CATEGORIA_DE_POSICION = {"DEL": "Tiro", "MED": "Regate", "DEF": "Defensa", "POR": "Parada"}
+
+
+def _tecnicas_al_azar(plain, filas, resultado, avisos):
+    """Modo de supertecnicas al azar (Aaron, O-258): las 3 primeras, las
+    suyas; en las ranuras 4 a 6 (la rama que juega) una al azar de las que
+    admite cada ranura, legales e individuales. En la libre (la 6), si en la
+    3 no lleva hipertecnica, una hipertecnica al azar de las que puede
+    llevar; si ya la lleva, una tecnica de su posicion. Idolos y Diamantes y
+    el personal se quedan como estan."""
+    import random
+    tec = {f["id"].upper(): f for f in reglas._tabla("tecnicas.csv")}
+    rareza = J.array(plain, J.ARRAY_RAREZA)
+    for j, fila in zip(resultado["jugadores"], filas):
+        if j.get("grupo") in ("GER", "ENT") or rareza[fila] >= 5:
+            continue
+        puestas = {x["ranura"]: x["id"] for x in E._tecnicas_puestas(plain, fila)}
+        t3 = puestas.get(3) or ""
+        hiper3 = bool(t3) and t3 not in tec
+        usadas = {v for v in puestas.values() if v}
+        posicion = j.get("posicion") or (O._por_identidad().get(j["identidad"].upper()) or {}).get("posicion") or ""
+        for ranura in (4, 5, 6):
+            op = O.tecnicas(plain, fila, ranura)
+            admite = op.get("admite")
+            if not admite:
+                continue
+            ops = [o for o in op.get("opciones") or []
+                   if (o.get("jugadores") or 1) < 2 and not o.get("repetida") and o["id"] not in usadas]
+            if admite == "LIBRE":
+                if not hiper3:
+                    ops = [o for o in ops if o.get("categoria") == "Hipertecnica"]
+                else:
+                    cat = CATEGORIA_DE_POSICION.get(posicion)
+                    ops = [o for o in ops if o.get("categoria") == cat] or \
+                          [o for o in ops if o.get("categoria") != "Hipertecnica"]
+            if not ops:
+                avisos.append("%s: no hay tecnica para la ranura %d" % (j.get("nombre"), ranura))
+                continue
+            elegida = random.choice(ops)
+            try:
+                plain, _ = E.poner_tecnica(plain, fila, ranura, elegida["id"])
+                usadas.add(elegida["id"])
+            except E.Ilegal as e:
+                avisos.append("%s, ranura %d: %s" % (j.get("nombre"), ranura, e))
+        plain = tras_cambio(plain, {"fila": fila})
+    return plain
+
+
 def _hueco_para_el_montaje(plain):
     """Un hueco de equipo para el montaje. En la copia da igual cual: si no
     queda uno libre se vacia el ultimo de los tuyos (solo en la copia)."""
@@ -380,6 +453,18 @@ def crear_montaje(plain_real, nombre_partida, fichero):
     plain, equipo = _hueco_para_el_montaje(plain)
     plain, filas = crear_jugadores(plain, d, avisos)
     plain = _coloca_en_el_equipo(plain, equipo, filas, d, avisos)
+    reglas_d = d.get("reglas") or {}
+    if reglas_d.get("tecnicas_random"):
+        plain = _tecnicas_al_azar(plain, filas, d, avisos)
+    if d.get("tacticas"):
+        # las supertacticas drafteadas, en el equipo (O-258)
+        for r in (1, 2, 3):
+            plain, _ = EQ.poner_tactica(plain, equipo, r, "")
+        for r, v in enumerate(d["tacticas"][:3], 1):
+            try:
+                plain, _ = EQ.poner_tactica(plain, equipo, r, v)
+            except EQ.Ilegal as e:
+                avisos.append("tactica %d: %s" % (r, e))
     # un hueco de equipo recien preparado puede traer sinergias viejas
     for r in (1, 2):
         try:
@@ -426,9 +511,14 @@ def comprueba_cambio(plain, info, c, reglas_draft=None):
     t = c.get("tipo")
     if t in ARREGLOS:
         return
+    rd = reglas_draft or {}
     for clave, (tipos, motivo) in CAMBIOS_POR_REGLA.items():
-        if t in tipos and (reglas_draft or {}).get(clave) is False:
+        if t in tipos and rd.get(clave) is False:
             raise E.Ilegal(motivo)
+    if t == "tecnica" and rd.get("tecnicas_random"):
+        raise E.Ilegal("en este draft las supertecnicas salieron al azar y no se cambian")
+    if t == "equipo_tactica" and rd.get("tacticas_draft"):
+        raise E.Ilegal("en este draft las supertacticas son las que drafteaste")
     if t not in CAMBIOS_DE_JUGADOR and t not in CAMBIOS_DE_EQUIPO:
         raise E.Ilegal("en el draft eso no se puede cambiar: nivel, rareza y arquetipo los "
                        "fija el draft, no hay heredadas y no se fichan jugadores")
@@ -462,6 +552,8 @@ def tecnica_bloqueada(plain, fila, ranura, reglas_draft=None):
     """Por que no se puede tocar esa ranura de tecnica en el draft, o ''."""
     if (reglas_draft or {}).get("tecnicas") is False:
         return CAMBIOS_POR_REGLA["tecnicas"][1]
+    if (reglas_draft or {}).get("tecnicas_random"):
+        return "en este draft las supertecnicas salieron al azar y no se cambian"
     if J.array(plain, J.ARRAY_RAREZA)[fila] >= 5:
         return "en el draft las tecnicas de un Idolo o un Diamante vienen fijas"
     if ranura <= 3:

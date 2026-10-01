@@ -207,6 +207,18 @@
     text-transform:uppercase; margin-bottom:5px; }
   .flecha-oferta { align-self:center; font-size:30px; color:var(--azul-marco); font-weight:900; }
   .rej-inter { display:grid; grid-template-columns:repeat(auto-fill, minmax(72px, 1fr)); gap:6px; }
+  /* supertacticas (O-258) */
+  .opcion.tactica { gap:6px; }
+  .cab-tac { display:flex; gap:8px; align-items:center; }
+  .cab-tac img { width:42px; height:42px; object-fit:contain; flex:none; }
+  .cab-tac b { font-size:var(--t-md); line-height:1.15; }
+  .efectos-tac { margin:0; padding-left:16px; font-size:var(--t-xs); color:var(--tinta); display:flex;
+    flex-direction:column; gap:2px; }
+  .tiempos-tac { color:var(--suave); font-weight:700; }
+  .opcion.tactica.cogido > :not(.sello) { filter:grayscale(1); opacity:.45; }
+  .chip-tac { display:flex; gap:5px; align-items:center; grid-column:span 2; background:#fff;
+    border:2px solid var(--linea); border-radius:8px; padding:3px 6px; font-size:var(--t-xs); font-weight:800; }
+  .chip-tac img { width:26px; height:26px; object-fit:contain; }
   .botones-fin { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
   .chip.idolo { background:linear-gradient(180deg,#ef4fe3,#9e2596); }
   /* el juego de origen, con la misma pastilla que lleva la tarjeta arriba */
@@ -301,6 +313,8 @@ const RONDAS_BASE = [
 const GRUPOS_JUGADOR = ["DEL", "MED", "DEF", "POR"];
 // "sin posiciones" (O-254): rondas de jugadores de cualquier posicion
 const RONDA_JUG = {grupo:"JUG", texto:"jugador (cualquier posicion)", titulo:"Jugadores"};
+// draft de supertacticas (O-258): una ronda de 3 para cada uno
+const RONDA_TAC = {grupo:"TAC", texto:"supertactica", titulo:"Supertacticas"};
 function esJug(g) { return GRUPOS_JUGADOR.includes(g) || g === "JUG"; }
 // cada ronda saca una tanda para los dos (por defecto justo los que se
 // reparten) y se van quitando segun se eligen (Aaron)
@@ -331,9 +345,12 @@ const REGLAS_DE_SERIE = {sagas:SAGAS.slice(), ilegales:true, idolos:"pocos", gen
   cantidades:{DEL:4, MED:5, DEF:3, POR:4, GER:3, ENT:1}, arquetipo:"azar", tiempo:0, repetidos:true,
   // al montar el equipo (O-254): que se puede cambiar
   judias:true, equipacion:true, tecnicas:true, pasivas:true,
-  sin_posiciones:false, intercambio:0};
+  sin_posiciones:false, intercambio:0,
+  tecnicas_random:false, tacticas_draft:false};
 function completa(r) {
   const x = JSON.parse(JSON.stringify(Object.assign({}, REGLAS_DE_SERIE, r || {})));
+  // sin ilegales: el juego tampoco deja usarlos (Aaron, O-258)
+  x.ilegales = false;
   x.cantidades = Object.assign({}, REGLAS_DE_SERIE.cantidades, (r || {}).cantidades || {});
   return x;
 }
@@ -349,7 +366,8 @@ function rondasDe(r) {
     while (total > 0) { const n = Math.min(2, total); jug.push(Object.assign({}, RONDA_JUG, {cuantos:n})); total -= n; }
   } else jug = RONDAS_BASE.filter(x => esJug(x.grupo)).map(x => Object.assign({}, x, {cuantos:Number(c[x.grupo]) || 0}));
   const staff = RONDAS_BASE.filter(x => !esJug(x.grupo)).map(x => Object.assign({}, x, {cuantos:Number(c[x.grupo]) || 0}));
-  return jug.concat(staff).filter(x => x.cuantos > 0).map((x, k) => Object.assign(x, {k}));
+  const tac = r.tacticas_draft ? [Object.assign({}, RONDA_TAC, {cuantos:3})] : [];
+  return jug.concat(staff, tac).filter(x => x.cuantos > 0).map((x, k) => Object.assign(x, {k}));
 }
 // las rondas juntadas por grupo (para contar cuantos de cada hay)
 function gruposDe(r) {
@@ -385,6 +403,7 @@ const FRESCO_MS = 90000;          // un conectado sin senales en 90 s se da por 
 const red = new RedDraft();
 let yo = null;                    // {nombre, slug}
 let pool = [], porId = {};
+let tacticas = [], tacPorId = {};       // las supertacticas del draft (O-258)
 const gente = {};                 // slug -> {nombre, ts, estado, id}
 const invitaciones = {};          // slug -> {nombre, sala}
 let pendiente = null;             // invitacion que he mandado: {slug, sala}
@@ -413,6 +432,10 @@ async function entrar() {
     try { pool = (await pedir("/api/draft/candidatos")).candidatos; }
     catch (e) { avisa("No he podido cargar los jugadores: " + e.message, "mal"); return; }
     for (const c of pool) porId[c.identidad] = c;
+  }
+  if (!tacticas.length) {
+    try { tacticas = (await pedir("/api/draft/tacticas")).tacticas; } catch (e) { tacticas = []; }
+    for (const t of tacticas) tacPorId[t.id] = t;
   }
 
   red.alEstado = e => {
@@ -467,7 +490,6 @@ function textoReglas(r) {
   const partes = [];
   partes.push(r.sagas.length === SAGAS.length ? "todos los juegos"
               : r.sagas.map(x => (CHAPA_SAGA[x] || [x])[0]).join(", ") || "ningun juego");
-  partes.push(r.ilegales ? "con ilegales" : "sin ilegales");
   partes.push("Idolos: " + (IDOLOS.find(i => i.valor === r.idolos) || IDOLOS[1]).nombre.toLowerCase());
   if (r.genero !== "todos") partes.push(r.genero === "chicas" ? "solo chicas" : "solo chicos");
   const nomElem = e => (ELEMENTOS.find(x => x[0] === e) || [e, e])[1];
@@ -483,6 +505,8 @@ function textoReglas(r) {
   else if (r.tiempo) partes.push(r.tiempo + " s por turno");
   if (!r.repetidos) partes.push("sin versiones repetidas");
   if (r.sin_posiciones) partes.push("sin posiciones");
+  if (r.tecnicas_random) partes.push("supertecnicas al azar");
+  if (r.tacticas_draft) partes.push("supertacticas drafteadas");
   if (r.intercambio) partes.push("intercambio de hasta " + r.intercambio);
   const sin = [["judias", "judias"], ["equipacion", "equipacion"], ["tecnicas", "tecnicas nuevas"], ["pasivas", "cambiar pasivas"]]
     .filter(([k]) => r[k] === false).map(([, n]) => n);
@@ -588,8 +612,6 @@ function abreInvitar(slug, nombre) {
       el("button", {class:"enlace", text:"ninguno", onclick:() => cambia(() => { reglas.sagas = []; })})]));
     cuerpo.appendChild(tarjetaRegla("Juegos", "De que juegos salen los personajes. Si de uno no hay bastantes, se rellena con el anterior.", juegos, true));
     // jugadores
-    cuerpo.appendChild(tarjetaRegla("Jugadores ilegales", "Formas de modo, mixi max, versiones de la historia...",
-      segmento([[true, "Si"], [false, "No"]], reglas.ilegales, v => cambia(() => { reglas.ilegales = v; }))));
     cuerpo.appendChild(tarjetaRegla("Versiones del mismo personaje", "Que pueda salir el mismo de otro juego o su forma de modo",
       segmento([[true, "Si"], [false, "No"]], reglas.repetidos, v => cambia(() => { reglas.repetidos = v; }))));
     const ido = IDOLOS.find(i => i.valor === reglas.idolos) || IDOLOS[1];
@@ -636,6 +658,16 @@ function abreInvitar(slug, nombre) {
     cuerpo.appendChild(tarjetaRegla("Cuantos para cada uno", "", el("div", {class:"pila"}, [pasos,
       el("span", {class:"total-jug" + (prob ? " mal" : ""), text:prob || (jug + " jugadores: " + Math.min(11, jug) + " en el campo y "
         + Math.max(0, jug - 11) + " suplentes")})]), true));
+    cuerpo.appendChild(tarjetaRegla("Supertecnicas", reglas.tecnicas_random
+        ? "Las 3 primeras, las suyas; las 3 siguientes al azar de lo que admite cada ranura (en la libre, una hipertecnica si no lleva ya una en la 3). No se cambian."
+        : "Cada uno pone las que quiera en las ranuras libres",
+      segmento([[false, "Las elige cada uno"], [true, "Al azar"]], reglas.tecnicas_random,
+               v => cambia(() => { reglas.tecnicas_random = v === true || v === "true"; }))));
+    cuerpo.appendChild(tarjetaRegla("Supertacticas", reglas.tacticas_draft
+        ? "Al final sale una tanda de 6 y cada uno elige hasta tener 3; luego no se cambian"
+        : "Cada uno pone las que quiera al montar el equipo",
+      segmento([[false, "Libres"], [true, "Drafteadas"]], reglas.tacticas_draft,
+               v => cambia(() => { reglas.tacticas_draft = v === true || v === "true"; }))));
     cuerpo.appendChild(tarjetaRegla("Posiciones", reglas.sin_posiciones
         ? "Rondas de 2 para cada uno con jugadores de cualquier posicion (gerentes y entrenador igual)"
         : "Una ronda por posicion: delanteros, medios, defensas y porteros",
@@ -673,7 +705,7 @@ function abreInvitar(slug, nombre) {
     if (faltas.length) cuentas.appendChild(el("span", {class:"mal", text:faltas.join(" ")}));
     else {
       cuentas.appendChild(el("span", {class:"eti", text:"Pueden salir:"}));
-      for (const r of gruposDe(reglas)) {
+      for (const r of gruposDe(reglas).filter(x => x.grupo !== "TAC")) {
         const x = candidatosDe(r.grupo, reglas);
         cuentas.appendChild(el("span", {class:"cuenta" + (x.grave ? " mal" : x.notas.length ? " nota" : ""),
           title:x.notas.join(", "), text:r.titulo + " " + x.lista.length + (x.notas.length ? " (" + x.notas.join(", ") + ")" : "")}));
@@ -885,6 +917,19 @@ function sacaDe(lista, n, usados, nombres) {
 }
 function sacaOpciones(grupo, k) {
   const r = reglasDelDraft();
+  if (grupo === "TAC") {
+    // supertacticas: una tanda de las que no tenga nadie, sin repetir nombre
+    const ronda = (k != null && rondasDe(r)[k]) || RONDA_TAC;
+    const ya = cogidos(), nombres = new Set(), fuera = [];
+    const lista = tacticas.filter(t => !ya.has(t.id));
+    let intentos = 0;
+    while (fuera.length < tamanoTanda(ronda.cuantos, r) && lista.length && intentos++ < 2000) {
+      const t = lista[azar(lista.length)];
+      if (fuera.includes(t.id) || nombres.has(t.nombre)) continue;
+      nombres.add(t.nombre); fuera.push(t.id);
+    }
+    return fuera;
+  }
   const ronda = (k != null && rondasDe(r)[k]) || rondaDe(grupo, r);
   const ya = cogidos();
   // sin repetidos: ni el mismo nombre en todo el draft; con repetidos, solo
@@ -1180,6 +1225,23 @@ function tarjeta(id, alPulsar, extra) {
   if (extra) ficha.classList.add(extra);
   return ficha;
 }
+function tarjetaTactica(id, puede, dueno) {
+  const t = tacPorId[id] || {nombre:"?", efectos:[]};
+  if (dueno) puede = false;
+  return el("button", {class:"opcion tactica" + (puede ? " puede" : "") + (dueno ? " cogido" : ""),
+                       onclick:puede ? () => elegir(id) : null, title:t.nombre}, [
+    el("div", {class:"cab-tac"}, [t.icono ? el("img", {alt:"", src:"/icono/" + t.icono}) : null,
+      el("b", {text:t.nombre})]),
+    el("ul", {class:"efectos-tac"}, (t.efectos || []).map(x => el("li", {text:x}))),
+    t.duracion || t.recarga ? el("small", {class:"tiempos-tac",
+      text:[t.duracion ? "dura " + t.duracion + " s" : "", t.recarga ? "recarga " + t.recarga + " s" : ""].filter(Boolean).join(" · ")}) : null,
+    dueno ? el("span", {class:"sello", text:"✕ " + (dueno === yo.slug ? "Tuya" : nombreDe(dueno))}) : null]);
+}
+function chipTactica(id) {
+  const t = tacPorId[id] || {nombre:"?"};
+  return el("div", {class:"chip-tac", title:(t.efectos || []).join("\n")}, [
+    t.icono ? el("img", {alt:"", src:"/icono/" + t.icono}) : null, el("span", {text:t.nombre})]);
+}
 function tarjetaOpcion(id, puede, dueno, motivo) {
   const c = porId[id] || {identidad:id, nombre:"(no esta en tu Pizarra)", stats:[]};
   const chips = el("div", {class:"chips"});
@@ -1214,7 +1276,8 @@ function pintaEquipos() {
     for (const r of gruposDe(estado.reglas)) {
       const suyos = estado.equipos[s].filter(x => x.grupo === r.grupo);
       const rej = el("div", {class:"rej"});
-      for (const x of suyos) rej.appendChild(tarjeta(x.id, () => abreFichaDraft(x.id), estado.diamantes[s] === x.id ? "elegido" : ""));
+      for (const x of suyos) rej.appendChild(x.grupo === "TAC" ? chipTactica(x.id)
+        : tarjeta(x.id, () => abreFichaDraft(x.id), estado.diamantes[s] === x.id ? "elegido" : ""));
       for (let n = suyos.length; n < r.cuantos; n++) rej.appendChild(el("div", {class:"hueco"}));
       col.appendChild(el("div", {class:"grupo-draft"}, [el("span", {text:r.titulo.toUpperCase() + " " + suyos.length + "/" + r.cuantos}), rej]));
     }
@@ -1247,7 +1310,8 @@ function pintaZona() {
       estado.limite ? el("span", {class:"cuenta-atras", id:"cuenta-atras"}) : null]));
     const ops = el("div", {class:"opciones"});
     for (const id of estado.opciones)
-      ops.appendChild(tarjetaOpcion(id, mio && !esperando, quienTiene(id), quienTiene(id) ? "" : motivoNoPuede(yo.slug, id)));
+      ops.appendChild(t.grupo === "TAC" ? tarjetaTactica(id, mio && !esperando, quienTiene(id))
+        : tarjetaOpcion(id, mio && !esperando, quienTiene(id), quienTiene(id) ? "" : motivoNoPuede(yo.slug, id)));
     // las caras de la tanda, ya (en blitz se repinta cada pocos segundos y
     // con la carga perezosa no llegaban a salir)
     ops.querySelectorAll('img[loading="lazy"]').forEach(i => { i.loading = "eager"; });
@@ -1282,7 +1346,7 @@ function pintaZona() {
       text:elegido ? "Esperando a que " + nombreDe(rivalSlug()) + " elija su Diamante..."
                    : "Elige quien de tu equipo sera tu Diamante (de tu arquetipo). Los Idolos no pueden."}));
     const rej = el("div", {class:"elige-diamante"});
-    for (const x of estado.equipos[yo.slug]) {
+    for (const x of estado.equipos[yo.slug].filter(y => y.grupo !== "TAC")) {
       const c = porId[x.id] || {};
       const f = tarjeta(x.id, c.idolo || elegido ? null : () => elegirDiamante(x.id), elegido === x.id ? "elegido" : "");
       if (c.idolo) f.style.opacity = ".45";
@@ -1336,7 +1400,7 @@ function pintaIntercambio(z) {
     // elegir a quien das y a quien pides
     const lado = (s, clave, titulo) => {
       const rej = el("div", {class:"rej-inter"});
-      for (const x of estado.equipos[s]) {
+      for (const x of estado.equipos[s].filter(y => y.grupo !== "TAC")) {
         const sel = selInter[clave].includes(x.id);
         const f = tarjeta(x.id, () => {
           selInter[clave] = sel ? selInter[clave].filter(y => y !== x.id) : selInter[clave].concat(x.id);
@@ -1484,7 +1548,7 @@ async function guardaResultado() {
   if (!estado || guardadoDe === estado.sala) return;
   guardadoDe = estado.sala;
   const riv = rivalSlug();
-  const lista = s => estado.equipos[s].map(x => {
+  const lista = s => estado.equipos[s].filter(x => x.grupo !== "TAC").map(x => {
     const c = porId[x.id] || {};
     return {identidad:x.id, grupo:x.grupo, nombre:c.nombre || "", posicion:c.posicion || "",
             idolo:!!c.idolo, apt:c.apt || "jugador", legal:!!c.legal,
@@ -1494,6 +1558,7 @@ async function guardaResultado() {
   const resultado = {sala:estado.sala, yo:nombreDe(yo.slug), rival:nombreDe(riv),
     arquetipo:estado.arquetipos[yo.slug], arquetipo_nombre:ARQUETIPOS[estado.arquetipos[yo.slug]],
     diamante:estado.diamantes[yo.slug], jugadores:lista(yo.slug), reglas:estado.reglas || null,
+    tacticas:estado.equipos[yo.slug].filter(x => x.grupo === "TAC").map(x => x.id),
     rival_arquetipo:ARQUETIPOS[estado.arquetipos[riv]], rival_equipo:lista(riv)};
   try { const r = await pedir("/api/draft/guardar", {method:"POST", headers:{"Content-Type":"application/json"},
                                            body:JSON.stringify({resultado})});

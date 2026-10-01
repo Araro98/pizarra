@@ -29,7 +29,11 @@ import zipfile
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SALIDA = os.path.join(RAIZ, "publicar")
+# reglas-del-jugador: los nombres de formaciones, escudos y equipaciones
+# (nombres-de-equipo.csv) que dijo Aaron; sin ellos a sus amigos les salian
+# "sin nombre" (O-258)
 CARPETAS_DATOS = [("web", "web"), ("datos/reglas-extraidas", "datos/reglas-extraidas"),
+                  ("datos/reglas-del-jugador", "datos/reglas-del-jugador"),
                   ("datos/ui", "datos/ui"), ("datos/iconos/recortes", "datos/iconos/recortes")]
 
 

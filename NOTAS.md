@@ -5994,6 +5994,37 @@ de 2 (asi lo leen la ficha y `poner_partidos`): daba un numero enorme, y
 antes no se notaba porque siempre se ponian a 30. Probado: 10 -> 30,
 30 -> 30, 250 -> 250.
 
+### O-258 · Draft: guardar tras importar, bonificaciones, formaciones, sin ilegales, tecnicas al azar, supertacticas
+
+Lo que pidio Aaron tras jugar con sus amigos:
+
+- Guardar desde el draft: tras "Importar equipo" salen ahi mismo "Guardar
+  copia de la partida" e "Instalar en Steam". Guardar e instalar van siempre
+  con `X-Pizarra-Draft` vacio, o sea a la partida de verdad (en el editor
+  normal da igual).
+- Bonificaciones de equipo tambien en Jugadores: en el draft, siempre las
+  del equipo del draft.
+- Formaciones "sin nombre" a los amigos: los nombres de formaciones, escudos
+  y equipaciones estan en `datos/reglas-del-jugador/nombres-de-equipo.csv`,
+  que no iba en `pizarra-datos.zip`. Ahora `publicar.py` mete esa carpeta (a
+  Aaron no le pasaba porque tiene el proyecto entero).
+- Sin el modo de ilegales: el juego tampoco deja usarlos. `completa()` deja
+  siempre `ilegales:false` y la tarjeta se ha quitado.
+- Supertecnicas al azar (`tecnicas_random`): al crear el montaje, en cada
+  normal (no Idolos, Diamantes ni personal) las ranuras 4-6 llevan una al
+  azar de lo que admite cada una (legales, individuales, sin repetir); en la
+  libre, una hipertecnica si en la 3 no lleva ya una, y si la lleva una
+  tecnica de su posicion (DEL tiro, MED regate, DEF defensa, POR parada).
+  Despues no se cambian.
+- Supertacticas drafteadas (`tacticas_draft`): una ronda mas al final con
+  una tanda de 6 (70 tacticas del juego con efectos, `draft.tacticas_draft`,
+  `/api/draft/tacticas`); cada uno se queda 3. Van al equipo del montaje y
+  no se cambian. No cuentan para el Diamante ni para el intercambio.
+- Probado con dos ventanas: tacticas drafteadas 3 y 3, sin ilegales, el
+  montaje con las tecnicas al azar bien por tipo y la hipertecnica en la 6,
+  tacticas puestas y bloqueadas, bonificaciones en Jugadores y guardar la
+  partida desde el draft.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
