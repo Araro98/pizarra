@@ -2163,12 +2163,18 @@ def dar_pasivas_personal(plain, cantidad=99):
     return _dar_de_todo(plain, todas, cantidad, "pasivas de gerente y entrenador")
 
 
-def _dar_de_todo(plain, todas, cantidad, que):
+def _dar_de_todo(plain, todas, cantidad, que, parientes=None, sub=None):
     """Pone `cantidad` de cada cosa de la lista en la mochila, creando la fila
-    de las que falten copiando la forma de una hermana."""
+    de las que falten copiando la forma de una hermana.
+
+    Si no se tiene ninguna de la lista, `parientes` son otros objetos del
+    mismo tramo de la mochila de los que copiar (las personalizadas van con
+    los manuales de tecnicas y de pasivas) y `sub` el que lleva cada fila
+    nueva en el juego (O-256: al amigo de Aaron, sin ninguna personalizada,
+    el preset de pasivas le fallaba)."""
     poseidas = inventario.filas_poseidas(plain)
     modelo = None
-    for idh in todas:
+    for idh in list(todas) + sorted(parientes or ()):
         f = (poseidas.get(idh) or [None])[0]
         if f is not None and f.get("kind") == inventario.KIND_REAL and f["slot"]:
             modelo = f
@@ -2205,7 +2211,7 @@ def _dar_de_todo(plain, todas, cantidad, que):
         buf[libre["id_off"]:libre["id_off"] + 4] = bytes.fromhex(idh)
         struct.pack_into("<I", buf, libre["serie_off"], serie)
         buf[libre["kind_off"]] = inventario.KIND_REAL
-        buf[libre["sub_off"]] = modelo.get("sub", 2)
+        buf[libre["sub_off"]] = sub if sub is not None else modelo.get("sub", 2)
         struct.pack_into("<I", buf, libre["cantidad_off"], cantidad)
         creadas += 1
     return bytes(buf), {"que": que, "cuantas": cantidad, "creadas": creadas,
@@ -2286,7 +2292,34 @@ def dar_personalizadas(plain, cantidad=99):
     if not 1 <= cantidad <= TOPE_CANTIDAD:
         raise Ilegal("la cantidad va de 1 a %d" % TOPE_CANTIDAD)
     return _dar_de_todo(plain, sorted(O.pasivas_personalizadas()), cantidad,
-                        "pasivas personalizadas en la mochila")
+                        "pasivas personalizadas en la mochila", _parientes_de_personalizadas(), 2)
+
+
+def _parientes_de_personalizadas():
+    """Lo que va en el mismo tramo de la mochila que las personalizadas: los
+    manuales de tecnicas y de pasivas (O-256)."""
+    return {f["id"].upper() for f in reglas._tabla("nombres-es.csv")
+            if f.get("categoria") in ("supertecnica", "pasiva")}
+
+
+def es_manual_de_pasiva(id_hex):
+    """Si es una pasiva de mochila (personalizada, de gerente o entrenador):
+    esas no las crea `anadir_objeto` (O-256)."""
+    id_hex = (id_hex or "").upper()
+    return any(f["id"].upper() == id_hex and f.get("categoria") == "pasiva"
+               for f in reglas._tabla("nombres-es.csv"))
+
+
+def conseguir_personalizada(plain, id_hex, cantidad=1):
+    """Crea en la mochila el manual de UNA pasiva (personalizada, de gerente
+    o de entrenador), aunque no se tenga ninguna: con la forma de otra fila
+    de su tramo y sub 2, como las 26 personalizadas de la partida original de
+    Aaron (O-256)."""
+    id_hex = (id_hex or "").upper()
+    if not es_manual_de_pasiva(id_hex):
+        raise Ilegal("%s no es una pasiva de la mochila" % id_hex)
+    return _dar_de_todo(plain, [id_hex], cantidad, "pasiva en la mochila",
+                        _parientes_de_personalizadas(), 2)
 
 
 def juego_de_personal(plain, fila, rol):

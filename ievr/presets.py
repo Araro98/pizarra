@@ -111,6 +111,10 @@ def _asegura_objeto(plain, id_hex):
     """Si no se tiene ese objeto, se crea uno (como "Conseguir" en la mochila)."""
     if inventario.filas_poseidas(plain).get(id_hex):
         return plain, False
+    if E.es_manual_de_pasiva(id_hex):
+        # las personalizadas no son de las que crea anadir_objeto (O-256)
+        plain, _ = E.conseguir_personalizada(plain, id_hex, 1)
+        return plain, True
     plain, _ = E.anadir_objeto(plain, id_hex, 1)
     return plain, True
 

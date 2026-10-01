@@ -5966,6 +5966,25 @@ esta en un equipo rival de la Cronica. `construir_fichables.py` tiene ahora
 `NO_FICHABLES_A_MANO` para lo que Aaron sabe del juego; con el se va a
 no-fichables.csv (es el unico cambio). En el draft pasa a salir como ilegal.
 
+### O-256 · Preset de pasivas sin ninguna personalizada en la mochila
+
+Al amigo de Aaron le salia "el codigo 269B0969 no es de nada que se pueda
+usar aqui" al poner un preset de pasivas. El preset crea el manual de la
+personalizada si no se tiene, y lo hacia con `anadir_objeto`, que no crea
+pasivas (categoria `pasiva` no esta en CATEGORIAS_QUE_SE_ANADEN). Y
+"Conseguir 99 personalizadas" (`_dar_de_todo`) necesitaba tener ya alguna
+para copiar la forma de la fila.
+
+- `_dar_de_todo` acepta `parientes` (otros objetos del mismo tramo de la
+  mochila: las personalizadas van con los manuales de tecnicas y de pasivas,
+  tramo clase 1 tipo 3) y `sub` (2, como las 26 personalizadas de la
+  partida original de Aaron).
+- `conseguir_personalizada` crea UNA pasiva de mochila (personalizada o de
+  gerente/entrenador); la usan el preset (`_asegura_objeto`) y la
+  importacion del draft (`_conseguir`), que tenia el mismo fallo.
+- Probado en una copia sin ninguna personalizada ni de gerente: el preset
+  crea y pone la personalizada (sub 2), "Conseguir 99" crea las 37.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

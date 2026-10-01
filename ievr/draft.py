@@ -511,7 +511,11 @@ def _conseguir(plain, id_hex, anadidos, cantidad=1):
     """Que la partida tenga ese objeto (para poder ponerlo): si no, se crea."""
     if not id_hex or _tiene(plain, id_hex):
         return plain
-    plain, _ = E.anadir_objeto(plain, id_hex, cantidad)
+    if E.es_manual_de_pasiva(id_hex):
+        # personalizadas y de personal: no las crea anadir_objeto (O-256)
+        plain, _ = E.conseguir_personalizada(plain, id_hex, cantidad)
+    else:
+        plain, _ = E.anadir_objeto(plain, id_hex, cantidad)
     anadidos.add(id_hex.upper())
     return plain
 
