@@ -187,6 +187,7 @@ def guardados():
                       "cuantos": len(d.get("jugadores") or []),
                       # segunda parte (O-248): si ya se monto y a que equipo se importo
                       "montado": bool(d.get("montaje")),
+                      "modo": (d.get("reglas") or {}).get("modo") or "clasico",     # O-263
                       "importado": ((d.get("importado") or [{}])[-1].get("antes") or "")
                                    if d.get("importado") else ""})
     return fuera

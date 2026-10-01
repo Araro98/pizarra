@@ -6064,6 +6064,46 @@ Aaron: en el draft no tiene sentido el preset de pasivas (la pareja 4-5 es
 siempre la del arquetipo y no se hereda). Fuera el boton en el editor del
 draft y `preset_pasivas` fuera de los cambios permitidos del draft.
 
+### O-263 · Dos modos nuevos de draft: Individual y Subasta
+
+Aaron: dos modos mas, como pestanas aparte, con su configuracion y las del
+draft de siempre que encajen. En la sala, pestanas "Por turnos /
+Individual / Subasta" (con una linea que explica cada uno); Invitar usa las
+reglas de la pestana elegida (`reglas.modo`) y cada modo recuerda las suyas
+(`draft-reglas-<modo>`, `draft-modo`).
+
+- Individual: cada uno tiene SUS opciones (3 por defecto, de 2 a 6:
+  "Opciones por eleccion") y elige una; luego otra tanda, hasta llenar.
+  Los dos a la vez, sin moneda. La secuencia es la de las rondas
+  (`secuenciaDe`: DEL x4, MED x5... y TAC si hay tacticas drafteadas). El
+  anfitrion saca las opciones de cada uno sin repetir las que esta viendo
+  el otro (`ofreceInd`), y al que ya tiene 3 Idolos no le salen mas.
+  Tiempo por eleccion (blitz incluido): si se acaba, una al azar.
+- Subasta: inspirada en las subastas de las ligas fantasy (ESPN, Yahoo,
+  Sleeper: presupuesto fijo, puja minima 1, el reloj se reinicia con cada
+  puja). Presupuesto 300 por defecto (200/300/500/1000; con 20 huecos son
+  15 por hueco, parecido a 200 para 16 de las fantasy), subida minima 1/5/10,
+  15 s por lote (10/15/20/30) y cada puja deja al menos 8 s
+  (`SEGUNDOS_TRAS_PUJA`). Reserva: nunca se puede pujar tanto que no quede
+  la subida minima por cada hueco que falta (`maxPuja`). Cada lote lo abre
+  uno a la puja minima (se turnan; la moneda dice quien abre el primero) y
+  si nadie sube se lo lleva. Salen antes los grupos que les faltan a los dos
+  (jugadores, luego personal, luego tacticas); si un lote solo le sirve a
+  uno, va directo a el al minimo. Pantalla: el lote, el precio, +1/+5/+10/
+  +25/+50 o una cantidad, el dinero y la puja maxima de cada uno y los
+  ultimos vendidos. El precio va con cada jugador del equipo.
+- Opciones por modo: Juegos, Versiones, Idolos, Genero, Afinidad (en la
+  subasta sin "una para cada uno"), Cuantos para cada uno, Posiciones,
+  Supertacticas (drafteadas en el individual; "subastadas" en la subasta),
+  Intercambio, Al montar el equipo y Arquetipo, en todos. Tamano de la tanda
+  solo en el de turnos; Tiempo por eleccion en turnos e individual.
+- "Tus drafts terminados" dice de que modo fue cada uno.
+- Probado con dos ventanas: individual con afinidad para cada uno y
+  tacticas drafteadas (23 y 23, ninguno de la afinidad del otro, sin
+  repetidos); subasta entera (40 lotes, dinero cuadrado: 300 - 179 = 121 y
+  300 - 59 = 241, equipos completos, sin repetidos) y, tras ordenar los
+  lotes, 1 directo en 30 (antes 13 en 40); y el de turnos sigue igual.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
