@@ -5985,6 +5985,15 @@ para copiar la forma de la fila.
 - Probado en una copia sin ninguna personalizada ni de gerente: el preset
   crea y pone la personalizada (sub 2), "Conseguir 99" crea las 37.
 
+### O-257 · MAX no baja los partidos
+
+Aaron: si se le da a MAX y el jugador tiene mas de 30 partidos, que se
+quede con los suyos. `presets.maximo` solo los sube si tiene menos de 30.
+Al probarlo salio que `maximo` leia el campo de partidos con 4 bytes y es
+de 2 (asi lo leen la ficha y `poner_partidos`): daba un numero enorme, y
+antes no se notaba porque siempre se ponian a 30. Probado: 10 -> 30,
+30 -> 30, 250 -> 250.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

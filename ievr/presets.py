@@ -216,12 +216,15 @@ def maximo(plain, fila):
         plain, _ = E.poner_rareza(plain, fila, RAREZA_MAX)
         hecho.append(J.RAREZAS.get(RAREZA_MAX, "Leyenda"))
     try:
-        offp, _ = E._campo(plain, fila, E.F_PARTIDOS)
+        offp, n = E._campo(plain, fila, E.F_PARTIDOS)
         import struct
-        partidos = struct.unpack_from("<I", plain, offp)[0]
+        # el campo es de 2 bytes (como lo lee la ficha); leerlo de 4 daba un
+        # numero enorme y con la regla de "no bajar de lo que tiene" no subia
+        partidos = struct.unpack_from("<H" if n == 2 else "<I", plain, offp)[0]
     except Exception:
         partidos = None
-    if partidos != PARTIDOS_MAX:
+    # si ya tiene mas de 30 se le dejan los suyos (Aaron, O-257)
+    if partidos is None or partidos < PARTIDOS_MAX:
         plain, _ = E.poner_partidos(plain, fila, PARTIDOS_MAX)
         hecho.append("%d partidos" % PARTIDOS_MAX)
     return plain, {"fila": fila, "que": "MAX",
