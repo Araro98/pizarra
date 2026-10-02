@@ -165,7 +165,8 @@
       <details><summary>¿Como se hace?</summary>
         <p>La tier sale de los stats que pesan en su posicion a nivel 99, con su arbol (delanteros: potencia,
           control y tecnica; medios: control, tecnica e inteligencia; defensas: presion, fisico e inteligencia;
-          porteros: presion, fisico y agilidad). Cada nota distinta es una tier: quien es algo peor, no va en la misma.
+          porteros: presion, fisico y agilidad). En delanteros manda la potencia y en porteros la agilidad:
+          el que tiene mas va por encima, y solo si empatan desempatan los otros dos. Cada nota distinta es una tier: quien es algo peor, no va en la misma.
           Luego cada ajuste sube o baja una: el arbol (los delanteros, con 3 tiros, un regate, una defensa y la
           hipertecnica; los porteros, todo paradas; los medios, 2 regates, un tiro y una defensa), la armadura
           o el mixi max en delanteros y el cuerpo en defensas (musculoso o grande, sube; pequeno, baja).
@@ -288,7 +289,8 @@ function carta(f, repetidos) {
   if (!repetidos.has(j.nombre)) { const c = t.querySelector(".chapa-saga"); if (c) c.remove(); }
   const nombreJuego = (CHAPA_SAGA[j.saga] || [j.saga])[0];
   t.title = j.nombre + (j.apodo ? " (" + j.apodo + ")" : "") + " · " + nombreJuego
-    + "\nTier " + f.tier + " · nota " + f.nota + " (los stats de su posicion)"
+    + "\nTier " + f.tier + (f.prioridad != null ? " · " + (f.lista === "POR" ? "agilidad " : "potencia ") + f.prioridad : "")
+    + " · nota " + f.nota + " (los stats de su posicion)"
     + "\nPor stats: " + f.tier_stats + (f.ajustes ? "\n" + f.ajustes.split("; ").join("\n") : "")
     + (f.lista !== j.posicion ? "\n(es " + j.posicion + ": sale tambien aqui)" : "")
     + "\nPulsa para ver su ficha";

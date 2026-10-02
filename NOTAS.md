@@ -6311,6 +6311,19 @@ lo prueba, se decide si el boton "Diamante" del editor hace lo mismo.
 - Los candidatos del draft llevan `diamante_propio`; al elegir Diamante su
   tarjeta dice "Diamante de fabrica".
 
+### O-274 · Tier list: potencia manda en delanteros, agilidad en porteros
+
+Aaron: "prioriza en porteros la agilidad, mucho mas... si hay empate en
+agilidad, entonces si desempata con los otros dos... Haz lo mismo en los
+delanteros con potencia, potencia es prioridad numero 1 porque sube mas".
+En las tres listas. `construir_tier_list.py`: `PRIORIDAD` y `clave_de`
+ordenan DEL por (potencia, control + tecnica) y POR por (agilidad, presion
++ fisico); los escalones salen de esa clave (mismo stat que manda y el resto
+a 1 punto o menos, juntos). Medios y defensas, igual que antes. Columna
+nueva `prioridad` (el valor de ese stat); la pagina lo ensena al pasar el
+raton. Comprobado: nadie con mas potencia/agilidad queda por debajo por
+stats.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

@@ -18,6 +18,8 @@ Criterios de Aaron (2026-10-02, revisados tras el primer borrador):
   y un Diamante con su rareza. Cada nota distinta de su categoria y posicion
   es un escalon (las que se llevan 1 punto van juntas): "si uno es algo peor
   que el otro, no en la misma tier".
+- En delanteros manda la potencia y en porteros la agilidad (O-274): se
+  ordena por ese stat y los otros dos solo desempatan.
 - Cada ajuste es un escalon arriba o abajo, sin topes; se crean las letras
   que hagan falta (por arriba S, X, Z; por abajo A, B, C... saltando S, X, Y
   y Z). La mejor nota, sin ajustes, es S si la tienen muy pocos (2 %, al
@@ -67,6 +69,18 @@ TIER_A_MANO = {("leyenda", "3E55F38F"): ("A", "a la A por su modo Santurron (Aar
 TOPE_S = 0.02
 MARGEN_S = 0.003
 JUNTAS = 1                # notas que se llevan esto o menos, mismo escalon
+# el stat que manda en cada posicion (Aaron, O-274): en delanteros la
+# potencia y en porteros la agilidad; los otros dos solo desempatan
+PRIORIDAD = {"DEL": 0, "POR": 5}
+
+
+def clave_de(posicion, st):
+    """Lo que ordena: (stat que manda, suma de los otros dos) o (suma de los tres)."""
+    ks = STATS_DE_POSICION[posicion]
+    if posicion in PRIORIDAD:
+        p = PRIORIDAD[posicion]
+        return (st[p], sum(st[k] for k in ks if k != p))
+    return (sum(st[k] for k in ks),)
 
 
 def categoria(p):
@@ -158,20 +172,29 @@ AJUSTES = {"DEL": ajuste_del, "POR": ajuste_por, "MED": ajuste_med, "DEF": ajust
 
 
 def hay_s(notas):
-    """Si la mejor nota es S: la tienen muy pocos y saca a la siguiente."""
+    """Si la mejor nota es S: la tienen muy pocos y saca a la siguiente (en
+    lo primero en que se diferencian: el stat que manda o, si empatan, el resto)."""
     distintas = sorted(set(notas), reverse=True)
     alto, cuantos = distintas[0], notas.count(distintas[0])
     siguiente = distintas[1] if len(distintas) > 1 else None
     if cuantos > max(3, TOPE_S * len(notas)):
         return False
-    return siguiente is None or (alto - siguiente) >= MARGEN_S * alto
+    if siguiente is None:
+        return True
+    i = next(i for i in range(len(alto)) if alto[i] != siguiente[i])
+    return (alto[i] - siguiente[i]) >= MARGEN_S * alto[i]
+
+
+def _cerca(a, b):
+    """Mismo escalon: todo igual menos lo ultimo, que se lleva JUNTAS o menos."""
+    return a[:-1] == b[:-1] and abs(a[-1] - b[-1]) <= JUNTAS
 
 
 def escalones(notas):
     """{nota: escalon} con 0 la mejor; las que se llevan JUNTAS o menos van juntas."""
     fuera, k, anterior = {}, -1, None
     for n in sorted(set(notas), reverse=True):
-        if anterior is None or anterior - n > JUNTAS:
+        if anterior is None or not _cerca(anterior, n):
             k += 1
         fuera[n] = k
         anterior = n
@@ -196,7 +219,8 @@ def main():
     for p, cat, rareza in pares:
         st = O._stats99_con_arbol(p["identidad"], rareza)
         nota = sum(st[k] for k in STATS_DE_POSICION[p["posicion"]])
-        filas.append({"categoria": cat, "lista": p["posicion"], "identidad": p["identidad"],
+        clave = clave_de(p["posicion"], st)
+        filas.append({"_clave": clave, "prioridad": clave[0] if len(clave) > 1 else "","categoria": cat, "lista": p["posicion"], "identidad": p["identidad"],
                       "nombre": p["nombre"], "saga": p.get("saga") or "", "elemento": p.get("elemento") or "",
                       "posicion": p["posicion"], "cuerpo": p.get("cuerpo_tipo") or "",
                       "arquetipo": p.get("arquetipo") or "",      # el de los Idolos es fijo
@@ -211,18 +235,20 @@ def main():
     for f in extra:
         st = [int(x) for x in f["stats"].split()]
         f["nota"] = sum(st[k] for k in STATS_DE_POSICION["MED"])
+        f["_clave"] = clave_de("MED", st)
+        f["prioridad"] = ""
     filas += extra
     grupos = {}
     for f in filas:
         if f in extra:
             continue
-        grupos.setdefault((f["categoria"], f["lista"]), []).append(f["nota"])
+        grupos.setdefault((f["categoria"], f["lista"]), []).append(f["_clave"])
     base = {g: (escalones(n), ESCALERA.index("S") if hay_s(n) else ESCALERA.index("A")) for g, n in grupos.items()}
     for f in filas:
         esc, cero = base[(f["categoria"], f["lista"])]
-        k = esc.get(f["nota"])
+        k = esc.get(f["_clave"])
         if k is None:      # Thaddeus en MED: su nota de medio entre las de los medios
-            k = min((esc[n] for n in esc if n <= f["nota"] + JUNTAS), default=max(esc.values()))
+            k = min((esc[n] for n in esc if n[0] <= f["_clave"][0] + JUNTAS), default=max(esc.values()))
         f["tier_stats"] = letra(cero + k)
         d, motivos = AJUSTES[f["lista"]](f["_p"], ranuras(f["identidad"]))
         f["_k"] = cero + k - d
@@ -248,8 +274,8 @@ def main():
             f["tier"] = letra(f["_k"])
             f["ajustes"] = (f["ajustes"] + "; " if f["ajustes"] else "") + "arriba del todo por su modo (Aaron)"
     campos = ["categoria", "lista", "tier", "tier_stats", "ajustes", "identidad", "nombre", "saga",
-              "elemento", "posicion", "cuerpo", "arquetipo", "nota", "stats"]
-    filas.sort(key=lambda f: (f["categoria"], f["lista"], f["_k"], -f["nota"], f["nombre"]))
+              "elemento", "posicion", "cuerpo", "arquetipo", "nota", "prioridad", "stats"]
+    filas.sort(key=lambda f: (f["categoria"], f["lista"], f["_k"], tuple(-x for x in f["_clave"]), f["nombre"]))
     with open(SALIDA, "w", newline="", encoding="utf-8") as fh:
         fh.write("# Tier list de jugadores (NOTAS O-265). Lo genera herramientas/construir_tier_list.py.\n")
         w = csv.DictWriter(fh, fieldnames=campos, extrasaction="ignore")

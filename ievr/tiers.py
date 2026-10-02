@@ -71,5 +71,7 @@ def tier_list():
                 "equipo": p.get("equipo") or ""}
         filas.append({"categoria": f["categoria"], "lista": f["lista"], "tier": f["tier"],
                       "tier_stats": f["tier_stats"], "ajustes": f["ajustes"], "identidad": ident,
-                      "cuerpo_tipo": f["cuerpo"], "arquetipo": f["arquetipo"], "nota": int(f["nota"] or 0)})
+                      "cuerpo_tipo": f["cuerpo"], "arquetipo": f["arquetipo"], "nota": int(f["nota"] or 0),
+                      # el stat que manda: potencia (DEL) o agilidad (POR), O-274
+                      "prioridad": int(f["prioridad"]) if f.get("prioridad") else None})
     return {"escalera": ESCALERA, "filas": filas, "personajes": personajes}
