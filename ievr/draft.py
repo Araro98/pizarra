@@ -48,6 +48,12 @@ def candidatos():
     def construir():
         caras = _caras_que_existen()
         fichables = {f["identidad"].upper() for f in reglas._tabla("fichables.csv")}
+        # su tier de Leyenda en su posicion (los rellenos de la subasta salen
+        # de las mas bajas, O-267); n: 0 la mejor, cuanto mas, peor
+        escalera = ["Z", "X", "S", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L",
+                    "M", "N", "O", "P", "Q", "R", "T", "U", "V", "W"]
+        tiers = {f["identidad"].upper(): escalera.index(f["tier"]) for f in reglas._tabla("tier-list.csv")
+                 if f["categoria"] == "leyenda" and f["lista"] == f["posicion"] and f["tier"] in escalera}
         # solo los que Pizarra sabe meter en la partida (O-248)
         creables = {f["identidad"].upper() for f in reglas._tabla("jugadores.csv")}
         fuera = []
@@ -77,7 +83,7 @@ def candidatos():
                 "apt": p.get("apt") or "jugador", "saga": p.get("saga") or "",
                 "genero": p.get("genero") or "",
                 "stats": stats, "poder": O._poder99_con_arbol(ident, rareza_draft),
-                "legal": ident in fichables,
+                "legal": ident in fichables, "tier": tiers.get(ident.upper()),
             })
         # las formas mixi max y los modos de la historia (Arion con el mixi
         # max del Rey Arturo, los modos de la Cascada Perfecta...): no cuentan

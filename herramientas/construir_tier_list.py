@@ -5,7 +5,8 @@
 
 Escribe `datos/reglas-extraidas/tier-list.csv`: cada personaje fichable con
 posicion de jugador, en su categoria (leyenda, idolo, diamante), su lista
-(DEL, MED, DEF, POR; Thaddeus tambien en MED), su afinidad, su nota, la tier
+(DEL, MED, DEF, POR; Thaddeus tambien en MED). En Diamantes salen los
+Diamantes de nacimiento y todos los normales (con semilla pueden serlo). Su afinidad, su nota, la tier
 que le dan los stats, los ajustes y la tier final.
 
 Criterios de Aaron (2026-10-02, revisados tras el primer borrador):
@@ -34,8 +35,11 @@ Criterios de Aaron (2026-10-02, revisados tras el primer borrador):
     parada, -1 (como mucho -2).
   - MED: -1 por cada uno de tiro/defensa/regate que no pueda llevar
     contando una sola libre (la otra va con hipertecnica); como mucho -2.
+    Optimo (+1): 2 regates, 1 tiro, 1 defensa y 2 libres (una para la
+    hipertecnica y otra para lo que necesite el equipo).
 - DEL con armadura o mixi max: +1.
-- DEF de cuerpo musculoso o grande: +1; pequeno: -1.
+- DEF de cuerpo musculoso o grande: +1; pequeno: -1 ("robusto" no cuenta,
+  Aaron).
 - Thaddeus Bellefax: arriba del todo por su modo, en DEL y tambien en MED.
 """
 import csv
@@ -124,6 +128,14 @@ def ajuste_med(p, rs):
     sin = len(faltan) - min(1, libres)
     if sin > 0:
         return -min(2, sin), ["-%d no lleva a la vez tiro, defensa y regate (falta %s)" % (min(2, sin), ", ".join(faltan))]
+    # optimo (Aaron): 2 regates, 1 tiro, 1 defensa y 2 libres (una para la
+    # hipertecnica y otra para lo que necesite el equipo); con mas libres y
+    # menos fijas tambien vale si llega a lo mismo
+    reg, tiros, defe = fijas.count("Regate"), fijas.count("Tiro"), fijas.count("Defensa")
+    otras = len(fijas) - reg - tiros - defe
+    faltan_opt = max(0, 2 - reg) + max(0, 1 - tiros) + max(0, 1 - defe)
+    if not otras and reg <= 2 and tiros <= 1 and defe <= 1 and libres >= 2 + faltan_opt:
+        return 1, ["+1 arbol optimo (%s + %d libres)" % (", ".join(fijas), libres)]
     return 0, []
 
 
@@ -168,10 +180,14 @@ def main():
     ps = [p for p in BD.personajes()
           if p.get("fichable") == "si" and p.get("posicion") in STATS_DE_POSICION]
     filas = []
-    for p in ps:
-        st = O._stats99_con_arbol(p["identidad"], rareza_para_stats(p))
+    # cada normal sale en Leyendas y tambien en Diamantes (con una semilla
+    # cualquiera puede ser Diamante): ahi se mira con sus stats de Diamante
+    pares = [(p, categoria(p), rareza_para_stats(p)) for p in ps]
+    pares += [(p, "diamante", 8) for p in ps if categoria(p) == "leyenda"]
+    for p, cat, rareza in pares:
+        st = O._stats99_con_arbol(p["identidad"], rareza)
         nota = sum(st[k] for k in STATS_DE_POSICION[p["posicion"]])
-        filas.append({"categoria": categoria(p), "lista": p["posicion"], "identidad": p["identidad"],
+        filas.append({"categoria": cat, "lista": p["posicion"], "identidad": p["identidad"],
                       "nombre": p["nombre"], "saga": p.get("saga") or "", "elemento": p.get("elemento") or "",
                       "posicion": p["posicion"], "cuerpo": p.get("cuerpo_tipo") or "",
                       "arquetipo": p.get("arquetipo") or "",      # el de los Idolos es fijo

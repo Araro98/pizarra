@@ -1645,7 +1645,7 @@ function aplicaInd(s, paso, id) {
    tanto que no te quede 1 por cada hueco que te falte.
    O-264: gerentes y entrenador no se subastan (salen al azar al empezar) y
    lo que solo le hace falta a uno es un "relleno" gratis de los peores de
-   su posicion. */
+   su posicion (O-267: de la tier mas baja de la tier list). */
 const SEGUNDOS_TRAS_PUJA = 8;
 // los stats que pesan en cada posicion (los del editor, POS_OPTIMA):
 // [POT, CON, TEC, PRE, FIS, AGI, INT]
@@ -1701,18 +1701,23 @@ function puedePujar(s, grupo, id) {
   if (maxPuja(s) < puedeMinimo()) return "no te queda dinero";
   return "";
 }
-// un relleno: de la cuarta parte peor de su posicion, sin Idolos
+// un relleno: de la tier mas baja de su posicion en la tier list (la P en
+// delanteros); si ya no queda nadie ahi, la de encima (O, N...). Sin Idolos
+// (Aaron, O-267)
 function sacaRelleno(grupo, s) {
   if (grupo === "TAC") return sacaDelGrupo(grupo, 1, s, [])[0];
   const r = reglasDelDraft(), usados = cogidos();
+  const nombres = new Set(r.repetidos ? [] : (estado.vistos || []));
   const lista = candidatosDe(grupo, r, Object.assign({hacen:1}, opcElementos(s))).lista
     .filter(c => !usados.has(c.identidad) && !c.idolo);
   if (!lista.length) return sacaDelGrupo(grupo, 1, s, [])[0];
-  const ordenados = lista.slice().sort((a, b) => notaDePosicion(a) - notaDePosicion(b));
-  const peores = ordenados.slice(0, Math.max(1, Math.ceil(ordenados.length / 4)));
-  const nombres = new Set(r.repetidos ? [] : (estado.vistos || []));
-  const libres = peores.filter(c => !nombres.has(c.nombre));
-  const c = (libres.length ? libres : peores)[azar((libres.length ? libres : peores).length)];
+  const libres = lista.filter(c => !nombres.has(c.nombre));
+  const de = libres.length ? libres : lista;
+  // la peor que queda de cada posicion (sin posiciones: de todas por igual)
+  const tierDe = c => (c.tier == null ? -1 : c.tier), peor = {};
+  for (const c of de) peor[c.posicion] = Math.max(peor[c.posicion] ?? -1, tierDe(c));
+  const peores = de.filter(c => tierDe(c) === peor[c.posicion]);
+  const c = peores[azar(peores.length)];
   if (!r.repetidos) estado.vistos = (estado.vistos || []).concat(c.nombre);
   return c.identidad;
 }

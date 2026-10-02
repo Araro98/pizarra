@@ -6177,6 +6177,25 @@ regate o defensa pero no los dos).
 La tier list tambien queda guardada asi: cada nota distinta un escalon,
 arbol optimo +1 contando las libres, sin topes en S (O-265 revisado).
 
+### O-267 · Tier list: medios optimos, todos los Diamantes; rellenos de la subasta por tier
+
+Aaron, sobre el borrador de la tier list:
+- Cuerpo Robusto en defensas: no cuenta (ni sube ni baja).
+- MED optimo (+1): 2 regates, 1 tiro, 1 defensa y 2 libres (una para la
+  hipertecnica y otra para lo que necesite el equipo); se cuentan las libres
+  para lo que falte. Quedan en X Arion, Jimmy Wongfu, Lucas Star, Mehr y
+  Thaddeus.
+- Diamantes: no solo los ~70 de nacimiento, tambien todos los normales (con
+  semilla cualquiera puede serlo): ~5400 mas, con sus stats de Diamante
+  (rareza 8). A 99 los Diamantes se agrupan en muy pocas plantillas de stats
+  (DEL: 6 notas distintas, MED: 5), asi que salen menos tiers y muy llenas.
+- Subasta: los rellenos (lo que solo le falta a uno) salen de la tier mas
+  baja de su posicion en la tier list de Leyendas (P en delanteros, H en
+  medios y defensas, J en porteros); cuando ya no queda nadie ahi, de la de
+  encima (O, N...). Sin Idolos. En "sin posiciones", la peor de cada
+  posicion por igual. Los candidatos del draft llevan su tier (`tier`, 0 la
+  mejor).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
