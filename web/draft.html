@@ -38,6 +38,14 @@
   .marcador .centro small { display:block; font-weight:600; font-size:var(--t-xs); opacity:.85; }
   .aviso-turno { margin:12px 0 8px; font-size:var(--t-lg); font-weight:900; font-style:italic; color:var(--azul-osc); }
   .aviso-turno.mio { color:#1e8a4c; }
+  .formaciones-draft { display:flex; flex-wrap:wrap; gap:12px; margin:10px 0 2px; }
+  .caja-formacion { display:flex; align-items:center; gap:10px; background:#fff; border:2px solid #cfdbec; border-radius:10px; padding:6px 12px 6px 6px; }
+  .caja-formacion small { display:block; color:#5b6b80; font-weight:700; }
+  .caja-formacion b { display:block; font-size:var(--t-lg); font-style:italic; color:var(--azul-osc); }
+  .campo-mini { position:relative; width:64px; height:84px; border-radius:6px; flex:none;
+    background:repeating-linear-gradient(180deg, #3f9a4f 0 12px, #379046 12px 24px); border:2px solid #2c7a3a; }
+  .campo-mini::after { content:""; position:absolute; left:0; right:0; top:50%; border-top:1px solid #ffffff99; }
+  .campo-mini .punto { position:absolute; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:50%; border:1.5px solid #fff; z-index:1; }
   .opciones { display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:10px; }
   .opcion { display:flex; flex-direction:column; gap:6px; padding:8px; border-radius:12px; background:#fff;
     border:3px solid var(--azul-marco); font:inherit; color:inherit; text-align:left; cursor:default; }
@@ -394,6 +402,8 @@ const RONDAS_BASE = [
 const GRUPOS_JUGADOR = ["DEL", "MED", "DEF", "POR"];
 // "sin posiciones" (O-254): rondas de jugadores de cualquier posicion
 const RONDA_JUG = {grupo:"JUG", texto:"jugador (cualquier posicion)", titulo:"Jugadores"};
+// modo con formacion (O-268): despues de los 11 de la formacion, los suplentes
+const RONDA_SUPLENTES = {grupo:"JUG", texto:"suplente (cualquier posicion)", titulo:"Suplentes"};
 // draft de supertacticas (O-258): una ronda de 3 para cada uno
 const RONDA_TAC = {grupo:"TAC", texto:"supertactica", titulo:"Supertacticas"};
 function esJug(g) { return GRUPOS_JUGADOR.includes(g) || g === "JUG"; }
@@ -427,6 +437,9 @@ const REGLAS_DE_SERIE = {sagas:SAGAS.slice(), ilegales:true, idolos:"pocos", gen
   // al montar el equipo (O-254): que se puede cambiar
   judias:true, equipacion:true, tecnicas:true, pasivas:true,
   sin_posiciones:false, intercambio:0,
+  // sin posiciones: cuantos jugadores en total; con formacion (solo en el
+  // modo individual, O-268): cuantos suplentes despues de los 11
+  jugadores:16, formacion:false, suplentes:5,
   tecnicas_random:false, tacticas_draft:false,
   // modos (O-263): por turnos, individual o subasta
   modo:"clasico", opciones_ind:3, presupuesto:300, incremento:1, tiempo_puja:15};
@@ -437,6 +450,14 @@ function completa(r) {
   // en la subasta sale un jugador cada vez: "una afinidad para cada uno" no cabe
   if (x.modo === "puja" && x.afinidad === "cada_uno") x.afinidad = "libre";
   x.cantidades = Object.assign({}, REGLAS_DE_SERIE.cantidades, (r || {}).cantidades || {});
+  // reglas que se pisan (O-268): la formacion solo en el individual y, con
+  // ella, las posiciones las pone la formacion; con supertecnicas al azar no
+  // cuenta lo de "vacias"
+  if (x.modo !== "individual") x.formacion = false;
+  if (x.formacion) x.sin_posiciones = false;
+  if (x.tecnicas_random) x.tecnicas = true;
+  x.jugadores = Math.max(11, Math.min(16, Number(x.jugadores) || 16));
+  x.suplentes = Math.max(0, Math.min(5, Number(x.suplentes) || 0));
   return x;
 }
 // las reglas de cada modo se recuerdan por separado (O-263)
@@ -448,13 +469,21 @@ function reglasDelModo(m) {
 }
 let reglas = reglasDelModo(modoSala);
 function guardaReglas() { guardaLocal("draft-reglas-" + reglas.modo, reglas); }
-function rondasDe(r) {
+// con formacion, las rondas de jugadores de cada uno salen de la suya (s);
+// sin saber de quien (al invitar), las de una formacion cualquiera
+const FORMACION_DE_MUESTRA = {DEL:2, MED:4, DEF:4, POR:1};
+function formacionDe(s) { return (s && estado && estado.formaciones && estado.formaciones[s]) || null; }
+function rondasDe(r, s) {
   r = completa(r);
   const c = r.cantidades;
   let jug;
-  if (r.sin_posiciones) {
-    // los mismos jugadores en total, en rondas de 2 para cada uno
-    let total = GRUPOS_JUGADOR.reduce((a, g) => a + (Number(c[g]) || 0), 0);
+  if (r.formacion) {
+    const f = formacionDe(s) || FORMACION_DE_MUESTRA;
+    jug = RONDAS_BASE.filter(x => esJug(x.grupo)).map(x => Object.assign({}, x, {cuantos:Number(f[x.grupo]) || 0}));
+    if (r.suplentes) jug.push(Object.assign({}, RONDA_SUPLENTES, {cuantos:r.suplentes}));
+  } else if (r.sin_posiciones) {
+    // los jugadores que se digan, en rondas de 2 para cada uno
+    let total = r.jugadores;
     jug = [];
     while (total > 0) { const n = Math.min(2, total); jug.push(Object.assign({}, RONDA_JUG, {cuantos:n})); total -= n; }
   } else jug = RONDAS_BASE.filter(x => esJug(x.grupo)).map(x => Object.assign({}, x, {cuantos:Number(c[x.grupo]) || 0}));
@@ -463,9 +492,9 @@ function rondasDe(r) {
   return jug.concat(staff, tac).filter(x => x.cuantos > 0).map((x, k) => Object.assign(x, {k}));
 }
 // las rondas juntadas por grupo (para contar cuantos de cada hay)
-function gruposDe(r) {
+function gruposDe(r, s) {
   const fuera = [];
-  for (const x of rondasDe(r)) {
+  for (const x of rondasDe(r, s)) {
     const g = fuera.find(y => y.grupo === x.grupo);
     if (g) g.cuantos += x.cuantos; else fuera.push(Object.assign({}, x));
   }
@@ -475,7 +504,7 @@ function rondaDelTurno(t) {
   const rs = rondasDe(estado.reglas);
   return (t && t.ronda != null && rs[t.ronda]) || rondaDe(t ? t.grupo : "", estado.reglas);
 }
-function rondaDe(grupo, r) { return rondasDe(r).find(x => x.grupo === grupo) || RONDAS_BASE.find(x => x.grupo === grupo) || RONDA_JUG; }
+function rondaDe(grupo, r, s) { return rondasDe(r, s).find(x => x.grupo === grupo) || RONDAS_BASE.find(x => x.grupo === grupo) || RONDA_JUG; }
 // cuantas cartas saca la tanda de una ronda
 function tamanoTanda(cuantos, r) {
   const extra = {justa:0, mas2:2, mas4:4, doble:2 * cuantos}[completa(r).tanda] || 0;
@@ -489,6 +518,8 @@ function problemaCantidades(r) {
     if (r.presupuesto < huecos * r.incremento)
       return "Con " + r.presupuesto + " monedas y subidas de " + r.incremento + " no llega para " + huecos + " huecos.";
   }
+  // con formacion son 11 + los suplentes; sin posiciones, los que se digan
+  if (r.formacion || r.sin_posiciones) return "";
   const jug = GRUPOS_JUGADOR.reduce((a, g) => a + (Number(c[g]) || 0), 0);
   if (jug < 11) return "Hacen falta al menos 11 jugadores (ahora " + jug + ").";
   if (jug > 16) return "Como mucho 16 jugadores, que es lo que cabe en un equipo (11 + 5 suplentes); ahora " + jug + ".";
@@ -503,6 +534,7 @@ const red = new RedDraft();
 let yo = null;                    // {nombre, slug}
 let pool = [], porId = {};
 let tacticas = [], tacPorId = {};       // las supertacticas del draft (O-258)
+let formaciones = [];                   // las 8 de 11 del juego (O-268)
 const gente = {};                 // slug -> {nombre, ts, estado, id}
 const invitaciones = {};          // slug -> {nombre, sala}
 let pendiente = null;             // invitacion que he mandado: {slug, sala}
@@ -534,6 +566,7 @@ async function entrar() {
   }
   if (!tacticas.length) {
     try { tacticas = (await pedir("/api/draft/tacticas")).tacticas; } catch (e) { tacticas = []; }
+    try { formaciones = (await pedir("/api/draft/formaciones")).formaciones; } catch (e) { formaciones = []; }
     for (const t of tacticas) tacPorId[t.id] = t;
   }
 
@@ -599,13 +632,15 @@ function textoReglas(r) {
   if (r.elementos.length < ELEMENTOS.length) partes.push("afinidades: " + r.elementos.map(nomElem).join(", "));
   if (r.tanda !== "justa" && r.modo === "clasico") partes.push("tanda: " + (TANDAS.find(t => t[0] === r.tanda) || ["", ""])[1].toLowerCase());
   const c = r.cantidades, s = REGLAS_DE_SERIE.cantidades;
-  if (Object.keys(s).some(k => Number(c[k]) !== s[k]))
-    partes.push(c.DEL + "-" + c.MED + "-" + c.DEF + "-" + c.POR + " (DEL-MED-DEF-POR), " + c.GER + " gerentes, " + c.ENT + " entrenador");
+  if (r.formacion) partes.push("FORMACION al azar para cada uno + " + r.suplentes + " suplentes");
+  else if (r.sin_posiciones) partes.push("sin posiciones (" + r.jugadores + " jugadores)");
+  else if (GRUPOS_JUGADOR.some(k => Number(c[k]) !== s[k]))
+    partes.push(c.DEL + "-" + c.MED + "-" + c.DEF + "-" + c.POR + " (DEL-MED-DEF-POR)");
+  if (Number(c.GER) !== s.GER || Number(c.ENT) !== s.ENT) partes.push(c.GER + " gerentes, " + c.ENT + " entrenador");
   if (r.arquetipo !== "azar") partes.push("arquetipo: " + (ARQUETIPO_MODOS.find(a => a[0] === r.arquetipo) || ["", ""])[1].toLowerCase());
   if (r.modo !== "puja" && r.tiempo === 5) partes.push("BLITZ (5 s por eleccion)");
   else if (r.modo !== "puja" && r.tiempo) partes.push(r.tiempo + " s por " + (r.modo === "individual" ? "eleccion" : "turno"));
   if (!r.repetidos) partes.push("sin versiones repetidas");
-  if (r.sin_posiciones) partes.push("sin posiciones");
   if (r.tecnicas_random) partes.push("supertecnicas al azar");
   if (r.tacticas_draft) partes.push("supertacticas drafteadas");
   if (r.intercambio) partes.push("intercambio de hasta " + r.intercambio);
@@ -742,32 +777,46 @@ function abreInvitar(slug, nombre) {
     cuerpo.appendChild(tarjetaRegla("Afinidad", ayudaAfin, el("div", {class:"pila"}, [elems,
       segmento([["libre", "Mezcladas"], ["una", "Una para los dos"]].concat(modo === "puja" ? [] : [["cada_uno", "Una para cada uno"]]), reglas.afinidad,
                v => cambia(() => { reglas.afinidad = v; }))]), true));
-    // cuantos de cada
+    // formacion al azar (O-268): solo en el individual
+    if (modo === "individual")
+      cuerpo.appendChild(tarjetaRegla("Formacion", reglas.formacion
+          ? "A cada uno le toca una formacion al azar (4-4-2, 3-5-2...) y le salen justo los jugadores de esa formacion; luego los suplentes. Al montar el equipo no se cambia"
+          : "Cada uno elige la formacion que quiera al montar el equipo",
+        segmento([[false, "Libre"], [true, "Al azar para cada uno"]], reglas.formacion,
+                 v => cambia(() => { reglas.formacion = v === true || v === "true"; }))));
+    // cuantos de cada: por posicion; sin posiciones, el total; con
+    // formacion, los suplentes (los 11 los pone la formacion)
     const pasos = el("div", {class:"pasos"});
+    const paso = (titulo, n, min, tope, alCambiar) => pasos.appendChild(el("div", {class:"paso"}, [
+      el("span", {class:"paso-nom", text:titulo}),
+      el("div", {class:"paso-ctl"}, [
+        el("button", {text:"−", "aria-label":"Menos " + titulo.toLowerCase(), disabled:n <= min ? "" : null,
+          onclick:() => cambia(() => alCambiar(Math.max(min, n - 1)))}),
+        el("b", {text:String(n)}),
+        el("button", {text:"+", "aria-label":"Mas " + titulo.toLowerCase(), disabled:n >= tope ? "" : null,
+          onclick:() => cambia(() => alCambiar(Math.min(tope, n + 1)))})])]));
+    if (reglas.formacion) paso("Suplentes", reglas.suplentes, 0, 5, v => { reglas.suplentes = v; });
+    else if (reglas.sin_posiciones) paso("Jugadores", reglas.jugadores, 11, 16, v => { reglas.jugadores = v; });
     for (const r of RONDAS_BASE) {
+      if (esJug(r.grupo) && (reglas.formacion || reglas.sin_posiciones)) continue;
       const tope = r.grupo === "GER" ? 3 : r.grupo === "ENT" ? 1 : 8;
-      const n = Number(reglas.cantidades[r.grupo]) || 0;
-      pasos.appendChild(el("div", {class:"paso"}, [
-        el("span", {class:"paso-nom", text:r.titulo}),
-        el("div", {class:"paso-ctl"}, [
-          el("button", {text:"−", "aria-label":"Menos " + r.titulo.toLowerCase(), disabled:n <= 0 ? "" : null,
-            onclick:() => cambia(() => { reglas.cantidades[r.grupo] = Math.max(0, n - 1); })}),
-          el("b", {text:String(n)}),
-          el("button", {text:"+", "aria-label":"Mas " + r.titulo.toLowerCase(), disabled:n >= tope ? "" : null,
-            onclick:() => cambia(() => { reglas.cantidades[r.grupo] = Math.min(tope, n + 1); })})])]));
+      paso(r.titulo, Number(reglas.cantidades[r.grupo]) || 0, 0, tope, v => { reglas.cantidades[r.grupo] = v; });
     }
-    const jug = GRUPOS_JUGADOR.reduce((a, g) => a + (Number(reglas.cantidades[g]) || 0), 0);
+    const jug = reglas.formacion ? 11 + reglas.suplentes : reglas.sin_posiciones ? reglas.jugadores
+              : GRUPOS_JUGADOR.reduce((a, g) => a + (Number(reglas.cantidades[g]) || 0), 0);
     const prob = problemaCantidades(reglas);
     cuerpo.appendChild(tarjetaRegla("Cuantos para cada uno", "", el("div", {class:"pila"}, [pasos,
-      el("span", {class:"total-jug" + (prob ? " mal" : ""), text:prob || (jug + " jugadores: " + Math.min(11, jug) + " en el campo y "
-        + Math.max(0, jug - 11) + " suplentes")})]), true));
+      el("span", {class:"total-jug" + (prob ? " mal" : ""), text:prob || (reglas.formacion
+        ? "11 en el campo, los de la formacion que te toque, y " + reglas.suplentes + " suplentes de cualquier posicion"
+        : jug + " jugadores: " + Math.min(11, jug) + " en el campo y " + Math.max(0, jug - 11) + " suplentes"
+          + (reglas.sin_posiciones ? ", de cualquier posicion" : ""))})]), true));
     cuerpo.appendChild(tarjetaRegla("Supertacticas", !reglas.tacticas_draft ? "Cada uno pone las que quiera al montar el equipo"
         : modo === "puja" ? "Al final se subastan supertacticas hasta que cada uno tenga 3; luego no se cambian"
         : modo === "individual" ? "Al final cada uno elige 3, con sus propias opciones; luego no se cambian"
         : "Al final sale una tanda de 6 y cada uno elige hasta tener 3; luego no se cambian",
       segmento([[false, "Libres"], [true, modo === "puja" ? "Subastadas" : "Drafteadas"]], reglas.tacticas_draft,
                v => cambia(() => { reglas.tacticas_draft = v === true || v === "true"; }))));
-    cuerpo.appendChild(tarjetaRegla("Posiciones", reglas.sin_posiciones
+    if (!reglas.formacion) cuerpo.appendChild(tarjetaRegla("Posiciones", reglas.sin_posiciones
         ? (modo === "puja" ? "Salen jugadores de cualquier posicion (gerentes y entrenador igual)"
            : modo === "individual" ? "Cada eleccion, jugadores de cualquier posicion (gerentes y entrenador igual)"
            : "Rondas de 2 para cada uno con jugadores de cualquier posicion (gerentes y entrenador igual)")
@@ -1161,7 +1210,12 @@ function empiezaIntercambio() {
   estado.seq++;
   guardaLocal("draft-estado", estado);
 }
-function categoriaDe(x) { return x.grupo === "GER" || x.grupo === "ENT" ? x.grupo : "JUG"; }
+function categoriaDe(x) {
+  if (x.grupo === "GER" || x.grupo === "ENT") return x.grupo;
+  // con formacion, delantero por delantero... y suplente por suplente: si
+  // no, la formacion se quedaria coja (O-268)
+  return reglasDelDraft().formacion ? x.grupo : "JUG";
+}
 function problemaOferta(de, doy, pido) {
   const ic = estado.intercambio, r = reglasDelDraft();
   if (!ic || estado.fase !== "intercambio") return "no es momento de intercambiar";
@@ -1174,8 +1228,15 @@ function problemaOferta(de, doy, pido) {
   const a = doy.map(id => estado.equipos[de].find(x => x.id === id));
   const b = pido.map(id => estado.equipos[otro].find(x => x.id === id));
   if (a.some(x => !x) || b.some(x => !x)) return "alguno ya no esta en su equipo";
+  if (a.concat(b).some(x => x.grupo === "TAC")) return "las supertacticas no se intercambian";
+  // nadie acaba con mas Idolos de los que se pueden llevar (O-268)
+  const idol = l => l.filter(x => esIdolo(x.id)).length;
+  if (idolosDe(de) - idol(a) + idol(b) > IDOLOS_POR_CABEZA || idolosDe(otro) - idol(b) + idol(a) > IDOLOS_POR_CABEZA)
+    return "con ese cambio alguien tendria mas de " + IDOLOS_POR_CABEZA + " Idolos";
   const cuenta = l => l.map(categoriaDe).sort().join(",");
-  if (cuenta(a) !== cuenta(b)) return "jugador por jugador, gerente por gerente y entrenador por entrenador";
+  if (cuenta(a) !== cuenta(b)) return reglasDelDraft().formacion
+    ? "cada uno por otro de su mismo hueco: delantero por delantero, suplente por suplente, gerente por gerente..."
+    : "jugador por jugador, gerente por gerente y entrenador por entrenador";
   return "";
 }
 function aplicaOferta(de, doy, pido) {
@@ -1432,8 +1493,9 @@ function pintaEquipos() {
   if (!estado) return;
   for (const s of [yo.slug, rivalSlug()]) {
     const col = el("div", {class:"marco equipo-draft"}, [el("h3", {text:(s === yo.slug ? "Tu equipo" : "Equipo de " + nombreDe(s))
-      + (estado.puja ? " · " + estado.puja.dinero[s] + " monedas" : "")})]);
-    for (const r of gruposDe(estado.reglas)) {
+      + (estado.puja ? " · " + estado.puja.dinero[s] + " monedas" : "")
+      + (formacionDe(s) ? " · " + formacionDe(s).nombre : "")})]);
+    for (const r of gruposDe(estado.reglas, s)) {
       const suyos = estado.equipos[s].filter(x => x.grupo === r.grupo);
       const rej = el("div", {class:"rej"});
       for (const x of suyos) {
@@ -1560,15 +1622,15 @@ const MODOS_DRAFT = [
 function modoDe(r) { return (r && r.modo) || "clasico"; }
 function modoActual() { return modoDe(estado && estado.reglas); }
 // la lista de lo que elige cada uno, en orden: DEL, DEL, ..., GER, ENT, (TAC)
-function secuenciaDe(r) {
+function secuenciaDe(r, s) {
   const fuera = [];
-  for (const x of rondasDe(r)) for (let n = 0; n < x.cuantos; n++) fuera.push(x.grupo);
+  for (const x of rondasDe(r, s)) for (let n = 0; n < x.cuantos; n++) fuera.push(x.grupo);
   return fuera;
 }
 // lo que le falta a cada uno de cada grupo
 function faltanDe(s) {
   const r = reglasDelDraft(), f = {};
-  for (const g of gruposDe(r)) f[g.grupo] = g.cuantos - estado.equipos[s].filter(x => x.grupo === g.grupo).length;
+  for (const g of gruposDe(r, s)) f[g.grupo] = g.cuantos - estado.equipos[s].filter(x => x.grupo === g.grupo).length;
   return f;
 }
 function huecosDe(s) { return Object.values(faltanDe(s)).reduce((a, b) => a + Math.max(0, b), 0); }
@@ -1611,13 +1673,18 @@ function finElecciones() {
 function empiezaIndividual() {
   estado.fase = "picks";
   estado.ind = {};
+  // con formacion (O-268): una al azar para cada uno
+  if (reglasDelDraft().formacion && formaciones.length) {
+    estado.formaciones = {};
+    for (const s of [estado.anfitrion, estado.invitado]) estado.formaciones[s] = formaciones[azar(formaciones.length)];
+  }
   for (const s of [estado.anfitrion, estado.invitado]) estado.ind[s] = {paso:0, opciones:[], grupo:"", limite:0};
   for (const s of [estado.anfitrion, estado.invitado]) ofreceInd(s);
   estado.seq++;
   guardaLocal("draft-estado", estado);
 }
 function ofreceInd(s) {
-  const r = reglasDelDraft(), yoInd = estado.ind[s], seq = secuenciaDe(r);
+  const r = reglasDelDraft(), yoInd = estado.ind[s], seq = secuenciaDe(r, s);
   if (yoInd.paso >= seq.length) { yoInd.opciones = []; yoInd.grupo = ""; yoInd.limite = 0; return; }
   yoInd.grupo = seq[yoInd.paso];
   // sin repetir lo que esta viendo el otro ahora mismo
@@ -1632,8 +1699,8 @@ function aplicaInd(s, paso, id) {
   estado.equipos[s].push({id, grupo:yoInd.grupo});
   yoInd.paso++;
   ofreceInd(s);
-  const total = secuenciaDe(reglasDelDraft()).length;
-  if (estado.ind[estado.anfitrion].paso >= total && estado.ind[estado.invitado].paso >= total) finElecciones();
+  const total = q => secuenciaDe(reglasDelDraft(), q).length;
+  if (estado.ind[estado.anfitrion].paso >= total(estado.anfitrion) && estado.ind[estado.invitado].paso >= total(estado.invitado)) finElecciones();
   else { estado.seq++; guardaLocal("draft-estado", estado); }
   return true;
 }
@@ -1809,27 +1876,44 @@ setInterval(() => {
 
 /* ---------------- pintar los modos nuevos ---------------- */
 function pintaIndividual(z) {
-  const r = reglasDelDraft(), total = secuenciaDe(r).length, riv = rivalSlug();
+  const r = reglasDelDraft(), riv = rivalSlug(), total = secuenciaDe(r, yo.slug).length, totalRiv = secuenciaDe(r, riv).length;
+  if (estado.formaciones) z.appendChild(el("div", {class:"formaciones-draft"}, [
+    cajaFormacion(formacionDe(yo.slug), "Tu formacion"), cajaFormacion(formacionDe(riv), "La de " + nombreDe(riv))]));
   const mio = estado.ind[yo.slug], suyo = estado.ind[riv];
   if (!mio.opciones.length) {
     z.appendChild(el("p", {class:"aviso-turno", text:"Ya tienes tu equipo. Esperando a que " + nombreDe(riv)
-      + " termine (" + suyo.paso + " de " + total + ")..."}));
+      + " termine (" + suyo.paso + " de " + totalRiv + ")..."}));
     return;
   }
-  const ronda = rondaDe(mio.grupo, r);
+  const ronda = rondaDe(mio.grupo, r, yo.slug);
   const llevo = estado.equipos[yo.slug].filter(x => x.grupo === mio.grupo).length + 1;
   const esperando = accionPendiente && accionPendiente.tipo === "elige" && accionPendiente.paso === mio.paso;
   z.appendChild(el("p", {class:"aviso-turno mio"}, [
     document.createTextNode(esperando ? "Enviando tu eleccion..."
-      : "Elige un " + ronda.texto + " (" + llevo + " de " + (gruposDe(r).find(g => g.grupo === mio.grupo) || {}).cuantos + ")"),
+      : "Elige un " + ronda.texto + " (" + llevo + " de " + (gruposDe(r, yo.slug).find(g => g.grupo === mio.grupo) || {}).cuantos + ")"),
     mio.limite ? el("span", {class:"cuenta-atras", id:"cuenta-atras"}) : null]));
   z.appendChild(el("p", {class:"nota", text:"Paso " + (mio.paso + 1) + " de " + total + " · "
-    + nombreDe(riv) + " va por el " + Math.min(total, suyo.paso + 1) + (suyo.paso >= total ? " (ya ha terminado)" : "")}));
+    + nombreDe(riv) + " va por el " + Math.min(totalRiv, suyo.paso + 1) + (suyo.paso >= totalRiv ? " (ya ha terminado)" : "")}));
   const ops = el("div", {class:"opciones"});
   for (const id of mio.opciones)
     ops.appendChild(mio.grupo === "TAC" ? tarjetaTactica(id, !esperando, null) : tarjetaOpcion(id, !esperando, null, ""));
   ops.querySelectorAll('img[loading="lazy"]').forEach(i => { i.loading = "eager"; });
   z.appendChild(ops);
+}
+// la formacion dibujada en un campo pequeno, como en el juego (O-268)
+const COLOR_PUESTO = {DEL:"#e06666", MED:"#3d85c6", DEF:"#6aa84f", POR:"#e6b800"};
+function cajaFormacion(f, titulo) {
+  if (!f) return null;
+  const campo = el("div", {class:"campo-mini", role:"img", "aria-label":f.nombre});
+  for (const p of f.puestos || []) {
+    const d = el("span", {class:"punto", title:p.posicion});
+    d.style.left = (50 + 44 * p.x) + "%";
+    d.style.top = (8 + 84 * p.y) + "%";
+    d.style.background = COLOR_PUESTO[p.posicion] || "#888";
+    campo.appendChild(d);
+  }
+  return el("div", {class:"caja-formacion"}, [campo, el("div", {}, [el("small", {text:titulo}), el("b", {text:f.nombre}),
+    el("span", {class:"nota", text:f.POR + " POR · " + f.DEF + " DEF · " + f.MED + " MED · " + f.DEL + " DEL"})])]);
 }
 /* ---------------- la pantalla de la subasta (O-264) ----------------
    Con ambiente: un subastador que canta lo que pasa ("¡Sale a subasta...!",
@@ -2232,6 +2316,7 @@ async function guardaResultado() {
     arquetipo:estado.arquetipos[yo.slug], arquetipo_nombre:ARQUETIPOS[estado.arquetipos[yo.slug]],
     diamante:estado.diamantes[yo.slug], jugadores:lista(yo.slug), reglas:estado.reglas || null,
     tacticas:estado.equipos[yo.slug].filter(x => x.grupo === "TAC").map(x => x.id),
+    formacion:formacionDe(yo.slug) ? {id:formacionDe(yo.slug).id, nombre:formacionDe(yo.slug).nombre} : null,
     rival_arquetipo:ARQUETIPOS[estado.arquetipos[riv]], rival_equipo:lista(riv)};
   try { const r = await pedir("/api/draft/guardar", {method:"POST", headers:{"Content-Type":"application/json"},
                                            body:JSON.stringify({resultado})});

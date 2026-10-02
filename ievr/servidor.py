@@ -1433,6 +1433,9 @@ class Manejador(BaseHTTPRequestHandler):
             if u.path == "/api/draft/tacticas":
                 from ievr import draft as DR
                 return self._responder(200, {"tacticas": DR.tacticas_draft()})
+            if u.path == "/api/draft/formaciones":
+                from ievr import draft as DR
+                return self._responder(200, {"formaciones": DR.formaciones_draft()})
             if u.path == "/api/draft/guardados":
                 from ievr import draft as DR
                 return self._responder(200, {"guardados": DR.guardados()})

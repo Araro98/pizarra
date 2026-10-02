@@ -6196,6 +6196,43 @@ Aaron, sobre el borrador de la tier list:
   posicion por igual. Los candidatos del draft llevan su tier (`tier`, 0 la
   mejor).
 
+### O-268 · Draft individual con formacion al azar; reglas que se pisaban
+
+Aaron: "en el draft individual, un modo con formaciones: que salga una
+formacion random a cada uno y los jugadores te vayan saliendo en funcion de
+esa formacion (y solo puedas usar esa)... luego tambien suplentes".
+
+- Regla `formacion` (solo en el modo individual) y `suplentes` (0 a 5, de
+  serie 5). A cada uno le toca una de las 8 formaciones de 11 del juego
+  (`draft.formaciones_draft()`, `/api/draft/formaciones`, sacadas de
+  `formaciones.csv` con el id que guarda el equipo). Sus elecciones son 1
+  POR, los DEF, MED y DEL de su formacion, luego los suplentes (de cualquier
+  posicion, grupo JUG) y el personal. La pantalla ensena la formacion de los
+  dos dibujada en un campo pequeno.
+- Al montar el equipo se pone esa formacion antes de colocarlos (cada uno en
+  un hueco de su posicion; los suplentes, al banquillo) y no se puede
+  cambiar: `comprueba_cambio` lo prohibe y en el editor la pieza no se pulsa.
+- Intercambio con formacion: cada uno por otro de su mismo hueco (delantero
+  por delantero, suplente por suplente...), si no la formacion se quedaba
+  coja. `_coloca_en_el_equipo` coloca antes a los de un puesto que a los de
+  "cualquier posicion", para que un suplente no le quite el sitio a uno que
+  llego en un intercambio.
+
+Repaso de reglas que se podian elegir juntas y se pisaban:
+- Formacion + "sin posiciones" o los cuantos por posicion: manda la
+  formacion; esas tarjetas no salen.
+- "Sin posiciones" + cuantos por posicion: solo contaba el total y se
+  ensenaban los cuatro contadores. Ahora sale un solo contador de jugadores
+  (11 a 16, regla `jugadores`).
+- Supertecnicas "al azar" y "vacias" a la vez (reglas viejas guardadas):
+  manda "al azar".
+- Intercambio: ya no deja acabar con mas de 3 Idolos ni cambiar
+  supertacticas (la pantalla no las ofrecia, pero el anfitrion no lo
+  comprobaba).
+- Las demas ya se excluian: tanda solo en por turnos, opciones solo en
+  individual, tiempo por turno no en la subasta, "una afinidad para cada
+  uno" no en la subasta.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

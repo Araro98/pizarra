@@ -903,7 +903,7 @@
     flex-wrap:wrap; margin-top:12px; }
   .lista-equipos-imp { display:flex; flex-direction:column; gap:6px; max-height:50vh; overflow:auto; }
   .lista-equipos-imp button { text-align:left; }
-  .pieza.tactica.fija { cursor:default; opacity:.92; }
+  .pieza.fija { cursor:default; opacity:.92; }
   .pieza-elige:disabled { cursor:not-allowed; }
   .botones-importado { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
   .aviso { padding-left:42px; background-repeat:no-repeat;
@@ -2956,8 +2956,11 @@ function pintaEquipo() {
         ["escudo", "Escudo", d.escudo_icono, d.escudo_nombre],
         ["equipacion", "Equipacion", d.equipacion_icono, d.equipacion_nombre],
         ["formacion", "Formacion", "", d.formacion_nombre]]) {
-    const b = el("button", {class:"pieza", title:"Cambiar " + etiqueta.toLowerCase(),
-      onclick:() => abrePiezas(cual, etiqueta)});
+    // en el draft con formacion al azar, la que toco: ni se pulsa (O-268)
+    const fija = cual === "formacion" && DRAFT && montaje && montaje.reglas && montaje.reglas.formacion;
+    const b = el(fija ? "div" : "button", {class:"pieza" + (fija ? " fija" : ""),
+      title:fija ? "La formacion que te toco en el draft: no se cambia" : "Cambiar " + etiqueta.toLowerCase(),
+      onclick:fija ? null : () => abrePiezas(cual, etiqueta)});
     if (icono) b.appendChild(el("img", {loading:"lazy", alt:"", src:"/icono/" + icono}));
     else b.appendChild(el("span", {class:"sin-dibujo", text:"\u2637"}));
     b.appendChild(el("span", {class:"eti", text:etiqueta}));

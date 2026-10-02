@@ -164,6 +164,34 @@ def tacticas_draft():
     return O._indice("draft_tacticas", construir)
 
 
+def formaciones_draft():
+    """Las ocho formaciones de 11 del juego para el modo con formacion al azar
+    (Aaron, O-268): [{id, nombre, DEL, MED, DEF, POR, puestos}], con el id que
+    guarda el equipo (el que usa poner_simple) y donde va cada puesto (x de -1
+    a 1, y de 0 arriba a 1 la porteria propia) para dibujarla."""
+    def construir():
+        nombres = {v: n for (c, v), n in EQ.nombres_puestos().items() if c == "formacion"}
+        valor_de = {f["id_objeto"].upper(): f["valor_equipo"].upper()
+                    for f in reglas._tabla("equipo-objetos.csv") if f["tipo"] == "formacion"}
+        corto = {"DC": "DEL", "MC": "MED", "DF": "DEF", "PT": "POR", "POR": "POR"}
+        por_id = {}
+        for f in reglas._tabla("formaciones.csv"):
+            por_id.setdefault(f["id"].upper(), []).append(f)
+        fuera = []
+        for ident, fs in por_id.items():
+            valor = valor_de.get(ident)
+            if not valor or len(fs) != 11 or not all(f.get("legal") == "1" for f in fs):
+                continue
+            puestos = [{"posicion": corto.get(f["posicion"], f["posicion"]),
+                        "x": float(f["x"]), "y": float(f["y"])} for f in fs]
+            x = {"id": valor, "nombre": nombres.get(valor) or O._limpio(fs[0]["nombre"]), "puestos": puestos}
+            for g in ("DEL", "MED", "DEF", "POR"):
+                x[g] = sum(1 for p in puestos if p["posicion"] == g)
+            fuera.append(x)
+        return sorted(fuera, key=lambda x: x["nombre"])
+    return O._indice("draft_formaciones", construir)
+
+
 def guardar(resultado):
     """Guarda el resultado de un draft. Devuelve el nombre del fichero."""
     if not isinstance(resultado, dict) or not resultado.get("jugadores"):
@@ -324,7 +352,10 @@ def _coloca_en_el_equipo(plain, i, filas, resultado, avisos):
     libres = {p["puesto"]: p["posicion"] for p in sitios}
     corto = {"DC": "DEL", "MC": "MED", "DF": "DEF", "PT": "POR"}
     campo, banquillo, gerentes = [], [], []
-    for j, fila in zip(resultado["jugadores"], filas):
+    # los de su puesto antes que los de "cualquier posicion" (los suplentes
+    # del modo con formacion): si no, un suplente podria quitarle el sitio a
+    # uno que entro en un intercambio y quedo al final de la lista
+    for j, fila in sorted(zip(resultado["jugadores"], filas), key=lambda x: x[0].get("grupo") == "JUG"):
         g = j.get("grupo")
         if g == "JUG":
             j = dict(j, grupo=j.get("posicion") or "MED")     # sin posiciones: la suya
@@ -459,6 +490,13 @@ def crear_montaje(plain_real, nombre_partida, fichero):
     plain = _conceder_todo(bytes(plain_real), avisos)
     plain, equipo = _hueco_para_el_montaje(plain)
     plain, filas = crear_jugadores(plain, d, avisos)
+    # la formacion que le toco (O-268): antes de colocarlos
+    formacion = (d.get("formacion") or {}).get("id")
+    if formacion:
+        try:
+            plain, _ = EQ.poner_simple(plain, equipo, "formacion", int(formacion, 16))
+        except (EQ.Ilegal, ValueError) as e:
+            avisos.append("formacion: %s" % e)
     plain = _coloca_en_el_equipo(plain, equipo, filas, d, avisos)
     reglas_d = d.get("reglas") or {}
     if reglas_d.get("tecnicas_random"):
@@ -526,6 +564,8 @@ def comprueba_cambio(plain, info, c, reglas_draft=None):
         raise E.Ilegal("en este draft las supertecnicas salieron al azar y no se cambian")
     if t == "equipo_tactica" and rd.get("tacticas_draft"):
         raise E.Ilegal("en este draft las supertacticas son las que drafteaste")
+    if t == "equipo_simple" and c.get("cual") == "formacion" and rd.get("formacion"):
+        raise E.Ilegal("en este draft la formacion es la que te toco")
     if t not in CAMBIOS_DE_JUGADOR and t not in CAMBIOS_DE_EQUIPO:
         raise E.Ilegal("en el draft eso no se puede cambiar: nivel, rareza y arquetipo los "
                        "fija el draft, no hay heredadas y no se fichan jugadores")
