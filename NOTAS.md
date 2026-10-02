@@ -6104,6 +6104,35 @@ reglas de la pestana elegida (`reglas.modo`) y cada modo recuerda las suyas
   300 - 59 = 241, equipos completos, sin repetidos) y, tras ordenar los
   lotes, 1 directo en 30 (antes 13 en 40); y el de turnos sigue igual.
 
+### O-264 · Subasta: personal al azar, rellenos de los peores y mas ambiente
+
+Aaron, tras jugar la subasta:
+
+- Gerentes y entrenador no se pujan (casi iguales, nadie gastaba en
+  ellos): al empezar, a cada uno los suyos al azar y gratis (`regalo`).
+- Lo que solo le falta a uno ya no sale "gratis y bueno": es un relleno
+  gratis sacado de la cuarta parte peor de su posicion (`sacaRelleno`), sin
+  Idolos. "Peor" por los stats que pesan en cada posicion (los de
+  POS_OPTIMA del editor: DEL potencia/control/tecnica, MED control/tecnica/
+  inteligencia, DEF presion/fisico/inteligencia, POR presion/fisico/
+  agilidad) a nivel 99 en Leyenda con arbol. Ojo: a 99 los stats se agrupan
+  en pocas plantillas (DEF: 773 de 1581 con la peor nota, 720; la mejor 772)
+  asi que el relleno es siempre de la plantilla mas baja, "del monton", nunca
+  de los buenos.
+- Ambiente: cartel de LOTE n (rosa si es Idolo), un subastador que canta
+  ("¡Sale a subasta X!", "¡25 de Y!", "¡A la una... a las dos... y a las
+  tres!", "¡Adjudicado a X por N!"), la carta entra con foco, barra de
+  tiempo que se pone roja, las pujas del lote en directo, "¡Guerra de pujas!"
+  desde 5 pujas, sello VENDIDO con martillazo (RELLENO en gris), valor
+  estimado de cada lote (segun lo bueno que es en su posicion, solo como
+  pista), el precio en cada ficha de los equipos y un resumen al acabar
+  (fichaje mas caro, mejor compra, mas disputado, dinero que queda). Sonidos
+  hechos con WebAudio (lote, puja, tic en los ultimos 5 s, martillazo), con
+  boton para quitarlos. La pantalla del lote se construye una vez y luego
+  solo se actualiza, para no repetir las animaciones con cada estado.
+- Probado con dos ventanas: personal al azar a los dos, 8 rellenos para el
+  que pujaba poco (todos de la plantilla mas baja), resumen al acabar.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

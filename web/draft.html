@@ -245,6 +245,59 @@
   .puja-libre { display:inline-flex; gap:6px; align-items:center; }
   .num-puja { width:90px; }
   .aviso-turno.vendido b { color:#1e8a4c; }
+  /* ambiente de subasta (O-264) */
+  .cartel-lote { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:0 0 6px; font-weight:900;
+    font-style:italic; color:var(--azul-osc); }
+  .cartel-lote .num-lote { background:linear-gradient(180deg,#f6d060,#b8841c); color:#3b2600; padding:3px 12px;
+    border-radius:8px; letter-spacing:.08em; box-shadow:0 2px 0 #7a5410; animation:asoma .5s ease-out both; }
+  .cartel-lote.idolo .num-lote { background:linear-gradient(180deg,#ef4fe3,#9e2596); color:#fff; box-shadow:0 2px 0 #5d1258; }
+  .cartel-lote .guerra { background:#c0392b; color:#fff; padding:3px 10px; border-radius:8px; animation:late .8s ease-in-out infinite; }
+  .subastador { margin:2px 0 10px; font-size:var(--t-xl); font-weight:900; font-style:italic; color:#7a4b05;
+    text-shadow:0 1px 0 rgba(255,240,190,.9); min-height:1.3em; }
+  .subastador.grande { font-size:26px; color:#c0392b; }
+  .subastador.grande.mio { color:#1e8a4c; }
+  .subastador.canta { animation:canta .35s ease-out; }
+  .foco { position:relative; padding:10px; border-radius:16px;
+    background:radial-gradient(ellipse at 50% 35%, rgba(255,236,170,.95), rgba(255,236,170,0) 70%); }
+  .opcion.lote.entra { animation:entraLote .7s cubic-bezier(.2,.9,.3,1.2) both; }
+  .opcion.lote.vendido { position:relative; }
+  .sello-vendido { position:absolute; top:38%; left:50%; transform:translate(-50%,-50%) rotate(-14deg);
+    border:4px solid #c0392b; color:#c0392b; background:rgba(255,255,255,.85); font-weight:900; font-size:28px;
+    letter-spacing:.08em; padding:2px 14px; border-radius:10px; animation:martillazo .45s cubic-bezier(.3,1.6,.5,1) both; z-index:3; }
+  .sello-vendido.relleno { border-color:#5b6b80; color:#5b6b80; font-size:22px; }
+  .estimacion { margin:0; font-weight:800; color:#8a5a00; background:#fff4d6; border-radius:8px; padding:4px 10px;
+    align-self:flex-start; }
+  .precio-y-lider { display:flex; gap:16px; align-items:flex-end; flex-wrap:wrap; }
+  .precio-puja b.sube { display:inline-block; animation:subePrecio .45s ease-out; }
+  .lider-puja { margin:0 0 6px; font-weight:900; font-style:italic; font-size:var(--t-lg); }
+  .lider-puja.mio { color:#1e8a4c; }
+  .lider-puja.suyo { color:#c0392b; }
+  .barra-lote { height:10px; border-radius:6px; background:#e4ebf5; overflow:hidden; }
+  .barra-lote i { display:block; height:100%; width:100%; background:linear-gradient(90deg,#1e8a4c,#7fd18f);
+    transition:width .2s linear; }
+  .barra-lote i.poco { background:linear-gradient(90deg,#c0392b,#ff8a5c); }
+  .pujas-lote { margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:3px; font-size:var(--t-sm); }
+  .pujas-lote li { padding:2px 8px; border-radius:6px; background:#f3f7fd; }
+  .pujas-lote li.mio { border-left:4px solid #1e8a4c; }
+  .pujas-lote li.suyo { border-left:4px solid #c0392b; }
+  .pujas-lote li:first-child { font-size:var(--t-md); background:#fff4d6; }
+  .resumen-subasta { display:flex; flex-direction:column; gap:3px; background:#fff; border:2px solid #d9a22b;
+    border-radius:12px; padding:10px 14px; margin:0 0 10px; font-weight:700; }
+  .resumen-subasta b { color:#8a5a00; font-style:italic; }
+  .precio-ficha { position:absolute; left:2px; bottom:2px; z-index:2; background:#b8841c; color:#fff; font-weight:900;
+    font-size:10px; border-radius:5px; padding:0 4px; }
+  .precio-ficha.gratis { background:#5b6b80; }
+  @keyframes entraLote { 0% { transform:translateY(-30px) scale(.8) rotate(-4deg); opacity:0; } 100% { transform:none; opacity:1; } }
+  @keyframes martillazo { 0% { transform:translate(-50%,-50%) rotate(-14deg) scale(2.4); opacity:0; }
+                          100% { transform:translate(-50%,-50%) rotate(-14deg) scale(1); opacity:1; } }
+  @keyframes subePrecio { 0% { transform:scale(1.5); color:#1e8a4c; } 100% { transform:scale(1); } }
+  @keyframes canta { 0% { transform:translateX(-6px); opacity:.4; } 100% { transform:none; opacity:1; } }
+  @keyframes late { 50% { transform:scale(1.08); } }
+  @keyframes asoma { 0% { transform:scale(.6); opacity:0; } 100% { transform:none; opacity:1; } }
+  @media (prefers-reduced-motion:reduce) {
+    .opcion.lote.entra, .sello-vendido, .precio-puja b.sube, .subastador.canta, .cartel-lote .guerra,
+    .cartel-lote .num-lote { animation:none; } }
+
   .botones-fin { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
   .chip.idolo { background:linear-gradient(180deg,#ef4fe3,#9e2596); }
   /* el juego de origen, con la misma pastilla que lleva la tarjeta arriba */
@@ -432,7 +485,7 @@ function problemaCantidades(r) {
   r = completa(r);
   const c = r.cantidades;
   if (r.modo === "puja") {
-    const huecos = secuenciaDe(r).length;
+    const huecos = secuenciaDe(r).filter(g => g !== "GER" && g !== "ENT").length;
     if (r.presupuesto < huecos * r.incremento)
       return "Con " + r.presupuesto + " monedas y subidas de " + r.incremento + " no llega para " + huecos + " huecos.";
   }
@@ -755,8 +808,9 @@ function abreInvitar(slug, nombre) {
         segmento([[2, "2"], [3, "3"], [4, "4"], [5, "5"], [6, "6"]], reglas.opciones_ind,
                  v => cambia(() => { reglas.opciones_ind = Number(v); }))));
     if (modo === "puja") {
-      cuerpo.appendChild(tarjetaRegla("Presupuesto", "Monedas de mentira para cada uno. Como en las ligas fantasy: con 300 para "
-          + secuenciaDe(reglas).length + " huecos sale a unas " + Math.round(reglas.presupuesto / Math.max(1, secuenciaDe(reglas).length)) + " por hueco",
+      const pujables = secuenciaDe(reglas).filter(g => g !== "GER" && g !== "ENT").length;
+      cuerpo.appendChild(tarjetaRegla("Presupuesto", "Monedas de mentira para cada uno. Gerentes y entrenador salen al azar y no se pujan. Con "
+          + reglas.presupuesto + " para " + pujables + " huecos sale a unas " + Math.round(reglas.presupuesto / Math.max(1, pujables)) + " por hueco",
         segmento([[200, "200"], [300, "300"], [500, "500"], [1000, "1000"]], reglas.presupuesto,
                  v => cambia(() => { reglas.presupuesto = Number(v); }))));
       cuerpo.appendChild(tarjetaRegla("Subida minima", "Lo minimo que sube cada puja (y la puja de salida). Siempre te guardas esto por cada hueco que te falte",
@@ -1382,8 +1436,15 @@ function pintaEquipos() {
     for (const r of gruposDe(estado.reglas)) {
       const suyos = estado.equipos[s].filter(x => x.grupo === r.grupo);
       const rej = el("div", {class:"rej"});
-      for (const x of suyos) rej.appendChild(x.grupo === "TAC" ? chipTactica(x.id)
-        : tarjeta(x.id, () => abreFichaDraft(x.id), estado.diamantes[s] === x.id ? "elegido" : ""));
+      for (const x of suyos) {
+        const t = x.grupo === "TAC" ? chipTactica(x.id)
+          : tarjeta(x.id, () => abreFichaDraft(x.id), estado.diamantes[s] === x.id ? "elegido" : "");
+        // en la subasta: lo que pago, o si fue relleno o regalo (O-264)
+        if (estado.puja && x.grupo !== "TAC")
+          t.appendChild(el("span", {class:"precio-ficha" + (x.relleno || x.regalo ? " gratis" : ""),
+            text:x.regalo ? "al azar" : x.relleno ? "relleno" : String(x.precio || 0)}));
+        rej.appendChild(t);
+      }
       for (let n = suyos.length; n < r.cuantos; n++) rej.appendChild(el("div", {class:"hueco"}));
       col.appendChild(el("div", {class:"grupo-draft"}, [el("span", {text:r.titulo.toUpperCase() + " " + suyos.length + "/" + r.cuantos}), rej]));
     }
@@ -1395,7 +1456,8 @@ function pintaZona() {
   // la moneda se pinta una vez: si se repintara con cada estado que llega,
   // volveria a empezar a girar
   if (estado && estado.fase === "moneda" && z.dataset.moneda === estado.sala) return;
-  z.textContent = ""; delete z.dataset.moneda;
+  if (estado && estado.fase === "picks" && modoActual() === "puja" && estado.puja) { delete z.dataset.moneda; pintaPuja(z); return; }
+  z.textContent = ""; delete z.dataset.moneda; delete z.dataset.puja;
   if (!estado) { z.appendChild(el("p", {class:"vacio", text:"Conectando con el anfitrion..."})); return; }
   if (estado.fase === "moneda") {
     z.dataset.moneda = estado.sala;
@@ -1432,6 +1494,7 @@ function pintaZona() {
     const listos = arquetiposListos();
     const nomArq = (s, propio) => estado.arquetipos[s] === undefined ? "eligiendo..."
       : (!propio && !listos ? "ya ha elegido" : ARQUETIPOS[estado.arquetipos[s]]);
+    if (estado.puja) { const rs = resumenSubasta(); if (rs) z.appendChild(rs); }
     z.appendChild(el("div", {class:"arquetipos"}, [
       el("div", {class:"caja"}, [el("small", {text:"Tu arquetipo"}), document.createTextNode(nomArq(yo.slug, true))]),
       el("div", {class:"caja"}, [el("small", {text:"Arquetipo de " + nombreDe(riv)}), document.createTextNode(nomArq(riv, false))])]));
@@ -1492,7 +1555,7 @@ function pinta() { pintaMarcador(); pintaZona(); pintaEquipos(); }
 const MODOS_DRAFT = [
   {id:"clasico", nombre:"Por turnos", texto:"Los dos veis la misma tanda y elegis por turnos: lo que coge uno ya no lo puede coger el otro."},
   {id:"individual", nombre:"Individual", texto:"Cada uno tiene sus propias opciones (3 por defecto) y elige una; luego otra tanda, hasta llenar el equipo. Los dos a la vez."},
-  {id:"puja", nombre:"Subasta", texto:"Sale un jugador cada vez y se puja por el con dinero ficticio; se lo lleva el que mas puja. Hasta llenar los dos equipos."},
+  {id:"puja", nombre:"Subasta", texto:"Sale un jugador cada vez y se puja por el con dinero ficticio; se lo lleva el que mas puja. Gerentes y entrenador, al azar; lo que solo le falte a uno, relleno gratis de los peores de su posicion."},
 ];
 function modoDe(r) { return (r && r.modo) || "clasico"; }
 function modoActual() { return modoDe(estado && estado.reglas); }
@@ -1579,13 +1642,52 @@ function aplicaInd(s, paso, id) {
    Como las subastas de las ligas fantasy (ESPN, Yahoo, Sleeper): presupuesto
    fijo, puja minima de 1, y cada puja deja al menos unos segundos para
    contestar ("a la una, a las dos..."). Lo que reservas: nunca puedes pujar
-   tanto que no te quede 1 por cada hueco que te falte. */
+   tanto que no te quede 1 por cada hueco que te falte.
+   O-264: gerentes y entrenador no se subastan (salen al azar al empezar) y
+   lo que solo le hace falta a uno es un "relleno" gratis de los peores de
+   su posicion. */
 const SEGUNDOS_TRAS_PUJA = 8;
+// los stats que pesan en cada posicion (los del editor, POS_OPTIMA):
+// [POT, CON, TEC, PRE, FIS, AGI, INT]
+const STATS_DE_POSICION = {DEL:[0, 1, 2], MED:[1, 2, 6], DEF:[3, 4, 6], POR:[3, 4, 5]};
+function notaDePosicion(c) {
+  const ks = STATS_DE_POSICION[c.posicion] || [0, 1, 2, 3, 4, 5, 6];
+  return ks.reduce((a, k) => a + ((c.stats || [])[k] || 0), 0);
+}
+// que tal es dentro de su posicion: 0 el peor, 1 el mejor
+const _percentiles = {};
+function percentilDe(c) {
+  if (!c || !c.posicion) return 0.5;
+  if (!_percentiles[c.posicion]) {
+    _percentiles[c.posicion] = pool.filter(x => x.posicion === c.posicion && x.legal).map(notaDePosicion).sort((a, b) => a - b);
+  }
+  const l = _percentiles[c.posicion], v = notaDePosicion(c);
+  let k = 0;
+  while (k < l.length && l[k] < v) k++;
+  return l.length ? k / l.length : 0.5;
+}
+// lo que "deberia" costar: el presupuesto entre los que se subastan, segun
+// lo bueno que sea en su posicion (es solo una pista)
+function estimacionDe(id) {
+  const r = reglasDelDraft(), c = porId[id];
+  if (!c) return null;
+  const huecos = secuenciaDe(r).filter(g => g !== "GER" && g !== "ENT").length || 1;
+  const media = r.presupuesto / huecos;
+  const pct = percentilDe(c);
+  const v = media * (0.35 + 1.9 * pct * pct) * (c.idolo ? 1.6 : 1);
+  return [Math.max(1, Math.round(v * 0.8)), Math.max(2, Math.round(v * 1.2))];
+}
 function empiezaPuja() {
   const r = reglasDelDraft();
   estado.fase = "picks";
   estado.puja = {dinero:{[estado.anfitrion]:r.presupuesto, [estado.invitado]:r.presupuesto},
                  lote:null, n:0, abre:estado.moneda, historial:[], siguiente:0, ultimo:null};
+  // gerentes y entrenador: al azar y gratis, no se pujan (Aaron, O-264)
+  for (const s of [estado.anfitrion, estado.invitado])
+    for (const g of ["GER", "ENT"]) {
+      const n = Math.max(0, faltanDe(s)[g] || 0);
+      for (const id of sacaDelGrupo(g, n, s, [])) estado.equipos[s].push({id, grupo:g, precio:0, regalo:true});
+    }
   nuevoLote();
 }
 function maxPuja(s) {
@@ -1599,53 +1701,74 @@ function puedePujar(s, grupo, id) {
   if (maxPuja(s) < puedeMinimo()) return "no te queda dinero";
   return "";
 }
+// un relleno: de la cuarta parte peor de su posicion, sin Idolos
+function sacaRelleno(grupo, s) {
+  if (grupo === "TAC") return sacaDelGrupo(grupo, 1, s, [])[0];
+  const r = reglasDelDraft(), usados = cogidos();
+  const lista = candidatosDe(grupo, r, Object.assign({hacen:1}, opcElementos(s))).lista
+    .filter(c => !usados.has(c.identidad) && !c.idolo);
+  if (!lista.length) return sacaDelGrupo(grupo, 1, s, [])[0];
+  const ordenados = lista.slice().sort((a, b) => notaDePosicion(a) - notaDePosicion(b));
+  const peores = ordenados.slice(0, Math.max(1, Math.ceil(ordenados.length / 4)));
+  const nombres = new Set(r.repetidos ? [] : (estado.vistos || []));
+  const libres = peores.filter(c => !nombres.has(c.nombre));
+  const c = (libres.length ? libres : peores)[azar((libres.length ? libres : peores).length)];
+  if (!r.repetidos) estado.vistos = (estado.vistos || []).concat(c.nombre);
+  return c.identidad;
+}
 function nuevoLote() {
   const p = estado.puja, r = reglasDelDraft();
   const a = estado.anfitrion, b = estado.invitado;
-  // un grupo que alguien necesite, segun lo que les falta a los dos
   const fa = faltanDe(a), fb = faltanDe(b);
   const bolsa = [];
   for (const g of Object.keys(fa)) for (let k = 0; k < Math.max(0, fa[g]) + Math.max(0, fb[g] || 0); k++) bolsa.push(g);
   if (!bolsa.length) { p.lote = null; return finElecciones(); }
-  // primero los jugadores (mezclados segun lo que falte), luego el personal
-  // y al final las tacticas
-  // y antes lo que les falta a los dos, para que haya puja de verdad; lo
-  // que solo le falta a uno sale al final y va directo
+  // antes lo que les falta a los dos (eso se puja); lo que solo le falta a
+  // uno es un relleno gratis de los peores de su posicion
   const deLosDos = bolsa.filter(g => (fa[g] || 0) > 0 && (fb[g] || 0) > 0);
-  const base = deLosDos.length ? deLosDos : bolsa;
-  const jugadores = base.filter(g => esJug(g)), personal = base.filter(g => g === "GER" || g === "ENT");
-  const elegibles = jugadores.length ? jugadores : personal.length ? personal : base;
+  if (!deLosDos.length) {
+    const g = bolsa[azar(bolsa.length)], s = (fa[g] || 0) > 0 ? a : b;
+    const id = sacaRelleno(g, s);
+    p.n++;
+    if (!id) { p.lote = null; return finElecciones(); }
+    adjudica({n:p.n, id, grupo:g, precio:0, lider:s, directo:true, pujas:[]});
+    return;
+  }
+  const jugadores = deLosDos.filter(g => esJug(g));
+  const elegibles = jugadores.length ? jugadores : deLosDos;
   const grupo = elegibles[azar(elegibles.length)];
   const id = sacaDelGrupo(grupo, 1, null, [])[0];
   if (!id) { p.lote = null; return finElecciones(); }
   p.n++;
   const quienes = [a, b].filter(s => !puedePujar(s, grupo, id));
-  if (quienes.length === 1) {
-    // solo le sirve a uno: para el, al minimo y sin subasta
-    adjudica({n:p.n, id, grupo, precio:Math.min(puedeMinimo(), p.dinero[quienes[0]]), lider:quienes[0], directo:true});
+  if (!quienes.length) {
+    // a ninguno le sirve (p. ej. un Idolo y los dos tienen 3): otro
+    p.siguiente = Date.now() + 300; p.lote = null; estado.seq++; guardaLocal("draft-estado", estado);
     return;
   }
-  if (!quienes.length) {
-    // a ninguno le sirve (p. ej. un Idolo y los dos tienen 3): fuera, y otro
-    p.siguiente = Date.now() + 300; p.lote = null; estado.seq++; guardaLocal("draft-estado", estado);
+  if (quienes.length === 1) {
+    // ese no le sirve al otro (sin dinero, Idolos...): para el al minimo
+    adjudica({n:p.n, id, grupo, precio:Math.min(puedeMinimo(), p.dinero[quienes[0]]), lider:quienes[0], directo:true, pujas:[]});
     return;
   }
   // lo abre uno con la puja minima (se turnan)
   const abre = quienes.includes(p.abre) ? p.abre : quienes[0];
   p.abre = otroDe(abre);
-  p.lote = {n:p.n, id, grupo, precio:puedeMinimo(), lider:abre, limite:Date.now() + r.tiempo_puja * 1000};
+  p.lote = {n:p.n, id, grupo, precio:puedeMinimo(), lider:abre, limite:Date.now() + r.tiempo_puja * 1000,
+            inicio:Date.now(), pujas:[{q:abre, v:puedeMinimo(), abre:true}]};
   estado.seq++;
   guardaLocal("draft-estado", estado);
 }
 function adjudica(lote) {
   const p = estado.puja;
-  estado.equipos[lote.lider].push({id:lote.id, grupo:lote.grupo, precio:lote.precio});
+  estado.equipos[lote.lider].push({id:lote.id, grupo:lote.grupo, precio:lote.precio, relleno:!!lote.directo && !lote.precio});
   p.dinero[lote.lider] -= lote.precio;
-  p.ultimo = {id:lote.id, grupo:lote.grupo, quien:lote.lider, precio:lote.precio, directo:!!lote.directo};
+  p.ultimo = {n:lote.n, id:lote.id, grupo:lote.grupo, quien:lote.lider, precio:lote.precio, directo:!!lote.directo,
+              pujas:(lote.pujas || []).length};
   p.historial.push(p.ultimo);
   p.lote = null;
   // un respiro para ver quien se lo ha llevado
-  p.siguiente = Date.now() + (lote.directo ? 900 : 2200);
+  p.siguiente = Date.now() + (lote.directo ? 1400 : 3000);
   estado.seq++;
   guardaLocal("draft-estado", estado);
 }
@@ -1655,6 +1778,7 @@ function aplicaPuja(s, n, cantidad) {
   cantidad = Math.round(Number(cantidad) || 0);
   if (cantidad < l.precio + puedeMinimo() || cantidad > maxPuja(s) || puedePujar(s, l.grupo, l.id)) return false;
   l.precio = cantidad; l.lider = s;
+  l.pujas = (l.pujas || []).concat({q:s, v:cantidad});
   l.limite = Math.max(l.limite, Date.now() + SEGUNDOS_TRAS_PUJA * 1000);
   estado.seq++;
   guardaLocal("draft-estado", estado);
@@ -1702,57 +1826,210 @@ function pintaIndividual(z) {
   ops.querySelectorAll('img[loading="lazy"]').forEach(i => { i.loading = "eager"; });
   z.appendChild(ops);
 }
+/* ---------------- la pantalla de la subasta (O-264) ----------------
+   Con ambiente: un subastador que canta lo que pasa ("¡Sale a subasta...!",
+   "¡25 de PruebaB!", "¡A la una... a las dos...!", "¡Adjudicado!"), el lote
+   entrando con foco, una barra de tiempo, las pujas del lote en directo,
+   "¡Guerra de pujas!" cuando se pican, el sello de VENDIDO con martillazo,
+   una estimacion de lo que vale cada uno y sonidos (que se pueden quitar).
+   La pantalla del lote se construye una vez por lote y luego solo se
+   actualiza: si no, cada estado que llega repetiria las animaciones. */
+let sonidoOn = leeLocal("draft-sonido") !== false;
+let _audio = null;
+function sonido(tipo) {
+  if (!sonidoOn) return;
+  try {
+    _audio = _audio || new (window.AudioContext || window.webkitAudioContext)();
+    const a = _audio, t0 = a.currentTime;
+    const tono = (f, ini, dur, vol, forma) => {
+      const o = a.createOscillator(), g = a.createGain();
+      o.type = forma || "sine"; o.frequency.setValueAtTime(f, t0 + ini);
+      g.gain.setValueAtTime(0.0001, t0 + ini);
+      g.gain.exponentialRampToValueAtTime(vol, t0 + ini + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + ini + dur);
+      o.connect(g); g.connect(a.destination); o.start(t0 + ini); o.stop(t0 + ini + dur + 0.02);
+    };
+    if (tipo === "lote") { tono(660, 0, 0.18, 0.12); tono(990, 0.14, 0.25, 0.12); }
+    if (tipo === "puja") tono(880, 0, 0.09, 0.08, "triangle");
+    if (tipo === "tic") tono(520, 0, 0.05, 0.05, "square");
+    if (tipo === "martillo") { tono(140, 0, 0.25, 0.3, "triangle"); tono(90, 0.02, 0.35, 0.25); }
+    if (tipo === "relleno") tono(440, 0, 0.12, 0.06);
+  } catch (e) {}
+}
+function nombreLote(x) {
+  return x.grupo === "TAC" ? (tacPorId[x.id] || {}).nombre || "?" : (porId[x.id] || {}).nombre || "?";
+}
+let textoSubastador = "", ultimoTic = 99, precioVisto = null, pujasVistas = 0;
 function pintaPuja(z) {
-  const p = estado.puja, riv = rivalSlug(), l = p.lote;
-  const dinero = s => el("span", {class:"bolsa"}, [el("b", {text:String(p.dinero[s])}), document.createTextNode(" monedas")]);
-  z.appendChild(el("div", {class:"marcador-puja"}, [
-    el("div", {}, [el("small", {text:"Tu"}), dinero(yo.slug), el("small", {text:"puja maxima " + Math.max(0, maxPuja(yo.slug))})]),
-    el("div", {class:"centro"}, [el("small", {text:"Lote " + (p.n || 0)}), document.createTextNode(huecosDe(yo.slug) + " huecos tuyos · " + huecosDe(riv) + " de " + nombreDe(riv))]),
-    el("div", {class:"der"}, [el("small", {text:nombreDe(riv)}), dinero(riv), el("small", {text:"puja maxima " + Math.max(0, maxPuja(riv))})])]));
-  if (!l) {
-    const u = p.ultimo;
-    if (u) z.appendChild(el("p", {class:"aviso-turno vendido"}, [
-      document.createTextNode((u.directo ? "Para " : "¡Vendido a ") + (u.quien === yo.slug ? "ti" : nombreDe(u.quien))
-        + (u.directo ? " (solo le servia a uno)" : "!") + " "),
-      el("b", {text:(u.grupo === "TAC" ? (tacPorId[u.id] || {}).nombre : (porId[u.id] || {}).nombre) + " por " + u.precio})]));
-    else z.appendChild(el("p", {class:"aviso-turno", text:"Preparando el primer lote..."}));
-    return;
+  const p = estado.puja, l = p.lote;
+  const clave = l ? "lote-" + l.n : "vendido-" + p.n;
+  if (z.dataset.puja !== clave) {
+    z.textContent = ""; z.dataset.puja = clave;
+    precioVisto = null; pujasVistas = 0; ultimoTic = 99;
+    if (estado.reglas) z.appendChild(el("p", {class:"nota", text:"Reglas: " + textoReglas(estado.reglas)}));
+    z.appendChild(el("div", {class:"marcador-puja", id:"marcador-puja"}));
+    if (l) construyeLote(z, l); else construyeVendido(z, p.ultimo);
+    z.appendChild(el("p", {class:"nota ultimos-puja", id:"ultimos-puja"}));
   }
+  actualizaPuja();
+}
+function construyeLote(z, l) {
+  const c = porId[l.id] || {};
   const ronda = rondaDe(l.grupo, reglasDelDraft());
-  const lider = l.lider === yo.slug;
-  z.appendChild(el("p", {class:"aviso-turno" + (lider ? " mio" : "")}, [
-    document.createTextNode(lider ? "Vas ganando con " + l.precio : nombreDe(l.lider) + " va ganando con " + l.precio),
-    el("span", {class:"cuenta-atras", id:"cuenta-atras"})]));
+  textoSubastador = "¡Sale a subasta " + nombreLote(l) + "!";
+  sonido("lote");
   const carta = l.grupo === "TAC" ? tarjetaTactica(l.id, false, null) : tarjetaOpcion(l.id, false, null, "");
-  carta.classList.add("lote");
+  carta.classList.add("lote", "entra");
   carta.querySelectorAll('img[loading="lazy"]').forEach(i => { i.loading = "eager"; });
-  const motivo = lider ? "vas ganando" : puedePujar(yo.slug, l.grupo, l.id);
-  const minimo = l.precio + puedeMinimo(), maximo = maxPuja(yo.slug);
-  const pujar = v => {
-    v = Math.min(maximo, Math.max(minimo, v));
-    if (activo.rol === "anfitrion") { if (aplicaPuja(yo.slug, l.n, v)) { publicaEstado(); pinta(); } return; }
-    mandaAccion({tipo:"puja", n:l.n, cantidad:v});
-  };
-  const botones = el("div", {class:"botones-puja"});
-  const nada = !!motivo || maximo < minimo;
-  for (const sube of [puedeMinimo(), 5, 10, 25, 50].filter((x, k, a) => a.indexOf(x) === k && x >= puedeMinimo())) {
-    const v = l.precio + sube;
-    botones.appendChild(el("button", {class:"btn verde", text:"+" + sube + "  (" + v + ")",
-      disabled:nada || v > maximo ? "" : null, onclick:() => pujar(v)}));
+  const est = l.grupo === "TAC" ? null : estimacionDe(l.id);
+  z.appendChild(el("div", {class:"cartel-lote" + (c.idolo ? " idolo" : "")}, [
+    el("span", {class:"num-lote", text:"LOTE " + l.n}),
+    el("span", {text:ronda.titulo}),
+    c.idolo ? el("span", {class:"chip idolo", text:"¡Idolo!"}) : null,
+    el("span", {class:"guerra", id:"guerra-puja", hidden:""}, [document.createTextNode("¡Guerra de pujas!")])]));
+  z.appendChild(el("p", {class:"subastador", id:"subastador", text:textoSubastador}));
+  z.appendChild(el("div", {class:"zona-puja"}, [
+    el("div", {class:"foco"}, [carta]),
+    el("div", {class:"panel-puja"}, [
+      est ? el("p", {class:"estimacion", text:"Valor estimado: " + est[0] + "–" + est[1] + " monedas"}) : null,
+      el("div", {class:"precio-y-lider"}, [
+        el("p", {class:"precio-puja"}, [el("small", {text:"Precio"}), el("b", {id:"precio-puja"})]),
+        el("p", {class:"lider-puja", id:"lider-puja"})]),
+      el("div", {class:"barra-lote"}, [el("i", {id:"relleno-lote"})]),
+      el("div", {class:"botones-puja", id:"botones-puja"}),
+      el("p", {class:"nota", id:"motivo-puja"}),
+      el("ol", {class:"pujas-lote", id:"pujas-lote"})])]));
+}
+function construyeVendido(z, u) {
+  if (!u) { z.appendChild(el("p", {class:"subastador", text:"Preparando el primer lote..."})); return; }
+  const para = u.quien === yo.slug ? "ti" : nombreDe(u.quien);
+  const relleno = u.directo && !u.precio;
+  textoSubastador = relleno ? "Relleno para " + para + ": " + nombreLote(u) + " (gratis)"
+                  : "¡Adjudicado a " + para + " por " + u.precio + "!";
+  sonido(relleno ? "relleno" : "martillo");
+  const carta = u.grupo === "TAC" ? tarjetaTactica(u.id, false, null) : tarjetaOpcion(u.id, false, null, "");
+  carta.classList.add("lote", "vendido");
+  carta.querySelectorAll('img[loading="lazy"]').forEach(i => { i.loading = "eager"; });
+  carta.appendChild(el("span", {class:"sello-vendido" + (relleno ? " relleno" : ""), text:relleno ? "RELLENO" : "VENDIDO"}));
+  z.appendChild(el("p", {class:"subastador grande" + (u.quien === yo.slug ? " mio" : ""), id:"subastador", text:textoSubastador}));
+  z.appendChild(el("div", {class:"zona-puja"}, [el("div", {class:"foco"}, [carta]),
+    el("div", {class:"panel-puja"}, [
+      relleno ? el("p", {class:"nota", text:"Solo le faltaba a uno: es un relleno gratis de la cuarta parte peor de su posicion."})
+              : el("p", {class:"precio-puja"}, [el("small", {text:"Precio final"}), el("b", {text:String(u.precio)})]),
+      !relleno && u.pujas > 1 ? el("p", {class:"nota", text:u.pujas + " pujas"}) : null])]));
+}
+function actualizaPuja() {
+  const p = estado.puja, l = p.lote, riv = rivalSlug();
+  // marcador: dinero, puja maxima y huecos
+  const m = document.getElementById("marcador-puja");
+  if (m) {
+    m.textContent = "";
+    const lado = (s, der) => el("div", {class:der ? "der" : ""}, [el("small", {text:s === yo.slug ? "Tu" : nombreDe(s)}),
+      el("span", {class:"bolsa"}, [el("b", {text:String(p.dinero[s])}), document.createTextNode(" monedas")]),
+      el("small", {text:"puja maxima " + Math.max(0, maxPuja(s)) + " · faltan " + huecosDe(s)})]);
+    m.appendChild(lado(yo.slug));
+    m.appendChild(el("div", {class:"centro"}, [el("button", {class:"btn chico", text:sonidoOn ? "Sonido: si" : "Sonido: no",
+      onclick:() => { sonidoOn = !sonidoOn; guardaLocal("draft-sonido", sonidoOn); actualizaPuja(); }})]));
+    m.appendChild(lado(riv, true));
   }
-  const inp = el("input", {type:"number", min:String(minimo), max:String(Math.max(minimo, maximo)), value:String(minimo), class:"num-puja"});
-  botones.appendChild(el("span", {class:"puja-libre"}, [inp,
-    el("button", {class:"btn", text:"Pujar", disabled:nada ? "" : null, onclick:() => pujar(Number(inp.value))})]));
-  z.appendChild(el("div", {class:"zona-puja"}, [carta, el("div", {class:"panel-puja"}, [
-    el("p", {class:"precio-puja"}, [el("small", {text:"Precio"}), el("b", {text:String(l.precio)})]),
-    botones,
-    motivo && !lider ? el("p", {class:"nota", text:"No puedes pujar: " + motivo + "."}) : null,
-    el("p", {class:"nota", text:"Cada puja deja al menos " + SEGUNDOS_TRAS_PUJA + " s para contestar. Siempre te guardas "
-      + puedeMinimo() + " por cada hueco que te falta."})])]));
-  const ult = p.historial.slice(-5).reverse();
-  if (ult.length) z.appendChild(el("p", {class:"nota", text:"Ultimos: " + ult.map(u =>
-    ((u.grupo === "TAC" ? (tacPorId[u.id] || {}).nombre : (porId[u.id] || {}).nombre) || "?") + " → "
-      + nombreDe(u.quien) + " (" + u.precio + ")").join(" · ")}));
+  const ult = document.getElementById("ultimos-puja");
+  if (ult) {
+    const h = p.historial.filter(x => !x.directo || x.precio).slice(-5).reverse();
+    ult.textContent = h.length ? "Ultimos: " + h.map(u => nombreLote(u) + " → " + nombreDe(u.quien) + " (" + u.precio + ")").join(" · ") : "";
+  }
+  if (!l) return;
+  // precio y quien gana
+  const precio = document.getElementById("precio-puja"), lider = document.getElementById("lider-puja");
+  if (precio && precioVisto !== l.precio) {
+    precio.textContent = String(l.precio);
+    if (precioVisto !== null) {
+      precio.classList.remove("sube"); void precio.offsetWidth; precio.classList.add("sube");
+      textoSubastador = "¡" + l.precio + " de " + (l.lider === yo.slug ? "ti" : nombreDe(l.lider)) + "!";
+      sonido("puja"); ultimoTic = 99;
+    }
+    precioVisto = l.precio;
+  }
+  if (lider) {
+    lider.textContent = l.lider === yo.slug ? "¡Vas ganando tu!" : "Va ganando " + nombreDe(l.lider);
+    lider.className = "lider-puja " + (l.lider === yo.slug ? "mio" : "suyo");
+  }
+  const guerra = document.getElementById("guerra-puja");
+  if (guerra) guerra.hidden = (l.pujas || []).length < 5;
+  // las pujas del lote
+  const lista = document.getElementById("pujas-lote");
+  if (lista && (l.pujas || []).length !== pujasVistas) {
+    pujasVistas = (l.pujas || []).length;
+    lista.textContent = "";
+    for (const x of (l.pujas || []).slice(-6).reverse())
+      lista.appendChild(el("li", {class:x.q === yo.slug ? "mio" : "suyo"}, [
+        el("b", {text:String(x.v)}), document.createTextNode(" " + (x.q === yo.slug ? "tu" : nombreDe(x.q)) + (x.abre ? " (sale)" : ""))]));
+  }
+  // los botones
+  const bot = document.getElementById("botones-puja"), mot = document.getElementById("motivo-puja");
+  if (bot) {
+    bot.textContent = "";
+    const yoLider = l.lider === yo.slug;
+    const motivo = yoLider ? "" : puedePujar(yo.slug, l.grupo, l.id);
+    const minimo = l.precio + puedeMinimo(), maximo = maxPuja(yo.slug);
+    const nada = yoLider || !!motivo || maximo < minimo;
+    const pujar = v => {
+      v = Math.min(maximo, Math.max(minimo, v));
+      if (activo.rol === "anfitrion") { if (aplicaPuja(yo.slug, l.n, v)) { publicaEstado(); pinta(); } return; }
+      mandaAccion({tipo:"puja", n:l.n, cantidad:v});
+    };
+    for (const sube of [puedeMinimo(), 5, 10, 25, 50].filter((x, k, a) => a.indexOf(x) === k && x >= puedeMinimo())) {
+      const v = l.precio + sube;
+      bot.appendChild(el("button", {class:"btn verde", text:"+" + sube, title:"Pujar " + v,
+        disabled:nada || v > maximo ? "" : null, onclick:() => pujar(v)}));
+    }
+    const inp = el("input", {type:"number", min:String(minimo), max:String(Math.max(minimo, maximo)), value:String(minimo), class:"num-puja"});
+    bot.appendChild(el("span", {class:"puja-libre"}, [inp,
+      el("button", {class:"btn", text:"Pujar", disabled:nada ? "" : null, onclick:() => pujar(Number(inp.value))})]));
+    if (mot) mot.textContent = yoLider ? "Vas ganando: a esperar que no te la quiten."
+      : motivo ? "No puedes pujar: " + motivo + "."
+      : "Cada puja deja al menos " + SEGUNDOS_TRAS_PUJA + " s. Siempre te guardas " + puedeMinimo() + " por cada hueco que te falta.";
+  }
+}
+// el reloj de la subasta: la barra y el subastador ("a la una, a las dos")
+setInterval(() => {
+  if (!estado || estado.fase !== "picks" || modoActual() !== "puja" || !estado.puja) return;
+  const l = estado.puja.lote, sub = document.getElementById("subastador");
+  if (!l) return;
+  const quedan = (l.limite - (Date.now() + desfase)) / 1000;
+  const barra = document.getElementById("relleno-lote");
+  if (barra) {
+    const total = Math.max(SEGUNDOS_TRAS_PUJA, (reglasDelDraft().tiempo_puja || 15));
+    barra.style.width = Math.max(0, Math.min(100, 100 * quedan / total)) + "%";
+    barra.classList.toggle("poco", quedan <= 3);
+  }
+  let txt = textoSubastador;
+  if (quedan <= 1) txt = "¡Y a las tres...!";
+  else if (quedan <= 3) txt = "¡A las dos...!";
+  else if (quedan <= 5) txt = "¡A la una...!";
+  const seg = Math.ceil(quedan);
+  if (quedan <= 5 && seg !== ultimoTic && seg > 0) { ultimoTic = seg; sonido("tic"); }
+  if (sub && sub.textContent !== txt) {
+    sub.textContent = txt;
+    sub.classList.remove("canta"); void sub.offsetWidth; sub.classList.add("canta");
+  }
+}, 200);
+// el resumen de la subasta, al terminar
+function resumenSubasta() {
+  const p = estado.puja;
+  if (!p) return null;
+  const pagados = p.historial.filter(h => !(h.directo && !h.precio) && h.grupo !== "TAC");
+  if (!pagados.length) return null;
+  const caro = pagados.reduce((a, b) => (b.precio > a.precio ? b : a));
+  const valor = h => { const e = estimacionDe(h.id); return e ? (e[0] + e[1]) / 2 - h.precio : -1e9; };
+  const ganga = pagados.reduce((a, b) => (valor(b) > valor(a) ? b : a));
+  const guerra = pagados.reduce((a, b) => ((b.pujas || 0) > (a.pujas || 0) ? b : a));
+  const quien = s => s === yo.slug ? "tu" : nombreDe(s);
+  return el("div", {class:"resumen-subasta"}, [
+    el("b", {text:"La subasta"}),
+    el("span", {text:"Fichaje mas caro: " + nombreLote(caro) + " (" + caro.precio + ", " + quien(caro.quien) + ")"}),
+    el("span", {text:"Mejor compra: " + nombreLote(ganga) + " (" + ganga.precio + ", " + quien(ganga.quien) + ")"}),
+    (guerra.pujas || 0) > 2 ? el("span", {text:"Mas disputado: " + nombreLote(guerra) + " (" + guerra.pujas + " pujas)"}) : null,
+    el("span", {text:"Te quedan " + p.dinero[yo.slug] + " monedas; a " + nombreDe(rivalSlug()) + ", " + p.dinero[rivalSlug()]})]);
 }
 
 /* ---------------- la pantalla del intercambio (O-254) ---------------- */
