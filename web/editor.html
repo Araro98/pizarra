@@ -1130,6 +1130,8 @@ const CAMPOS_FILTRO = [["elemento","Afinidad"],["posicion","Posicion"],
   // que stats sube su arbol (O-244)
   ["arbol_sube","El arbol sube"],
   ["genero","Genero"],
+  // su tier en la tier list, con la rareza que tiene (O-269)
+  ["tier","Tier"],
   // Estos cuatro no vienen del personaje sino de COMO esta el jugador, que es
   // lo que hace falta para buscar "a quien le queda algo por terminar".
   ["nivel_grupo","Nivel"],["judias","Judias"],["heredadas","Heredadas"],
@@ -2655,6 +2657,7 @@ const FILTROS_RES = [
    orden:v => STATS.indexOf(v)},
   {campo:"nivel_grupo", etiqueta:"Nivel"},
   {campo:"cuerpo_tipo", etiqueta:"Cuerpo"},
+  {campo:"tier", etiqueta:"Tier", orden:ordenTier},                 // O-269
 ];
 
 async function cargaEquipos(recargar) {
@@ -3323,6 +3326,9 @@ const FILTROS_PER = [
   {campo:"se_puede", etiqueta:"Se puede fichar",
    valor:d => d.se_puede ? "si" : "no"},
   {campo:"cuerpo_tipo", etiqueta:"Cuerpo"},
+  // su tier (O-269): con semilla, la de Diamante
+  {campo:"tier", etiqueta:"Tier", orden:ordenTier,
+   valor:d => familiaPer === "semilla" ? d.tier_diamante : d.tier},
 ];
 const estadoPer = {};
 let ordenPer = "nombre", sentidoPer = "asc";

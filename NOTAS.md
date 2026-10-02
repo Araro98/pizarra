@@ -6233,6 +6233,43 @@ Repaso de reglas que se podian elegir juntas y se pisaban:
   individual, tiempo por turno no en la subasta, "una afinidad para cada
   uno" no en la subasta.
 
+### O-269 · La tier list dentro de Pizarra; filtros por tier
+
+Aaron: "ponla en pizarra dentro de un apartado que sea tier list pero que
+este bien maquetada, todos con sus caras, nombres y si son personajes
+repetidos su juego... cuando clicas en una cara que te lleve a su pagina de
+la database y un boton ahi donde facilmente puedas volver a la tier", con
+iconos del juego; y "filtros en base de datos, fichar etc para cada tier".
+
+- `ievr/tiers.py` lee `tier-list.csv`: la tier de cada personaje segun su
+  rareza (normales en Leyendas, Idolos, Diamantes), la de un normal como
+  Diamante y todo para la pagina (`/api/tier-list`).
+- Pagina `/tier` (`web/tierlist.html`, ficha "Tier list" en el inicio): las
+  tres listas con la franja de rareza del juego, las cuatro posiciones con
+  su marcador del juego, una fila por tier y una columna por afinidad (o
+  todos juntos), filtros de afinidad y de juego (iconos de serie del
+  juego), buscador que dice en que otras listas esta y lleva alli. Tarjetas
+  de Pizarra con la cara; el juego solo si hay otra version en esa lista;
+  en Idolos su arquetipo con el icono del juego (icon_build01-06, en el
+  orden Brecha, Contra, Afinidad, Tension, Juego sucio, Justicia: SUPUESTO
+  por el dibujo de cada uno); flechas de los ajustes; la nota y los ajustes
+  al pasar el raton. Las tiers con mas de 36 en una celda salen plegadas
+  ("Ver los N").
+- Pulsar una tarjeta abre `/bd?id=...&desde=tier`: la ficha y un boton
+  fijo "Volver a la tier list" que vuelve al mismo sitio (la tarjeta
+  queda marcada). La ficha de la base de datos ensena sus tiers con
+  enlace a la tier list.
+- Filtro "Tier" en Jugadores, Reserva, Fichar (en "con semilla", la de
+  Diamante) y Base de datos (y "Tier como Diamante").
+
+### O-270 · Portada nueva
+
+Aaron: el draft en grande al lado del editor (se usa mas que la base de
+datos) y debajo, en tres bloques medianos, tier list, calculadora y base de
+datos; fuera las fichas pequenas de cosas que ya estan dentro del editor
+(jugadores, mochila, fichar...). El panel del draft lleva cuatro caras
+contra cuatro al azar.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

@@ -32,6 +32,7 @@ from urllib.parse import urlparse, parse_qs, unquote
 if __package__ in (None, ""):
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from ievr import tiers as TL
 from ievr import (basedatos as BD, codec, equipos as EQ, escribir as E, inventario, jugador as J,
                   opciones as O, presets as PR, reglas, stats as ST)
 
@@ -452,6 +453,8 @@ def _ficha_corta(plain, fila, ident, nivel, rareza, arq, jugadores):
         "serie": J.array(plain, (0x90F47C83, 24000, "I", 4))[fila],
         "rareza": J.RAREZAS.get(rareza[fila], "?"),
         "rareza_valor": rareza[fila],
+        # su tier con la rareza que tiene (O-269)
+        "tier": TL.tier_de(clave, rareza[fila]),
         "arquetipo": J.ARQUETIPOS.get(arq[fila], "?"),
         "posicion": (f or {}).get("posicion") or "",
         "elemento": (f or {}).get("elemento") or "",
@@ -1051,7 +1054,7 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
                ("elemento", "posicion", "rareza", "arquetipo", "equipo", "saga",
                 "armadura", "mixi", "modo",
                 "nivel_grupo", "judias", "heredadas", "equipacion", "rol",
-                "cuerpo_tipo", "mi_equipo", "arbol_sube", "genero")}
+                "cuerpo_tipo", "mi_equipo", "arbol_sube", "genero", "tier")}
     for d in todos:
         for c in cuentas:
             if c == "mi_equipo":
@@ -1107,6 +1110,8 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
                         for v, n in sorted(cuentas[c].items(),
                                            # los juegos en su orden (IE1, IE2... Victory Road), lo demas por cuantos
                                            key=(lambda x: (O.orden_de_sagas().get(x[0], 99), x[0])) if c == "saga"
+                                           # las tiers de mejor a peor (O-269)
+                                           else (lambda x: (TL.ESCALERA.index(x[0]) if x[0] in TL.ESCALERA else 99, x[0])) if c == "tier"
                                            else (lambda x: (-x[1], x[0])))]
                     for c in cuentas},
         "ordenes": sorted(ORDENES),
@@ -1407,6 +1412,11 @@ class Manejador(BaseHTTPRequestHandler):
                 return self._fichero(os.path.join(WEB, "editor.html"), "text/html; charset=utf-8")
             if u.path in ("/bd", "/basedatos", "/basedatos.html"):
                 return self._fichero(os.path.join(WEB, "basedatos.html"), "text/html; charset=utf-8")
+            # la tier list (O-269)
+            if u.path in ("/tier", "/tierlist", "/tierlist.html"):
+                return self._fichero(os.path.join(WEB, "tierlist.html"), "text/html; charset=utf-8")
+            if u.path == "/api/tier-list":
+                return self._responder(200, TL.tier_list())
             if u.path in ("/calc", "/calculadora", "/calculadora.html"):
                 return self._fichero(os.path.join(WEB, "calculadora.html"), "text/html; charset=utf-8")
             # el modo draft entre dos jugadores (O-247)
@@ -1547,7 +1557,7 @@ class Manejador(BaseHTTPRequestHandler):
                            for c in ("elemento", "posicion", "rareza",
                                      "arquetipo", "equipo", "saga", "armadura", "mixi", "modo", "nivel_grupo",
                                      "judias", "heredadas", "equipacion", "rol",
-                                     "cuerpo_tipo", "mi_equipo", "arbol_sube", "genero")}
+                                     "cuerpo_tipo", "mi_equipo", "arbol_sube", "genero", "tier")}
                 with self.ses.lock:
                     return self._responder(200, listar_jugadores(
                         self.ses.plain, (q.get("q") or [""])[0], filtros,

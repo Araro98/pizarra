@@ -180,6 +180,20 @@ function chapaSaga(saga) {
   s.style.background = c[1];
   return s;
 }
+/* Las tiers (O-269), de mejor a peor, y su color: el mismo de la pagina de la
+   tier list. ordenTier sirve de "orden" en los filtros. */
+const ESCALERA_TIER = ["Z", "X", "S", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L",
+                       "M", "N", "O", "P", "Q", "R", "T", "U", "V", "W"];
+const ordenTier = v => { const i = ESCALERA_TIER.indexOf(v); return i < 0 ? 99 : i; };
+const COLOR_TIER = {Z:"#7b1fa2", X:"#c2185b", S:"#e53935", A:"#f57c00", B:"#f2b705", C:"#7cb342",
+                    D:"#26a69a", E:"#039be5", F:"#3f6fb5", G:"#5c6bc0"};
+function colorTier(t) { return COLOR_TIER[t] || "#7d8ea3"; }
+function chapaTier(t, titulo) {
+  if (!t) return null;
+  const s = el("span", {class:"chapa-tier", text:t, title:titulo || "Tier " + t});
+  s.style.background = colorTier(t);
+  return s;
+}
 /* ordenStat: el numero del stat (0-6) por el que se ordena; entonces la
    tarjeta ensena ese stat en vez del poder (O-236). */
 const ABREV_STAT = ["POT", "CON", "TEC", "PRE", "FIS", "AGI", "INT"];

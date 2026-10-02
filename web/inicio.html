@@ -55,9 +55,15 @@
   .panel .fondo { position:absolute; inset:-6% -8%; background-size:cover; background-position:center;
     filter:saturate(1.05); }
   .panel.editor .fondo { background-image:linear-gradient(180deg,rgba(27,47,92,0) 45%,rgba(27,47,92,.95) 100%), url("/ui/menu-equipo"); }
-  .panel.bd .fondo { background:linear-gradient(180deg,rgba(27,47,92,0) 45%,rgba(27,47,92,.95) 100%), linear-gradient(160deg,#2f6fd0,#143f80); }
-  .panel .caras { position:absolute; left:8%; right:8%; top:9%; display:grid; gap:6px;
-    grid-template-columns:repeat(4,1fr); }
+  /* el del draft (O-270): dos equipos de caras, uno contra otro */
+  .panel.draft .fondo { background:linear-gradient(180deg,rgba(27,47,92,0) 45%,rgba(27,47,92,.95) 100%),
+    radial-gradient(ellipse at 50% 38%, rgba(255,190,80,.55) 0%, rgba(255,190,80,0) 42%),
+    linear-gradient(115deg,#c8401f 0%,#e8801c 49%,#1d5fd0 51%,#143f80 100%); }
+  .panel .caras { position:absolute; left:7%; right:7%; top:7%; display:grid; gap:6px 8px; align-items:center;
+    grid-template-columns:1fr 1fr auto 1fr 1fr; }
+  .panel .caras .vs { grid-column:3; grid-row:1 / span 2; }
+  .panel .vs { font-size:clamp(26px, 3.4vw, 40px); font-weight:900; font-style:italic; color:#fff; padding:0 4px;
+    text-shadow:0 0 0 #fff, -2px -2px 0 #0f3574, 2px 2px 0 #0f3574, 0 4px 10px rgba(0,0,0,.45); }
   .panel .caras .ficha-mini { pointer-events:none; }
   .panel .rotulo { position:absolute; left:0; right:0; bottom:0; padding:10px 18px 12px;
     font-size:clamp(20px, 2.6vw, 30px); font-weight:900; font-style:italic; letter-spacing:.06em;
@@ -65,18 +71,28 @@
   .panel .rotulo small { display:block; font-size:var(--t-sm); font-weight:600; font-style:normal;
     letter-spacing:0; text-transform:none; opacity:.9; margin-top:2px; }
 
-  /* las fichas inclinadas: icono blanco arriba, nombre debajo */
-  .fichas { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; width:100%; }
-  .ficha { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
-    width:118px; height:96px; text-decoration:none; color:#fff; background:var(--panel);
-    border:2px solid #fff; border-radius:6px; box-shadow:0 0 0 2px #9fb6d6, 0 6px 12px rgba(15,40,90,.25);
-    transform:skewX(-8deg); transition:transform .1s, background .1s, box-shadow .1s; }
-  .ficha > * { transform:skewX(8deg); }
-  .ficha:hover { background:var(--panel-claro); transform:skewX(-8deg) translateY(-3px);
-    box-shadow:0 0 0 2px var(--cian), 0 10px 16px rgba(15,40,90,.32); }
-  .ficha img { width:40px; height:40px; object-fit:contain; filter:drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
-  .ficha span { font-size:var(--t-sm); font-weight:800; letter-spacing:.04em; text-transform:uppercase;
-    text-align:center; line-height:1.1; padding:0 4px; }
+  /* debajo, tres bloques medianos (Aaron, O-270): tier list, calculadora y
+     base de datos; lo que ya esta dentro del editor no se repite aqui */
+  .bloques { display:grid; grid-template-columns:repeat(3, minmax(220px, 1fr)); gap:22px;
+    width:100%; max-width:886px; }
+  @media (max-width:820px) { .bloques { grid-template-columns:1fr; max-width:430px; } }
+  .bloque { position:relative; display:flex; align-items:center; gap:14px; min-height:118px; padding:14px 18px;
+    text-decoration:none; color:#fff; background:var(--panel); border:3px solid #fff; border-radius:8px;
+    overflow:hidden; box-shadow:0 0 0 2px #9fb6d6, 0 8px 16px rgba(15,40,90,.26); transform:skewX(-6deg);
+    transition:transform .12s, background .12s, box-shadow .12s; }
+  .bloque > * { transform:skewX(6deg); }
+  .bloque:hover { background:var(--panel-claro); transform:skewX(-6deg) translateY(-4px);
+    box-shadow:0 0 0 2px var(--cian), 0 14px 22px rgba(15,40,90,.34); }
+  .bloque:focus-visible { outline:3px solid var(--cian); outline-offset:4px; }
+  .bloque .ico { width:58px; height:58px; flex:none; object-fit:contain; filter:drop-shadow(0 2px 2px rgba(0,0,0,.4)); }
+  .bloque .txt { display:flex; flex-direction:column; gap:3px; min-width:0; position:relative; z-index:1; }
+  .bloque b { font-size:clamp(18px, 2vw, 22px); font-weight:900; font-style:italic; letter-spacing:.05em;
+    text-transform:uppercase; text-shadow:0 2px 0 rgba(0,0,0,.4); line-height:1.05; }
+  .bloque small { font-size:var(--t-sm); font-weight:600; opacity:.9; line-height:1.3; }
+  /* un adorno de cada uno, al fondo a la derecha */
+  .bloque .adorno { display:flex; gap:4px; margin-bottom:2px; }
+  .bloque .adorno .chapa-tier { width:24px; height:24px; font-size:13px; }
+  .bloque .adorno img { width:22px; height:22px; }
   .fila2 { margin-top:-6px; }
   .pie { color:var(--suave); font-size:var(--t-sm); text-align:center; padding:10px; }
 </style>
@@ -93,37 +109,38 @@
       <div class="letras">
         <span class="l1">PI<em>ZARRA</em></span>
         <span class="l2">VICTORY ROAD</span>
-        <span class="l3">La pizarra del entrenador: editor de partidas, base de datos y calculadora · todo en tu ordenador</span>
+        <span class="l3">La pizarra del entrenador: editor de partidas, modo draft, tier list, base de datos y calculadora · todo en tu ordenador</span>
       </div>
     </div>
 
     <nav class="paneles">
       <a class="panel editor" href="/editor">
         <span class="fondo"></span>
-        <span class="rotulo">Editor de partida<small>Tus jugadores, tu mochila y tus equipos, con las reglas del juego.</small></span>
+        <span class="rotulo">Editor de partida<small>Tus jugadores, tu mochila, tus equipos y fichar, con las reglas del juego.</small></span>
       </a>
-      <a class="panel bd" href="/bd">
+      <a class="panel draft" href="/draft">
         <span class="fondo"></span>
         <span class="caras" id="caras"></span>
-        <span class="rotulo">Base de datos<small>Todos los personajes, supertecnicas, espiritus, pasivas y objetos.</small></span>
+        <span class="rotulo">Modo draft<small>Contra un amigo en linea: elegid jugadores por turnos, a la vez o en subasta.</small></span>
       </a>
     </nav>
 
-    <nav class="fichas">
-      <a class="ficha" href="/editor#jugadores"><img src="/icono/icon_list_tab/icon_list_tab_coach_chr01.png" alt=""><span>Jugadores</span></a>
-      <a class="ficha" href="/editor#mochila"><img src="/icono/icon_list_tab/icon_list_tab_equip01.png" alt=""><span>Mochila</span></a>
-      <a class="ficha" href="/editor#equipos"><img src="/icono/icon_list_tab/icon_list_tab_uniform01.png" alt=""><span>Equipos</span></a>
-      <a class="ficha" href="/editor#fichar"><img src="/icono/icon_list_tab/icon_list_tab_present01.png" alt=""><span>Fichar</span></a>
-      <a class="ficha" href="/bd?p=tecnicas"><img src="/icono/icon_list_tab/icon_list_tab_sp_area01.png" alt=""><span>Supertecnicas</span></a>
-      <a class="ficha" href="/bd?p=espiritus"><img src="/icono/icon_list_tab/icon_list_tab_spirit01.png" alt=""><span>Espiritus</span></a>
-      <a class="ficha" href="/bd?p=pasivas"><img src="/icono/icon_list_tab/icon_list_tab_sixth01.png" alt=""><span>Pasivas</span></a>
-      <a class="ficha" href="/bd?p=objetos"><img src="/icono/icon_list_tab/icon_list_tab_battle01.png" alt=""><span>Objetos</span></a>
-    </nav>
-    <nav class="fichas fila2">
-      <a class="ficha" href="/calc"><img src="/icono/icon_list_tab/icon_list_tab_power01.png" alt=""><span>Calculadora</span></a>
-      <a class="ficha" href="/draft"><img src="/icono/icon_list_tab/icon_list_tab_coach_chr01.png" alt=""><span>Modo draft</span></a>
-      <a class="ficha" href="/editor#cambios"><img src="/icono/icon_list_tab/icon_list_tab_history01.png" alt=""><span>Cambios</span></a>
-      <a class="ficha" href="/editor#resumen"><img src="/icono/icon_list_tab/icon_list_tab_record01.png" alt=""><span>Resumen</span></a>
+    <nav class="bloques">
+      <a class="bloque" href="/tier">
+        <img class="ico" src="/icono/icon_list_tab/icon_list_tab_title01.png" alt="">
+        <span class="txt"><span class="adorno" id="adorno-tier"></span><b>Tier list</b><small>Quien rinde mas en cada posicion: Leyendas, Idolos y Diamantes.</small></span>
+        
+      </a>
+      <a class="bloque" href="/calc">
+        <img class="ico" src="/icono/icon_list_tab/icon_list_tab_power01.png" alt="">
+        <span class="txt"><span class="adorno" id="adorno-calc"></span><b>Calculadora</b><small>Cuanto saca cada jugada: tiros, regates, bloqueos y paradas.</small></span>
+        
+      </a>
+      <a class="bloque" href="/bd">
+        <img class="ico" src="/icono/icon_list_tab/icon_list_tab_datafile03.png" alt="">
+        <span class="txt"><span class="adorno" id="adorno-bd"></span><b>Base de datos</b><small>Personajes, supertecnicas, espiritus, pasivas y objetos.</small></span>
+        
+      </a>
     </nav>
   </div>
   <p class="pie">Todo funciona en tu ordenador. Nada sale de aqui.</p>
@@ -156,15 +173,24 @@ $("#cambiar-partida").onclick = () => elegirCarpeta("Abrir una partida", async r
     avisa("Abierta " + d.origen + ". Se trabaja sobre ella sin tocarla: al guardar sale una copia.", "bien");
   } catch (e) { avisa(e.message, "mal"); }
 }, "Abrir esta", true);
-// ocho caras del juego, al azar, en el panel de la base de datos
+// ocho caras del juego, al azar, cuatro contra cuatro en el panel del draft
 pedir("/api/bd/personajes").then(r => {
-  const con = r.personajes.filter(p => p.cara && p.rareza_valor >= 3);
+  const con = r.personajes.filter(p => p.cara && p.rareza_valor >= 3 && p.apt === "jugador");
   const caja = $("#caras");
   for (let k = 0; k < 8 && con.length; k++) {
     const p = con.splice(Math.floor(Math.random() * con.length), 1)[0];
-    caja.appendChild(fichaMini(p));
+    const f = fichaMini(p);
+    f.querySelectorAll("img").forEach(i => { i.loading = "eager"; });
+    // dos a cada lado en cada fila: columnas 1-2 y 4-5
+    f.style.gridColumn = String([1, 2, 4, 5][k % 4]);
+    caja.appendChild(f);
   }
+  caja.appendChild(el("span", {class:"vs", text:"VS"}));
 }).catch(() => {});
+// los adornos de los bloques: tiers, stats y afinidades del juego
+for (const t of ["X", "S", "A"]) $("#adorno-tier").appendChild(chapaTier(t));
+for (const n of ["Potencia", "Control", "Tecnica"]) { const i = iconoStat(n, 22); if (i) $("#adorno-calc").appendChild(i); }
+for (const e of ["Fuego", "Viento", "Bosque", "Montana"]) $("#adorno-bd").appendChild(iconoElemento(e, 20));
 </script>
 </body>
 </html>

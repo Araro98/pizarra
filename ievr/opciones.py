@@ -725,6 +725,7 @@ def _poder99_con_arbol(clave, rareza):
 
 
 def personajes_creables(plain):
+    from ievr import tiers as TL
     """Los personajes que se pueden meter en la partida, con lo que se elige.
 
     De un Idolo o un Diamante no se elige nada: rareza, arquetipo y pasivas son
@@ -783,6 +784,9 @@ def personajes_creables(plain):
             "poder_diamante": _poder99_con_arbol(clave, 8),
             "arbol_sube": stats_que_sube_el_arbol(clave, int(ficha.get("rareza_valor") or 0)),
             "arbol_sube_diamante": stats_que_sube_el_arbol(clave, 8),
+            # su tier (O-269): con su rareza y como Diamante (con semilla)
+            "tier": TL.tier_de(clave, int(ficha.get("rareza_valor") or 0)),
+            "tier_diamante": TL.tier_como_diamante(clave),
         })
     vistos, unicos = set(), []
     for o in sorted(fuera, key=lambda x: (x["nombre"] or "").lower()):

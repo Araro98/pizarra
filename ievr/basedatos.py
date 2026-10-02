@@ -127,6 +127,10 @@ def personajes():
             r.update(O.puede_llevar(ident))           # armadura / mixi / modo (O-222)
             r["arbol_sube"] = O.stats_que_sube_el_arbol(ident, r["rareza_valor"])   # O-244
             r["fichable"] = "si" if ident in fichables else "no"   # O-205
+            # su tier (O-269): la de su rareza y, un normal, tambien como Diamante
+            from ievr import tiers as TL
+            r["tier"] = TL.tier_de(ident, r["rareza_valor"])
+            r["tier_diamante"] = TL.tier_como_diamante(ident) if r["rareza_valor"] < 5 else ""
             # Sin posicion no es alineable: son las versiones de historia
             # (c04002410_5000...) que no tienen cara, stats ni nada que ensenar.
             if not r["nombre"] or not r["posicion"]:
