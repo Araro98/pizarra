@@ -58,6 +58,10 @@ ESCALERA = ["Z", "X", "S", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"
 CUERPO_GRANDE = {"Musculoso", "Grande"}
 CUERPO_PEQUENO = {"Pequeno"}
 THADDEUS = "D5ACAA9D"
+# ajustes a mano de Aaron por lo que vale su modo (O-271), en todas sus listas:
+# {identidad: (escalones que sube, motivo)} y {identidad: (tier fija, motivo)}
+SUBE_A_MANO = {"A28E9F95": (1, "+1 por su modo Reina (Aaron)")}            # Beta, la normal
+TIER_A_MANO = {"3E55F38F": ("A", "a la A por su modo Santurron (Aaron)")}   # Seth Bael
 TOPE_S = 0.02
 MARGEN_S = 0.003
 JUNTAS = 1                # notas que se llevan esto o menos, mismo escalon
@@ -219,6 +223,17 @@ def main():
         f["_k"] = cero + k - d
         f["tier"] = letra(f["_k"])
         f["ajustes"] = "; ".join(motivos)
+    for f in filas:
+        if f["identidad"] in SUBE_A_MANO:
+            n, motivo = SUBE_A_MANO[f["identidad"]]
+            f["_k"] -= n
+            f["tier"] = letra(f["_k"])
+            f["ajustes"] = (f["ajustes"] + "; " if f["ajustes"] else "") + motivo
+        if f["identidad"] in TIER_A_MANO:
+            t, motivo = TIER_A_MANO[f["identidad"]]
+            f["_k"] = ESCALERA.index(t)
+            f["tier"] = t
+            f["ajustes"] = (f["ajustes"] + "; " if f["ajustes"] else "") + motivo
     # Thaddeus: arriba del todo de sus dos listas
     for f in filas:
         if f["identidad"] == THADDEUS:

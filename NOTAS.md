@@ -6270,6 +6270,14 @@ datos; fuera las fichas pequenas de cosas que ya estan dentro del editor
 (jugadores, mochila, fichar...). El panel del draft lleva cuatro caras
 contra cuatro al azar.
 
+### O-271 · Tier list: Beta y Seth Bael suben por su modo
+
+Aaron: "sube una tier a la Beta normal por su modo reina... y a Seth subelo
+hasta A por el modo santurron". En `construir_tier_list.py`, `SUBE_A_MANO`
+(Beta A28E9F95, la normal con modo: +1, queda S en Leyendas y Z en
+Diamantes) y `TIER_A_MANO` (Seth Bael 3E55F38F, el unico Seth con modo: A en
+Leyendas y en Diamantes). El motivo sale en sus ajustes.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

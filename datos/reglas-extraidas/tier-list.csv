@@ -1589,6 +1589,8 @@ diamante,DEF,F,F,,3B490BFE,Zayn Pinegrove,Inazuma Eleven: Heroes' Victory Road,V
 diamante,DEF,F,F,,3E4E9E6F,Zora Selwick,Inazuma Eleven: Heroes' Victory Road,Viento,DEF,Alto,Afinidad,1042,309 322 335 329 338 294 375
 diamante,DEF,G,F,-1 cuerpo pequeno,F00C812D,Emperio N. Guinn,Inazuma Eleven: Ares,Viento,DEF,Pequeno,Juego sucio,1042,309 322 335 329 338 294 375
 diamante,DEF,G,F,-1 cuerpo pequeno,10E1466A,Sean Wujing,Inazuma Eleven 3,Viento,DEF,Pequeno,Contra,1042,309 322 335 329 338 294 375
+diamante,DEL,Z,A,"+1 armadura/mixi; +1 arbol optimo (Tiro, Tiro, Regate, Tiro + 2 libres); +1 por su modo Reina (Aaron)",A28E9F95,Beta,Inazuma Eleven GO 2,Viento,DEL,Normal,Tension,1154,410 386 358 282 273 273 299
+diamante,DEL,Z,C,"+1 arbol optimo (Tiro, Regate, Tiro, Tiro + 2 libres); arriba del todo por su modo (Aaron)",D5ACAA9D,Thaddeus Bellefax,Inazuma Eleven: Heroes' Victory Road,Bosque,DEL,Alto,Tension,1110,385 376 349 294 282 273 322
 diamante,DEL,X,S,"+1 arbol optimo (Defensa, Tiro, Regate, Tiro + 2 libres)",4D5A4A01,Adamas Quarell,Inazuma Eleven: Heroes' Victory Road,Montana,DEL,Normal,Justicia,1169,410 391 368 282 273 273 309
 diamante,DEL,X,S,"+1 arbol optimo (Tiro, Tiro, Regate, Tiro + 2 libres)",A9E0F0F7,Adel Siddique,Inazuma Eleven 3,Montana,DEL,Normal,Justicia,1169,410 391 368 282 273 273 309
 diamante,DEL,X,S,"+1 arbol optimo (Tiro, Tiro, Tiro, Regate + 2 libres)",55F0370A,Braveon Halvors,Inazuma Eleven: Ares,Montana,DEL,Normal,Justicia,1169,410 391 368 282 273 273 309
@@ -1604,7 +1606,6 @@ diamante,DEL,X,A,"+1 armadura/mixi; +1 arbol optimo (Tiro, Regate, Tiro, Tiro + 
 diamante,DEL,X,A,"+1 armadura/mixi; +1 arbol optimo (Tiro, Tiro, Regate, Tiro + 2 libres)",6DDB21BF,Aye Nort,Inazuma Eleven GO 2,Montana,DEL,Normal,Juego sucio,1154,410 386 358 282 273 273 299
 diamante,DEL,X,A,"+1 armadura/mixi; +1 arbol optimo (Tiro, Tiro, Regate, Defensa + 2 libres)",6F08BCC1,Bai Long,Inazuma Eleven GO,Viento,DEL,Normal,Brecha,1154,410 386 358 282 273 273 299
 diamante,DEL,X,A,"+1 armadura/mixi; +1 arbol optimo (Tiro, Regate, Tiro, Tiro + 2 libres)",2E1A7B28,Beta,Inazuma Eleven GO 2,Viento,DEL,Normal,Tension,1154,410 386 358 282 273 273 299
-diamante,DEL,X,A,"+1 armadura/mixi; +1 arbol optimo (Tiro, Tiro, Regate, Tiro + 2 libres)",A28E9F95,Beta,Inazuma Eleven GO 2,Viento,DEL,Normal,Tension,1154,410 386 358 282 273 273 299
 diamante,DEL,X,A,"+1 armadura/mixi; +1 arbol optimo (Tiro, Tiro, Regate, Tiro + 2 libres)",C501744A,Davy Jones,Inazuma Eleven GO,Viento,DEL,Normal,Afinidad,1154,410 386 358 282 273 273 299
 diamante,DEL,X,A,"+1 armadura/mixi; +1 arbol optimo (Tiro, Tiro, Defensa, Tiro + 2 libres)",B4B64CC9,Dekih,Inazuma Eleven GO 2,Bosque,DEL,Normal,Tension,1154,410 386 358 282 273 273 299
 diamante,DEL,X,A,"+1 armadura/mixi; +1 arbol optimo (Tiro, Defensa, Tiro, Tiro + 2 libres)",25463C15,Gamma,Inazuma Eleven GO 2,Bosque,DEL,Normal,Juego sucio,1154,410 386 358 282 273 273 299
@@ -1623,7 +1624,6 @@ diamante,DEL,X,A,"+1 armadura/mixi; +1 arbol optimo (Tiro, Tiro, Regate, Tiro + 
 diamante,DEL,X,A,"+1 armadura/mixi; +1 arbol optimo (Tiro, Tiro, Defensa, Tiro + 2 libres)",ADAD7D88,Yuh,Inazuma Eleven GO 2,Viento,DEL,Normal,Contra,1154,410 386 358 282 273 273 299
 diamante,DEL,X,A,"+1 armadura/mixi; +1 arbol optimo (Tiro, Regate, Tiro, Tiro + 2 libres)",9522C823,Zanark Avalonic,Inazuma Eleven GO 2,Montana,DEL,Alto,Juego sucio,1154,410 386 358 282 273 273 299
 diamante,DEL,X,A,"+1 armadura/mixi; +1 arbol optimo (Tiro, Tiro, Regate, Defensa + 2 libres)",19B62C9E,Zanark Avalonic,Inazuma Eleven GO 2,Montana,DEL,Alto,Juego sucio,1154,410 386 358 282 273 273 299
-diamante,DEL,X,C,"+1 arbol optimo (Tiro, Regate, Tiro, Tiro + 2 libres); arriba del todo por su modo (Aaron)",D5ACAA9D,Thaddeus Bellefax,Inazuma Eleven: Heroes' Victory Road,Bosque,DEL,Alto,Tension,1110,385 376 349 294 282 273 322
 diamante,DEL,S,A,"+1 arbol optimo (Regate, Tiro, Tiro, Tiro + 2 libres)",7F6E167A,Aaron Adams,Inazuma Eleven 3,Bosque,DEL,Alto,Brecha,1154,410 386 358 282 273 273 299
 diamante,DEL,S,A,"+1 arbol optimo (Regate, Tiro, Tiro, Tiro + 2 libres)",2A2551D3,Adam Venturus,Inazuma Eleven 3,Fuego,DEL,Alto,Afinidad,1154,410 386 358 282 273 273 299
 diamante,DEL,S,A,"+1 arbol optimo (Regate, Tiro, Tiro, Tiro + 2 libres)",DFD6E1C3,Ade Posting,Inazuma Eleven,Viento,DEL,Normal,Juego sucio,1154,410 386 358 282 273 273 299
@@ -3355,6 +3355,7 @@ diamante,MED,A,B,"+1 arbol optimo (Regate, Defensa, Tiro, Regate + 2 libres)",CC
 diamante,MED,A,B,"+1 arbol optimo (Regate, Regate, Defensa, Tiro + 2 libres)",F0D14A87,Victor Talis,Inazuma Eleven,Bosque,MED,Normal,Contra,1117,322 371 383 292 303 273 363
 diamante,MED,A,B,"+1 arbol optimo (Regate, Tiro, Regate, Defensa + 2 libres)",05ABD762,Zerbino Savelli,Inazuma Eleven: Orión,Bosque,MED,Normal,Juego sucio,1117,322 371 383 292 303 273 363
 diamante,MED,A,B,"+1 arbol optimo (Regate, Defensa, Regate, Tiro + 2 libres)",6A9AA2A4,Álvaro Meléndez,Inazuma Eleven: Orión,Bosque,MED,Alto,Tension,1117,322 371 383 292 303 273 363
+diamante,MED,A,C,a la A por su modo Santurron (Aaron),3E55F38F,Seth Bael,Inazuma Eleven: Orión,Montana,MED,Alto,Contra,1093,353 381 380 294 295 273 332
 diamante,MED,B,A,"-1 no lleva a la vez tiro, defensa y regate (falta Tiro, Defensa)",9F503691,Callum Biddy,Inazuma Eleven 2,Montana,MED,Normal,Afinidad,1137,342 391 403 282 273 273 343
 diamante,MED,B,A,"-1 no lleva a la vez tiro, defensa y regate (falta Tiro, Defensa)",98C20947,Cerise Blossom,Inazuma Eleven GO Galaxy,Viento,MED,Pequeno,Afinidad,1137,342 391 403 282 273 273 343
 diamante,MED,B,A,"-1 no lleva a la vez tiro, defensa y regate (falta Tiro, Defensa)",28CDE04A,Cinnamon Dougherty,Inazuma Eleven: Heroes' Victory Road,Fuego,MED,Normal,Justicia,1137,342 391 403 282 273 273 343
@@ -4066,7 +4067,6 @@ diamante,MED,C,C,,CEBF553C,Senji Kudo,Inazuma Eleven GO 2,Fuego,MED,Normal,Juego
 diamante,MED,C,C,,D3B32649,Seph T. Forst,Inazuma Eleven: Heroes' Victory Road,Montana,MED,Musculoso,Justicia,1093,353 381 380 294 295 273 332
 diamante,MED,C,C,,D1F869F2,Sepia Bartletti,Inazuma Eleven GO,Viento,MED,Normal,Contra,1093,353 381 380 294 295 273 332
 diamante,MED,C,C,,53EDB7D0,Sergi Hernández,Inazuma Eleven: Ares,Montana,MED,Musculoso,Juego sucio,1093,353 381 380 294 295 273 332
-diamante,MED,C,C,,3E55F38F,Seth Bael,Inazuma Eleven: Orión,Montana,MED,Alto,Contra,1093,353 381 380 294 295 273 332
 diamante,MED,C,C,,D60318BC,Shaun Asparr,Inazuma Eleven GO,Montana,MED,Alto,Afinidad,1093,353 381 380 294 295 273 332
 diamante,MED,C,C,,6A57159D,Sierra,Inazuma Eleven GO 2,Bosque,MED,Normal,Juego sucio,1093,353 381 380 294 295 273 332
 diamante,MED,C,C,,A928FF99,Sierra,Inazuma Eleven GO 2,Bosque,MED,Normal,Afinidad,1093,353 381 380 294 295 273 332
@@ -7236,6 +7236,7 @@ leyenda,DEL,S,A,"+1 arbol optimo (Tiro, Tiro, Regate, Tiro + 2 libres)",B3F47A7E
 leyenda,DEL,S,A,"+1 arbol optimo (Tiro, Tiro, Defensa, Regate + 2 libres)",C50A2351,Xene,Inazuma Eleven 2,Fuego,DEL,Normal,Afinidad,789,284 267 238 197 190 190 215
 leyenda,DEL,S,A,"+1 arbol optimo (Tiro, Regate, Tiro, Tiro + 2 libres)",18904E23,Zanark Avalonic,Inazuma Eleven: Heroes' Victory Road,Montana,DEL,Alto,Juego sucio,789,284 267 238 197 190 190 215
 leyenda,DEL,S,A,"+1 arbol optimo (Tiro, Tiro, Regate, Defensa + 2 libres)",1EC03F8D,Zanark Avalonic,Inazuma Eleven GO 2,Montana,DEL,Alto,Juego sucio,789,284 267 238 197 190 190 215
+leyenda,DEL,S,C,"+1 armadura/mixi; +1 arbol optimo (Tiro, Tiro, Regate, Tiro + 2 libres); +1 por su modo Reina (Aaron)",A28E9F95,Beta,Inazuma Eleven GO 2,Viento,DEL,Normal,Tension,782,280 266 236 194 187 189 212
 leyenda,DEL,A,A,,34F73983,Axel Blaze,Inazuma Eleven GO 2,Fuego,DEL,Alto,Justicia,789,284 267 238 197 190 190 215
 leyenda,DEL,A,A,,9B657568,Axel Blaze,Inazuma Eleven: Ares,Fuego,DEL,Normal,Justicia,789,284 267 238 197 190 190 215
 leyenda,DEL,A,A,,AA9BC1C3,Basile Hardy,Inazuma Eleven: Orión,Fuego,DEL,Normal,Justicia,789,284 267 238 197 190 190 215
@@ -7260,7 +7261,6 @@ leyenda,DEL,A,B,"+1 arbol optimo (Tiro, Tiro, Regate, Tiro + 2 libres)",AAF99CE4
 leyenda,DEL,A,B,"+1 arbol optimo (Tiro, Tiro, Regate, Tiro + 2 libres)",E27FA6A9,Victorio Cryptix,Inazuma Eleven: Heroes' Victory Road,Viento,DEL,Normal,Contra,786,284 267 235 200 195 190 215
 leyenda,DEL,A,B,"+1 arbol optimo (Tiro, Tiro, Regate, Tiro + 2 libres)",0966300A,Xavier Schiller,Inazuma Eleven: Ares,Bosque,DEL,Pequeno,Juego sucio,786,284 267 235 200 195 190 215
 leyenda,DEL,A,C,"+1 armadura/mixi; +1 arbol optimo (Tiro, Tiro, Regate, Tiro + 2 libres)",A10A4BFB,Alfa,Inazuma Eleven GO 2,Fuego,DEL,Normal,Contra,782,280 266 236 194 187 189 212
-leyenda,DEL,A,C,"+1 armadura/mixi; +1 arbol optimo (Tiro, Tiro, Regate, Tiro + 2 libres)",A28E9F95,Beta,Inazuma Eleven GO 2,Viento,DEL,Normal,Tension,782,280 266 236 194 187 189 212
 leyenda,DEL,A,C,"+1 armadura/mixi; +1 arbol optimo (Tiro, Tiro, Regate, Tiro + 2 libres)",A9D2D8A8,Gamma,Inazuma Eleven GO 2,Bosque,DEL,Normal,Juego sucio,782,280 266 236 194 187 189 212
 leyenda,DEL,A,C,"+1 armadura/mixi; +1 arbol optimo (Tiro, Tiro, Regate, Tiro + 2 libres)",3197A515,Kevin Dragonfly,Inazuma Eleven,Bosque,DEL,Alto,Tension,782,280 266 236 194 187 189 212
 leyenda,DEL,A,C,"+1 armadura/mixi; +1 arbol optimo (Tiro, Tiro, Regate, Tiro + 2 libres)",D0BD7378,Njord Snio,Inazuma Eleven GO,Viento,DEL,Normal,Tension,782,280 266 236 194 187 189 212
@@ -8643,6 +8643,7 @@ leyenda,MED,A,B,"+1 arbol optimo (Regate, Defensa, Regate, Tiro + 2 libres)",A27
 leyenda,MED,A,B,"+1 arbol optimo (Regate, Regate, Defensa, Tiro + 2 libres)",2B71BC9F,Volk Lorius,Inazuma Eleven: Heroes' Victory Road,Viento,MED,Normal,Brecha,756,228 263 260 190 183 183 233
 leyenda,MED,A,B,"+1 arbol optimo (Regate, Defensa, Regate, Tiro + 2 libres)",F59E5C02,Walter Valiant,Inazuma Eleven,Fuego,MED,Alto,Contra,756,228 263 260 190 183 183 233
 leyenda,MED,A,B,"+1 arbol optimo (Regate, Defensa, Regate, Tiro + 2 libres)",6A9AA2A4,Álvaro Meléndez,Inazuma Eleven: Orión,Bosque,MED,Alto,Tension,756,218 263 260 193 188 183 233
+leyenda,MED,A,G,a la A por su modo Santurron (Aaron),3E55F38F,Seth Bael,Inazuma Eleven: Orión,Montana,MED,Alto,Contra,719,234 253 242 196 197 180 224
 leyenda,MED,B,A,"-1 no lleva a la vez tiro, defensa y regate (falta Tiro, Defensa)",98C20947,Cerise Blossom,Inazuma Eleven GO Galaxy,Viento,MED,Pequeno,Afinidad,764,231 264 263 193 186 189 237
 leyenda,MED,B,A,"-1 no lleva a la vez tiro, defensa y regate (falta Tiro, Defensa)",F1CEEB1A,Percival Travis,Inazuma Eleven: Ares,Bosque,MED,Alto,Justicia,764,221 264 263 196 191 189 237
 leyenda,MED,B,A,"-1 no lleva a la vez tiro, defensa y regate (falta Tiro, Defensa)",B1D65F12,Skie Blue,Inazuma Eleven GO Galaxy,Bosque,MED,Normal,Contra,764,221 264 263 193 191 199 237
@@ -10016,7 +10017,6 @@ leyenda,MED,G,G,,CEBF553C,Senji Kudo,Inazuma Eleven GO 2,Fuego,MED,Normal,Juego 
 leyenda,MED,G,G,,D3B32649,Seph T. Forst,Inazuma Eleven: Heroes' Victory Road,Montana,MED,Musculoso,Justicia,719,234 253 242 196 197 180 224
 leyenda,MED,G,G,,D1F869F2,Sepia Bartletti,Inazuma Eleven GO,Viento,MED,Normal,Contra,719,234 253 242 196 197 180 224
 leyenda,MED,G,G,,EF9AA16A,Serena Besse,Inazuma Eleven 2,Bosque,MED,Normal,Afinidad,719,224 253 242 199 202 180 224
-leyenda,MED,G,G,,3E55F38F,Seth Bael,Inazuma Eleven: Orión,Montana,MED,Alto,Contra,719,234 253 242 196 197 180 224
 leyenda,MED,G,G,,5E62BA9A,Seth Paynter,Inazuma Eleven 3,Bosque,MED,Pequeno,Brecha,719,224 253 242 199 202 180 224
 leyenda,MED,G,G,,D60318BC,Shaun Asparr,Inazuma Eleven GO,Montana,MED,Alto,Afinidad,719,234 253 242 196 197 180 224
 leyenda,MED,G,G,,A24EE115,Shaun Bonce,Inazuma Eleven GO,Viento,MED,Pequeno,Contra,719,224 253 242 199 202 180 224
