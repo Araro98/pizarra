@@ -174,6 +174,7 @@ def main():
         filas.append({"categoria": categoria(p), "lista": p["posicion"], "identidad": p["identidad"],
                       "nombre": p["nombre"], "saga": p.get("saga") or "", "elemento": p.get("elemento") or "",
                       "posicion": p["posicion"], "cuerpo": p.get("cuerpo_tipo") or "",
+                      "arquetipo": p.get("arquetipo") or "",      # el de los Idolos es fijo
                       "nota": nota, "stats": " ".join(map(str, st)), "_p": p})
     # Thaddeus tambien en la lista de medios (se juega asi en el competitivo)
     extra = []
@@ -211,7 +212,7 @@ def main():
             f["tier"] = letra(f["_k"])
             f["ajustes"] = (f["ajustes"] + "; " if f["ajustes"] else "") + "arriba del todo por su modo (Aaron)"
     campos = ["categoria", "lista", "tier", "tier_stats", "ajustes", "identidad", "nombre", "saga",
-              "elemento", "posicion", "cuerpo", "nota", "stats"]
+              "elemento", "posicion", "cuerpo", "arquetipo", "nota", "stats"]
     filas.sort(key=lambda f: (f["categoria"], f["lista"], f["_k"], -f["nota"], f["nombre"]))
     with open(SALIDA, "w", newline="", encoding="utf-8") as fh:
         fh.write("# Tier list de jugadores (NOTAS O-265). Lo genera herramientas/construir_tier_list.py.\n")
