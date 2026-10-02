@@ -84,6 +84,8 @@ def candidatos():
                 "genero": p.get("genero") or "",
                 "stats": stats, "poder": O._poder99_con_arbol(ident, rareza_draft),
                 "legal": ident in fichables, "tier": tiers.get(ident.upper()),
+                # si sale de Diamante, sale el de los 70 (O-273)
+                "diamante_propio": ident.upper() in reglas.diamante_propio(),
             })
         # las formas mixi max y los modos de la historia (Arion con el mixi
         # max del Rey Arturo, los modos de la Cascada Perfecta...): no cuentan
@@ -318,8 +320,20 @@ def crear_jugadores(plain, resultado, avisos, al_dia=True):
     filas = []
     # (el arbol y la tabla de pasivas se ponen al dia una vez por jugador, al
     # final: es lo que mas tarda, un segundo cada vez)
+    propios = reglas.diamante_propio()
     for j in resultado["jugadores"]:
         ident = j["identidad"].upper()
+        # el Diamante elegido que tiene su version de los 70: se crea esa, que
+        # seguro que es legal (Aaron, O-273), con el arquetipo que toco
+        if j.get("diamante") and ident in propios:
+            plain, info = E.anadir_jugador(plain, propios[ident])
+            fila = info["fila"]
+            plain, _ = PR.maximo(plain, fila)
+            plain, _ = E.poner_arquetipo_diamante(plain, fila, arq)
+            if al_dia:
+                plain = tras_cambio(plain, {"fila": fila})
+            filas.append(fila)
+            continue
         if j.get("idolo"):
             plain, info = E.anadir_jugador(plain, ident)
         else:

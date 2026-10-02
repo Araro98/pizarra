@@ -38,6 +38,10 @@
   .marcador .centro small { display:block; font-weight:600; font-size:var(--t-xs); opacity:.85; }
   .aviso-turno { margin:12px 0 8px; font-size:var(--t-lg); font-weight:900; font-style:italic; color:var(--azul-osc); }
   .aviso-turno.mio { color:#1e8a4c; }
+  .diamante-propio { position:absolute; left:4px; right:4px; top:24px; z-index:3; text-align:center;
+    font-size:var(--t-xxs); font-weight:900; font-style:italic; color:#fff; border-radius:5px; padding:1px 4px;
+    background:linear-gradient(90deg,#7fd3e8,#c58bf0,#f4a6d7); text-shadow:0 1px 1px rgba(0,0,0,.5);
+    border:1px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.35); }
   .formaciones-draft { display:flex; flex-wrap:wrap; gap:12px; margin:10px 0 2px; }
   .caja-formacion { display:flex; align-items:center; gap:10px; background:#fff; border:2px solid #cfdbec; border-radius:10px; padding:6px 12px 6px 6px; }
   .caja-formacion small { display:block; color:#5b6b80; font-weight:700; }
@@ -1583,6 +1587,9 @@ function pintaZona() {
       const c = porId[x.id] || {};
       const f = tarjeta(x.id, c.idolo || elegido ? null : () => elegirDiamante(x.id), elegido === x.id ? "elegido" : "");
       if (c.idolo) f.style.opacity = ".45";
+      // tiene su version de los 70 Diamantes: sale esa (O-273)
+      if (c.diamante_propio) f.appendChild(el("span", {class:"diamante-propio", text:"Diamante de fabrica",
+        title:"Tiene su propia version Diamante en el juego: si lo eliges, te llevas esa"}));
       rej.appendChild(f);
     }
     z.appendChild(rej);

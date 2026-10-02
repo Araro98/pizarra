@@ -6298,6 +6298,19 @@ que cree Aaron: SUPUESTO suyo, no comprobado.)
 - Pendiente de preguntar: el boton "Diamante" del editor sobre uno de esos
   normales que ya tienes sigue haciendolo "normal hecho Diamante".
 
+### O-273 · En el draft, el Diamante elegido sale como el de los 70
+
+Aaron: "deja que cuando conviertes en diamante (solo en draft porque en
+otros sitios esta desactivado) te ponga la version de esos 70, que se 100%
+que son legales". Lo de la semilla en el juego queda sin saber (O-272): si
+lo prueba, se decide si el boton "Diamante" del editor hace lo mismo.
+
+- `crear_jugadores` (montaje e importar): si el Diamante elegido tiene su
+  version de los 70 (`reglas.diamante_propio()`), se crea esa (nivel 99,
+  MAX) con el arquetipo que toco, en vez de pasar el normal a Diamante.
+- Los candidatos del draft llevan `diamante_propio`; al elegir Diamante su
+  tarjeta dice "Diamante de fabrica".
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
