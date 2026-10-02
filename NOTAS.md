@@ -6162,6 +6162,21 @@ decisiones en el docstring. Lo principal:
 - Pagina local de repaso con las caras (no se publica): scratchpad
   tier-list-borrador.html.
 
+### O-266 · Inazuma Drop no salia en los arboles
+
+Repasando la tier list salio el Axel de Ares con la ranura 4 "que no
+existe". Es Inazuma Drop (A4A8BD63, tiro, combinada x2): esta en
+`tecnicas.csv` pero se anadio despues de generar `jugadores.csv`, que la
+dejaba como "?" en 39 ranuras (Axel de Ares, Jimmy Mach, Gaby Farmer...). En
+el editor esas ranuras salian como "no existe en su arbol". Rehecho
+`jugadores.csv` con `construir_base_jugadores.py`: solo cambian esas 39
+ranuras y 10 nombres que estaban vacios (Josefina, Profe de ciencias...).
+Tier list regenerada (el Axel de Ares sigue en A: 4 tiros fijos y 2 libres,
+regate o defensa pero no los dos).
+
+La tier list tambien queda guardada asi: cada nota distinta un escalon,
+arbol optimo +1 contando las libres, sin topes en S (O-265 revisado).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
