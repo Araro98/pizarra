@@ -6133,6 +6133,35 @@ Aaron, tras jugar la subasta:
 - Probado con dos ventanas: personal al azar a los dos, 8 rellenos para el
   que pujaba poco (todos de la plantilla mas baja), resumen al acabar.
 
+### O-265 · Tier list (primer borrador, aun fuera del editor)
+
+Aaron pidio una tier list (leyendas, Idolos y Diamantes; por posicion y
+afinidad, como su documento "Tier IE3": columnas DL/MD/DF/PR con las cuatro
+afinidades y filas por tier) y de momento solo la clasificacion interna.
+`herramientas/construir_tier_list.py` -> `datos/reglas-extraidas/tier-list.csv`
+(categoria, lista, tier, tier_stats, ajustes, nota, stats...). Criterios y
+decisiones en el docstring. Lo principal:
+
+- Nota = suma de los stats que pesan en su posicion (POS_OPTIMA) a 99 con
+  arbol. Los stats a 99 van por plantillas (DEF: 773 de 1581 con la peor
+  nota), asi que en leyendas la tier va por el puesto en la lista (A hasta el
+  15 %, B 40 %, C 70 %, D el resto) y en Idolos y Diamantes (pocos) por la
+  distancia a la mejor nota.
+- S: la nota mas alta solo si la tienen muy pocos (2 %, al menos 3) y saca
+  un 0,3 % a la siguiente. Leyendas: MED Arion, Mehr, Ryoma, Celia, Jimmy,
+  Lucas, Ivan, Alexander, Serge, Sergi (772); DEF solo Cao Cao; POR Silvia
+  Woods; DEL vacia (salvo Thaddeus).
+- Ajustes (+/-1): DEL armadura/mixi +1 (57), arbol de DEL que no sea todo
+  tiro salvo 1 regate/1 defensa -1 (282), POR con ranuras que no son de
+  parada -1 (626 de 845), MED sin tiro+defensa+regate contando una libre -1
+  (107), DEF musculoso/grande +1 y pequeno -1. Decision mia: los ajustes no
+  suben a nadie a S (si no, 154 defensas acababan en S): S, X y Z solo para
+  los que ya son S por stats. "Robusto" (93) no cuenta como grande ni
+  pequeno: a preguntar.
+- Thaddeus arriba del todo en DEL y tambien en MED.
+- Pagina local de repaso con las caras (no se publica): scratchpad
+  tier-list-borrador.html.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
