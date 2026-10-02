@@ -8,34 +8,35 @@ posicion de jugador, en su categoria (leyenda, idolo, diamante), su lista
 (DEL, MED, DEF, POR; Thaddeus tambien en MED), su afinidad, su nota, la tier
 que le dan los stats, los ajustes y la tier final.
 
-Criterios de Aaron (2026-10-02):
+Criterios de Aaron (2026-10-02, revisados tras el primer borrador):
 
 - Stats: la nota es la suma de los stats que pesan en su posicion (los de
   POS_OPTIMA del editor: DEL potencia + control + tecnica, MED control +
   tecnica + inteligencia, DEF presion + fisico + inteligencia, POR presion +
   fisico + agilidad) a nivel 99 con su arbol: un normal en Leyenda, un Idolo
-  y un Diamante con su rareza. Los stats a 99 van por plantillas (muchos
-  personajes comparten numeros: en DEF 773 de 1581 tienen la peor nota):
-  - leyendas (muchos): por el puesto que ocupa su nota en la lista (el
-    centro de su grupo de notas iguales): A hasta el 15 % de arriba, B hasta
-    el 40 %, C hasta el 70 %, D el resto;
-  - Idolos y Diamantes (pocos): por lo cerca que esta su nota de la mejor
-    (A el cuarto de arriba de la distancia entre la peor y la mejor, luego
-    B, C y D); el grupo mas alto siempre es A.
-- S solo los muy pocos: la nota mas alta si la comparten como mucho un 2 %
-  (al menos 3 caben siempre) y saca a la siguiente al menos un 0,3 %. Si no,
-  S se queda vacia. Los ajustes no suben a nadie a S: S, X y Z son solo
-  para los que ya son S por stats.
-- Ajustes (en las tres categorias), cada uno una tier arriba o abajo; por
-  encima de S van X y luego Z, por debajo de D, E:
-  - DEL con armadura o mixi max: +1.
-  - DEL cuyo arbol (ranuras 1 a 6: el tronco y la rama 1, sin las libres)
-    no sea todo tiro salvo 1 regate, 1 defensa o 1 regate + 1 defensa: -1.
-  - POR con alguna ranura (1 a 6, sin las libres) que no sea de parada: -1.
-  - MED que no pueda llevar a la vez tiro, defensa y regate (contando sus
-    ranuras 1 a 6 y como mucho UNA libre, la otra va con hipertecnica): -1.
-  - DEF de cuerpo musculoso o grande: +1; pequeno: -1.
-  - Thaddeus Bellefax: arriba del todo por su modo, en DEL y tambien en MED.
+  y un Diamante con su rareza. Cada nota distinta de su categoria y posicion
+  es un escalon (las que se llevan 1 punto van juntas): "si uno es algo peor
+  que el otro, no en la misma tier".
+- Cada ajuste es un escalon arriba o abajo, sin topes; se crean las letras
+  que hagan falta (por arriba S, X, Z; por abajo A, B, C... saltando S, X, Y
+  y Z). La mejor nota, sin ajustes, es S si la tienen muy pocos (2 %, al
+  menos 3, y saca un 0,3 % a la siguiente); si no, A (y a S se llega con
+  ajustes).
+- Arbol: ranuras 1 a 6 (tronco y rama 1); las LIBRE valen para cualquier
+  cosa y en una de ellas va siempre una hipertecnica.
+  - DEL: optimo (+1) si puede llevar 3 tiros, 1 regate, 1 defensa y 1
+    hipertecnica (como Axel nino: tiro, regate, libre, tiro, tiro, libre);
+    bien (0) si puede llevar al menos 1 regate o 1 defensa con el resto
+    tiros y la hipertecnica; mal (-1) si no (2 regates o 2 defensas fijos,
+    ranuras de parada, o ningun hueco para regate/defensa).
+  - POR: optimo (+1) si todo lo fijo es parada y tiene libre para la
+    hipertecnica (5 paradas + 1 hipertecnica); cada ranura fija que no es de
+    parada, -1 (como mucho -2).
+  - MED: -1 por cada uno de tiro/defensa/regate que no pueda llevar
+    contando una sola libre (la otra va con hipertecnica); como mucho -2.
+- DEL con armadura o mixi max: +1.
+- DEF de cuerpo musculoso o grande: +1; pequeno: -1.
+- Thaddeus Bellefax: arriba del todo por su modo, en DEL y tambien en MED.
 """
 import csv
 import os
@@ -47,13 +48,15 @@ from ievr import basedatos as BD, opciones as O  # noqa: E402
 
 SALIDA = os.path.join(RAIZ, "datos", "reglas-extraidas", "tier-list.csv")
 STATS_DE_POSICION = {"DEL": (0, 1, 2), "MED": (1, 2, 6), "DEF": (3, 4, 6), "POR": (3, 4, 5)}
-ESCALERA = ["Z", "X", "S", "A", "B", "C", "D", "E"]
+# de mejor a peor; si hiciera falta mas, se repite la ultima
+ESCALERA = ["Z", "X", "S", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
+            "O", "P", "Q", "R", "T", "U", "V", "W"]
 CUERPO_GRANDE = {"Musculoso", "Grande"}
 CUERPO_PEQUENO = {"Pequeno"}
 THADDEUS = "D5ACAA9D"
 TOPE_S = 0.02
-MARGEN_S = 0.003          # lo que tiene que sacar a la siguiente nota
-POCOS = 100               # por debajo de esto, tiers por distancia a la mejor
+MARGEN_S = 0.003
+JUNTAS = 1                # notas que se llevan esto o menos, mismo escalon
 
 
 def categoria(p):
@@ -77,34 +80,50 @@ def ranuras(ident):
     return fuera
 
 
+def _fijas_y_libres(rs):
+    fijas = [t for t in rs.values() if t != "LIBRE"]
+    return fijas, sum(1 for t in rs.values() if t == "LIBRE")
+
+
 def ajuste_del(p, rs):
     motivos, d = [], 0
     if p.get("armadura") == "si" or p.get("mixi") == "si":
         d += 1
         motivos.append("+1 armadura/mixi")
-    fijas = [t for t in rs.values() if t != "LIBRE"]
-    reg, defe = fijas.count("Regate"), fijas.count("Defensa")
-    otras = [t for t in fijas if t not in ("Tiro", "Regate", "Defensa")]
-    if not (reg <= 1 and defe <= 1 and reg + defe >= 1 and not otras):
+    fijas, libres = _fijas_y_libres(rs)
+    tiros, reg, defe = fijas.count("Tiro"), fijas.count("Regate"), fijas.count("Defensa")
+    otras = len(fijas) - tiros - reg - defe
+    texto = ", ".join(fijas) + (" + %d libres" % libres if libres else "")
+    if otras or reg > 1 or defe > 1 or libres < 1:
         d -= 1
-        motivos.append("-1 arbol (%s)" % ", ".join(fijas))
+        motivos.append("-1 arbol (%s)" % texto)
+    elif tiros <= 3 and libres >= 1 + (1 - reg) + (1 - defe) + (3 - tiros):
+        # 3 tiros + regate + defensa + hipertecnica, con las libres (y con las
+        # ranuras que tiene de verdad: el Axel de Ares no tiene la 4)
+        d += 1
+        motivos.append("+1 arbol optimo (%s)" % texto)
+    elif reg + defe == 0 and libres < 2:
+        d -= 1
+        motivos.append("-1 arbol sin regate ni defensa (%s)" % texto)
     return d, motivos
 
 
 def ajuste_por(p, rs):
-    fijas = [t for t in rs.values() if t != "LIBRE"]
+    fijas, libres = _fijas_y_libres(rs)
     malas = [t for t in fijas if t != "Parada"]
     if malas:
-        return -1, ["-1 arbol con %s" % ", ".join(sorted(set(malas)))]
+        return -min(2, len(malas)), ["-%d arbol con %s" % (min(2, len(malas)), ", ".join(malas))]
+    if libres >= 1:
+        return 1, ["+1 arbol optimo (paradas + hipertecnica)"]
     return 0, []
 
 
 def ajuste_med(p, rs):
-    fijas = [t for t in rs.values() if t != "LIBRE"]
-    libres = sum(1 for t in rs.values() if t == "LIBRE")
+    fijas, libres = _fijas_y_libres(rs)
     faltan = [c for c in ("Tiro", "Defensa", "Regate") if c not in fijas]
-    if len(faltan) > min(1, libres):
-        return -1, ["-1 no lleva a la vez tiro, defensa y regate (falta %s)" % ", ".join(faltan)]
+    sin = len(faltan) - min(1, libres)
+    if sin > 0:
+        return -min(2, sin), ["-%d no lleva a la vez tiro, defensa y regate (falta %s)" % (min(2, sin), ", ".join(faltan))]
     return 0, []
 
 
@@ -120,44 +139,29 @@ def ajuste_def(p, rs):
 AJUSTES = {"DEL": ajuste_del, "POR": ajuste_por, "MED": ajuste_med, "DEF": ajuste_def}
 
 
-def mueve(tier, d):
-    """Sube o baja d tiers. A S (y por encima) solo se llega siendo ya S."""
-    k = ESCALERA.index(tier) - d
-    if d > 0 and ESCALERA.index(tier) > ESCALERA.index("S"):
-        k = max(k, ESCALERA.index("A"))
-    return ESCALERA[max(0, min(len(ESCALERA) - 1, k))]
-
-
 def hay_s(notas):
-    """La nota de la S, o None si S se queda vacia."""
+    """Si la mejor nota es S: la tienen muy pocos y saca a la siguiente."""
     distintas = sorted(set(notas), reverse=True)
-    alto = distintas[0]
-    cuantos = notas.count(alto)
+    alto, cuantos = distintas[0], notas.count(distintas[0])
     siguiente = distintas[1] if len(distintas) > 1 else None
     if cuantos > max(3, TOPE_S * len(notas)):
-        return None
-    if siguiente is not None and (alto - siguiente) < MARGEN_S * alto:
-        return None
-    return alto
+        return False
+    return siguiente is None or (alto - siguiente) >= MARGEN_S * alto
 
 
-def tier_por_stats(nota, notas):
-    """La tier de una nota entre las de su categoria y posicion."""
-    s = hay_s(notas)
-    if s is not None and nota == s:
-        return "S"
-    resto = [n for n in notas if n != s]
-    if len(notas) >= POCOS:
-        # por el puesto: el centro del grupo de los que tienen esa nota
-        encima = sum(1 for n in resto if n > nota)
-        iguales = sum(1 for n in resto if n == nota)
-        pos = (encima + iguales / 2) / len(resto)
-        return "A" if pos < 0.15 else "B" if pos < 0.40 else "C" if pos < 0.70 else "D"
-    alto, bajo = max(resto), min(resto)
-    if nota == alto:
-        return "A"
-    f = (nota - bajo) / (alto - bajo) if alto > bajo else 1.0
-    return "A" if f >= 0.75 else "B" if f >= 0.5 else "C" if f >= 0.25 else "D"
+def escalones(notas):
+    """{nota: escalon} con 0 la mejor; las que se llevan JUNTAS o menos van juntas."""
+    fuera, k, anterior = {}, -1, None
+    for n in sorted(set(notas), reverse=True):
+        if anterior is None or anterior - n > JUNTAS:
+            k += 1
+        fuera[n] = k
+        anterior = n
+    return fuera
+
+
+def letra(k):
+    return ESCALERA[max(0, min(len(ESCALERA) - 1, k))]
 
 
 def main():
@@ -187,22 +191,28 @@ def main():
         if f in extra:
             continue
         grupos.setdefault((f["categoria"], f["lista"]), []).append(f["nota"])
+    base = {g: (escalones(n), ESCALERA.index("S") if hay_s(n) else ESCALERA.index("A")) for g, n in grupos.items()}
     for f in filas:
-        f["tier_stats"] = tier_por_stats(f["nota"], grupos[(f["categoria"], f["lista"])])
+        esc, cero = base[(f["categoria"], f["lista"])]
+        k = esc.get(f["nota"])
+        if k is None:      # Thaddeus en MED: su nota de medio entre las de los medios
+            k = min((esc[n] for n in esc if n <= f["nota"] + JUNTAS), default=max(esc.values()))
+        f["tier_stats"] = letra(cero + k)
         d, motivos = AJUSTES[f["lista"]](f["_p"], ranuras(f["identidad"]))
-        f["tier"] = mueve(f["tier_stats"], d)
+        f["_k"] = cero + k - d
+        f["tier"] = letra(f["_k"])
         f["ajustes"] = "; ".join(motivos)
-    # Thaddeus: arriba del todo de sus dos listas (y nunca por debajo de S)
+    # Thaddeus: arriba del todo de sus dos listas
     for f in filas:
         if f["identidad"] == THADDEUS:
-            mas_alta = min((ESCALERA.index(g["tier"]) for g in filas
-                            if g["categoria"] == f["categoria"] and g["lista"] == f["lista"] and g is not f),
-                           default=ESCALERA.index("S"))
-            f["tier"] = ESCALERA[min(mas_alta, ESCALERA.index("S"))]
+            mejor = min((g["_k"] for g in filas if g["categoria"] == f["categoria"]
+                         and g["lista"] == f["lista"] and g["identidad"] != THADDEUS), default=2)
+            f["_k"] = min(mejor, ESCALERA.index("S"))
+            f["tier"] = letra(f["_k"])
             f["ajustes"] = (f["ajustes"] + "; " if f["ajustes"] else "") + "arriba del todo por su modo (Aaron)"
     campos = ["categoria", "lista", "tier", "tier_stats", "ajustes", "identidad", "nombre", "saga",
               "elemento", "posicion", "cuerpo", "nota", "stats"]
-    filas.sort(key=lambda f: (f["categoria"], f["lista"], ESCALERA.index(f["tier"]), -f["nota"], f["nombre"]))
+    filas.sort(key=lambda f: (f["categoria"], f["lista"], f["_k"], -f["nota"], f["nombre"]))
     with open(SALIDA, "w", newline="", encoding="utf-8") as fh:
         fh.write("# Tier list de jugadores (NOTAS O-265). Lo genera herramientas/construir_tier_list.py.\n")
         w = csv.DictWriter(fh, fieldnames=campos, extrasaction="ignore")
