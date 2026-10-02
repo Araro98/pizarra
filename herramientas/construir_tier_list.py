@@ -48,7 +48,7 @@ import sys
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, RAIZ)
-from ievr import basedatos as BD, opciones as O  # noqa: E402
+from ievr import basedatos as BD, opciones as O, reglas  # noqa: E402
 
 SALIDA = os.path.join(RAIZ, "datos", "reglas-extraidas", "tier-list.csv")
 STATS_DE_POSICION = {"DEL": (0, 1, 2), "MED": (1, 2, 6), "DEF": (3, 4, 6), "POR": (3, 4, 5)}
@@ -60,8 +60,10 @@ CUERPO_PEQUENO = {"Pequeno"}
 THADDEUS = "D5ACAA9D"
 # ajustes a mano de Aaron por lo que vale su modo (O-271), en todas sus listas:
 # {identidad: (escalones que sube, motivo)} y {identidad: (tier fija, motivo)}
-SUBE_A_MANO = {"A28E9F95": (1, "+1 por su modo Reina (Aaron)")}            # Beta, la normal
-TIER_A_MANO = {"3E55F38F": ("A", "a la A por su modo Santurron (Aaron)")}   # Seth Bael
+# (por categoria: Beta sube solo en Leyendas; Seth, A en Leyendas y S en Diamantes)
+SUBE_A_MANO = {("leyenda", "A28E9F95"): (1, "+1 por su modo Reina (Aaron)")}           # Beta, la normal
+TIER_A_MANO = {("leyenda", "3E55F38F"): ("A", "a la A por su modo Santurron (Aaron)"),  # Seth Bael
+               ("diamante", "3E55F38F"): ("S", "a la S por su modo Santurron (Aaron)")}
 TOPE_S = 0.02
 MARGEN_S = 0.003
 JUNTAS = 1                # notas que se llevan esto o menos, mismo escalon
@@ -187,7 +189,10 @@ def main():
     # cada normal sale en Leyendas y tambien en Diamantes (con una semilla
     # cualquiera puede ser Diamante): ahi se mira con sus stats de Diamante
     pares = [(p, categoria(p), rareza_para_stats(p)) for p in ps]
-    pares += [(p, "diamante", 8) for p in ps if categoria(p) == "leyenda"]
+    # ...menos los que tienen su propio Diamante: con semilla el juego da ese
+    # (los 70), que ya sale (Aaron, O-272)
+    propio = reglas.diamante_propio()
+    pares += [(p, "diamante", 8) for p in ps if categoria(p) == "leyenda" and p["identidad"].upper() not in propio]
     for p, cat, rareza in pares:
         st = O._stats99_con_arbol(p["identidad"], rareza)
         nota = sum(st[k] for k in STATS_DE_POSICION[p["posicion"]])
@@ -224,13 +229,13 @@ def main():
         f["tier"] = letra(f["_k"])
         f["ajustes"] = "; ".join(motivos)
     for f in filas:
-        if f["identidad"] in SUBE_A_MANO:
-            n, motivo = SUBE_A_MANO[f["identidad"]]
+        if (f["categoria"], f["identidad"]) in SUBE_A_MANO:
+            n, motivo = SUBE_A_MANO[(f["categoria"], f["identidad"])]
             f["_k"] -= n
             f["tier"] = letra(f["_k"])
             f["ajustes"] = (f["ajustes"] + "; " if f["ajustes"] else "") + motivo
-        if f["identidad"] in TIER_A_MANO:
-            t, motivo = TIER_A_MANO[f["identidad"]]
+        if (f["categoria"], f["identidad"]) in TIER_A_MANO:
+            t, motivo = TIER_A_MANO[(f["categoria"], f["identidad"])]
             f["_k"] = ESCALERA.index(t)
             f["tier"] = t
             f["ajustes"] = (f["ajustes"] + "; " if f["ajustes"] else "") + motivo

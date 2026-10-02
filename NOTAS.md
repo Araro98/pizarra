@@ -6278,6 +6278,26 @@ hasta A por el modo santurron". En `construir_tier_list.py`, `SUBE_A_MANO`
 Diamantes) y `TIER_A_MANO` (Seth Bael 3E55F38F, el unico Seth con modo: A en
 Leyendas y en Diamantes). El motivo sale en sus ajustes.
 
+### O-272 · Los 70 Diamantes de fabrica no se repiten "con semilla"
+
+Aaron: "de los 70 diamantes que hay sin semilla, quita sus versiones de con
+semilla... aunque uses semilla en ellos, el juego te da la version de los 70
+diamantes. Quitalos tambien de fichar, que se puedan fichar solo en su
+pestaña de 70 diamantes". (Que la semilla de el Diamante de fabrica es lo
+que cree Aaron: SUPUESTO suyo, no comprobado.)
+
+- `reglas.diamante_propio()`: {normal: su Diamante}, unidos por
+  `chara_base_id` (cada uno de los 70 tiene justo un normal fichable; con
+  las versiones de historia son 161).
+- Tier list: esos normales ya no salen en Diamantes (salen los 70);
+  "Tier como Diamante" de esos normales es la de su Diamante. 10.951 filas.
+- Fichar: en "Con semilla" no salen (5.333) y `anadir_jugador_diamante` lo
+  prohibe: "tiene su propio Diamante: fichalo en la pestaña Diamantes".
+- Ajustes a mano por categoria: Beta solo +1 en Leyendas (en Diamantes queda
+  la de fabrica, en X); Seth Bael A en Leyendas y S en Diamantes.
+- Pendiente de preguntar: el boton "Diamante" del editor sobre uno de esos
+  normales que ya tienes sigue haciendolo "normal hecho Diamante".
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

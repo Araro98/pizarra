@@ -787,6 +787,8 @@ def personajes_creables(plain):
             # su tier (O-269): con su rareza y como Diamante (con semilla)
             "tier": TL.tier_de(clave, int(ficha.get("rareza_valor") or 0)),
             "tier_diamante": TL.tier_como_diamante(clave),
+            # tiene su propio Diamante (los 70): con semilla no se ficha (O-272)
+            "diamante_propio": clave in reglas.diamante_propio(),
         })
     vistos, unicos = set(), []
     for o in sorted(fuera, key=lambda x: (x["nombre"] or "").lower()):

@@ -3462,6 +3462,12 @@ def poner_diamante(plain, fila):
 def anadir_jugador_diamante(plain, nombre):
     """Ficha un jugador normal y lo pasa a Diamante en el mismo paso, como si
     se le hubiera dado una semilla Diamante nada mas llegar (NOTAS O-163)."""
+    # el que tiene su propio Diamante (los 70) se ficha en su pestaña: con
+    # semilla el juego da ese Diamante (Aaron, O-272)
+    propio = reglas.diamante_propio().get(_personaje_por_nombre(nombre)["identidad"].upper())
+    if propio:
+        nom = (reglas.personajes().get(propio) or {}).get("nombre_es") or "su Diamante"
+        raise Ilegal("ese personaje tiene su propio Diamante (%s): fichalo en la pestaña Diamantes" % nom)
     plain, info = anadir_jugador(plain, nombre)
     if info.get("familia") != "normal":
         return plain, info

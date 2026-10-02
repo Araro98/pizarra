@@ -38,6 +38,22 @@ def _tabla(fichero, carpeta=EXTRAIDAS):
     return _cache[clave]
 
 
+def diamante_propio():
+    """{identidad del normal: identidad de su Diamante} de los personajes que
+    ya tienen version Diamante de fabrica (los 70). Van unidos por
+    `chara_base_id`. Aaron (O-272): con semilla el juego te da ese Diamante,
+    no "el normal hecho Diamante", asi que esos no se fichan con semilla ni
+    salen asi en la tier list."""
+    if "diamante_propio" not in _cache:
+        per = personajes()
+        diamantes = {f.get("chara_base_id"): ident for ident, f in per.items()
+                     if f.get("chara_base_id") and int(f.get("rareza_valor") or 0) == 8}
+        _cache["diamante_propio"] = {
+            ident: diamantes[f["chara_base_id"]] for ident, f in per.items()
+            if int(f.get("rareza_valor") or 0) < 5 and f.get("chara_base_id") in diamantes}
+    return _cache["diamante_propio"]
+
+
 def jugadores_y_formas():
     """jugadores.csv y detras jugadores-formas.csv: las formas mixi max y los
     modos de la historia que no cuentan como jugables (sin segundo camino de

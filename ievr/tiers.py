@@ -46,8 +46,10 @@ def tier_de(identidad, rareza_valor):
 
 
 def tier_como_diamante(identidad):
-    """Su tier si se hace Diamante (con semilla), o ''."""
-    f = _indice().get(("diamante", (identidad or "").upper()))
+    """Su tier si se hace Diamante (con semilla), o ''. Si tiene su propio
+    Diamante (los 70), la de ese, que es el que da el juego (O-272)."""
+    ident = (identidad or "").upper()
+    f = _indice().get(("diamante", reglas.diamante_propio().get(ident, ident)))
     return f["tier"] if f else ""
 
 

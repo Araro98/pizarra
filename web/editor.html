@@ -3346,7 +3346,9 @@ for (let k = 0; k < 7; k++) CLAVES_ORDEN_PER["st" + k] = c => [-((c.stats || [])
 const FAMILIAS_PER = [["normal","Normales"],["hero","Idolos"],["fabled","Diamantes"],["semilla","Con semilla (cualquiera como Diamante)"]];
 let familiaPer = "normal";
 function familiaDe(c) { return c.familia || "normal"; }
-function enFamilia(c, k) { return k === "semilla" ? familiaDe(c) === "normal" : familiaDe(c) === k; }
+// con semilla no salen los que tienen su propio Diamante: se fichan en
+// "Diamantes", que es lo que da el juego (Aaron, O-272)
+function enFamilia(c, k) { return k === "semilla" ? familiaDe(c) === "normal" && !c.diamante_propio : familiaDe(c) === k; }
 const POR_PAGINA_PER = 120;
 async function cargaPersonajes(recargar) {
   if (!personajes || recargar) {
