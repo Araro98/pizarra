@@ -608,6 +608,9 @@
   .modal.ancho { width:min(860px,100%); }
   /* autorrellenar con un equipo del juego (O-279) */
   .pieza.autorrellenar { background:linear-gradient(180deg,#ffb24a,#e8801c); border-color:#9c5208; color:#fff; }
+  .pieza.compartir { background:linear-gradient(180deg,#2c4886,#1b2f5c); border-color:#0f2147; color:#fff; }
+  .pieza.compartir img { width:28px; height:28px; object-fit:contain; filter:drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
+  .pieza.compartir .eti, .pieza.compartir .val { color:#fff; }
   .pieza.autorrellenar img { width:30px; height:30px; object-fit:contain; filter:drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
   .pieza.autorrellenar .eti, .pieza.autorrellenar .val { color:#fff; }
   .autorrellenar-modal { width:min(1100px,100%); }
@@ -2997,6 +3000,18 @@ function pintaEquipo() {
   }
   // "Conf. de equipo", como en el juego: no se elige, sale de los arquetipos (O-204)
   if (d.configuracion) cab.appendChild(piezaConfiguracion(d.configuracion));
+  // pasarselo a un amigo: exportar a un fichero e importar uno (O-280)
+  if (!DRAFT) {
+    cab.appendChild(el("button", {class:"pieza compartir", title:"Guardar este equipo en un fichero para pasarselo a alguien",
+      onclick:() => exportarEquipo(d)}, [
+      el("img", {alt:"", src:"/icono/icon_list_tab/icon_list_tab_datafile03.png"}),
+      el("span", {class:"eti", text:"Exportar"}), el("span", {class:"val", text:"a un fichero"})]));
+    if (!d.de_la_historia)
+      cab.appendChild(el("button", {class:"pieza compartir", title:"Poner aqui un equipo exportado con Pizarra",
+        onclick:() => importarEquipo(d)}, [
+        el("img", {alt:"", src:"/icono/icon_list_tab/icon_list_tab_present01.png"}),
+        el("span", {class:"eti", text:"Importar"}), el("span", {class:"val", text:"de un fichero"})]));
+  }
   // rellenarlo con un equipo del juego (O-279)
   if (!DRAFT && !d.de_la_historia)
     cab.appendChild(el("button", {class:"pieza autorrellenar", title:"Rellenar este equipo con uno del juego: historia, Cronicas...",
@@ -3276,6 +3291,47 @@ async function abreSinergias(ranura, tipo, actual) {
   busca.oninput = pinta;
   pinta();
   busca.focus();
+}
+
+/* Exportar e importar un equipo (Aaron, O-280): un fichero .pizarra-equipo
+   con todo (jugadores con sus tecnicas, pasivas, judias y equipacion; el
+   escudo, la equipacion, las supertacticas...). Al importarlo se crean los
+   jugadores y se consigue lo que falte. */
+function exportarEquipo(d) {
+  elegirCarpeta("Exportar " + (d.nombre || "el equipo").trim(), async carpeta => {
+    try {
+      const r = await pedir("/api/equipo/exportar", {method:"POST", headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({equipo:d.hueco, carpeta})});
+      aviso("Equipo exportado en " + r.ruta + ". Pasale ese fichero a tu amigo: en Equipos, Importar.", "bien");
+    } catch (e) { aviso(e.message, "mal"); }
+  }, "Exportar aqui", false);
+}
+function importarEquipo(d) {
+  const input = el("input", {type:"file", accept:".pizarra-equipo,.json"});
+  input.onchange = async () => {
+    const f = input.files && input.files[0];
+    if (!f) return;
+    let datos;
+    try { datos = JSON.parse(await f.text()); }
+    catch (e) { aviso("Ese fichero no se puede leer: no es un equipo exportado con Pizarra.", "mal"); return; }
+    if (!datos || datos.formato !== "pizarra-equipo") { aviso("Ese fichero no es un equipo exportado con Pizarra.", "mal"); return; }
+    const n = (datos.miembros || []).length;
+    if (!(await confirma("Importar " + ((datos.equipo || {}).nombre || "el equipo"),
+        "Se crean " + n + " jugadores nuevos con todo lo suyo y " + (d.nombre || "este equipo").trim()
+        + " pasa a ser " + ((datos.equipo || {}).nombre || "ese equipo") + ". Lo que te falte (tecnicas, equipacion, "
+        + "pasivas personalizadas, escudo, equipacion del equipo, supertacticas...) se pone en tu mochila. "
+        + "Los que hay ahora salen del equipo pero siguen en tu partida. Tarda 1 o 2 minutos. Se puede deshacer."))) return;
+    aviso("Importando " + ((datos.equipo || {}).nombre || "el equipo") + "... (1 o 2 minutos)", "bien");
+    trabajando(true);
+    let hecho = null;
+    try { hecho = await manda({tipo:"equipo_importar", equipo:d.hueco, datos}); }
+    finally { trabajando(false); }
+    if (hecho && hecho.avisos && hecho.avisos.length)
+      aviso("Importado: " + hecho.jugadores + " de " + hecho.de + " jugadores. Ojo: " + hecho.avisos.join("; "), "mal");
+    else if (hecho) aviso("Importado " + hecho.nombre + ": " + hecho.jugadores + " jugadores"
+      + (hecho.anadidos ? " y " + hecho.anadidos + " objetos nuevos en tu mochila" : "") + ".", "bien");
+  };
+  input.click();
 }
 
 /* Autorrellenar con un equipo del juego (Aaron, O-279): la historia, las

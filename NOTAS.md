@@ -6409,6 +6409,34 @@ tecnicas por defecto, y te ponga los jugadores en su formacion, con su nombre".
   el draft ni en los de la historia): ventana con buscador (sin tildes),
   pestanas por grupo, escudo, era, caras de los once, formacion.
 
+### O-280 · Exportar e importar equipos (para pasarlos a un amigo)
+
+Aaron: "un boton en equipos que sea exportar y otro importar, y te exporta el
+equipo de ese slot y te importa el equipo del slot en el que estes, con todo,
+tecnicas, pasivas, equipacion, supertacticas, uniforme, escudo... y si le
+falta algun objeto, pasiva personalizada etc se lo ponga automaticamente en
+la mochila; que al exportarlo te pida la ruta".
+
+- `ievr/compartir.py`: `exportar`/`guardar` escriben `<nombre>.pizarra-equipo`
+  (JSON, unos 18 KB) en la carpeta elegida (el mismo selector de carpetas de
+  "Abrir partida"): por miembro puesto, dorsal, capitan, personaje, nivel,
+  partidos, rareza, arquetipo, arquetipo de Diamante, medalla y su estado
+  (`draft.estado_de_jugador` con heredadas: pasivas, heredadas, rama,
+  judias, equipacion, tecnicas, personalizada, las de personal), todo con
+  codigos del juego; del equipo nombre, formacion, escudo, equipacion,
+  tacticas y sinergias. `importar` vacia el hueco (los que habia siguen en
+  la partida), crea a cada uno (normal con su rareza y arquetipo, Idolo,
+  Diamante de fabrica o hecho con semilla), le copia todo con
+  `draft.copia_estado` (sacado de `_copia_jugador`; consigue lo que falte) y
+  pone dorsales, capitan, piezas, tacticas, sinergias y nombre. Un paso de
+  deshacer.
+- Editor, Equipos: botones "Exportar" e "Importar" (este pide el fichero con
+  el selector del navegador).
+- Comprobado: VINLAND (20, con gerentes y una entrenadora Diamante)
+  exportado e importado en otro hueco queda identico (0 diferencias), y por
+  los botones igual. Tarda 1-2 minutos (lo lento es repasar la mochila tras
+  cada tecnica, como al importar un draft).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

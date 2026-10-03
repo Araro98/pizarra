@@ -629,9 +629,11 @@ def _id_de_ref(porslot, valor):
     return ((f or {}).get("id") or "").upper()
 
 
-def estado_de_jugador(plain, fila):
+def estado_de_jugador(plain, fila, heredadas=False):
     """Lo que se copia de un jugador del montaje, con los codigos de verdad
-    (no los huecos de mochila, que cambian de una partida a otra)."""
+    (no los huecos de mochila, que cambian de una partida a otra). Con
+    `heredadas`, tambien las pasivas heredadas (al exportar un equipo, O-280;
+    en el draft no hay)."""
     porslot = inventario.por_slot(plain)
     eqs = J.ocurrencias(plain, *J.ANCLA_EQUIPO)
     eq, _ = J._campos_de(plain, eqs[fila], {h for h, _ in J.RANURAS_EQUIPO})
@@ -642,7 +644,7 @@ def estado_de_jugador(plain, fila):
     tecnicas = [_id_de_ref(porslot, int.from_bytes(tc.get(h, b""), "little"))
                 for h in J.RANURAS_TECNICAS]
     crudo = {}
-    for fh in (J.F_PASIVAS, J.F_RAMA, J.F_JUDIA_TIPO, J.F_JUDIA_CANT):
+    for fh in (J.F_PASIVAS, J.F_RAMA, J.F_JUDIA_TIPO, J.F_JUDIA_CANT) + ((J.F_HEREDADAS,) if heredadas else ()):
         off, n = E._campo(plain, fila, fh)
         crudo[fh] = bytes(plain[off:off + n])
     personalizada, _slot = E.pasiva_personalizada(plain, fila)
@@ -674,7 +676,14 @@ def _conseguir(plain, id_hex, anadidos, cantidad=1):
 
 
 def _copia_jugador(montaje, fd, plain, fr, anadidos, avisos, nombre):
-    obj = estado_de_jugador(montaje, fd)
+    return copia_estado(estado_de_jugador(montaje, fd), plain, fr, anadidos, avisos, nombre)
+
+
+def copia_estado(obj, plain, fr, anadidos, avisos, nombre, donde="el draft"):
+    """Deja al jugador `fr` de `plain` como dice `obj` (de estado_de_jugador):
+    pasivas, rama, judias (y heredadas, si las trae), equipacion, tecnicas,
+    personalizada y las de personal, consiguiendo lo que falte. Lo usan el
+    draft y el exportar/importar equipos (O-280)."""
     ahora = estado_de_jugador(plain, fr)
     buf = bytearray(plain)
     rareza = J.array(plain, J.ARRAY_RAREZA)[fr]
@@ -741,10 +750,10 @@ def _copia_jugador(montaje, fd, plain, fr, anadidos, avisos, nombre):
         except E.Ilegal as e:
             avisos.append("%s, pasiva de personal %d: %s" % (nombre, ranura, e))
     # comprobacion: tiene que quedar igual que en el montaje
-    final = estado_de_jugador(plain, fr)
+    final = estado_de_jugador(plain, fr, heredadas=J.F_HEREDADAS in obj["crudo"])
     for clave in ("equipacion", "tecnicas", "personalizada", "personal", "crudo"):
         if final[clave] != obj[clave]:
-            avisos.append("%s: %s no ha quedado igual que en el draft" % (nombre, clave))
+            avisos.append("%s: %s no ha quedado igual que en %s" % (nombre, clave, donde))
     return plain
 
 

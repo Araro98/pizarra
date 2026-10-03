@@ -1661,6 +1661,12 @@ class Manejador(BaseHTTPRequestHandler):
             return self._responder(400, {"error": "no entiendo la peticion"})
         try:
             self._elige_sesion()
+            if u.path == "/api/equipo/exportar":
+                # el equipo a un fichero, en la carpeta que se elija (O-280)
+                from ievr import compartir as CO
+                with self.ses.lock:
+                    ruta = CO.guardar(self.ses.plain, int(cuerpo["equipo"]), cuerpo.get("carpeta") or "")
+                return self._responder(200, {"ruta": ruta})
             if u.path == "/api/caras/bajar":
                 from ievr import caras as CA
                 return self._responder(200, CA.bajar(RAIZ))
@@ -1829,6 +1835,10 @@ class Manejador(BaseHTTPRequestHandler):
         if t == "equipo_simple":
             return self.ses.aplicar(EQ.poner_simple, int(c["equipo"]), c["cual"],
                                   int(c["valor"], 16))
+        if t == "equipo_importar":
+            # un equipo exportado con Pizarra, en este hueco (O-280)
+            from ievr import compartir as CO
+            return self.ses.aplicar(CO.importar, int(c["equipo"]), c["datos"])
         if t == "equipo_autorrellenar":
             # rellenar con un equipo del juego, en un solo paso de deshacer (O-279)
             from ievr import autorrellenar as AR
