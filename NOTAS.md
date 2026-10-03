@@ -6345,6 +6345,19 @@ juego (`datos/iconos/data/...`) no se publican, van solo en
   para instalar por primera vez hace falta el zip portable.
 - Rehecho `Pizarra-portable.zip` con la version del dia.
 
+### O-277 · Subasta: "Seguir subastando" hasta llenar los dos equipos
+
+Aaron: "una opcion que sea como esta ahora y otra que siga dando jugadores
+para pujar infinitos hasta que los 2 rellenen el team; si a algun jugador le
+queda alguna posicion llena, no puede pujar a jugadores de esa posicion".
+Regla `fin_puja`: "rellenos" (de serie, lo de antes: lo que solo le falta a
+uno, relleno gratis de las tiers mas bajas) o "seguir". Con "seguir", lo que
+solo le falta a uno sale como lote que solo puede pujar el (`abreLoteSolo`):
+sin puja de salida, su primera puja es la minima; si no puja o pulsa
+"Pasar", no se vende ("SIN VENTA") y sale otro. Tambien cuando el otro no
+puede pujar por Idolos o dinero. Si ya no queda nadie que sacar, relleno
+para acabar. El que tiene llena esa posicion no puede pujar (como siempre).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

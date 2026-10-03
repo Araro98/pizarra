@@ -446,7 +446,10 @@ const REGLAS_DE_SERIE = {sagas:SAGAS.slice(), ilegales:true, idolos:"pocos", gen
   jugadores:16, formacion:false, suplentes:5,
   tecnicas_random:false, tacticas_draft:false,
   // modos (O-263): por turnos, individual o subasta
-  modo:"clasico", opciones_ind:3, presupuesto:300, incremento:1, tiempo_puja:15};
+  modo:"clasico", opciones_ind:3, presupuesto:300, incremento:1, tiempo_puja:15,
+  // subasta (O-277): lo que solo le falta a uno, "rellenos" gratis de los
+  // peores o "seguir" saliendo lotes que solo puede pujar el (o dejar pasar)
+  fin_puja:"rellenos"};
 function completa(r) {
   const x = JSON.parse(JSON.stringify(Object.assign({}, REGLAS_DE_SERIE, r || {})));
   // sin ilegales: el juego tampoco deja usarlos (Aaron, O-258)
@@ -625,7 +628,8 @@ function textoReglas(r) {
   r = completa(r);
   const partes = [];
   if (r.modo === "individual") partes.push("INDIVIDUAL (" + r.opciones_ind + " opciones cada vez)");
-  if (r.modo === "puja") partes.push("SUBASTA (" + r.presupuesto + " monedas, sube de " + r.incremento + ", " + r.tiempo_puja + " s por lote)");
+  if (r.modo === "puja") partes.push("SUBASTA (" + r.presupuesto + " monedas, sube de " + r.incremento + ", " + r.tiempo_puja + " s por lote"
+    + (r.fin_puja === "seguir" ? ", se sigue subastando hasta llenar los dos equipos" : "") + ")");
   partes.push(r.sagas.length === SAGAS.length ? "todos los juegos"
               : r.sagas.map(x => (CHAPA_SAGA[x] || [x])[0]).join(", ") || "ningun juego");
   partes.push("Idolos: " + (IDOLOS.find(i => i.valor === r.idolos) || IDOLOS[1]).nombre.toLowerCase());
@@ -872,6 +876,12 @@ function abreInvitar(slug, nombre) {
       cuerpo.appendChild(tarjetaRegla("Tiempo por lote", "Lo que dura cada lote; cada puja deja al menos " + SEGUNDOS_TRAS_PUJA + " s mas para contestar",
         segmento([[10, "10 s"], [15, "15 s"], [20, "20 s"], [30, "30 s"]], reglas.tiempo_puja,
                  v => cambia(() => { reglas.tiempo_puja = Number(v); }))));
+      cuerpo.appendChild(tarjetaRegla("Cuando uno ya tiene llena una posicion",
+        reglas.fin_puja === "seguir"
+          ? "Siguen saliendo lotes hasta que los dos llenen el equipo; el que ya tiene llena esa posicion no puede pujar, y el otro puja o lo deja pasar"
+          : "Lo que solo le falta a uno le sale gratis, de los peores de su posicion (relleno)",
+        segmento([["rellenos", "Relleno gratis"], ["seguir", "Seguir subastando"]], reglas.fin_puja,
+                 v => cambia(() => { reglas.fin_puja = v; }))));
     }
     cuerpo.appendChild(tarjetaRegla("Arquetipo", {azar:"Uno al azar para cada uno", mismo:"Uno al azar, el mismo para los dos",
                                                   elegir:"Lo elige cada uno al terminar"}[reglas.arquetipo],
@@ -1344,6 +1354,7 @@ function alAccion(m) {
   if (m.tipo === "elige") ok = modoActual() === "individual" ? aplicaInd(estado.invitado, m.paso, m.id)
                                                              : aplicaEleccion(estado.invitado, m.turno, m.id);
   if (m.tipo === "puja") ok = aplicaPuja(estado.invitado, m.n, m.cantidad);
+  if (m.tipo === "pasa") ok = aplicaPasa(estado.invitado, m.n);
   if (m.tipo === "arquetipo") ok = aplicaArquetipo(estado.invitado, Number(m.valor));
   if (m.tipo === "diamante") ok = aplicaDiamante(estado.invitado, m.id);
   if (["oferta", "responde", "retira", "listo"].includes(m.tipo)) ok = aplicaIntercambio(estado.invitado, m);
@@ -1805,6 +1816,20 @@ function nuevoLote() {
   // antes lo que les falta a los dos (eso se puja); lo que solo le falta a
   // uno es un relleno gratis de los peores de su posicion
   const deLosDos = bolsa.filter(g => (fa[g] || 0) > 0 && (fb[g] || 0) > 0);
+  // "seguir subastando" (O-277): lo que solo le falta a uno tambien sale a
+  // subasta, pero solo puede pujar el (o dejarlo pasar)
+  if (!deLosDos.length && r.fin_puja === "seguir") {
+    const jug = bolsa.filter(g => esJug(g));
+    const g = (jug.length ? jug : bolsa)[azar((jug.length ? jug : bolsa).length)], s = (fa[g] || 0) > 0 ? a : b;
+    const id = sacaDelGrupo(g, 1, s, [])[0];
+    if (id && !puedePujar(s, g, id)) return abreLoteSolo(id, g, s);
+    // ya no queda nadie que sacar (o no le llega): relleno, para acabar
+    const rel = sacaRelleno(g, s);
+    p.n++;
+    if (!rel) { p.lote = null; return finElecciones(); }
+    adjudica({n:p.n, id:rel, grupo:g, precio:0, lider:s, directo:true, pujas:[]});
+    return;
+  }
   if (!deLosDos.length) {
     const g = bolsa[azar(bolsa.length)], s = (fa[g] || 0) > 0 ? a : b;
     const id = sacaRelleno(g, s);
@@ -1825,6 +1850,7 @@ function nuevoLote() {
     p.siguiente = Date.now() + 300; p.lote = null; estado.seq++; guardaLocal("draft-estado", estado);
     return;
   }
+  if (quienes.length === 1 && r.fin_puja === "seguir") { p.n--; return abreLoteSolo(id, grupo, quienes[0]); }
   if (quienes.length === 1) {
     // ese no le sirve al otro (sin dinero, Idolos...): para el al minimo
     adjudica({n:p.n, id, grupo, precio:Math.min(puedeMinimo(), p.dinero[quienes[0]]), lider:quienes[0], directo:true, pujas:[]});
@@ -1837,6 +1863,30 @@ function nuevoLote() {
             inicio:Date.now(), pujas:[{q:abre, v:puedeMinimo(), abre:true}]};
   estado.seq++;
   guardaLocal("draft-estado", estado);
+}
+// un lote que solo puede pujar uno (O-277): sale sin puja de salida; si no
+// puja (o pasa), no se vende y sale otro
+function abreLoteSolo(id, grupo, s) {
+  const p = estado.puja, r = reglasDelDraft();
+  p.n++;
+  p.lote = {n:p.n, id, grupo, precio:puedeMinimo(), lider:null, solo:s, limite:Date.now() + r.tiempo_puja * 1000,
+            inicio:Date.now(), pujas:[]};
+  estado.seq++;
+  guardaLocal("draft-estado", estado);
+}
+function sinVenta(lote) {
+  const p = estado.puja;
+  p.ultimo = {n:lote.n, id:lote.id, grupo:lote.grupo, quien:null, precio:0, sinVenta:true, solo:lote.solo};
+  p.lote = null;
+  p.siguiente = Date.now() + 1400;
+  estado.seq++;
+  guardaLocal("draft-estado", estado);
+}
+function aplicaPasa(s, n) {
+  const l = estado.puja && estado.puja.lote;
+  if (modoActual() !== "puja" || estado.fase !== "picks" || !l || l.n !== n || l.lider || l.solo !== s) return false;
+  sinVenta(l);
+  return true;
 }
 function adjudica(lote) {
   const p = estado.puja;
@@ -1855,7 +1905,9 @@ function aplicaPuja(s, n, cantidad) {
   const p = estado.puja, l = p && p.lote;
   if (modoActual() !== "puja" || estado.fase !== "picks" || !l || l.n !== n || l.lider === s) return false;
   cantidad = Math.round(Number(cantidad) || 0);
-  if (cantidad < l.precio + puedeMinimo() || cantidad > maxPuja(s) || puedePujar(s, l.grupo, l.id)) return false;
+  // sin nadie que lo haya abierto (lote de uno solo), vale la puja de salida
+  const minimo = l.lider ? l.precio + puedeMinimo() : l.precio;
+  if (cantidad < minimo || cantidad > maxPuja(s) || puedePujar(s, l.grupo, l.id)) return false;
   l.precio = cantidad; l.lider = s;
   l.pujas = (l.pujas || []).concat({q:s, v:cantidad});
   l.limite = Math.max(l.limite, Date.now() + SEGUNDOS_TRAS_PUJA * 1000);
@@ -1876,7 +1928,7 @@ setInterval(() => {
   }
   if (modo === "puja" && estado.puja) {
     const p = estado.puja;
-    if (p.lote && Date.now() > p.lote.limite) { adjudica(p.lote); publicaEstado(); pinta(); }
+    if (p.lote && Date.now() > p.lote.limite) { p.lote.lider ? adjudica(p.lote) : sinVenta(p.lote); publicaEstado(); pinta(); }
     else if (!p.lote && Date.now() > p.siguiente) { nuevoLote(); publicaEstado(); pinta(); }
   }
 }, 400);
@@ -1972,7 +2024,8 @@ function pintaPuja(z) {
 function construyeLote(z, l) {
   const c = porId[l.id] || {};
   const ronda = rondaDe(l.grupo, reglasDelDraft());
-  textoSubastador = "¡Sale a subasta " + nombreLote(l) + "!";
+  textoSubastador = "¡Sale a subasta " + nombreLote(l) + "!"
+    + (l.solo ? " Solo puede pujar " + (l.solo === yo.slug ? "tu" : nombreDe(l.solo)) + "." : "");
   sonido("lote");
   const carta = l.grupo === "TAC" ? tarjetaTactica(l.id, false, null) : tarjetaOpcion(l.id, false, null, "");
   carta.classList.add("lote", "entra");
@@ -1998,6 +2051,17 @@ function construyeLote(z, l) {
 }
 function construyeVendido(z, u) {
   if (!u) { z.appendChild(el("p", {class:"subastador", text:"Preparando el primer lote..."})); return; }
+  if (u.sinVenta) {
+    // nadie lo quiso (lote de uno solo, O-277)
+    textoSubastador = "Sin pujas: " + nombreLote(u) + " se queda sin vender";
+    const carta = u.grupo === "TAC" ? tarjetaTactica(u.id, false, null) : tarjetaOpcion(u.id, false, null, "");
+    carta.classList.add("lote", "vendido");
+    carta.appendChild(el("span", {class:"sello-vendido relleno", text:"SIN VENTA"}));
+    z.appendChild(el("p", {class:"subastador grande", id:"subastador", text:textoSubastador}));
+    z.appendChild(el("div", {class:"zona-puja"}, [el("div", {class:"foco"}, [carta]),
+      el("div", {class:"panel-puja"}, [el("p", {class:"nota", text:"Sale otro enseguida."})])]));
+    return;
+  }
   const para = u.quien === yo.slug ? "ti" : nombreDe(u.quien);
   const relleno = u.directo && !u.precio;
   textoSubastador = relleno ? "Relleno para " + para + ": " + nombreLote(u) + " (gratis)"
@@ -2046,8 +2110,9 @@ function actualizaPuja() {
     precioVisto = l.precio;
   }
   if (lider) {
-    lider.textContent = l.lider === yo.slug ? "¡Vas ganando tu!" : "Va ganando " + nombreDe(l.lider);
-    lider.className = "lider-puja " + (l.lider === yo.slug ? "mio" : "suyo");
+    lider.textContent = !l.lider ? (l.solo === yo.slug ? "Nadie ha pujado: es para ti si pujas" : "Solo puede pujar " + nombreDe(l.solo))
+      : l.lider === yo.slug ? "¡Vas ganando tu!" : "Va ganando " + nombreDe(l.lider);
+    lider.className = "lider-puja " + (!l.lider ? "" : l.lider === yo.slug ? "mio" : "suyo");
   }
   const guerra = document.getElementById("guerra-puja");
   if (guerra) guerra.hidden = (l.pujas || []).length < 5;
@@ -2066,7 +2131,9 @@ function actualizaPuja() {
     bot.textContent = "";
     const yoLider = l.lider === yo.slug;
     const motivo = yoLider ? "" : puedePujar(yo.slug, l.grupo, l.id);
-    const minimo = l.precio + puedeMinimo(), maximo = maxPuja(yo.slug);
+    // en un lote de uno solo sin pujas, la primera es la de salida (O-277)
+    const base = l.lider ? l.precio : l.precio - puedeMinimo();
+    const minimo = base + puedeMinimo(), maximo = maxPuja(yo.slug);
     const nada = yoLider || !!motivo || maximo < minimo;
     const pujar = v => {
       v = Math.min(maximo, Math.max(minimo, v));
@@ -2074,13 +2141,20 @@ function actualizaPuja() {
       mandaAccion({tipo:"puja", n:l.n, cantidad:v});
     };
     for (const sube of [puedeMinimo(), 5, 10, 25, 50].filter((x, k, a) => a.indexOf(x) === k && x >= puedeMinimo())) {
-      const v = l.precio + sube;
+      const v = base + sube;
       bot.appendChild(el("button", {class:"btn verde", text:"+" + sube, title:"Pujar " + v,
         disabled:nada || v > maximo ? "" : null, onclick:() => pujar(v)}));
     }
     const inp = el("input", {type:"number", min:String(minimo), max:String(Math.max(minimo, maximo)), value:String(minimo), class:"num-puja"});
     bot.appendChild(el("span", {class:"puja-libre"}, [inp,
       el("button", {class:"btn", text:"Pujar", disabled:nada ? "" : null, onclick:() => pujar(Number(inp.value))})]));
+    // lote de uno solo: dejarlo pasar y que salga otro
+    if (l.solo === yo.slug && !l.lider)
+      bot.appendChild(el("button", {class:"btn rojo", text:"Pasar", title:"No lo quiero: que salga otro",
+        onclick:() => {
+          if (activo.rol === "anfitrion") { if (aplicaPasa(yo.slug, l.n)) { publicaEstado(); pinta(); } return; }
+          mandaAccion({tipo:"pasa", n:l.n});
+        }}));
     if (mot) mot.textContent = yoLider ? "Vas ganando: a esperar que no te la quiten."
       : motivo ? "No puedes pujar: " + motivo + "."
       : "Cada puja deja al menos " + SEGUNDOS_TRAS_PUJA + " s. Siempre te guardas " + puedeMinimo() + " por cada hueco que te falta.";
