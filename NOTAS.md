@@ -6332,6 +6332,19 @@ zanark y ademas tienes hueco para la sinergia ofensiva"; "en la tier de
 leyendas solo". `TIER_A_MANO[("leyenda", "EAB2B5CF")] = X`; sus Idolos (A)
 y su Diamante de fabrica (B) se quedan como estaban.
 
+### O-276 · Un amigo instalo desde GitHub y no tenia caras
+
+Se bajo de la release de GitHub (unos 90 MB: Pizarra.exe + pizarra-datos.zip)
+en vez del zip portable (530 MB). Es lo esperado: las caras y cuerpos del
+juego (`datos/iconos/data/...`) no se publican, van solo en
+`Pizarra-portable.zip`, que Aaron pasa en privado. Arreglado:
+- El aviso del inicio lo dice claro (lo de GitHub no lleva los dibujos;
+  pide el zip portable) y ya no se come las barras de la ruta (el
+  `"\datos\iconos"` del JS perdia las `\`).
+- `publicar.py` anade a las notas de cada release (`AVISO_INSTALAR`) que
+  para instalar por primera vez hace falta el zip portable.
+- Rehecho `Pizarra-portable.zip` con la version del dia.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

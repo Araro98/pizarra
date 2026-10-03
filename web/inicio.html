@@ -159,9 +159,12 @@ function pintaPartida() {
     // si faltan los dibujos, que lo diga con la carpeta que esta mirando (O-202)
     const d = e.dibujos || {};
     if (!d.caras || !d.recortes)
+      // (O-276) lo de GitHub no lleva las caras: son dibujos del juego y no se
+      // publican; van solo en el zip portable, que se pasa en privado
       avisa("Faltan los dibujos del juego" + (!d.caras ? " (caras de personajes)" : "") + (!d.recortes ? " (objetos)" : "")
-        + ". El programa los busca en " + (e.raiz || "?") + "\datos\iconos. Descomprime el zip portable ENTERO "
-        + "(unos 21.400 ficheros) en una carpeta y abre Pizarra.exe desde ahi.", "mal");
+        + ". Lo que se descarga de GitHub no los lleva: son del juego y no se pueden publicar. Pide el zip portable "
+        + "(Pizarra-portable.zip, unos 530 MB) a quien te paso Pizarra, descomprimelo ENTERO en una carpeta y abre "
+        + "Pizarra.exe desde ahi. (Ahora los busca en " + (e.raiz || "?") + "\\datos\\iconos)", "mal");
   }).catch(() => { $("#partida").textContent = "Sin partida"; });
 }
 pintaPartida();

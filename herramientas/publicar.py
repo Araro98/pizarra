@@ -37,6 +37,14 @@ CARPETAS_DATOS = [("web", "web"), ("datos/reglas-extraidas", "datos/reglas-extra
                   ("datos/ui", "datos/ui"), ("datos/iconos/recortes", "datos/iconos/recortes")]
 
 
+# en cada release (O-276): esto es para actualizar; para instalar hace falta
+# el zip portable, que lleva los dibujos del juego y no se publica
+AVISO_INSTALAR = ("\n\n---\n**Para instalar Pizarra por primera vez** no basta con esto: hace falta el zip "
+                  "portable (Pizarra-portable.zip, unos 530 MB), que lleva las caras y dibujos del juego y no "
+                  "se publica aqui. Pideselo a quien te paso Pizarra. Estos ficheros son para que Pizarra "
+                  "se actualice solo.")
+
+
 def main():
     if len(sys.argv) < 3:
         raise SystemExit("uso: py herramientas\\publicar.py VERSION \"notas\"   (p. ej. 2026.09.16)")
@@ -80,7 +88,7 @@ def main():
         return 0
     r = subprocess.run([gh, "release", "create", "v" + version, os.path.join(SALIDA, "Pizarra.exe"),
                         zip_datos, os.path.join(SALIDA, "version.json"), "--title", "Pizarra " + version,
-                        "--notes", notas], cwd=RAIZ)
+                        "--notes", notas + AVISO_INSTALAR], cwd=RAIZ)
     print("Release creada" if r.returncode == 0 else "gh ha fallado: sube los ficheros a mano")
     return 0
 
