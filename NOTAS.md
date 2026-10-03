@@ -6379,6 +6379,36 @@ actualizaciones de todos), decidio: "dejalo en github las caras mejor".
   35 s, todas las caras.
 - Las notas de cada version explican como instalar por primera vez.
 
+### O-279 · Autorrellenar un equipo con uno del juego
+
+Aaron: "una opcion de autorrellenar y que puedas elegir uno de los equipos de
+la historia, por ejemplo el tormenta de geminis... todos los teams del modo
+cronicas y los del nivel 99 con su escudo, uniforme y tal; los jugadores al 99
+automaticamente, como si le dieras a max, sin judias, equipacion, y pasivas y
+tecnicas por defecto, y te ponga los jugadores en su formacion, con su nombre".
+
+- Datos: `herramientas/construir_equipos_juego.py` (desde `team_config`:
+  SOCCER_TEAM_INFO_LIST, SOCCER_TEAM_MEMBER_LIST, grupos de Cronicas, nombres
+  de team_text, niveles de soccer_game_config) escribe `equipos-juego.csv`
+  (706 equipos: historia, cronica normal y nivel 99, leyendas de Cronicas, tu
+  equipo en Cronicas, partido libre, amistosos, demo...) y
+  `equipos-juego-miembros.csv` (10.797; puesto 0-10 = puesto de la formacion,
+  11-15 banquillo, 16-18 gerentes, 19 entrenador). Formacion, escudo,
+  equipacion y tacticas como `valor_equipo` de equipo-objetos.csv. 99 % de
+  los miembros se pueden crear; 698 de 706 equipos enteros. Comprobados
+  Raimon, Royal, Zeus, Geminis (capitan Janus), Raimon leyenda.
+- `ievr/autorrellenar.py`: `lista()` (sin demo ni otros; las plantillas
+  iguales se juntan: las de nivel 99 suelen ser la misma, "tambien Nv. 99";
+  485 equipos) y `autorrellenar()`: vacia el equipo (los que habia siguen en
+  la partida), pone la formacion (si es de la historia, la legal mas
+  parecida, y lo avisa), crea a cada uno nuevo con `anadir_jugador` + MAX,
+  gerentes y entrenador con su medalla, los coloca en su puesto, dorsales,
+  capitan, escudo y equipacion (se consiguen si no los tienes), sus
+  tacticas y el nombre. Un paso de deshacer. Unos 20 s por equipo.
+- Editor, Equipos: boton "Autorrellenar" en la cabecera del equipo (no en
+  el draft ni en los de la historia): ventana con buscador (sin tildes),
+  pestanas por grupo, escudo, era, caras de los once, formacion.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

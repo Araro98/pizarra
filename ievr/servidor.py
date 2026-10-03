@@ -1552,6 +1552,10 @@ class Manejador(BaseHTTPRequestHandler):
                         "dibujos": {"caras": len(_listar(CARAS)),
                                     "recortes": len(_listar(os.path.join(RECORTES, "laminas"))),
                                     "ui": len(_listar(UI))}})
+            # los equipos del juego para autorrellenar uno (O-279)
+            if u.path == "/api/equipos-juego":
+                from ievr import autorrellenar as AR
+                return self._responder(200, AR.lista())
             # las caras del juego, si a esta instalacion le faltan (O-278)
             if u.path == "/api/caras":
                 from ievr import caras as CA
@@ -1825,6 +1829,10 @@ class Manejador(BaseHTTPRequestHandler):
         if t == "equipo_simple":
             return self.ses.aplicar(EQ.poner_simple, int(c["equipo"]), c["cual"],
                                   int(c["valor"], 16))
+        if t == "equipo_autorrellenar":
+            # rellenar con un equipo del juego, en un solo paso de deshacer (O-279)
+            from ievr import autorrellenar as AR
+            return self.ses.aplicar(AR.autorrellenar, int(c["equipo"]), c["id"])
         if t == "equipo_tactica":
             return self.ses.aplicar(EQ.poner_tactica, int(c["equipo"]),
                                   int(c["ranura"]), c.get("id") or "")

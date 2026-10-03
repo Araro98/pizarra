@@ -606,6 +606,31 @@
     margin-bottom:8px; }
 
   .modal.ancho { width:min(860px,100%); }
+  /* autorrellenar con un equipo del juego (O-279) */
+  .pieza.autorrellenar { background:linear-gradient(180deg,#ffb24a,#e8801c); border-color:#9c5208; color:#fff; }
+  .pieza.autorrellenar img { width:30px; height:30px; object-fit:contain; filter:drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
+  .pieza.autorrellenar .eti, .pieza.autorrellenar .val { color:#fff; }
+  .autorrellenar-modal { width:min(1100px,100%); }
+  .grupos-juego { display:flex; gap:6px; flex-wrap:wrap; padding:6px 14px 0; }
+  .grupos-juego button { border:2px solid var(--azul-marco, #2b5ea8); background:#fff; color:#1b4a8f; border-radius:7px;
+    padding:4px 10px; font-weight:800; font-size:12px; cursor:pointer; }
+  .grupos-juego button[aria-pressed="true"] { background:#2b5ea8; color:#fff; }
+  .rejilla-equipos-juego { display:grid; gap:10px; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
+    overflow:auto; padding:10px 14px; max-height:62vh; }
+  .equipo-juego { display:flex; flex-direction:column; gap:6px; text-align:left; padding:8px 10px; border-radius:9px;
+    border:2px solid #cfdcea; background:linear-gradient(180deg,#fff,#eef5fc); cursor:pointer; font:inherit; color:inherit; }
+  .equipo-juego:hover { border-color:#3fe0d0; box-shadow:0 0 0 2px rgba(63,224,208,.35); }
+  .cab-ej { display:flex; align-items:center; gap:8px; }
+  .escudo-ej { width:40px; height:40px; object-fit:contain; flex:none; }
+  .nom-ej { display:flex; flex-direction:column; gap:3px; min-width:0; }
+  .nom-ej b { font-style:italic; font-size:15px; color:#1b4a8f; line-height:1.15; }
+  .nom-ej > span { display:flex; gap:4px; flex-wrap:wrap; align-items:center; }
+  .chip-grupo, .chip-99 { color:#fff; font-size:10px; font-weight:800; border-radius:4px; padding:1px 6px; }
+  .chip-99 { background:#7b1fa2; }
+  .nom-ej .chapa-saga { color:#fff; font-weight:900; font-style:italic; font-size:10px; padding:0 4px; border-radius:4px; }
+  .caras-equipo { display:flex; flex-wrap:wrap; gap:2px; }
+  .caras-equipo img { width:24px; height:24px; border-radius:5px; background:#dfe9f5; object-fit:cover; }
+  .equipo-juego small { color:#5d7590; font-size:11px; }
   .rejilla-piezas { display:grid; gap:8px; overflow:auto; padding:10px 14px;
     grid-template-columns:repeat(auto-fill,minmax(118px,1fr)); }
   .pieza-elige { display:flex; flex-direction:column; align-items:center; gap:4px;
@@ -2972,6 +2997,13 @@ function pintaEquipo() {
   }
   // "Conf. de equipo", como en el juego: no se elige, sale de los arquetipos (O-204)
   if (d.configuracion) cab.appendChild(piezaConfiguracion(d.configuracion));
+  // rellenarlo con un equipo del juego (O-279)
+  if (!DRAFT && !d.de_la_historia)
+    cab.appendChild(el("button", {class:"pieza autorrellenar", title:"Rellenar este equipo con uno del juego: historia, Cronicas...",
+      onclick:() => abreAutorrellenar(d)}, [
+      el("img", {alt:"", src:"/icono/icon_list_tab/icon_list_tab_uniform01.png"}),
+      el("span", {class:"eti", text:"Autorrellenar"}),
+      el("span", {class:"val", text:"con un equipo del juego"})]));
   marco.appendChild(cab);
 
   // tacticas, en fila y compactas
@@ -3242,6 +3274,99 @@ async function abreSinergias(ranura, tipo, actual) {
     pie.appendChild(el("button", {class:"btn", text:"Cancelar", onclick:cerrar}));
   }
   busca.oninput = pinta;
+  pinta();
+  busca.focus();
+}
+
+/* Autorrellenar con un equipo del juego (Aaron, O-279): la historia, las
+   Cronicas (tambien sus versiones de nivel 99), los tuyos de Cronicas... Se
+   crean sus jugadores a nivel 99 con MAX, en su formacion, con su escudo,
+   equipacion y nombre. */
+let equiposJuego = null;
+const COLOR_GRUPO_JUEGO = {historia:"#1f63c8", cronica:"#c8401f", "cronica-leyenda":"#b8901a",
+  "cronica-jugador":"#1f9a54", enjoy:"#7a3fc8", practica:"#5d7590"};
+async function abreAutorrellenar(d) {
+  if (!equiposJuego) {
+    trabajando(true);
+    try { equiposJuego = await pedir("/api/equipos-juego"); }
+    catch (e) { aviso(e.message, "mal"); return; }
+    finally { trabajando(false); }
+  }
+  let grupo = "todos";
+  const busca = el("input", {type:"search", placeholder:"Buscar equipo (Raimon, Geminis, Zeus...)"});
+  const pestanas = el("div", {class:"grupos-juego"});
+  const rejilla = el("div", {class:"rejilla-equipos-juego"});
+  const pie = el("div", {class:"pie"});
+  const caja = el("div", {class:"modal ancho autorrellenar-modal"}, [
+    el("div", {class:"cab"}, [el("h3", {text:"Autorrellenar " + (d.nombre || "este equipo").trim()}),
+      el("p", {text:"Elige un equipo del juego: se crean sus jugadores nuevos a nivel 99 (como MAX), sin judias ni equipacion, "
+        + "con sus tecnicas y pasivas de serie, en su formacion, con su escudo, equipacion y nombre. "
+        + "Los que hay ahora en el equipo salen de el, pero siguen en tu partida. Se puede deshacer."})]),
+    el("div", {class:"busca"}, [busca]), pestanas, rejilla, pie]);
+  const fondo = el("div", {class:"fondo-modal", onclick:e => { if (e.target === fondo) cerrar(); }}, [caja]);
+  document.body.appendChild(fondo);
+  const antes = document.onkeydown;
+  function cerrar() { fondo.remove(); document.onkeydown = antes; }
+  document.onkeydown = e => { if (e.key === "Escape") cerrar(); };
+  function pintaPestanas() {
+    pestanas.textContent = "";
+    const todos = [{id:"todos", nombre:"Todos"}].concat(equiposJuego.grupos);
+    for (const g of todos) {
+      const n = equiposJuego.equipos.filter(x => g.id === "todos" || x.grupo === g.id).length;
+      if (!n) continue;
+      pestanas.appendChild(el("button", {"aria-pressed":String(g.id === grupo), text:g.nombre + " (" + n + ")",
+        onclick:() => { grupo = g.id; pintaPestanas(); pinta(); }}));
+    }
+  }
+  function pinta() {
+    // sin tildes: "geminis" encuentra "Geminis" con tilde
+    const llano = t => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const q = llano(busca.value.trim());
+    const ves = equiposJuego.equipos.filter(x => (grupo === "todos" || x.grupo === grupo)
+      && (!q || llano(x.nombre + " " + x.era_nombre).includes(q)));
+    rejilla.textContent = "";
+    for (const x of ves.slice(0, 300)) {
+      const caras = el("div", {class:"caras-equipo"});
+      for (const c of x.caras.slice(0, 11)) {
+        const img = el("img", {loading:"lazy", alt:"", src:c ? "/cara/" + c : SILUETA});
+        img.onerror = () => { img.src = SILUETA; img.onerror = null; };
+        caras.appendChild(img);
+      }
+      const grupoNom = (equiposJuego.grupos.find(g => g.id === x.grupo) || {}).nombre || x.grupo;
+      const chip = el("span", {class:"chip-grupo", text:grupoNom});
+      chip.style.background = COLOR_GRUPO_JUEGO[x.grupo] || "#5d7590";
+      // la era de Cronicas: 1 IE1 ... 9 Victory Road, en el orden de las chapas
+      const era = x.era >= 1 && x.era <= 9 ? chapaSaga(Object.keys(CHAPA_SAGA)[x.era - 1]) : null;
+      rejilla.appendChild(el("button", {class:"equipo-juego", title:x.nombre + (x.formacion ? " · " + x.formacion : ""),
+        onclick:() => elige(x)}, [
+        el("div", {class:"cab-ej"}, [
+          x.escudo_icono ? el("img", {class:"escudo-ej", loading:"lazy", alt:"", src:"/icono/" + x.escudo_icono}) : null,
+          el("div", {class:"nom-ej"}, [el("b", {text:x.nombre}),
+            el("span", {}, [chip, era, x.nivel99 ? el("span", {class:"chip-99", text:"tambien Nv. 99"}) : null])])]),
+        caras,
+        el("small", {text:(x.formacion || "formacion de la historia") + " · " + x.jugadores + " personajes"
+          + (x.creables < x.jugadores ? " (" + (x.jugadores - x.creables) + " no se pueden crear)" : "")})]));
+    }
+    pie.textContent = "";
+    pie.appendChild(el("span", {text:ves.length + " equipos" + (ves.length > 300 ? " (se ensenan 300; busca para afinar)" : "")}));
+    pie.appendChild(el("button", {class:"btn", text:"Cancelar", onclick:cerrar}));
+  }
+  async function elige(x) {
+    if (!(await confirma("Autorrellenar con " + x.nombre, "Se crean " + x.creables + " jugadores nuevos a nivel 99 y "
+        + (d.nombre || "este equipo").trim() + " pasa a ser " + x.nombre + " (formacion, escudo, equipacion y nombre). "
+        + "Los que hay ahora salen del equipo pero siguen en tu partida. Tarda unos segundos. Se puede deshacer."))) return;
+    cerrar();
+    aviso("Creando a los jugadores de " + x.nombre + "...", "bien");
+    trabajando(true);
+    let hecho = null;
+    try { hecho = await manda({tipo:"equipo_autorrellenar", equipo:d.hueco, id:x.id}); }
+    finally { trabajando(false); }
+    if (hecho && hecho.avisos && hecho.avisos.length)
+      aviso(x.nombre + ": " + hecho.jugadores + " jugadores. Ojo: " + hecho.avisos.join("; "), "mal");
+    else if (hecho) aviso(x.nombre + " listo: " + hecho.jugadores + " jugadores a nivel 99.", "bien");
+  }
+  busca.oninput = pinta;
+  pintaPestanas();
   pinta();
   busca.focus();
 }
