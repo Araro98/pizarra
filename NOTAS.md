@@ -6324,6 +6324,14 @@ nueva `prioridad` (el valor de ese stat); la pagina lo ensena al pasar el
 raton. Comprobado: nadie con mas potencia/agilidad queda por debajo por
 stats.
 
+### O-275 · Tier list: Briar Bloomhurst a la X en Leyendas
+
+Aaron: "sube a briar a X porque tiene una de las mejores sinergias del juego
+y si lo llevas de delantero no pierdes mucho de no llevar por ejemplo a
+zanark y ademas tienes hueco para la sinergia ofensiva"; "en la tier de
+leyendas solo". `TIER_A_MANO[("leyenda", "EAB2B5CF")] = X`; sus Idolos (A)
+y su Diamante de fabrica (B) se quedan como estaban.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

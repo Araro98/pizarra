@@ -65,7 +65,10 @@ THADDEUS = "D5ACAA9D"
 # (por categoria: Beta sube solo en Leyendas; Seth, A en Leyendas y S en Diamantes)
 SUBE_A_MANO = {("leyenda", "A28E9F95"): (1, "+1 por su modo Reina (Aaron)")}           # Beta, la normal
 TIER_A_MANO = {("leyenda", "3E55F38F"): ("A", "a la A por su modo Santurron (Aaron)"),  # Seth Bael
-               ("diamante", "3E55F38F"): ("S", "a la S por su modo Santurron (Aaron)")}
+               ("diamante", "3E55F38F"): ("S", "a la S por su modo Santurron (Aaron)"),
+               # Briar Bloomhurst, solo en Leyendas: una de las mejores sinergias
+               # del juego y deja hueco para la ofensiva (Aaron, O-275)
+               ("leyenda", "EAB2B5CF"): ("X", "a la X por su sinergia (Aaron)")}
 TOPE_S = 0.02
 MARGEN_S = 0.003
 JUNTAS = 1                # notas que se llevan esto o menos, mismo escalon
