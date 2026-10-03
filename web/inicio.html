@@ -94,6 +94,16 @@
   .bloque .adorno .chapa-tier { width:24px; height:24px; font-size:13px; }
   .bloque .adorno img { width:22px; height:22px; }
   .fila2 { margin-top:-6px; }
+  /* faltan las caras (O-278): un aviso con boton y barra, arriba */
+  .caras-faltan { display:flex; align-items:center; gap:14px; width:100%; max-width:886px; padding:12px 16px;
+    background:#fff; border:3px solid #fff; border-radius:9px; box-shadow:0 0 0 2px var(--naranja), 0 8px 18px rgba(15,40,90,.18); }
+  .caras-faltan > img { width:44px; height:44px; padding:6px; border-radius:8px; background:var(--panel); flex:none; }
+  .cuerpo-caras { display:flex; flex-direction:column; gap:4px; flex:1; min-width:0; font-size:var(--t-md); }
+  .cuerpo-caras b { font-size:var(--t-lg); font-style:italic; color:var(--azul-osc); }
+  .barra-caras { height:10px; border-radius:6px; background:#dfe9f5; overflow:hidden; }
+  .barra-caras i { display:block; height:100%; width:0; background:linear-gradient(90deg,#3fe0d0,#1c9fd8); transition:width .4s; }
+  .txt-caras { font-size:var(--t-sm); color:var(--suave); min-height:1.2em; }
+  @media (max-width:640px) { .caras-faltan { flex-wrap:wrap; } }
   .pie { color:var(--suave); font-size:var(--t-sm); text-align:center; padding:10px; }
 </style>
 </head>
@@ -158,14 +168,54 @@ function pintaPartida() {
     $("#partida").title = e.origen || "";
     // si faltan los dibujos, que lo diga con la carpeta que esta mirando (O-202)
     const d = e.dibujos || {};
-    if (!d.caras || !d.recortes)
-      // (O-276) lo de GitHub no lleva las caras: son dibujos del juego y no se
-      // publican; van solo en el zip portable, que se pasa en privado
-      avisa("Faltan los dibujos del juego" + (!d.caras ? " (caras de personajes)" : "") + (!d.recortes ? " (objetos)" : "")
-        + ". Lo que se descarga de GitHub no los lleva: son del juego y no se pueden publicar. Pide el zip portable "
-        + "(Pizarra-portable.zip, unos 530 MB) a quien te paso Pizarra, descomprimelo ENTERO en una carpeta y abre "
-        + "Pizarra.exe desde ahi. (Ahora los busca en " + (e.raiz || "?") + "\\datos\\iconos)", "mal");
+    // (O-278) si faltan las caras y hay de donde bajarlas, un boton para bajarlas
+    if (!d.caras) pedir("/api/caras").then(c => { if (c.hay_enlace) ofreceCaras(c); else avisoSinCaras(e, d); })
+                                    .catch(() => avisoSinCaras(e, d));
+    else if (!d.recortes) avisoSinCaras(e, d);
   }).catch(() => { $("#partida").textContent = "Sin partida"; });
+}
+function avisoSinCaras(e, d) {
+      // (O-276) sin enlace para bajarlas: el zip portable las lleva
+  avisa("Faltan los dibujos del juego" + (!d.caras ? " (caras de personajes)" : "") + (!d.recortes ? " (objetos)" : "")
+    + ". Descomprime ENTERO el zip de Pizarra en una carpeta y abre Pizarra.exe desde ahi, o actualiza Pizarra "
+    + "con internet para que te ofrezca bajarlos. (Ahora los busca en " + (e.raiz || "?") + "\\datos\\iconos)", "mal");
+}
+// las caras de los personajes no van en cada version: se bajan una vez (O-278)
+function ofreceCaras(c) {
+  if ($("#caras-faltan")) return;
+  const barra = el("i"), txt = el("span", {class:"txt-caras"}), boton = el("button", {class:"btn verde", text:"Bajar las caras ahora"});
+  const caja = el("div", {class:"caras-faltan", id:"caras-faltan"}, [
+    el("img", {src:"/icono/icon_list_tab/icon_list_tab_coach_chr01.png", alt:""}),
+    el("div", {class:"cuerpo-caras"}, [
+      el("b", {text:"Faltan las caras de los personajes"}),
+      el("span", {text:"Se bajan una sola vez (unos 455 MB) y quedan en tu Pizarra. Tarda unos minutos."}),
+      el("div", {class:"barra-caras"}, [barra]), txt]),
+    boton]);
+  $(".portada").prepend(caja);
+  const pinta = x => {
+    const mb = n => Math.round(n / 1e6);
+    if (x.estado === "bajando") {
+      boton.disabled = true; boton.textContent = "Bajando...";
+      barra.style.width = x.total ? Math.min(100, 100 * x.bajado / x.total) + "%" : "8%";
+      txt.textContent = mb(x.bajado) + (x.total ? " de " + mb(x.total) : "") + " MB";
+    } else if (x.estado === "instalando") {
+      boton.disabled = true; boton.textContent = "Instalando..."; barra.style.width = "100%";
+      txt.textContent = "Colocando los dibujos...";
+    } else if (x.estado === "hecho") {
+      barra.style.width = "100%"; txt.textContent = "Listo. Recargando...";
+      setTimeout(() => location.reload(), 1200);
+      return true;
+    } else if (x.estado === "error") {
+      boton.disabled = false; boton.textContent = "Probar otra vez";
+      txt.textContent = "No se han podido bajar: " + x.error;
+      return true;
+    }
+    return false;
+  };
+  const sigue = () => setTimeout(() => pedir("/api/caras").then(x => { if (!pinta(x)) sigue(); }).catch(sigue), 1000);
+  boton.onclick = () => pedir("/api/caras/bajar", {method:"POST", headers:{"Content-Type":"application/json"}, body:"{}"})
+    .then(x => { if (!pinta(x)) sigue(); }).catch(err => avisa(err.message, "mal"));
+  if (c.estado === "bajando" || c.estado === "instalando") { pinta(c); sigue(); }
 }
 pintaPartida();
 $("#cambiar-partida").onclick = () => elegirCarpeta("Abrir una partida", async ruta => {

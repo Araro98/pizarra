@@ -37,12 +37,12 @@ CARPETAS_DATOS = [("web", "web"), ("datos/reglas-extraidas", "datos/reglas-extra
                   ("datos/ui", "datos/ui"), ("datos/iconos/recortes", "datos/iconos/recortes")]
 
 
-# en cada release (O-276): esto es para actualizar; para instalar hace falta
-# el zip portable, que lleva los dibujos del juego y no se publica
-AVISO_INSTALAR = ("\n\n---\n**Para instalar Pizarra por primera vez** no basta con esto: hace falta el zip "
-                  "portable (Pizarra-portable.zip, unos 530 MB), que lleva las caras y dibujos del juego y no "
-                  "se publica aqui. Pideselo a quien te paso Pizarra. Estos ficheros son para que Pizarra "
-                  "se actualice solo.")
+# en cada release (O-276, O-278): como se instala por primera vez; las caras
+# las baja Pizarra solo de la publicacion "caras"
+AVISO_INSTALAR = ("\n\n---\n**Para instalar Pizarra por primera vez:** baja `Pizarra.exe` y `pizarra-datos.zip`, "
+                  "descomprime el zip en una carpeta, pon `Pizarra.exe` dentro y abrelo. La primera vez te "
+                  "ofrece bajar las caras de los personajes (unos 470 MB, de la publicacion \"caras\"). "
+                  "Despues se actualiza solo.")
 
 
 def main():
@@ -76,7 +76,10 @@ def main():
         z.write(os.path.join(RAIZ, "version.txt"), "version.txt")
         z.write(os.path.join(RAIZ, "actualizaciones.url"), "actualizaciones.url")
     info = {"version": version, "notas": notas,
-            "exe": base + "/Pizarra.exe", "datos": base + "/pizarra-datos.zip"}
+            "exe": base + "/Pizarra.exe", "datos": base + "/pizarra-datos.zip",
+            # las caras y dibujos del juego: una sola vez, en la publicacion
+            # "caras" (O-278); Pizarra las baja si le faltan
+            "caras": url.split("/releases/")[0] + "/releases/download/caras/pizarra-caras.zip"}
     with open(os.path.join(SALIDA, "version.json"), "w", encoding="utf-8") as fh:
         json.dump(info, fh, ensure_ascii=False, indent=2)
     print("Listo en %s: Pizarra.exe, pizarra-datos.zip (%.1f MB), version.json"

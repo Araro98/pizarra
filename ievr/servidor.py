@@ -1552,6 +1552,10 @@ class Manejador(BaseHTTPRequestHandler):
                         "dibujos": {"caras": len(_listar(CARAS)),
                                     "recortes": len(_listar(os.path.join(RECORTES, "laminas"))),
                                     "ui": len(_listar(UI))}})
+            # las caras del juego, si a esta instalacion le faltan (O-278)
+            if u.path == "/api/caras":
+                from ievr import caras as CA
+                return self._responder(200, CA.estado(RAIZ))
             if u.path == "/api/jugadores":
                 filtros = {c: (q.get(c) or [""])[0]
                            for c in ("elemento", "posicion", "rareza",
@@ -1653,6 +1657,9 @@ class Manejador(BaseHTTPRequestHandler):
             return self._responder(400, {"error": "no entiendo la peticion"})
         try:
             self._elige_sesion()
+            if u.path == "/api/caras/bajar":
+                from ievr import caras as CA
+                return self._responder(200, CA.bajar(RAIZ))
             if self.draft and u.path in ("/api/abrir", "/api/guardar", "/api/instalar"):
                 raise E.Ilegal("esto es el equipo del draft: se pasa a tu partida con "
                                "Importar equipo, no guardando aqui")

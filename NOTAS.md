@@ -6358,6 +6358,27 @@ sin puja de salida, su primera puja es la minima; si no puja o pulsa
 puede pujar por Idolos o dinero. Si ya no queda nadie que sacar, relleno
 para acabar. El que tiene llena esa posicion no puede pujar (como siempre).
 
+### O-278 · Las caras se bajan solas de GitHub
+
+Aaron: "si mi amigo abre pizarra ya se le actualizara con las caras
+automaticamente? si no es asi y puedes hacerlo estaria bien"; tras explicarle
+que un repositorio privado de GitHub no vale "con enlace" (romperia las
+actualizaciones de todos), decidio: "dejalo en github las caras mejor".
+
+- `herramientas/empaquetar_caras.py` hace `publicar/pizarra-caras.zip`
+  (`datos/iconos/data/dx11/menu/200_icon`, 455 MB, 19.534 ficheros, sin
+  comprimir). Subido una sola vez a la publicacion `caras` de GitHub
+  (prerelease, sin "latest": la ultima version sigue siendo la normal).
+  Solo hay que volver a subirlo si cambian los dibujos
+  (`gh release upload caras publicar\pizarra-caras.zip --clobber`).
+- `version.json` lleva `"caras"` (lo pone `publicar.py`).
+- `ievr/caras.py`: si faltan las caras (`/api/caras`), el inicio enseña
+  "Faltan las caras de los personajes" con un boton; `/api/caras/bajar` las
+  baja en segundo plano (barra de progreso) y extrae solo `datos/iconos/data/`;
+  al acabar la pagina se recarga. Probado en una carpeta como la del amigo:
+  35 s, todas las caras.
+- Las notas de cada version explican como instalar por primera vez.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
