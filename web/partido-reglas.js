@@ -33,6 +33,11 @@ const REGLAS = {
   PAUSAS_POR_PARTE: 3, PAUSA_MAX: 20,
   // apoyos en un duelo (DS/3DS): cada companero cerca suma, mas si es de su elemento
   APOYO_RADIO: 7, APOYO: 0.05, APOYO_ELEMENTO: 0.05, APOYOS_MAX: 3,
+  // faltas (3DS: el comando de la derecha arriesga falta): si el defensor gana
+  // con "Entrada" o "Cargar", puede ser falta; en el area, penalti
+  FALTA_ENTRADA: 0.22, FALTA_CARGA: 0.12, DISTANCIA_BARRERA: 9.15,
+  // invocar el espiritu (el icono de GO; VR: aura que dura y se recarga)
+  INVOCAR_COSTE: 100, AURA_SEGUNDOS: 30, AURA_RECARGA: 60, AURA_BONUS: 25,
   // pase bombeado (mantener y soltar): mas lento y no se corta hasta que baja
   VEL_PASE_ALTO: 14, PASE_ALTO_BAJA: 4,
   PASIVAS_TOPE: 60,             // lo mas que suman las pasivas a un valor (%)                   // +-10 % en cada lado de un duelo (en DS habia suerte)

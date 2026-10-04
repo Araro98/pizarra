@@ -131,6 +131,12 @@ class Pantalla {
     const ctx = this.ctx, P = this.aPantalla(j.x, j.y);
     const r = Math.max(13 * this.ppp, 1.5 * this.s);
     const col = this.colores[j.lado];
+    // el aura de un espiritu invocado (O-295)
+    if (this.p.conAura && this.p.conAura(j)) {
+      const t = performance.now() / 300;
+      ctx.fillStyle = "rgba(160,90,255,.35)";
+      ctx.beginPath(); ctx.arc(P.px, P.py, r * (1.55 + 0.12 * Math.sin(t)), 0, Math.PI * 2); ctx.fill();
+    }
     // sombra
     ctx.fillStyle = "rgba(0,0,0,.25)"; ctx.beginPath(); ctx.ellipse(P.px + r * 0.15, P.py + r * 0.85, r * 0.9, r * 0.35, 0, 0, Math.PI * 2); ctx.fill();
     // circulo con la cara

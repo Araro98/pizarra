@@ -205,7 +205,7 @@ function fichaElegido() {
   const caja = $("#ficha-actual");
   if (id === null || id === undefined) { caja.textContent = "Pulsa o arrastra a uno de tus jugadores."; caja.dataset.id = ""; return; }
   const j = p.jugadores[id];
-  const clave = id + ":" + Math.round(p.tension[YO]);
+  const clave = id + ":" + Math.round(p.tension[YO]) + ":" + (j.espiritu ? Math.ceil(Math.max(j.aura, j.auraLista) - p.segundosDeJuego()) : "");
   if (caja.dataset.id === clave) return;
   caja.dataset.id = clave;
   caja.textContent = "";
@@ -216,6 +216,14 @@ function fichaElegido() {
   barra.firstChild.style.width = Math.round(p.tension[YO] / REGLAS.TENSION_MAX * 100) + "%";
   caja.appendChild(el("div", { text: "Tension del equipo " + Math.round(p.tension[YO]) + " / " + REGLAS.TENSION_MAX }));
   caja.appendChild(barra);
+  if (j.espiritu && j.lado === YO) {
+    const ahora = p.segundosDeJuego(), activo = p.conAura(j), espera = Math.ceil(j.auraLista - ahora);
+    const b = el("button", { class: "tactica-btn espiritu", disabled: activo || espera > 0 || p.tension[YO] < REGLAS.INVOCAR_COSTE || p.fase !== "juego" },
+      [el("span", { text: "Invocar " + j.espiritu.nombre }),
+       el("small", { text: activo ? "activo " + Math.ceil(j.aura - ahora) + " s" : espera > 0 ? espera + " s" : REGLAS.INVOCAR_COSTE + " de tension" })]);
+    b.onclick = () => PARTIDO.ordenar({ tipo: "invocar", jugador: j.id });
+    caja.appendChild(b);
+  }
   for (const t of j.tecnicas) caja.appendChild(el("div", { text: "· " + t.nombre + " (" + t.tipo + ", " + t.poder + ", " + t.tp + " de tension)" }));
   if ((j.pasivas || []).length) {
     caja.appendChild(el("div", { class: "coste", text: "Pasivas (las marcadas cuentan en el partido):", style: "margin-top:6px" }));
@@ -445,13 +453,14 @@ function mostrarResultado(r) {
     dura = r.pasos.length * 450 + 1900;
   } else {
     const att = p.jugadores[r.atacante], def = p.jugadores[r.defensor], gan = p.jugadores[r.ganador];
-    caja.appendChild(el("div", { class: "titulo-duelo", text: r.tipo === "disputa" ? "Disputa" : "Foco" }));
+    caja.appendChild(el("div", { class: "titulo-duelo", text: r.tipo === "falta" ? (r.penalti ? "¡Falta! ¡Penalti!" : "¡Falta! Tiro libre") : r.tipo === "disputa" ? "Disputa" : "Foco" }));
     [att, def].forEach((j, k) => {
       const elem = r.elementos ? r.elementos[j.lado] : null;
       caja.appendChild(filaDuelo(j, r.tecnicas[j.lado], elem !== null && elem !== undefined, elem || "", r.valores[j.lado],
         r.pasivas ? r.pasivas[j.lado] : 0, j === gan, k * 350));
     });
-    caja.appendChild(el("div", { class: "resultado final-duelo", style: "animation-delay:900ms", text: gan.lado === YO ? "¡Bien! Gana " + gan.nombre : "Gana " + gan.nombre }));
+    caja.appendChild(el("div", { class: "resultado final-duelo", style: "animation-delay:900ms",
+      text: r.tipo === "falta" ? "Falta de " + def.nombre : gan.lado === YO ? "¡Bien! Gana " + gan.nombre : "Gana " + gan.nombre }));
     dura = 2200;
   }
   capa.hidden = false;
@@ -583,6 +592,7 @@ async function alSala(m) {
     if (o.tipo === "elegir") { if (o.lado === 1) PARTIDO.elegir(1, o.eleccion); return; }
     if (o.tipo === "tactica") { if (o.lado === 1) PARTIDO.usarTactica(1, o.k); return; }
     if (o.tipo === "pausa" || o.tipo === "seguir" || o.tipo === "presionar") { if (o.lado === 1) PARTIDO.ordenar(o); return; }
+    if (o.tipo === "invocar") { const jj = PARTIDO.jugadores[o.jugador]; if (jj && jj.lado === 1) PARTIDO.ordenar(o); return; }
     const j = PARTIDO.jugadores[o.jugador !== undefined ? o.jugador : o.de];
     if (j && j.lado === 1) PARTIDO.ordenar(o);
     return;

@@ -23,6 +23,7 @@ class Maquina {
     this.siguiente = this.cada;
     const d = p.dueno();
     this._tactica(d);
+    this._invocar(d);
     if (d && d.lado === this.lado) this._conBalon(d);
   }
 
@@ -70,6 +71,17 @@ class Maquina {
     else if (d && d.lado === this.lado && !miCampo) quiero = listas.find(k => ata(tac[k]));
     if (quiero === undefined || quiero === null) { if (this.azar() < 0.02) quiero = listas[0]; else return; }
     if (this.azar() < 0.35) p.ordenar({ tipo: "tactica", lado: this.lado, k: quiero });
+  }
+
+  // invoca el espiritu del que lleva el balon cerca del area, o del que defiende
+  _invocar(d) {
+    const p = this.p;
+    if (!d || p.tension[this.lado] < REGLAS.INVOCAR_COSTE + 40 || this.azar() > 0.3) return;
+    const g = p.porteriaRival(d);
+    let quien = null;
+    if (d.lado === this.lado && d.espiritu && Math.hypot(g.x - d.x, g.y - d.y) < 30) quien = d;
+    if (d.lado !== this.lado) quien = p.equipo(this.lado).find(j => j.espiritu && Math.hypot(j.x - d.x, j.y - d.y) < 8) || null;
+    if (quien) p.ordenar({ tipo: "invocar", jugador: quien.id });
   }
 
   _mejorPase(d, rivales) {

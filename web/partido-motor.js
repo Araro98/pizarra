@@ -65,6 +65,10 @@ class Partido {
         ruta: [], aturdido: 0, respiro: 0, conBalon: false,
       };
       if (j.esPortero) { j.kpMax = REGLAS.kpBase(j); j.kp = j.kpMax; }
+      // su espiritu (kenshin, mixi max, alma): se invoca en el partido (O-295)
+      const te = (d.tecnicas || []).find(t => t.espiritu);
+      j.espiritu = te ? { nombre: te.espiritu.nombre, familia: te.espiritu.familia } : null;
+      j.aura = 0; j.auraLista = 0;           // segundos de juego: hasta cuando dura / cuando se puede otra vez
       // lo que puede gastar en tecnicas: la tension de su equipo
       Object.defineProperty(j, "pt", { get: () => this.tension[lado], enumerable: false });
       this.jugadores.push(j);
@@ -117,6 +121,7 @@ class Partido {
     if (o.tipo === "pausa") return this.pausar(o.lado);
     if (o.tipo === "seguir") return this.seguir(o.lado);
     if (o.tipo === "presionar") return this.presionar(o.lado, o.objetivo);
+    if (o.tipo === "invocar") return this.invocar(o.jugador);
     const j = this.jugadores[o.jugador !== undefined ? o.jugador : o.de];
     if (!j || this.fase === "final") return false;
     // una ruta vale tambien con el juego parado (online puede llegar justo al
@@ -216,7 +221,7 @@ class Partido {
       cadena: [{ clave: "nada", nombre: "No encadenar", tipo: "", poder: 0, tp: 0, puede: true }],
     }[que];
     const vistas = new Set();
-    const tecs = j.tecnicas.filter(t => REGLAS.sirve(t, que) && !vistas.has(t.nombre) && vistas.add(t.nombre)).map(t => ({
+    const tecs = j.tecnicas.filter(t => REGLAS.sirve(t, que) && (!t.espiritu || this.conAura(j)) && !vistas.has(t.nombre) && vistas.add(t.nombre)).map(t => ({
       clave: "t" + t.ranura, nombre: t.nombre + (que === "muro" && REGLAS.esContra(t) ? " (contra-tiro)" : ""),
       tipo: t.tipo, elemento: t.elemento, subtipo: t.subtipo,
       interno: t.interno, poder: Math.round(this._poder(j, t)), tp: t.tp, puede: t.tp <= j.pt,
@@ -242,19 +247,19 @@ class Partido {
     this.apunta("¡" + def.nombre + " sale al paso de " + att.nombre + "!", "duelo");
   }
 
-  _empezarTiro(tirador, distancia, pasador) {
+  _empezarTiro(tirador, distancia, pasador, penalti) {
     const rivales = this.equipo(1 - tirador.lado);
     const portero = this.portero(1 - tirador.lado);
     const g = this.porteriaRival(tirador);
     // el muro: el defensa (no portero) mas cerca de la linea de tiro y por delante
-    let muro = null, mejor = 3.2;
+    let muro = null, mejor = penalti ? -1 : 3.2;
     for (const r of rivales) {
       if (r.esPortero || r.aturdido > 0) continue;
       const e = this._distanciaALinea(r, tirador, g);
       if (e.delante && e.d < mejor) { mejor = e.d; muro = r; }
     }
     // la cadena: un companero en la linea de tiro, mas cerca de la porteria, con un tiro
-    let cadena = null, mc = 3.2;
+    let cadena = null, mc = penalti ? -1 : 3.2;
     for (const c of this.equipo(tirador.lado)) {
       if (c === tirador || c.esPortero || c.aturdido > 0 || !c.tecnicas.some(t => REGLAS.sirve(t, "cadena"))) continue;
       const e = this._distanciaALinea(c, tirador, g);
@@ -263,7 +268,7 @@ class Partido {
     this.fase = "duelo";
     this.duelo = {
       id: ++this.nDuelos, tipo: "tiro", tirador: tirador.id, portero: portero.id, muro: muro ? muro.id : null, distancia,
-      cadena: cadena ? cadena.id : null, directo: pasador ? pasador.id : null,
+      cadena: cadena ? cadena.id : null, directo: pasador ? pasador.id : null, penalti: !!penalti,
       lados: {
         [tirador.lado]: { rol: "tiro", jugador: tirador.id, opciones: this._opciones(tirador, "tiro"),
           cadena: cadena ? { jugador: cadena.id, opciones: this._opciones(cadena, "cadena") } : null },
@@ -329,6 +334,19 @@ class Partido {
       .sort((a, b) => Math.hypot(a.x - r.x, a.y - r.y) - Math.hypot(b.x - r.x, b.y - r.y)).slice(0, 2);
     for (const j of mios) { j.presiona = r.id; j.ruta = []; }
     return mios.length > 0;
+  }
+
+  // --- espiritus (O-295) ---------------------------------------------------------
+  conAura(j) { return j.aura > this.segundosDeJuego(); }
+  invocar(id) {
+    const j = this.jugadores[id], ahora = this.segundosDeJuego();
+    if (!j || !j.espiritu || this.fase !== "juego" || this.conAura(j) || ahora < j.auraLista) return false;
+    if (this.tension[j.lado] < REGLAS.INVOCAR_COSTE) return false;
+    this.tension[j.lado] -= REGLAS.INVOCAR_COSTE;
+    j.aura = ahora + REGLAS.AURA_SEGUNDOS;
+    j.auraLista = ahora + REGLAS.AURA_SEGUNDOS + REGLAS.AURA_RECARGA;
+    this.apunta("¡" + j.nombre + " invoca a " + j.espiritu.nombre + "!", "tactica");
+    return true;
   }
 
   // --- tacticas (O-290) ---------------------------------------------------------
@@ -454,6 +472,7 @@ class Partido {
     }
     let pct = 0;
     for (const t in porTipo) pct += topes[t] ? Math.min(porTipo[t], topes[t]) : porTipo[t];
+    if (this.conAura(j)) pct += REGLAS.AURA_BONUS;
     for (const e of this._efectosTactica(j)) {
       const vale = e.que.includes(valor) || (ataca && e.que.includes("at") && valor !== "kp" && valor !== "muro")
         || (!ataca && e.que.includes("df") && valor !== "tiro");
@@ -519,6 +538,12 @@ class Partido {
     const gana = this.azar() < REGLAS.probabilidad(ra, rd) ? att : def, pierde = gana === att ? def : att;
     pierde.aturdido = REGLAS.ATURDIDO; pierde.ruta = [];
     gana.respiro = REGLAS.RESPIRO_DUELO; pierde.respiro = REGLAS.RESPIRO_DUELO;
+    // falta (3DS): el que entra fuerte o carga y gana puede hacer falta
+    let riesgo = gana === def ? (cd === "potente" ? REGLAS.FALTA_ENTRADA : cd === "cargar" ? REGLAS.FALTA_CARGA : 0) : 0;
+    // en su area el defensa se la juega menos (si no, salian demasiados penaltis)
+    const gA = this.porteriaRival(att);
+    if (Math.abs(att.y - gA.y) < REGLAS.AREA_Y && Math.abs(att.x) < REGLAS.AREA_X) riesgo *= 0.4;
+    if (riesgo && this.azar() < riesgo) return this._falta(att, def, ra, rd, ta, td, ca, cd);
     if (gana === def) { this.coger(def); this.ultimoRobo[def.lado] = this.segundosDeJuego(); }
     // la tension: +60 al que gana y +30 al que pierde, salvo si gano con tecnica
     const tecGana = gana === att ? ta : td, tecPierde = gana === att ? td : ta;
@@ -625,6 +650,49 @@ class Partido {
     this._acabarDuelo(2.0);
   }
 
+  // la falta: tiro libre con la barrera a 9 m, o penalti si fue en el area
+  _falta(att, def, ra, rd, ta, td, ca, cd) {
+    const g = this.porteriaRival(att);
+    const enArea = Math.abs(att.y - g.y) < REGLAS.AREA_Y && Math.abs(att.x) < REGLAS.AREA_X;
+    att.aturdido = 0; def.aturdido = REGLAS.ATURDIDO;
+    this.nResultado = (this.nResultado || 0) + 1;
+    this.resultado = {
+      tipo: "falta", penalti: enArea, ganador: att.id, atacante: att.id, defensor: def.id,
+      valores: { [att.lado]: ra, [def.lado]: rd },
+      tecnicas: { [att.lado]: ta ? ta.nombre : (ca === "potente" ? "Romper" : "Regatear"),
+                  [def.lado]: td ? td.nombre : ({ cargar: "Cargar", potente: "Entrada" }[cd] || "Tapar") },
+      elementos: { [att.lado]: null, [def.lado]: null }, pasivas: {},
+    };
+    this.apunta("¡Falta de " + def.nombre + " sobre " + att.nombre + "!" + (enArea ? " ¡PENALTI!" : " Tiro libre."), "mal");
+    for (const j of this.jugadores) j.ruta = [];
+    if (enArea) {
+      // penalti: el que la recibe tira desde el punto; el resto, fuera del area
+      att.x = 0; att.y = g.y - att.dir * 11;
+      const por = this.portero(1 - att.lado); por.x = 0; por.y = g.y - att.dir * 0.8;
+      for (const j of this.jugadores) {
+        if (j === att || j === por) continue;
+        if (Math.abs(j.y - g.y) < REGLAS.AREA_Y + 1) j.y = g.y - att.dir * (REGLAS.AREA_Y + 2 + Math.abs(j.x) * 0.05);
+      }
+      this.coger(att);
+      this.duelo = null;
+      this._penalti = att.id;
+      this.fase = "resultado"; this.espera = 2.0;
+      return;
+    }
+    // tiro libre: el balon para el que la recibio y los rivales a 9 m
+    this.coger(att);
+    att.respiro = 2.5;
+    for (const r of this.equipo(def.lado)) {
+      const dd = Math.hypot(r.x - att.x, r.y - att.y);
+      if (dd < REGLAS.DISTANCIA_BARRERA && !r.esPortero) {
+        const k = (REGLAS.DISTANCIA_BARRERA + 0.5) / (dd || 1);
+        const c = this._dentro(att.x + (r.x - att.x) * k, att.y + (r.y - att.y) * k);
+        r.x = c.x; r.y = c.y;
+      }
+    }
+    this._acabarDuelo(1.8);
+  }
+
   _acabarDuelo(segundos) {
     this.duelo = null;
     this.fase = "resultado";
@@ -644,6 +712,11 @@ class Partido {
       this.espera -= P;
       if (this.espera > 0) return;
       if (this.fase === "gol") { this.saque(this._sacaDespues); return; }
+      if (this._penalti !== undefined && this._penalti !== null) {
+        const t = this.jugadores[this._penalti]; this._penalti = null;
+        this.fase = "juego";
+        return this._empezarTiro(t, 11, null, true);
+      }
       if (this.fase === "descanso") { this._segundaParte(); return; }
       this.fase = "juego";
       return;
@@ -830,7 +903,8 @@ class Partido {
       t: this.tension.map(Math.round), e: this.espera, ta: this.tacticaActiva, tl: this.tacticaLista,
       pz: this.pausa, pq: this.pausasQuedan, pm: this.paseMarcado,
       j: this.jugadores.map(j => [r1(j.x), r1(j.y), j.dir, j.conBalon ? 1 : 0, j.aturdido > 0 ? 1 : 0,
-        j.esPortero ? Math.round(j.kp) : 0, j.lado === ladoRutas ? j.ruta.slice(0, 6).map(p => [r1(p.x), r1(p.y)]) : []]),
+        j.esPortero ? Math.round(j.kp) : 0, j.lado === ladoRutas ? j.ruta.slice(0, 6).map(p => [r1(p.x), r1(p.y)]) : [],
+        r1(j.aura), r1(j.auraLista)]),
       b: [r1(this.balon.x), r1(this.balon.y), this.balon.dueno, this.balon.pase ? [this.balon.pase.a, r1(this.balon.pase.destino.x), r1(this.balon.pase.destino.y)] : 0],
       d: this.duelo ? JSON.parse(JSON.stringify(this.duelo)) : null,
       re: this.resultado ? Object.assign({ k: this.nResultado || 0 }, this.resultado) : null,
@@ -851,6 +925,7 @@ class Partido {
       j.dir = q[2]; j.conBalon = !!q[3]; j.aturdido = q[4] ? 1 : 0;
       if (j.esPortero) j.kp = q[5];
       j.ruta = q[6].map(p => ({ x: p[0], y: p[1] }));
+      if (q.length > 7) { j.aura = q[7]; j.auraLista = q[8]; }
     });
     this.balon.destX = f.b[0]; this.balon.destY = f.b[1]; this.balon.dueno = f.b[2];
     this.balon.pase = f.b[3] ? { a: f.b[3][0], destino: { x: f.b[3][1], y: f.b[3][2] } } : null;
