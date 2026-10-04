@@ -1148,7 +1148,8 @@ def _rama_abierta(plain, fila):
         return {"cual": 0, "tronco": 0, "rama": 0, "casillas": 0, "elegida": False}
     import struct
     b = plain[off:off + n]
-    cual = struct.unpack_from("<I", plain, offr)[0]
+    # la que ensena el juego (con las dos abiertas manda el anillo, O-284)
+    cual = E.rama_que_ensena(plain, fila)
     corta = lambda t: sum(1 for x in b[t[0]:t[1]] if x)
     tronco = corta(J.TRAMO_TRONCO)
     r1, r2 = corta(J.TRAMO_RAMA1), corta(J.TRAMO_RAMA2)

@@ -647,6 +647,8 @@ def estado_de_jugador(plain, fila, heredadas=False):
     for fh in (J.F_PASIVAS, J.F_RAMA, J.F_JUDIA_TIPO, J.F_JUDIA_CANT) + ((J.F_HEREDADAS,) if heredadas else ()):
         off, n = E._campo(plain, fila, fh)
         crudo[fh] = bytes(plain[off:off + n])
+    # la rama, la que ensena el juego: con las dos abiertas manda el anillo (O-284)
+    crudo[J.F_RAMA] = E.rama_que_ensena(plain, fila).to_bytes(len(crudo[J.F_RAMA]), "little")
     personalizada, _slot = E.pasiva_personalizada(plain, fila)
     personal = []
     if E.rol_de_personal(plain, fila) in ("gerente", "entrenador"):
@@ -701,7 +703,7 @@ def copia_estado(obj, plain, fr, anadidos, avisos, nombre, donde="el draft"):
     if J.F_RAMA in obj["crudo"]:
         offr, nr = E._campo(plain, fr, J.F_RAMA)
         quiero = obj["crudo"][J.F_RAMA][:nr]
-        if plain[offr:offr + nr] != quiero:
+        if E.rama_que_ensena(plain, fr) != int.from_bytes(quiero, "little"):
             try:
                 plain, _ = E.cambiar_rama(plain, fr)
             except E.Ilegal:

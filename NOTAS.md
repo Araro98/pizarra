@@ -6540,6 +6540,60 @@ Siguiendo O-282 en nie.exe (solo leido, con capstone):
 - En la partida de Aaron "Arreglar arboles" toca 140: anillos sin girar que
   ahora se giran y los 35 de rama 2 mal girados.
 
+### O-284 · Lo que rompio la 2026.10.04.3 en los arboles, y la regla buena
+
+Aaron, tras instalar la 2026.10.04.3: Hotel, Vee Wai y Dave Quagmire de
+Lightyear con el arbol mal; Boulder, Tabit, Weathervane, Slinka y Nieve Alba
+se le habian girado solos a la otra rama; Luvy y Duvy (Diamante) mal.
+
+Comparando su partida de antes de guardar (`.bak` de las 07:39) con la de
+despues de jugar (07:48), la O-283 cambio el giro de 140 jugadores. Dos
+errores:
+
+1. **Jugadores con las dos ramas abiertas** (37 normales y varios Diamantes,
+   hechos con versiones viejas del editor): el juego ensena la rama a la que
+   apunta el anillo, no la marcada en `currentRouteType`. Su giro era el de la
+   otra rama y funcionaba; "corregirlo" les dio la vuelta.
+2. **Diamantes**: el juego dibuja el arbol con el tablero apuntado en la
+   partida (`abilityLearningBoardId`), no con el de sus posiciones. El editor
+   les pone a veces el de un Diamante parecido (O-240), y Hotel y Dave llevan
+   un tablero de giros 6/8 aunque por posiciones les tocaria 7/1.
+
+Comprobado en cinco partidas (la de antes del editor y cuatro de Aaron): con
+el tablero apuntado para los Diamantes y la forma sorteada para los normales,
+un giro que no une ninguna rama de su dibujo es **siempre** uno que el juego
+rechazo (pasivas 3-5 a cero), y todos los rechazados son de esos. En la
+partida de antes del editor, 109 de 109 Diamantes cuadran con el apuntado.
+
+La regla nueva (`_giro_a_corregir`):
+- Un giro que une una de las dos ramas de su dibujo no se toca, salvo que
+  apunte a una rama sin casillas y la marcada tenga (pasa al cambiar de rama).
+- Si no une ninguna rama de su dibujo, el de la rama marcada.
+- Sin saber su dibujo entero, solo si el juego ya lo ha rechazado.
+- `giros-tablero.csv` (836 tableros) da los giros de cada tablero, y
+  `_giros_de_su_forma` usa el apuntado si lo hay.
+
+Con ella, en la partida de antes del editor no se toca ni un anillo girado; en
+la de Aaron de antes de la actualizacion solo los 7 que el juego ya habia
+rechazado (Luvy y Duvy x2, Lumina x2, Darren LaChance, Terry Archibald y
+Stephen Black, este por el calculo).
+
+Tambien:
+- `rama_que_ensena`: la rama que ensena el juego (con las dos abiertas manda
+  el anillo). La usan la ficha, las estadisticas del arbol, el copiado al
+  draft y el exportar. `cambiar_rama` parte de ella, muda las casillas como el
+  juego (Boulder, al girarlo Aaron, quedo solo con la rama nueva) y gira el
+  anillo. Antes, con las dos abiertas, cambiar de rama no cambiaba nada en el
+  juego.
+- Las pasivas 3-5 de un Diamante en la rama 2 van diez casillas mas alla
+  (18, 20, 21), como en su tablero; con la 8/10/11 fija salian con candado.
+
+Para Aaron: `partidas/arreglo-arboles` es su partida de ahora con los 49
+jugadores que la 2026.10.04.3 estropeo vueltos a como estaban (giro, rama,
+casillas y marcas de la `.bak`). Boulder no, que lo giro el en el juego y ya
+esta como antes. Al guardarla con Pizarra solo se arregla Luvy y Duvy (que ya
+estaba rechazado). La `.bak` queda en `partidas/antes-de-2026.10.04.3`.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

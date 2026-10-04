@@ -1596,23 +1596,56 @@ def _giros_calculados():
     return O._indice("giros_calculados", construir)
 
 
-def _giro_conocido(plain, fila, rama):
-    """El giro que el juego usa para ese personaje en esa rama, si se sabe:
-    primero el calculado como el juego (O-283), luego el aprendido de las
-    partidas (la tabla, o otra copia en la partida); si no, None."""
+def _giros_de_tableros():
+    """{(tablero, rama): giro} de `giros-tablero.csv` (O-284)."""
+    from ievr import opciones as O
+    def construir():
+        return {(int(f["tablero"], 16), int(f["rama"])): int(f["giro"])
+                for f in reglas._tabla("giros-tablero.csv")}
+    return O._indice("giros_tablero", construir)
+
+
+def _giros_de_su_forma(plain, fila):
+    """(giro de la rama 1, giro de la rama 2) del dibujo del arbol de ese
+    jugador, calculados como el juego (None en la rama que no se sabe), o None
+    si no se sabe ninguno.
+
+    El juego dibuja el arbol con el tablero que el jugador lleva apuntado en la
+    partida, si lleva (los Diamantes): el editor les ha puesto a veces el de un
+    Diamante parecido y no el de sus posiciones, y es ESE el que cuenta (Hotel,
+    Vee Wai, O-284). Si no lleva, con la forma que sortea el juego para ese
+    personaje (O-283)."""
+    try:
+        tablero = J.array(plain, (J.F_TABLERO_JUEGO, 24000, "I", 4))[fila]
+    except Exception:
+        tablero = 0
+    if tablero:
+        t = _giros_de_tableros()
+        g = (t.get((tablero, 0)), t.get((tablero, 1)))
+        return g if any(g) else None
     ident = "%08X" % J.array(plain, J.ARRAY_IDENTIDAD)[fila]
-    dia = 1 if J.array(plain, J.ARRAY_RAREZA)[fila] == 8 else 0
     calc = _giros_calculados()
-    if dia:
+    if J.array(plain, J.ARRAY_RAREZA)[fila] == 8:
         try:
             arq = J.array(plain, (J.F_ARQUETIPO_DIAMANTE, 6000, "B", 1))[fila]
         except Exception:
             arq = None
-        g = calc.get((ident, 1, str(arq), rama)) or calc.get((ident, 1, "", rama))
+        g = tuple(calc.get((ident, 1, str(arq), r)) or calc.get((ident, 1, "", r)) for r in (0, 1))
     else:
-        g = calc.get((ident, 0, "", rama))
-    if g:
-        return g
+        g = tuple(calc.get((ident, 0, "", r)) for r in (0, 1))
+    return g if any(g) else None
+
+
+def _giro_conocido(plain, fila, rama):
+    """El giro que el juego usa para ese personaje en esa rama, si se sabe:
+    primero el de su dibujo calculado como el juego (O-283, O-284), luego el
+    aprendido de las partidas (la tabla, o otra copia en la partida); si no,
+    None."""
+    ident = "%08X" % J.array(plain, J.ARRAY_IDENTIDAD)[fila]
+    dia = 1 if J.array(plain, J.ARRAY_RAREZA)[fila] == 8 else 0
+    forma = _giros_de_su_forma(plain, fila)
+    if forma and forma[rama]:
+        return forma[rama]
     tabla = _giros_de_tabla()
     if (ident, dia, rama) in tabla:
         return tabla[(ident, dia, rama)]
@@ -1653,6 +1686,62 @@ def _giro_del_anillo(plain, fila, rareza, rama):
     el anillo se deja sin girar y lo gira el jugador en el juego con un clic
     (con un giro inventado el juego lo ensena roto y no deja moverlo, O-200)."""
     return _giro_conocido(plain, fila, rama)
+
+
+def _giro_a_corregir(plain, fila, rareza, rama, mapa, actual, giro):
+    """Con el anillo ya girado: el giro que hay que ponerle, 0xFF para dejarlo
+    sin girar o None para NO tocarlo (O-284).
+
+    Lo que funciona en el juego no se toca. Un giro que une el tronco con una
+    de las dos ramas de su dibujo es bueno aunque no sea el de la rama marcada:
+    con las dos ramas abiertas (jugadores hechos con versiones viejas del
+    editor) el juego ensena la rama a la que apunta el anillo, y cambiarlo les
+    daba la vuelta (Tabit, Nieve Alba, Weathervane... con la 2026.10.04.3). Solo
+    se cambia: si apunta a una rama sin casillas y la marcada tiene (despues de
+    cambiar de rama en el editor), si no une ninguna rama de su dibujo (el
+    juego lo rechaza: Hotel con el 7 en un tablero de 6 y 8) o, sin saber su
+    dibujo, si el juego ya lo ha rechazado."""
+    forma = _giros_de_su_forma(plain, fila)
+    tramos = (any(mapa[8:18]), any(mapa[18:28]))
+    if forma:
+        if actual in forma:
+            une = forma.index(actual)
+            if tramos[une] or not tramos[rama] or forma[rama] is None:
+                return None
+            return forma[rama]
+        if all(forma):
+            return forma[rama]
+    # dibujo a medias o sin saber: solo si el juego ya lo ha rechazado, o sea,
+    # pasivas 3-5 cerradas con sus casillas abiertas
+    if not (_marcas_dicen_desconectado(plain, fila, rareza, rama)
+            and any(_marcas_por_mapa(mapa, rareza, rama)[2:])):
+        return None
+    if giro is None:
+        return 0xFF
+    return giro if giro != actual else None
+
+
+def rama_que_ensena(plain, fila):
+    """La rama (0 o 1) que ensena el juego de ese jugador: la marcada
+    (`currentRouteType`), salvo si tiene las casillas de las dos ramas abiertas
+    (jugadores de versiones viejas del editor), que manda el anillo: el juego
+    ensena la rama a la que apunta (Tabit, Vee Wai, O-284)."""
+    offr, _ = _campo(plain, fila, J.F_RAMA)
+    rama = struct.unpack_from("<I", plain, offr)[0]
+    try:
+        off, n = _campo(plain, fila, J.F_TABLERO)
+        oa, na = _campo(plain, fila, F_ANILLOS)
+        ob, nb = _campo(plain, fila, F_GIROS)
+    except Ilegal:
+        return rama
+    if n != 60 or na != 30 or nb != 30 or plain[oa] != CASILLA_ANILLO:
+        return rama
+    if not (any(plain[off + 8:off + 18]) and any(plain[off + 18:off + 28])):
+        return rama
+    forma = _giros_de_su_forma(plain, fila)
+    if forma and plain[ob] in forma:
+        return forma.index(plain[ob])
+    return rama
 
 
 def _marcas_dicen_desconectado(plain, fila, rareza, rama):
@@ -1719,9 +1808,8 @@ def _arbol_esperado(plain, fila):
     for c in _orden_de_casillas(rareza, rama)[:_casillas_por_nivel(nivel, rareza)]:
         mapa[c] = 1
     # el anillo (O-189, O-195): si la rama ya empieza y el juego no lo ha
-    # girado, se gira con el giro de ese personaje; y si esta girado con un
-    # giro que no es el suyo (lo puso una version anterior del editor), se
-    # corrige, porque con el giro equivocado el juego cierra las pasivas
+    # girado, se gira con el giro de ese personaje; y si esta girado, solo se
+    # corrige lo que el juego no acepta (_giro_a_corregir, O-284)
     anillo = None
     if not 5 <= rareza <= 7 and (mapa[8] or mapa[18]):
         try:
@@ -1740,11 +1828,8 @@ def _arbol_esperado(plain, fila):
                 b[0] = giro
                 anillo = ((oa, bytes(a)), (ob, bytes(b)))
             elif plain[oa] == CASILLA_ANILLO:
-                if giro is not None and plain[ob] != giro:
-                    b = bytearray(plain[ob:ob + 30])
-                    b[0] = giro
-                    anillo = ((ob, bytes(b)),)
-                elif giro is None and _marcas_dicen_desconectado(plain, fila, rareza, rama):
+                nuevo = _giro_a_corregir(plain, fila, rareza, rama, mapa, plain[ob], giro)
+                if nuevo == 0xFF:
                     # giro inventado que el juego rechaza y no deja mover: se
                     # deja sin girar para que el jugador lo gire con un clic
                     a = bytearray(plain[oa:oa + 30]); a[0] = 0xFF
@@ -1752,6 +1837,10 @@ def _arbol_esperado(plain, fila):
                     for c in CASILLAS_DEL_ANILLO:
                         mapa[c] = 0
                     anillo = ((oa, bytes(a)), (ob, bytes(b)))
+                elif nuevo is not None:
+                    b = bytearray(plain[ob:ob + 30])
+                    b[0] = nuevo
+                    anillo = ((ob, bytes(b)),)
         # las casillas de personal de un gerente o entrenador (O-200)
         if rol_de_personal(plain, fila) in ("gerente", "entrenador") and mapa[28]:
             for c in CASILLAS_DE_PERSONAL:
@@ -1814,7 +1903,9 @@ def _marcas_por_mapa(mapa, rareza, rama):
         if 5 <= rareza <= 7:
             celda = CELDA_PASIVA_IDOLO[k]
         elif rareza == 8:
-            celda = CELDA_PASIVA_DIAMANTE[k]
+            # medido en Diamantes de la rama 1; en la rama 2, diez casillas mas
+            # alla, como en su tablero (tableros.csv) y en los normales (O-284)
+            celda = CELDA_PASIVA_DIAMANTE[k] + (10 if (k >= 2 and rama == 1) else 0)
         else:
             celda = CELDA_PASIVA_NORMAL[k] + (10 if (k >= 2 and rama == 1) else 0)
         fuera.append(1 if mapa[celda] else 0)
@@ -3414,6 +3505,11 @@ def cambiar_rama(plain, fila):
       las mismas y en el mismo orden.
 
     Las del tronco y las del tercer tramo no se tocan.
+
+    Y el anillo gira hacia la rama nueva, como al pulsarlo en el juego. Se
+    parte de la rama que ENSENA el juego (con las dos ramas abiertas manda el
+    anillo, O-284): Boulder, con las dos abiertas, al girarlo Aaron en el juego
+    se quedo con las casillas solo en la rama nueva.
     """
     off, n = _campo(plain, fila, J.F_TABLERO)
     if n != 60:
@@ -3422,13 +3518,17 @@ def cambiar_rama(plain, fila):
     if nr != 4:
         raise Ilegal("la ficha %d no tiene el campo de rama" % fila)
     import struct
-    ahora = struct.unpack_from("<I", plain, offr)[0]
-    if ahora not in (0, 1):
-        raise Ilegal("ese jugador tiene un valor de rama raro (%d)" % ahora)
+    marcada = struct.unpack_from("<I", plain, offr)[0]
+    if marcada not in (0, 1):
+        raise Ilegal("ese jugador tiene un valor de rama raro (%d)" % marcada)
+    ahora = rama_que_ensena(plain, fila)
 
     a, b = (J.TRAMO_RAMA1, J.TRAMO_RAMA2) if ahora == 0 else (J.TRAMO_RAMA2, J.TRAMO_RAMA1)
     cogidas = [x for x in plain[off + a[0]:off + a[1]] if x]
-    if not cogidas and not any(plain[off + b[0]:off + b[1]]):
+    if not cogidas:
+        # las casillas ya estaban en el tramo de la otra: se quedan
+        cogidas = [x for x in plain[off + b[0]:off + b[1]] if x]
+    if not cogidas:
         raise Ilegal("ese jugador todavia no ha abierto ninguna rama, asi que no "
                      "hay nada que cambiar")
     if len(cogidas) > b[1] - b[0]:
@@ -3438,6 +3538,15 @@ def cambiar_rama(plain, fila):
     buf[off + a[0]:off + a[1]] = bytes(a[1] - a[0])
     buf[off + b[0]:off + b[1]] = bytes([1] * len(cogidas)) + bytes(b[1] - b[0] - len(cogidas))
     struct.pack_into("<I", buf, offr, 1 - ahora)
+    try:
+        oa, na = _campo(plain, fila, F_ANILLOS)
+        ob, nb = _campo(plain, fila, F_GIROS)
+    except Ilegal:
+        oa = None
+    if oa is not None and na == 30 and nb == 30 and plain[oa] == CASILLA_ANILLO:
+        giro = _giro_conocido(bytes(buf), fila, 1 - ahora)
+        if giro:
+            buf[ob] = giro
     return bytes(buf), {
         "fila": fila, "que": "rama del arbol",
         "antes": "rama %d" % (ahora + 1), "despues": "rama %d" % (2 - ahora),

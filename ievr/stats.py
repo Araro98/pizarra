@@ -197,8 +197,7 @@ def de_arbol(plain, fila):
         # las dos ramas abiertas en el mapa, y en el juego se juega una
         try:
             import struct as _st
-            offr, _ = E._campo(plain, fila, J.F_RAMA)
-            rama = "rama2" if _st.unpack_from("<I", plain, offr)[0] == 1 else "rama1"
+            rama = "rama2" if E.rama_que_ensena(plain, fila) == 1 else "rama1"
         except E.Ilegal:
             rama = "rama1"
         for casilla, tramo, stat, valor in casillas:

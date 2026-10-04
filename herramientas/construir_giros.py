@@ -6,6 +6,11 @@
 Escribe `datos/reglas-extraidas/giros-anillo.csv`: identidad, diamante (1 si
 es la version Diamante), arquetipo (solo en los Diamantes de fabrica, cuyo
 tablero cambia con el arquetipo; vacio = vale para todos), rama (0 o 1) y giro.
+Y `giros-tablero.csv`: el giro de cada rama para cada tablero del juego. Un
+Diamante lleva su tablero apuntado en la partida (`abilityLearningBoardId`) y
+el juego dibuja el arbol con ESE, no con el de sus posiciones: en la partida
+de Aaron los 109 Diamantes que hizo el juego cuadran con el apuntado, y los
+que el juego rechazo (pasivas 3-5 cerradas) son justo los que no (O-284).
 
 **Como lo hace el juego** (sacado de nie.exe, O-283):
 
@@ -42,6 +47,7 @@ RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VOLCADO = os.path.join(RAIZ, "referencia", "volcado", "target", "release", "volcado.exe")
 GAMEDATA = os.path.join(RAIZ, "datos", "juego", "extracted", "data", "common", "gamedata")
 SALIDA = os.path.join(RAIZ, "datos", "reglas-extraidas", "giros-anillo.csv")
+SALIDA_TABLEROS = os.path.join(RAIZ, "datos", "reglas-extraidas", "giros-tablero.csv")
 M = 0xFFFFFFFF
 
 GIRO = {frozenset(("arriba", "izq")): 7, frozenset(("arriba", "der")): 5, frozenset(("arriba", "abajo")): 1,
@@ -201,6 +207,21 @@ def main():
         w.writerow(["identidad", "diamante", "arquetipo", "rama", "giro"])
         w.writerows(filas)
     print("Escritos %d giros (%d personajes) en %s" % (len(filas), len({f[0] for f in filas}), SALIDA))
+    # el giro de cada tablero (lo que usa un Diamante: el apuntado en la partida)
+    por_tablero = []
+    for tablero, clave in sorted(forma_de.items()):
+        for rama, giro in enumerate(giros_de_forma(clave)):
+            if giro:
+                por_tablero.append(["%08X" % tablero, rama, giro])
+    with open(SALIDA_TABLEROS, "w", newline="", encoding="utf-8") as fh:
+        fh.write("# El giro del anillo de cada rama segun el tablero (NOTAS O-284).\n"
+                 "# tablero: el abilityLearningBoardId que lleva el jugador en la partida.\n"
+                 "# Lo genera herramientas/construir_giros.py.\n")
+        w = csv.writer(fh)
+        w.writerow(["tablero", "rama", "giro"])
+        w.writerows(por_tablero)
+    print("Escritos %d giros (%d tableros) en %s" % (len(por_tablero), len({f[0] for f in por_tablero}),
+                                                     SALIDA_TABLEROS))
     return 0
 
 
