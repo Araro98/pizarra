@@ -6735,6 +6735,27 @@ Victory Road tiene 80 tipos de pasiva (pasivas-valor.csv). `ievr/partido.py`
 - Con ellas subieron los goles; el KP del portero pasa a x0,5 (de 0,45):
   unos 4 goles por partido de 2 x 3 minutos.
 
+### O-289 · El juego de partidos: cadenas, tiro de primeras, contra-tiro y rotulos
+
+- Rotulo de cada duelo como en el juego: la cara, la supertecnica en una
+  tarjeta del color de su elemento, lo que suman las pasivas y el numero, que
+  sube poco a poco; el que gana, marcado.
+- Subtipos de tecnicas.csv: Tiro 4 = tiro largo (antes no se reconocia: el
+  texto es "tiro largo" y se buscaba "larga"); Defensa 16 = bloqueo de tiro
+  (antes se colaba en los duelos de regate: se buscaba "bloqueo de tiros");
+  Tiro 16 = "bloqueo de tiros", el contra-tiro de VR.
+- Muro: solo las defensas de bloqueo de tiro, o un contra-tiro, que frena con
+  la mitad de su tiro (VR: "contra-tiro: resta su AT x 0,5").
+- Cadena (DS IE3, VR): un companero en la linea de tiro, mas cerca de la
+  porteria, puede encadenar con cualquier tiro que no sea largo; los AT se
+  suman y el elemento que cuenta ante el portero es el del ultimo; el gol es
+  suyo. Al elegir tiro se pregunta "¿encadena?".
+- Tiro de primeras (DS: tocar la porteria mientras va un pase; VR: tiro
+  directo): al recibir, chuta en el acto y suma el 50 % del AT de tiro del que
+  paso.
+- La maquina encadena si le llega la tension y remata de primeras a veces.
+- Equilibrio: KP del portero x0,62 y desgaste 0,4 (unos 4 goles por partido).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

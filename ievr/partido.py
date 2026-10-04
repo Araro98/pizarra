@@ -142,6 +142,7 @@ def _ficha(plain, fila):
         tecnicas.append({"ranura": t["ranura"], "id": idh, "nombre": t["puesta"],
                          "interno": (portec.get(idh) or {}).get("nombre_interno") or "",
                          "tipo": t["tipo"], "subtipo": (portec.get(idh) or {}).get("subtipo") or "",
+                         "subtipo_valor": int((portec.get(idh) or {}).get("subtipo_valor") or 0),
                          "elemento": t["elemento"], "poder": t["poder"],
                          "tp": t["tp"], "jugadores": t.get("jugadores") or 1})
     # las pasivas: en cada ranura manda la heredada si la hay (tapa a la de la

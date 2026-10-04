@@ -61,8 +61,8 @@ const REGLAS = {
   dfMuro(j)    { const s = j.stats; return s[4] + s[3]; },
   // KP del portero (VR): Agi x4 + Fis x3 + Pres x2; escalado para que en un
   // duelo A^3/(A^3+D^3) una buena tecnica tenga opciones (ajustable)
-  KP_ESCALA: 0.5,
-  DESGASTE: 0.45,               // lo que pierde el portero al parar, segun el golpe (VR: todo)
+  KP_ESCALA: 0.62,
+  DESGASTE: 0.4,                // lo que pierde el portero al parar, segun el golpe (VR: todo)
   kpBase(j)    { const s = j.stats; return (s[5] * 4 + s[4] * 3 + s[3] * 2) * this.KP_ESCALA; },
 
   // perdida de potencia del tiro con la distancia (VR la tiene; ley exacta sin
@@ -77,15 +77,21 @@ const REGLAS = {
   sirve(t, que) {
     if (!t) return false;
     if (que === "regate") return t.tipo === "Regate";
-    if (que === "entrada") return t.tipo === "Defensa" && !/bloqueo de tiros/i.test(t.subtipo || "");
-    if (que === "muro") return t.tipo === "Defensa";
+    // subtipos de tecnicas.csv: Defensa 16 = bloqueo de tiro; Tiro 4 = tiro
+    // largo; Tiro 16 = "bloqueo de tiros" (el contra-tiro de VR)
+    if (que === "entrada") return t.tipo === "Defensa" && t.subtipo_valor !== 16;
+    if (que === "muro") return (t.tipo === "Defensa" && t.subtipo_valor === 16) || (t.tipo === "Tiro" && t.subtipo_valor === 16);
     if (que === "tiro") return t.tipo === "Tiro";
+    if (que === "cadena") return t.tipo === "Tiro" && t.subtipo_valor !== 4;
     if (que === "parada") return t.tipo === "Parada";
     return false;
   },
   // quien gana un duelo: como en IE3, con probabilidad A^3 / (A^3 + D^3)
   probabilidad(a, d) { a = Math.max(1, a); d = Math.max(1, d); return a ** 3 / (a ** 3 + d ** 3); },
-  esLarga(t) { return !!t && /larga|distancia/i.test(t.subtipo || ""); },
+  esLarga(t) { return !!t && (t.subtipo_valor === 4 || /larg|distancia/i.test(t.subtipo || "")); },
+  esContra(t) { return !!t && t.tipo === "Tiro" && t.subtipo_valor === 16; },
+  // tiro directo (VR): rematar un pase suma el 50 % del AT de tiro del que pasa
+  DIRECTO: 0.5,
 };
 
 /* Azar con semilla (mulberry32): los dos PCs de un partido online sacan los

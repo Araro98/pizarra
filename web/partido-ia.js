@@ -40,7 +40,13 @@ class Maquina {
     const presion = Math.min(...rivales.map(r => Math.hypot(r.x - d.x, r.y - d.y)));
     if (presion < 6 && this.azar() < 0.7) {
       const mejor = this._mejorPase(d, rivales);
-      if (mejor) { p.ordenar({ tipo: "pase", de: d.id, a: mejor.id }); return; }
+      if (mejor) {
+        p.ordenar({ tipo: "pase", de: d.id, a: mejor.id });
+        // si el companero queda cerca de la porteria, a veces remata de primeras
+        const gm = p.porteriaRival(mejor);
+        if (Math.hypot(gm.x - mejor.x, gm.y - mejor.y) < 16 && this.azar() < 0.2) p.ordenar({ tipo: "directo", de: d.id });
+        return;
+      }
     }
     // correr hacia la porteria, con un poco de zigzag
     const lado = (this.azar() - 0.5) * 10;
@@ -76,7 +82,14 @@ class Maquina {
       if (ops.some(o => o.clave === "potente") && this.azar() < 0.4) return "potente";
       return "normal";
     };
-    if (pend.rol === "tiro") return p.elegir(this.lado, { tiro: escoge(pend.opciones) });
+    if (pend.rol === "tiro") {
+      const e = { tiro: escoge(pend.opciones) };
+      if (pend.cadena) {
+        const c = pend.cadena.opciones.filter(o => o.clave !== "nada" && o.puede).sort((a, b) => b.poder - a.poder)[0];
+        e.cadena = c && this.azar() < this.gana ? c.clave : "nada";
+      }
+      return p.elegir(this.lado, e);
+    }
     if (pend.rol === "porteria") {
       const e = { parada: escoge(pend.opciones) };
       if (pend.muro) e.muro = escoge(pend.muro.opciones.filter(o => o.clave !== "nada"));

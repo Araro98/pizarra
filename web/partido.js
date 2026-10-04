@@ -190,6 +190,11 @@ function raton() {
       PARTIDO.ordenar({ tipo: "ruta", jugador: e.j.id, puntos: e.puntos.slice(1) });
       return;
     }
+    // con un pase mio de camino, pulsar la porteria: el que lo recibe remata de primeras
+    if (!tengo && PARTIDO.balon.pase && PARTIDO.jugadores[PARTIDO.balon.pase.de].lado === YO) {
+      const rec = PARTIDO.jugadores[PARTIDO.balon.pase.a], g = PARTIDO.porteriaRival(rec);
+      if (Math.abs(fin.y - g.y) < 7 && Math.abs(fin.x) < 9) { PARTIDO.ordenar({ tipo: "directo", de: PARTIDO.balon.pase.de }); return; }
+    }
     if (tengo) {
       // pulsar la porteria rival: chutar
       const g = PARTIDO.porteriaRival(d);
@@ -262,7 +267,18 @@ function pintarEleccion(p, pend) {
     caja.appendChild(el("div", { class: "titulo-duelo", text: pend.rol === "tiro" ? "¡Tiro a puerta!" : "¡Te chutan!" }));
     caja.appendChild(el("div", { class: "cara-a-cara" }, [cara(tir), el("b", { text: "VS" }), cara(por)]));
     if (pend.rol === "tiro") {
-      for (const o of pend.opciones) lista.appendChild(botonComando(o, tir, clave => elegido({ tiro: clave })));
+      for (const o of pend.opciones) lista.appendChild(botonComando(o, tir, clave => {
+        if (!pend.cadena) return elegido({ tiro: clave });
+        // un companero en la linea de tiro: ¿encadena?
+        const ch = p.jugadores[pend.cadena.jugador];
+        const gasto = (pend.opciones.find(x => x.clave === clave) || {}).tp || 0;
+        lista.textContent = "";
+        lista.appendChild(el("div", { class: "coste", text: ch.nombre + " esta en la linea de tiro: ¿encadena el tiro?" }));
+        for (const oc of pend.cadena.opciones) {
+          const op = Object.assign({}, oc, { puede: oc.puede && oc.tp + gasto <= p.tension[YO] });
+          lista.appendChild(botonComando(op, ch, c2 => elegido({ tiro: clave, cadena: c2 })));
+        }
+      }));
     } else {
       // defiendes: primero el muro (si hay alguien en la linea) y luego el portero
       const pideParada = (muro) => {

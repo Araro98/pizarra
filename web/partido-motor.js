@@ -117,6 +117,14 @@ class Partido {
       this._pasar(j, a);
       return true;
     }
+    if (o.tipo === "directo") {
+      // rematar de primeras el pase que va de camino (DS: tocar la porteria
+      // mientras va el pase; VR: tiro directo)
+      if (!this.balon.pase || this.jugadores[this.balon.pase.de].lado !== j.lado) return false;
+      this.balon.pase.directo = true;
+      this.apunta("¡" + this.jugadores[this.balon.pase.a].nombre + " va a rematar de primeras!");
+      return true;
+    }
     if (o.tipo === "pasePunto") {
       // el pase al hueco: a un punto del campo; va a por el el companero mas cerca
       if (!j.conBalon) return false;
@@ -181,10 +189,12 @@ class Partido {
       parada: [{ clave: "normal", nombre: "Parar", tipo: "Parada", poder: 0, tp: 0, puede: true }],
       muro: [{ clave: "normal", nombre: "Bloquear", tipo: "Defensa", poder: 0, tp: 0, puede: true },
              { clave: "nada", nombre: "Dejar pasar", tipo: "", poder: 0, tp: 0, puede: true }],
+      cadena: [{ clave: "nada", nombre: "No encadenar", tipo: "", poder: 0, tp: 0, puede: true }],
     }[que];
     const vistas = new Set();
     const tecs = j.tecnicas.filter(t => REGLAS.sirve(t, que) && !vistas.has(t.nombre) && vistas.add(t.nombre)).map(t => ({
-      clave: "t" + t.ranura, nombre: t.nombre, tipo: t.tipo, elemento: t.elemento, subtipo: t.subtipo,
+      clave: "t" + t.ranura, nombre: t.nombre + (que === "muro" && REGLAS.esContra(t) ? " (contra-tiro)" : ""),
+      tipo: t.tipo, elemento: t.elemento, subtipo: t.subtipo,
       interno: t.interno, poder: Math.round(REGLAS.poderTecnica(j, t)), tp: t.tp, puede: t.tp <= j.pt,
     }));
     return tecs.concat(base);
@@ -208,7 +218,7 @@ class Partido {
     this.apunta("¡" + def.nombre + " sale al paso de " + att.nombre + "!", "duelo");
   }
 
-  _empezarTiro(tirador, distancia) {
+  _empezarTiro(tirador, distancia, pasador) {
     const rivales = this.equipo(1 - tirador.lado);
     const portero = this.portero(1 - tirador.lado);
     const g = this.porteriaRival(tirador);
@@ -219,17 +229,26 @@ class Partido {
       const e = this._distanciaALinea(r, tirador, g);
       if (e.delante && e.d < mejor) { mejor = e.d; muro = r; }
     }
+    // la cadena: un companero en la linea de tiro, mas cerca de la porteria, con un tiro
+    let cadena = null, mc = 3.2;
+    for (const c of this.equipo(tirador.lado)) {
+      if (c === tirador || c.esPortero || c.aturdido > 0 || !c.tecnicas.some(t => REGLAS.sirve(t, "cadena"))) continue;
+      const e = this._distanciaALinea(c, tirador, g);
+      if (e.delante && e.d < mc) { mc = e.d; cadena = c; }
+    }
     this.fase = "duelo";
     this.duelo = {
       id: ++this.nDuelos, tipo: "tiro", tirador: tirador.id, portero: portero.id, muro: muro ? muro.id : null, distancia,
+      cadena: cadena ? cadena.id : null, directo: pasador ? pasador.id : null,
       lados: {
-        [tirador.lado]: { rol: "tiro", jugador: tirador.id, opciones: this._opciones(tirador, "tiro") },
+        [tirador.lado]: { rol: "tiro", jugador: tirador.id, opciones: this._opciones(tirador, "tiro"),
+          cadena: cadena ? { jugador: cadena.id, opciones: this._opciones(cadena, "cadena") } : null },
         [1 - tirador.lado]: { rol: "porteria", jugador: portero.id, opciones: this._opciones(portero, "parada"),
           muro: muro ? { jugador: muro.id, opciones: this._opciones(muro, "muro") } : null },
       },
       elecciones: {},
     };
-    this.apunta(tirador.nombre + " chuta a " + Math.round(distancia) + " m", "tiro");
+    this.apunta(tirador.nombre + (pasador ? " remata de primeras" : " chuta") + " a " + Math.round(distancia) + " m", "tiro");
   }
 
   _distanciaALinea(p, a, b) {
@@ -372,14 +391,34 @@ class Partido {
     this._gastar(tir, tt);
     const larga = REGLAS.esLarga(tt);
     let at = (REGLAS.atTiro(tir) + REGLAS.poderTecnica(tir, tt)) * REGLAS.porDistancia(du.distancia, larga) * this.bonusPasivas(tir, "tiro", true);
-    const pasos = [{ quien: tir.id, que: tt ? tt.nombre : "Tiro", valor: Math.round(at), tecnica: !!tt,
+    // tiro directo: suma el 50 % del AT de tiro del que paso (VR)
+    if (du.directo !== null && du.directo !== undefined) at += REGLAS.atTiro(this.jugadores[du.directo]) * REGLAS.DIRECTO;
+    const pasos = [{ quien: tir.id, que: tt ? tt.nombre : (du.directo !== null && du.directo !== undefined ? "Tiro directo" : "Tiro"), valor: Math.round(at), tecnica: !!tt,
       elemento: tt ? tt.elemento || "" : "", pasivas: Math.round((this.bonusPasivas(tir, "tiro", true) - 1) * 1000) / 10 }];
+    // la cadena: el companero remata y los AT se suman (VR); el gol es suyo
+    let ultimo = tir, tecUltima = tt;
+    const ch = du.cadena !== null && du.cadena !== undefined ? this.jugadores[du.cadena] : null;
+    if (ch && et && et.cadena && et.cadena !== "nada") {
+      let tc = this._tecnica(ch, et.cadena);
+      if (tc && tc.tp > ch.pt) tc = null;
+      if (tc) {
+        this._gastar(ch, tc);
+        const g = this.porteriaRival(ch);
+        const suma = (REGLAS.atTiro(ch) + REGLAS.poderTecnica(ch, tc)) * REGLAS.porDistancia(Math.hypot(g.x - ch.x, g.y - ch.y), false) * this.bonusPasivas(ch, "tiro", true);
+        at += suma;
+        pasos.push({ quien: ch.id, que: tc.nombre + " (cadena)", valor: Math.round(at), tecnica: true, elemento: tc.elemento || "" });
+        ultimo = ch; tecUltima = tc;
+      }
+    }
     // el muro: le resta su DF al tiro (VR); si lo deja en nada, lo para
     if (muro && ed.muro && ed.muro !== "nada") {
       let tm = this._tecnica(muro, ed.muro);
       if (tm && tm.tp > muro.pt) tm = null;
       this._gastar(muro, tm);
-      const df = this._tirada((REGLAS.dfMuro(muro) + REGLAS.poderTecnica(muro, tm)) * (tm && REGLAS.gana(tm.elemento, tir.elemento) ? 1.2 : 1) * this.bonusPasivas(muro, "muro", false));
+      // un contra-tiro frena con la mitad de su tiro (VR); un bloqueo, con su DF del muro
+      const base = tm && REGLAS.esContra(tm) ? (REGLAS.atTiro(muro) + REGLAS.poderTecnica(muro, tm)) * 0.5
+                                             : REGLAS.dfMuro(muro) + REGLAS.poderTecnica(muro, tm);
+      const df = this._tirada(base * (tm && REGLAS.gana(tm.elemento, ultimo.elemento) ? 1.2 : 1) * this.bonusPasivas(muro, "muro", false));
       pasos.push({ quien: muro.id, que: tm ? tm.nombre : "Bloqueo", valor: Math.round(df), tecnica: !!tm, elemento: tm ? tm.elemento || "" : "" });
       const r = df / Math.max(1, at);
       if (r > 0.75) at *= 0.7;
@@ -394,7 +433,7 @@ class Partido {
         return this._acabarDuelo(2.0);
       }
     }
-    at *= REGLAS.efectoElemental(tir, tt, por);
+    at *= REGLAS.efectoElemental(ultimo, tecUltima, por);
     let tp = this._tecnica(por, ed.parada);
     if (tp && tp.tp > por.pt) tp = null;
     this._gastar(por, tp);
@@ -406,8 +445,8 @@ class Partido {
     if (this.azar() < REGLAS.probabilidad(at, df)) {
       this.goles[tir.lado]++;
       this.nResultado = (this.nResultado || 0) + 1;
-    this.resultado = { tipo: "tiro", final: "gol", pasos, tirador: tir.id };
-      this.apunta("¡¡GOL de " + tir.nombre + "!! (" + Math.round(at) + " contra " + Math.round(df) + ")", "gol");
+      this.resultado = { tipo: "tiro", final: "gol", pasos, tirador: ultimo.id };
+      this.apunta("¡¡GOL de " + ultimo.nombre + "!! (" + Math.round(at) + " contra " + Math.round(df) + ")", "gol");
       this.fase = "gol"; this.espera = 3.0; this.duelo = null;
       this._sacaDespues = 1 - tir.lado;
       return;
@@ -568,11 +607,16 @@ class Partido {
     }
     if (mejor) {
       const j = mejor.j;
+      const directo = b.pase && b.pase.directo && j.lado === this.jugadores[b.pase.de].lado ? this.jugadores[b.pase.de] : null;
       if (b.pase && j.lado !== this.jugadores[b.pase.de].lado) {
         this.apunta("¡" + j.nombre + " corta el pase!", "mal");
         this.ultimoRobo[j.lado] = this.segundosDeJuego();
       }
       this.coger(j);
+      if (directo) {
+        const g = this.porteriaRival(j), dg = Math.hypot(g.x - j.x, g.y - j.y);
+        if (dg <= REGLAS.DISTANCIA_TIRO) this._empezarTiro(j, dg, directo);
+      }
     }
   }
 
