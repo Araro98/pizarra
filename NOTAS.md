@@ -6506,6 +6506,40 @@ copias: 2.810 giros (antes 2.674), unos 2.600 normales de ~5.400.
 Cada partida que se abre ensena tambien sus giros buenos, asi que un
 personaje que Aaron gire una vez en el juego queda aprendido.
 
+### O-283 · El giro del anillo, calculado como el juego (resuelto)
+
+Siguiendo O-282 en nie.exe (solo leido, con capstone):
+- Nombres reales de los campos (crc32 de los textos del exe): `F_ANILLOS` =
+  `overwriteRouteSwitcherIdxList`, `F_GIROS` = `overwriteRouteSwitcherTypeList`
+  (el anillo es un "route switcher"), `F_RAMA` = `currentRouteType`, el mapa =
+  `openedEffectPieceList`, 45E2 = `specialSkillPieceEffectIdxList`,
+  `F_ARQUETIPO_DIAMANTE` = `basaraBuildType`, `0xBAFA8DBD` = `abilityLearningBoardId`.
+- Forma de un normal: funcion `0x140E7B5B0`. Siembra `lives::CPseudoRand`
+  (vtable 0x1419B7378: sembrar 0x1404C92B0, siguiente 0x1404C9330, acotado
+  0x14009FB20; un xorshift de 128 bits) con el 2.o dato de su fila de
+  `chara_param` (el id de `chara_base`), descarta 11 numeros, saca
+  `next() % (39 + 1)` y coge esa forma de `SHAPE_TABLE_INFO` (si sale 39, la
+  0). La guarda en memoria, no en la partida.
+- Tablero de un Diamante: funcion `0x14165CED0`. Si esta en
+  `character/basara_chara_config` (los 70 de fabrica), su tablero por
+  arquetipo; si no, `crc32("ability_learning_board_basara_<pos>-<pos2>_<arq+1>")`
+  con GK/FW/MF/DF (72 tableros; la forma solo depende de las posiciones).
+- Giro = par de lados que une el anillo en la forma (O-282).
+- `herramientas/construir_giros.py` -> `giros-anillo.csv`: 24.543 giros de
+  6.016 personajes (normales, como Diamante con semilla, y Diamantes de
+  fabrica por arquetipo). `_giro_conocido` los usa primero; lo aprendido de
+  partidas queda de respaldo (Destin Billows y otros con tablero propio, y la
+  rama 2 de la forma 31, cuyas dos ramas salen del anillo por el mismo lado).
+- Comprobado con la partida de Aaron: normales en rama 1 3.196 iguales y 4
+  distintos; en rama 2, 38 iguales y 35 distintos que llevan el giro de la
+  rama 1 (los paso el editor viejo a la rama 2 sin girar, O-281; una partida
+  de antes del editor solo tenia 5/8/1/4 en rama 2, lo que da el calculo);
+  Diamantes de fabrica 58 de 62; con semilla 151 de 159 (los porteros que
+  fallan, hechos con el editor). 2.829 normales que no estaban en ninguna
+  partida salen ya girados al crearlos con MAX.
+- En la partida de Aaron "Arreglar arboles" toca 140: anillos sin girar que
+  ahora se giran y los 35 de rama 2 mal girados.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

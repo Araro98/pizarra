@@ -1585,11 +1585,34 @@ def _giros_de_la_partida(plain):
     return memoria.recordar(plain, "giros_anillo", calcular)
 
 
+def _giros_calculados():
+    """{(identidad, diamante, arquetipo, rama): giro} de `giros-anillo.csv`: el
+    giro calculado como el juego (forma sorteada con su generador, O-283).
+    arquetipo es "" salvo en los Diamantes de fabrica."""
+    from ievr import opciones as O
+    def construir():
+        return {(f["identidad"].upper(), int(f["diamante"]), f["arquetipo"], int(f["rama"])): int(f["giro"])
+                for f in reglas._tabla("giros-anillo.csv")}
+    return O._indice("giros_calculados", construir)
+
+
 def _giro_conocido(plain, fila, rama):
-    """El giro que el juego usa para ese personaje en esa rama, si se sabe
-    (de la tabla, o de otra copia en la partida); si no, None."""
+    """El giro que el juego usa para ese personaje en esa rama, si se sabe:
+    primero el calculado como el juego (O-283), luego el aprendido de las
+    partidas (la tabla, o otra copia en la partida); si no, None."""
     ident = "%08X" % J.array(plain, J.ARRAY_IDENTIDAD)[fila]
     dia = 1 if J.array(plain, J.ARRAY_RAREZA)[fila] == 8 else 0
+    calc = _giros_calculados()
+    if dia:
+        try:
+            arq = J.array(plain, (J.F_ARQUETIPO_DIAMANTE, 6000, "B", 1))[fila]
+        except Exception:
+            arq = None
+        g = calc.get((ident, 1, str(arq), rama)) or calc.get((ident, 1, "", rama))
+    else:
+        g = calc.get((ident, 0, "", rama))
+    if g:
+        return g
     tabla = _giros_de_tabla()
     if (ident, dia, rama) in tabla:
         return tabla[(ident, dia, rama)]
