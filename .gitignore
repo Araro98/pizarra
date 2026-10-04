@@ -22,3 +22,6 @@ datos/iconos/
 Pizarra.exe
 CONTEXTO.md
 datos/modelos3d/
+
+# el Partido en pruebas solo se activa en el PC que tenga este fichero (O-296)
+datos/partido-pruebas.txt

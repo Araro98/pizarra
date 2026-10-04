@@ -54,6 +54,17 @@ RECORTES = os.path.join(ICONOS, "recortes")
 # (herramientas/recortar_ui.py). Es lo que hace que la pagina se parezca al
 # juego de verdad y no a un dibujo hecho a mano.
 UI = os.path.join(RAIZ, "datos", "ui")
+# el juego de partidos esta en pruebas: solo sale en el Pizarra que tenga este
+# fichero (el de Aaron), no en el de todos (O-296)
+PARTIDO_PRUEBAS = os.path.join(RAIZ, "datos", "partido-pruebas.txt")
+
+
+def _partido_activo():
+    return os.path.isfile(PARTIDO_PRUEBAS) or os.environ.get("IEVR_PARTIDO") == "1"
+
+
+def _es_del_partido(ruta):
+    return ruta in ("/partido", "/partido.html") or ruta.startswith("/api/partido/")
 ANTES_DE_INSTALAR = os.path.join(RAIZ, "partidas", "antes-de-instalar")
 
 
@@ -1418,17 +1429,24 @@ class Manejador(BaseHTTPRequestHandler):
                 return self._fichero(os.path.join(WEB, "tierlist.html"), "text/html; charset=utf-8")
             if u.path == "/api/tier-list":
                 return self._responder(200, TL.tier_list())
-            # el juego de partidos (O-286), aparte de todo lo demas
+            # el juego de partidos (O-286), aparte de todo lo demas y en pruebas (O-296)
+            if _es_del_partido(u.path) and not _partido_activo():
+                return self._responder(404, {"error": "no existe"})
             if u.path in ("/partido", "/partido.html"):
                 return self._fichero(os.path.join(WEB, "partido.html"), "text/html; charset=utf-8")
             if u.path.startswith("/api/partido/modelo/"):
                 # el modelo 3D de un personaje, si este PC lo ha convertido desde
                 # su juego (datos/modelos3d, no se reparte; O-293)
+                from ievr import modelos3d as M3
                 nombre = os.path.basename(unquote(u.path[len("/api/partido/modelo/"):]))
-                ruta = os.path.join(RAIZ, "datos", "modelos3d", nombre)
+                ruta = os.path.join(M3.carpeta(), nombre)
                 if nombre.endswith(".glb") and os.path.isfile(ruta):
                     return self._fichero(ruta, "model/gltf-binary")
                 return self._responder(404, {"error": "ese personaje no tiene modelo convertido"})
+            if u.path == "/api/partido/modelos/estado":
+                # como va la cola de conversion (ievr/modelos3d.py)
+                from ievr import modelos3d as M3
+                return self._responder(200, M3.estado())
             if u.path == "/api/partido/equipos":
                 from ievr import partido as PA
                 with self.ses.lock:
@@ -1566,6 +1584,7 @@ class Manejador(BaseHTTPRequestHandler):
                         "cambios": self.ses.cambios,
                         "puede_deshacer": bool(self.ses.historial),
                         "version": _version_instalada(),
+                        "partido": _partido_activo(),
                         # para que el propio programa diga si le faltan los
                         # dibujos (al amigo de Aaron no le salian las caras, O-202)
                         "raiz": RAIZ,
@@ -1690,6 +1709,16 @@ class Manejador(BaseHTTPRequestHandler):
             if u.path == "/api/caras/bajar":
                 from ievr import caras as CA
                 return self._responder(200, CA.bajar(RAIZ))
+            if _es_del_partido(u.path) and not _partido_activo():
+                return self._responder(404, {"error": "no existe"})
+            if u.path == "/api/partido/modelos/preparar":
+                # convierte en segundo plano los modelos 3D que falten; no toca la
+                # partida, asi que va sin el cerrojo de la sesion (O-293)
+                from ievr import modelos3d as M3
+                codigos = cuerpo.get("codigos")
+                if not isinstance(codigos, list):
+                    raise E.Ilegal("faltan los codigos de los modelos")
+                return self._responder(200, M3.preparar(codigos[:64]))
             if self.draft and u.path in ("/api/abrir", "/api/guardar", "/api/instalar"):
                 raise E.Ilegal("esto es el equipo del draft: se pasa a tu partida con "
                                "Importar equipo, no guardando aqui")

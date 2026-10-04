@@ -153,9 +153,9 @@
         <span class="txt"><span class="adorno" id="adorno-bd"></span><b>Base de datos</b><small>Personajes, supertecnicas, espiritus, pasivas y objetos.</small></span>
         
       </a>
-      <a class="bloque ancho" href="/partido">
+      <a class="bloque ancho" href="/partido" id="bloque-partido" style="display:none">
         <img class="ico" src="/icono/icon_list_tab/icon_list_tab_battle01.png" alt="">
-        <span class="txt"><b>Partido</b><small>Juega como en DS con todo lo de Victory Road: con el raton, pausa en cada duelo y las supertecnicas de tus jugadores. En pruebas.</small></span>
+        <span class="txt"><b>Partido</b><small>Juega como en los Inazuma de 3DS con todo lo de Victory Road: campo en vertical, pausa técnica, duelos con comandos y supertécnicas. En pruebas.</small></span>
       </a>
     </nav>
   </div>
@@ -172,6 +172,8 @@ function pintaPartida() {
     $("#partida").textContent = (partes.length ? "Partida: " + partes.slice(-2).join(" / ") : "Sin partida")
       + (e.version ? "   ·   Pizarra " + e.version : "");
     $("#partida").title = e.origen || "";
+    // el Partido esta en pruebas: solo sale donde se ha activado (O-296)
+    if (e.partido) $("#bloque-partido").style.display = "";
     // si faltan los dibujos, que lo diga con la carpeta que esta mirando (O-202)
     const d = e.dibujos || {};
     // (O-278) si faltan las caras y hay de donde bajarlas, un boton para bajarlas
