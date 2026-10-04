@@ -1392,6 +1392,9 @@ def arreglar_diamantes(plain):
         raise Ilegal("todos los Diamantes llevan las pasivas de su arquetipo")
     for fila in mal:
         plain, _info = poner_arquetipo_diamante(plain, fila, _arquetipo_diamante(plain, fila))
+        # el tablero nuevo puede pedir otro giro del anillo (O-285)
+        plain = abrir_arbol(plain, fila)
+        plain = sincronizar_tabla_pasivas(plain, fila)
     return plain, {"jugadores": len(mal), "que": "pasivas de Diamante puestas con su arquetipo"}
 
 
@@ -1457,6 +1460,29 @@ def _escribir_tablero(buf, plain, fila, identidad_hex, rareza, arquetipo, tipo=N
     if occ:
         struct.pack_into("<I", buf, occ[0] + 8 + 4 * fila,
                          _tablero_para(plain, fila, identidad_hex, rareza, arquetipo, tipo))
+        _conservar_rama_ensenada(buf, plain, fila)
+
+
+def _conservar_rama_ensenada(buf, plain, fila):
+    """Tras cambiarle el tablero (arquetipo de Diamante, pasar a Diamante): con
+    las dos ramas abiertas manda el anillo, y el mismo giro en el dibujo nuevo
+    puede apuntar a la otra rama. Se le pone el giro de la rama que ensenaba,
+    para que el juego siga ensenando la misma (Beluga, O-285). Con una sola
+    rama ya lo pone abrir_arbol."""
+    try:
+        off, n = _campo(plain, fila, J.F_TABLERO)
+        oa, na = _campo(plain, fila, F_ANILLOS)
+        ob, nb = _campo(plain, fila, F_GIROS)
+    except Ilegal:
+        return
+    if n != 60 or na != 30 or nb != 30 or plain[oa] != CASILLA_ANILLO:
+        return
+    if not (any(plain[off + 8:off + 18]) and any(plain[off + 18:off + 28])):
+        return
+    ensenaba = rama_que_ensena(plain, fila)
+    nueva = _giros_de_su_forma(bytes(buf), fila)
+    if nueva and nueva[ensenaba]:
+        buf[ob] = nueva[ensenaba]
 
 
 def _escribir_arquetipo_diamante(buf, plain, fila, identidad_hex):
@@ -1706,9 +1732,13 @@ def _giro_a_corregir(plain, fila, rareza, rama, mapa, actual, giro):
     if forma:
         if actual in forma:
             une = forma.index(actual)
-            if tramos[une] or not tramos[rama] or forma[rama] is None:
+            if tramos[une] or not tramos[rama]:
                 return None
-            return forma[rama]
+            if forma[rama]:
+                return forma[rama]
+            # dibujo a medias: lo que se sepa de su rama (O-285)
+            if giro is not None and giro != actual:
+                return giro
         if all(forma):
             return forma[rama]
     # dibujo a medias o sin saber: solo si el juego ya lo ha rechazado, o sea,
@@ -1904,7 +1934,8 @@ def _marcas_por_mapa(mapa, rareza, rama):
             celda = CELDA_PASIVA_IDOLO[k]
         elif rareza == 8:
             # medido en Diamantes de la rama 1; en la rama 2, diez casillas mas
-            # alla, como en su tablero (tableros.csv) y en los normales (O-284)
+            # alla, como en los normales (su tablero repite las pasivas de la
+            # rama 1 diez casillas mas alla en la 2, tableros.csv; O-284)
             celda = CELDA_PASIVA_DIAMANTE[k] + (10 if (k >= 2 and rama == 1) else 0)
         else:
             celda = CELDA_PASIVA_NORMAL[k] + (10 if (k >= 2 and rama == 1) else 0)
@@ -3544,7 +3575,7 @@ def cambiar_rama(plain, fila):
     except Ilegal:
         oa = None
     if oa is not None and na == 30 and nb == 30 and plain[oa] == CASILLA_ANILLO:
-        giro = _giro_conocido(bytes(buf), fila, 1 - ahora)
+        giro = _giro_conocido(plain, fila, 1 - ahora)
         if giro:
             buf[ob] = giro
     return bytes(buf), {
@@ -3596,6 +3627,16 @@ def poner_diamante(plain, fila):
     for fhash in (J.F_PASIVAS, J.F_HEREDADAS, J.F_RAMA):
         off, n = _campo(plain, fila, fhash)
         buf[off:off + n] = bytes(n)
+    # la rama 0 es la de los ascendidos de la partida, que no tenian rama
+    # empezada; uno que ya la tiene sigue en la que ensena (Cedric Freud en la
+    # rama 2 volvia a la 1 al ascenderlo, O-285)
+    try:
+        offm, nm = _campo(plain, fila, J.F_TABLERO)
+        if nm == 60 and any(plain[offm + 8:offm + 28]):
+            offr, nr = _campo(plain, fila, J.F_RAMA)
+            struct.pack_into("<I", buf, offr, rama_que_ensena(plain, fila))
+    except Ilegal:
+        pass
     off, n = _campo(plain, fila, 0x45E2D879)
     buf[off:off + n] = bytes.fromhex(RANURAS_NIVEL_1["fabled"])[:n]
     tecnicas = J.ocurrencias(plain, *J.ANCLA_TECNICAS)

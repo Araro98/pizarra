@@ -121,11 +121,11 @@ def main():
             return None, None
         r0, c0 = pos[8]
 
-        def lado_hacia(objetivo):
+        def lado_hacia(objetivo, sin=None):
             q, vistos = deque(), {(r0, c0)}
             for (dr, dc), lado in LADOS.items():
                 r, c = r0 + dr, c0 + dc
-                if 0 <= r < len(d) and 0 <= c < len(d[0]) and d[r][c]:
+                if lado != sin and 0 <= r < len(d) and 0 <= c < len(d[0]) and d[r][c]:
                     q.append((r, c, lado))
                     vistos.add((r, c))
             while q:
@@ -142,9 +142,12 @@ def main():
             return None
         tronco, rama1, rama2 = lado_hacia(7), lado_hacia(9), lado_hacia(19)
         if rama1 == rama2:
-            # las dos ramas salen por el mismo lado: la 1 es segura (50 de 52
-            # en la partida de Aaron), la 2 no
-            return GIRO.get(frozenset((tronco, rama1))), None
+            # por el lado de la rama 1 tambien se llega a la 2 (la forma de
+            # Zanark): la 2 sale por el otro lado que llega a ella. El juego
+            # le pone el 8 a Zanark en la rama 2, y es lo que da (O-285)
+            rama2 = lado_hacia(19, sin=rama1)
+            if rama2 is None or rama2 == tronco:
+                return GIRO.get(frozenset((tronco, rama1))), None
         return GIRO.get(frozenset((tronco, rama1))), GIRO.get(frozenset((tronco, rama2)))
 
     # la tabla de formas de los normales

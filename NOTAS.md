@@ -6594,6 +6594,50 @@ casillas y marcas de la `.bak`). Boulder no, que lo giro el en el juego y ya
 esta como antes. Al guardarla con Pizarra solo se arregla Luvy y Duvy (que ya
 estaba rechazado). La `.bak` queda en `partidas/antes-de-2026.10.04.3`.
 
+### O-285 · Girar en el juego = cambiar_rama del editor (confirmado)
+
+Aaron no abrio `partidas/arreglo-arboles` (O-284): guardo con la 2026.10.04.4
+la partida de las 07:48 (08:15) y luego giro a mano en el juego los que
+seguian en la otra rama, los de sus equipos (08:22). Con eso:
+
+- **Los 19 que giro, byte a byte**: rama, mapa, anillo, giro, 45E2 y tabla de
+  pasivas que dejo el juego son exactamente los que da `E.cambiar_rama` +
+  `abrir_arbol` + `sincronizar_tabla_pasivas` sobre lo que escribio Pizarra.
+  Con las dos ramas abiertas, el juego parte de la rama que ENSENA (la del
+  anillo), deja las casillas solo en la nueva, `currentRouteType` = la nueva y
+  el giro de esa rama (Tabit: r1 t1/t2 g1 -> r0 t1 g7; Nieve Alba: r0 t1/t2
+  g7 -> r1 t2 g5). Confirma O-284: con las dos abiertas manda el anillo.
+- Con la partida de las 08:22 Pizarra ya no toca ningun arbol al guardar.
+- Quedaban 24 en la rama contraria a la de antes de la 2026.10.04.3 (21 sin
+  equipo; Finn Geld en Prohibido Divertirse, Jomon Dorg y Bert Laydie en
+  Marineros). `partidas/arreglo-ramas` es la de las 08:22 con esos 24 girados
+  con `cambiar_rama` a su rama de antes (Cerise Crane a la 2, el resto a la 1).
+  Lumina (fila 3199) no: antes estaba rota y ahora esta bien.
+
+Tres revisiones independientes (diff de bytes, los 3.682 jugadores con anillo
+frente a la partida de antes, y el codigo) dan bien la partida preparada y
+encontraron tres fallos del codigo, ya arreglados:
+- **Forma de Zanark** (121 personajes, giros 6 en la rama 1): la busqueda
+  daba que las dos ramas salen por el mismo lado y la rama 2 quedaba sin
+  calcular; al cambiarlos de rama el anillo se quedaba apuntando a la rama
+  vacia y nadie lo corregia (Selenia Mund, Wilder Bigfoot). La rama 2 sale
+  por el otro lado que llega a ella: giro 8, el que puso el juego a Zanark.
+  `cambiar_rama` busca ademas el giro con la partida de antes del cambio, y
+  `_giro_a_corregir` con el dibujo a medias usa el giro conocido.
+- **Cambiar de tablero** (arquetipo de Diamante, pasar a Diamante) a un
+  jugador con las dos ramas abiertas le cambiaba la rama que ensena (Beluga,
+  Galileo, Nero): `_conservar_rama_ensenada` le pone el giro de esa rama en
+  el dibujo nuevo.
+- `arreglar_diamantes` cambiaba el tablero sin repasar el arbol: ahora pasa
+  `abrir_arbol` por cada uno.
+- Una segunda revision encontro que `poner_diamante` dejaba siempre la rama 0
+  (la de los ascendidos de la partida, que no tenian rama empezada): a uno con
+  solo la rama 2 (Cedric Freud) lo devolvia a la 1. Ahora, si tiene rama
+  empezada, sigue en la que ensena. Comprobado en 64 (40 de rama 2).
+Visto y no tocado: al girar, el juego rehace tambien la seleccion de tecnicas
+(`0xE2C66FA7`, 6 por jugador) y `cambiar_rama` no; el juego la rehace solo al
+cargar (de la `.bak` a las 07:48 cambio la de 67 jugadores sin girarlos).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
