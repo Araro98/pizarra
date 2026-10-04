@@ -237,7 +237,12 @@ function pintarEleccion(p, pend) {
       const pideParada = (muro) => {
         lista.textContent = "";
         lista.appendChild(el("div", { class: "coste", text: "Portero: " + por.nombre }));
-        for (const o of pend.opciones) lista.appendChild(botonComando(o, por, clave => elegido({ parada: clave, muro })));
+        // la tension que ya se lleva el bloqueo no la tiene el portero
+        const gastoMuro = ((pend.muro && pend.muro.opciones.find(o => o.clave === muro)) || {}).tp || 0;
+        for (const o of pend.opciones) {
+          const op = Object.assign({}, o, { puede: o.puede && o.tp + gastoMuro <= p.tension[YO] });
+          lista.appendChild(botonComando(op, por, clave => elegido({ parada: clave, muro })));
+        }
       };
       if (pend.muro) {
         const m = p.jugadores[pend.muro.jugador];

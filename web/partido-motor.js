@@ -176,7 +176,8 @@ class Partido {
       muro: [{ clave: "normal", nombre: "Bloquear", tipo: "Defensa", poder: 0, tp: 0, puede: true },
              { clave: "nada", nombre: "Dejar pasar", tipo: "", poder: 0, tp: 0, puede: true }],
     }[que];
-    const tecs = j.tecnicas.filter(t => REGLAS.sirve(t, que)).map(t => ({
+    const vistas = new Set();
+    const tecs = j.tecnicas.filter(t => REGLAS.sirve(t, que) && !vistas.has(t.nombre) && vistas.add(t.nombre)).map(t => ({
       clave: "t" + t.ranura, nombre: t.nombre, tipo: t.tipo, elemento: t.elemento, subtipo: t.subtipo,
       interno: t.interno, poder: Math.round(REGLAS.poderTecnica(j, t)), tp: t.tp, puede: t.tp <= j.pt,
     }));
