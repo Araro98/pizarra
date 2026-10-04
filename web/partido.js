@@ -150,6 +150,12 @@ function fichaElegido() {
   caja.appendChild(el("div", { text: "Tension del equipo " + Math.round(p.tension[YO]) + " / " + REGLAS.TENSION_MAX }));
   caja.appendChild(barra);
   for (const t of j.tecnicas) caja.appendChild(el("div", { text: "· " + t.nombre + " (" + t.tipo + ", " + t.poder + ", " + t.tp + " de tension)" }));
+  if ((j.pasivas || []).length) {
+    caja.appendChild(el("div", { class: "coste", text: "Pasivas (las marcadas cuentan en el partido):", style: "margin-top:6px" }));
+    for (const q of j.pasivas) caja.appendChild(el("div", {
+      text: (q.cuenta ? "✓ " : "· ") + q.texto + (q.abierta ? "" : " (cerrada en su arbol)"),
+      style: q.cuenta ? "" : "opacity:.55" }));
+  }
 }
 
 // --- el raton: el lapiz de DS ----------------------------------------------------

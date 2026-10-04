@@ -12,6 +12,8 @@ Road. Aqui solo va lo que necesita el servidor local para montar un partido:
 El partido en si (reglas, pantalla, raton, red) va en la pagina
 (`web/partido.html` y `web/partido/*.js`).
 """
+import re
+
 from ievr import equipos as EQ, jugador as J, reglas
 
 TITULARES = EQ.EN_EL_CAMPO          # puestos 0 a 10
@@ -21,6 +23,81 @@ def equipos(plain):
     """[{hueco, nombre, cuantos, en_el_campo}] de los equipos que se pueden
     sacar a jugar: los de la partida con once en el campo."""
     return [e for e in EQ.todos(plain) if e["en_el_campo"] >= TITULARES]
+
+
+# --- las pasivas, de texto a efecto (O-288) ------------------------------------
+# Victory Road tiene 80 tipos de pasiva; casi todas son un % sobre los valores
+# de los duelos, para alguien y en un momento. Se leen del texto que ya ensena
+# Pizarra (con su numero puesto). Las que dependen de cosas que el partido aun
+# no tiene (faltas, sustituciones, configuracion de equipo...) se quedan sin
+# efecto y se dice.
+_QUE = [   # (patron, a que valores del duelo afecta)
+    (r"AT y DF de foco de MC", ["foco"]),
+    (r"AT y DF del equipo", ["at", "df"]),
+    (r"AT del equipo", ["at"]),
+    (r"DF del equipo", ["df"]),
+    (r"AT (?:propio )?de tiro(?! directo)", ["tiro"]),
+    (r"[Vv]alor (?:propio )?de foco", ["foco"]),
+    (r"[Vv]alor (?:propio )?de disputa", ["disputa"]),
+    (r"DF (?:propia )?del muro", ["muro"]),
+    (r"\bPP\b", ["kp"]),
+    (r"gana en foco o disputa, tensi.n", ["tension_gana"]),
+]
+_CONDICION = [   # (patron, condicion, se lee un numero)
+    (r"en campo contrario", "campo_contrario"),
+    (r"en campo propio", "campo_propio"),
+    (r"fuera del .rea", "fuera_area"),
+    (r"primera mitad", "mitad1"),
+    (r"segunda mitad", "mitad2"),
+    (r"jugador del mismo elemento est. cerca", "cerca_mismo"),
+    (r"jugador de otro elemento est. cerca", "cerca_otro"),
+    (r"tensi.n est. al (\d+)", "tension"),
+    (r"Tras recuperar el bal.n sin una captura directa, durante los pr.ximos (\d+)", "tras_robo"),
+    (r"mismos goles o menos", "no_gana"),
+    (r"Hasta que el equipo reciba una falta", None),        # no hay faltas: siempre
+]
+_ALCANCE = [
+    (r"(?:AT|[Vv]alor|DF) propi[oa]", "propio"),
+    (r"para jugadores del mismo elemento", "mismo_elemento"),
+    (r"para jugadores de distintos elementos", "otro_elemento"),
+    (r"para jugadores de la misma posici.n", "misma_posicion"),
+    (r"para jugadores de distintas posiciones", "otra_posicion"),
+    (r"para jugadores cercanos", "cercanos"),
+    (r"de MC", "medios"),
+]
+_SIN_EFECTO = r"Conf\.|sustituci|Tasa de faltas|comete una falta|esprint|afinidad|brecha|perforaci|Enfriamiento|obtenci|drena|tiro directo|Ataque duro|ataque duro|Parada del equipo"
+
+
+_STATS = ["Potencia", "Control", "Técnica", "Presión", "Físico", "Agilidad", "Inteligencia"]
+
+
+def efecto_de_pasiva(texto):
+    """{que:[...], pct, alcance, condicion, n} de una pasiva, o None si en el
+    partido aun no hace nada. Las de un stat fijo ("Potencia +3"):
+    {que:["stat"], stat, valor}."""
+    if not texto or re.search(_SIN_EFECTO, texto):
+        return None
+    m = re.match(r"\s*(" + "|".join(_STATS) + r")\s*\+\s*(\d+)\s*$", texto)
+    if m:
+        return {"que": ["stat"], "stat": _STATS.index(m.group(1)), "valor": int(m.group(2)), "alcance": "propio"}
+    m = re.search(r"([+-])\s*(\d+(?:[.,]\d+)?)\s*[%％]", texto)
+    if not m:
+        return None
+    pct = float(m.group(2).replace(",", ".")) * (-1 if m.group(1) == "-" else 1)
+    que = next((q for p, q in _QUE if re.search(p, texto)), None)
+    if not que:
+        return None
+    condicion, n = None, None
+    for p, c in _CONDICION:
+        mc = re.search(p, texto)
+        if mc:
+            condicion = c
+            n = float(mc.group(1)) if mc.groups() else None
+            break
+    alcance = next((a for p, a in _ALCANCE if re.search(p, texto)), "equipo")
+    if condicion in ("cerca_mismo", "cerca_otro"):
+        alcance = "propio"
+    return {"que": que, "pct": pct, "alcance": alcance, "condicion": condicion, "n": n}
 
 
 def _tecnicas_por_id():
@@ -67,11 +144,22 @@ def _ficha(plain, fila):
                          "tipo": t["tipo"], "subtipo": (portec.get(idh) or {}).get("subtipo") or "",
                          "elemento": t["elemento"], "poder": t["poder"],
                          "tp": t["tp"], "jugadores": t.get("jugadores") or 1})
-    # las pasivas, de momento con su texto (los efectos con numero, mas adelante)
-    pasivas = [{"ranura": p.get("ranura"), "texto": p.get("normal") or "",
-                "heredada": p.get("heredada") or "", "abierta": p.get("marca") == 1,
-                "fija": bool(p.get("fija"))}
-               for p in d.get("pasivas") or [] if isinstance(p, dict) and (p.get("normal") or p.get("heredada"))]
+    # las pasivas: en cada ranura manda la heredada si la hay (tapa a la de la
+    # ficha) y solo cuentan las abiertas en el arbol (O-288)
+    pasivas = []
+    for p in d.get("pasivas") or []:
+        if not isinstance(p, dict) or not (p.get("normal") or p.get("heredada")):
+            continue
+        texto = p.get("heredada") or p.get("normal") or ""
+        abierta = p.get("marca") == 1
+        pasivas.append({"ranura": p.get("ranura"), "texto": texto, "abierta": abierta,
+                        "efecto": efecto_de_pasiva(texto) if abierta else None})
+    # las de un stat fijo se suman ya a sus stats
+    stats = list(stats)
+    for p in pasivas:
+        e = p["efecto"]
+        if e and e["que"] == ["stat"]:
+            stats[e["stat"]] += e["valor"]
     return {"fila": fila, "nombre": d["nombre"], "cara": d.get("cara") or "",
             "posicion": d.get("posicion") or "", "elemento": d.get("elemento") or "",
             "nivel": d.get("nivel"), "rareza": d.get("rareza"), "arquetipo": d.get("arquetipo"),

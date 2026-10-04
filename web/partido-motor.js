@@ -20,6 +20,7 @@ class Partido {
     this.mitad = 1; this.reloj = 0; this.pasos = 0;
     this.goles = [0, 0];
     this.tension = [REGLAS.TENSION_INICIO, REGLAS.TENSION_INICIO];
+    this.ultimoRobo = [-1e9, -1e9];   // cuando recupero el balon cada equipo (para "tras recuperar")
     this.nombres = [equipoA.nombre, equipoB.nombre];
     this.jugadores = [];
     [equipoA, equipoB].forEach((eq, lado) => this._crearEquipo(eq, lado));
@@ -45,6 +46,9 @@ class Partido {
         nombre: d.nombre, cara: d.cara, elemento: d.elemento, posicion: d.posicion,
         nivel: d.nivel || 99, stats: (d.stats || [0, 0, 0, 0, 0, 0, 0]).map(Number),
         tecnicas: (d.tecnicas || []).filter(t => t.tipo && t.tipo !== "Hipertecnica" && t.poder > 0),
+        // las pasivas con efecto en el partido (O-288): {que, pct, alcance, condicion, n}
+        efectos: (d.pasivas || []).map(q => q.efecto).filter(e => e && e.que && e.que[0] !== "stat"),
+        pasivas: (d.pasivas || []).map(q => ({ texto: q.texto, abierta: q.abierta, cuenta: !!q.efecto })),
         esPortero: d.puesto === 0 || p.posicion === "POR",
         u, v, x: 0, y: 0, mx: 0, my: dir,
         ruta: [], aturdido: 0, respiro: 0, conBalon: false,
@@ -254,6 +258,54 @@ class Partido {
     return true;
   }
 
+  // --- pasivas (O-288) --------------------------------------------------------
+  // El % que suman las pasivas de su equipo a un valor de duelo de `j`:
+  // valor = "tiro" | "foco" | "disputa" | "muro" | "kp"; ataca = si es su AT.
+  segundosDeJuego() { return (this.mitad - 1) * this.duracion + this.reloj; }
+  _cumple(e, h, j) {
+    const ax = REGLAS.ANCHO / 2, ay = REGLAS.LARGO / 2;
+    switch (e.condicion) {
+      case null: case undefined: return true;
+      case "campo_contrario": return j.y * j.dir > 0;
+      case "campo_propio": return j.y * j.dir <= 0;
+      case "fuera_area": return !(Math.abs(j.y) > ay - REGLAS.AREA_Y && Math.abs(j.x) < REGLAS.AREA_X);
+      case "mitad1": return this.mitad === 1;
+      case "mitad2": return this.mitad === 2;
+      case "cerca_mismo": return this.equipo(j.lado).some(o => o !== j && o.elemento === j.elemento && Math.hypot(o.x - j.x, o.y - j.y) < 12);
+      case "cerca_otro": return this.equipo(j.lado).some(o => o !== j && o.elemento !== j.elemento && Math.hypot(o.x - j.x, o.y - j.y) < 12);
+      case "tension": return this.tension[j.lado] / REGLAS.TENSION_MAX * 100 >= (e.n || 0);
+      case "tras_robo": return this.segundosDeJuego() - this.ultimoRobo[j.lado] < (e.n || 0);
+      case "no_gana": return this.goles[j.lado] <= this.goles[1 - j.lado];
+      default: return false;
+    }
+  }
+  _alcanza(e, h, j) {
+    switch (e.alcance) {
+      case "propio": return h === j;
+      case "mismo_elemento": return h.elemento === j.elemento;
+      case "otro_elemento": return h.elemento !== j.elemento;
+      case "misma_posicion": return h.posicion === j.posicion;
+      case "otra_posicion": return h.posicion !== j.posicion;
+      case "cercanos": return Math.hypot(h.x - j.x, h.y - j.y) < 12;
+      case "medios": return j.posicion === "MED" || j.posicion === "MC";
+      default: return true;               // del equipo
+    }
+  }
+  bonusPasivas(j, valor, ataca) {
+    let pct = 0;
+    for (const h of this.equipo(j.lado)) for (const e of h.efectos || []) {
+      const vale = e.que.includes(valor) || (ataca && e.que.includes("at") && valor !== "kp" && valor !== "muro")
+        || (!ataca && e.que.includes("df") && valor !== "tiro");
+      if (vale && this._alcanza(e, h, j) && this._cumple(e, h, j)) pct += e.pct;
+    }
+    return 1 + Math.min(pct, REGLAS.PASIVAS_TOPE) / 100;
+  }
+  _gananciaTension(lado, base) {
+    let pct = 0;
+    for (const h of this.equipo(lado)) for (const e of h.efectos || []) if (e.que.includes("tension_gana")) pct += e.pct;
+    return base * (1 + pct / 100);
+  }
+
   _tirada(v) { return v * (1 + (this.azar() * 2 - 1) * REGLAS.AZAR); }
   _gastar(j, t) { if (t) this.tension[j.lado] = Math.max(0, this.tension[j.lado] - t.tp); }
   _tension(lado, mas) { this.tension[lado] = Math.min(REGLAS.TENSION_MAX, this.tension[lado] + mas); }
@@ -274,12 +326,12 @@ class Partido {
     let a, d, como;
     if (cd === "cargar") {
       // disputa: el que carga usa su AT de disputa contra la DF de disputa del que lleva el balon
-      a = (REGLAS.dfDisputa(att) + REGLAS.poderTecnica(att, ta)) * REGLAS.efectoElemental(att, ta, def);
-      d = REGLAS.atDisputa(def) * REGLAS.efectoElemental(def, null, att);
+      a = (REGLAS.dfDisputa(att) + REGLAS.poderTecnica(att, ta)) * REGLAS.efectoElemental(att, ta, def) * this.bonusPasivas(att, "disputa", false);
+      d = REGLAS.atDisputa(def) * REGLAS.efectoElemental(def, null, att) * this.bonusPasivas(def, "disputa", true);
       como = "disputa";
     } else {
-      a = (REGLAS.atFoco(att) + REGLAS.poderTecnica(att, ta)) * REGLAS.efectoElemental(att, ta, def);
-      d = (REGLAS.dfFoco(def) + REGLAS.poderTecnica(def, td)) * REGLAS.efectoElemental(def, td, att);
+      a = (REGLAS.atFoco(att) + REGLAS.poderTecnica(att, ta)) * REGLAS.efectoElemental(att, ta, def) * this.bonusPasivas(att, "foco", true);
+      d = (REGLAS.dfFoco(def) + REGLAS.poderTecnica(def, td)) * REGLAS.efectoElemental(def, td, att) * this.bonusPasivas(def, "foco", false);
       como = "foco";
     }
     // el comando potente: +35 % pero inestable (DS); luego, como en IE3,
@@ -290,10 +342,10 @@ class Partido {
     const gana = this.azar() < REGLAS.probabilidad(ra, rd) ? att : def, pierde = gana === att ? def : att;
     pierde.aturdido = REGLAS.ATURDIDO; pierde.ruta = [];
     gana.respiro = REGLAS.RESPIRO_DUELO; pierde.respiro = REGLAS.RESPIRO_DUELO;
-    if (gana === def) this.coger(def);
+    if (gana === def) { this.coger(def); this.ultimoRobo[def.lado] = this.segundosDeJuego(); }
     // la tension: +60 al que gana y +30 al que pierde, salvo si gano con tecnica
     const tecGana = gana === att ? ta : td, tecPierde = gana === att ? td : ta;
-    if (!tecGana) this._tension(gana.lado, REGLAS.TENSION_GANA);
+    if (!tecGana) this._tension(gana.lado, this._gananciaTension(gana.lado, REGLAS.TENSION_GANA));
     if (!tecPierde) this._tension(pierde.lado, REGLAS.TENSION_PIERDE);
     this.nResultado = (this.nResultado || 0) + 1;
     this.resultado = {
@@ -315,14 +367,14 @@ class Partido {
     if (tt && tt.tp > tir.pt) tt = null;
     this._gastar(tir, tt);
     const larga = REGLAS.esLarga(tt);
-    let at = (REGLAS.atTiro(tir) + REGLAS.poderTecnica(tir, tt)) * REGLAS.porDistancia(du.distancia, larga);
+    let at = (REGLAS.atTiro(tir) + REGLAS.poderTecnica(tir, tt)) * REGLAS.porDistancia(du.distancia, larga) * this.bonusPasivas(tir, "tiro", true);
     const pasos = [{ quien: tir.id, que: tt ? tt.nombre : "Tiro", valor: Math.round(at) }];
     // el muro: le resta su DF al tiro (VR); si lo deja en nada, lo para
     if (muro && ed.muro && ed.muro !== "nada") {
       let tm = this._tecnica(muro, ed.muro);
       if (tm && tm.tp > muro.pt) tm = null;
       this._gastar(muro, tm);
-      const df = this._tirada((REGLAS.dfMuro(muro) + REGLAS.poderTecnica(muro, tm)) * (tm && REGLAS.gana(tm.elemento, tir.elemento) ? 1.2 : 1));
+      const df = this._tirada((REGLAS.dfMuro(muro) + REGLAS.poderTecnica(muro, tm)) * (tm && REGLAS.gana(tm.elemento, tir.elemento) ? 1.2 : 1) * this.bonusPasivas(muro, "muro", false));
       pasos.push({ quien: muro.id, que: tm ? tm.nombre : "Bloqueo", valor: Math.round(df) });
       const r = df / Math.max(1, at);
       if (r > 0.75) at *= 0.7;
@@ -342,7 +394,7 @@ class Partido {
     if (tp && tp.tp > por.pt) tp = null;
     this._gastar(por, tp);
     const dfTec = REGLAS.poderTecnica(por, tp) * (tp && REGLAS.gana(tp.elemento, tir.elemento) ? 1.2 : 1);
-    const df = por.kp + dfTec;
+    const df = (por.kp + dfTec) * this.bonusPasivas(por, "kp", false);
     pasos.push({ quien: por.id, que: tp ? tp.nombre : "Parada", valor: Math.round(df) });
     pasos[0].valorFinal = Math.round(at);
     if (this.azar() < REGLAS.probabilidad(at, df)) {
@@ -510,7 +562,10 @@ class Partido {
     }
     if (mejor) {
       const j = mejor.j;
-      if (b.pase && j.lado !== this.jugadores[b.pase.de].lado) this.apunta("¡" + j.nombre + " corta el pase!", "mal");
+      if (b.pase && j.lado !== this.jugadores[b.pase.de].lado) {
+        this.apunta("¡" + j.nombre + " corta el pase!", "mal");
+        this.ultimoRobo[j.lado] = this.segundosDeJuego();
+      }
       this.coger(j);
     }
   }

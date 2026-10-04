@@ -26,7 +26,8 @@ const REGLAS = {
   TENSION_MAX: 300, TENSION_INICIO: 120, TENSION_GANA: 60, TENSION_PIERDE: 30,
   TENSION_POR_SEGUNDO: 0.6, TENSION_DESCANSO: 60,
   KP_POR_SEGUNDO: 0.02,         // el portero recupera un 2 % de su KP por segundo
-  AZAR: 0.10,                   // +-10 % en cada lado de un duelo (en DS habia suerte)
+  AZAR: 0.10,
+  PASIVAS_TOPE: 60,             // lo mas que suman las pasivas a un valor (%)                   // +-10 % en cada lado de un duelo (en DS habia suerte)
 
   // velocidad de carrera en m/s segun la Agilidad (stats a nivel 99 de 150 a 700)
   velocidad(j) { return 6.2 + Math.min(700, j.stats[5]) / 260 - (j.conBalon ? 0.6 : 0); },
@@ -60,7 +61,7 @@ const REGLAS = {
   dfMuro(j)    { const s = j.stats; return s[4] + s[3]; },
   // KP del portero (VR): Agi x4 + Fis x3 + Pres x2; escalado para que en un
   // duelo A^3/(A^3+D^3) una buena tecnica tenga opciones (ajustable)
-  KP_ESCALA: 0.45,
+  KP_ESCALA: 0.5,
   DESGASTE: 0.45,               // lo que pierde el portero al parar, segun el golpe (VR: todo)
   kpBase(j)    { const s = j.stats; return (s[5] * 4 + s[4] * 3 + s[3] * 2) * this.KP_ESCALA; },
 

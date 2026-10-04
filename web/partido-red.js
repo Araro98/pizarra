@@ -148,6 +148,8 @@ function equipoParaRed(d) {
       stats: j.stats, puesto: j.puesto, dorsal: j.dorsal,
       tecnicas: (j.tecnicas || []).map(t => ({ ranura: t.ranura, nombre: t.nombre, tipo: t.tipo, subtipo: t.subtipo,
         elemento: t.elemento, poder: t.poder, tp: t.tp, interno: t.interno })),
+      // las pasivas viajan con su efecto (O-288)
+      pasivas: (j.pasivas || []).map(q => ({ texto: q.texto, abierta: q.abierta, efecto: q.efecto })),
     })),
   };
 }

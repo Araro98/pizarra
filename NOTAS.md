@@ -6712,6 +6712,29 @@ tension igual en los dos, y una ruta del invitado que su jugador recorre en el
 PC del anfitrion.
 Pendiente: WebRTC directo (menos retraso), retomar un partido cortado.
 
+### O-288 · El juego de partidos: las pasivas cuentan
+
+Victory Road tiene 80 tipos de pasiva (pasivas-valor.csv). `ievr/partido.py`
+(`efecto_de_pasiva`) lee el texto de cada una (con su numero) y saca
+{que, pct, alcance, condicion}: 44 tipos ya hacen algo en el partido.
+- Que: AT de tiro, valor de foco y de disputa (AT y DF), DF del muro, PP del
+  portero, "AT/DF del equipo", tension al ganar un duelo; y los stats fijos
+  ("Potencia +3"), que se suman ya a sus stats.
+- Para quien: el propio jugador, todo el equipo, los del mismo o distinto
+  elemento o posicion, los cercanos (12 m), los medios.
+- Cuando: en campo propio o contrario, fuera del area, en la primera o la
+  segunda parte, con un companero del mismo/otro elemento cerca, con la
+  tension a cierto %, los N segundos tras recuperar el balon (robo en un
+  duelo o pase cortado), con el marcador igual o perdiendo.
+- En cada ranura manda la heredada si la hay, y solo cuentan las abiertas en
+  el arbol. Tope de +60 % por valor (`PASIVAS_TOPE`).
+- Sin efecto aun (36 tipos): configuracion de equipo, brecha, afinidad,
+  faltas, sustituciones, enfriamientos, ataque duro, tiro directo.
+- El motor las suma en cada duelo (`bonusPasivas`). La ficha del jugador las
+  ensena con una marca en las que cuentan. Viajan en el online.
+- Con ellas subieron los goles; el KP del portero pasa a x0,5 (de 0,45):
+  unos 4 goles por partido de 2 x 3 minutos.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
