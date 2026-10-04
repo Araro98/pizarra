@@ -6437,6 +6437,28 @@ la mochila; que al exportarlo te pida la ruta".
   los botones igual. Tarda 1-2 minutos (lo lento es repasar la mochila tras
   cada tecnica, como al importar un draft).
 
+### O-281 · Arbol de Lumina Diamante (Lightyear) en la rama equivocada
+
+Aaron: "lumina diamante del equipo lightyear tiene la rama del arbol
+bugueada, me sale en posicion incorrecta y aunque la gire no se gira bien".
+En su partida (fila 3199): rama marcada 2 (`F_RAMA` = 1) y sus tecnicas
+confirmadas de la rama 2, pero las casillas abiertas en el tramo de la rama 1
+(8-17) y el anillo con el giro 7, el de la rama 1. Unico caso en toda la
+partida (los que tienen las dos ramas abiertas son normales del juego).
+
+- Causa: `draft._copia_jugador` (importar un draft; y ahora tambien importar
+  equipo) copiaba `F_RAMA` a pelo. Ahora `copia_estado` no lo copia: si la
+  rama es otra, `cambiar_rama` (muda las casillas como el juego) y
+  `abrir_arbol` gira el anillo. Probado importando dos de rama 2: bien.
+- `_arbol_esperado`: si la rama marcada no tiene casillas y la otra si, se
+  mudan a la suya (antes "arreglar arboles" habria abierto las dos).
+- Giros del anillo: estan las dos Luminas y las dos "Luvy y Duvy" Diamante,
+  todas con un giro que el juego rechaza (pasivas 3-5 cerradas). El giro se
+  sacaba de la otra copia, tambien mala, y se pisaban. `_giros_de_la_partida`
+  ya no cuenta copias con las pasivas 3-5 cerradas: sin giro conocido, el
+  anillo queda sin girar y Aaron lo gira con un clic en el juego (O-200).
+  Con "Arreglar arboles" las 4 quedan bien y no queda ninguno roto (57 bytes).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

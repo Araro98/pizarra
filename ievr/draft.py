@@ -690,9 +690,24 @@ def copia_estado(obj, plain, fr, anadidos, avisos, nombre, donde="el draft"):
     for fh, datos in obj["crudo"].items():
         if fh == J.F_PASIVAS and rareza >= 5:
             continue
+        if fh == J.F_RAMA:
+            continue            # la rama, abajo (O-281)
         off, n = E._campo(plain, fr, fh)
         buf[off:off + n] = datos[:n]
     plain = bytes(buf)
+    # la rama: copiar solo el numero dejaba las casillas en el tramo de la otra
+    # (el juego la pinta mal y no la deja girar, O-281); se cambia como en el
+    # juego, mudando las casillas. Sin casillas aun, basta con el numero.
+    if J.F_RAMA in obj["crudo"]:
+        offr, nr = E._campo(plain, fr, J.F_RAMA)
+        quiero = obj["crudo"][J.F_RAMA][:nr]
+        if plain[offr:offr + nr] != quiero:
+            try:
+                plain, _ = E.cambiar_rama(plain, fr)
+            except E.Ilegal:
+                buf = bytearray(plain)
+                buf[offr:offr + nr] = quiero
+                plain = bytes(buf)
     # (como en crear_jugadores, el arbol y las tablas se ponen al dia al final)
     for k, idh in enumerate(obj["equipacion"], 1):
         if not idh or ahora["equipacion"][k - 1] == idh:

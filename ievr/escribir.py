@@ -1570,6 +1570,11 @@ def _giros_de_la_partida(plain):
             if na != 30 or nb != 30 or plain[oa] != CASILLA_ANILLO or not plain[ob]:
                 continue
             rama = struct.unpack_from("<I", plain, orr)[0]
+            # una copia cuyo giro el juego ha rechazado (pasivas 3-5 cerradas)
+            # no ensena nada: si se copiaba, las copias malas se iban pisando
+            # unas a otras (las dos Luminas de Aaron, O-281)
+            if _marcas_dicen_desconectado(plain, fila, rar[fila], rama):
+                continue
             d[("%08X" % ident[fila], 1 if rar[fila] == 8 else 0, rama)][plain[ob]] += 1
         return d
     return memoria.recordar(plain, "giros_anillo", calcular)
@@ -1674,6 +1679,15 @@ def _arbol_esperado(plain, fila):
         return None
     nivel = J.array(plain, J.ARRAY_NIVEL)[fila]
     mapa = bytearray(plain[off:off + 40])
+    # rama marcada sin casillas y las casillas en el tramo de la otra (Lumina
+    # de Aaron, O-281: el juego la pinta mal y no la deja girar): se mudan a
+    # su tramo, las mismas y en el mismo orden, como hace el juego al cambiar
+    if not 5 <= rareza <= 7:
+        suyo, otro = (J.TRAMO_RAMA1, J.TRAMO_RAMA2) if rama == 0 else (J.TRAMO_RAMA2, J.TRAMO_RAMA1)
+        if not any(mapa[suyo[0]:suyo[1]]) and any(mapa[otro[0]:otro[1]]):
+            cogidas = sum(1 for x in mapa[otro[0]:otro[1]] if x)
+            mapa[otro[0]:otro[1]] = bytes(otro[1] - otro[0])
+            mapa[suyo[0]:suyo[0] + cogidas] = bytes([1] * cogidas)
     for c in _orden_de_casillas(rareza, rama)[:_casillas_por_nivel(nivel, rareza)]:
         mapa[c] = 1
     # el anillo (O-189, O-195): si la rama ya empieza y el juego no lo ha
