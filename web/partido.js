@@ -111,6 +111,7 @@ function bucle(ahora) {
   pausa();
   registro();
   fichaElegido();
+  pintarTacticas();
   requestAnimationFrame(bucle);
 }
 
@@ -122,6 +123,28 @@ function marcador() {
     return;
   }
   $("#reloj").textContent = p.fase === "final" ? "Final" : p.fase === "descanso" ? "Descanso" : (p.mitad === 1 ? "1ª " : "2ª ") + p.minuto() + "'";
+}
+
+// las tacticas de mi equipo: un boton cada una, con su recarga (O-290)
+let tacticasPintadas = "";
+function pintarTacticas() {
+  const p = PARTIDO, caja = $("#tacticas"), tac = p.tacticas[YO] || [];
+  const ahora = p.segundosDeJuego(), activa = p.tacticaActiva[YO];
+  const estado = tac.map((t, k) => (activa && activa.k === k ? "A" + Math.ceil(activa.hasta - ahora)
+    : Math.max(0, Math.ceil(p.tacticaLista[YO][k] - ahora)))).join(",") + (p.fase === "juego" ? "j" : "p");
+  if (estado === tacticasPintadas) return;
+  tacticasPintadas = estado;
+  caja.textContent = "";
+  if (!tac.length) { caja.appendChild(el("span", { class: "ayuda", text: "Tu equipo no lleva tacticas." })); return; }
+  tac.forEach((t, k) => {
+    const espera = Math.max(0, Math.ceil(p.tacticaLista[YO][k] - ahora));
+    const esActiva = activa && activa.k === k;
+    const b = el("button", { class: "tactica-btn" + (esActiva ? " activa" : ""), title: t.descripcion + "\n" + t.texto,
+      disabled: esActiva || !!activa || espera > 0 || p.fase !== "juego" },
+      [el("span", { text: t.nombre }), el("small", { text: esActiva ? "activa " + Math.ceil(activa.hasta - ahora) + " s" : espera > 0 ? espera + " s" : "lista" })]);
+    b.onclick = () => PARTIDO.ordenar({ tipo: "tactica", lado: YO, k });
+    caja.appendChild(b);
+  });
 }
 
 function registro() {
@@ -501,6 +524,7 @@ async function alSala(m) {
   if (m.tipo === "orden" && MODO === "anfitrion" && PARTIDO) {
     const o = m.o || {};
     if (o.tipo === "elegir") { if (o.lado === 1) PARTIDO.elegir(1, o.eleccion); return; }
+    if (o.tipo === "tactica") { if (o.lado === 1) PARTIDO.usarTactica(1, o.k); return; }
     const j = PARTIDO.jugadores[o.jugador !== undefined ? o.jugador : o.de];
     if (j && j.lado === 1) PARTIDO.ordenar(o);
     return;

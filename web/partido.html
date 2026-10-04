@@ -73,6 +73,14 @@
   .barra-pt > i { display:block; height:100%; background:linear-gradient(90deg, #3fe0d0, #2b9de0); }
   .ayuda { font-size:var(--t-sm); line-height:1.45; color:#dbe8fb; }
   .ayuda b { color:#fff; }
+  .tacticas { display:flex; flex-direction:column; gap:6px; }
+  .tactica-btn { display:flex; align-items:center; gap:8px; width:100%; text-align:left; font:inherit; font-weight:800; cursor:pointer;
+    padding:6px 10px; border-radius:7px; border:2px solid #fff; background:#7a3c00; color:#fff; position:relative; overflow:hidden; }
+  .tactica-btn:hover:not(:disabled) { background:#9c5208; }
+  .tactica-btn:disabled { cursor:default; background:#3a4a66; }
+  .tactica-btn.activa { background:#2f9e5b; box-shadow:0 0 0 2px #ffe14d; }
+  .tactica-btn small { margin-left:auto; font-weight:700; opacity:.9; }
+  .registro .tactica { color:#ffd27a; font-weight:800; }
   .registro { font-size:var(--t-xs); line-height:1.4; max-height:220px; overflow:auto; color:#cfe0f5; }
 
   /* la pausa de un duelo: los comandos, como en DS */
@@ -155,6 +163,7 @@
     </div>
     <aside class="lateral">
       <div class="tarjeta" id="tarjeta-jugador"><h3>Tu jugador</h3><div id="ficha-actual" class="ayuda">—</div></div>
+      <div class="tarjeta"><h3>Tácticas</h3><div id="tacticas" class="tacticas"></div></div>
       <div class="tarjeta"><h3>Cómo se juega</h3>
         <div class="ayuda">
           <b>Arrastra</b> desde tu jugador para dibujar por dónde corre.<br>

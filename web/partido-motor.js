@@ -21,6 +21,10 @@ class Partido {
     this.goles = [0, 0];
     this.tension = [REGLAS.TENSION_INICIO, REGLAS.TENSION_INICIO];
     this.ultimoRobo = [-1e9, -1e9];   // cuando recupero el balon cada equipo (para "tras recuperar")
+    // las tacticas de cada equipo (O-290): la activa y cuando vuelve a estar lista cada una
+    this.tacticas = [equipoA.tacticas || [], equipoB.tacticas || []];
+    this.tacticaActiva = [null, null];
+    this.tacticaLista = [this.tacticas[0].map(() => 0), this.tacticas[1].map(() => 0)];
     this.nombres = [equipoA.nombre, equipoB.nombre];
     this.jugadores = [];
     [equipoA, equipoB].forEach((eq, lado) => this._crearEquipo(eq, lado));
@@ -102,6 +106,7 @@ class Partido {
   // {tipo:"tiro", de} | {tipo:"elegir", lado, eleccion}
   ordenar(o) {
     if (o.tipo === "elegir") return this.elegir(o.lado, o.eleccion);
+    if (o.tipo === "tactica") return this.usarTactica(o.lado, o.k);
     const j = this.jugadores[o.jugador !== undefined ? o.jugador : o.de];
     if (!j || this.fase === "final") return false;
     // una ruta vale tambien con el juego parado (online puede llegar justo al
@@ -195,7 +200,7 @@ class Partido {
     const tecs = j.tecnicas.filter(t => REGLAS.sirve(t, que) && !vistas.has(t.nombre) && vistas.add(t.nombre)).map(t => ({
       clave: "t" + t.ranura, nombre: t.nombre + (que === "muro" && REGLAS.esContra(t) ? " (contra-tiro)" : ""),
       tipo: t.tipo, elemento: t.elemento, subtipo: t.subtipo,
-      interno: t.interno, poder: Math.round(REGLAS.poderTecnica(j, t)), tp: t.tp, puede: t.tp <= j.pt,
+      interno: t.interno, poder: Math.round(this._poder(j, t)), tp: t.tp, puede: t.tp <= j.pt,
     }));
     return tecs.concat(base);
   }
@@ -277,6 +282,83 @@ class Partido {
     return true;
   }
 
+  // --- tacticas (O-290) ---------------------------------------------------------
+  usarTactica(lado, k) {
+    const t = (this.tacticas[lado] || [])[k];
+    if (!t || this.fase !== "juego" || this.tacticaActiva[lado]) return false;
+    const ahora = this.segundosDeJuego();
+    if (ahora < this.tacticaLista[lado][k]) return false;
+    this.tacticaActiva[lado] = { k, hasta: ahora + (t.duracion || 8) };
+    this.tacticaLista[lado][k] = ahora + (t.recarga || 90);
+    this.apunta("¡Tactica de " + this.nombres[lado] + ": " + t.nombre + "!", "tactica");
+    for (const e of t.efectos || []) {
+      if (e.especial === "robo") {
+        const d = this.dueno();
+        if (d && d.lado !== lado) {
+          const mio = this.equipo(lado).filter(j => !j.esPortero).sort((a, b) => Math.hypot(a.x - d.x, a.y - d.y) - Math.hypot(b.x - d.x, b.y - d.y))[0];
+          d.aturdido = REGLAS.ATURDIDO;
+          this.coger(mio); mio.x = d.x + 1; mio.y = d.y;
+          this.ultimoRobo[lado] = ahora;
+          this.apunta("¡" + mio.nombre + " le quita el balon a " + d.nombre + "!", "bien");
+        }
+      }
+      if (e.especial === "aturde") {
+        for (const r of this.equipo(1 - lado)) if (!r.esPortero && Math.hypot(r.x - this.balon.x, r.y - this.balon.y) < 10) r.aturdido = 2.5;
+      }
+      if (e.especial === "drena") this.tension[1 - lado] = Math.max(0, this.tension[1 - lado] * (1 - (e.pct || 20) / 100));
+    }
+    return true;
+  }
+  _especial(lado, cual) {
+    const a = this.tacticaActiva[lado];
+    return !!a && (this.tacticas[lado][a.k].efectos || []).some(e => e.especial === cual);
+  }
+  // los efectos con % de las tacticas activas que tocan a j: los de su equipo y
+  // los que el rival le baja
+  _efectosTactica(j) {
+    const fuera = [];
+    for (const lado of [0, 1]) {
+      const a = this.tacticaActiva[lado];
+      if (!a) continue;
+      for (const e of this.tacticas[lado][a.k].efectos || []) {
+        if (!e.que) continue;
+        if ((e.objetivo === "rival") !== (lado !== j.lado)) continue;
+        if (!this._cumpleTactica(e, j, lado)) continue;
+        fuera.push(e);
+      }
+    }
+    return fuera;
+  }
+  _cumpleTactica(e, j, dueno) {
+    // el campo, visto desde el equipo que usa la tactica
+    const enSuCampo = j.y * this.jugadores.find(q => q.lado === dueno).dir <= 0;
+    switch (e.condicion) {
+      case null: case undefined: return true;
+      case "campo_propio": return enSuCampo;
+      case "campo_contrario": return !enSuCampo;
+      case "tension": return this.tension[dueno] / REGLAS.TENSION_MAX * 100 >= (e.n || 0);
+      case "tension_menor": return this.tension[dueno] / REGLAS.TENSION_MAX * 100 < (e.n || 0);
+      case "tras_robo": return this.segundosDeJuego() - this.ultimoRobo[dueno] < (e.n || 0);
+      default: return false;
+    }
+  }
+  _poder(j, t) {
+    let p = REGLAS.poderTecnica(j, t);
+    if (!t) return p;
+    let pct = 0;
+    for (const e of this._efectosTactica(j)) {
+      if (e.que.includes("poder") || (e.que.includes("poder_tiro") && t.tipo === "Tiro") || (e.que.includes("poder_regate") && t.tipo === "Regate")) pct += e.pct;
+    }
+    return p * (1 + pct / 100);
+  }
+  _mulVel(j) {
+    let pct = 0;
+    for (const e of this._efectosTactica(j)) {
+      if (e.que.includes("velocidad") || (e.que.includes("vel_regate") && j.conBalon)) pct += e.pct;
+    }
+    return Math.max(0.4, 1 + pct / 100);
+  }
+
   // --- pasivas (O-288) --------------------------------------------------------
   // El % que suman las pasivas de su equipo a un valor de duelo de `j`:
   // valor = "tiro" | "foco" | "disputa" | "muro" | "kp"; ataca = si es su AT.
@@ -317,11 +399,18 @@ class Partido {
         || (!ataca && e.que.includes("df") && valor !== "tiro");
       if (vale && this._alcanza(e, h, j) && this._cumple(e, h, j)) pct += e.pct;
     }
+    for (const e of this._efectosTactica(j)) {
+      const vale = e.que.includes(valor) || (ataca && e.que.includes("at") && valor !== "kp" && valor !== "muro")
+        || (!ataca && e.que.includes("df") && valor !== "tiro");
+      if (vale) pct += e.pct;
+    }
     return 1 + Math.min(pct, REGLAS.PASIVAS_TOPE) / 100;
   }
   _gananciaTension(lado, base) {
     let pct = 0;
     for (const h of this.equipo(lado)) for (const e of h.efectos || []) if (e.que.includes("tension_gana")) pct += e.pct;
+    const a = this.tacticaActiva[lado];
+    if (a) for (const e of this.tacticas[lado][a.k].efectos || []) if (e.que && e.que.includes("tension_gana") && e.objetivo !== "rival") pct += e.pct;
     return base * (1 + pct / 100);
   }
 
@@ -347,12 +436,12 @@ class Partido {
     const pd = this.bonusPasivas(def, cd === "cargar" ? "disputa" : "foco", cd === "cargar");
     if (cd === "cargar") {
       // disputa: el que carga usa su AT de disputa contra la DF de disputa del que lleva el balon
-      a = (REGLAS.dfDisputa(att) + REGLAS.poderTecnica(att, ta)) * REGLAS.efectoElemental(att, ta, def) * this.bonusPasivas(att, "disputa", false);
+      a = (REGLAS.dfDisputa(att) + this._poder(att, ta)) * REGLAS.efectoElemental(att, ta, def) * this.bonusPasivas(att, "disputa", false);
       d = REGLAS.atDisputa(def) * REGLAS.efectoElemental(def, null, att) * this.bonusPasivas(def, "disputa", true);
       como = "disputa";
     } else {
-      a = (REGLAS.atFoco(att) + REGLAS.poderTecnica(att, ta)) * REGLAS.efectoElemental(att, ta, def) * this.bonusPasivas(att, "foco", true);
-      d = (REGLAS.dfFoco(def) + REGLAS.poderTecnica(def, td)) * REGLAS.efectoElemental(def, td, att) * this.bonusPasivas(def, "foco", false);
+      a = (REGLAS.atFoco(att) + this._poder(att, ta)) * REGLAS.efectoElemental(att, ta, def) * this.bonusPasivas(att, "foco", true);
+      d = (REGLAS.dfFoco(def) + this._poder(def, td)) * REGLAS.efectoElemental(def, td, att) * this.bonusPasivas(def, "foco", false);
       como = "foco";
     }
     // el comando potente: +35 % pero inestable (DS); luego, como en IE3,
@@ -390,7 +479,7 @@ class Partido {
     if (tt && tt.tp > tir.pt) tt = null;
     this._gastar(tir, tt);
     const larga = REGLAS.esLarga(tt);
-    let at = (REGLAS.atTiro(tir) + REGLAS.poderTecnica(tir, tt)) * REGLAS.porDistancia(du.distancia, larga) * this.bonusPasivas(tir, "tiro", true);
+    let at = (REGLAS.atTiro(tir) + this._poder(tir, tt)) * REGLAS.porDistancia(du.distancia, larga) * this.bonusPasivas(tir, "tiro", true);
     // tiro directo: suma el 50 % del AT de tiro del que paso (VR)
     if (du.directo !== null && du.directo !== undefined) at += REGLAS.atTiro(this.jugadores[du.directo]) * REGLAS.DIRECTO;
     const pasos = [{ quien: tir.id, que: tt ? tt.nombre : (du.directo !== null && du.directo !== undefined ? "Tiro directo" : "Tiro"), valor: Math.round(at), tecnica: !!tt,
@@ -404,7 +493,7 @@ class Partido {
       if (tc) {
         this._gastar(ch, tc);
         const g = this.porteriaRival(ch);
-        const suma = (REGLAS.atTiro(ch) + REGLAS.poderTecnica(ch, tc)) * REGLAS.porDistancia(Math.hypot(g.x - ch.x, g.y - ch.y), false) * this.bonusPasivas(ch, "tiro", true);
+        const suma = (REGLAS.atTiro(ch) + this._poder(ch, tc)) * REGLAS.porDistancia(Math.hypot(g.x - ch.x, g.y - ch.y), false) * this.bonusPasivas(ch, "tiro", true);
         at += suma;
         pasos.push({ quien: ch.id, que: tc.nombre + " (cadena)", valor: Math.round(at), tecnica: true, elemento: tc.elemento || "" });
         ultimo = ch; tecUltima = tc;
@@ -416,8 +505,8 @@ class Partido {
       if (tm && tm.tp > muro.pt) tm = null;
       this._gastar(muro, tm);
       // un contra-tiro frena con la mitad de su tiro (VR); un bloqueo, con su DF del muro
-      const base = tm && REGLAS.esContra(tm) ? (REGLAS.atTiro(muro) + REGLAS.poderTecnica(muro, tm)) * 0.5
-                                             : REGLAS.dfMuro(muro) + REGLAS.poderTecnica(muro, tm);
+      const base = tm && REGLAS.esContra(tm) ? (REGLAS.atTiro(muro) + this._poder(muro, tm)) * 0.5
+                                             : REGLAS.dfMuro(muro) + this._poder(muro, tm);
       const df = this._tirada(base * (tm && REGLAS.gana(tm.elemento, ultimo.elemento) ? 1.2 : 1) * this.bonusPasivas(muro, "muro", false));
       pasos.push({ quien: muro.id, que: tm ? tm.nombre : "Bloqueo", valor: Math.round(df), tecnica: !!tm, elemento: tm ? tm.elemento || "" : "" });
       const r = df / Math.max(1, at);
@@ -437,7 +526,7 @@ class Partido {
     let tp = this._tecnica(por, ed.parada);
     if (tp && tp.tp > por.pt) tp = null;
     this._gastar(por, tp);
-    const dfTec = REGLAS.poderTecnica(por, tp) * (tp && REGLAS.gana(tp.elemento, tir.elemento) ? 1.2 : 1);
+    const dfTec = this._poder(por, tp) * (tp && REGLAS.gana(tp.elemento, tir.elemento) ? 1.2 : 1);
     const df = (por.kp + dfTec) * this.bonusPasivas(por, "kp", false);
     pasos.push({ quien: por.id, que: tp ? tp.nombre : "Parada", valor: Math.round(df), tecnica: !!tp, elemento: tp ? tp.elemento || "" : "",
       pasivas: Math.round((this.bonusPasivas(por, "kp", false) - 1) * 1000) / 10 });
@@ -501,7 +590,11 @@ class Partido {
       return;
     }
 
-    for (const l of [0, 1]) this._tension(l, REGLAS.TENSION_POR_SEGUNDO * P);
+    for (const l of [0, 1]) {
+      this._tension(l, REGLAS.TENSION_POR_SEGUNDO * P);
+      const a = this.tacticaActiva[l];
+      if (a && this.segundosDeJuego() >= a.hasta) this.tacticaActiva[l] = null;
+    }
     for (const j of this.jugadores) {
       if (j.esPortero) j.kp = Math.min(j.kpMax, j.kp + j.kpMax * REGLAS.KP_POR_SEGUNDO * P);
       if (j.aturdido > 0) j.aturdido -= P;
@@ -564,7 +657,7 @@ class Partido {
       if (!obj) continue;
       const dx = obj.x - j.x, dy = obj.y - j.y, d = Math.hypot(dx, dy);
       if (d < 0.15) continue;
-      const v = Math.min(d, REGLAS.velocidad(j) * lento * P);
+      const v = Math.min(d, REGLAS.velocidad(j) * this._mulVel(j) * lento * P);
       j.x += dx / d * v; j.y += dy / d * v;
       j.mx = dx / d; j.my = dy / d;
       const c = this._dentro(j.x, j.y); j.x = c.x; j.y = c.y;
@@ -601,6 +694,7 @@ class Partido {
     for (const j of this.jugadores) {
       if (j.aturdido > 0) continue;
       if (b.pase && j.id === b.pase.de) continue;
+      if (b.pase && j.lado !== this.jugadores[b.pase.de].lado && this._especial(this.jugadores[b.pase.de].lado, "sin_intercepcion")) continue;
       const dd = Math.hypot(j.x - b.x, j.y - b.y);
       const radio = b.pase && j.lado !== this.jugadores[b.pase.de].lado ? 1.0 : md;
       if (dd < radio && (!mejor || dd < mejor.d)) mejor = { j, d: dd };
@@ -655,7 +749,7 @@ class Partido {
     const r1 = v => Math.round(v * 10) / 10;
     return {
       n: this.pasos, f: this.fase, m: this.mitad, r: r1(this.reloj), g: this.goles.slice(),
-      t: this.tension.map(Math.round), e: this.espera,
+      t: this.tension.map(Math.round), e: this.espera, ta: this.tacticaActiva, tl: this.tacticaLista,
       j: this.jugadores.map(j => [r1(j.x), r1(j.y), j.dir, j.conBalon ? 1 : 0, j.aturdido > 0 ? 1 : 0,
         j.esPortero ? Math.round(j.kp) : 0, j.lado === ladoRutas ? j.ruta.slice(0, 6).map(p => [r1(p.x), r1(p.y)]) : []]),
       b: [r1(this.balon.x), r1(this.balon.y), this.balon.dueno, this.balon.pase ? [this.balon.pase.a, r1(this.balon.pase.destino.x), r1(this.balon.pase.destino.y)] : 0],
@@ -669,6 +763,7 @@ class Partido {
     if (f.n < this.pasos) return false;              // una foto vieja
     this.pasos = f.n; this.fase = f.f; this.mitad = f.m; this.reloj = f.r; this.goles = f.g;
     this.tension = f.t; this.espera = f.e;
+    if (f.ta) { this.tacticaActiva = f.ta; this.tacticaLista = f.tl; }
     f.j.forEach((q, k) => {
       const j = this.jugadores[k];
       j.destX = q[0]; j.destY = q[1];
@@ -697,7 +792,7 @@ class Partido {
 
   _mirarDuelos() {
     const d = this.dueno();
-    if (!d || d.respiro > 0) return;
+    if (!d || d.respiro > 0 || this._especial(d.lado, "ignora_foco")) return;
     let rival = null, md = REGLAS.DISTANCIA_DUELO;
     for (const r of this.jugadores) {
       if (r.lado === d.lado || r.aturdido > 0 || r.respiro > 0 || r.esPortero) continue;

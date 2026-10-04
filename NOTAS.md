@@ -6756,6 +6756,27 @@ Victory Road tiene 80 tipos de pasiva (pasivas-valor.csv). `ievr/partido.py`
 - La maquina encadena si le llega la tension y remata de primeras a veces.
 - Equilibrio: KP del portero x0,62 y desgaste 0,4 (unos 4 goles por partido).
 
+### O-290 · El juego de partidos: las tacticas del equipo
+
+- Cada equipo de la partida lleva tres tacticas (el id va con los bytes al
+  reves respecto a tacticas.csv). `ievr/partido.py` (`efectos_de_tactica`)
+  lee sus efectos del texto: % a foco, disputa, AT, DF, AT de tiro, PP, DF del
+  muro, poder de las tecnicas (de tiro, de regate o todas), velocidad (de
+  movimiento o de regate) y tension ganada; propios o que se le bajan al
+  rival ("enemigo", "rival", "contrincante"); con condiciones de campo,
+  tension (a partir de / por debajo de) y "al recuperar el balon". "En el
+  geoglifo" se toma como "mientras dure". Especiales: ignora los focos, sin
+  intercepcion de pases, el rival pierde el balon (robo al instante), aturde
+  a los rivales cerca del balon, baja la tension del rival. 58 de 92 tacticas
+  hacen algo.
+- Duran y se recargan lo que dice la tabla (casi todas 40 s y 90 s); solo una
+  activa a la vez por equipo.
+- En la pantalla, la tarjeta "Tacticas" con un boton por tactica (lista,
+  activa y los segundos que le quedan, o la recarga). La maquina usa una
+  defensiva si le atacan en su campo y una ofensiva si ataca en el contrario.
+  Viajan en el online.
+- Medido: unas 15 tacticas por partido entre los dos; unos 3,3 goles.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

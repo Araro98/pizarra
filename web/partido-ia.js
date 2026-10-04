@@ -22,6 +22,7 @@ class Maquina {
     if (this.siguiente > 0) return;
     this.siguiente = this.cada;
     const d = p.dueno();
+    this._tactica(d);
     if (d && d.lado === this.lado) this._conBalon(d);
   }
 
@@ -51,6 +52,24 @@ class Maquina {
     // correr hacia la porteria, con un poco de zigzag
     const lado = (this.azar() - 0.5) * 10;
     p.ordenar({ tipo: "ruta", jugador: d.id, puntos: [{ x: d.x + lado, y: d.y + d.dir * 9 }, { x: g.x * 0.3 + lado * 0.5, y: g.y - d.dir * 10 }] });
+  }
+
+  // una tactica cuando viene bien: defensiva si el rival ataca en mi campo,
+  // ofensiva si ataco yo en el suyo (y a veces sin mas)
+  _tactica(d) {
+    const p = this.p, tac = p.tacticas[this.lado] || [];
+    if (!tac.length || p.tacticaActiva[this.lado]) return;
+    const ahora = p.segundosDeJuego();
+    const listas = tac.map((t, k) => k).filter(k => ahora >= p.tacticaLista[this.lado][k]);
+    if (!listas.length) return;
+    const def = t => (t.efectos || []).some(e => e.especial === "robo" || e.especial === "aturde" || (e.que && (e.que.includes("df") || e.que.includes("kp") || e.que.includes("muro"))));
+    const ata = t => (t.efectos || []).some(e => e.especial === "ignora_foco" || (e.que && (e.que.includes("at") || e.que.includes("tiro") || e.que.includes("foco"))));
+    const b = p.balon, miCampo = b.y * p.equipo(this.lado)[0].dir < 0;
+    let quiero = null;
+    if (d && d.lado !== this.lado && miCampo) quiero = listas.find(k => def(tac[k]));
+    else if (d && d.lado === this.lado && !miCampo) quiero = listas.find(k => ata(tac[k]));
+    if (quiero === undefined || quiero === null) { if (this.azar() < 0.02) quiero = listas[0]; else return; }
+    if (this.azar() < 0.35) p.ordenar({ tipo: "tactica", lado: this.lado, k: quiero });
   }
 
   _mejorPase(d, rivales) {

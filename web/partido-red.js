@@ -143,6 +143,7 @@ function equipoParaRed(d) {
   return {
     nombre: d.nombre,
     formacion: { nombre: d.formacion.nombre, puestos: d.formacion.puestos.map(p => ({ puesto: p.puesto, posicion: p.posicion, x: p.x, y: p.y })) },
+    tacticas: d.tacticas || [],
     jugadores: d.jugadores.map(j => ({
       nombre: j.nombre, cara: j.cara, posicion: j.posicion, elemento: j.elemento, nivel: j.nivel,
       stats: j.stats, puesto: j.puesto, dorsal: j.dorsal,

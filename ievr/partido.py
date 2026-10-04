@@ -100,6 +100,96 @@ def efecto_de_pasiva(texto):
     return {"que": que, "pct": pct, "alcance": alcance, "condicion": condicion, "n": n}
 
 
+# --- las tacticas del equipo (O-290) -------------------------------------------
+# Victory Road: cada equipo lleva tres tacticas (tacticas.csv: efectos en texto,
+# duracion y recarga en segundos). Se leen como las pasivas; "En el geoglifo"
+# (la zona que dibuja la tactica) se toma como "mientras dure".
+_TAC_QUE = [
+    (r"Foco, Disputa AT/DF", ["foco", "disputa"]),
+    (r"AT/DF de Foco", ["foco"]),
+    (r"Foco AT y DF del rival", ["foco"]),
+    (r"AT/DF de Disputa", ["disputa"]),
+    (r"AT\d* de tiro(?! directo)", ["tiro"]),
+    (r"Poder de t.cnica de tiro", ["poder_tiro"]),
+    (r"Poder de t.cnica de regateo", ["poder_regate"]),
+    (r"Poder de supert.cnicas(?! comb)", ["poder"]),
+    (r"PP", ["kp"]),
+    (r"DF de muro", ["muro"]),
+    (r"Velocidad de regate", ["vel_regate"]),
+    (r"Velocidad (?:de mov\w*|en carrera|de movimiento)", ["velocidad"]),
+    (r"Aumento de Tensi.n", ["tension_gana"]),
+    (r"\bDF\b", ["df"]),
+    (r"\bAT\b", ["at"]),
+]
+_TAC_ESPECIAL = [
+    (r"Ignora(?:r)? las batallas de foco", "ignora_foco"),
+    (r"Sin intercepci.n de pases", "sin_intercepcion"),
+    (r"El rival pierde el bal.n", "robo"),
+    (r"Aturde al rival con el bal.n", "robo"),
+    (r"Inhabilita a los rivales cerca del bal.n", "aturde"),
+    (r"Tensi.n del rival", "drena"),
+]
+
+
+def efectos_de_tactica(texto):
+    """[{que, pct, objetivo, condicion, n} o {especial, pct}] de los efectos de
+    una tactica (separados por " | "). Los que aun no hacen nada, fuera."""
+    fuera = []
+    for trozo in (texto or "").split(" | "):
+        t = trozo.strip()
+        if not t:
+            continue
+        esp = next((e for p, e in _TAC_ESPECIAL if re.search(p, t)), None)
+        m = re.search(r"([+-])\s*(\d+(?:[.,]\d+)?)\s*[%％]", t)
+        pct = (float(m.group(2).replace(",", ".")) * (-1 if m.group(1) == "-" else 1)) if m else 0
+        if esp:
+            fuera.append({"especial": esp, "pct": abs(pct)})
+            continue
+        if not m or re.search(r"afinidad|brecha|faltas|Faltas|Enfriamiento|Resistencia|Reducci.n de Tensi|reducci.n de tensi|Objetivo|Ataque duro|Tasa de Parada|tiro directo|comb", t):
+            continue
+        que = next((q for p, q in _TAC_QUE if re.search(p, t)), None)
+        if not que:
+            continue
+        rival = bool(re.search(r"enemig|rival|contrincante", t))
+        condicion, n = None, None
+        mc = re.search(r"tensi.n es (\d+) ?% o m.s", t, re.I)
+        if mc:
+            condicion, n = "tension", float(mc.group(1))
+        mc = re.search(r"Tensi.n es menor al (\d+)", t, re.I)
+        if mc:
+            condicion, n = "tension_menor", float(mc.group(1))
+        if re.search(r"en campo propio", t):
+            condicion = "campo_propio"
+        if re.search(r"en campo contrario", t):
+            condicion = "campo_contrario"
+        mc = re.search(r"Al recuperar el bal.n.*durante (\d+)", t)
+        if mc:
+            condicion, n = "tras_robo", float(mc.group(1))
+        fuera.append({"que": que, "pct": pct, "objetivo": "rival" if rival else "propio",
+                      "condicion": condicion, "n": n})
+    return fuera
+
+
+def _tacticas_del_equipo(e):
+    """Las tacticas puestas en el equipo, con sus efectos (el equipo guarda el
+    id con los bytes al reves)."""
+    from ievr import opciones as O
+    tabla = O._indice("partido_tacticas", lambda: {f["id"].upper(): f for f in reglas._tabla("tacticas.csv")})
+    fuera = []
+    for v in e.get("tacticas") or []:
+        if not v:
+            continue
+        f = tabla.get(EQ._al_reves("%08X" % v).upper()) or tabla.get("%08X" % v)
+        if not f:
+            continue
+        num = lambda x, d: float(x) if x not in (None, "") else d
+        fuera.append({"id": f["id"], "nombre": f["nombre"], "categoria": f["categoria"],
+                      "descripcion": f.get("descripcion") or "", "texto": f.get("efectos") or "",
+                      "duracion": num(f.get("duracion"), 8.0), "recarga": num(f.get("recarga"), 90.0),
+                      "efectos": efectos_de_tactica(f.get("efectos"))})
+    return fuera
+
+
 def _tecnicas_por_id():
     from ievr import opciones as O
     return O._indice("partido_tecnicas", lambda: {f["id"].upper(): f for f in reglas._tabla("tecnicas.csv")})
@@ -196,4 +286,5 @@ def equipo(plain, hueco):
     return {"hueco": hueco, "nombre": O.sin_marcadores(e["nombre"]),
             "formacion": {"valor": "%08X" % e["formacion"], "nombre": nombre_formacion, "puestos": puestos},
             "capitan": e["capitan"], "jugadores": jugadores,
+            "tacticas": _tacticas_del_equipo(e),
             "banquillo": [b for b in banquillo if b["puesto"] < 16]}
