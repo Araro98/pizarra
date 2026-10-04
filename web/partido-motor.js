@@ -324,6 +324,8 @@ class Partido {
     if (td && td.tp > def.pt) td = null;
     this._gastar(att, ta); this._gastar(def, td);
     let a, d, como;
+    const pa = this.bonusPasivas(att, cd === "cargar" ? "disputa" : "foco", cd !== "cargar");
+    const pd = this.bonusPasivas(def, cd === "cargar" ? "disputa" : "foco", cd === "cargar");
     if (cd === "cargar") {
       // disputa: el que carga usa su AT de disputa contra la DF de disputa del que lleva el balon
       a = (REGLAS.dfDisputa(att) + REGLAS.poderTecnica(att, ta)) * REGLAS.efectoElemental(att, ta, def) * this.bonusPasivas(att, "disputa", false);
@@ -353,6 +355,8 @@ class Partido {
       tecnicas: { [att.lado]: ta ? ta.nombre : (ca === "potente" ? "Romper" : "Regatear"),
                   [def.lado]: td ? td.nombre : ({ cargar: "Cargar", potente: "Entrada" }[cd] || "Tapar") },
       atacante: att.id, defensor: def.id,
+      elementos: { [att.lado]: ta ? ta.elemento || "" : null, [def.lado]: td ? td.elemento || "" : null },
+      pasivas: { [att.lado]: Math.round((pa - 1) * 1000) / 10, [def.lado]: Math.round((pd - 1) * 1000) / 10 },
     };
     this.apunta((ta ? ta.nombre + ": " : "") + att.nombre + " " + ra + " contra " + (td ? td.nombre + ": " : "") + def.nombre + " " + rd +
       " → " + (gana === att ? "¡se va!" : "¡roba " + def.nombre + "!"), gana === att ? "bien" : "mal");
@@ -368,14 +372,15 @@ class Partido {
     this._gastar(tir, tt);
     const larga = REGLAS.esLarga(tt);
     let at = (REGLAS.atTiro(tir) + REGLAS.poderTecnica(tir, tt)) * REGLAS.porDistancia(du.distancia, larga) * this.bonusPasivas(tir, "tiro", true);
-    const pasos = [{ quien: tir.id, que: tt ? tt.nombre : "Tiro", valor: Math.round(at) }];
+    const pasos = [{ quien: tir.id, que: tt ? tt.nombre : "Tiro", valor: Math.round(at), tecnica: !!tt,
+      elemento: tt ? tt.elemento || "" : "", pasivas: Math.round((this.bonusPasivas(tir, "tiro", true) - 1) * 1000) / 10 }];
     // el muro: le resta su DF al tiro (VR); si lo deja en nada, lo para
     if (muro && ed.muro && ed.muro !== "nada") {
       let tm = this._tecnica(muro, ed.muro);
       if (tm && tm.tp > muro.pt) tm = null;
       this._gastar(muro, tm);
       const df = this._tirada((REGLAS.dfMuro(muro) + REGLAS.poderTecnica(muro, tm)) * (tm && REGLAS.gana(tm.elemento, tir.elemento) ? 1.2 : 1) * this.bonusPasivas(muro, "muro", false));
-      pasos.push({ quien: muro.id, que: tm ? tm.nombre : "Bloqueo", valor: Math.round(df) });
+      pasos.push({ quien: muro.id, que: tm ? tm.nombre : "Bloqueo", valor: Math.round(df), tecnica: !!tm, elemento: tm ? tm.elemento || "" : "" });
       const r = df / Math.max(1, at);
       if (r > 0.75) at *= 0.7;
       if (r >= 1.25) {
@@ -395,7 +400,8 @@ class Partido {
     this._gastar(por, tp);
     const dfTec = REGLAS.poderTecnica(por, tp) * (tp && REGLAS.gana(tp.elemento, tir.elemento) ? 1.2 : 1);
     const df = (por.kp + dfTec) * this.bonusPasivas(por, "kp", false);
-    pasos.push({ quien: por.id, que: tp ? tp.nombre : "Parada", valor: Math.round(df) });
+    pasos.push({ quien: por.id, que: tp ? tp.nombre : "Parada", valor: Math.round(df), tecnica: !!tp, elemento: tp ? tp.elemento || "" : "",
+      pasivas: Math.round((this.bonusPasivas(por, "kp", false) - 1) * 1000) / 10 });
     pasos[0].valorFinal = Math.round(at);
     if (this.azar() < REGLAS.probabilidad(at, df)) {
       this.goles[tir.lado]++;

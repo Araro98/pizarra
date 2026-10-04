@@ -302,28 +302,65 @@ function mostrarFinal() {
   capa.hidden = false;
 }
 
+/* El resultado de un duelo, como un rotulo del juego: la cara, la
+   supertecnica en una tarjeta del color de su elemento y el numero que saca
+   cada uno (con lo que le suman las pasivas). */
+function filaDuelo(j, nombre, esTecnica, elemento, valor, pasivas, gana, retardo) {
+  const fila = el("div", { class: "rotulo" + (gana ? " gana" : ""), style: "animation-delay:" + retardo + "ms" });
+  fila.appendChild(el("img", { class: "rotulo-cara", alt: "", src: "/cara/" + encodeURIComponent(j.cara || "") }));
+  const centro = el("div", { class: "rotulo-centro" }, [el("small", { text: j.nombre })]);
+  if (esTecnica) {
+    const t = el("div", { class: "rotulo-tecnica" }, [elemento ? iconoElemento(elemento, 20) : null, el("b", { text: nombre })]);
+    const c = BARRA_ELEM[elemento] || BARRA_SIN;
+    t.style.background = "linear-gradient(90deg, " + c[0] + ", " + c[1] + ")";
+    centro.appendChild(t);
+  } else centro.appendChild(el("b", { class: "rotulo-comando", text: nombre }));
+  if (pasivas) centro.appendChild(el("small", { class: "rotulo-pasivas", text: "pasivas +" + pasivas + " %" }));
+  fila.appendChild(centro);
+  const num = el("span", { class: "rotulo-valor", text: "0" });
+  fila.appendChild(num);
+  // el numero sube poco a poco, como en el juego
+  const t0 = performance.now() + retardo;
+  const sube = ahora => {
+    const k = Math.max(0, Math.min(1, (ahora - t0) / 600));
+    num.textContent = String(Math.round(valor * k));
+    if (k < 1) requestAnimationFrame(sube);
+  };
+  requestAnimationFrame(sube);
+  setTimeout(() => { num.textContent = String(valor); }, retardo + 700);
+  return fila;
+}
+
 function mostrarResultado(r) {
   const p = PARTIDO, caja = $("#pausa-caja"), capa = $("#pausa");
   caja.textContent = "";
+  let dura = 1600;
   if (r.tipo === "tiro") {
     const tir = p.jugadores[r.tirador];
-    caja.appendChild(el("div", { class: "titulo-duelo", text: r.final === "gol" ? "¡¡GOOOL!!" : r.final === "bloqueado" ? "¡Bloqueado!" : r.final === "despeje" ? "¡Despeje!" : "¡Parada!" }));
-    for (const paso of r.pasos) {
+    const final = r.final === "gol" ? "¡¡GOOOL!!" : r.final === "bloqueado" ? "¡Bloqueado!" : r.final === "despeje" ? "¡Despeje!" : "¡Parada!";
+    r.pasos.forEach((paso, k) => {
       const j = p.jugadores[paso.quien];
-      caja.appendChild(el("div", { class: "comando" }, [el("img", { alt: "", src: "/cara/" + encodeURIComponent(j.cara || ""), style: "width:34px;height:34px;border-radius:50%;background:#fff" }),
-        el("span", { text: j.nombre + " · " + paso.que }), el("span", { class: "poder", text: String(paso.valorFinal || paso.valor) })]));
-    }
-    caja.appendChild(el("div", { class: "resultado", text: r.final === "gol" ? "Gol de " + tir.nombre : "" }));
+      const ultimo = k === r.pasos.length - 1;
+      const gana = r.final === "gol" ? k === 0 : (r.final === "bloqueado" ? paso.quien !== r.tirador && !ultimo || ultimo : ultimo);
+      caja.appendChild(filaDuelo(j, paso.que, paso.tecnica, paso.elemento, paso.valorFinal || paso.valor, paso.pasivas, gana, k * 450));
+    });
+    caja.appendChild(el("div", { class: "titulo-duelo final-duelo", text: final, style: "animation-delay:" + (r.pasos.length * 450 + 200) + "ms" }));
+    if (r.final === "gol") caja.appendChild(el("div", { class: "resultado", text: "Gol de " + tir.nombre }));
+    dura = r.pasos.length * 450 + 1900;
   } else {
     const att = p.jugadores[r.atacante], def = p.jugadores[r.defensor], gan = p.jugadores[r.ganador];
     caja.appendChild(el("div", { class: "titulo-duelo", text: r.tipo === "disputa" ? "Disputa" : "Foco" }));
-    for (const j of [att, def]) caja.appendChild(el("div", { class: "comando" }, [el("img", { alt: "", src: "/cara/" + encodeURIComponent(j.cara || ""), style: "width:34px;height:34px;border-radius:50%;background:#fff" }),
-      el("span", { text: j.nombre + " · " + r.tecnicas[j.lado] }), el("span", { class: "poder", text: String(r.valores[j.lado]) })]));
-    caja.appendChild(el("div", { class: "resultado", text: gan.lado === YO ? "¡Bien! Gana " + gan.nombre : "Gana " + gan.nombre }));
+    [att, def].forEach((j, k) => {
+      const elem = r.elementos ? r.elementos[j.lado] : null;
+      caja.appendChild(filaDuelo(j, r.tecnicas[j.lado], elem !== null && elem !== undefined, elem || "", r.valores[j.lado],
+        r.pasivas ? r.pasivas[j.lado] : 0, j === gan, k * 350));
+    });
+    caja.appendChild(el("div", { class: "resultado final-duelo", style: "animation-delay:900ms", text: gan.lado === YO ? "¡Bien! Gana " + gan.nombre : "Gana " + gan.nombre }));
+    dura = 2200;
   }
   capa.hidden = false;
   mostrando = "resultado";
-  setTimeout(() => { if (mostrando === "resultado") { mostrando = null; capa.hidden = true; } }, r.tipo === "tiro" ? 1900 : 1500);
+  setTimeout(() => { if (mostrando === "resultado") { mostrando = null; capa.hidden = true; } }, dura);
 }
 
 /* --- online (O-287) ----------------------------------------------------------- */
