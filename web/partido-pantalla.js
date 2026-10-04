@@ -1,6 +1,6 @@
-/* La pantalla del partido (NOTAS O-286): pinta el campo en un canvas, visto
-   desde arriba como en DS, en horizontal para que quepa en un PC. Tu equipo
-   (el lado `yo`) ataca siempre hacia la derecha, tambien en la segunda parte.
+/* La pantalla del partido (NOTAS O-286, O-294): pinta el campo en un canvas,
+   visto desde arriba y en VERTICAL como la pantalla tactil de 3DS. Tu equipo
+   (el lado `yo`) ataca siempre hacia arriba, tambien en la segunda parte.
    Las caras salen de /cara/<id> (las de Pizarra). */
 "use strict";
 
@@ -28,19 +28,20 @@ class Pantalla {
     const ppp = window.devicePixelRatio || 1;
     this.c.width = Math.max(300, r.width * ppp); this.c.height = Math.max(200, r.height * ppp);
     this.ppp = ppp;
-    // el campo (105 x 68) mas un margen para las porterias
-    const ancho = REGLAS.LARGO + 8, alto = REGLAS.ANCHO + 6;
+    // el campo en vertical (68 de ancho x 105 de largo) mas un margen para las porterias
+    const ancho = REGLAS.ANCHO + 6, alto = REGLAS.LARGO + 8;
     this.s = Math.min(this.c.width / ancho, this.c.height / alto);
     this.cx = this.c.width / 2; this.cy = this.c.height / 2;
   }
 
   // hacia donde ataca "yo" en esta parte: +1 si hacia +y
   _sentido() { const j = this.p.jugadores.find(q => q.lado === this.yo); return j ? j.dir : 1; }
-  aPantalla(x, y) { const h = this._sentido(); return { px: this.cx + y * h * this.s, py: this.cy + x * h * this.s }; }
+  // del campo a la pantalla: el largo en vertical, mi ataque hacia arriba
+  aPantalla(x, y) { const h = this._sentido(); return { px: this.cx + x * h * this.s, py: this.cy - y * h * this.s }; }
   aCampo(px, py) {
     const h = this._sentido();
     const X = px * this.ppp, Y = py * this.ppp;
-    return { x: (Y - this.cy) / this.s * h, y: (X - this.cx) / this.s * h };
+    return { x: (X - this.cx) / this.s * h, y: -(Y - this.cy) / this.s * h };
   }
 
   pintar() {
@@ -53,6 +54,16 @@ class Pantalla {
       this._linea([{ x: j.x, y: j.y }, ...j.ruta], "rgba(255,255,255,.75)", [6, 6]);
     }
     if (this.trazo && this.trazo.puntos.length > 1) this._linea(this.trazo.puntos, "#ffe14d", [8, 5], 3);
+    // el pase marcado en la pausa (sale al seguir) y la linea roja de los que presionan (3DS)
+    const pm = (p.paseMarcado || [])[this.yo], d0 = p.dueno();
+    if (pm && d0) {
+      const destino = pm.a !== undefined ? p.jugadores[pm.a] : { x: pm.x, y: pm.y };
+      this._linea([{ x: d0.x, y: d0.y }, { x: destino.x, y: destino.y }], "#ffe14d", [4, 4], 4);
+    }
+    for (const j of p.jugadores) {
+      if (j.lado === this.yo && j.presiona !== null && j.presiona !== undefined && d0 && d0.id === j.presiona)
+        this._linea([{ x: j.x, y: j.y }, { x: d0.x, y: d0.y }], "rgba(255,80,60,.85)", [], 3);
+    }
     // el pase en el aire
     const b = p.balon;
     if (b.pase) {
@@ -73,33 +84,38 @@ class Pantalla {
   }
 
   _campo() {
+    // todo se pinta en metros del campo y pasa por aPantalla: vale en vertical
     const ctx = this.ctx, s = this.s, L = REGLAS.LARGO, A = REGLAS.ANCHO;
-    const esq = this.aPantalla(-A / 2, -L / 2), otra = this.aPantalla(A / 2, L / 2);
-    const x0 = Math.min(esq.px, otra.px), y0 = Math.min(esq.py, otra.py), w = Math.abs(otra.px - esq.px), h = Math.abs(otra.py - esq.py);
-    // fondo y franjas de cesped
+    const P = (x, y) => this.aPantalla(x, y);
+    const caja = (x0, y0, x1, y1) => {
+      const a = P(x0, y0), b = P(x1, y1);
+      return [Math.min(a.px, b.px), Math.min(a.py, b.py), Math.abs(b.px - a.px), Math.abs(b.py - a.py)];
+    };
     ctx.fillStyle = "#1f7a3a"; ctx.fillRect(0, 0, this.c.width, this.c.height);
+    // franjas de cesped a lo ancho
     const franjas = 14;
     for (let k = 0; k < franjas; k++) {
       ctx.fillStyle = k % 2 ? "#2b8f47" : "#25843f";
-      ctx.fillRect(x0 + w * k / franjas, y0, w / franjas + 1, h);
+      const [x, y, w, h] = caja(-A / 2, -L / 2 + L * k / franjas, A / 2, -L / 2 + L * (k + 1) / franjas);
+      ctx.fillRect(x, y, w, h + 1);
     }
     ctx.strokeStyle = "rgba(255,255,255,.9)"; ctx.lineWidth = Math.max(2, 0.22 * s);
-    ctx.strokeRect(x0, y0, w, h);
-    ctx.beginPath(); ctx.moveTo(x0 + w / 2, y0); ctx.lineTo(x0 + w / 2, y0 + h); ctx.stroke();
-    ctx.beginPath(); ctx.arc(x0 + w / 2, y0 + h / 2, 9.15 * s, 0, Math.PI * 2); ctx.stroke();
-    ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(x0 + w / 2, y0 + h / 2, 0.4 * s, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeRect(...caja(-A / 2, -L / 2, A / 2, L / 2));
+    const m1 = P(-A / 2, 0), m2 = P(A / 2, 0);
+    ctx.beginPath(); ctx.moveTo(m1.px, m1.py); ctx.lineTo(m2.px, m2.py); ctx.stroke();
+    const c = P(0, 0);
+    ctx.beginPath(); ctx.arc(c.px, c.py, 9.15 * s, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(c.px, c.py, 0.4 * s, 0, Math.PI * 2); ctx.fill();
     for (const lado of [-1, 1]) {
-      const fx = lado < 0 ? x0 : x0 + w;
-      const area = (largo, ancho) => {
-        ctx.strokeRect(lado < 0 ? fx : fx - largo * s, y0 + h / 2 - ancho * s / 2, largo * s, ancho * s);
-      };
-      area(REGLAS.AREA_Y, 40.32); area(5.5, 18.32);
+      const f = lado * L / 2;
+      ctx.strokeRect(...caja(-40.32 / 2, f, 40.32 / 2, f - lado * REGLAS.AREA_Y));
+      ctx.strokeRect(...caja(-18.32 / 2, f, 18.32 / 2, f - lado * 5.5));
+      const pen = P(0, f - lado * 11);
+      ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(pen.px, pen.py, 0.35 * s, 0, Math.PI * 2); ctx.fill();
       // la porteria, fuera del campo
       ctx.fillStyle = "rgba(255,255,255,.25)";
-      const pw = 2.2 * s, ph = REGLAS.PORTERIA * s;
-      ctx.fillRect(lado < 0 ? fx - pw : fx, y0 + h / 2 - ph / 2, pw, ph);
-      ctx.strokeRect(lado < 0 ? fx - pw : fx, y0 + h / 2 - ph / 2, pw, ph);
-      ctx.beginPath(); ctx.arc(lado < 0 ? fx + 11 * s : fx - 11 * s, y0 + h / 2, 0.35 * s, 0, Math.PI * 2); ctx.fillStyle = "#fff"; ctx.fill();
+      const pt = caja(-REGLAS.PORTERIA / 2, f, REGLAS.PORTERIA / 2, f + lado * 2.2);
+      ctx.fillRect(...pt); ctx.strokeRect(...pt);
     }
   }
 

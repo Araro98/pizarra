@@ -27,6 +27,14 @@ const REGLAS = {
   TENSION_POR_SEGUNDO: 0.6, TENSION_DESCANSO: 60,
   KP_POR_SEGUNDO: 0.02,         // el portero recupera un 2 % de su KP por segundo
   AZAR: 0.10,
+  // la pausa de 3DS (icono de la mano): para el partido y dibujas rutas a
+  // varios jugadores y marcas el pase. Unas cuantas por parte, como mucho
+  // unos segundos cada una (online espera al otro).
+  PAUSAS_POR_PARTE: 3, PAUSA_MAX: 20,
+  // apoyos en un duelo (DS/3DS): cada companero cerca suma, mas si es de su elemento
+  APOYO_RADIO: 7, APOYO: 0.05, APOYO_ELEMENTO: 0.05, APOYOS_MAX: 3,
+  // pase bombeado (mantener y soltar): mas lento y no se corta hasta que baja
+  VEL_PASE_ALTO: 14, PASE_ALTO_BAJA: 4,
   PASIVAS_TOPE: 60,             // lo mas que suman las pasivas a un valor (%)                   // +-10 % en cada lado de un duelo (en DS habia suerte)
 
   // velocidad de carrera en m/s segun la Agilidad (stats a nivel 99 de 150 a 700)

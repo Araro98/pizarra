@@ -56,15 +56,31 @@
   .btn-mini.gris { background:#5a6b85; }
 
   /* el campo */
-  .juego { position:relative; display:grid; grid-template-columns:minmax(0, 1fr) 300px; gap:12px; padding:10px;
-    height:calc(100vh - 70px); box-sizing:border-box; }
-  @media (max-width:900px) { .juego { grid-template-columns:1fr; height:auto; } }
-  .campo-caja { position:relative; min-height:420px; }
+  /* como la pantalla tactil de 3DS: el campo en vertical; los duelos al lado,
+     sin taparlo (mientras eliges puedes dibujar rutas) (O-294) */
+  .juego { position:relative; display:grid; grid-template-columns:auto minmax(300px, 400px) 290px; gap:12px; padding:10px;
+    height:calc(100vh - 70px); box-sizing:border-box; justify-content:center; }
+  @media (max-width:1100px) { .juego { grid-template-columns:auto minmax(260px, 1fr); height:auto; } .lateral { grid-column:1 / -1; } }
+  .campo-caja { position:relative; height:100%; min-height:520px; aspect-ratio:74 / 113; max-width:100%; }
+  .duelos { display:flex; flex-direction:column; gap:10px; min-height:0; overflow:auto; }
+  .duelos-vacio { color:#9fb6d6; font-size:var(--t-sm); text-align:center; padding:30px 14px; border:2px dashed #3a5288; border-radius:12px; }
+  .aviso-pausa { position:absolute; left:50%; bottom:14px; transform:translateX(-50%); background:#7a3c00; color:#fff; border:2px solid #fff;
+    border-radius:8px; padding:6px 14px; font-weight:900; font-size:var(--t-sm); box-shadow:0 0 0 2px #ffb24a; pointer-events:none; white-space:nowrap; }
+  .aviso-pausa[hidden] { display:none; }
+  .boton-pausa { width:100%; font:inherit; font-weight:900; font-style:italic; text-transform:uppercase; padding:9px; border-radius:8px; cursor:pointer;
+    border:2px solid #fff; color:#fff; background:linear-gradient(180deg, #ffb24a, #e8801c); box-shadow:0 0 0 2px #9c5208; }
+  .boton-pausa:disabled { filter:grayscale(1); opacity:.6; cursor:default; }
+  .boton-pausa.seguir { background:linear-gradient(180deg, #3fe0d0, #1b9c8f); box-shadow:0 0 0 2px #0f5f57; }
   #campo { width:100%; height:100%; display:block; border-radius:10px; box-shadow:0 0 0 3px #fff, 0 0 0 5px var(--aro); cursor:crosshair; touch-action:none; }
-  .marcador { position:absolute; top:8px; left:50%; transform:translateX(-50%) skewX(-8deg); display:flex; align-items:center; gap:10px;
+  .marcador { align-self:center; transform:skewX(-8deg); display:flex; align-items:center; gap:10px;
     background:var(--panel); color:#fff; border:2px solid #fff; border-radius:8px; padding:4px 14px; font-weight:900; font-style:italic;
     box-shadow:0 0 0 2px var(--aro); pointer-events:none; font-size:var(--t-lg); }
   .marcador > * { transform:skewX(8deg); }
+  /* vista 3D: "Preparando modelos 3D: 5 de 22" mientras se convierten (O-293) */
+  .aviso-3d { position:absolute; left:12px; bottom:12px; background:var(--panel); color:#fff; border:2px solid #fff;
+    border-radius:8px; padding:3px 10px; font-weight:800; font-size:var(--t-xs); box-shadow:0 0 0 2px var(--aro);
+    pointer-events:none; max-width:60%; }
+  .aviso-3d[hidden] { display:none; }
   .marcador .goles { font-size:var(--t-2xl); min-width:64px; text-align:center; }
   .marcador .reloj { font-size:var(--t-md); opacity:.85; }
   .lateral { display:flex; flex-direction:column; gap:10px; min-height:0; overflow:auto; }
@@ -87,7 +103,7 @@
   .registro { font-size:var(--t-xs); line-height:1.4; max-height:220px; overflow:auto; color:#cfe0f5; }
 
   /* la pausa de un duelo: los comandos, como en DS */
-  .pausa { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(5,12,30,.55); z-index:5; }
+  .pausa { display:flex; }
   .pausa[hidden] { display:none; }
   .pausa .caja { background:var(--panel); color:#fff; border:3px solid #fff; border-radius:12px; padding:14px; width:min(520px, 94%);
     box-shadow:0 0 0 2px var(--aro), 0 16px 30px rgba(0,0,0,.5); display:flex; flex-direction:column; gap:10px; }
@@ -173,19 +189,26 @@
   <section class="pantalla juego" id="pantalla-juego" hidden>
     <div class="campo-caja">
       <canvas id="campo"></canvas>
+      <div class="aviso-pausa" id="aviso-pausa" hidden></div>
+      <div class="aviso-3d" id="aviso-3d" hidden></div>
+    </div>
+    <div class="duelos">
       <div class="marcador"><span id="nombre-a">Local</span><span class="goles" id="goles">0 - 0</span><span id="nombre-b">Rival</span><span class="reloj" id="reloj">1ª 0'</span></div>
       <div class="pausa" id="pausa" hidden><div class="caja" id="pausa-caja"></div></div>
+      <div class="duelos-vacio" id="duelos-vacio">Aquí salen los duelos. Mientras eliges, puedes seguir dibujando rutas en el campo.</div>
     </div>
     <aside class="lateral">
+      <div class="tarjeta"><button class="boton-pausa" id="boton-pausa" title="Barra espaciadora">Pausa</button></div>
       <div class="tarjeta" id="tarjeta-jugador"><h3>Tu jugador</h3><div id="ficha-actual" class="ayuda">—</div></div>
       <div class="tarjeta"><h3>Tácticas</h3><div id="tacticas" class="tacticas"></div></div>
       <div class="tarjeta"><h3>Cómo se juega</h3>
         <div class="ayuda">
           <b>Arrastra</b> desde tu jugador para dibujar por dónde corre.<br>
-          <b>Pulsa a un compañero</b> para pasarle el balón.<br>
+          <b>Pulsa a un compañero</b> para pasarle; <b>pulsa un punto</b> para el pase al hueco; <b>mantén pulsado</b> para un <b>pase bombeado</b> (no se corta).<br>
           <b>Pulsa la portería rival</b> para chutar; si lo haces mientras va un pase, <b>remata de primeras</b>.<br>
-          Un compañero en la línea de tiro puede <b>encadenarlo</b>.<br>
-          Cuando un rival se cruza, el partido <b>se para</b> y eliges qué hacer: como en DS.
+          <b>Pulsa al rival con balón</b>: tus dos más cerca van a presionarle.<br>
+          <b>Pausa</b> (o barra espaciadora): con todo parado dibujas rutas a varios y marcas el pase.<br>
+          En cada <b>duelo</b> el partido se para: eliges a la derecha y, mientras, puedes dibujar rutas.
         </div></div>
       <div class="tarjeta"><h3>Lo que pasa</h3><div class="registro" id="registro"></div></div>
     </aside>

@@ -127,6 +127,7 @@ function bucle(ahora) {
   registro();
   fichaElegido();
   pintarTacticas();
+  pintarPausa();
   requestAnimationFrame(bucle);
 }
 
@@ -139,6 +140,34 @@ function marcador() {
   }
   $("#reloj").textContent = p.fase === "final" ? "Final" : p.fase === "descanso" ? "Descanso" : (p.mitad === 1 ? "1ª " : "2ª ") + p.minuto() + "'";
 }
+
+// la pausa de 3DS (O-294): boton y barra espaciadora
+function pintarPausa() {
+  const p = PARTIDO, b = $("#boton-pausa"), aviso = $("#aviso-pausa");
+  if (p.fase === "pausa" && p.pausa) {
+    const mia = p.pausa.lado === YO;
+    b.textContent = mia ? "Seguir" : "Pausa del rival";
+    b.classList.add("seguir"); b.disabled = !mia;
+    aviso.hidden = false;
+    aviso.textContent = (mia ? "Pausa: dibuja rutas y marca el pase · " : "Pausa del rival: puedes dibujar rutas · ")
+      + Math.ceil(p.pausa.queda) + " s";
+  } else {
+    b.classList.remove("seguir");
+    b.textContent = "Pausa (quedan " + p.pausasQuedan[YO] + ")";
+    b.disabled = p.fase !== "juego" || p.pausasQuedan[YO] <= 0 || DEMO;
+    aviso.hidden = true;
+  }
+}
+$("#boton-pausa").onclick = () => {
+  if (!PARTIDO) return;
+  if (PARTIDO.fase === "pausa") PARTIDO.ordenar({ tipo: "seguir", lado: YO });
+  else PARTIDO.ordenar({ tipo: "pausa", lado: YO });
+};
+document.addEventListener("keydown", ev => {
+  if (ev.code !== "Space" || !PARTIDO || $("#pantalla-juego").hidden || /input|select|textarea/i.test(ev.target.tagName)) return;
+  ev.preventDefault();
+  $("#boton-pausa").click();
+});
 
 // las tacticas de mi equipo: un boton cada una, con su recarga (O-290)
 let tacticasPintadas = "";
@@ -201,12 +230,13 @@ function raton() {
   const c = $("#campo");
   const pos = ev => { const r = c.getBoundingClientRect(); return { px: ev.clientX - r.left, py: ev.clientY - r.top }; };
   let empezado = null;
+  const sePuede = () => PARTIDO && (PARTIDO.fase === "juego" || PARTIDO.fase === "pausa" || PARTIDO.fase === "duelo");
   c.onpointerdown = ev => {
-    if (!PARTIDO || PARTIDO.fase !== "juego") return;
+    if (!sePuede()) return;
     c.setPointerCapture(ev.pointerId);
     const q = pos(ev);
     const j = PANTALLA.jugadorEn(q.px, q.py, YO);
-    empezado = { q, j, puntos: [], campo: PANTALLA.aCampo(q.px, q.py) };
+    empezado = { q, j, puntos: [], campo: PANTALLA.aCampo(q.px, q.py), t0: performance.now() };
     if (j) { PANTALLA.elegido = j.id; empezado.puntos.push({ x: j.x, y: j.y }); PANTALLA.trazo = empezado; }
   };
   c.onpointermove = ev => {
@@ -218,15 +248,22 @@ function raton() {
   c.onpointerup = ev => {
     if (!empezado) return;
     const e = empezado; empezado = null; PANTALLA.trazo = null;
-    if (!PARTIDO || PARTIDO.fase !== "juego") return;
+    if (!sePuede()) return;
     const q = pos(ev), fin = PANTALLA.aCampo(q.px, q.py);
     const mov = Math.hypot(fin.x - e.campo.x, fin.y - e.campo.y);
     const d = PARTIDO.dueno();
     const tengo = d && d.lado === YO;
     if (e.j && mov > 2.5 && e.puntos.length > 1) {
-      // arrastrar desde un jugador: su ruta
+      // arrastrar desde un jugador: su ruta (tambien en la pausa y en los duelos)
       PARTIDO.ordenar({ tipo: "ruta", jugador: e.j.id, puntos: e.puntos.slice(1) });
       return;
+    }
+    if (PARTIDO.fase === "duelo") return;          // en un duelo, solo rutas
+    const alto = performance.now() - e.t0 > 450;   // mantener pulsado: pase bombeado
+    // pulsar al rival que lleva el balon: los tuyos van a presionarle
+    if (d && d.lado !== YO) {
+      const r = PANTALLA.jugadorEn(q.px, q.py, 1 - YO);
+      if (r && r.id === d.id) { PARTIDO.ordenar({ tipo: "presionar", lado: YO, objetivo: r.id }); return; }
     }
     // con un pase mio de camino, pulsar la porteria: el que lo recibe remata de primeras
     if (!tengo && PARTIDO.balon.pase && PARTIDO.jugadores[PARTIDO.balon.pase.de].lado === YO) {
@@ -236,12 +273,12 @@ function raton() {
     if (tengo) {
       // pulsar la porteria rival: chutar
       const g = PARTIDO.porteriaRival(d);
-      if (Math.abs(fin.y - g.y) < 7 && Math.abs(fin.x) < 9) { PARTIDO.ordenar({ tipo: "tiro", de: d.id }); return; }
-      // pulsar a un companero: pasarle
-      if (e.j && e.j.id !== d.id) { PARTIDO.ordenar({ tipo: "pase", de: d.id, a: e.j.id }); return; }
+      if (PARTIDO.fase !== "pausa" && Math.abs(fin.y - g.y) < 7 && Math.abs(fin.x) < 9) { PARTIDO.ordenar({ tipo: "tiro", de: d.id }); return; }
+      // pulsar a un companero: pasarle (en la pausa queda marcado)
+      if (e.j && e.j.id !== d.id) { PARTIDO.ordenar({ tipo: "pase", de: d.id, a: e.j.id, alto }); return; }
       if (e.j && e.j.id === d.id) return;
       // pulsar un punto: pase al hueco
-      PARTIDO.ordenar({ tipo: "pasePunto", de: d.id, x: fin.x, y: fin.y });
+      PARTIDO.ordenar({ tipo: "pasePunto", de: d.id, x: fin.x, y: fin.y, alto });
       return;
     }
     // sin balon: el elegido (o el mas cerca) va a ese punto
@@ -269,6 +306,7 @@ function botonComando(o, j, alElegir) {
 let mostrando = null;          // "duelo:<id>" o "resultado"
 function pausa() {
   const p = PARTIDO, capa = $("#pausa");
+  $("#duelos-vacio").hidden = !capa.hidden;
   if (AYUDANTE && p.fase === "duelo" && p.duelo && p.duelo.tipo === "foco" && p.pendientes()[YO] && !duelosElegidos.has(p.duelo.id)) {
     duelosElegidos.add(p.duelo.id);
     AYUDANTE._elegir();
@@ -544,6 +582,7 @@ async function alSala(m) {
     const o = m.o || {};
     if (o.tipo === "elegir") { if (o.lado === 1) PARTIDO.elegir(1, o.eleccion); return; }
     if (o.tipo === "tactica") { if (o.lado === 1) PARTIDO.usarTactica(1, o.k); return; }
+    if (o.tipo === "pausa" || o.tipo === "seguir" || o.tipo === "presionar") { if (o.lado === 1) PARTIDO.ordenar(o); return; }
     const j = PARTIDO.jugadores[o.jugador !== undefined ? o.jugador : o.de];
     if (j && j.lado === 1) PARTIDO.ordenar(o);
     return;
