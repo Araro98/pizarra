@@ -98,13 +98,15 @@ class Partido {
   // {tipo:"tiro", de} | {tipo:"elegir", lado, eleccion}
   ordenar(o) {
     if (o.tipo === "elegir") return this.elegir(o.lado, o.eleccion);
-    if (this.fase !== "juego") return false;
     const j = this.jugadores[o.jugador !== undefined ? o.jugador : o.de];
-    if (!j) return false;
+    if (!j || this.fase === "final") return false;
+    // una ruta vale tambien con el juego parado (online puede llegar justo al
+    // empezar un duelo); pasar y chutar, solo con el balon en juego
     if (o.tipo === "ruta") {
       j.ruta = (o.puntos || []).slice(0, 40).map(p => this._dentro(p.x, p.y));
       return true;
     }
+    if (this.fase !== "juego") return false;
     if (o.tipo === "pase") {
       const a = this.jugadores[o.a];
       if (!j.conBalon || !a || a.lado !== j.lado || a.id === j.id) return false;
@@ -293,6 +295,7 @@ class Partido {
     const tecGana = gana === att ? ta : td, tecPierde = gana === att ? td : ta;
     if (!tecGana) this._tension(gana.lado, REGLAS.TENSION_GANA);
     if (!tecPierde) this._tension(pierde.lado, REGLAS.TENSION_PIERDE);
+    this.nResultado = (this.nResultado || 0) + 1;
     this.resultado = {
       tipo: como, ganador: gana.id, valores: { [att.lado]: ra, [def.lado]: rd },
       tecnicas: { [att.lado]: ta ? ta.nombre : (ca === "potente" ? "Romper" : "Regatear"),
@@ -324,7 +327,8 @@ class Partido {
       const r = df / Math.max(1, at);
       if (r > 0.75) at *= 0.7;
       if (r >= 1.25) {
-        this.resultado = { tipo: "tiro", final: "bloqueado", pasos, tirador: tir.id };
+        this.nResultado = (this.nResultado || 0) + 1;
+    this.resultado = { tipo: "tiro", final: "bloqueado", pasos, tirador: tir.id };
         this.apunta("¡" + muro.nombre + " bloquea el tiro!", "mal");
         this.soltar();
         this.balon.x = muro.x; this.balon.y = muro.y;
@@ -343,7 +347,8 @@ class Partido {
     pasos[0].valorFinal = Math.round(at);
     if (this.azar() < REGLAS.probabilidad(at, df)) {
       this.goles[tir.lado]++;
-      this.resultado = { tipo: "tiro", final: "gol", pasos, tirador: tir.id };
+      this.nResultado = (this.nResultado || 0) + 1;
+    this.resultado = { tipo: "tiro", final: "gol", pasos, tirador: tir.id };
       this.apunta("¡¡GOL de " + tir.nombre + "!! (" + Math.round(at) + " contra " + Math.round(df) + ")", "gol");
       this.fase = "gol"; this.espera = 3.0; this.duelo = null;
       this._sacaDespues = 1 - tir.lado;
@@ -352,6 +357,7 @@ class Partido {
     // parada: el portero se desgasta en proporcion al golpe (VR, desde 4.0.1)
     por.kp = Math.max(por.kpMax * 0.25, por.kp * (1 - REGLAS.DESGASTE * Math.min(0.85, at / df)));
     const despeje = tp && /despej|pu.o/i.test(tp.subtipo || "");
+    this.nResultado = (this.nResultado || 0) + 1;
     this.resultado = { tipo: "tiro", final: despeje ? "despeje" : "parada", pasos, tirador: tir.id };
     this.apunta("¡Para " + por.nombre + "! (" + Math.round(at) + " contra " + Math.round(df) + ")", "mal");
     if (despeje) {
@@ -535,6 +541,53 @@ class Partido {
     }
     for (const j of this.jugadores) j.ruta = [];
     this.fase = "resultado"; this.espera = 0.8;
+  }
+
+  // --- online: la foto del partido que el anfitrion manda al invitado --------
+  // Solo lo que cambia (posiciones, balon, fase, duelo...); los datos fijos de
+  // los jugadores ya los tienen los dos desde el principio.
+  foto(ladoRutas = 1) {
+    const r1 = v => Math.round(v * 10) / 10;
+    return {
+      n: this.pasos, f: this.fase, m: this.mitad, r: r1(this.reloj), g: this.goles.slice(),
+      t: this.tension.map(Math.round), e: this.espera,
+      j: this.jugadores.map(j => [r1(j.x), r1(j.y), j.dir, j.conBalon ? 1 : 0, j.aturdido > 0 ? 1 : 0,
+        j.esPortero ? Math.round(j.kp) : 0, j.lado === ladoRutas ? j.ruta.slice(0, 6).map(p => [r1(p.x), r1(p.y)]) : []]),
+      b: [r1(this.balon.x), r1(this.balon.y), this.balon.dueno, this.balon.pase ? [this.balon.pase.a, r1(this.balon.pase.destino.x), r1(this.balon.pase.destino.y)] : 0],
+      d: this.duelo ? JSON.parse(JSON.stringify(this.duelo)) : null,
+      re: this.resultado ? Object.assign({ k: this.nResultado || 0 }, this.resultado) : null,
+      ev: this.eventos.length, ul: this.eventos.slice(-10),
+    };
+  }
+
+  aplicarFoto(f) {
+    if (f.n < this.pasos) return false;              // una foto vieja
+    this.pasos = f.n; this.fase = f.f; this.mitad = f.m; this.reloj = f.r; this.goles = f.g;
+    this.tension = f.t; this.espera = f.e;
+    f.j.forEach((q, k) => {
+      const j = this.jugadores[k];
+      j.destX = q[0]; j.destY = q[1];
+      if (j.x === 0 && j.y === 0 || Math.hypot(q[0] - j.x, q[1] - j.y) > 12) { j.x = q[0]; j.y = q[1]; }
+      j.dir = q[2]; j.conBalon = !!q[3]; j.aturdido = q[4] ? 1 : 0;
+      if (j.esPortero) j.kp = q[5];
+      j.ruta = q[6].map(p => ({ x: p[0], y: p[1] }));
+    });
+    this.balon.destX = f.b[0]; this.balon.destY = f.b[1]; this.balon.dueno = f.b[2];
+    this.balon.pase = f.b[3] ? { a: f.b[3][0], destino: { x: f.b[3][1], y: f.b[3][2] } } : null;
+    this.duelo = f.d;
+    if (f.re && (!this.resultado || this.resultado.k !== f.re.k)) this.resultado = f.re;
+    // los sucesos que faltan (la foto trae los diez ultimos)
+    const primero = f.ev - f.ul.length;
+    for (let k = Math.max(this.eventos.length, primero); k < f.ev; k++) this.eventos[k] = f.ul[k - primero];
+    return true;
+  }
+
+  // el invitado acerca lo pintado a la ultima foto poco a poco (se ve suave)
+  suavizar(dt) {
+    const a = Math.min(1, dt * 12);
+    for (const j of this.jugadores) if (j.destX !== undefined) { j.x += (j.destX - j.x) * a; j.y += (j.destY - j.y) * a; }
+    const b = this.balon;
+    if (b.destX !== undefined) { b.x += (b.destX - b.x) * Math.min(1, dt * 18); b.y += (b.destY - b.y) * Math.min(1, dt * 18); }
   }
 
   _mirarDuelos() {

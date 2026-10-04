@@ -2,7 +2,10 @@
    como el lapiz de DS y la pausa de cada duelo con sus comandos. */
 "use strict";
 
-const YO = 0;                 // de momento juegas siempre con el lado 0
+let YO = 0;                   // tu lado: 0, o 1 si eres el invitado de un partido online
+let MODO = "maquina";         // "maquina" | "anfitrion" | "invitado"
+let RED = null;               // la conexion online (partido-red.js)
+const duelosElegidos = new Set();
 let EQUIPOS = [], DATOS = {}, PARTIDO = null, PANTALLA = null, MAQUINA = null, MAQUINA_YO = null;
 const DEMO = new URLSearchParams(location.search).has("demo");   // maquina contra maquina, para mirar
 let ultimoResultado = null, eventosVistos = 0;
@@ -59,13 +62,22 @@ $("#jugar-maquina").onclick = async () => {
 };
 
 // --- el partido ------------------------------------------------------------------
-function empezar(a, b) {
+function empezar(a, b, online) {
   $("#pantalla-elegir").hidden = true;
   $("#pantalla-juego").hidden = false;
-  PARTIDO = new Partido(a, b, { semilla: (Math.random() * 1e9) | 0, manual: [!DEMO, false] });
+  MODO = online ? online.modo : "maquina";
+  YO = MODO === "invitado" ? 1 : 0;
+  const semilla = online ? online.semilla : (Math.random() * 1e9) | 0;
+  PARTIDO = new Partido(a, b, { semilla, manual: MODO === "maquina" ? [!DEMO, false] : [true, true], mitad: online && online.mitad });
   PANTALLA = new Pantalla($("#campo"), PARTIDO, YO);
-  MAQUINA = new Maquina(PARTIDO, 1 - YO, { semilla: (Math.random() * 1e9) | 0 });
-  MAQUINA_YO = DEMO ? new Maquina(PARTIDO, YO, { semilla: (Math.random() * 1e9) | 0 }) : null;
+  MAQUINA = MODO === "maquina" ? new Maquina(PARTIDO, 1 - YO, { semilla: (Math.random() * 1e9) | 0 }) : null;
+  MAQUINA_YO = DEMO && MODO === "maquina" ? new Maquina(PARTIDO, YO, { semilla: (Math.random() * 1e9) | 0 }) : null;
+  if (MODO === "invitado") {
+    // el invitado no simula: sus gestos y elecciones van al anfitrion
+    PARTIDO.ordenar = o => { RED.orden(o); return true; };
+    PARTIDO.elegir = (lado, eleccion) => { RED.orden({ tipo: "elegir", lado, eleccion }); return true; };
+  }
+  duelosElegidos.clear();
   $("#nombre-a").textContent = a.nombre; $("#nombre-b").textContent = b.nombre;
   ultimoResultado = null; eventosVistos = 0; mostrando = null;
   $("#registro").textContent = "";
@@ -81,12 +93,19 @@ function bucle(ahora) {
   sobra += Math.min(0.25, (ahora - antes) / 1000);
   antes = ahora;
   let n = 0;
-  while (sobra >= REGLAS.PASO && n < 8) {
-    MAQUINA.pensar();
-    if (MAQUINA_YO) MAQUINA_YO.pensar();
-    PARTIDO.paso();
-    sobra -= REGLAS.PASO; n++;
+  if (MODO === "invitado") {
+    PARTIDO.suavizar(sobra); sobra = 0;
+  } else if (MODO === "anfitrion" && RED && Date.now() - (RED.vistoRival || 0) > 8000) {
+    sobra = 0;                                  // sin noticias del rival: se espera
+  } else {
+    while (sobra >= REGLAS.PASO && n < 8) {
+      if (MAQUINA) MAQUINA.pensar();
+      if (MAQUINA_YO) MAQUINA_YO.pensar();
+      PARTIDO.paso();
+      sobra -= REGLAS.PASO; n++;
+    }
   }
+  if (MODO === "anfitrion") mandarFoto();
   PANTALLA.pintar();
   marcador();
   pausa();
@@ -98,6 +117,10 @@ function bucle(ahora) {
 function marcador() {
   const p = PARTIDO;
   $("#goles").textContent = p.goles[0] + " - " + p.goles[1];
+  if (MODO !== "maquina" && RED && RED.rival && Date.now() - (RED.vistoRival || 0) > 8000) {
+    $("#reloj").textContent = "esperando a " + RED.rival.nombre + "...";
+    return;
+  }
   $("#reloj").textContent = p.fase === "final" ? "Final" : p.fase === "descanso" ? "Descanso" : (p.mitad === 1 ? "1ª " : "2ª ") + p.minuto() + "'";
 }
 
@@ -204,7 +227,8 @@ function pausa() {
     return;
   }
   if (mostrando === "resultado") return;
-  const pend = p.fase === "duelo" && !DEMO ? p.pendientes()[YO] : null;
+  if (p.fase === "final") { if (mostrando !== "final") mostrarFinal(); return; }
+  const pend = p.fase === "duelo" && !DEMO && !duelosElegidos.has(p.duelo.id) ? p.pendientes()[YO] : null;
   if (!pend) { if (mostrando) { mostrando = null; capa.hidden = true; } return; }
   if (mostrando === "duelo:" + p.duelo.id) return;
   mostrando = "duelo:" + p.duelo.id;
@@ -212,6 +236,7 @@ function pausa() {
 }
 
 function elegido(eleccion) {
+  if (PARTIDO.duelo) duelosElegidos.add(PARTIDO.duelo.id);
   PARTIDO.elegir(YO, eleccion);
   mostrando = null; $("#pausa").hidden = true;
 }
@@ -255,6 +280,22 @@ function pintarEleccion(p, pend) {
   capa.hidden = false;
 }
 
+function mostrarFinal() {
+  const p = PARTIDO, caja = $("#pausa-caja"), capa = $("#pausa");
+  mostrando = "final";
+  caja.textContent = "";
+  const gano = p.goles[YO] > p.goles[1 - YO], empate = p.goles[0] === p.goles[1];
+  caja.appendChild(el("div", { class: "titulo-duelo", text: empate ? "¡Empate!" : gano ? "¡Has ganado!" : "Has perdido" }));
+  caja.appendChild(el("div", { class: "resultado", text: p.nombres[0] + "  " + p.goles[0] + " - " + p.goles[1] + "  " + p.nombres[1] }));
+  const goles = p.eventos.filter(e => e.clase === "gol").map(e => {
+    const min = Math.floor(e.reloj / p.duracion * 45) + (e.mitad === 2 ? 45 : 0);
+    return min + "' " + e.texto.replace(/ \(.*\)$/, "");
+  });
+  if (goles.length) caja.appendChild(el("div", { class: "registro", text: goles.join("\n"), style: "white-space:pre-line;max-height:160px" }));
+  caja.appendChild(el("button", { class: "grande", onclick: () => { if (RED) RED.salirSala(); location.href = "/partido"; } }, [el("span", { text: "Otro partido" })]));
+  capa.hidden = false;
+}
+
 function mostrarResultado(r) {
   const p = PARTIDO, caja = $("#pausa-caja"), capa = $("#pausa");
   caja.textContent = "";
@@ -277,6 +318,135 @@ function mostrarResultado(r) {
   capa.hidden = false;
   mostrando = "resultado";
   setTimeout(() => { if (mostrando === "resultado") { mostrando = null; capa.hidden = true; } }, r.tipo === "tiro" ? 1900 : 1500);
+}
+
+/* --- online (O-287) ----------------------------------------------------------- */
+let ultimaFoto = 0, fotoPasos = -1;
+function mandarFoto() {
+  const ahora = Date.now(), parado = PARTIDO.fase !== "juego";
+  // 10 fotos por segundo jugando; parado en un duelo, una por segundo si nada cambia
+  if (ahora - ultimaFoto < (parado && fotoPasos === PARTIDO.pasos ? 1000 : 100)) return;
+  ultimaFoto = ahora; fotoPasos = PARTIDO.pasos;
+  RED.mandar({ tipo: "foto", foto: PARTIDO.foto(1) });
+}
+
+function nombreEquipoA() {
+  const sel = $("#equipo-a");
+  return sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : "tu equipo";
+}
+
+$("#jugar-online").onclick = () => {
+  $("#online").hidden = !$("#online").hidden;
+  $("#online-equipo").textContent = nombreEquipoA();
+  try { $("#nombre").value = $("#nombre").value || (JSON.parse(localStorage.getItem("draft-nombre") || "null") || {}).nombre || ""; } catch (e) {}
+};
+$("#equipo-a").addEventListener("change", () => {
+  $("#online-equipo").textContent = nombreEquipoA();
+  if (RED) { RED.equipo = nombreEquipoA(); RED.anunciarme(); }
+});
+$("#entrar").onclick = entrarOnline;
+$("#nombre").onkeydown = e => { if (e.key === "Enter") entrarOnline(); };
+
+function entrarOnline() {
+  const nombre = $("#nombre").value.trim();
+  if (RED) { RED.salir(); RED = null; }
+  RED = new RedPartido();
+  try { RED.entrar(nombre, nombreEquipoA()); }
+  catch (e) { avisa(e.message, "mal"); RED = null; return; }
+  try { localStorage.setItem("draft-nombre", JSON.stringify(RED.yo)); } catch (e) {}
+  RED.alEstado = e => {
+    const b = $("#estado-red");
+    b.classList.toggle("si", e === "conectado");
+    b.textContent = e === "conectado" ? "conectado" : "conectando...";
+  };
+  RED.alGente = pintarGente;
+  RED.alInvitacion = alInvitacion;
+  RED.alRespuesta = m => {
+    if (m.tipo === "rechaza") avisa(m.nombre + " no puede jugar ahora.", "mal");
+    pintarGente(RED.gente);
+  };
+  RED.alSala = alSala;
+  $("#estado-red").textContent = "conectando...";
+  pintarGente({});
+}
+
+function pintarGente(gente) {
+  const caja = $("#gente");
+  caja.textContent = "";
+  const otros = Object.entries(gente).filter(([s]) => !RED || s !== RED.yo.slug);
+  if (!otros.length) {
+    caja.appendChild(el("span", { class: "nota izq", text: "Nadie mas en Partido ahora mismo. Dile a tu amigo que abra Pizarra y entre en Partido > Jugar online." }));
+    return;
+  }
+  for (const [s, g] of otros) {
+    const esperando = RED && RED.pendiente && RED.pendiente.slug === s;
+    caja.appendChild(el("div", { class: "persona" }, [
+      el("b", { text: g.nombre }), el("small", { text: (g.equipo ? g.equipo + " · " : "") + (g.estado || "") }),
+      esperando
+        ? el("button", { class: "btn-mini gris", text: "Cancelar", onclick: () => { RED.cancelar(); pintarGente(RED.gente); } })
+        : el("button", { class: "btn-mini", text: "Invitar", disabled: g.estado === "jugando" || !!RED.sala,
+            onclick: () => { RED.invitar(s, g.nombre); avisa("Invitacion mandada a " + g.nombre + ".", "bien"); pintarGente(RED.gente); } })]));
+  }
+}
+
+const invitaciones = {};
+function alInvitacion(m) {
+  if (m.tipo === "cancela") delete invitaciones[m.sala];
+  else if (m.tipo === "invita" && !RED.sala) invitaciones[m.sala] = m;
+  const caja = $("#invitaciones");
+  caja.textContent = "";
+  for (const inv of Object.values(invitaciones)) {
+    caja.appendChild(el("div", { class: "invitacion" }, [
+      el("b", { text: inv.nombre + " te reta" + (inv.equipo ? " con " + inv.equipo : "") }),
+      el("button", { class: "btn-mini", text: "Aceptar", onclick: () => {
+        for (const k in invitaciones) delete invitaciones[k];
+        caja.textContent = "";
+        RED.responder(inv, true);
+      } }),
+      el("button", { class: "btn-mini gris", text: "No", onclick: () => {
+        delete invitaciones[inv.sala];
+        RED.responder(inv, false);
+        alInvitacion({});
+      } })]));
+  }
+}
+
+let equiposOnline = null;
+async function alSala(m) {
+  if (m.tipo === "dentro") {
+    $("#nota-elegir").textContent = "Partido contra " + m.rival.nombre + ": preparando los equipos...";
+    if (m.rol === "invitado") {
+      // el invitado manda su equipo hasta que el anfitrion monte el partido
+      const mio = equipoParaRed(await equipoDatos(+$("#equipo-a").value));
+      RED._repite("equipo", () => RED.mandar({ tipo: "equipo", datos: mio }));
+      RED._repite("vivo", () => RED.mandar({ tipo: "vivo" }), 100000);
+    }
+    return;
+  }
+  if (m.tipo === "equipo" && RED.rol === "anfitrion" && !equiposOnline) {
+    const mio = equipoParaRed(await equipoDatos(+$("#equipo-a").value));
+    equiposOnline = { tipo: "equipos", a: mio, b: m.datos, semilla: (Math.random() * 1e9) | 0, mitad: REGLAS.MITAD };
+    RED._repite("equipos", () => RED.mandar(equiposOnline));
+    empezar(JSON.parse(JSON.stringify(mio)), JSON.parse(JSON.stringify(m.datos)),
+            { modo: "anfitrion", semilla: equiposOnline.semilla, mitad: equiposOnline.mitad });
+    return;
+  }
+  if (m.tipo === "equipos" && RED.rol === "invitado" && !PARTIDO) {
+    RED.para("equipo");
+    RED._repite("listo", () => RED.mandar({ tipo: "listo" }), 5);
+    empezar(m.a, m.b, { modo: "invitado", semilla: m.semilla, mitad: m.mitad });
+    return;
+  }
+  if (m.tipo === "listo" && RED.rol === "anfitrion") { RED.para("equipos"); return; }
+  if (m.tipo === "foto" && MODO === "invitado" && PARTIDO) { PARTIDO.aplicarFoto(m.foto); return; }
+  if (m.tipo === "orden" && MODO === "anfitrion" && PARTIDO) {
+    const o = m.o || {};
+    if (o.tipo === "elegir") { if (o.lado === 1) PARTIDO.elegir(1, o.eleccion); return; }
+    const j = PARTIDO.jugadores[o.jugador !== undefined ? o.jugador : o.de];
+    if (j && j.lado === 1) PARTIDO.ordenar(o);
+    return;
+  }
+  if (m.tipo === "adios") avisa(RED.rival ? RED.rival.nombre + " ha salido del partido." : "El rival ha salido.", "mal");
 }
 
 cargarEquipos().then(() => { if (DEMO && EQUIPOS.length) $("#jugar-maquina").click(); });

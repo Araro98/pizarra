@@ -6683,6 +6683,35 @@ Hecho (fase 1, contra la maquina, en /partido y una franja en el inicio):
 Falta: online, pasivas con efecto, cadenas y tiros directos, tacticas,
 espiritus (hipertecnicas), modelos 3D y cinematicas de las tecnicas.
 
+### O-287 · El juego de partidos: online entre amigos
+
+Fase 2 de O-286. En /partido, "Jugar online": pones tu nombre (el mismo que
+en el draft, se recuerda), ves quien mas esta en Partido con su equipo y le
+invitas; el otro acepta y empieza el partido, cada uno con el equipo que
+tenga elegido arriba a la izquierda.
+
+- Red: la misma del draft (`web/draft-red.js`, MQTT por WebSocket a tres
+  servidores publicos a la vez, sin cuenta ni puertos), sin tocarla, con temas
+  propios bajo `partido/` (`web/partido-red.js`): conectados, buzon y la sala
+  (`anfitrion` / `invitado`).
+- El que invita lleva el partido: su PC simula y manda unas 10 fotos por
+  segundo (`Partido.foto()`, ~1,9 KB; una por segundo si esta parado en un
+  duelo). El invitado no simula: pinta las fotos suavizadas
+  (`aplicarFoto`, `suavizar`) y manda sus gestos y elecciones como ordenes
+  numeradas (cada mensaje llega hasta tres veces, uno por servidor: lo
+  repetido se tira). Los equipos viajan una vez al empezar (`equipoParaRed`,
+  sin textos largos). Sin noticias del rival 8 s, el partido espera.
+- Las rutas valen tambien con el juego parado (una ruta podia llegar justo al
+  empezar un duelo y se perdia).
+- Cartel final con el resultado, los goles y "Otro partido".
+
+Probado con dos pestanas (127.0.0.1 y localhost) por los servidores publicos:
+presencia, invitacion, aceptar, intercambio de equipos, fotos (el invitado a
+3 pasos del anfitrion), un duelo elegido por cada lado con su resultado y la
+tension igual en los dos, y una ruta del invitado que su jugador recorre en el
+PC del anfitrion.
+Pendiente: WebRTC directo (menos retraso), retomar un partido cortado.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

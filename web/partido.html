@@ -36,6 +36,21 @@
   .grande:disabled { filter:grayscale(1); opacity:.6; cursor:default; }
   .grande.azul { background:linear-gradient(180deg, #3a6fc4, var(--azul-osc)); box-shadow:0 0 0 2px #0f2147, 0 8px 16px rgba(0,0,0,.35); }
   .nota { color:#cfe0f5; text-align:center; font-size:var(--t-sm); }
+  .nota.izq { text-align:left; }
+  .online .lado h2 { display:flex; align-items:center; gap:10px; }
+  .online h3 { margin:6px 0 0; font-size:var(--t-md); font-style:italic; text-transform:uppercase; }
+  .estado-red { font-size:var(--t-xs); font-style:normal; font-weight:800; padding:2px 8px; border-radius:20px; background:#5a6b85; text-transform:none; letter-spacing:0; }
+  .estado-red.si { background:#2f9e5b; }
+  .fila-nombre { display:flex; gap:10px; align-items:center; }
+  .fila-nombre input { flex:1; font:inherit; font-weight:800; padding:8px; border-radius:7px; border:2px solid var(--azul-marco); }
+  .grande.chico { font-size:var(--t-md); padding:8px 16px; }
+  .gente { display:flex; flex-direction:column; gap:6px; }
+  .persona, .invitacion { display:flex; align-items:center; gap:10px; background:var(--panel-claro); border:2px solid #fff; border-radius:8px; padding:6px 10px; }
+  .persona b, .invitacion b { flex:1; }
+  .persona small { opacity:.8; }
+  .invitacion { background:#7a4a10; }
+  .btn-mini { font:inherit; font-weight:900; padding:5px 12px; border-radius:6px; border:2px solid #fff; cursor:pointer; color:#fff; background:var(--naranja); }
+  .btn-mini.gris { background:#5a6b85; }
 
   /* el campo */
   .juego { position:relative; display:grid; grid-template-columns:minmax(0, 1fr) 300px; gap:12px; padding:10px;
@@ -98,9 +113,20 @@
     </div>
     <div class="botones">
       <button class="grande" id="jugar-maquina"><span>Jugar contra la máquina</span></button>
-      <button class="grande azul" id="jugar-online" disabled title="Muy pronto"><span>Jugar online</span></button>
+      <button class="grande azul" id="jugar-online"><span>Jugar online</span></button>
     </div>
     <p class="nota" id="nota-elegir">Salen los equipos de tu partida que tienen once jugadores en el campo.</p>
+    <div class="online" id="online" hidden>
+      <div class="lado">
+        <h2>Online <span class="estado-red" id="estado-red">sin conectar</span></h2>
+        <div class="fila-nombre"><input id="nombre" placeholder="Tu nombre (el mismo que en el draft)" maxlength="24">
+          <button class="grande azul chico" id="entrar"><span>Entrar</span></button></div>
+        <p class="nota izq">Juegas con <b id="online-equipo">tu equipo</b> (el de arriba a la izquierda). Invita a un amigo que tenga Pizarra abierto en Partido.</p>
+        <div id="invitaciones"></div>
+        <h3>Conectados</h3>
+        <div id="gente" class="gente"><span class="nota izq">Entra para ver quien esta.</span></div>
+      </div>
+    </div>
   </section>
 
   <section class="pantalla juego" id="pantalla-juego" hidden>
@@ -124,6 +150,8 @@
 </main>
 
 <script src="/web/comun.js"></script>
+<script src="/web/draft-red.js"></script>
+<script src="/web/partido-red.js"></script>
 <script src="/web/partido-reglas.js"></script>
 <script src="/web/partido-motor.js"></script>
 <script src="/web/partido-ia.js"></script>
