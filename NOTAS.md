@@ -6874,9 +6874,10 @@ Victory Road tiene 80 tipos de pasiva (pasivas-valor.csv). `ievr/partido.py`
   `/partido` y `/api/partido/*` dan 404 y la portada no ensena la franja
   (`/api/estado` lleva `partido`). Para jugar online, el amigo tambien
   necesita el fichero.
-- Fuera de juego, opcional al elegir equipos y QUITADO por defecto: el
-  equilibrio del juego se hizo sin el, y con el bajan los goles (3,8 -> 2,1
-  por partido). Si se marca:
+- Fuera de juego, opcional al elegir equipos. Al principio venia quitado
+  (bajaba los goles de 3,8 a 2,1 por partido), pero Aaron confirma que en los
+  de 3DS lo hay: ahora viene PUESTO (se recuerda si se quita) y la maquina da
+  pases al hueco (O-303). Como funciona:
   - Es fuera de juego pasar a un companero que, al salir el pase, esta en el
     campo rival, por delante del balon y del penultimo rival (contando al
     portero). Se pita al recibir y el balon pasa al rival.
@@ -6911,13 +6912,16 @@ Victory Road tiene 80 tipos de pasiva (pasivas-valor.csv). `ievr/partido.py`
   (`REGLAS.COMBINADA_RADIO`). En el boton sale "con X y Y" o "de 3: necesita
   2 companeros a menos de 12 m", y no se puede pulsar. Vale igual para la
   maquina y viaja en el online (`jugadores` en `equipoParaRed`).
-- Supuesto: vale cualquier companero cerca, no uno concreto. Preguntar a
-  Aaron si en VR piden companeros concretos.
-- Medido: unos 4,4 goles por partido.
+- CORREGIDO por Aaron: en VR vale cualquier companero, este cerca o no. Ya
+  no hay radio: siempre se puede, y en el boton sale "con X y Y" (los mas
+  cercanos, que son los que la hacen con el).
 
 ### O-299 · El juego de partidos: tiempo para elegir online
 
-- Online, cada duelo da 15 s para elegir (`REGLAS.DUELO_MAX`; el reloj va en
+- CORREGIDO por Aaron: en los de 3DS no hay limite, asi que
+  `REGLAS.DUELO_MAX` = 0 (sin limite, tambien online). El motor lo sigue
+  sabiendo hacer por si hiciera falta.
+- Como estaba: online, cada duelo daba 15 s para elegir (`REGLAS.DUELO_MAX`; el reloj va en
   `duelo.reloj` y viaja en la foto). Al acabarse, el anfitrion juega el
   comando seguro del que falta (`eleccionSegura`: Regatear/Tapar, Tiro
   normal, Parar y Bloquear, sin encadenar). Asi el partido no se queda parado
@@ -6972,6 +6976,17 @@ Victory Road tiene 80 tipos de pasiva (pasivas-valor.csv). `ievr/partido.py`
 - Resultado: unos 16 tiros a puerta y 3,5 goles por partido. De esos goles,
   2 de cada 3 son tiros que superan la parada (83-90 % entran) y casi ninguno
   por debajo de 0,75.
+
+### O-303 · El juego de partidos: pase al hueco de la maquina
+
+- Con el fuera de juego puesto, los delanteros de la maquina esperan en la
+  linea y los goles bajaban a 2,8 por partido. Ahora la maquina tambien da
+  pases al hueco (`Maquina._alHueco`): a un punto 8 m por detras de la
+  defensa, para un companero que esta en la linea sin fuera de juego, si
+  llega antes que cualquier rival y el pase no se corta. Va como un
+  "pasePunto"; a por el va el companero mas cerca.
+- Medido con fuera de juego: unos 14 tiros a puerta, 3,5 goles y 0,7 fueras
+  de juego por partido.
 
 ## SUPUESTO
 

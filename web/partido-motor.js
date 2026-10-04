@@ -17,8 +17,8 @@ class Partido {
     this.duracion = opciones.mitad || REGLAS.MITAD;
     // lados que lleva una persona: su jugador con balon no corre solo (como en DS)
     this.manual = opciones.manual || [false, false];
-    // fuera de juego: opcional al elegir (quitado si no se dice; O-296)
-    this.fueraDeJuego = opciones.fueraDeJuego === true;
+    // fuera de juego: lo hay en los de 3DS (Aaron); se puede quitar al elegir (O-296)
+    this.fueraDeJuego = opciones.fueraDeJuego !== false;
     // online: segundos para elegir en un duelo; luego va el comando seguro (O-299)
     this.limiteDuelo = opciones.limiteDuelo || 0;
     this.mitad = 1; this.reloj = 0; this.pasos = 0;
@@ -262,24 +262,25 @@ class Partido {
     }[que];
     const vistas = new Set();
     const tecs = j.tecnicas.filter(t => REGLAS.sirve(t, que) && (!t.espiritu || this.conAura(j)) && !vistas.has(t.nombre) && vistas.add(t.nombre)).map(t => {
-      // las de 2, 3 o 4 jugadores necesitan companeros cerca (O-298)
-      const n = Math.max(1, Number(t.jugadores) || 1), con = n > 1 ? this.companerosCerca(j, n - 1) : [];
+      // las de 2, 3 o 4 jugadores: en VR vale cualquier companero, cerca o no
+      // (Aaron); salen los mas cercanos (O-298)
+      const n = Math.max(1, Number(t.jugadores) || 1), con = n > 1 ? this.companeros(j, n - 1) : [];
       const listos = con.length >= n - 1;
       return {
         clave: "t" + t.ranura, nombre: t.nombre + (que === "muro" && REGLAS.esContra(t) ? " (contra-tiro)" : ""),
         tipo: t.tipo, elemento: t.elemento, subtipo: t.subtipo,
         interno: t.interno, poder: Math.round(this._poder(j, t)), tp: t.tp, puede: t.tp <= j.pt && listos,
         nota: n === 1 ? undefined : listos ? "con " + con.map(c => c.nombre).join(" y ")
-          : "de " + n + ": necesita " + (n - 1) + (n > 2 ? " compañeros" : " compañero") + " a menos de " + REGLAS.COMBINADA_RADIO + " m",
+          : "de " + n + ": faltan compañeros",
       };
     });
     return tecs.concat(base);
   }
 
-  // los companeros mas cerca de j (sin el, ni aturdidos), hasta n, dentro del radio
-  companerosCerca(j, n) {
-    return this.equipo(j.lado).filter(c => c !== j && c.aturdido <= 0)
-      .map(c => ({ c, d: Math.hypot(c.x - j.x, c.y - j.y) })).filter(o => o.d <= REGLAS.COMBINADA_RADIO)
+  // los n companeros mas cerca de j (los que hacen con el una supertecnica de varios)
+  companeros(j, n) {
+    return this.equipo(j.lado).filter(c => c !== j)
+      .map(c => ({ c, d: Math.hypot(c.x - j.x, c.y - j.y) }))
       .sort((a, b) => a.d - b.d).slice(0, n).map(o => o.c);
   }
 

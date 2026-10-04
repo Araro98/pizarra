@@ -35,8 +35,7 @@ const REGLAS = {
   // cuando chuta la maquina: a menos de `lejos` m, con esta probabilidad en cada
   // decision (cerca de la porteria, con la linea libre o tapada)
   IA_TIRO: { lejos: 18, cerca: 11, pCerca: 0.15, pLibre: 0.05, pTapado: 0 },
-  DUELO_MAX: 15,           // online: segundos para elegir en un duelo (O-299)
-  COMBINADA_RADIO: 12,     // las supertecnicas de 2, 3 o 4: los companeros, a menos de esto (O-298)
+  DUELO_MAX: 0,            // online: segundos para elegir en un duelo; 0 = sin limite, como en 3DS (Aaron, O-299)
   // apoyos en un duelo (DS/3DS): cada companero cerca suma, mas si es de su elemento
   APOYO_RADIO: 7, APOYO: 0.05, APOYO_ELEMENTO: 0.05, APOYOS_MAX: 3,
   // faltas (3DS: el comando de la derecha arriesga falta): si el defensor gana

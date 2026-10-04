@@ -72,6 +72,12 @@ class Maquina {
         return;
       }
     }
+    // el pase al hueco: a la espalda de la defensa, para el que esta en la linea
+    const hueco = this._alHueco(d, rivales);
+    if (hueco && this.azar() < 0.3) {
+      p.ordenar({ tipo: "pasePunto", de: d.id, x: hueco.x, y: hueco.y });
+      return;
+    }
     // correr hacia la porteria, con un poco de zigzag
     const lado = (this.azar() - 0.5) * 10;
     p.ordenar({ tipo: "ruta", jugador: d.id, puntos: [{ x: d.x + lado, y: d.y + d.dir * 9 }, { x: g.x * 0.3 + lado * 0.5, y: g.y - d.dir * 10 }] });
@@ -104,6 +110,29 @@ class Maquina {
     if (d.lado === this.lado && d.espiritu && Math.hypot(g.x - d.x, g.y - d.y) < 30) quien = d;
     if (d.lado !== this.lado) quien = p.equipo(this.lado).find(j => j.espiritu && Math.hypot(j.x - d.x, j.y - d.y) < 8) || null;
     if (quien) p.ordenar({ tipo: "invocar", jugador: quien.id });
+  }
+
+  // un punto a la espalda de la defensa al que llega antes un companero que esta
+  // en la linea (sin fuera de juego al salir el pase) que cualquier rival (O-303)
+  _alHueco(d, rivales) {
+    const p = this.p, dir = d.dir, linea = p.lineaFueraDeJuego(this.lado);
+    if (d.y * dir < -10) return null;                       // desde mi campo, no
+    let mejor = null, nota = -1e9;
+    for (const c of p.equipo(this.lado)) {
+      if (c === d || c.esPortero || c.aturdido > 0) continue;
+      const yc = c.y * dir;
+      if (yc < linea - 5 || yc <= d.y * dir + 4 || p._enFueraDeJuego(c, d)) continue;
+      const fondo = REGLAS.LARGO / 2 - 7;
+      const destino = { x: Math.max(-REGLAS.ANCHO / 2 + 4, Math.min(REGLAS.ANCHO / 2 - 4, c.x * 0.85)), y: Math.min(fondo, yc + 8) * dir };
+      const mio = Math.hypot(destino.x - c.x, destino.y - c.y);
+      const suyo = Math.min(...rivales.filter(r => !r.esPortero).map(r => Math.hypot(destino.x - r.x, destino.y - r.y)));
+      if (suyo < mio + 1.5) continue;                         // llegan antes ellos
+      const cortado = rivales.some(r => !r.esPortero && p._distanciaALinea(r, d, destino).d < 1.6 && p._distanciaALinea(r, d, destino).delante);
+      if (cortado) continue;
+      const n = (suyo - mio) + yc * 0.2;
+      if (n > nota) { nota = n; mejor = destino; }
+    }
+    return mejor;
   }
 
   _mejorPase(d, rivales) {

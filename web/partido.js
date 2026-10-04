@@ -40,12 +40,11 @@ try { const d = localStorage.getItem("partido-duracion"); if (d) $("#duracion").
 $("#duracion").onchange = () => { try { localStorage.setItem("partido-duracion", $("#duracion").value); } catch (e) {} };
 try { $("#focos-auto").checked = localStorage.getItem("partido-focos-auto") === "1"; } catch (e) {}
 try { $("#vista-3d").checked = localStorage.getItem("partido-vista-3d") === "1"; } catch (e) {}
-try { $("#fuera-juego").checked = localStorage.getItem("partido-fuera-juego") === "1"; } catch (e) {}
+try { $("#fuera-juego").checked = localStorage.getItem("partido-fuera-juego") !== "0"; } catch (e) {}
 try { $("#sonido").checked = localStorage.getItem("partido-sonido") !== "0"; } catch (e) {}
 $("#sonido").onchange = () => { try { localStorage.setItem("partido-sonido", $("#sonido").checked ? "1" : "0"); } catch (e) {} };
 // el navegador solo deja sonar tras un clic (online el partido empieza sin clic)
 document.addEventListener("pointerdown", () => Sonido.despertar());
-if (DEMO && new URLSearchParams(location.search).has("fuera")) $("#fuera-juego").checked = true;
 $("#fuera-juego").onchange = () => { try { localStorage.setItem("partido-fuera-juego", $("#fuera-juego").checked ? "1" : "0"); } catch (e) {} };
 $("#vista-3d").onchange = () => { try { localStorage.setItem("partido-vista-3d", $("#vista-3d").checked ? "1" : "0"); } catch (e) {} };
 $("#focos-auto").onchange = () => { try { localStorage.setItem("partido-focos-auto", $("#focos-auto").checked ? "1" : "0"); } catch (e) {} };
