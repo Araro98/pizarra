@@ -6777,6 +6777,20 @@ Victory Road tiene 80 tipos de pasiva (pasivas-valor.csv). `ievr/partido.py`
   Viajan en el online.
 - Medido: unas 15 tacticas por partido entre los dos; unos 3,3 goles.
 
+### O-291 · El juego de partidos: espiritus y duracion
+
+- Espiritus (kenshin, mixi max, alma/totem): la ranura "Hipertecnica" del
+  jugador es un espiritu (espiritus.csv); en el partido el jugador tiene la
+  supertecnica del espiritu (columna `tecnica`: 102 kenshin, 69 mixi y 56
+  almas la tienen; casi ninguna armadura) con su poder y coste de tension
+  (casi todas 800 y 140), marcada con una estrella; y la pasiva del espiritu
+  (`O.pasiva_de_espiritu`) cuenta como una mas.
+- Duracion del partido: corto 2 x 3, normal 2 x 5 o largo 2 x 8 minutos (se
+  recuerda; online manda la del que invita). El marcador cuenta siempre de 0
+  a 90.
+- Pendiente: los topes por equipo de las pasivas (pasivas-limites.csv); ahora
+  hay un tope general de +60 % por valor.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

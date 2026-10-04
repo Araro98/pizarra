@@ -224,11 +224,30 @@ def _ficha(plain, fila):
         stats = (b or {}).get("valores") or [0] * 7
     ids = _ids_de_tecnicas(plain, fila)
     portec = _tecnicas_por_id()
-    tecnicas = []
+    tecnicas, de_espiritu = [], []
     for t in d.get("tecnicas") or []:
         if not (t.get("puesta") and t.get("abierta") and t.get("tipo")):
             continue
         idh = t.get("id") or ids.get(t["ranura"], "")
+        if t["tipo"] == "Hipertecnica":
+            # un espiritu (kenshin, mixi max, alma...): en el partido se usa su
+            # supertecnica, y su pasiva cuenta como una mas (O-291)
+            from ievr import opciones as O
+            esp = O._espiritus().get(idh) or {}
+            st = portec.get((esp.get("tecnica") or "").upper())
+            if st:
+                tecnicas.append({"ranura": t["ranura"], "id": st["id"].upper(), "nombre": O._limpio(st["nombre"]),
+                                 "interno": st.get("nombre_interno") or "", "tipo": st["categoria"],
+                                 "subtipo": st.get("subtipo") or "", "subtipo_valor": int(st.get("subtipo_valor") or 0),
+                                 "elemento": st.get("elemento") or "", "poder": int(st.get("poder") or 0),
+                                 "tp": int(st.get("tp") or 0), "jugadores": 1,
+                                 "espiritu": {"nombre": O.sin_marcadores(esp.get("nombre_largo") or t["puesta"]),
+                                              "familia": esp.get("familia") or "", "rango": esp.get("rango")}})
+            texto = O.pasiva_de_espiritu(idh)
+            if texto:
+                de_espiritu.append({"ranura": "espiritu", "texto": texto, "abierta": True,
+                                    "efecto": efecto_de_pasiva(texto)})
+            continue
         tecnicas.append({"ranura": t["ranura"], "id": idh, "nombre": t["puesta"],
                          "interno": (portec.get(idh) or {}).get("nombre_interno") or "",
                          "tipo": t["tipo"], "subtipo": (portec.get(idh) or {}).get("subtipo") or "",
@@ -245,6 +264,7 @@ def _ficha(plain, fila):
         abierta = p.get("marca") == 1
         pasivas.append({"ranura": p.get("ranura"), "texto": texto, "abierta": abierta,
                         "efecto": efecto_de_pasiva(texto) if abierta else None})
+    pasivas += de_espiritu
     # las de un stat fijo se suman ya a sus stats
     stats = list(stats)
     for p in pasivas:

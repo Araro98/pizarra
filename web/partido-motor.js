@@ -49,7 +49,9 @@ class Partido {
         id: this.jugadores.length, lado, dir, puesto: d.puesto, dorsal: d.dorsal,
         nombre: d.nombre, cara: d.cara, elemento: d.elemento, posicion: d.posicion,
         nivel: d.nivel || 99, stats: (d.stats || [0, 0, 0, 0, 0, 0, 0]).map(Number),
-        tecnicas: (d.tecnicas || []).filter(t => t.tipo && t.tipo !== "Hipertecnica" && t.poder > 0),
+        // las de un espiritu (kenshin, mixi max, alma) van marcadas con una estrella (O-291)
+        tecnicas: (d.tecnicas || []).filter(t => t.tipo && t.tipo !== "Hipertecnica" && t.poder > 0)
+          .map(t => t.espiritu ? Object.assign({}, t, { nombre: t.nombre + " ✦" }) : t),
         // las pasivas con efecto en el partido (O-288): {que, pct, alcance, condicion, n}
         efectos: (d.pasivas || []).map(q => q.efecto).filter(e => e && e.que && e.que[0] !== "stat"),
         pasivas: (d.pasivas || []).map(q => ({ texto: q.texto, abierta: q.abierta, cuenta: !!q.efecto })),
