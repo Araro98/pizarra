@@ -33,6 +33,11 @@ async function cargarEquipos() {
   verOnce("#once-b", +$("#equipo-b").value);
 }
 
+// la duracion de cada parte, en segundos (se recuerda)
+function duracionElegida() { return +($("#duracion").value || REGLAS.MITAD); }
+try { const d = localStorage.getItem("partido-duracion"); if (d) $("#duracion").value = d; } catch (e) {}
+$("#duracion").onchange = () => { try { localStorage.setItem("partido-duracion", $("#duracion").value); } catch (e) {} };
+
 async function equipoDatos(hueco) {
   if (!DATOS[hueco]) DATOS[hueco] = await pedir("/api/partido/equipo?hueco=" + hueco);
   return DATOS[hueco];
@@ -68,7 +73,8 @@ function empezar(a, b, online) {
   MODO = online ? online.modo : "maquina";
   YO = MODO === "invitado" ? 1 : 0;
   const semilla = online ? online.semilla : (Math.random() * 1e9) | 0;
-  PARTIDO = new Partido(a, b, { semilla, manual: MODO === "maquina" ? [!DEMO, false] : [true, true], mitad: online && online.mitad });
+  const mitad = (online && online.mitad) || duracionElegida();
+  PARTIDO = new Partido(a, b, { semilla, manual: MODO === "maquina" ? [!DEMO, false] : [true, true], mitad });
   PANTALLA = new Pantalla($("#campo"), PARTIDO, YO);
   MAQUINA = MODO === "maquina" ? new Maquina(PARTIDO, 1 - YO, { semilla: (Math.random() * 1e9) | 0 }) : null;
   MAQUINA_YO = DEMO && MODO === "maquina" ? new Maquina(PARTIDO, YO, { semilla: (Math.random() * 1e9) | 0 }) : null;
@@ -507,7 +513,7 @@ async function alSala(m) {
   }
   if (m.tipo === "equipo" && RED.rol === "anfitrion" && !equiposOnline) {
     const mio = equipoParaRed(await equipoDatos(+$("#equipo-a").value));
-    equiposOnline = { tipo: "equipos", a: mio, b: m.datos, semilla: (Math.random() * 1e9) | 0, mitad: REGLAS.MITAD };
+    equiposOnline = { tipo: "equipos", a: mio, b: m.datos, semilla: (Math.random() * 1e9) | 0, mitad: duracionElegida() };
     RED._repite("equipos", () => RED.mandar(equiposOnline));
     empezar(JSON.parse(JSON.stringify(mio)), JSON.parse(JSON.stringify(m.datos)),
             { modo: "anfitrion", semilla: equiposOnline.semilla, mitad: equiposOnline.mitad });

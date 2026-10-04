@@ -37,6 +37,9 @@
   .grande.azul { background:linear-gradient(180deg, #3a6fc4, var(--azul-osc)); box-shadow:0 0 0 2px #0f2147, 0 8px 16px rgba(0,0,0,.35); }
   .nota { color:#cfe0f5; text-align:center; font-size:var(--t-sm); }
   .nota.izq { text-align:left; }
+  .opciones-partido { display:flex; justify-content:center; gap:14px; color:#fff; font-weight:800; }
+  .opciones-partido label { display:flex; align-items:center; gap:8px; }
+  .opciones-partido select { font:inherit; font-weight:800; padding:6px 8px; border-radius:7px; border:2px solid var(--azul-marco); }
   .online .lado h2 { display:flex; align-items:center; gap:10px; }
   .online h3 { margin:6px 0 0; font-size:var(--t-md); font-style:italic; text-transform:uppercase; }
   .estado-red { font-size:var(--t-xs); font-style:normal; font-weight:800; padding:2px 8px; border-radius:20px; background:#5a6b85; text-transform:none; letter-spacing:0; }
@@ -136,6 +139,14 @@
       <div class="lado"><h2>Tu equipo</h2><select id="equipo-a"></select><div class="once" id="once-a"></div></div>
       <div class="vs">VS</div>
       <div class="lado"><h2>Rival</h2><select id="equipo-b"></select><div class="once" id="once-b"></div></div>
+    </div>
+    <div class="opciones-partido">
+      <label>Duración
+        <select id="duracion">
+          <option value="180">Corto · 2 × 3 min</option>
+          <option value="300">Normal · 2 × 5 min</option>
+          <option value="480">Largo · 2 × 8 min</option>
+        </select></label>
     </div>
     <div class="botones">
       <button class="grande" id="jugar-maquina"><span>Jugar contra la máquina</span></button>
