@@ -31,6 +31,12 @@ const REGLAS = {
   // varios jugadores y marcas el pase. Unas cuantas por parte, como mucho
   // unos segundos cada una (online espera al otro).
   PAUSAS_POR_PARTE: 3, PAUSA_MAX: 20,
+  CAMBIOS: 3,              // cambios por partido, en la pausa o en el descanso (O-297)
+  // cuando chuta la maquina: a menos de `lejos` m, con esta probabilidad en cada
+  // decision (cerca de la porteria, con la linea libre o tapada)
+  IA_TIRO: { lejos: 18, cerca: 11, pCerca: 0.15, pLibre: 0.05, pTapado: 0 },
+  DUELO_MAX: 15,           // online: segundos para elegir en un duelo (O-299)
+  COMBINADA_RADIO: 12,     // las supertecnicas de 2, 3 o 4: los companeros, a menos de esto (O-298)
   // apoyos en un duelo (DS/3DS): cada companero cerca suma, mas si es de su elemento
   APOYO_RADIO: 7, APOYO: 0.05, APOYO_ELEMENTO: 0.05, APOYOS_MAX: 3,
   // faltas (3DS: el comando de la derecha arriesga falta): si el defensor gana
@@ -72,9 +78,9 @@ const REGLAS = {
   atDisputa(j) { const s = j.stats; return s[6] + s[4]; },
   dfDisputa(j) { const s = j.stats; return s[6] + s[3]; },
   dfMuro(j)    { const s = j.stats; return s[4] + s[3]; },
-  // KP del portero (VR): Agi x4 + Fis x3 + Pres x2; escalado para que en un
-  // duelo A^3/(A^3+D^3) una buena tecnica tenga opciones (ajustable)
-  KP_ESCALA: 0.62,
+  // KP del portero (VR): Agi x4 + Fis x3 + Pres x2; escalado para que una buena
+  // supertecnica de tiro supere su parada y un tiro normal no (ajustable)
+  KP_ESCALA: 0.42,         // O-302: antes 0.62; con el tiro a la quinta, la supertecnica cuenta mas
   DESGASTE: 0.4,                // lo que pierde el portero al parar, segun el golpe (VR: todo)
   kpBase(j)    { const s = j.stats; return (s[5] * 4 + s[4] * 3 + s[3] * 2) * this.KP_ESCALA; },
 
@@ -101,6 +107,10 @@ const REGLAS = {
   },
   // quien gana un duelo: como en IE3, con probabilidad A^3 / (A^3 + D^3)
   probabilidad(a, d) { a = Math.max(1, a); d = Math.max(1, d); return a ** 3 / (a ** 3 + d ** 3); },
+  // el tiro contra el portero, mas tajante (O-302): si tu tiro supera su parada
+  // sueles marcar y si se queda corto casi nunca (con AT/DF 1,2 entra el 71 %)
+  TIRO_EXPONENTE: 5,
+  probabilidadTiro(a, d) { a = Math.max(1, a); d = Math.max(1, d); const e = this.TIRO_EXPONENTE; return a ** e / (a ** e + d ** e); },
   esLarga(t) { return !!t && (t.subtipo_valor === 4 || /larg|distancia/i.test(t.subtipo || "")); },
   esContra(t) { return !!t && t.tipo === "Tiro" && t.subtipo_valor === 16; },
   // tiro directo (VR): rematar un pase suma el 50 % del AT de tiro del que pasa

@@ -144,13 +144,19 @@ function equipoParaRed(d) {
     nombre: d.nombre,
     formacion: { nombre: d.formacion.nombre, puestos: d.formacion.puestos.map(p => ({ puesto: p.puesto, posicion: p.posicion, x: p.x, y: p.y })) },
     tacticas: d.tacticas || [],
-    jugadores: d.jugadores.map(j => ({
+    jugadores: d.jugadores.map(jugadorParaRed),
+    // el banquillo, para los cambios (O-297)
+    banquillo: (d.banquillo || []).slice(0, 5).map(jugadorParaRed),
+  };
+}
+function jugadorParaRed(j) {
+  return {
       nombre: j.nombre, cara: j.cara, posicion: j.posicion, elemento: j.elemento, nivel: j.nivel,
       stats: j.stats, puesto: j.puesto, dorsal: j.dorsal,
       tecnicas: (j.tecnicas || []).map(t => ({ ranura: t.ranura, nombre: t.nombre, tipo: t.tipo, subtipo: t.subtipo,
-        elemento: t.elemento, poder: t.poder, tp: t.tp, interno: t.interno, subtipo_valor: t.subtipo_valor, espiritu: t.espiritu })),
+        elemento: t.elemento, poder: t.poder, tp: t.tp, interno: t.interno, subtipo_valor: t.subtipo_valor, espiritu: t.espiritu,
+        jugadores: t.jugadores })),
       // las pasivas viajan con su efecto (O-288)
       pasivas: (j.pasivas || []).map(q => ({ texto: q.texto, abierta: q.abierta, efecto: q.efecto })),
-    })),
   };
 }

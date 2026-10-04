@@ -64,13 +64,20 @@
   .campo-caja { position:relative; height:100%; min-height:520px; aspect-ratio:74 / 113; max-width:100%; }
   .duelos { display:flex; flex-direction:column; gap:10px; min-height:0; overflow:auto; }
   .duelos-vacio { color:#9fb6d6; font-size:var(--t-sm); text-align:center; padding:30px 14px; border:2px dashed #3a5288; border-radius:12px; }
-  .aviso-pausa { position:absolute; left:50%; bottom:14px; transform:translateX(-50%); background:#7a3c00; color:#fff; border:2px solid #fff;
-    border-radius:8px; padding:6px 14px; font-weight:900; font-size:var(--t-sm); box-shadow:0 0 0 2px #ffb24a; pointer-events:none; white-space:nowrap; }
+  /* arriba a la izquierda: abajo tapaba a tu portero y arriba en medio al rival */
+  .aviso-pausa { position:absolute; left:10px; top:10px; max-width:44%; background:#7a3c00; color:#fff; border:2px solid #fff;
+    border-radius:8px; padding:5px 10px; font-weight:900; font-size:var(--t-sm); line-height:1.25; box-shadow:0 0 0 2px #ffb24a; pointer-events:none; }
   .aviso-pausa[hidden] { display:none; }
   .boton-pausa { width:100%; font:inherit; font-weight:900; font-style:italic; text-transform:uppercase; padding:9px; border-radius:8px; cursor:pointer;
     border:2px solid #fff; color:#fff; background:linear-gradient(180deg, #ffb24a, #e8801c); box-shadow:0 0 0 2px #9c5208; }
   .boton-pausa:disabled { filter:grayscale(1); opacity:.6; cursor:default; }
   .boton-pausa.seguir { background:linear-gradient(180deg, #3fe0d0, #1b9c8f); box-shadow:0 0 0 2px #0f5f57; }
+  /* la pantalla de arriba en 3D, como la 3DS (O-301): encima de los duelos */
+  @media (min-width:1101px) { .juego.con-3d { grid-template-columns:auto minmax(320px, 560px) 290px; } }
+  .pantalla-arriba { position:relative; width:100%; aspect-ratio:5 / 3; flex:none; border-radius:10px; overflow:hidden;
+    box-shadow:0 0 0 3px #fff, 0 0 0 5px var(--aro); background:#0d1a33; }
+  .pantalla-arriba[hidden] { display:none; }
+  #campo-3d { position:absolute; inset:0; width:100%; height:100%; display:block; }
   #campo { width:100%; height:100%; display:block; border-radius:10px; box-shadow:0 0 0 3px #fff, 0 0 0 5px var(--aro); cursor:crosshair; touch-action:none; }
   .marcador { align-self:center; transform:skewX(-8deg); display:flex; align-items:center; gap:10px;
     background:var(--panel); color:#fff; border:2px solid #fff; border-radius:8px; padding:4px 14px; font-weight:900; font-style:italic;
@@ -103,6 +110,15 @@
   .registro .tactica { color:#ffd27a; font-weight:800; }
   .registro { font-size:var(--t-xs); line-height:1.4; max-height:220px; overflow:auto; color:#cfe0f5; }
 
+  /* los cambios en la pausa (O-297) */
+  .banquillo { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 4px 0 6px; }
+  .suplente { display: grid; grid-template-columns: 26px 1fr; grid-template-rows: auto auto; column-gap: 6px;
+    align-items: center; text-align: left; padding: 4px 6px; border-radius: 8px; cursor: pointer;
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); color: inherit; font: inherit; }
+  .suplente:hover, .suplente:focus-visible { background: rgba(255,225,77,.18); border-color: #ffe14d; outline: none; }
+  .suplente img { grid-row: 1 / 3; width: 26px; height: 26px; border-radius: 50%; background: #fff; }
+  .suplente span { font-weight: 700; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .suplente small { font-size: 11px; opacity: .75; }
   /* la pausa de un duelo: los comandos, como en DS */
   .pausa { display:flex; }
   .pausa[hidden] { display:none; }
@@ -143,7 +159,7 @@
 <body>
 <header class="cabecera" id="cabecera">
   <div class="fila">
-    <a class="titulo" href="/">Partido <small>Inazuma como en DS, con todo lo de Victory Road</small></a>
+    <a class="titulo" href="/">Partido <small>Inazuma como en 3DS, con todo lo de Victory Road</small></a>
     <nav class="tabs">
       <a href="/"><span>Inicio</span></a>
     </nav>
@@ -166,8 +182,12 @@
         </select></label>
       <label title="La maquina elige por ti en los focos y disputas (regates y entradas); en los tiros y paradas sigues eligiendo tu">
         <input type="checkbox" id="focos-auto"> Focos automáticos</label>
-      <label title="El campo en 3D con los modelos del juego (los que este PC tenga convertidos)">
-        <input type="checkbox" id="vista-3d"> Vista 3D</label>
+      <label title="Como la pantalla de arriba de la 3DS: el partido en 3D con los modelos del juego (los convierte este PC desde tu juego). Juegas en el campo de abajo">
+        <input type="checkbox" id="vista-3d"> Pantalla de arriba en 3D</label>
+      <label title="Pasar a un compañero que está por delante del penúltimo rival es fuera de juego">
+        <input type="checkbox" id="fuera-juego"> Fuera de juego</label>
+      <label title="Silbato, patadas, duelos y el público en los goles">
+        <input type="checkbox" id="sonido" checked> Sonido</label>
     </div>
     <div class="botones">
       <button class="grande" id="jugar-maquina"><span>Jugar contra la máquina</span></button>
@@ -191,10 +211,13 @@
     <div class="campo-caja">
       <canvas id="campo"></canvas>
       <div class="aviso-pausa" id="aviso-pausa" hidden></div>
-      <div class="aviso-3d" id="aviso-3d" hidden></div>
     </div>
     <div class="duelos">
       <div class="marcador"><span id="nombre-a">Local</span><span class="goles" id="goles">0 - 0</span><span id="nombre-b">Rival</span><span class="reloj" id="reloj">1ª 0'</span></div>
+      <div class="pantalla-arriba" id="pantalla-arriba" hidden>
+        <canvas id="campo-3d"></canvas>
+        <div class="aviso-3d" id="aviso-3d" hidden></div>
+      </div>
       <div class="pausa" id="pausa" hidden><div class="caja" id="pausa-caja"></div></div>
       <div class="duelos-vacio" id="duelos-vacio">Aquí salen los duelos. Mientras eliges, puedes seguir dibujando rutas en el campo.</div>
     </div>
@@ -208,8 +231,10 @@
           <b>Pulsa a un compañero</b> para pasarle; <b>pulsa un punto</b> para el pase al hueco; <b>mantén pulsado</b> para un <b>pase bombeado</b> (no se corta).<br>
           <b>Pulsa la portería rival</b> para chutar; si lo haces mientras va un pase, <b>remata de primeras</b>.<br>
           <b>Pulsa al rival con balón</b>: tus dos más cerca van a presionarle.<br>
-          <b>Pausa</b> (o barra espaciadora): con todo parado dibujas rutas a varios y marcas el pase.<br>
-          En cada <b>duelo</b> el partido se para: eliges a la derecha y, mientras, puedes dibujar rutas.
+          <b>Pausa</b> (o barra espaciadora, 3 por parte): con todo parado dibujas rutas a varios y marcas el pase. En la pausa, pulsa a uno de los tuyos para <b>cambiarlo</b> por uno del banquillo (3 cambios por partido).<br>
+          En cada <b>duelo</b> el partido se para: eliges en el panel del centro y, mientras, puedes dibujar rutas. Los comandos fuertes ganan más, pero <b>Entrada</b> y <b>Cargar</b> pueden ser falta (en el área, penalti).<br>
+          Si tu jugador tiene <b>espíritu</b>, en su ficha puedes <b>invocarlo</b> (100 de tensión): 30 s más fuerte y con su supertécnica.<br>
+          Con <b>Pantalla de arriba en 3D</b>, encima de los duelos ves el partido en 3D, como en la 3DS; se juega siempre en el campo.
         </div></div>
       <div class="tarjeta"><h3>Lo que pasa</h3><div class="registro" id="registro"></div></div>
     </aside>
@@ -223,6 +248,7 @@
 <script src="/web/partido-motor.js"></script>
 <script src="/web/partido-ia.js"></script>
 <script src="/web/partido-pantalla.js"></script>
+<script src="/web/partido-sonido.js"></script>
 <script type="module" src="/web/partido-3d.js"></script>
 <script src="/web/partido.js"></script>
 </body>

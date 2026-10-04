@@ -17,6 +17,10 @@ class Partido {
     this.duracion = opciones.mitad || REGLAS.MITAD;
     // lados que lleva una persona: su jugador con balon no corre solo (como en DS)
     this.manual = opciones.manual || [false, false];
+    // fuera de juego: opcional al elegir (quitado si no se dice; O-296)
+    this.fueraDeJuego = opciones.fueraDeJuego === true;
+    // online: segundos para elegir en un duelo; luego va el comando seguro (O-299)
+    this.limiteDuelo = opciones.limiteDuelo || 0;
     this.mitad = 1; this.reloj = 0; this.pasos = 0;
     this.goles = [0, 0];
     this.tension = [REGLAS.TENSION_INICIO, REGLAS.TENSION_INICIO];
@@ -26,6 +30,11 @@ class Partido {
     this.tacticaActiva = [null, null];
     this.tacticaLista = [this.tacticas[0].map(() => 0), this.tacticas[1].map(() => 0)];
     this.nombres = [equipoA.nombre, equipoB.nombre];
+    // el banquillo de cada equipo y los cambios que quedan (O-297)
+    this.banquillos = [(equipoA.banquillo || []).slice(0, 5), (equipoB.banquillo || []).slice(0, 5)];
+    this.banquilloUsado = [this.banquillos[0].map(() => false), this.banquillos[1].map(() => false)];
+    this.cambiosQuedan = [REGLAS.CAMBIOS, REGLAS.CAMBIOS];
+    this.cambios = [];            // [lado, sale, k] en orden, para el online
     this.jugadores = [];
     [equipoA, equipoB].forEach((eq, lado) => this._crearEquipo(eq, lado));
     this.balon = { x: 0, y: 0, vx: 0, vy: 0, dueno: null, ultimo: 0, pase: null };
@@ -50,29 +59,58 @@ class Partido {
       const p = puestos.find(q => q.puesto === d.puesto) || puestos[k] || { x: 0, y: 0.5 };
       // la formacion del juego: x -1..1, y 0.9 (porteria propia) .. 0.1 (arriba)
       const u = p.x * 0.85, v = 0.79 - 1.9 * p.y;
-      const j = {
-        id: this.jugadores.length, lado, dir, puesto: d.puesto, dorsal: d.dorsal,
-        nombre: d.nombre, cara: d.cara, elemento: d.elemento, posicion: d.posicion,
-        nivel: d.nivel || 99, stats: (d.stats || [0, 0, 0, 0, 0, 0, 0]).map(Number),
-        // las de un espiritu (kenshin, mixi max, alma) van marcadas con una estrella (O-291)
-        tecnicas: (d.tecnicas || []).filter(t => t.tipo && t.tipo !== "Hipertecnica" && t.poder > 0)
-          .map(t => t.espiritu ? Object.assign({}, t, { nombre: t.nombre + " ✦" }) : t),
-        // las pasivas con efecto en el partido (O-288): {que, pct, alcance, condicion, n}
-        efectos: (d.pasivas || []).map(q => q.efecto).filter(e => e && e.que && e.que[0] !== "stat"),
-        pasivas: (d.pasivas || []).map(q => ({ texto: q.texto, abierta: q.abierta, cuenta: !!q.efecto })),
-        esPortero: d.puesto === 0 || p.posicion === "POR",
-        u, v, x: 0, y: 0, mx: 0, my: dir,
-        ruta: [], aturdido: 0, respiro: 0, conBalon: false,
-      };
-      if (j.esPortero) { j.kpMax = REGLAS.kpBase(j); j.kp = j.kpMax; }
-      // su espiritu (kenshin, mixi max, alma): se invoca en el partido (O-295)
-      const te = (d.tecnicas || []).find(t => t.espiritu);
-      j.espiritu = te ? { nombre: te.espiritu.nombre, familia: te.espiritu.familia } : null;
-      j.aura = 0; j.auraLista = 0;           // segundos de juego: hasta cuando dura / cuando se puede otra vez
-      // lo que puede gastar en tecnicas: la tension de su equipo
-      Object.defineProperty(j, "pt", { get: () => this.tension[lado], enumerable: false });
-      this.jugadores.push(j);
+      this.jugadores.push(this._montarJugador(d, lado, this.jugadores.length, u, v, d.puesto === 0 || p.posicion === "POR"));
     });
+  }
+
+  // un jugador listo para el partido (al empezar o al entrar del banquillo)
+  _montarJugador(d, lado, id, u, v, esPortero) {
+    const dir = lado === 0 ? 1 : -1;
+    const j = {
+      id, lado, dir, puesto: d.puesto, dorsal: d.dorsal,
+      nombre: d.nombre, cara: d.cara, elemento: d.elemento, posicion: d.posicion,
+      nivel: d.nivel || 99, stats: (d.stats || [0, 0, 0, 0, 0, 0, 0]).map(Number),
+      // las de un espiritu (kenshin, mixi max, alma) van marcadas con una estrella (O-291)
+      tecnicas: (d.tecnicas || []).filter(t => t.tipo && t.tipo !== "Hipertecnica" && t.poder > 0)
+        .map(t => t.espiritu ? Object.assign({}, t, { nombre: t.nombre + " ✦" }) : t),
+      // las pasivas con efecto en el partido (O-288): {que, pct, alcance, condicion, n}
+      efectos: (d.pasivas || []).map(q => q.efecto).filter(e => e && e.que && e.que[0] !== "stat"),
+      pasivas: (d.pasivas || []).map(q => ({ texto: q.texto, abierta: q.abierta, cuenta: !!q.efecto })),
+      esPortero,
+      u, v, x: 0, y: 0, mx: 0, my: dir,
+      ruta: [], aturdido: 0, respiro: 0, conBalon: false,
+    };
+    if (j.esPortero) { j.kpMax = REGLAS.kpBase(j); j.kp = j.kpMax; }
+    // su espiritu (kenshin, mixi max, alma): se invoca en el partido (O-295)
+    const te = (d.tecnicas || []).find(t => t.espiritu);
+    j.espiritu = te ? { nombre: te.espiritu.nombre, familia: te.espiritu.familia } : null;
+    j.aura = 0; j.auraLista = 0;           // segundos de juego: hasta cuando dura / cuando se puede otra vez
+    // lo que puede gastar en tecnicas: la tension de su equipo
+    Object.defineProperty(j, "pt", { get: () => this.tension[lado], enumerable: false });
+    return j;
+  }
+
+  // --- los cambios (O-297): en la pausa tecnica o en el descanso, hasta 3 ------
+  puedeCambiar(lado) {
+    return (this.fase === "pausa" || this.fase === "descanso") && this.cambiosQuedan[lado] > 0;
+  }
+  // entra el k del banquillo por el jugador `sale`: se queda en su sitio (y con
+  // el balon si lo tenia); el que sale ya no vuelve
+  cambiar(lado, sale, k, forzado) {
+    const fuera = this.jugadores[sale], d = (this.banquillos[lado] || [])[k];
+    if (!fuera || fuera.lado !== lado || !d || this.banquilloUsado[lado][k]) return false;
+    if (!forzado && !this.puedeCambiar(lado)) return false;
+    const j = this._montarJugador(d, lado, fuera.id, fuera.u, fuera.v, fuera.esPortero);
+    // con el sentido de esta parte (en la segunda se cambia de campo)
+    Object.assign(j, { dir: fuera.dir, x: fuera.x, y: fuera.y, mx: fuera.mx, my: fuera.my, conBalon: fuera.conBalon, puesto: fuera.puesto });
+    this.jugadores[fuera.id] = j;
+    this.banquilloUsado[lado][k] = true;
+    this.cambiosQuedan[lado]--;
+    this.cambios.push([lado, sale, k]);
+    for (const o of this.jugadores) if (o.presiona === sale) o.presiona = undefined;
+    // el invitado online los repite desde la foto: el registro ya le llega del anfitrion
+    if (!forzado) this.apunta("Cambio en " + this.nombres[lado] + ": entra " + j.nombre + " por " + fuera.nombre, "tactica");
+    return true;
   }
 
   equipo(lado) { return this.jugadores.filter(j => j.lado === lado); }
@@ -122,6 +160,7 @@ class Partido {
     if (o.tipo === "seguir") return this.seguir(o.lado);
     if (o.tipo === "presionar") return this.presionar(o.lado, o.objetivo);
     if (o.tipo === "invocar") return this.invocar(o.jugador);
+    if (o.tipo === "cambio") return this.cambiar(o.lado, o.sale, o.entra);
     const j = this.jugadores[o.jugador !== undefined ? o.jugador : o.de];
     if (!j || this.fase === "final") return false;
     // una ruta vale tambien con el juego parado (online puede llegar justo al
@@ -198,7 +237,8 @@ class Partido {
     this.balon.x = de.x; this.balon.y = de.y;
     this.balon.vx = (destino.x - de.x) / dd * vel;
     this.balon.vy = (destino.y - de.y) / dd * vel;
-    this.balon.pase = { de: de.id, a: a.id, destino, queda: dd, total: dd, alto: !!alto };
+    this.balon.pase = { de: de.id, a: a.id, destino, queda: dd, total: dd, alto: !!alto,
+      fuera: this._enFueraDeJuego(a, de) };
     this.balon.ultimo = de.lado;
     de.respiro = 0.6;
     a.ruta = [destino];
@@ -221,12 +261,26 @@ class Partido {
       cadena: [{ clave: "nada", nombre: "No encadenar", tipo: "", poder: 0, tp: 0, puede: true }],
     }[que];
     const vistas = new Set();
-    const tecs = j.tecnicas.filter(t => REGLAS.sirve(t, que) && (!t.espiritu || this.conAura(j)) && !vistas.has(t.nombre) && vistas.add(t.nombre)).map(t => ({
-      clave: "t" + t.ranura, nombre: t.nombre + (que === "muro" && REGLAS.esContra(t) ? " (contra-tiro)" : ""),
-      tipo: t.tipo, elemento: t.elemento, subtipo: t.subtipo,
-      interno: t.interno, poder: Math.round(this._poder(j, t)), tp: t.tp, puede: t.tp <= j.pt,
-    }));
+    const tecs = j.tecnicas.filter(t => REGLAS.sirve(t, que) && (!t.espiritu || this.conAura(j)) && !vistas.has(t.nombre) && vistas.add(t.nombre)).map(t => {
+      // las de 2, 3 o 4 jugadores necesitan companeros cerca (O-298)
+      const n = Math.max(1, Number(t.jugadores) || 1), con = n > 1 ? this.companerosCerca(j, n - 1) : [];
+      const listos = con.length >= n - 1;
+      return {
+        clave: "t" + t.ranura, nombre: t.nombre + (que === "muro" && REGLAS.esContra(t) ? " (contra-tiro)" : ""),
+        tipo: t.tipo, elemento: t.elemento, subtipo: t.subtipo,
+        interno: t.interno, poder: Math.round(this._poder(j, t)), tp: t.tp, puede: t.tp <= j.pt && listos,
+        nota: n === 1 ? undefined : listos ? "con " + con.map(c => c.nombre).join(" y ")
+          : "de " + n + ": necesita " + (n - 1) + (n > 2 ? " compañeros" : " compañero") + " a menos de " + REGLAS.COMBINADA_RADIO + " m",
+      };
+    });
     return tecs.concat(base);
+  }
+
+  // los companeros mas cerca de j (sin el, ni aturdidos), hasta n, dentro del radio
+  companerosCerca(j, n) {
+    return this.equipo(j.lado).filter(c => c !== j && c.aturdido <= 0)
+      .map(c => ({ c, d: Math.hypot(c.x - j.x, c.y - j.y) })).filter(o => o.d <= REGLAS.COMBINADA_RADIO)
+      .sort((a, b) => a.d - b.d).slice(0, n).map(o => o.c);
   }
 
   _tecnica(j, clave) {
@@ -297,6 +351,13 @@ class Partido {
     return fuera;
   }
 
+  // lo que se juega si se acaba el tiempo: el comando seguro, sin tecnicas
+  eleccionSegura(pend) {
+    if (pend.rol === "tiro") return pend.cadena ? { tiro: "normal", cadena: "nada" } : { tiro: "normal" };
+    if (pend.rol === "porteria") return pend.muro ? { parada: "normal", muro: "normal" } : { parada: "normal" };
+    return "normal";
+  }
+
   // eleccion: en un foco, la clave; en un tiro, {tiro} o {parada, muro}
   elegir(lado, eleccion) {
     if (this.fase !== "duelo" || !this.duelo || !this.duelo.lados[lado]) return false;
@@ -304,6 +365,30 @@ class Partido {
     this.duelo.elecciones[lado] = eleccion;
     if (Object.keys(this.duelo.lados).every(l => this.duelo.elecciones[l] !== undefined)) this._resolver();
     return true;
+  }
+
+  // --- fuera de juego (O-296) ------------------------------------------------------
+  // la linea, medida hacia donde ataca `lado`: la del penultimo rival
+  lineaFueraDeJuego(lado) {
+    const dir = this.equipo(lado)[0].dir;
+    const fondos = this.equipo(1 - lado).map(r => r.y * dir).sort((a, b) => b - a);
+    return Math.max(0, fondos[1] !== undefined ? fondos[1] : 0);
+  }
+  _enFueraDeJuego(receptor, pasador) {
+    if (!this.fueraDeJuego || !receptor || receptor === pasador) return false;
+    const dir = receptor.dir, y = receptor.y * dir;
+    return y > 0 && y > pasador.y * dir + 0.5 && y > this.lineaFueraDeJuego(receptor.lado) + 0.5;
+  }
+  _pitarFueraDeJuego(j) {
+    const r = this.equipo(1 - j.lado).filter(o => !o.esPortero)
+      .sort((a, b) => Math.hypot(a.x - j.x, a.y - j.y) - Math.hypot(b.x - j.x, b.y - j.y))[0];
+    this.apunta("Fuera de juego de " + j.nombre, "mal");
+    r.x = j.x; r.y = j.y - j.dir * 1;
+    this.coger(r); r.respiro = 2.5;
+    for (const o of this.jugadores) o.ruta = [];
+    this.nResultado = (this.nResultado || 0) + 1;
+    this.resultado = { tipo: "fuera", quien: j.id };
+    this.fase = "resultado"; this.espera = 1.6;
   }
 
   // --- la pausa y presionar de 3DS (O-294) ---------------------------------------
@@ -624,7 +709,7 @@ class Partido {
     pasos.push({ quien: por.id, que: tp ? tp.nombre : "Parada", valor: Math.round(df), tecnica: !!tp, elemento: tp ? tp.elemento || "" : "",
       pasivas: Math.round((this.bonusPasivas(por, "kp", false) - 1) * 1000) / 10 });
     pasos[0].valorFinal = Math.round(at);
-    if (this.azar() < REGLAS.probabilidad(at, df)) {
+    if (this.azar() < REGLAS.probabilidadTiro(at, df)) {
       this.goles[tir.lado]++;
       this.nResultado = (this.nResultado || 0) + 1;
       this.resultado = { tipo: "tiro", final: "gol", pasos, tirador: ultimo.id };
@@ -703,7 +788,15 @@ class Partido {
   paso() {
     const P = REGLAS.PASO;
     this.pasos++;
-    if (this.fase === "duelo") return;                 // parado hasta que elijan
+    if (this.fase === "duelo") {                       // parado hasta que elijan
+      if (this.limiteDuelo && this.duelo) {
+        this.duelo.reloj = (this.duelo.reloj || 0) + P;
+        if (this.duelo.reloj >= this.limiteDuelo) {
+          for (const [l, pend] of Object.entries(this.pendientes())) this.elegir(Number(l), this.eleccionSegura(pend));
+        }
+      }
+      return;
+    }
     if (this.fase === "pausa") {
       if (this.pausa) { this.pausa.queda -= P; if (this.pausa.queda <= 0) this.seguir(); }
       return;
@@ -792,6 +885,11 @@ class Partido {
     let u = j.u * 0.9 + bu * 0.22;
     if (tenemos && j.v > 0.2) v += 0.08;
     v = Math.max(-0.9, Math.min(0.85, v));
+    if (this.fueraDeJuego && tenemos) {
+      const linea = this.lineaFueraDeJuego(j.lado) - 1, bal = b.y * j.dir;
+      const vMax = Math.max(linea, bal) / (REGLAS.LARGO / 2);
+      if (v > vMax) v = vMax;
+    }
     return this.aCampo(j, u, v);
   }
 
@@ -852,6 +950,7 @@ class Partido {
     }
     if (mejor) {
       const j = mejor.j;
+      if (b.pase && b.pase.fuera && j.id === b.pase.a) return this._pitarFueraDeJuego(j);
       const directo = b.pase && b.pase.directo && j.lado === this.jugadores[b.pase.de].lado ? this.jugadores[b.pase.de] : null;
       if (b.pase && j.lado !== this.jugadores[b.pase.de].lado) {
         this.apunta("¡" + j.nombre + " corta el pase!", "mal");
@@ -905,9 +1004,11 @@ class Partido {
       j: this.jugadores.map(j => [r1(j.x), r1(j.y), j.dir, j.conBalon ? 1 : 0, j.aturdido > 0 ? 1 : 0,
         j.esPortero ? Math.round(j.kp) : 0, j.lado === ladoRutas ? j.ruta.slice(0, 6).map(p => [r1(p.x), r1(p.y)]) : [],
         r1(j.aura), r1(j.auraLista)]),
-      b: [r1(this.balon.x), r1(this.balon.y), this.balon.dueno, this.balon.pase ? [this.balon.pase.a, r1(this.balon.pase.destino.x), r1(this.balon.pase.destino.y)] : 0],
+      b: [r1(this.balon.x), r1(this.balon.y), this.balon.dueno, this.balon.pase ? [this.balon.pase.a, r1(this.balon.pase.destino.x), r1(this.balon.pase.destino.y),
+        this.balon.pase.alto ? 1 : 0, r1(this.balon.pase.total || 0)] : 0],
       d: this.duelo ? JSON.parse(JSON.stringify(this.duelo)) : null,
       re: this.resultado ? Object.assign({ k: this.nResultado || 0 }, this.resultado) : null,
+      cb: this.cambios,
       ev: this.eventos.length, ul: this.eventos.slice(-10),
     };
   }
@@ -916,6 +1017,7 @@ class Partido {
     if (f.n < this.pasos) return false;              // una foto vieja
     this.pasos = f.n; this.fase = f.f; this.mitad = f.m; this.reloj = f.r; this.goles = f.g;
     this.tension = f.t; this.espera = f.e;
+    for (const c of (f.cb || []).slice(this.cambios.length)) this.cambiar(c[0], c[1], c[2], true);
     if (f.ta) { this.tacticaActiva = f.ta; this.tacticaLista = f.tl; }
     if (f.pq) { this.pausa = f.pz; this.pausasQuedan = f.pq; this.paseMarcado = f.pm; }
     f.j.forEach((q, k) => {
@@ -928,7 +1030,7 @@ class Partido {
       if (q.length > 7) { j.aura = q[7]; j.auraLista = q[8]; }
     });
     this.balon.destX = f.b[0]; this.balon.destY = f.b[1]; this.balon.dueno = f.b[2];
-    this.balon.pase = f.b[3] ? { a: f.b[3][0], destino: { x: f.b[3][1], y: f.b[3][2] } } : null;
+    this.balon.pase = f.b[3] ? { a: f.b[3][0], destino: { x: f.b[3][1], y: f.b[3][2] }, alto: !!f.b[3][3], total: f.b[3][4] || 0 } : null;
     this.duelo = f.d;
     if (f.re && (!this.resultado || this.resultado.k !== f.re.k)) this.resultado = f.re;
     // los sucesos que faltan (la foto trae los diez ultimos)

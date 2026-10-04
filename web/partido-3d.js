@@ -1,6 +1,7 @@
-/* La vista 3D del partido (NOTAS O-293). El mismo motor y los mismos gestos
-   que la vista 2D (partido-pantalla.js); solo cambia como se pinta: un campo
-   en 3D visto desde la banda, como una retransmision, y los jugadores con su
+/* La vista 3D del partido (NOTAS O-293, O-301): la pantalla de ARRIBA, como en
+   la 3DS. Se juega siempre en el campo 2D de abajo (partido-pantalla.js); aqui
+   solo se pinta: un campo en 3D visto desde la banda, como una retransmision,
+   que se acerca a los dos de cada duelo, y los jugadores con su
    modelo del juego si este PC lo ha convertido (datos/modelos3d, se saca de
    la instalacion de cada uno y nunca se reparte) o, si no, una ficha de pie
    con su cara. Usa three.js (MIT) en local. */
@@ -8,6 +9,8 @@ import * as THREE from "./partido-three.module.js";
 import { GLTFLoader } from "./partido-GLTFLoader.js";
 import { clone as clonarModelo } from "./partido-SkeletonUtils.js";
 
+// la camara y el tamano de los modelos (ajustables)
+const ESCENA = { distancia: 30, altura: 19, escalaModelo: 1.45, dueloDistancia: 12, dueloAltura: 5.5 };
 const ANIM = { parado: "戦1立ち1L", correr: "戦1走り1L", tiro: "戦1シュート1", patada: "戦1キック1" };
 
 class Pantalla3D {
@@ -19,7 +22,7 @@ class Pantalla3D {
     this.render.outputColorSpace = THREE.SRGBColorSpace;
     this.escena = new THREE.Scene();
     this.escena.background = new THREE.Color(0x0d1a33);
-    this.camara = new THREE.PerspectiveCamera(36, 1, 0.5, 400);
+    this.camara = new THREE.PerspectiveCamera(42, 1, 0.5, 400);
     this.escena.add(new THREE.HemisphereLight(0xffffff, 0x406040, 2.2));
     const sol = new THREE.DirectionalLight(0xffffff, 1.6);
     sol.position.set(-30, 60, 20);
@@ -34,6 +37,7 @@ class Pantalla3D {
     this.lineas = new THREE.Group(); this.escena.add(this.lineas);
     this.camX = 0; this.reloj = new THREE.Clock();
     this.ajustar();
+    this._prepararModelos();
   }
 
   ajustar() {
@@ -97,11 +101,10 @@ class Pantalla3D {
     sombra.rotation.x = -Math.PI / 2; sombra.position.y = 0.02; g.add(sombra);
     const aro = new THREE.Mesh(new THREE.RingGeometry(0.75, 0.95, 28), new THREE.MeshBasicMaterial({ color: this.colores[j.lado] }));
     aro.rotation.x = -Math.PI / 2; aro.position.y = 0.03; g.add(aro);
-    g.userData = { aro, ficha: this._ficha(j), cuerpo: null, mezcla: null, acciones: {}, ahora: null };
+    g.userData = { cara: j.cara, aro, ficha: this._ficha(j), cuerpo: null, mezcla: null, acciones: {}, ahora: null, cargando: false };
     g.add(g.userData.ficha);
     this.escena.add(g);
-    this._cargarModelo(j, g);
-    return g;
+    return g;            // el modelo lo pone _verModelos cuando el servidor lo tiene
   }
 
   _ficha(j) {
@@ -128,13 +131,21 @@ class Pantalla3D {
   }
 
   _cargarModelo(j, g) {
-    if (!j.cara) return;
+    if (!j.cara || g.userData.cuerpo || g.userData.cargando) return;
     if (!Pantalla3D.cargador) Pantalla3D.cargador = new GLTFLoader();
     const url = "/api/partido/modelo/" + encodeURIComponent(j.cara) + ".glb";
-    if (!Pantalla3D.cache[url]) Pantalla3D.cache[url] = new Promise(ok => Pantalla3D.cargador.load(url, ok, undefined, () => ok(null)));
+    // si no esta (404) o no se puede leer, la promesa se olvida: asi se vuelve a
+    // pedir cuando la cola del servidor lo haya convertido
+    if (!Pantalla3D.cache[url]) {
+      Pantalla3D.cache[url] = new Promise(ok => Pantalla3D.cargador.load(url, ok, undefined,
+        () => { delete Pantalla3D.cache[url]; ok(null); }));
+    }
+    g.userData.cargando = true;
     Pantalla3D.cache[url].then(gltf => {
-      if (!gltf) return;
+      g.userData.cargando = false;
+      if (!gltf || g.userData.cuerpo) return;
       const cuerpo = clonarModelo(gltf.scene);
+      cuerpo.scale.setScalar(ESCENA.escalaModelo);
       g.add(cuerpo);
       g.remove(g.userData.ficha);
       g.userData.cuerpo = cuerpo;
@@ -146,6 +157,72 @@ class Pantalla3D {
       }
       this._anima(g, "parado");
     });
+  }
+
+  // Los modelos de los 22: el servidor convierte en segundo plano los que este
+  // PC aun no tiene (ievr/modelos3d.py) y aqui se mira cada 2 s como va; cada
+  // ficha se cambia por su modelo en cuanto esta (O-293).
+  _prepararModelos() {
+    this.codigos = [...new Set(this.p.jugadores.map(j => j.cara).filter(Boolean))];
+    if (!this.codigos.length) return;
+    fetch("/api/partido/modelos/preparar", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ codigos: this.codigos }),
+    }).then(r => r.json()).then(e => this._verModelos(e))
+      .catch(() => this.figuras.forEach((g, k) => this._cargarModelo(this.p.jugadores[k], g)));
+  }
+
+  _verModelos(e) {
+    if (!this.c.isConnected) return;           // ya es otro partido
+    const hechos = new Set(e.hechos || []), errores = e.errores || {};
+    this.p.jugadores.forEach((j, k) => { if (hechos.has(j.cara)) this._cargarModelo(j, this.figuras[k]); });
+    const enCola = new Set([...(e.pendientes || []), e.actual].filter(Boolean));
+    const quedan = this.codigos.filter(c => enCola.has(c)).length;
+    const listos = this.codigos.filter(c => hechos.has(c)).length;
+    const fallan = this.codigos.filter(c => errores[c]).length;
+    // sin juego no se convierte nada, pero los que ya estaban hechos se ven: solo se avisa si falta alguno
+    if (e.error) return this._avisar(listos < this.codigos.length ? e.error : "", 9000);
+    if (quedan) {
+      this._avisar(`Preparando modelos 3D: ${listos} de ${this.codigos.length}`);
+      clearTimeout(this._espera);
+      this._espera = setTimeout(() => fetch("/api/partido/modelos/estado").then(r => r.json())
+        .then(x => this._verModelos(x)).catch(() => this._avisar("")), 2000);
+    } else {
+      this._avisar(fallan ? `Modelos 3D: ${listos} de ${this.codigos.length} (${fallan} se quedan con ficha)` : "",
+        fallan ? 6000 : 0);
+    }
+  }
+
+  // el aviso pequeno de abajo a la izquierda del campo; "" lo quita
+  _avisar(texto, ms) {
+    const a = document.getElementById("aviso-3d");
+    if (!a) return;
+    clearTimeout(this._quitaAviso);
+    a.textContent = texto; a.hidden = !texto;
+    if (texto && ms) this._quitaAviso = setTimeout(() => { if (this.c.isConnected) a.hidden = true; }, ms);
+  }
+
+  // un cambio (O-297): la figura del que entra, con su modelo si lo hay o en
+  // cuanto la cola lo tenga
+  _cambiarFigura(j, k) {
+    const vieja = this.figuras[k];
+    this.escena.remove(vieja);
+    const g = this._figura(j);
+    g.position.copy(vieja.position);
+    this.figuras[k] = g;
+    if (!j.cara) return;
+    this.codigos = this.codigos || [];
+    if (!this.codigos.includes(j.cara)) this.codigos.push(j.cara);
+    fetch("/api/partido/modelos/preparar", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ codigos: [j.cara] }),
+    }).then(r => r.json()).then(e => this._verModelos(e)).catch(() => this._cargarModelo(j, g));
+  }
+
+  // al acabar el partido (o empezar otro): suelta la tarjeta grafica
+  cerrar() {
+    clearTimeout(this._espera); clearTimeout(this._quitaAviso);
+    try { this.render.dispose(); } catch (e) {}
   }
 
   _anima(g, cual, unaVez) {
@@ -163,11 +240,28 @@ class Pantalla3D {
 
   pintar() {
     const p = this.p, dt = Math.min(0.1, this.reloj.getDelta()), h = this._sentido();
-    // la camara: en la banda, siguiendo el balon a lo largo
-    this.camX += (p.balon.y - this.camX) * Math.min(1, dt * 2.5);
-    const z = Math.max(-38, Math.min(38, this.camX));
-    this.camara.position.set(-64 * h, 46, z);
-    this.camara.lookAt(0, 0, z);
+    // los que han entrado del banquillo (O-297)
+    p.jugadores.forEach((j, k) => { if (this.figuras[k].userData.cara !== j.cara) this._cambiarFigura(j, k); });
+    // la camara: desde la banda, siguiendo el balon a lo largo y un poco a lo
+    // ancho (como la retransmision de VR); en un duelo se acerca a los dos, y
+    // en un tiro al que chuta (el corte de la pantalla de arriba de la 3DS)
+    let fx = p.balon.x, fz = p.balon.y, cerca = 0;
+    const du = p.fase === "duelo" && p.duelo;
+    if (du) {
+      const a = p.jugadores[du.tipo === "foco" ? du.atacante : du.tirador];
+      const b = p.jugadores[du.tipo === "foco" ? du.defensor : du.portero];
+      if (a && b) { fx = du.tipo === "foco" ? (a.x + b.x) / 2 : a.x; fz = du.tipo === "foco" ? (a.y + b.y) / 2 : a.y; cerca = 1; }
+    }
+    const v = Math.min(1, dt * (du ? 4 : 2.5));
+    this.camX += (fz - this.camX) * v;
+    this.camY = (this.camY || 0) + (fx - (this.camY || 0)) * v;
+    this.zoom = (this.zoom || 0) + (cerca - (this.zoom || 0)) * Math.min(1, dt * 3);
+    const dist = ESCENA.distancia + (ESCENA.dueloDistancia - ESCENA.distancia) * this.zoom;
+    const alt = ESCENA.altura + (ESCENA.dueloAltura - ESCENA.altura) * this.zoom;
+    const lim = 42 + 8 * this.zoom;
+    const z = Math.max(-lim, Math.min(lim, this.camX)), x = Math.max(-24, Math.min(24, this.camY));
+    this.camara.position.set(x * (0.4 + 0.6 * this.zoom) - dist * h, alt, z);
+    this.camara.lookAt(x * (0.6 + 0.4 * this.zoom), this.zoom, z);
     // jugadores
     p.jugadores.forEach((j, k) => {
       const g = this.figuras[k], u = g.userData;
@@ -193,7 +287,14 @@ class Pantalla3D {
       const de = this.figuras[p.balon.pase.de];
       if (de) this._anima(de, "patada", true);
     }
-    this.balon.position.set(p.balon.x, 0.35, p.balon.y);
+    // el pase bombeado va por el aire (O-294)
+    let alto = 0.35;
+    const pa = p.balon.pase;
+    if (pa && pa.alto && pa.total) {
+      const queda = Math.hypot(pa.destino.x - p.balon.x, pa.destino.y - p.balon.y);
+      alto += Math.sin(Math.PI * Math.max(0, Math.min(1, 1 - queda / pa.total))) * 5;
+    }
+    this.balon.position.set(p.balon.x, alto, p.balon.y);
     this._pintarLineas();
     this.render.render(this.escena, this.camara);
   }

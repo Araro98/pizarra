@@ -17,6 +17,7 @@ class Maquina {
   pensar() {
     const p = this.p;
     if (p.fase === "duelo") return this._elegir();
+    if (p.fase === "descanso") return this._cambios();
     if (p.fase !== "juego") return;
     this.siguiente -= REGLAS.PASO;
     if (this.siguiente > 0) return;
@@ -27,13 +28,34 @@ class Maquina {
     if (d && d.lado === this.lado) this._conBalon(d);
   }
 
+  // en el descanso (O-297): si en el banquillo hay uno mejor para el mismo
+  // puesto, entra por el peor de ese puesto (uno por descanso)
+  _cambios() {
+    const p = this.p;
+    if (this._cambiosEn === p.mitad || !p.puedeCambiar(this.lado)) return;
+    this._cambiosEn = p.mitad;
+    const banco = p.banquillos[this.lado] || [], usado = p.banquilloUsado[this.lado];
+    const valor = d => (d.stats || []).reduce((a, b) => a + Number(b || 0), 0);
+    let mejor = null;
+    banco.forEach((d, k) => {
+      if (usado[k]) return;
+      const esPor = d.posicion === "POR";
+      const peor = p.equipo(this.lado).filter(j => j.esPortero === esPor && (esPor || j.posicion === d.posicion) && !j.conBalon)
+        .sort((a, b) => valor(a) - valor(b))[0];
+      if (peor && valor(d) > valor(peor) * 1.05 && (!mejor || valor(d) - valor(peor) > mejor.gana))
+        mejor = { k, sale: peor.id, gana: valor(d) - valor(peor) };
+    });
+    if (mejor) p.ordenar({ tipo: "cambio", lado: this.lado, sale: mejor.sale, entra: mejor.k });
+  }
+
   _conBalon(d) {
     const p = this.p;
     const g = p.porteriaRival(d);
     const aPuerta = Math.hypot(g.x - d.x, g.y - d.y);
     // chutar: cerca de la porteria, mas cuanto mas cerca
     const libre = !p.equipo(1 - this.lado).some(r => !r.esPortero && p._distanciaALinea(r, d, g).delante && p._distanciaALinea(r, d, g).d < 2.5);
-    if (aPuerta < 22 && this.azar() < (aPuerta < 13 ? 0.3 : libre ? 0.12 : 0.02)) {
+    const T = REGLAS.IA_TIRO;
+    if (aPuerta < T.lejos && this.azar() < (aPuerta < T.cerca ? T.pCerca : libre ? T.pLibre : T.pTapado)) {
       p.ordenar({ tipo: "tiro", de: d.id });
       return;
     }
@@ -94,6 +116,8 @@ class Maquina {
       // el pase no puede pasar rozando a un rival
       const cortado = rivales.some(r => !r.esPortero && this.p._distanciaALinea(r, d, c).d < 1.6 && this.p._distanciaALinea(r, d, c).delante);
       if (cortado) continue;
+      // no pasa a quien esta en fuera de juego (casi nunca se le escapa)
+      if (this.p._enFueraDeJuego(c, d) && this.azar() < 0.92) continue;
       const avance = (c.y - d.y) * d.dir;
       const n = libre * 1.2 + avance * 0.6 - dist * 0.1;
       if (n > nota) { nota = n; mejor = c; }

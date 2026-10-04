@@ -54,6 +54,12 @@ class Pantalla {
       this._linea([{ x: j.x, y: j.y }, ...j.ruta], "rgba(255,255,255,.75)", [6, 6]);
     }
     if (this.trazo && this.trazo.puntos.length > 1) this._linea(this.trazo.puntos, "#ffe14d", [8, 5], 3);
+    // la linea del fuera de juego, cuando tienes el balon
+    const dl = p.dueno();
+    if (p.fueraDeJuego && dl && dl.lado === this.yo) {
+      const y = p.lineaFueraDeJuego(this.yo) * dl.dir;
+      this._linea([{ x: -REGLAS.ANCHO / 2, y }, { x: REGLAS.ANCHO / 2, y }], "rgba(255,225,77,.35)", [10, 8], 2);
+    }
     // el pase marcado en la pausa (sale al seguir) y la linea roja de los que presionan (3DS)
     const pm = (p.paseMarcado || [])[this.yo], d0 = p.dueno();
     if (pm && d0) {
@@ -81,6 +87,31 @@ class Pantalla {
       ctx.strokeStyle = "#ffe14d"; ctx.lineWidth = 4 * this.ppp;
       ctx.beginPath(); ctx.moveTo(A.px, A.py); ctx.lineTo(D.px, D.py); ctx.stroke();
     }
+    if (p.fase === "gol") this._rotuloGol();
+  }
+
+  // el gol, con letras grandes en el campo mientras se celebra (O-300)
+  _rotuloGol() {
+    const ctx = this.ctx, p = this.p, r = p.resultado;
+    const tir = r && r.tirador !== undefined ? p.jugadores[r.tirador] : null;
+    const mio = tir && tir.lado === this.yo;
+    const k = Math.max(0, Math.min(1, (3 - p.espera) / 0.3));          // entra en 0,3 s
+    const tam = Math.round(this.c.width * 0.22 * (0.55 + 0.45 * k));
+    const x = this.c.width / 2, y = this.c.height * 0.46;
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, k * 1.6);
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.lineJoin = "round";
+    ctx.font = "italic 900 " + tam + 'px system-ui, "Segoe UI", sans-serif';
+    ctx.lineWidth = tam * 0.14; ctx.strokeStyle = "#0d1a33";
+    ctx.fillStyle = mio ? "#ffe14d" : "#ff7a5c";
+    ctx.strokeText("¡GOL!", x, y); ctx.fillText("¡GOL!", x, y);
+    if (tir) {
+      const t2 = Math.round(tam * 0.24);
+      ctx.font = "italic 800 " + t2 + 'px system-ui, "Segoe UI", sans-serif';
+      ctx.lineWidth = t2 * 0.28; ctx.fillStyle = "#fff";
+      ctx.strokeText(tir.nombre, x, y + tam * 0.66); ctx.fillText(tir.nombre, x, y + tam * 0.66);
+    }
+    ctx.restore();
   }
 
   _campo() {
@@ -174,7 +205,16 @@ class Pantalla {
 
   _balon() {
     const ctx = this.ctx, b = this.p.balon, P = this.aPantalla(b.x, b.y);
-    const r = Math.max(5 * this.ppp, 0.55 * this.s);
+    let r = Math.max(5 * this.ppp, 0.55 * this.s);
+    // un pase bombeado va por el aire: la sombra en el suelo y el balon arriba
+    if (b.pase && b.pase.alto && b.pase.total) {
+      // lo que le queda, medido desde donde va el balon (vale igual en el invitado online)
+      const queda = Math.hypot(b.pase.destino.x - b.x, b.pase.destino.y - b.y);
+      const k = Math.max(0, Math.min(1, 1 - queda / b.pase.total));
+      const alto = Math.sin(Math.PI * k) * 5 * this.s;
+      ctx.fillStyle = "rgba(0,0,0,.3)"; ctx.beginPath(); ctx.ellipse(P.px, P.py, r, r * 0.5, 0, 0, Math.PI * 2); ctx.fill();
+      P.py -= alto; r *= 1 + Math.sin(Math.PI * k) * 0.6;
+    }
     ctx.fillStyle = "rgba(0,0,0,.3)"; ctx.beginPath(); ctx.ellipse(P.px + r * 0.3, P.py + r * 0.6, r, r * 0.5, 0, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = "#fff"; ctx.strokeStyle = "#222"; ctx.lineWidth = 1.5 * this.ppp;
     ctx.beginPath(); ctx.arc(P.px, P.py, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();

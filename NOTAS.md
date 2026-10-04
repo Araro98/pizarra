@@ -6804,6 +6804,175 @@ Victory Road tiene 80 tipos de pasiva (pasivas-valor.csv). `ievr/partido.py`
   elige por ti en los focos y disputas; en tiros y paradas sigues eligiendo
   tu. En un partido salen ~50 focos.
 
+### O-293 · El juego de partidos: vista 3D y modelos del juego
+
+- Casilla "Vista 3D" al elegir equipos (se recuerda). Usa three.js r160 copiado
+  en `web/` (licencia MIT, sin internet) con los imports cambiados a rutas
+  planas, porque `/web/` solo sirve nombres de fichero.
+- Sin modelos, cada jugador es una ficha con su cara. Con modelos, el personaje
+  del juego con sus animaciones: parado (戦1立ち1L), correr (戦1走り1L),
+  tiro (戦1シュート1) y patada (戦1キック1).
+- Los modelos NO van en el repo ni en las releases (son arte del juego). Cada
+  PC los convierte desde su propio juego a `datos/modelos3d/` (ignorado) al
+  pedirlos el partido.
+  - `ievr/cpk.py`: lector propio de los .cpk. La clave es el crc32 del nombre
+    mas el offset, con los grupos de 2 bits barajados; descomprime CRILAYLA.
+    Indice de los 936 .cpk en 1,4 s.
+  - `ievr/g4.py` y `ievr/g4anim.py`: G4PK/G4PKM/G4MD/G4MG/G4SK/G4TX/G4MT a
+    glTF. La talla de la ropa sale de CHARA_BODY_INFO: uniforme = columna 6
+    + 1; botas y guantes = columna 5 mod 4 + 1 (el script de pruebas cogia
+    la carpeta por orden y vestia a cuerpos grandes con ropa de nino: de ahi
+    las cabezas flotando). Cada .glb lleva su VERSION_MODELO y los de una
+    version vieja, o cortados, se rehacen solos. Los "monstruos" con
+    esqueleto propio dejan fuera la ropa que no encaja.
+  - `ievr/modelos3d.py`: cola en segundo plano.
+  - Rutas: `POST /api/partido/modelos/preparar` y
+    `GET /api/partido/modelos/estado`. El aviso "Preparando modelos 3D: n de
+    22" se cambia por cada modelo segun sale.
+  - Tabla de piezas: `datos/reglas-extraidas/modelos-personaje.csv` (5.703
+    personajes), hecha con `herramientas/construir_modelos_personaje.py`.
+  - Nada del toolbox ni de librerias sin licencia: todo es codigo propio.
+  - El .exe lleva numpy y PIL: pasa de 24,8 a 31 MB.
+  - Probado: 420 personajes, 419 bien (media 1,2 s; c11130500 tiene un
+    formato de malla que aun no se entiende y se queda con ficha). Los
+    uniformes de equipo salen sin antebrazos ni manos (la manga acaba ahi):
+    pendiente.
+  - Revision: el indice del juego no se guarda si un .cpk no se pudo leer
+    (antivirus, Steam); el .tmp lleva el numero del proceso y el renombrado
+    se reintenta si el .glb viejo esta abierto (Windows).
+
+### O-294 · El juego de partidos: jugabilidad de 3DS
+
+- Campo en VERTICAL, como la pantalla tactil de 3DS: tu equipo ataca siempre
+  hacia arriba, tambien en la segunda parte. El panel de los duelos va al
+  lado, no encima del campo.
+- Pausa tecnica (boton o espacio). Hay 3 por parte de hasta 20 s; el reloj no
+  corre. Se dibujan rutas y se marca un pase (amarillo), que sale al seguir.
+- Rutas durante los duelos y las pausas: lo que dibujes se cumple al acabar.
+- Presionar: tocar al rival que lleva el balon manda a tus dos mas cercanos a
+  por el (linea roja).
+- Pase bombeado (mantener pulsado al pasar): va por el aire y no se puede
+  cortar hasta los 4 ultimos metros.
+- Apoyos en los duelos: cada companero a menos de 7 m suma un +5 %, y otro
+  +5 % si es del mismo elemento (maximo 3).
+
+### O-295 · El juego de partidos: faltas, penaltis y espiritus invocados
+
+- Faltas: arriesgarse ("Entrada") puede ser falta (22 %), y cargar tambien
+  (12 %). Dentro del area pasa x0,4 de veces, pero es penalti: un tiro desde
+  11 m sin muro ni cadena. En las faltas, los rivales se apartan 9,15 m.
+- Invocar el espiritu (como en GO/CS): cuesta 100 de tension y da un aura de
+  30 s con +25 % a todo. La supertecnica del espiritu solo vale con el aura
+  puesta. Recarga de 60 s.
+- Medido: unas 2,5 faltas, 0,3 penaltis, 6 espiritus y 3,8 goles por partido.
+
+### O-296 · El juego de partidos: solo en pruebas, y fuera de juego opcional
+
+- Aaron no quiere el Partido en el Pizarra de todos mientras esta en pruebas.
+  Solo sale si existe `datos/partido-pruebas.txt` (ignorado en git; no va en
+  pizarra-datos.zip ni en el zip portable) o con `IEVR_PARTIDO=1`. Sin eso,
+  `/partido` y `/api/partido/*` dan 404 y la portada no ensena la franja
+  (`/api/estado` lleva `partido`). Para jugar online, el amigo tambien
+  necesita el fichero.
+- Fuera de juego, opcional al elegir equipos y QUITADO por defecto: el
+  equilibrio del juego se hizo sin el, y con el bajan los goles (3,8 -> 2,1
+  por partido). Si se marca:
+  - Es fuera de juego pasar a un companero que, al salir el pase, esta en el
+    campo rival, por delante del balon y del penultimo rival (contando al
+    portero). Se pita al recibir y el balon pasa al rival.
+  - Con el balon, se ve la linea en discontinua.
+  - La maquina casi nunca pasa a uno en fuera de juego (~1 por partido) y sus
+    delanteros esperan en la linea.
+  - Online manda la opcion del que invita.
+- El pase bombeado se ve por el aire: la sombra en el suelo y el balon arriba
+  (tambien en el invitado online: la foto lleva `alto` y la distancia total).
+
+### O-297 · El juego de partidos: cambios en la pausa
+
+- Hay 3 cambios por partido con los 5 del banquillo de la partida
+  (`equipo()` ya traia `banquillo`). Se hacen en la pausa tecnica o en el
+  descanso: en la ficha de un jugador tuyo salen los suplentes y, al pulsar
+  uno, entra por el.
+- El que entra se queda en el sitio del que sale, con su puesto en la
+  formacion, el sentido de esa parte y el balon si lo tenia. Si sale el
+  portero, el que entra hace de portero (con su KP). El que sale ya no vuelve.
+- Online: los cambios viajan en la foto (`cb`) y el invitado los repite una
+  sola vez; el banquillo va en `equipoParaRed`.
+- La maquina, en el descanso, mete al del banquillo si es un 5 % mejor (suma
+  de stats) que el peor de su puesto. Con los equipos de Aaron casi nunca pasa,
+  porque sus suplentes no son mejores.
+- El aviso de la pausa pasa arriba a la izquierda: abajo tapaba al portero.
+
+### O-298 · El juego de partidos: supertecnicas de varios jugadores
+
+- `tecnicas.csv` trae `jugadores` (1 a 4): 71 tiros de 2, 56 de 3, 6 de 4,
+  defensas y paradas de 2-3... Antes cualquiera las hacia solo.
+- Ahora necesitan n-1 companeros (sin aturdir) a menos de 12 m
+  (`REGLAS.COMBINADA_RADIO`). En el boton sale "con X y Y" o "de 3: necesita
+  2 companeros a menos de 12 m", y no se puede pulsar. Vale igual para la
+  maquina y viaja en el online (`jugadores` en `equipoParaRed`).
+- Supuesto: vale cualquier companero cerca, no uno concreto. Preguntar a
+  Aaron si en VR piden companeros concretos.
+- Medido: unos 4,4 goles por partido.
+
+### O-299 · El juego de partidos: tiempo para elegir online
+
+- Online, cada duelo da 15 s para elegir (`REGLAS.DUELO_MAX`; el reloj va en
+  `duelo.reloj` y viaja en la foto). Al acabarse, el anfitrion juega el
+  comando seguro del que falta (`eleccionSegura`: Regatear/Tapar, Tiro
+  normal, Parar y Bloquear, sin encadenar). Asi el partido no se queda parado
+  si el amigo se despista. En el panel sale "Te quedan n s para elegir".
+- Contra la maquina no hay prisa.
+
+### O-300 · El juego de partidos: rotulo de gol y sonidos
+
+- En cada gol sale "¡GOL!" grande en el campo, con el nombre del que marca
+  (amarillo si es tuyo, rojizo si es del rival), mientras dura la
+  celebracion (`Pantalla._rotuloGol`).
+- Sonidos hechos con el navegador (WebAudio, sin ficheros ni nada del juego,
+  en `web/partido-sonido.js`):
+  - silbato al empezar, al sacar tras un gol, en las faltas y en el fuera de
+    juego; dos pitidos en el descanso y tres al final;
+  - una patada al pasar (y mas fuerte al chutar);
+  - dos notas que suben cuando se para por un duelo;
+  - el publico en los goles (mas largo si es tuyo).
+  `Sonido.mirar(p)` compara cada cuadro con el anterior, asi suena igual en
+  el invitado online. Casilla "Sonido" al elegir equipos (se recuerda). El
+  navegador solo deja sonar tras un clic, asi que se despierta en cualquier
+  clic de la pagina.
+
+### O-301 · El juego de partidos: la pantalla de arriba en 3D
+
+- Como en la 3DS: se juega SIEMPRE en el campo 2D en vertical (la pantalla
+  tactil), y la casilla "Pantalla de arriba en 3D" pone encima del panel de
+  duelos el partido en 3D, en 5:3 como la pantalla de arriba (hasta 560 px de
+  ancho en pantallas anchas). Antes la 3D sustituia al campo 2D y, con el
+  campo en vertical, se veia muy estrecha.
+- Camara: desde la banda, siguiendo el balon. En un duelo se acerca a los dos
+  (en un tiro, al que chuta) y al acabar vuelve.
+- El pase bombeado va por el aire tambien en 3D.
+- Con un cambio (O-297), la figura del que entra se rehace y se pide su modelo
+  a la cola.
+- Al empezar otro partido se suelta la tarjeta grafica del anterior
+  (`Pantalla3D.cerrar`).
+
+### O-302 · El juego de partidos: tiros como en Inazuma (la supertecnica cuenta)
+
+- Medido antes (`medir3.js`): unos 27 tiros a puerta por partido y casi todos
+  muy por debajo de la parada (AT/DF < 0,75 en 24 de 27). Los goles salian de
+  la suerte con A^3/(A^3+D^3) (con AT/DF 0,6, el 22 % entraba), no de superar
+  al portero.
+- Ahora:
+  - El tiro contra el portero va a la quinta (`REGLAS.probabilidadTiro`,
+    `TIRO_EXPONENTE` 5): con AT/DF 0,75 entra el 19 %; con 1, el 50 %; con
+    1,2, el 71 %. Los duelos de regate y entrada siguen a la tercera (IE3).
+  - KP del portero x0,42 (antes x0,62).
+  - La maquina chuta menos y mejor (`REGLAS.IA_TIRO`: a menos de 18 m; 15 %
+    cerca, 5 % con la linea libre y nunca tapada).
+- Resultado: unos 16 tiros a puerta y 3,5 goles por partido. De esos goles,
+  2 de cada 3 son tiros que superan la parada (83-90 % entran) y casi ninguno
+  por debajo de 0,75.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

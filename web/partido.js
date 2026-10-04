@@ -7,6 +7,7 @@ let MODO = "maquina";         // "maquina" | "anfitrion" | "invitado"
 let RED = null;               // la conexion online (partido-red.js)
 const duelosElegidos = new Set();
 let EQUIPOS = [], DATOS = {}, PARTIDO = null, PANTALLA = null, MAQUINA = null, MAQUINA_YO = null, AYUDANTE = null;
+let PANTALLA3D = null;        // la pantalla de arriba en 3D, si se ha elegido (O-301)
 const DEMO = new URLSearchParams(location.search).has("demo");   // maquina contra maquina, para mirar
 let ultimoResultado = null, eventosVistos = 0;
 
@@ -39,6 +40,13 @@ try { const d = localStorage.getItem("partido-duracion"); if (d) $("#duracion").
 $("#duracion").onchange = () => { try { localStorage.setItem("partido-duracion", $("#duracion").value); } catch (e) {} };
 try { $("#focos-auto").checked = localStorage.getItem("partido-focos-auto") === "1"; } catch (e) {}
 try { $("#vista-3d").checked = localStorage.getItem("partido-vista-3d") === "1"; } catch (e) {}
+try { $("#fuera-juego").checked = localStorage.getItem("partido-fuera-juego") === "1"; } catch (e) {}
+try { $("#sonido").checked = localStorage.getItem("partido-sonido") !== "0"; } catch (e) {}
+$("#sonido").onchange = () => { try { localStorage.setItem("partido-sonido", $("#sonido").checked ? "1" : "0"); } catch (e) {} };
+// el navegador solo deja sonar tras un clic (online el partido empieza sin clic)
+document.addEventListener("pointerdown", () => Sonido.despertar());
+if (DEMO && new URLSearchParams(location.search).has("fuera")) $("#fuera-juego").checked = true;
+$("#fuera-juego").onchange = () => { try { localStorage.setItem("partido-fuera-juego", $("#fuera-juego").checked ? "1" : "0"); } catch (e) {} };
 $("#vista-3d").onchange = () => { try { localStorage.setItem("partido-vista-3d", $("#vista-3d").checked ? "1" : "0"); } catch (e) {} };
 $("#focos-auto").onchange = () => { try { localStorage.setItem("partido-focos-auto", $("#focos-auto").checked ? "1" : "0"); } catch (e) {} };
 
@@ -78,11 +86,27 @@ function empezar(a, b, online) {
   YO = MODO === "invitado" ? 1 : 0;
   const semilla = online ? online.semilla : (Math.random() * 1e9) | 0;
   const mitad = (online && online.mitad) || duracionElegida();
-  PARTIDO = new Partido(a, b, { semilla, manual: MODO === "maquina" ? [!DEMO, false] : [true, true], mitad });
-  // la vista 3D si se ha elegido y three.js ha cargado (O-293)
-  const quiero3d = $("#vista-3d").checked && window.Pantalla3D;
+  const fueraDeJuego = online && online.fueraDeJuego !== undefined ? online.fueraDeJuego : $("#fuera-juego").checked;
+  PARTIDO = new Partido(a, b, { semilla, manual: MODO === "maquina" ? [!DEMO, false] : [true, true], mitad, fueraDeJuego,
+                                limiteDuelo: online ? REGLAS.DUELO_MAX : 0 });
+  // se juega siempre en el campo 2D; la vista 3D (O-293), si se ha elegido y
+  // three.js ha cargado, va encima, como la pantalla de arriba de la 3DS (O-301)
+  const quiero3d = !!($("#vista-3d").checked && window.Pantalla3D);
+  if (PANTALLA3D) { PANTALLA3D.cerrar(); PANTALLA3D = null; }
+  $("#pantalla-juego").classList.toggle("con-3d", quiero3d);
+  $("#pantalla-arriba").hidden = !quiero3d;
+  $("#campo-3d").replaceWith(el("canvas", { id: "campo-3d" }));
   $("#campo").replaceWith(el("canvas", { id: "campo" }));
-  PANTALLA = quiero3d ? new window.Pantalla3D($("#campo"), PARTIDO, YO) : new Pantalla($("#campo"), PARTIDO, YO);
+  PANTALLA = new Pantalla($("#campo"), PARTIDO, YO);
+  if (quiero3d) {
+    // sin WebGL (tarjeta grafica antigua o desactivada) se juega igual, solo en 2D
+    try { PANTALLA3D = new window.Pantalla3D($("#campo-3d"), PARTIDO, YO); }
+    catch (e) {
+      PANTALLA3D = null;
+      $("#pantalla-juego").classList.remove("con-3d"); $("#pantalla-arriba").hidden = true;
+      avisa("Este ordenador no puede mostrar la vista 3D: se juega solo con el campo.", "mal");
+    }
+  }
   MAQUINA = MODO === "maquina" ? new Maquina(PARTIDO, 1 - YO, { semilla: (Math.random() * 1e9) | 0 }) : null;
   MAQUINA_YO = DEMO && MODO === "maquina" ? new Maquina(PARTIDO, YO, { semilla: (Math.random() * 1e9) | 0 }) : null;
   if (MODO === "invitado") {
@@ -96,7 +120,8 @@ function empezar(a, b, online) {
   $("#nombre-a").textContent = a.nombre; $("#nombre-b").textContent = b.nombre;
   ultimoResultado = null; eventosVistos = 0; mostrando = null;
   $("#registro").textContent = "";
-  window.onresize = () => PANTALLA.ajustar();
+  window.onresize = () => { PANTALLA.ajustar(); if (PANTALLA3D) PANTALLA3D.ajustar(); };
+  Sonido.activo = $("#sonido").checked; Sonido._antes = null; Sonido.despertar();
   raton();
   requestAnimationFrame(bucle);
 }
@@ -121,7 +146,9 @@ function bucle(ahora) {
     }
   }
   if (MODO === "anfitrion") mandarFoto();
+  Sonido.mirar(PARTIDO, YO);
   PANTALLA.pintar();
+  if (PANTALLA3D) { PANTALLA3D.elegido = PANTALLA.elegido; PANTALLA3D.trazo = PANTALLA.trazo; PANTALLA3D.pintar(); }
   marcador();
   pausa();
   registro();
@@ -205,7 +232,8 @@ function fichaElegido() {
   const caja = $("#ficha-actual");
   if (id === null || id === undefined) { caja.textContent = "Pulsa o arrastra a uno de tus jugadores."; caja.dataset.id = ""; return; }
   const j = p.jugadores[id];
-  const clave = id + ":" + Math.round(p.tension[YO]) + ":" + (j.espiritu ? Math.ceil(Math.max(j.aura, j.auraLista) - p.segundosDeJuego()) : "");
+  const clave = id + ":" + j.nombre + ":" + Math.round(p.tension[YO]) + ":" + (j.espiritu ? Math.ceil(Math.max(j.aura, j.auraLista) - p.segundosDeJuego()) : "")
+    + ":" + (j.lado === YO && p.puedeCambiar(YO) ? p.cambiosQuedan[YO] : "-");
   if (caja.dataset.id === clave) return;
   caja.dataset.id = clave;
   caja.textContent = "";
@@ -223,6 +251,21 @@ function fichaElegido() {
        el("small", { text: activo ? "activo " + Math.ceil(j.aura - ahora) + " s" : espera > 0 ? espera + " s" : REGLAS.INVOCAR_COSTE + " de tension" })]);
     b.onclick = () => PARTIDO.ordenar({ tipo: "invocar", jugador: j.id });
     caja.appendChild(b);
+  }
+  // los cambios (O-297): en la pausa tecnica, quien entra por este jugador
+  if (j.lado === YO && p.puedeCambiar(YO) && (p.banquillos[YO] || []).length) {
+    caja.appendChild(el("div", { class: "coste", style: "margin-top:6px",
+      text: "Cambiar por (quedan " + p.cambiosQuedan[YO] + " cambios):" }));
+    const lista = el("div", { class: "banquillo" });
+    p.banquillos[YO].forEach((d, k) => {
+      if (p.banquilloUsado[YO][k]) return;
+      const b = el("button", { class: "suplente", title: "Entra " + d.nombre + " por " + j.nombre }, [
+        el("img", { alt: "", src: "/cara/" + encodeURIComponent(d.cara || "") }),
+        el("span", { text: d.nombre }), el("small", { text: (d.posicion || "") + " · " + (d.elemento || "") })]);
+      b.onclick = () => { PARTIDO.ordenar({ tipo: "cambio", lado: YO, sale: j.id, entra: k }); $("#ficha-actual").dataset.id = ""; };
+      lista.appendChild(b);
+    });
+    caja.appendChild(lista);
   }
   for (const t of j.tecnicas) caja.appendChild(el("div", { text: "· " + t.nombre + " (" + t.tipo + ", " + t.poder + ", " + t.tp + " de tension)" }));
   if ((j.pasivas || []).length) {
@@ -329,6 +372,9 @@ function pausa() {
   if (p.fase === "final") { if (mostrando !== "final") mostrarFinal(); return; }
   const pend = p.fase === "duelo" && !DEMO && !duelosElegidos.has(p.duelo.id) ? p.pendientes()[YO] : null;
   if (!pend) { if (mostrando) { mostrando = null; capa.hidden = true; } return; }
+  // online, lo que queda para elegir (luego va el comando seguro)
+  const cuenta = $("#cuenta-duelo");
+  if (cuenta) cuenta.textContent = p.limiteDuelo ? "Te quedan " + Math.max(0, Math.ceil(p.limiteDuelo - (p.duelo.reloj || 0))) + " s para elegir" : "";
   if (mostrando === "duelo:" + p.duelo.id) return;
   mostrando = "duelo:" + p.duelo.id;
   pintarEleccion(p, pend);
@@ -346,13 +392,15 @@ function pintarEleccion(p, pend) {
   const lista = el("div", { class: "comandos" });
   if (du.tipo === "foco") {
     const att = p.jugadores[du.atacante], def = p.jugadores[du.defensor];
-    caja.appendChild(el("div", { class: "titulo-duelo", text: pend.rol === "ataque" ? "¡Te sale al paso!" : "¡A por el balon!" }));
+    caja.appendChild(el("div", { class: "titulo-duelo", text: pend.rol === "ataque" ? "¡Te sale al paso!" : "¡A por el balón!" }));
+    if (p.limiteDuelo) caja.appendChild(el("div", { class: "coste", id: "cuenta-duelo" }));
     caja.appendChild(el("div", { class: "cara-a-cara" }, [cara(att), el("b", { text: "VS" }), cara(def)]));
     const j = p.jugadores[pend.jugador];
     for (const o of pend.opciones) lista.appendChild(botonComando(o, j, clave => elegido(clave)));
   } else {
     const tir = p.jugadores[du.tirador], por = p.jugadores[du.portero];
     caja.appendChild(el("div", { class: "titulo-duelo", text: pend.rol === "tiro" ? "¡Tiro a puerta!" : "¡Te chutan!" }));
+    if (p.limiteDuelo) caja.appendChild(el("div", { class: "coste", id: "cuenta-duelo" }));
     caja.appendChild(el("div", { class: "cara-a-cara" }, [cara(tir), el("b", { text: "VS" }), cara(por)]));
     if (pend.rol === "tiro") {
       for (const o of pend.opciones) lista.appendChild(botonComando(o, tir, clave => {
@@ -439,6 +487,14 @@ function mostrarResultado(r) {
   const p = PARTIDO, caja = $("#pausa-caja"), capa = $("#pausa");
   caja.textContent = "";
   let dura = 1600;
+  if (r.tipo === "fuera") {
+    const j = p.jugadores[r.quien];
+    caja.appendChild(el("div", { class: "titulo-duelo", text: "¡Fuera de juego!" }));
+    caja.appendChild(el("div", { class: "resultado", text: j.nombre + " estaba por delante del penúltimo rival" }));
+    capa.hidden = false; mostrando = "resultado";
+    setTimeout(() => { if (mostrando === "resultado") { mostrando = null; capa.hidden = true; } }, 1500);
+    return;
+  }
   if (r.tipo === "tiro") {
     const tir = p.jugadores[r.tirador];
     const final = r.final === "gol" ? "¡¡GOOOL!!" : r.final === "bloqueado" ? "¡Bloqueado!" : r.final === "despeje" ? "¡Despeje!" : "¡Parada!";
@@ -573,16 +629,17 @@ async function alSala(m) {
   }
   if (m.tipo === "equipo" && RED.rol === "anfitrion" && !equiposOnline) {
     const mio = equipoParaRed(await equipoDatos(+$("#equipo-a").value));
-    equiposOnline = { tipo: "equipos", a: mio, b: m.datos, semilla: (Math.random() * 1e9) | 0, mitad: duracionElegida() };
+    equiposOnline = { tipo: "equipos", a: mio, b: m.datos, semilla: (Math.random() * 1e9) | 0, mitad: duracionElegida(),
+                      fueraDeJuego: $("#fuera-juego").checked };
     RED._repite("equipos", () => RED.mandar(equiposOnline));
     empezar(JSON.parse(JSON.stringify(mio)), JSON.parse(JSON.stringify(m.datos)),
-            { modo: "anfitrion", semilla: equiposOnline.semilla, mitad: equiposOnline.mitad });
+            { modo: "anfitrion", semilla: equiposOnline.semilla, mitad: equiposOnline.mitad, fueraDeJuego: equiposOnline.fueraDeJuego });
     return;
   }
   if (m.tipo === "equipos" && RED.rol === "invitado" && !PARTIDO) {
     RED.para("equipo");
     RED._repite("listo", () => RED.mandar({ tipo: "listo" }), 5);
-    empezar(m.a, m.b, { modo: "invitado", semilla: m.semilla, mitad: m.mitad });
+    empezar(m.a, m.b, { modo: "invitado", semilla: m.semilla, mitad: m.mitad, fueraDeJuego: m.fueraDeJuego });
     return;
   }
   if (m.tipo === "listo" && RED.rol === "anfitrion") { RED.para("equipos"); return; }
@@ -591,7 +648,7 @@ async function alSala(m) {
     const o = m.o || {};
     if (o.tipo === "elegir") { if (o.lado === 1) PARTIDO.elegir(1, o.eleccion); return; }
     if (o.tipo === "tactica") { if (o.lado === 1) PARTIDO.usarTactica(1, o.k); return; }
-    if (o.tipo === "pausa" || o.tipo === "seguir" || o.tipo === "presionar") { if (o.lado === 1) PARTIDO.ordenar(o); return; }
+    if (o.tipo === "pausa" || o.tipo === "seguir" || o.tipo === "presionar" || o.tipo === "cambio") { if (o.lado === 1) PARTIDO.ordenar(o); return; }
     if (o.tipo === "invocar") { const jj = PARTIDO.jugadores[o.jugador]; if (jj && jj.lado === 1) PARTIDO.ordenar(o); return; }
     const j = PARTIDO.jugadores[o.jugador !== undefined ? o.jugador : o.de];
     if (j && j.lado === 1) PARTIDO.ordenar(o);
