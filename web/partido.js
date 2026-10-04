@@ -6,7 +6,7 @@ let YO = 0;                   // tu lado: 0, o 1 si eres el invitado de un parti
 let MODO = "maquina";         // "maquina" | "anfitrion" | "invitado"
 let RED = null;               // la conexion online (partido-red.js)
 const duelosElegidos = new Set();
-let EQUIPOS = [], DATOS = {}, PARTIDO = null, PANTALLA = null, MAQUINA = null, MAQUINA_YO = null;
+let EQUIPOS = [], DATOS = {}, PARTIDO = null, PANTALLA = null, MAQUINA = null, MAQUINA_YO = null, AYUDANTE = null;
 const DEMO = new URLSearchParams(location.search).has("demo");   // maquina contra maquina, para mirar
 let ultimoResultado = null, eventosVistos = 0;
 
@@ -37,6 +37,8 @@ async function cargarEquipos() {
 function duracionElegida() { return +($("#duracion").value || REGLAS.MITAD); }
 try { const d = localStorage.getItem("partido-duracion"); if (d) $("#duracion").value = d; } catch (e) {}
 $("#duracion").onchange = () => { try { localStorage.setItem("partido-duracion", $("#duracion").value); } catch (e) {} };
+try { $("#focos-auto").checked = localStorage.getItem("partido-focos-auto") === "1"; } catch (e) {}
+$("#focos-auto").onchange = () => { try { localStorage.setItem("partido-focos-auto", $("#focos-auto").checked ? "1" : "0"); } catch (e) {} };
 
 async function equipoDatos(hueco) {
   if (!DATOS[hueco]) DATOS[hueco] = await pedir("/api/partido/equipo?hueco=" + hueco);
@@ -84,6 +86,8 @@ function empezar(a, b, online) {
     PARTIDO.elegir = (lado, eleccion) => { RED.orden({ tipo: "elegir", lado, eleccion }); return true; };
   }
   duelosElegidos.clear();
+  // focos automaticos: una maquina elige por mi en los regates y entradas
+  AYUDANTE = $("#focos-auto").checked && !DEMO ? new Maquina(PARTIDO, YO, { semilla: (Math.random() * 1e9) | 0 }) : null;
   $("#nombre-a").textContent = a.nombre; $("#nombre-b").textContent = b.nombre;
   ultimoResultado = null; eventosVistos = 0; mostrando = null;
   $("#registro").textContent = "";
@@ -260,6 +264,10 @@ function botonComando(o, j, alElegir) {
 let mostrando = null;          // "duelo:<id>" o "resultado"
 function pausa() {
   const p = PARTIDO, capa = $("#pausa");
+  if (AYUDANTE && p.fase === "duelo" && p.duelo && p.duelo.tipo === "foco" && p.pendientes()[YO] && !duelosElegidos.has(p.duelo.id)) {
+    duelosElegidos.add(p.duelo.id);
+    AYUDANTE._elegir();
+  }
   // el resultado de un duelo que acaba de pasar: se ensena un momento
   if (p.resultado && p.resultado !== ultimoResultado) {
     ultimoResultado = p.resultado;

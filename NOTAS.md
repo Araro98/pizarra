@@ -6791,6 +6791,19 @@ Victory Road tiene 80 tipos de pasiva (pasivas-valor.csv). `ievr/partido.py`
 - Pendiente: los topes por equipo de las pasivas (pasivas-limites.csv); ahora
   hay un tope general de +60 % por valor.
 
+### O-292 · El juego de partidos: topes de las pasivas y focos automaticos
+
+- Topes de equipo como el juego (pasivas-limites.csv): cada pasiva se cruza
+  con su plantilla de pasivas-valor.csv (texto sin el numero ni espacios) para
+  saber su `tipo_efecto`: 922 de 922. El motor suma por tipo y corta cada uno
+  en su tope (PP del equipo 20 %, foco del equipo en campo contrario 50 %...).
+  Las de los espiritus no estan en esa tabla: las iguales tienen un tope de
+  equipo del 30 % (antes, diez jugadores con el mismo espiritu sumaban +200 %
+  de AT de tiro y solo los paraba el tope general de +60 %).
+- "Focos automaticos" (casilla al elegir equipos, se recuerda): la maquina
+  elige por ti en los focos y disputas; en tiros y paradas sigues eligiendo
+  tu. En un partido salen ~50 focos.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
