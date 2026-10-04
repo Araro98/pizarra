@@ -395,12 +395,18 @@ class Partido {
     }
   }
   bonusPasivas(j, valor, ataca) {
-    let pct = 0;
+    // se suma por tipo de efecto y cada tipo se corta en su tope de equipo (O-292)
+    const porTipo = {}, topes = {};
     for (const h of this.equipo(j.lado)) for (const e of h.efectos || []) {
       const vale = e.que.includes(valor) || (ataca && e.que.includes("at") && valor !== "kp" && valor !== "muro")
         || (!ataca && e.que.includes("df") && valor !== "tiro");
-      if (vale && this._alcanza(e, h, j) && this._cumple(e, h, j)) pct += e.pct;
+      if (!(vale && this._alcanza(e, h, j) && this._cumple(e, h, j))) continue;
+      const t = e.tipo || "?";
+      porTipo[t] = (porTipo[t] || 0) + e.pct;
+      if (e.tope) topes[t] = e.tope;
     }
+    let pct = 0;
+    for (const t in porTipo) pct += topes[t] ? Math.min(porTipo[t], topes[t]) : porTipo[t];
     for (const e of this._efectosTactica(j)) {
       const vale = e.que.includes(valor) || (ataca && e.que.includes("at") && valor !== "kp" && valor !== "muro")
         || (!ataca && e.que.includes("df") && valor !== "tiro");

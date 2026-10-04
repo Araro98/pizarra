@@ -71,6 +71,26 @@ _SIN_EFECTO = r"Conf\.|sustituci|Tasa de faltas|comete una falta|esprint|afinida
 _STATS = ["Potencia", "Control", "Técnica", "Presión", "Físico", "Agilidad", "Inteligencia"]
 
 
+def _clave_plantilla(texto):
+    """El texto de una pasiva sin su numero ni espacios, para cruzarlo con las
+    plantillas de pasivas-valor.csv ("... +<VALUE> %")."""
+    t = re.sub(r"([+\-－])\s*\d+(?:[.,]\d+)?", r"\1<VALUE>", texto or "")
+    return re.sub(r"\s+", "", t)
+
+
+def _tipos_y_topes():
+    """{clave de plantilla: (tipo_efecto, tope de equipo o None)} (O-292)."""
+    from ievr import opciones as O
+    def construir():
+        topes = {f["tipo_efecto"].upper(): float(f["limite"]) for f in reglas._tabla("pasivas-limites.csv")}
+        d = {}
+        for f in reglas._tabla("pasivas-valor.csv"):
+            tipo = (f.get("tipo_efecto") or "").upper()
+            d.setdefault(re.sub(r"\s+", "", f.get("texto") or ""), (tipo, topes.get(tipo)))
+        return d
+    return O._indice("partido_topes", construir)
+
+
 def efecto_de_pasiva(texto):
     """{que:[...], pct, alcance, condicion, n} de una pasiva, o None si en el
     partido aun no hace nada. Las de un stat fijo ("Potencia +3"):
@@ -97,7 +117,14 @@ def efecto_de_pasiva(texto):
     alcance = next((a for p, a in _ALCANCE if re.search(p, texto)), "equipo")
     if condicion in ("cerca_mismo", "cerca_otro"):
         alcance = "propio"
-    return {"que": que, "pct": pct, "alcance": alcance, "condicion": condicion, "n": n}
+    # su tipo y el tope de la suma del equipo (lo que pasa del tope no cuenta)
+    tipo, tope = _tipos_y_topes().get(_clave_plantilla(texto), ("", None))
+    if not tipo:
+        # las de un espiritu no estan en la tabla: las iguales no se acumulan
+        # sin fin (tope de equipo del 30 %)
+        tipo, tope = _clave_plantilla(texto), 30.0
+    return {"que": que, "pct": pct, "alcance": alcance, "condicion": condicion, "n": n,
+            "tipo": tipo, "tope": tope}
 
 
 # --- las tacticas del equipo (O-290) -------------------------------------------
