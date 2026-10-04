@@ -24,7 +24,8 @@ class Partido {
     this.mitad = 1; this.reloj = 0; this.pasos = 0;
     this.goles = [0, 0];
     this.tension = [REGLAS.TENSION_INICIO, REGLAS.TENSION_INICIO];
-    this.ultimoRobo = [-1e9, -1e9];   // cuando recupero el balon cada equipo (para "tras recuperar")
+    this.ultimoRobo = [-1e9, -1e9];
+    this.faltasRecibidas = [0, 0];      // para "hasta que el equipo reciba una falta" (O-304)   // cuando recupero el balon cada equipo (para "tras recuperar")
     // las tacticas de cada equipo (O-290): la activa y cuando vuelve a estar lista cada una
     this.tacticas = [equipoA.tacticas || [], equipoB.tacticas || []];
     this.tacticaActiva = [null, null];
@@ -81,9 +82,10 @@ class Partido {
       ruta: [], aturdido: 0, respiro: 0, conBalon: false,
     };
     if (j.esPortero) { j.kpMax = REGLAS.kpBase(j); j.kp = j.kpMax; }
-    // su espiritu (kenshin, mixi max, alma): se invoca en el partido (O-295)
-    const te = (d.tecnicas || []).find(t => t.espiritu);
-    j.espiritu = te ? { nombre: te.espiritu.nombre, familia: te.espiritu.familia } : null;
+    // su espiritu (kenshin, mixi max, alma): se invoca en el partido (O-295),
+    // tenga o no supertecnica (O-304)
+    const te = (d.tecnicas || []).find(t => t.espiritu), esp = d.espiritu || (te && te.espiritu);
+    j.espiritu = esp ? { nombre: esp.nombre, familia: esp.familia } : null;
     j.aura = 0; j.auraLista = 0;           // segundos de juego: hasta cuando dura / cuando se puede otra vez
     // lo que puede gastar en tecnicas: la tension de su equipo
     Object.defineProperty(j, "pt", { get: () => this.tension[lado], enumerable: false });
@@ -438,7 +440,9 @@ class Partido {
   // --- tacticas (O-290) ---------------------------------------------------------
   usarTactica(lado, k) {
     const t = (this.tacticas[lado] || [])[k];
-    if (!t || this.fase !== "juego" || this.tacticaActiva[lado]) return false;
+    // una tactica que el partido aun no sabe aplicar no se activa: no bloquea a
+    // las otras ni gasta la recarga (O-304)
+    if (!t || !(t.efectos || []).length || this.fase !== "juego" || this.tacticaActiva[lado]) return false;
     const ahora = this.segundosDeJuego();
     if (ahora < this.tacticaLista[lado][k]) return false;
     this.tacticaActiva[lado] = { k, hasta: ahora + (t.duracion || 8) };
@@ -530,6 +534,7 @@ class Partido {
       case "tension": return this.tension[j.lado] / REGLAS.TENSION_MAX * 100 >= (e.n || 0);
       case "tras_robo": return this.segundosDeJuego() - this.ultimoRobo[j.lado] < (e.n || 0);
       case "no_gana": return this.goles[j.lado] <= this.goles[1 - j.lado];
+      case "sin_falta": return !this.faltasRecibidas[j.lado];       // "hasta que el equipo reciba una falta" (O-304)
       default: return false;
     }
   }
@@ -548,10 +553,12 @@ class Partido {
   bonusPasivas(j, valor, ataca) {
     // se suma por tipo de efecto y cada tipo se corta en su tope de equipo (O-292)
     const porTipo = {}, topes = {};
+    // el AT general vale para todo ataque menos parar; el DF general, para toda
+    // defensa menos el tiro y la parada del portero, que sube solo con PP (O-304)
+    const vale = e => e.que.includes(valor) || (ataca && e.que.includes("at") && valor !== "kp" && valor !== "muro")
+      || (!ataca && e.que.includes("df") && valor !== "tiro" && valor !== "kp");
     for (const h of this.equipo(j.lado)) for (const e of h.efectos || []) {
-      const vale = e.que.includes(valor) || (ataca && e.que.includes("at") && valor !== "kp" && valor !== "muro")
-        || (!ataca && e.que.includes("df") && valor !== "tiro");
-      if (!(vale && this._alcanza(e, h, j) && this._cumple(e, h, j))) continue;
+      if (!(vale(e) && this._alcanza(e, h, j) && this._cumple(e, h, j))) continue;
       const t = e.tipo || "?";
       porTipo[t] = (porTipo[t] || 0) + e.pct;
       if (e.tope) topes[t] = e.tope;
@@ -559,11 +566,7 @@ class Partido {
     let pct = 0;
     for (const t in porTipo) pct += topes[t] ? Math.min(porTipo[t], topes[t]) : porTipo[t];
     if (this.conAura(j)) pct += REGLAS.AURA_BONUS;
-    for (const e of this._efectosTactica(j)) {
-      const vale = e.que.includes(valor) || (ataca && e.que.includes("at") && valor !== "kp" && valor !== "muro")
-        || (!ataca && e.que.includes("df") && valor !== "tiro");
-      if (vale) pct += e.pct;
-    }
+    for (const e of this._efectosTactica(j)) if (vale(e)) pct += e.pct;
     return 1 + Math.min(pct, REGLAS.PASIVAS_TOPE) / 100;
   }
   _gananciaTension(lado, base) {
@@ -741,6 +744,7 @@ class Partido {
     const g = this.porteriaRival(att);
     const enArea = Math.abs(att.y - g.y) < REGLAS.AREA_Y && Math.abs(att.x) < REGLAS.AREA_X;
     att.aturdido = 0; def.aturdido = REGLAS.ATURDIDO;
+    this.faltasRecibidas[att.lado]++;
     this.nResultado = (this.nResultado || 0) + 1;
     this.resultado = {
       tipo: "falta", penalti: enArea, ganador: att.id, atacante: att.id, defensor: def.id,

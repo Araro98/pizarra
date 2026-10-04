@@ -208,10 +208,11 @@ function pintarTacticas() {
   if (!tac.length) { caja.appendChild(el("span", { class: "ayuda", text: "Tu equipo no lleva tacticas." })); return; }
   tac.forEach((t, k) => {
     const espera = Math.max(0, Math.ceil(p.tacticaLista[YO][k] - ahora));
-    const esActiva = activa && activa.k === k;
+    // las que el partido aun no sabe aplicar salen apagadas (O-304)
+    const esActiva = activa && activa.k === k, sinEfecto = !(t.efectos || []).length;
     const b = el("button", { class: "tactica-btn" + (esActiva ? " activa" : ""), title: t.descripcion + "\n" + t.texto,
-      disabled: esActiva || !!activa || espera > 0 || p.fase !== "juego" },
-      [el("span", { text: t.nombre }), el("small", { text: esActiva ? "activa " + Math.ceil(activa.hasta - ahora) + " s" : espera > 0 ? espera + " s" : "lista" })]);
+      disabled: sinEfecto || esActiva || !!activa || espera > 0 || p.fase !== "juego" },
+      [el("span", { text: t.nombre }), el("small", { text: sinEfecto ? "sin efecto en el partido" : esActiva ? "activa " + Math.ceil(activa.hasta - ahora) + " s" : espera > 0 ? espera + " s" : "lista" })]);
     b.onclick = () => PARTIDO.ordenar({ tipo: "tactica", lado: YO, k });
     caja.appendChild(b);
   });

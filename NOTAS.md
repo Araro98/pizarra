@@ -6988,6 +6988,39 @@ Victory Road tiene 80 tipos de pasiva (pasivas-valor.csv). `ievr/partido.py`
 - Medido con fuera de juego: unos 14 tiros a puerta, 3,5 goles y 0,7 fueras
   de juego por partido.
 
+### O-304 · El juego de partidos: fallos de los datos de los equipos (revision)
+
+Encontrados por la revision a fondo (angulo datos/servidor) y confirmados cada
+uno por dos verificadores:
+- ALTA: los Idolos y Diamantes con tablero llegaban con TODAS las pasivas
+  cerradas. El detalle del jugador no trae la marca de abierta cuando ensena
+  las del tablero (`detalle_jugador`, O-166/O-245), y `_ficha` la tomaba de
+  ahi. Pasaba a 39 jugadores en 10 de los 11 equipos de Aaron, justo los
+  buenos. Ahora la marca sale de la tabla del juego (`J.tabla_pasivas`); sin
+  tabla, cuenta como abierta.
+- "AT. de tiro +10 %" (con punto; Gran plan y otras tres) se leia como AT
+  general y subia tambien focos y disputas. Ahora es solo tiro.
+- Las tacticas con efectos en minuscula tras una coma los perdian (Espejismo
+  Shaolin se quedaba sin ninguno; Marcaje al hombre sin la velocidad): las
+  partes de palabras van sin distinguir mayusculas.
+- Las tacticas que el partido aun no sabe aplicar (Supresion inquebrantable,
+  Formacion caparazon, Aislar al jugador clave...) se podian pulsar: no hacian
+  nada, bloqueaban a las otras y gastaban la recarga. Ahora salen apagadas
+  ("sin efecto en el partido") y el motor no las activa.
+- El DF general de las tacticas y pasivas (Fortaleza de llamas DF +40 %...)
+  subia tambien la parada del portero (x1,5). La parada sube solo con PP.
+- Los espiritus sin supertecnica (Sobrecarga ardiente, Guardian ferreo...) no
+  se podian invocar (en Gafas, 1 de 11). Ahora el jugador lleva siempre su
+  espiritu (`espiritu` en el equipo y en el online) y todos pueden invocar el
+  aura; la supertecnica solo si existe.
+- Las supertecnicas de espiritu de varios jugadores llegaban como de 1
+  (Caliburn es de 2).
+- "Hasta que el equipo reciba una falta" ya cuenta las faltas recibidas
+  (condicion `sin_falta`; `faltasRecibidas` por equipo).
+- El nombre "Formacion <FLC:SHINANO>" sale limpio ("Formacion Mercer").
+- Medido con los datos arreglados: 3,9 goles y 12 tiros a puerta por partido;
+  9 espiritus invocados.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

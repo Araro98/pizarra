@@ -158,5 +158,6 @@ function jugadorParaRed(j) {
         jugadores: t.jugadores })),
       // las pasivas viajan con su efecto (O-288)
       pasivas: (j.pasivas || []).map(q => ({ texto: q.texto, abierta: q.abierta, efecto: q.efecto })),
+      espiritu: j.espiritu || null,
   };
 }

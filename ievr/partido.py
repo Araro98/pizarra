@@ -54,7 +54,7 @@ _CONDICION = [   # (patron, condicion, se lee un numero)
     (r"tensi.n est. al (\d+)", "tension"),
     (r"Tras recuperar el bal.n sin una captura directa, durante los pr.ximos (\d+)", "tras_robo"),
     (r"mismos goles o menos", "no_gana"),
-    (r"Hasta que el equipo reciba una falta", None),        # no hay faltas: siempre
+    (r"Hasta que el equipo reciba una falta", "sin_falta"),  # el partido tiene faltas desde O-295
 ]
 _ALCANCE = [
     (r"(?:AT|[Vv]alor|DF) propi[oa]", "propio"),
@@ -136,14 +136,17 @@ _TAC_QUE = [
     (r"AT/DF de Foco", ["foco"]),
     (r"Foco AT y DF del rival", ["foco"]),
     (r"AT/DF de Disputa", ["disputa"]),
-    (r"AT\d* de tiro(?! directo)", ["tiro"]),
-    (r"Poder de t.cnica de tiro", ["poder_tiro"]),
-    (r"Poder de t.cnica de regateo", ["poder_regate"]),
-    (r"Poder de supert.cnicas(?! comb)", ["poder"]),
+    # "AT. de tiro" lleva punto en unas cuantas (Gran plan...): sin el, caia en
+    # el AT general y subia tambien focos y disputas (O-304)
+    (r"AT\.?\d* de tiro(?! directo)", ["tiro"]),
+    # las de palabras, tambien en minuscula (van tras una coma: Espejismo Shaolin)
+    (r"(?i)Poder de t.cnica de tiro", ["poder_tiro"]),
+    (r"(?i)Poder de t.cnica de regateo", ["poder_regate"]),
+    (r"(?i)Poder de supert.cnicas(?! comb)", ["poder"]),
     (r"PP", ["kp"]),
-    (r"DF de muro", ["muro"]),
-    (r"Velocidad de regate", ["vel_regate"]),
-    (r"Velocidad (?:de mov\w*|en carrera|de movimiento)", ["velocidad"]),
+    (r"(?i)DF de muro", ["muro"]),
+    (r"(?i)Velocidad de regate", ["vel_regate"]),
+    (r"(?i)Velocidad (?:de mov\w*|en carrera|de movimiento)", ["velocidad"]),
     (r"Aumento de Tensi.n", ["tension_gana"]),
     (r"\bDF\b", ["df"]),
     (r"\bAT\b", ["at"]),
@@ -210,8 +213,9 @@ def _tacticas_del_equipo(e):
         if not f:
             continue
         num = lambda x, d: float(x) if x not in (None, "") else d
-        fuera.append({"id": f["id"], "nombre": f["nombre"], "categoria": f["categoria"],
-                      "descripcion": f.get("descripcion") or "", "texto": f.get("efectos") or "",
+        # el nombre sin los marcadores del juego ("Formacion <FLC:SHINANO>", O-304)
+        fuera.append({"id": f["id"], "nombre": O._limpio(f["nombre"]), "categoria": f["categoria"],
+                      "descripcion": O.sin_marcadores(f.get("descripcion") or ""), "texto": f.get("efectos") or "",
                       "duracion": num(f.get("duracion"), 8.0), "recarga": num(f.get("recarga"), 90.0),
                       "efectos": efectos_de_tactica(f.get("efectos"))})
     return fuera
@@ -251,7 +255,7 @@ def _ficha(plain, fila):
         stats = (b or {}).get("valores") or [0] * 7
     ids = _ids_de_tecnicas(plain, fila)
     portec = _tecnicas_por_id()
-    tecnicas, de_espiritu = [], []
+    tecnicas, de_espiritu, espiritu = [], [], None
     for t in d.get("tecnicas") or []:
         if not (t.get("puesta") and t.get("abierta") and t.get("tipo")):
             continue
@@ -262,14 +266,18 @@ def _ficha(plain, fila):
             from ievr import opciones as O
             esp = O._espiritus().get(idh) or {}
             st = portec.get((esp.get("tecnica") or "").upper())
+            # el espiritu va siempre en el jugador: se puede invocar (aura) aunque
+            # no tenga supertecnica, como Sobrecarga ardiente (O-304)
+            if esp:
+                espiritu = {"nombre": O.sin_marcadores(esp.get("nombre_largo") or t["puesta"]),
+                            "familia": esp.get("familia") or "", "rango": esp.get("rango")}
             if st:
                 tecnicas.append({"ranura": t["ranura"], "id": st["id"].upper(), "nombre": O._limpio(st["nombre"]),
                                  "interno": st.get("nombre_interno") or "", "tipo": st["categoria"],
                                  "subtipo": st.get("subtipo") or "", "subtipo_valor": int(st.get("subtipo_valor") or 0),
                                  "elemento": st.get("elemento") or "", "poder": int(st.get("poder") or 0),
-                                 "tp": int(st.get("tp") or 0), "jugadores": 1,
-                                 "espiritu": {"nombre": O.sin_marcadores(esp.get("nombre_largo") or t["puesta"]),
-                                              "familia": esp.get("familia") or "", "rango": esp.get("rango")}})
+                                 "tp": int(st.get("tp") or 0), "jugadores": O.jugadores_de_tecnica(st)[0],
+                                 "espiritu": espiritu})
             texto = O.pasiva_de_espiritu(idh)
             if texto:
                 de_espiritu.append({"ranura": "espiritu", "texto": texto, "abierta": True,
@@ -283,12 +291,20 @@ def _ficha(plain, fila):
                          "tp": t["tp"], "jugadores": t.get("jugadores") or 1})
     # las pasivas: en cada ranura manda la heredada si la hay (tapa a la de la
     # ficha) y solo cuentan las abiertas en el arbol (O-288)
+    # La marca de abierta sale de la tabla del juego: el detalle no la trae para
+    # los Idolos y Diamantes con tablero (ensena las de su tablero) y entonces
+    # salian todas cerradas (O-304). Sin tabla, cuenta como abierta.
+    marcas = [x.get("marca") for x in J.tabla_pasivas(plain, fila)]
     pasivas = []
     for p in d.get("pasivas") or []:
         if not isinstance(p, dict) or not (p.get("normal") or p.get("heredada")):
             continue
         texto = p.get("heredada") or p.get("normal") or ""
-        abierta = p.get("marca") == 1
+        marca = p.get("marca")
+        if marca is None:
+            k = (p.get("ranura") or 0) - 1
+            marca = marcas[k] if 0 <= k < len(marcas) else 1
+        abierta = marca == 1
         pasivas.append({"ranura": p.get("ranura"), "texto": texto, "abierta": abierta,
                         "efecto": efecto_de_pasiva(texto) if abierta else None})
     pasivas += de_espiritu
@@ -301,7 +317,7 @@ def _ficha(plain, fila):
     return {"fila": fila, "nombre": d["nombre"], "cara": d.get("cara") or "",
             "posicion": d.get("posicion") or "", "elemento": d.get("elemento") or "",
             "nivel": d.get("nivel"), "rareza": d.get("rareza"), "arquetipo": d.get("arquetipo"),
-            "stats": list(stats), "tecnicas": tecnicas, "pasivas": pasivas}
+            "stats": list(stats), "tecnicas": tecnicas, "pasivas": pasivas, "espiritu": espiritu}
 
 
 def equipo(plain, hueco):
