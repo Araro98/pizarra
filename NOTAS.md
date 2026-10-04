@@ -6638,6 +6638,51 @@ Visto y no tocado: al girar, el juego rehace tambien la seleccion de tecnicas
 (`0xE2C66FA7`, 6 por jugador) y `cambiar_rama` no; el juego la rehace solo al
 cargar (de la `.bak` a las 07:48 cambio la de 67 jugadores sin girarlos).
 
+### O-286 · El juego de partidos: fase 1, contra la maquina
+
+Aaron (2026-10-04): "un Inazuma antiguo dentro de Pizarra, con todo lo del
+VR": la jugabilidad de IE 1-3 (DS) y GO/CS/Galaxy (3DS) -lapiz, pausa en cada
+duelo- con los personajes, stats, tecnicas, pasivas y calculos de Victory Road.
+Solo partidos online con amigos. Aparte de todo lo demas, sin tocarlo.
+
+Investigacion (informes en el scratchpad de la sesion, juego/investigacion):
+- DS/3DS (manual oficial de IE3 Team Ogre y de GO Light; formulas de IE3 por
+  ingenieria inversa de oupo): arrastrar desde un jugador = su ruta; tocar a
+  un companero = pase; tocar un punto = pase al hueco; tocar la porteria =
+  tiro. Al cruzarse con un rival el juego se para: comando seguro, comando
+  potente (fuerte pero inestable) o supertecnica. Gana con probabilidad
+  A^3 / (A^3 + D^3). Muro: con 1,25 veces el tiro lo para, por debajo de
+  0,75 nada, entre medias lo frena.
+- VR: AT tiro = Pot + Ctrl (+ tecnica x (nivel+15)/112, x1,15 si es de su
+  elemento); AT foco = Tec + Ctrl + Pot/2; DF foco = Tec + Int + Agi/2;
+  disputa Int + Fis contra Int + Pres; muro Fis + Pres; KP del portero
+  Agi x4 + Fis x3 + Pres x2 y se desgasta al parar; ventaja de elemento +20 %
+  por el jugador y +20 % por la tecnica. Las tecnicas no gastan PT del
+  jugador: gastan la TENSION del equipo (max 300; +60 al ganar un duelo, +30
+  al perderlo; la columna "tp" de tecnicas.csv es su coste).
+- Modelos 3D: estan en los paquetes del juego (.g4pk/.g4md/.g4mg/.g4sk/.g4mt);
+  hay un lector propio de G4PK que abre 1.859 de 1.859 de una muestra. La
+  herramienta mas completa (G4_Blender) no tiene licencia: solo para probar.
+  Plan: convertir en el PC de cada uno desde su propio juego, sin repartir nada.
+- Online: WebRTC directo entre los dos con el saludo por los mismos servidores
+  MQTT del draft; el que invita simula y el otro recibe instantaneas.
+
+Hecho (fase 1, contra la maquina, en /partido y una franja en el inicio):
+- `ievr/partido.py`: los equipos de la partida con once en el campo, y un
+  equipo listo para jugar (formacion, siete stats, tecnicas abiertas con id,
+  nombre interno, tipo, elemento, poder y coste; pasivas en texto).
+- `web/partido-reglas.js` (todos los numeros, ajustables), `partido-motor.js`
+  (simulacion a 30 pasos por segundo con azar con semilla: igual en dos PCs),
+  `partido-ia.js` (la maquina), `partido-pantalla.js` (campo en canvas, caras)
+  y `partido.js` (el raton como el lapiz y la pausa con los comandos).
+  `/partido?demo` = maquina contra maquina.
+- Probado: 12 partidos maquina contra maquina sin pantalla (node): unos 3,7
+  goles, 21 tiros y 50 duelos por partido de 2 x 3 minutos; y en el navegador
+  la pausa del duelo, el resultado, el tiro con su parada y los tres gestos
+  del raton.
+Falta: online, pasivas con efecto, cadenas y tiros directos, tacticas,
+espiritus (hipertecnicas), modelos 3D y cinematicas de las tecnicas.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

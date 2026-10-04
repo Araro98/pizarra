@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Partido · Pizarra</title>
+<link rel="icon" type="image/png" href="/ui/pizarra-icono-64">
+<link rel="stylesheet" href="/web/comun.css">
+<style>
+  /* El juego de partidos (NOTAS O-286): la jugabilidad de los Inazuma de DS y
+     3DS (lapiz = raton, pausa en cada duelo) con el contenido de Victory Road.
+     Aparte de todo lo demas de Pizarra. */
+  body { background:#0d1a33; }
+  .pantalla[hidden] { display:none !important; }
+
+  /* elegir equipos */
+  .elegir { max-width:880px; margin:18px auto; display:grid; gap:14px; }
+  .lados { display:grid; grid-template-columns:1fr auto 1fr; gap:14px; align-items:stretch; }
+  @media (max-width:760px) { .lados { grid-template-columns:1fr; } }
+  .lado { background:var(--panel); color:#fff; border:3px solid #fff; border-radius:10px; padding:14px;
+    box-shadow:0 0 0 2px var(--aro), 0 10px 20px rgba(0,0,0,.35); display:flex; flex-direction:column; gap:10px; }
+  .lado h2 { margin:0; font-size:var(--t-lg); font-style:italic; font-weight:900; letter-spacing:.03em; text-transform:uppercase; }
+  .lado select { font:inherit; font-weight:800; padding:8px; border-radius:7px; border:2px solid var(--azul-marco); }
+  .lado .once { display:grid; grid-template-columns:repeat(auto-fill, minmax(64px, 1fr)); gap:6px; min-height:70px; }
+  .lado .once figure { margin:0; text-align:center; font-size:var(--t-xxs); font-weight:700; line-height:1.15; }
+  .lado .once img { width:52px; height:52px; border-radius:50%; background:#fff; object-fit:cover;
+    border:2px solid #fff; box-shadow:0 0 0 2px var(--aro); }
+  .vs { align-self:center; font-size:var(--t-3xl); font-weight:900; font-style:italic; color:var(--naranja-claro);
+    text-shadow:0 3px 0 #7a3c00; }
+  .botones { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .grande { font:inherit; font-size:var(--t-lg); font-weight:900; font-style:italic; text-transform:uppercase;
+    padding:12px 26px; border-radius:9px; border:3px solid #fff; cursor:pointer; color:#fff;
+    background:linear-gradient(180deg, var(--naranja-claro), var(--naranja)); box-shadow:0 0 0 2px #9c5208, 0 8px 16px rgba(0,0,0,.35);
+    transform:skewX(-8deg); }
+  .grande > span { display:inline-block; transform:skewX(8deg); }
+  .grande:disabled { filter:grayscale(1); opacity:.6; cursor:default; }
+  .grande.azul { background:linear-gradient(180deg, #3a6fc4, var(--azul-osc)); box-shadow:0 0 0 2px #0f2147, 0 8px 16px rgba(0,0,0,.35); }
+  .nota { color:#cfe0f5; text-align:center; font-size:var(--t-sm); }
+
+  /* el campo */
+  .juego { position:relative; display:grid; grid-template-columns:minmax(0, 1fr) 300px; gap:12px; padding:10px;
+    height:calc(100vh - 70px); box-sizing:border-box; }
+  @media (max-width:900px) { .juego { grid-template-columns:1fr; height:auto; } }
+  .campo-caja { position:relative; min-height:420px; }
+  #campo { width:100%; height:100%; display:block; border-radius:10px; box-shadow:0 0 0 3px #fff, 0 0 0 5px var(--aro); cursor:crosshair; touch-action:none; }
+  .marcador { position:absolute; top:8px; left:50%; transform:translateX(-50%) skewX(-8deg); display:flex; align-items:center; gap:10px;
+    background:var(--panel); color:#fff; border:2px solid #fff; border-radius:8px; padding:4px 14px; font-weight:900; font-style:italic;
+    box-shadow:0 0 0 2px var(--aro); pointer-events:none; font-size:var(--t-lg); }
+  .marcador > * { transform:skewX(8deg); }
+  .marcador .goles { font-size:var(--t-2xl); min-width:64px; text-align:center; }
+  .marcador .reloj { font-size:var(--t-md); opacity:.85; }
+  .lateral { display:flex; flex-direction:column; gap:10px; min-height:0; overflow:auto; }
+  .tarjeta { background:var(--panel); color:#fff; border:2px solid #fff; border-radius:9px; padding:10px; box-shadow:0 0 0 2px var(--aro); }
+  .tarjeta h3 { margin:0 0 6px; font-size:var(--t-md); font-style:italic; font-weight:900; text-transform:uppercase; }
+  .tarjeta .quien { display:flex; gap:8px; align-items:center; }
+  .tarjeta .quien img { width:46px; height:46px; border-radius:50%; background:#fff; object-fit:cover; }
+  .barra-pt { height:10px; border-radius:5px; background:#0b1630; overflow:hidden; border:1px solid #6d86b1; }
+  .barra-pt > i { display:block; height:100%; background:linear-gradient(90deg, #3fe0d0, #2b9de0); }
+  .ayuda { font-size:var(--t-sm); line-height:1.45; color:#dbe8fb; }
+  .ayuda b { color:#fff; }
+  .registro { font-size:var(--t-xs); line-height:1.4; max-height:220px; overflow:auto; color:#cfe0f5; }
+
+  /* la pausa de un duelo: los comandos, como en DS */
+  .pausa { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(5,12,30,.55); z-index:5; }
+  .pausa[hidden] { display:none; }
+  .pausa .caja { background:var(--panel); color:#fff; border:3px solid #fff; border-radius:12px; padding:14px; width:min(520px, 94%);
+    box-shadow:0 0 0 2px var(--aro), 0 16px 30px rgba(0,0,0,.5); display:flex; flex-direction:column; gap:10px; }
+  .pausa .titulo-duelo { font-size:var(--t-xl); font-weight:900; font-style:italic; text-transform:uppercase; text-align:center; color:var(--naranja-claro); }
+  .pausa .cara-a-cara { display:flex; justify-content:space-around; align-items:center; gap:10px; }
+  .pausa .cara-a-cara figure { margin:0; text-align:center; font-weight:800; font-size:var(--t-sm); }
+  .pausa .cara-a-cara img { width:64px; height:64px; border-radius:50%; background:#fff; object-fit:cover; border:2px solid #fff; }
+  .pausa .comandos { display:flex; flex-direction:column; gap:6px; }
+  .comando { display:flex; align-items:center; gap:8px; width:100%; text-align:left; font:inherit; font-weight:800; cursor:pointer;
+    padding:7px 10px; border-radius:7px; border:2px solid #fff; background:var(--panel-claro); color:#fff; }
+  .comando:hover:not(:disabled) { background:#3a5aa0; }
+  .comando:disabled { opacity:.45; cursor:default; }
+  .comando .poder { margin-left:auto; font-style:italic; }
+  .comando .coste { font-size:var(--t-xs); opacity:.85; }
+  .pausa .resultado { text-align:center; font-weight:900; font-size:var(--t-lg); }
+</style>
+</head>
+<body>
+<header class="cabecera" id="cabecera">
+  <div class="fila">
+    <a class="titulo" href="/">Partido <small>Inazuma como en DS, con todo lo de Victory Road</small></a>
+    <nav class="tabs">
+      <a href="/"><span>Inicio</span></a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="pantalla elegir" id="pantalla-elegir">
+    <div class="lados">
+      <div class="lado"><h2>Tu equipo</h2><select id="equipo-a"></select><div class="once" id="once-a"></div></div>
+      <div class="vs">VS</div>
+      <div class="lado"><h2>Rival</h2><select id="equipo-b"></select><div class="once" id="once-b"></div></div>
+    </div>
+    <div class="botones">
+      <button class="grande" id="jugar-maquina"><span>Jugar contra la máquina</span></button>
+      <button class="grande azul" id="jugar-online" disabled title="Muy pronto"><span>Jugar online</span></button>
+    </div>
+    <p class="nota" id="nota-elegir">Salen los equipos de tu partida que tienen once jugadores en el campo.</p>
+  </section>
+
+  <section class="pantalla juego" id="pantalla-juego" hidden>
+    <div class="campo-caja">
+      <canvas id="campo"></canvas>
+      <div class="marcador"><span id="nombre-a">Local</span><span class="goles" id="goles">0 - 0</span><span id="nombre-b">Rival</span><span class="reloj" id="reloj">1ª 0'</span></div>
+      <div class="pausa" id="pausa" hidden><div class="caja" id="pausa-caja"></div></div>
+    </div>
+    <aside class="lateral">
+      <div class="tarjeta" id="tarjeta-jugador"><h3>Tu jugador</h3><div id="ficha-actual" class="ayuda">—</div></div>
+      <div class="tarjeta"><h3>Cómo se juega</h3>
+        <div class="ayuda">
+          <b>Arrastra</b> desde tu jugador para dibujar por dónde corre.<br>
+          <b>Pulsa a un compañero</b> para pasarle el balón.<br>
+          <b>Pulsa la portería rival</b> para chutar.<br>
+          Cuando un rival se cruza, el partido <b>se para</b> y eliges qué hacer: como en DS.
+        </div></div>
+      <div class="tarjeta"><h3>Lo que pasa</h3><div class="registro" id="registro"></div></div>
+    </aside>
+  </section>
+</main>
+
+<script src="/web/comun.js"></script>
+<script src="/web/partido-reglas.js"></script>
+<script src="/web/partido-motor.js"></script>
+<script src="/web/partido-ia.js"></script>
+<script src="/web/partido-pantalla.js"></script>
+<script src="/web/partido.js"></script>
+</body>
+</html>

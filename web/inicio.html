@@ -76,6 +76,8 @@
   .bloques { display:grid; grid-template-columns:repeat(3, minmax(220px, 1fr)); gap:22px;
     width:100%; max-width:886px; }
   @media (max-width:820px) { .bloques { grid-template-columns:1fr; max-width:430px; } }
+  /* el juego de partidos (O-286): una franja a lo ancho debajo de los tres */
+  .bloque.ancho { grid-column:1 / -1; min-height:84px; }
   .bloque { position:relative; display:flex; align-items:center; gap:14px; min-height:118px; padding:14px 18px;
     text-decoration:none; color:#fff; background:var(--panel); border:3px solid #fff; border-radius:8px;
     overflow:hidden; box-shadow:0 0 0 2px #9fb6d6, 0 8px 16px rgba(15,40,90,.26); transform:skewX(-6deg);
@@ -150,6 +152,10 @@
         <img class="ico" src="/icono/icon_list_tab/icon_list_tab_datafile03.png" alt="">
         <span class="txt"><span class="adorno" id="adorno-bd"></span><b>Base de datos</b><small>Personajes, supertecnicas, espiritus, pasivas y objetos.</small></span>
         
+      </a>
+      <a class="bloque ancho" href="/partido">
+        <img class="ico" src="/icono/icon_list_tab/icon_list_tab_battle01.png" alt="">
+        <span class="txt"><b>Partido</b><small>Juega como en DS con todo lo de Victory Road: con el raton, pausa en cada duelo y las supertecnicas de tus jugadores. En pruebas.</small></span>
       </a>
     </nav>
   </div>

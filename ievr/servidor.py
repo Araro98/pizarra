@@ -1418,6 +1418,17 @@ class Manejador(BaseHTTPRequestHandler):
                 return self._fichero(os.path.join(WEB, "tierlist.html"), "text/html; charset=utf-8")
             if u.path == "/api/tier-list":
                 return self._responder(200, TL.tier_list())
+            # el juego de partidos (O-286), aparte de todo lo demas
+            if u.path in ("/partido", "/partido.html"):
+                return self._fichero(os.path.join(WEB, "partido.html"), "text/html; charset=utf-8")
+            if u.path == "/api/partido/equipos":
+                from ievr import partido as PA
+                with self.ses.lock:
+                    return self._responder(200, {"equipos": PA.equipos(self.ses.plain)})
+            if u.path == "/api/partido/equipo":
+                from ievr import partido as PA
+                with self.ses.lock:
+                    return self._responder(200, PA.equipo(self.ses.plain, int((q.get("hueco") or ["-1"])[0])))
             if u.path in ("/calc", "/calculadora", "/calculadora.html"):
                 return self._fichero(os.path.join(WEB, "calculadora.html"), "text/html; charset=utf-8")
             # el modo draft entre dos jugadores (O-247)
