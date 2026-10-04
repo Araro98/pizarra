@@ -1421,6 +1421,14 @@ class Manejador(BaseHTTPRequestHandler):
             # el juego de partidos (O-286), aparte de todo lo demas
             if u.path in ("/partido", "/partido.html"):
                 return self._fichero(os.path.join(WEB, "partido.html"), "text/html; charset=utf-8")
+            if u.path.startswith("/api/partido/modelo/"):
+                # el modelo 3D de un personaje, si este PC lo ha convertido desde
+                # su juego (datos/modelos3d, no se reparte; O-293)
+                nombre = os.path.basename(unquote(u.path[len("/api/partido/modelo/"):]))
+                ruta = os.path.join(RAIZ, "datos", "modelos3d", nombre)
+                if nombre.endswith(".glb") and os.path.isfile(ruta):
+                    return self._fichero(ruta, "model/gltf-binary")
+                return self._responder(404, {"error": "ese personaje no tiene modelo convertido"})
             if u.path == "/api/partido/equipos":
                 from ievr import partido as PA
                 with self.ses.lock:

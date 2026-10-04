@@ -38,6 +38,8 @@ function duracionElegida() { return +($("#duracion").value || REGLAS.MITAD); }
 try { const d = localStorage.getItem("partido-duracion"); if (d) $("#duracion").value = d; } catch (e) {}
 $("#duracion").onchange = () => { try { localStorage.setItem("partido-duracion", $("#duracion").value); } catch (e) {} };
 try { $("#focos-auto").checked = localStorage.getItem("partido-focos-auto") === "1"; } catch (e) {}
+try { $("#vista-3d").checked = localStorage.getItem("partido-vista-3d") === "1"; } catch (e) {}
+$("#vista-3d").onchange = () => { try { localStorage.setItem("partido-vista-3d", $("#vista-3d").checked ? "1" : "0"); } catch (e) {} };
 $("#focos-auto").onchange = () => { try { localStorage.setItem("partido-focos-auto", $("#focos-auto").checked ? "1" : "0"); } catch (e) {} };
 
 async function equipoDatos(hueco) {
@@ -77,7 +79,10 @@ function empezar(a, b, online) {
   const semilla = online ? online.semilla : (Math.random() * 1e9) | 0;
   const mitad = (online && online.mitad) || duracionElegida();
   PARTIDO = new Partido(a, b, { semilla, manual: MODO === "maquina" ? [!DEMO, false] : [true, true], mitad });
-  PANTALLA = new Pantalla($("#campo"), PARTIDO, YO);
+  // la vista 3D si se ha elegido y three.js ha cargado (O-293)
+  const quiero3d = $("#vista-3d").checked && window.Pantalla3D;
+  $("#campo").replaceWith(el("canvas", { id: "campo" }));
+  PANTALLA = quiero3d ? new window.Pantalla3D($("#campo"), PARTIDO, YO) : new Pantalla($("#campo"), PARTIDO, YO);
   MAQUINA = MODO === "maquina" ? new Maquina(PARTIDO, 1 - YO, { semilla: (Math.random() * 1e9) | 0 }) : null;
   MAQUINA_YO = DEMO && MODO === "maquina" ? new Maquina(PARTIDO, YO, { semilla: (Math.random() * 1e9) | 0 }) : null;
   if (MODO === "invitado") {
