@@ -92,6 +92,8 @@ def main(argv):
     filas = []
     for (identidad, diamante, rama), c in sorted(cuenta.items()):
         giro, n = c.most_common(1)[0]
+        if n <= sum(c.values()) - n:
+            continue            # empate: no se sabe cual es (O-282)
         filas.append({"identidad": identidad, "chara_base_id": base.get(identidad, ""),
                       "diamante": diamante, "rama": rama, "giro": giro, "muestras": n,
                       "discrepan": sum(c.values()) - n})

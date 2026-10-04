@@ -1530,10 +1530,15 @@ CASILLAS_DEL_ANILLO = range(28, 33)
 # (Anastasia con el 7, cuando lo suyo es el 4). Como no sale de ninguna tabla
 # del juego que tengamos, se aprende de los jugadores que hizo el juego:
 # `anillos.csv` (2.601 personajes de la partida de Aaron) y la partida abierta.
-# Cuando solo se conoce el giro de la otra rama, se pasa por la pareja mas
-# frecuente; cuando no se conoce nada, el giro mas comun.
-GIRO_DE_LA_OTRA_RAMA = {0: {7: 5, 6: 8, 8: 4, 4: 8, 1: 5},      # rama 1 -> rama 2
-                        1: {5: 7, 8: 6, 4: 8, 1: 7}}            # rama 2 -> rama 1
+# El giro es el par de lados que une el anillo, segun el dibujo del arbol del
+# personaje (una de las 39 formas de ABILITY_LEARNING_SHAPE_TABLE_INFO, O-282):
+# arriba-izq 7, arriba-der 5, arriba-abajo 1, izq-abajo 6, izq-der 8,
+# der-abajo 4. Por eso, sabiendo el giro de una rama, el de la otra solo es
+# seguro cuando lo da una sola forma; el 7 (rama 1) puede ir al 5 o al 1 y el
+# 5 y el 8 (rama 2) a dos sitios: ahi no se adivina (mejor sin girar, que
+# girado mal el juego lo deja roto).
+GIRO_DE_LA_OTRA_RAMA = {0: {6: 8, 8: 4, 4: 8, 1: 5},      # rama 1 -> rama 2
+                        1: {4: 8, 1: 7}}                  # rama 2 -> rama 1
 
 
 def _giros_de_tabla():

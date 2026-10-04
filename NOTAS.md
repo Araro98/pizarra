@@ -6459,6 +6459,53 @@ partida (los que tienen las dos ramas abiertas son normales del juego).
   anillo queda sin girar y Aaron lo gira con un clic en el juego (O-200).
   Con "Arreglar arboles" las 4 quedan bien y no queda ninguno roto (57 bytes).
 
+### O-282 · De donde sale el giro del anillo (investigacion)
+
+Aaron: "intentar descubrir los giros de los 5000 pjs sin tener que tenerlos
+ya... en el draft siempre tenemos que irnos al juego a girar el arbol".
+
+**Lo que ya se sabe (comprobado):**
+- El arbol de un normal (y el de un Diamante) se dibuja con una de las 39
+  formas de `skill/ability_learning_config` -> `ABILITY_LEARNING_SHAPE_TABLE_INFO`
+  (filas (1, clave de forma)). Cada forma es una cuadricula 11x22 en
+  `BOARD_SHAPE_PIECE_DIR` (piezas) y `BOARD_SHAPE_PIECE_EFF` (numero de
+  casilla, 1-28; la 8 es el anillo = casilla 7 del mapa).
+- El giro es el par de lados que une el anillo con la rama: arriba-izq 7,
+  arriba-der 5, arriba-abajo 1, izq-abajo 6, izq-der 8, der-abajo 4. Las seis
+  parejas rama1->rama2 que se ven en las partidas (7->5, 7->1, 1->5, 6->8,
+  8->4, 4->8) salen exactas de las formas, y la frecuencia de cada giro en la
+  partida cuadra con cuantas formas lo tienen (7: 16 de 39 ~ 40 %).
+- Por eso `GIRO_DE_LA_OTRA_RAMA` ahora solo usa las parejas seguras (6->8,
+  1->5, 8->4, 4->8; y 1->7, 4->8 al reves); con el 7 (rama 1) o el 5 y el 8
+  (rama 2) ya no se adivina: queda sin girar en vez de girado mal.
+
+**Lo que falta: que forma le toca a cada personaje.** No esta en ningun dato:
+ni `chara_param` (col 10 es el tablero de Idolos/Diamantes; las 11-28 son las
+pasivas del arbol), ni `chara_base`, ni la partida (`abilityLearningBoardId` =
+`0xBAFA8DBD`, solo en Idolos; los normales y los Diamantes no lo llevan). Los
+70 Diamantes de fabrica comparten tablero en los datos y en la partida tienen
+giros distintos. Probado sin exito (acierto ~30-40 %, el del azar): columnas
+y pares de columnas con validacion; identidad/chara id/indice modulo 39;
+crc32, adler, murmur3, xxh32, fnv1/1a, djb2 de varias codificaciones;
+Mersenne Twister, rand de MSVC, xorshift32/128 sembrados con la identidad.
+Las 580 `TABLE_INFO` llevan a tableros de 27-28 casillas pero sus claves no
+salen en ningun otro fichero.
+- **Siguiente paso** (largo): seguir el codigo de `nie.exe` (no esta cifrado;
+  `.text` normal). Los crc32 de los nombres de tabla estan en una tabla de
+  registro en `.data` (crc, funcion de carga): SHAPE_TABLE_INFO se carga con
+  `0x140272B80` en el objeto de configuracion `+0x328` (filas de 8 bytes:
+  (1, forma)) y su cuenta en `+0x330`. Hay que encontrar quien lee esa lista
+  para elegir la forma (y con que semilla). Textos utiles del exe:
+  `abilityLearningBoardId`, `ABILITY_LEARNING_ROUTE_TYPE`,
+  `ability_learning_board_basara_%s-%s_%02u` (nombre de los tableros de
+  Diamante).
+
+**Mientras tanto:** `anillos.csv` rehecho con la partida actual de Aaron y sus
+copias: 2.810 giros (antes 2.674), unos 2.600 normales de ~5.400.
+`construir_anillos.py` ya no apunta empates (Luvy y Duvy Diamante salia 6 o 7).
+Cada partida que se abre ensena tambien sus giros buenos, asi que un
+personaje que Aaron gire una vez en el juego queda aprendido.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
