@@ -44,6 +44,9 @@ class RedPartido {
       estado: this.sala ? "jugando" : "libre", equipo: this.equipo }, true);
   }
   salir() {
+    // al cerrar la pestana o pulsar Inicio a mitad de partido, el rival se
+    // entera; antes se quedaba en "esperando a..." para siempre (O-305)
+    if (this.sala) this.mandar({ tipo: "adios" });
     if (this.yo && this.red.conectado) this.red.publicar("partido/conectados/" + this.yo.slug, null, true);
     this.red.cerrar();
   }
@@ -76,7 +79,7 @@ class RedPartido {
   }
 
   _entrarSala(sala, rol, rival) {
-    this.sala = sala; this.rol = rol; this.rival = rival;
+    this.sala = sala; this.rol = rol; this.rival = rival; this.rivalFuera = false;
     this.ordenesVistas = 0; this.nOrden = 0; this.ultimaFoto = -1;
     this.red.suscribir("partido/sala/" + sala + "/" + (rol === "anfitrion" ? "invitado" : "anfitrion"));
     this.anunciarme();
@@ -124,7 +127,10 @@ class RedPartido {
       return;
     }
     if (this.sala && tema === "partido/sala/" + this.sala + "/" + (this.rol === "anfitrion" ? "invitado" : "anfitrion") && msg) {
-      if (msg.tipo === "orden") {
+      // la eleccion de un duelo no pasa por este filtro: lleva su duelo, se repite
+      // hasta que llega y el anfitrion no aplica dos del mismo lado. Aqui se tiraba
+      // si llegaba por un servidor lento detras de otra orden posterior (O-305)
+      if (msg.tipo === "orden" && !(msg.o && msg.o.tipo === "elegir" && msg.o.duelo !== undefined)) {
         if (msg.k <= this.ordenesVistas) return;          // repetida (llega por los tres servidores)
         this.ordenesVistas = msg.k;
       }

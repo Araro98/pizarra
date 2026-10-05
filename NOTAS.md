@@ -7021,6 +7021,93 @@ uno por dos verificadores:
 - Medido con los datos arreglados: 3,9 goles y 12 tiros a puerta por partido;
   9 espiritus invocados.
 
+### O-305 · El juego de partidos: arreglos de la segunda revision a fondo
+
+La segunda revision a fondo confirmo 46 fallos (cada uno con su verificador).
+Arreglados todos; en el codigo los cambios citan esta nota.
+- Reglas:
+  - El descanso ya no dura 3 s: espera a que los dos pulsen "Segunda parte"
+    (la maquina pulsa sola tras sus cambios; online, cuando pulsan los dos),
+    como mucho `REGLAS.DESCANSO` (60 s). En el descanso, pulsar a uno de los
+    tuyos solo lo elige, para cambiarlo (O-297). La foto lleva `ls` (quien ha
+    pulsado).
+  - El que saca de banda, de puerta o de corner tiene respiro
+    (`RESPIRO_SAQUE`, 2,5 s, como en la falta), y su pase directo no es
+    fuera de juego (regla 11) si no se ha ido del sitio (`fueraEnPase`).
+  - El fuera de juego se pita tambien si el balon llega al punto del pase al
+    hueco antes que el delantero (`balon.fueraDe`; cualquier toque lo borra).
+  - En el mismo paso, un duelo ya no pisa un remate de primeras, un saque ni
+    un fuera de juego (`_mirarDuelos` solo con el juego en marcha).
+  - El portero con el balon en su area no se disputa los primeros
+    `PORTERO_MANOS` (6) s: nadie le sale al paso ni se le echa encima (se lo
+    quitaban tras la parada y lo empujaban detras de su linea). Tras blocar
+    tiene respiro. El empujon entre jugadores ya no saca a nadie del campo.
+  - Un punto de ruta tapado por otro jugador cuenta como alcanzado: se
+    quedaban clavados con la ruta y sin ir a por el balon.
+  - La cadena solo se ofrece a quien puede encadenar (la supertecnica del
+    espiritu, solo con el aura).
+  - El remate de primeras desde demasiado lejos se avisa y no se anuncia; con
+    un tiro largo a punto llega mas lejos, como el tiro (`_alcanceTiro`).
+- La maquina:
+  - Su portero saca enseguida (al mejor colocado o en largo) y sin ruta: se
+    iba con el balon hasta el area rival.
+  - Usa todas sus tacticas con efecto (Ataque en tres frentes, Monte Fuji...).
+  - Invoca solo si luego le llega para la supertecnica del espiritu, guarda
+    tension para ella y la usa. Los focos automaticos de la persona usan la
+    misma eleccion.
+  - No elige muro y parada (ni tiro y cadena) si no puede pagar los dos.
+- Raton y pausa:
+  - Pulsar a uno de los tuyos sin balon solo lo elige (antes lo paraba y le
+    borraba la ruta).
+  - En la pausa, pulsar la porteria marca el tiro (linea naranja), pulsar al
+    del balon quita lo marcado y cambiar al que iba el pase lo quita. Con un
+    pase de camino, pulsar la porteria deja preparado el remate de primeras.
+  - Si al que le pasas le has dibujado una carrera, el pase va al punto de su
+    carrera donde le alcanza el balon y la carrera se cumple (solo personas;
+    la maquina pasa como antes).
+  - Un arrastre que no empieza en un jugador no hace nada (salia un pase al
+    hueco). Pulsar a un companero delante de la porteria le pasa (chutaba).
+  - Mantener la barra o hacer doble clic ya no gasta pausas ni cambios ni
+    elige un comando sin querer; los clics en Invocar y en las tacticas ya no
+    se pierden.
+- Online:
+  - La eleccion del invitado lleva su duelo y se repite cada 1,5 s mientras
+    el anfitrion la espera: si se perdia, el partido se quedaba parado.
+  - La foto lleva quien pasa (`b[3][5]`: remate de primeras del invitado y
+    patada en 3D) y a por quien presiona cada uno (`j[k][9]`: linea roja).
+  - Tras un corte largo el invitado ya no se congela: se avisa de los
+    sucesos perdidos.
+  - Al cerrar la pestana o pulsar Inicio se manda "adios": al otro le sale
+    "X ha salido del partido" con "Otro partido".
+  - Parado y sin cambios, una foto por segundo, tambien al acabar (O-287).
+  - Todo es compatible con un Pizarra anterior en los dos sentidos.
+- Pantalla:
+  - El poder de cada supertecnica sale en su boton.
+  - El campo encoge con la ventana y no se sale por los lados.
+  - Columna derecha: Pausa, Tacticas, Tu jugador (pasivas plegadas), Lo que
+    pasa y Como se juega. Los avisos de lo tuyo ("demasiado lejos para
+    chutar") salen tambien arriba.
+  - En el tiro con cadena, el total va en la fila de la cadena y se marca al
+    que marca. Los nombres de las supertecnicas salen enteros.
+  - Los dos equipos elegidos se recuerdan.
+  - El suplente que entra sale con su cara en el campo.
+- 3D:
+  - Ya no sale en espejo: es el campo de abajo girado.
+  - Con el balon pegado a la banda de la camara, la camara va con el (hay
+    cesped fuera del campo).
+  - Los modelos miran hacia donde se mueven, tambien en el invitado, y la
+    animacion de correr no se reinicia en cada cuadro.
+  - La columna de los duelos baja sola para que se vean los botones.
+  - Las lineas de las rutas ya no dejan memoria sin soltar, el aviso de
+    modelos cuenta solo a los que juegan y la cola de modelos atiende primero
+    lo ultimo pedido (O-293).
+- Medido despues: 11 tiros a puerta y 3,4 goles por partido (medir3).
+- Repaso final: el portero solo tiene el balon "en las manos" (6 s sin que
+  le salgan) tras una parada o en su saque de puerta, no en un pase atras de
+  un companero; el que saca de centro tiene respiro (ya no hay duelos en el
+  minuto 0); al acabar el partido sale "Final" aunque el rival se haya ido;
+  en la ficha cada supertecnica sale una vez. Medido: 3,2 goles por partido.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

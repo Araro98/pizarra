@@ -77,19 +77,26 @@ def _sin_juego():
 
 def preparar(codigos):
     """Pone en la cola los codigos que aun no tienen .glb y arranca el hilo si hace falta.
-    Los que fallaron antes se vuelven a intentar (puede que ya este el juego)."""
+    Los que fallaron antes se vuelven a intentar (puede que ya este el juego).
+    Lo ultimo pedido va delante: si se deja un partido a medias y se empieza otro, o
+    entra un suplente, no espera a que acaben los que ya no se ven; esos se siguen
+    haciendo despues, para la proxima vez (O-305)."""
     global _error, _hilo
     codigos = [c for c in codigos if codigo_valido(c)]
     error = _sin_juego()
     with _cerrojo:
         _error = error
+        nuevos = []
         for c in codigos:
             if c not in _pedidos:
                 _pedidos.append(c)
-            if error or c == _actual or c in _pendientes or _al_dia(c):
+            if error or c == _actual or c in nuevos or _al_dia(c):
                 continue
             _errores.pop(c, None)
-            _pendientes.append(c)
+            if c in _pendientes:
+                _pendientes.remove(c)
+            nuevos.append(c)
+        _pendientes[:0] = nuevos
         if _pendientes and _hilo is None:
             _hilo = threading.Thread(target=_trabajar, name="modelos3d", daemon=True)
             _hilo.start()

@@ -63,8 +63,10 @@ class Pantalla {
     // el pase marcado en la pausa (sale al seguir) y la linea roja de los que presionan (3DS)
     const pm = (p.paseMarcado || [])[this.yo], d0 = p.dueno();
     if (pm && d0) {
-      const destino = pm.a !== undefined ? p.jugadores[pm.a] : { x: pm.x, y: pm.y };
-      this._linea([{ x: d0.x, y: d0.y }, { x: destino.x, y: destino.y }], "#ffe14d", [4, 4], 4);
+      // el tiro marcado va a la porteria, en naranja (O-305)
+      const tiro = pm.tipo === "tiro";
+      const destino = tiro ? p.porteriaRival(d0) : pm.a !== undefined ? p.jugadores[pm.a] : { x: pm.x, y: pm.y };
+      this._linea([{ x: d0.x, y: d0.y }, { x: destino.x, y: destino.y }], tiro ? "#ff8c42" : "#ffe14d", [4, 4], 4);
     }
     for (const j of p.jugadores) {
       if (j.lado === this.yo && j.presiona !== null && j.presiona !== undefined && d0 && d0.id === j.presiona)
@@ -159,6 +161,9 @@ class Pantalla {
   }
 
   _jugador(j) {
+    // la cara del que entra en un cambio (tuyo, de la maquina o por la foto): solo
+    // se pedian las de los 22 del principio y el suplente salia sin cara (O-305)
+    this._cara(j.cara);
     const ctx = this.ctx, P = this.aPantalla(j.x, j.y);
     const r = Math.max(13 * this.ppp, 1.5 * this.s);
     const col = this.colores[j.lado];

@@ -35,6 +35,8 @@ class Pantalla3D {
     this.balon = new THREE.Mesh(new THREE.SphereGeometry(0.35, 20, 14), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 }));
     this.escena.add(this.balon);
     this.lineas = new THREE.Group(); this.escena.add(this.lineas);
+    this.matRuta = new THREE.LineBasicMaterial({ color: 0xffffff });
+    this.matTrazo = new THREE.LineBasicMaterial({ color: 0xffe14d });
     this.camX = 0; this.reloj = new THREE.Clock();
     this.ajustar();
     this._prepararModelos();
@@ -49,7 +51,9 @@ class Pantalla3D {
     this.camara.updateProjectionMatrix();
   }
 
-  // el campo: x del motor -> x de three, y del motor -> z de three
+  // el campo: x del motor -> -x de three, y del motor -> z de three. Con x sin
+  // cambiar de signo la 3D salia en espejo del campo de abajo (tu banda izquierda
+  // cerca de la camara); asi es el campo de abajo girado (O-305)
   _sentido() { const j = this.p.jugadores.find(q => q.lado === this.yo); return j ? j.dir : 1; }
 
   _campo() {
@@ -78,6 +82,11 @@ class Pantalla3D {
     const suelo = new THREE.Mesh(new THREE.PlaneGeometry(A + 8, L + 8), new THREE.MeshStandardMaterial({ map: tex, roughness: 1 }));
     suelo.rotation.x = -Math.PI / 2;
     this.escena.add(suelo);
+    // cesped tambien fuera del campo: con el balon pegado a la banda de cerca la
+    // camara sale del campo y abajo se veia el fondo azul (O-305)
+    const fuera = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshStandardMaterial({ color: 0x1f7a3a, roughness: 1 }));
+    fuera.rotation.x = -Math.PI / 2; fuera.position.y = -0.05;
+    this.escena.add(fuera);
     // porterias: postes y larguero
     const blanco = new THREE.MeshStandardMaterial({ color: 0xffffff });
     for (const s of [-1, 1]) {
@@ -177,18 +186,21 @@ class Pantalla3D {
     const hechos = new Set(e.hechos || []), errores = e.errores || {};
     this.p.jugadores.forEach((j, k) => { if (hechos.has(j.cara)) this._cargarModelo(j, this.figuras[k]); });
     const enCola = new Set([...(e.pendientes || []), e.actual].filter(Boolean));
-    const quedan = this.codigos.filter(c => enCola.has(c)).length;
-    const listos = this.codigos.filter(c => hechos.has(c)).length;
-    const fallan = this.codigos.filter(c => errores[c]).length;
+    // se cuenta sobre los que juegan ahora: tras un cambio salia "23 de 24"
+    // contando tambien al que se fue (O-305)
+    const ahora = [...new Set(this.p.jugadores.map(j => j.cara).filter(Boolean))];
+    const quedan = ahora.filter(c => enCola.has(c)).length;
+    const listos = ahora.filter(c => hechos.has(c)).length;
+    const fallan = ahora.filter(c => errores[c]).length;
     // sin juego no se convierte nada, pero los que ya estaban hechos se ven: solo se avisa si falta alguno
-    if (e.error) return this._avisar(listos < this.codigos.length ? e.error : "", 9000);
+    if (e.error) return this._avisar(listos < ahora.length ? e.error : "", 9000);
     if (quedan) {
-      this._avisar(`Preparando modelos 3D: ${listos} de ${this.codigos.length}`);
+      this._avisar(`Preparando modelos 3D: ${listos} de ${ahora.length}`);
       clearTimeout(this._espera);
       this._espera = setTimeout(() => fetch("/api/partido/modelos/estado").then(r => r.json())
         .then(x => this._verModelos(x)).catch(() => this._avisar("")), 2000);
     } else {
-      this._avisar(fallan ? `Modelos 3D: ${listos} de ${this.codigos.length} (${fallan} se quedan con ficha)` : "",
+      this._avisar(fallan ? `Modelos 3D: ${listos} de ${ahora.length} (${fallan} se quedan con ficha)` : "",
         fallan ? 6000 : 0);
     }
   }
@@ -211,8 +223,6 @@ class Pantalla3D {
     g.position.copy(vieja.position);
     this.figuras[k] = g;
     if (!j.cara) return;
-    this.codigos = this.codigos || [];
-    if (!this.codigos.includes(j.cara)) this.codigos.push(j.cara);
     fetch("/api/partido/modelos/preparar", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ codigos: [j.cara] }),
@@ -222,6 +232,8 @@ class Pantalla3D {
   // al acabar el partido (o empezar otro): suelta la tarjeta grafica
   cerrar() {
     clearTimeout(this._espera); clearTimeout(this._quitaAviso);
+    for (const l of this.lineas.children) l.geometry.dispose();
+    this.matRuta.dispose(); this.matTrazo.dispose();
     try { this.render.dispose(); } catch (e) {}
   }
 
@@ -245,12 +257,13 @@ class Pantalla3D {
     // la camara: desde la banda, siguiendo el balon a lo largo y un poco a lo
     // ancho (como la retransmision de VR); en un duelo se acerca a los dos, y
     // en un tiro al que chuta (el corte de la pantalla de arriba de la 3DS)
-    let fx = p.balon.x, fz = p.balon.y, cerca = 0;
+    // fx ya en la x de three, cambiada de signo (O-305)
+    let fx = -p.balon.x, fz = p.balon.y, cerca = 0;
     const du = p.fase === "duelo" && p.duelo;
     if (du) {
       const a = p.jugadores[du.tipo === "foco" ? du.atacante : du.tirador];
       const b = p.jugadores[du.tipo === "foco" ? du.defensor : du.portero];
-      if (a && b) { fx = du.tipo === "foco" ? (a.x + b.x) / 2 : a.x; fz = du.tipo === "foco" ? (a.y + b.y) / 2 : a.y; cerca = 1; }
+      if (a && b) { fx = -(du.tipo === "foco" ? (a.x + b.x) / 2 : a.x); fz = du.tipo === "foco" ? (a.y + b.y) / 2 : a.y; cerca = 1; }
     }
     const v = Math.min(1, dt * (du ? 4 : 2.5));
     this.camX += (fz - this.camX) * v;
@@ -259,19 +272,46 @@ class Pantalla3D {
     const dist = ESCENA.distancia + (ESCENA.dueloDistancia - ESCENA.distancia) * this.zoom;
     const alt = ESCENA.altura + (ESCENA.dueloAltura - ESCENA.altura) * this.zoom;
     const lim = 42 + 8 * this.zoom;
-    const z = Math.max(-lim, Math.min(lim, this.camX)), x = Math.max(-24, Math.min(24, this.camY));
-    this.camara.position.set(x * (0.4 + 0.6 * this.zoom) - dist * h, alt, z);
-    this.camara.lookAt(x * (0.6 + 0.4 * this.zoom), this.zoom, z);
+    const z = Math.max(-lim, Math.min(lim, this.camX));
+    // en la mitad del ancho de la banda de la camara, la camara va entera con el
+    // balon, sin recortar a 24 m ni inclinarse: pegados a esa banda el balon y los
+    // del duelo quedaban por debajo de la imagen. En la otra mitad, como antes; en
+    // el centro las dos coinciden (O-305)
+    let mira;
+    if (this.camY * h < 0) {
+      mira = this.camY;
+      this.camara.position.set(mira - dist * h, alt, z);
+    } else {
+      const x = Math.max(-24, Math.min(24, this.camY));
+      mira = x * (0.6 + 0.4 * this.zoom);
+      this.camara.position.set(x * (0.4 + 0.6 * this.zoom) - dist * h, alt, z);
+    }
+    this.camara.lookAt(mira, this.zoom, z);
+    // al sacar de centro (al empezar, tras un gol y en la 2a parte) todos miran
+    // un momento al frente, como en el motor, aunque se recoloquen (O-305)
+    if (this._fase === undefined || (this._fase !== p.fase && (this._fase === "gol" || this._fase === "descanso"))) this._saque = 0.5;
+    else if (this._saque > 0) this._saque -= dt;
+    this._fase = p.fase;
     // jugadores
     p.jugadores.forEach((j, k) => {
       const g = this.figuras[k], u = g.userData;
       const antes = g.position.clone();
-      g.position.set(j.x, 0, j.y);
-      const v = antes.distanceTo(g.position) / Math.max(dt, 1e-3);
+      g.position.set(-j.x, 0, j.y);        // x cambiada de signo: sin espejo (O-305)
+      // hacia donde mira y si corre, de lo que se mueve la figura: la foto del
+      // invitado no trae hacia donde mira cada uno (miraban siempre al frente de
+      // la 1a parte). La velocidad va suavizada: con 30 pasos por segundo del
+      // motor, la mitad de los cuadros salian quietos y la animacion de correr
+      // empezaba de nuevo en cada uno (O-305)
+      const dx = g.position.x - antes.x, dz = g.position.z - antes.z, paso = Math.hypot(dx, dz);
+      if (paso > 3 || this._saque > 0) { u.vel = 0; u.mira = undefined; }     // un salto o el saque: no es correr
+      else {
+        u.vel = (u.vel || 0) + (paso / Math.max(dt, 1e-3) - (u.vel || 0)) * Math.min(1, dt * 8);
+        if (paso > 0.005 && u.vel > 1.2) u.mira = Math.atan2(dx, dz);
+      }
       u.aro.material.color.setHex(j.id === this.elegido ? 0xffe14d : this.colores[j.lado]);
       if (u.cuerpo) {
-        u.cuerpo.rotation.y = Math.atan2(j.mx || 0, j.my || j.dir);
-        if (!(u.ahora === "tiro" || u.ahora === "patada")) this._anima(g, v > 1.2 ? "correr" : "parado");
+        u.cuerpo.rotation.y = u.mira !== undefined ? u.mira : Math.atan2(0, j.dir);
+        if (!(u.ahora === "tiro" || u.ahora === "patada")) this._anima(g, u.vel > 1.2 ? "correr" : "parado");
         u.mezcla.update(dt);
       }
       u.ficha.material.opacity = j.aturdido > 0 ? 0.5 : 1;
@@ -294,20 +334,24 @@ class Pantalla3D {
       const queda = Math.hypot(pa.destino.x - p.balon.x, pa.destino.y - p.balon.y);
       alto += Math.sin(Math.PI * Math.max(0, Math.min(1, 1 - queda / pa.total))) * 5;
     }
-    this.balon.position.set(p.balon.x, alto, p.balon.y);
+    this.balon.position.set(-p.balon.x, alto, p.balon.y);
     this._pintarLineas();
     this.render.render(this.escena, this.camara);
   }
 
   _pintarLineas() {
+    // las lineas se rehacen en cada cuadro: sin soltar la geometria de las de
+    // antes, three.js las guardaba todo el partido (memoria de video que solo
+    // crecia). Los dos materiales son fijos (O-305)
+    for (const l of this.lineas.children) l.geometry.dispose();
     this.lineas.clear();
-    const linea = (puntos, color) => {
+    const linea = (puntos, mat) => {
       if (puntos.length < 2) return;
-      const geo = new THREE.BufferGeometry().setFromPoints(puntos.map(q => new THREE.Vector3(q.x, 0.08, q.y)));
-      this.lineas.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color })));
+      const geo = new THREE.BufferGeometry().setFromPoints(puntos.map(q => new THREE.Vector3(-q.x, 0.08, q.y)));
+      this.lineas.add(new THREE.Line(geo, mat));
     };
-    for (const j of this.p.jugadores) if (j.lado === this.yo && j.ruta.length) linea([{ x: j.x, y: j.y }, ...j.ruta], 0xffffff);
-    if (this.trazo && this.trazo.puntos.length > 1) linea(this.trazo.puntos, 0xffe14d);
+    for (const j of this.p.jugadores) if (j.lado === this.yo && j.ruta.length) linea([{ x: j.x, y: j.y }, ...j.ruta], this.matRuta);
+    if (this.trazo && this.trazo.puntos.length > 1) linea(this.trazo.puntos, this.matTrazo);
   }
 
   // de un punto de la pantalla (px en CSS) al campo, cortando con el suelo
@@ -317,11 +361,11 @@ class Pantalla3D {
     this.raton.setFromCamera(v, this.camara);
     const q = new THREE.Vector3();
     if (!this.raton.ray.intersectPlane(this.suelo, q)) return { x: 0, y: 0 };
-    return { x: q.x, y: q.z };
+    return { x: -q.x, y: q.z };
   }
   aPantalla(x, y) {
     const r = this.c.getBoundingClientRect();
-    const v = new THREE.Vector3(x, 1, y).project(this.camara);
+    const v = new THREE.Vector3(-x, 1, y).project(this.camara);
     return { px: (v.x + 1) / 2 * r.width, py: (1 - v.y) / 2 * r.height };
   }
   jugadorEn(px, py, lado) {

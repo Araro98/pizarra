@@ -32,6 +32,14 @@ const REGLAS = {
   // unos segundos cada una (online espera al otro).
   PAUSAS_POR_PARTE: 3, PAUSA_MAX: 20,
   CAMBIOS: 3,              // cambios por partido, en la pausa o en el descanso (O-297)
+  // el descanso espera a que los dos pulsen "Segunda parte", como mucho esto:
+  // asi da tiempo a hacer los cambios con calma (O-305)
+  DESCANSO: 60,
+  // respiro del que saca de banda, de puerta o de corner, como en la falta (O-305)
+  RESPIRO_SAQUE: 2.5,
+  // el portero con el balon en su area no se disputa estos segundos (O-305; en
+  // futbol no se le quita de las manos, y a los 6 s tiene que soltarlo)
+  PORTERO_MANOS: 6,
   // cuando chuta la maquina: a menos de `lejos` m, con esta probabilidad en cada
   // decision (cerca de la porteria, con la linea libre o tapada)
   IA_TIRO: { lejos: 18, cerca: 11, pCerca: 0.15, pLibre: 0.05, pTapado: 0 },

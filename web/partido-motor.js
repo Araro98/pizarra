@@ -47,6 +47,7 @@ class Partido {
     this.pausasQuedan = [REGLAS.PAUSAS_POR_PARTE, REGLAS.PAUSAS_POR_PARTE];
     this.pausa = null;
     this.paseMarcado = [null, null];
+    this.listos = [false, false];  // en el descanso, quien ya ha pulsado "Segunda parte" (O-305)
     this.resultado = null;        // lo que paso en el ultimo duelo (para pintarlo)
     this.eventos = [];            // lo que pasa, para el registro
     this.saque(0);
@@ -109,6 +110,8 @@ class Partido {
     this.banquilloUsado[lado][k] = true;
     this.cambiosQuedan[lado]--;
     this.cambios.push([lado, sale, k]);
+    // el pase marcado al que sale no se lo lleva el que entra (O-305)
+    if (this.paseMarcado[lado] && this.paseMarcado[lado].a === sale) this.paseMarcado[lado] = null;
     for (const o of this.jugadores) if (o.presiona === sale) o.presiona = undefined;
     // el invitado online los repite desde la foto: el registro ya le llega del anfitrion
     if (!forzado) this.apunta("Cambio en " + this.nombres[lado] + ": entra " + j.nombre + " por " + fuera.nombre, "tactica");
@@ -118,7 +121,13 @@ class Partido {
   equipo(lado) { return this.jugadores.filter(j => j.lado === lado); }
   portero(lado) { return this.jugadores.find(j => j.lado === lado && j.esPortero) || this.equipo(lado)[0]; }
   dueno() { return this.balon.dueno === null ? null : this.jugadores[this.balon.dueno]; }
-  apunta(texto, clase) { this.eventos.push({ paso: this.pasos, mitad: this.mitad, reloj: this.reloj, texto, clase }); }
+  // lado: de quien es el suceso; con el, la pagina avisa a ese jugador de los
+  // "aviso" (demasiado lejos...). Va en la foto y un Pizarra anterior lo ignora (O-305)
+  apunta(texto, clase, lado) {
+    const e = { paso: this.pasos, mitad: this.mitad, reloj: this.reloj, texto, clase };
+    if (lado !== undefined) e.lado = lado;
+    this.eventos.push(e);
+  }
   minuto() { return Math.floor(this.reloj / this.duracion * 45) + (this.mitad === 2 ? 45 : 0); }
 
   // del marco del equipo (u: ancho -1..1, v: largo -1 propia .. 1 rival) al campo
@@ -137,6 +146,7 @@ class Partido {
     saca.x = 0; saca.y = -1.2 * saca.dir;
     this.balon = { x: 0, y: 0, vx: 0, vy: 0, dueno: null, ultimo: lado, pase: null };
     this.coger(saca);
+    saca.respiro = REGLAS.RESPIRO_SAQUE;     // el saque de centro, sin que le salgan al paso
     this.fase = "juego";
   }
 
@@ -145,7 +155,15 @@ class Partido {
     j.conBalon = true;
     this.balon.dueno = j.id; this.balon.ultimo = j.lado; this.balon.pase = null;
     this.balon.vx = this.balon.vy = 0;
+    // cualquier toque acaba la jugada del pase: ya no queda fuera de juego que pitar (O-305)
+    this.balon.fueraDe = null;
+    // el saque sin fuera de juego solo vale para el pase del que saca (O-305)
+    if (this._saque && this._saque.id !== j.id) this._saque = null;
+    // cualquier toque le quita el balon de las manos al portero: solo lo tiene
+    // tras una parada o en su saque de puerta, no en un pase atras (O-305)
+    this._manos = null;
   }
+  _aManos(por) { this._manos = { id: por.id, hasta: this.segundosDeJuego() + REGLAS.PORTERO_MANOS }; }
   soltar() {
     const d = this.dueno();
     if (d) d.conBalon = false;
@@ -172,14 +190,28 @@ class Partido {
       j.presiona = null;
       return true;
     }
-    if (this.fase === "pausa" && (o.tipo === "pase" || o.tipo === "pasePunto")) {
-      // en la pausa el pase se marca y sale al seguir (3DS)
+    if (this.fase === "pausa" && (o.tipo === "pase" || o.tipo === "pasePunto" || o.tipo === "tiro")) {
+      // en la pausa el pase se marca y sale al seguir (3DS); el tiro tambien:
+      // pulsar la porteria acababa en un pase a la linea de gol (O-305)
       const dl = this.dueno();
       if (!dl || dl.lado !== j.lado) return false;
+      // un pase al mismo que lo da quita lo marcado: pulsar al del balon (O-305)
+      if (o.tipo === "pase" && o.a === o.de) { this.paseMarcado[j.lado] = null; return true; }
+      if (o.tipo === "tiro") {
+        if (j !== dl) return false;
+        // si no llega se dice ya, no al seguir
+        const g = this.porteriaRival(j);
+        if (Math.hypot(g.x - j.x, g.y - j.y) > this._alcanceTiro(j)) {
+          this.apunta(j.nombre + " está demasiado lejos para chutar", "aviso", j.lado);
+          return false;
+        }
+      }
       this.paseMarcado[j.lado] = Object.assign({}, o);
       return true;
     }
-    if (this.fase !== "juego") return false;
+    // el remate de primeras solo marca el pase que va de camino: vale tambien en
+    // la pausa y se cumple al seguir (antes no hacia nada) (O-305)
+    if (this.fase !== "juego" && !(this.fase === "pausa" && o.tipo === "directo")) return false;
     if (o.tipo === "pase") {
       const a = this.jugadores[o.a];
       if (!j.conBalon || !a || a.lado !== j.lado || a.id === j.id) return false;
@@ -190,6 +222,13 @@ class Partido {
       // rematar de primeras el pase que va de camino (DS: tocar la porteria
       // mientras va el pase; VR: tiro directo)
       if (!this.balon.pase || this.jugadores[this.balon.pase.de].lado !== j.lado) return false;
+      // si desde donde llega el pase no se alcanza la porteria, no se anuncia un
+      // remate que luego no pasa (O-305)
+      const rec = this.jugadores[this.balon.pase.a], gr = this.porteriaRival(rec), dest = this.balon.pase.destino;
+      if (Math.hypot(gr.x - dest.x, gr.y - dest.y) > this._alcanceTiro(rec)) {
+        this.apunta(rec.nombre + " está demasiado lejos para rematar de primeras", "aviso", rec.lado);
+        return false;
+      }
       this.balon.pase.directo = true;
       this.apunta("¡" + this.jugadores[this.balon.pase.a].nombre + " va a rematar de primeras!");
       return true;
@@ -208,9 +247,8 @@ class Partido {
       if (!j.conBalon) return false;
       const g = this.porteriaRival(j);
       const d = Math.hypot(g.x - j.x, g.y - j.y);
-      const larga = j.tecnicas.some(t => REGLAS.esLarga(t) && t.tp <= j.pt);
-      if (d > REGLAS.DISTANCIA_TIRO && !(larga && d < REGLAS.DISTANCIA_TIRO * 1.6)) {
-        this.apunta(j.nombre + " esta demasiado lejos para chutar", "aviso");
+      if (d > this._alcanceTiro(j)) {
+        this.apunta(j.nombre + " está demasiado lejos para chutar", "aviso", j.lado);
         return false;
       }
       this._empezarTiro(j, d);
@@ -219,17 +257,52 @@ class Partido {
     return false;
   }
 
+  // hasta donde puede chutar j: mas lejos si tiene a punto un tiro largo. La
+  // misma regla para el tiro y para el remate de primeras (O-305)
+  _alcanceTiro(j) {
+    const larga = j.tecnicas.some(t => REGLAS.esLarga(t) && t.tp <= j.pt && (!t.espiritu || this.conAura(j)));
+    return REGLAS.DISTANCIA_TIRO * (larga ? 1.6 : 1);
+  }
+
   _dentro(x, y) {
     return { x: Math.max(-REGLAS.ANCHO / 2 + 0.5, Math.min(REGLAS.ANCHO / 2 - 0.5, x)),
              y: Math.max(-REGLAS.LARGO / 2 + 0.5, Math.min(REGLAS.LARGO / 2 - 0.5, y)) };
   }
 
   _pasar(de, a, alto) {
+    // si le has dibujado una carrera (el desmarque de la pausa), el pase va al
+    // punto de su ruta donde le alcanza el balon y la ruta se cumple: antes se
+    // apuntaba hacia donde iba y se le borraba. Solo los humanos: la maquina
+    // pasa como antes (O-305)
+    if (a.ruta.length && this.manual[a.lado]) {
+      const ruta = a.ruta;
+      this._pasarA(de, a, this._encuentro(de, a, alto), alto);
+      a.ruta = ruta;
+      return;
+    }
     // al hueco: adonde estara el companero cuando llegue el balon
     const d = Math.hypot(a.x - de.x, a.y - de.y);
     const t = d / REGLAS.VEL_PASE;
     const destino = this._dentro(a.x + a.mx * REGLAS.velocidad(a) * t * 0.6, a.y + a.my * REGLAS.velocidad(a) * t * 0.6);
     this._pasarA(de, a, destino, alto);
+  }
+  // el primer punto de la ruta de a en que el balon, saliendo de de, llega a la
+  // vez que el; si no le alcanza, el final de la ruta (O-305)
+  _encuentro(de, a, alto) {
+    const vb = alto ? REGLAS.VEL_PASE_ALTO : REGLAS.VEL_PASE, vj = REGLAS.velocidad(a) * this._mulVel(a);
+    let x = a.x, y = a.y, t = 0;
+    for (const q of a.ruta) {
+      const s = Math.hypot(q.x - x, q.y - y);
+      // f(k) >= 0: al punto k del tramo el balon llega antes que el
+      const f = k => t + s * k / vj - Math.hypot(x + (q.x - x) * k - de.x, y + (q.y - y) * k - de.y) / vb;
+      if (s > 0.01 && f(1) >= 0) {
+        let lo = 0, hi = 1;
+        for (let n = 0; n < 20; n++) { const m = (lo + hi) / 2; if (f(m) >= 0) hi = m; else lo = m; }
+        return this._dentro(x + (q.x - x) * hi, y + (q.y - y) * hi);
+      }
+      t += s / vj; x = q.x; y = q.y;
+    }
+    return this._dentro(x, y);
   }
 
   _pasarA(de, a, destino, alto) {
@@ -240,7 +313,10 @@ class Partido {
     this.balon.vx = (destino.x - de.x) / dd * vel;
     this.balon.vy = (destino.y - de.y) / dd * vel;
     this.balon.pase = { de: de.id, a: a.id, destino, queda: dd, total: dd, alto: !!alto,
-      fuera: this._enFueraDeJuego(a, de) };
+      fuera: this.fueraEnPase(a, de) };
+    // la marca sigue aunque el pase se acabe antes de que llegue el (O-305)
+    this.balon.fueraDe = this.balon.pase.fuera ? a.id : null;
+    this._saque = null;
     this.balon.ultimo = de.lado;
     de.respiro = 0.6;
     a.ruta = [destino];
@@ -292,6 +368,7 @@ class Partido {
   }
 
   _empezarDuelo(att, def) {
+    this._saque = null;            // tras un duelo ya no es el pase del saque (O-305)
     this.fase = "duelo";
     this.duelo = {
       id: ++this.nDuelos, tipo: "foco", atacante: att.id, defensor: def.id,
@@ -318,7 +395,8 @@ class Partido {
     // la cadena: un companero en la linea de tiro, mas cerca de la porteria, con un tiro
     let cadena = null, mc = penalti ? -1 : 3.2;
     for (const c of this.equipo(tirador.lado)) {
-      if (c === tirador || c.esPortero || c.aturdido > 0 || !c.tecnicas.some(t => REGLAS.sirve(t, "cadena"))) continue;
+      // la del espiritu solo vale con el aura puesta, como en _opciones (O-305)
+      if (c === tirador || c.esPortero || c.aturdido > 0 || !c.tecnicas.some(t => REGLAS.sirve(t, "cadena") && (!t.espiritu || this.conAura(c)))) continue;
       const e = this._distanciaALinea(c, tirador, g);
       if (e.delante && e.d < mc) { mc = e.d; cadena = c; }
     }
@@ -382,6 +460,13 @@ class Partido {
     const dir = receptor.dir, y = receptor.y * dir;
     return y > 0 && y > pasador.y * dir + 0.5 && y > this.lineaFueraDeJuego(receptor.lado) + 0.5;
   }
+  // el pase que sale directo de un saque de banda, de puerta o de corner no es
+  // fuera de juego (regla 11), si el que saca no se ha ido con el balon (O-305)
+  fueraEnPase(receptor, pasador) {
+    const s = this._saque;
+    if (s && s.id === pasador.id && Math.hypot(pasador.x - s.x, pasador.y - s.y) < 1.5) return false;
+    return this._enFueraDeJuego(receptor, pasador);
+  }
   _pitarFueraDeJuego(j) {
     const r = this.equipo(1 - j.lado).filter(o => !o.esPortero)
       .sort((a, b) => Math.hypot(a.x - j.x, a.y - j.y) - Math.hypot(b.x - j.x, b.y - j.y))[0];
@@ -404,6 +489,14 @@ class Partido {
     return true;
   }
   seguir(lado) {
+    if (this.fase === "descanso") {
+      // la segunda parte empieza cuando han pulsado los dos (la maquina pulsa
+      // sola tras sus cambios) o al acabarse REGLAS.DESCANSO (O-305)
+      if (lado !== 0 && lado !== 1) return false;
+      this.listos[lado] = true;
+      if (this.listos[0] && this.listos[1]) this.espera = 0;
+      return true;
+    }
     if (this.fase !== "pausa" || !this.pausa || (lado !== undefined && lado !== this.pausa.lado)) return false;
     this.fase = "juego"; this.pausa = null;
     // los pases marcados en la pausa salen ahora
@@ -734,7 +827,8 @@ class Partido {
       this.balon.vx = (this.azar() - 0.5) * 12; this.balon.vy = por.dir * 16;
       this.balon.ultimo = por.lado;
     } else {
-      this.coger(por);
+      this.coger(por); this._aManos(por);
+      por.respiro = REGLAS.RESPIRO_SAQUE;   // tras blocar, un respiro para sacar (O-305)
     }
     this._acabarDuelo(2.0);
   }
@@ -824,7 +918,9 @@ class Partido {
     this.reloj += P;
     if (this.reloj >= this.duracion) {
       if (this.mitad === 1) {
-        this.fase = "descanso"; this.espera = 3;
+        // antes duraba 3 s y no daba tiempo a cambiar: ahora espera a que los
+        // dos pulsen "Segunda parte", como mucho REGLAS.DESCANSO s (O-305)
+        this.fase = "descanso"; this.espera = REGLAS.DESCANSO; this.listos = [false, false];
         this.apunta("Descanso: " + this.goles[0] + " - " + this.goles[1], "fin");
       } else {
         this.fase = "final";
@@ -871,8 +967,9 @@ class Partido {
       return { x: j.x + (g.x - j.x) * 0.15, y: j.y + j.dir * 8, lento: 0.75 };
     }
     if (j.presiona !== null && j.presiona !== undefined) {
-      if (d && d.id === j.presiona) return { x: d.x, y: d.y, apreton: true };
-      j.presiona = null;
+      // al portero con el balon en las manos se le espera en la zona (O-305)
+      if (d && d.id === j.presiona) { if (!this._enManos(d)) return { x: d.x, y: d.y, apreton: true }; }
+      else j.presiona = null;
     }
     // balon suelto o rival con balon: los dos mas cerca de cada equipo van a por el
     const cerca = this.equipo(j.lado).filter(o => !o.esPortero && o.aturdido <= 0)
@@ -883,7 +980,9 @@ class Partido {
       if (!d && enArea) return { x: b.x, y: b.y };
       return { x: Math.max(-3, Math.min(3, b.x * 0.15)), y: g.y + 1.5 * j.dir };
     }
-    if (!tenemos && (cerca[0] === j || (!d && cerca[1] === j))) return { x: b.x, y: b.y, apreton: true };
+    // nadie se tira encima del portero con el balon en las manos: lo empujaba
+    // por detras de su linea (O-305)
+    if (!tenemos && (cerca[0] === j || (!d && cerca[1] === j)) && !this._enManos(d)) return { x: b.x, y: b.y, apreton: true };
     // los demas, a su zona, movida con el balon (como en DS)
     const bv = (b.y / (REGLAS.LARGO / 2)) * j.dir, bu = (b.x / (REGLAS.ANCHO / 2)) * j.dir;
     let v = j.v + Math.max(-0.35, Math.min(0.35, bv * 0.45)) + (tenemos ? 0.12 : -0.08);
@@ -904,7 +1003,14 @@ class Partido {
       let obj, lento = 1;
       if (j.ruta.length) {
         obj = j.ruta[0];
-        if (Math.hypot(obj.x - j.x, obj.y - j.y) < 0.6) { j.ruta.shift(); obj = j.ruta[0]; }
+        // un punto tapado (otro jugador encima, y la separacion no deja llegar a
+        // 0,6 m) vale como alcanzado si ya esta tan cerca como se puede: si no,
+        // se quedaba clavado con la ruta y sin ir a por el balon. El que va a
+        // recibir un pase sigue hasta el (O-305)
+        const dr = Math.hypot(obj.x - j.x, obj.y - j.y), m = REGLAS.RADIO_JUGADOR * 1.6;
+        const tapado = dr < m + 0.6 && !(this.balon.pase && this.balon.pase.a === j.id)
+          && this.jugadores.some(o => o !== j && Math.hypot(o.x - obj.x, o.y - obj.y) < m - 0.5);
+        if (dr < 0.6 || tapado) { j.ruta.shift(); obj = j.ruta[0]; }
       }
       if (!obj) { const o = this._objetivo(j); obj = o; lento = o.lento || 1; }
       if (!obj) continue;
@@ -924,6 +1030,8 @@ class Partido {
         p.x -= dx / d * e; p.y -= dy / d * e; q.x += dx / d * e; q.y += dy / d * e;
       }
     }
+    // y que el empujon no saque a nadie del campo (O-305)
+    for (const j of this.jugadores) { const c = this._dentro(j.x, j.y); j.x = c.x; j.y = c.y; }
   }
 
   _moverBalon(P) {
@@ -955,7 +1063,8 @@ class Partido {
     }
     if (mejor) {
       const j = mejor.j;
-      if (b.pase && b.pase.fuera && j.id === b.pase.a) return this._pitarFueraDeJuego(j);
+      // se pita al recibir, tambien si el balon llego al punto antes que el (O-305)
+      if (b.fueraDe === j.id) return this._pitarFueraDeJuego(j);
       const directo = b.pase && b.pase.directo && j.lado === this.jugadores[b.pase.de].lado ? this.jugadores[b.pase.de] : null;
       if (b.pase && j.lado !== this.jugadores[b.pase.de].lado) {
         this.apunta("¡" + j.nombre + " corta el pase!", "mal");
@@ -964,7 +1073,9 @@ class Partido {
       this.coger(j);
       if (directo) {
         const g = this.porteriaRival(j), dg = Math.hypot(g.x - j.x, g.y - j.y);
-        if (dg <= REGLAS.DISTANCIA_TIRO) this._empezarTiro(j, dg, directo);
+        if (dg <= this._alcanceTiro(j)) this._empezarTiro(j, dg, directo);
+        // el remate anunciado no se queda en nada sin decirlo (O-305)
+        else this.apunta(j.nombre + " está demasiado lejos para rematar", "aviso", j.lado);
       }
     }
   }
@@ -978,23 +1089,30 @@ class Partido {
       if (fondoDe.lado !== b.ultimo) {
         this.apunta("Saque de puerta");
         fondoDe.x = 0; fondoDe.y = Math.sign(b.y) * (ay - 5);
-        this.coger(fondoDe);
+        this.coger(fondoDe); this._sacando(fondoDe);
       } else {
         const ataca = this.equipo(contra).filter(j => !j.esPortero)
           .sort((p, q) => Math.hypot(p.x - b.x, p.y - b.y) - Math.hypot(q.x - b.x, q.y - b.y))[0];
         this.apunta("Corner para " + this.nombres[contra]);
         ataca.x = Math.sign(b.x || 1) * (ax - 0.6); ataca.y = Math.sign(b.y) * (ay - 0.6);
-        this.coger(ataca);
+        this.coger(ataca); this._sacando(ataca);
       }
     } else {
       const saca = this.equipo(contra).filter(j => !j.esPortero)
         .sort((p, q) => Math.hypot(p.x - b.x, p.y - b.y) - Math.hypot(q.x - b.x, q.y - b.y))[0];
       this.apunta("Saque de banda para " + this.nombres[contra]);
       saca.x = Math.sign(b.x) * (ax - 0.5); saca.y = Math.max(-ay + 1, Math.min(ay - 1, b.y));
-      this.coger(saca);
+      this.coger(saca); this._sacando(saca);
     }
     for (const j of this.jugadores) j.ruta = [];
     this.fase = "resultado"; this.espera = 0.8;
+  }
+  // el que saca: un respiro, como en la falta (si no, un rival pegado le sacaba
+  // un duelo al volver el juego), y su pase no es fuera de juego (O-305)
+  _sacando(j) {
+    j.respiro = REGLAS.RESPIRO_SAQUE;
+    if (j.esPortero) this._aManos(j);
+    this._saque = { id: j.id, x: j.x, y: j.y };
   }
 
   // --- online: la foto del partido que el anfitrion manda al invitado --------
@@ -1005,12 +1123,16 @@ class Partido {
     return {
       n: this.pasos, f: this.fase, m: this.mitad, r: r1(this.reloj), g: this.goles.slice(),
       t: this.tension.map(Math.round), e: this.espera, ta: this.tacticaActiva, tl: this.tacticaLista,
-      pz: this.pausa, pq: this.pausasQuedan, pm: this.paseMarcado,
+      pz: this.pausa, pq: this.pausasQuedan, pm: this.paseMarcado, ls: this.listos,
       j: this.jugadores.map(j => [r1(j.x), r1(j.y), j.dir, j.conBalon ? 1 : 0, j.aturdido > 0 ? 1 : 0,
         j.esPortero ? Math.round(j.kp) : 0, j.lado === ladoRutas ? j.ruta.slice(0, 6).map(p => [r1(p.x), r1(p.y)]) : [],
-        r1(j.aura), r1(j.auraLista)]),
+        r1(j.aura), r1(j.auraLista),
+        // a por quien va a presionar, para la linea roja del invitado (-1: nadie) (O-305)
+        j.lado === ladoRutas && j.presiona !== null && j.presiona !== undefined ? j.presiona : -1]),
+      // el pase lleva al final quien lo da: sin el, el invitado no podia rematar
+      // de primeras ni se veia la patada en la 3D (O-305)
       b: [r1(this.balon.x), r1(this.balon.y), this.balon.dueno, this.balon.pase ? [this.balon.pase.a, r1(this.balon.pase.destino.x), r1(this.balon.pase.destino.y),
-        this.balon.pase.alto ? 1 : 0, r1(this.balon.pase.total || 0)] : 0],
+        this.balon.pase.alto ? 1 : 0, r1(this.balon.pase.total || 0), this.balon.pase.de] : 0],
       d: this.duelo ? JSON.parse(JSON.stringify(this.duelo)) : null,
       re: this.resultado ? Object.assign({ k: this.nResultado || 0 }, this.resultado) : null,
       cb: this.cambios,
@@ -1025,6 +1147,7 @@ class Partido {
     for (const c of (f.cb || []).slice(this.cambios.length)) this.cambiar(c[0], c[1], c[2], true);
     if (f.ta) { this.tacticaActiva = f.ta; this.tacticaLista = f.tl; }
     if (f.pq) { this.pausa = f.pz; this.pausasQuedan = f.pq; this.paseMarcado = f.pm; }
+    if (f.ls) this.listos = f.ls;       // quien ha pulsado ya en el descanso (O-305)
     f.j.forEach((q, k) => {
       const j = this.jugadores[k];
       j.destX = q[0]; j.destY = q[1];
@@ -1033,13 +1156,27 @@ class Partido {
       if (j.esPortero) j.kp = q[5];
       j.ruta = q[6].map(p => ({ x: p[0], y: p[1] }));
       if (q.length > 7) { j.aura = q[7]; j.auraLista = q[8]; }
+      if (q.length > 9) j.presiona = q[9] >= 0 ? q[9] : null;     // 0 es un jugador (O-305)
     });
     this.balon.destX = f.b[0]; this.balon.destY = f.b[1]; this.balon.dueno = f.b[2];
-    this.balon.pase = f.b[3] ? { a: f.b[3][0], destino: { x: f.b[3][1], y: f.b[3][2] }, alto: !!f.b[3][3], total: f.b[3][4] || 0 } : null;
+    // mientras sea el mismo pase se deja el mismo objeto: la 3D mira si es otro
+    // para que el que pasa patee una vez, no en cada foto (O-305)
+    const bp = f.b[3], vp = this.balon.pase;
+    this.balon.pase = !bp ? null
+      : vp && vp.de === bp[5] && vp.a === bp[0] && vp.destino.x === bp[1] && vp.destino.y === bp[2] ? vp
+      : { de: bp[5], a: bp[0], destino: { x: bp[1], y: bp[2] }, alto: !!bp[3], total: bp[4] || 0 };
     this.duelo = f.d;
     if (f.re && (!this.resultado || this.resultado.k !== f.re.k)) this.resultado = f.re;
-    // los sucesos que faltan (la foto trae los diez ultimos)
+    // los sucesos que faltan (la foto trae los diez ultimos). Tras un corte largo
+    // faltan mas: se dice una vez y el resto queda en null, que el registro
+    // salta; antes quedaban huecos que congelaban al invitado (O-305)
     const primero = f.ev - f.ul.length;
+    if (this.eventos.length < primero) {
+      const u = f.ul[0] || {};
+      this.eventos.push({ paso: f.n, mitad: u.mitad || f.m, reloj: u.reloj !== undefined ? u.reloj : f.r,
+        texto: "(se han perdido " + (primero - this.eventos.length) + " sucesos por un corte de la red)", clase: "aviso" });
+      while (this.eventos.length < primero) this.eventos.push(null);
+    }
     for (let k = Math.max(this.eventos.length, primero); k < f.ev; k++) this.eventos[k] = f.ul[k - primero];
     return true;
   }
@@ -1053,8 +1190,11 @@ class Partido {
   }
 
   _mirarDuelos() {
+    // si en este paso ya se ha parado el juego (remate de primeras, saque, fuera
+    // de juego), no se monta un duelo encima (O-305)
+    if (this.fase !== "juego") return;
     const d = this.dueno();
-    if (!d || d.respiro > 0 || this._especial(d.lado, "ignora_foco")) return;
+    if (!d || d.respiro > 0 || this._especial(d.lado, "ignora_foco") || this._enManos(d)) return;
     let rival = null, md = REGLAS.DISTANCIA_DUELO;
     for (const r of this.jugadores) {
       if (r.lado === d.lado || r.aturdido > 0 || r.respiro > 0 || r.esPortero) continue;
@@ -1062,5 +1202,13 @@ class Partido {
       if (dd < md) { md = dd; rival = r; }
     }
     if (rival) this._empezarDuelo(d, rival);
+  }
+
+  // el portero con el balon en su area: en futbol no se le quita de las manos.
+  // Solo los primeros segundos, para que no se pueda perder tiempo (O-305)
+  _enManos(d) {
+    const m = this._manos;
+    return !!d && d.esPortero && !!m && m.id === d.id && this.segundosDeJuego() < m.hasta
+      && Math.abs(d.y + d.dir * REGLAS.LARGO / 2) < REGLAS.AREA_Y && Math.abs(d.x) < REGLAS.AREA_X;
   }
 }
