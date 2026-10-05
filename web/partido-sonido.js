@@ -92,16 +92,26 @@ const Sonido = {
     if (!p) return;
     const b = p.balon, pase = b.pase ? b.pase.a + ":" + b.pase.destino.x + ":" + b.pase.destino.y : "";
     const ahora = { fase: p.fase, mitad: p.mitad, goles: p.goles[0] + p.goles[1], pase,
-                    duelo: p.duelo ? p.duelo.id + ":" + p.duelo.tipo : "", resultado: p.resultado };
+                    duelo: p.duelo ? p.duelo.id + ":" + p.duelo.tipo : "", resultado: p.resultado, tanda: !!p.tanda };
     const a = this._antes; this._antes = ahora;
-    if (!a) return this.silbato(1);
+    // al abrir: si empieza esperando el saque, pita al pulsar Jugar (si no,
+    // sonaba dos veces) (O-308)
+    if (!a) return ahora.fase === "saque" ? undefined : this.silbato(1);
     if (ahora.pase && ahora.pase !== a.pase) this.patada(false);
     if (ahora.duelo && ahora.duelo !== a.duelo) this.duelo();
     if (ahora.resultado && ahora.resultado !== a.resultado) {
-      const t = ahora.resultado.tipo;
-      if (t === "tiro") this.patada(true);
+      const r = ahora.resultado, t = r.tipo;
+      // el penalti suena como el tiro y, en la tanda, el gol con el publico (los goles
+      // de la tanda no suben el marcador) (O-312)
+      if (t === "tiro" || t === "penalti") this.patada(true);
       else if (t === "falta" || t === "fuera") this.silbato(1, t === "falta" ? 0.4 : 0.22);
+      if (t === "penalti" && r.tanda && r.final === "gol") {
+        const tir = p.jugadores[r.tirador];
+        setTimeout(() => this.gol(!tir || tir.lado === yo), 900);
+      }
     }
+    // empieza la tanda de penaltis: dos pitidos (O-312)
+    if (ahora.tanda && !a.tanda) this.silbato(2, 0.25);
     if (ahora.goles > a.goles) {
       const r = p.resultado, tir = r && r.tirador !== undefined ? p.jugadores[r.tirador] : null;
       this.gol(!tir || tir.lado === yo);
@@ -109,7 +119,9 @@ const Sonido = {
     if (ahora.fase !== a.fase) {
       if (ahora.fase === "descanso") this.silbato(2, 0.28);
       else if (ahora.fase === "final") this.silbato(3, 0.3);
-      else if (a.fase === "descanso" || a.fase === "gol") setTimeout(() => this.silbato(1), 150);
+      // el silbato del saque: al salir de su espera (Jugar) y al empezar la 2.ª
+      // parte. Tras el gol ya no: de ahi se va a la espera del saque (O-308)
+      else if (a.fase === "descanso" || a.fase === "saque") setTimeout(() => this.silbato(1), 150);
     }
   },
 };

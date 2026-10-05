@@ -300,8 +300,9 @@ class Pantalla3D {
     }
     this.camara.lookAt(mira, this.zoom, z);
     // al sacar de centro (al empezar, tras un gol y en la 2a parte) todos miran
-    // un momento al frente, como en el motor, aunque se recoloquen (O-305)
-    if (this._fase === undefined || (this._fase !== p.fase && (this._fase === "gol" || this._fase === "descanso"))) this._saque = 0.5;
+    // un momento al frente, como en el motor, aunque se recoloquen (O-305). Y al
+    // salir de la espera de cada saque, al pulsar Jugar (O-308)
+    if (this._fase === undefined || (this._fase !== p.fase && (this._fase === "gol" || this._fase === "descanso" || this._fase === "saque"))) this._saque = 0.5;
     else if (this._saque > 0) this._saque -= dt;
     this._fase = p.fase;
     // el jugador de la ficha: el elegido o el tuyo que lleva el balon (O-306)
@@ -309,6 +310,18 @@ class Pantalla3D {
     // jugadores
     p.jugadores.forEach((j, k) => {
       const g = this.figuras[k], u = g.userData;
+      // el expulsado no se ve (sigue en el array: su id no cambia) (O-311)
+      g.visible = !j.expulsado;
+      if (j.expulsado) return;
+      // con amarilla, una tarjetita amarilla junto a la cabeza (O-311). A un lado en
+      // z: la camara mira desde la banda (en x), asi que z es el lado en la pantalla
+      // (en x quedaba detras del rombo del elegido)
+      if (j.amarillas && !u.carta) {
+        u.carta = new THREE.Sprite(new THREE.SpriteMaterial({ color: 0xffe14d }));
+        u.carta.scale.set(0.5, 0.7, 1); u.carta.position.set(0, 2.45, 0.85);
+        g.add(u.carta);
+      }
+      if (u.carta) u.carta.visible = !!j.amarillas;
       const antes = g.position.clone();
       g.position.set(-j.x, 0, j.y);        // x cambiada de signo: sin espejo (O-305)
       // hacia donde mira y si corre, de lo que se mueve la figura: la foto del
@@ -334,7 +347,7 @@ class Pantalla3D {
       u.ficha.material.opacity = j.aturdido > 0 ? 0.5 : 1;
     });
     // y el rombo flotando sobre su cabeza (O-306)
-    const ja = actual !== null ? p.jugadores[actual] : null, t = performance.now() / 1000;
+    const ja = actual !== null && p.jugadores[actual] && !p.jugadores[actual].expulsado ? p.jugadores[actual] : null, t = performance.now() / 1000;     // O-311
     this.rombo.visible = !!ja;
     if (ja) {
       this.rombo.position.set(-ja.x, 3.0 + (this.quieto ? 0 : Math.sin(t * 4) * 0.12), ja.y);
@@ -344,7 +357,8 @@ class Pantalla3D {
     const r = p.resultado;
     if (r && r !== this._resultadoVisto) {
       this._resultadoVisto = r;
-      if (r.tipo === "tiro" && this.figuras[r.tirador]) this._anima(this.figuras[r.tirador], "tiro", true);
+      // el penalti tambien (O-312)
+      if ((r.tipo === "tiro" || r.tipo === "penalti") && this.figuras[r.tirador]) this._anima(this.figuras[r.tirador], "tiro", true);
     }
     if (p.balon.pase && p.balon.pase !== this._paseVisto) {
       this._paseVisto = p.balon.pase;
@@ -427,7 +441,9 @@ class Pantalla3D {
       malla([...V(j.x, j.y, 0.05), ...V(-m, g.y, 0.05), ...V(m, g.y, 0.05)], M.cono);
     };
     // las rutas de los tuyos, flechas azules; la que dibujas, azul claro
-    for (const j of p.jugadores) if (j.lado === this.yo && j.ruta.length) cinta([{ x: j.x, y: j.y }, ...j.ruta], 0.55, M.ruta, 0.07, true);
+    // solo los del campo: el expulsado no tiene marcas (O-311)
+    const delCampo = p.enCampo ? p.enCampo() : p.jugadores;
+    for (const j of delCampo) if (j.lado === this.yo && j.ruta.length) cinta([{ x: j.x, y: j.y }, ...j.ruta], 0.55, M.ruta, 0.07, true);
     if (this.trazo && this.trazo.puntos.length > 1) cinta(this.trazo.puntos, 0.55, M.trazo, 0.08, true);
     // el pase o el tiro marcado: el raso, cinta cian; el bombeado, el arco con su sombra
     const pm = (p.paseMarcado || [])[this.yo];
@@ -444,7 +460,7 @@ class Pantalla3D {
     }
     // el tiro que se esta eligiendo
     const du = p.fase === "duelo" && p.duelo;
-    if (du && du.tipo === "tiro" && p.jugadores[du.tirador]) cono(p.jugadores[du.tirador]);
+    if (du && (du.tipo === "tiro" || du.tipo === "penalti") && p.jugadores[du.tirador]) cono(p.jugadores[du.tirador]);     // y el penalti (O-312)
     // el pase en el aire, desde donde va el balon (el bombeado, desde donde salio)
     const b = p.balon;
     if (b.pase) {
@@ -460,7 +476,7 @@ class Pantalla3D {
     }
     // los tuyos que presionan: la linea roja y, en el rival, la marca naranja
     if (d0 && d0.lado !== this.yo) {
-      const van = p.jugadores.filter(j => j.lado === this.yo && j.presiona === d0.id);
+      const van = delCampo.filter(j => j.lado === this.yo && j.presiona === d0.id);
       for (const j of van) cinta([j, d0], 0.2, M.linea, 0.08);
       if (van.length) aro(d0.x, d0.y, 1.05, 1.4, M.presion);
     }
@@ -501,7 +517,7 @@ class Pantalla3D {
   }
   jugadorEn(px, py, lado) {
     let mejor = null, md = 34;
-    for (const j of this.p.jugadores) {
+    for (const j of this.p.enCampo ? this.p.enCampo() : this.p.jugadores) {     // al expulsado no se le elige (O-311)
       if (lado !== undefined && j.lado !== lado) continue;
       const q = this.aPantalla(j.x, j.y), d = Math.hypot(q.px - px, q.py - py);
       if (d < md) { md = d; mejor = j; }

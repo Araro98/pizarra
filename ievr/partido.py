@@ -221,6 +221,37 @@ def _tacticas_del_equipo(e):
     return fuera
 
 
+# --- la hipertecnica de cada espiritu (O-310) ------------------------------------
+# VR tiene siete familias de hipertecnica, cada una con su duracion, recarga y
+# mejoras (scratchpad reglas-vr/HIPERTENSION.md). Salen de `familia` y `modelo` de
+# espiritus.csv; los numeros de cada una estan en REGLAS.HIPER_TIPOS (la pagina).
+_HIPER_FAMILIA = {"kenshin": "keshin", "mixi": "miximax", "alma": "totem", "armadura": "armadura"}
+
+
+def tipo_hiper(familia, modelo):
+    """keshin, miximax, totem, armadura, modo, vinculo o despertar."""
+    if familia in _HIPER_FAMILIA:
+        return _HIPER_FAMILIA[familia]
+    modelo = (modelo or "").lower()
+    if modelo.startswith("mode_change"):
+        return "modo"
+    if "kizuna" in modelo or modelo.startswith("wkt"):
+        return "vinculo"
+    return "despertar"          # wap01*, wap09*, awakening* (y lo que no se sepa)
+
+
+def _coste(fila, antes):
+    """La tension que cuesta una supertecnica en VR (columna `coste` de
+    tecnicas.csv, el consumeTp del juego); si la tabla no la trae, el `tp` de
+    antes. El `tp` de la tabla es el poder a nivel 1, no el coste: un tiro keshin
+    de 800 cuesta 100, no 140 (O-310)."""
+    try:
+        c = int((fila or {}).get("coste") or 0)
+    except ValueError:
+        c = 0
+    return c if c > 0 else int(antes or 0)
+
+
 def _tecnicas_por_id():
     from ievr import opciones as O
     return O._indice("partido_tecnicas", lambda: {f["id"].upper(): f for f in reglas._tabla("tecnicas.csv")})
@@ -268,27 +299,33 @@ def _ficha(plain, fila):
             st = portec.get((esp.get("tecnica") or "").upper())
             # el espiritu va siempre en el jugador: se puede invocar (aura) aunque
             # no tenga supertecnica, como Sobrecarga ardiente (O-304)
+            # con su id y su tipo de hipertecnica (keshin, totem, despertar...), para
+            # la duracion, la recarga y las mejoras de cada una en el partido (O-310)
             if esp:
                 espiritu = {"nombre": O.sin_marcadores(esp.get("nombre_largo") or t["puesta"]),
-                            "familia": esp.get("familia") or "", "rango": esp.get("rango")}
+                            "familia": esp.get("familia") or "", "rango": esp.get("rango"),
+                            "id": (idh or "").upper(),
+                            "tipo": tipo_hiper(esp.get("familia") or "", esp.get("modelo") or "")}
             if st:
                 tecnicas.append({"ranura": t["ranura"], "id": st["id"].upper(), "nombre": O._limpio(st["nombre"]),
                                  "interno": st.get("nombre_interno") or "", "tipo": st["categoria"],
                                  "subtipo": st.get("subtipo") or "", "subtipo_valor": int(st.get("subtipo_valor") or 0),
                                  "elemento": st.get("elemento") or "", "poder": int(st.get("poder") or 0),
-                                 "tp": int(st.get("tp") or 0), "jugadores": O.jugadores_de_tecnica(st)[0],
+                                 "tp": _coste(st, st.get("tp")), "jugadores": O.jugadores_de_tecnica(st)[0],
                                  "espiritu": espiritu})
             texto = O.pasiva_de_espiritu(idh)
             if texto:
+                # marcada: en VR solo cuenta con la hipertecnica puesta (O-310)
                 de_espiritu.append({"ranura": "espiritu", "texto": texto, "abierta": True,
-                                    "efecto": efecto_de_pasiva(texto)})
+                                    "efecto": efecto_de_pasiva(texto), "espiritu": True})
             continue
         tecnicas.append({"ranura": t["ranura"], "id": idh, "nombre": t["puesta"],
                          "interno": (portec.get(idh) or {}).get("nombre_interno") or "",
                          "tipo": t["tipo"], "subtipo": (portec.get(idh) or {}).get("subtipo") or "",
                          "subtipo_valor": int((portec.get(idh) or {}).get("subtipo_valor") or 0),
                          "elemento": t["elemento"], "poder": t["poder"],
-                         "tp": t["tp"], "jugadores": t.get("jugadores") or 1})
+                         # lo que cuesta de verdad en VR, no el "TP" del editor (O-310)
+                         "tp": _coste(portec.get(idh), t["tp"]), "jugadores": t.get("jugadores") or 1})
     # las pasivas: en cada ranura manda la heredada si la hay (tapa a la de la
     # ficha) y solo cuentan las abiertas en el arbol (O-288)
     # La marca de abierta sale de la tabla del juego: el detalle no la trae para

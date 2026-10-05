@@ -37,7 +37,8 @@
   .grande.azul { background:linear-gradient(180deg, #3a6fc4, var(--azul-osc)); box-shadow:0 0 0 2px #0f2147, 0 8px 16px rgba(0,0,0,.35); }
   .nota { color:#cfe0f5; text-align:center; font-size:var(--t-sm); }
   .nota.izq { text-align:left; }
-  .opciones-partido { display:flex; justify-content:center; gap:14px; color:#fff; font-weight:800; }
+  /* con "Si hay empate" (O-312) ya no caben todas en una fila estrecha */
+  .opciones-partido { display:flex; flex-wrap:wrap; justify-content:center; gap:10px 14px; color:#fff; font-weight:800; }
   .opciones-partido label { display:flex; align-items:center; gap:8px; }
   .opciones-partido select { font:inherit; font-weight:800; padding:6px 8px; border-radius:7px; border:2px solid var(--azul-marco); }
   .online .lado h2 { display:flex; align-items:center; gap:10px; }
@@ -81,6 +82,23 @@
     border:2px solid #fff; color:#fff; background:linear-gradient(180deg, #ffb24a, #e8801c); box-shadow:0 0 0 2px #9c5208; }
   .boton-pausa:disabled { filter:grayscale(1); opacity:.6; cursor:default; }
   .boton-pausa.seguir { background:linear-gradient(180deg, #3fe0d0, #1b9c8f); box-shadow:0 0 0 2px #0f5f57; }
+  /* el Menu de las esperas y "Dejar el partido" (O-308) */
+  .boton-pausa[hidden] { display:none; }
+  .boton-menu { margin-top:8px; background:linear-gradient(180deg, #3a6fc4, #1b4a8f); box-shadow:0 0 0 2px #0f2147; }
+  .boton-menu.activo { box-shadow:0 0 0 2px #ffe14d; }
+  .boton-dejar { margin-top:8px; background:linear-gradient(180deg, #8a93a6, #5a6b85); box-shadow:0 0 0 2px #2c3547; }
+  .pausa .menu-sub { text-align:center; font-weight:900; font-style:italic; text-transform:uppercase; color:#9ff0e6; }
+  .menu-lista { display:flex; flex-direction:column; gap:4px; max-height:46vh; overflow:auto; }
+  .menu-fila { display:grid; grid-template-columns:30px 1fr auto; align-items:center; gap:8px; padding:4px 6px; border-radius:8px;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); }
+  .menu-fila.abierta { border-color:#ffe14d; }
+  .menu-fila.pendiente { background:rgba(63,224,208,.16); border-color:#3fe0d0; }
+  .menu-fila > img { width:30px; height:30px; border-radius:50%; background:#fff; object-fit:cover; }
+  .menu-fila > span { min-width:0; line-height:1.2; }
+  .menu-fila > span b { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .menu-fila > span small { display:block; opacity:.75; font-size:var(--t-xxs); }
+  .menu-fila .btn-mini:disabled { opacity:.45; cursor:default; }
+  .menu-fila .banquillo { grid-column:1 / -1; margin:2px 0 0; }
   /* la pantalla de arriba en 3D, como la 3DS (O-301): encima de los duelos */
   @media (min-width:1101px) { .juego.con-3d { grid-template-columns:auto minmax(320px, 560px) 290px; } }
   /* en estrecho la 3D no pasa del alto del campo menos el marcador y el hueco de los
@@ -101,6 +119,8 @@
     pointer-events:none; max-width:60%; }
   .aviso-3d[hidden] { display:none; }
   .marcador .goles { font-size:var(--t-2xl); min-width:64px; text-align:center; }
+  /* con la tanda, "(4-2 pen.)" pequeno junto al marcador (O-312) */
+  .marcador .goles .pen { font-size:var(--t-sm); margin-left:4px; white-space:nowrap; }
   .marcador .reloj { font-size:var(--t-md); opacity:.85; }
   .lateral { display:flex; flex-direction:column; gap:10px; min-height:0; overflow:auto; }
   .tarjeta { background:var(--panel); color:#fff; border:2px solid #fff; border-radius:9px; padding:10px; box-shadow:0 0 0 2px var(--aro); }
@@ -109,6 +129,12 @@
   .tarjeta .quien img { width:46px; height:46px; border-radius:50%; background:#fff; object-fit:cover; }
   .barra-pt { height:10px; border-radius:5px; background:#0b1630; overflow:hidden; border:1px solid #6d86b1; }
   .barra-pt > i { display:block; height:100%; background:linear-gradient(90deg, #3fe0d0, #2b9de0); }
+  /* la hiperbarra del equipo, morada y partida en dos mitades: cada mitad, una
+     invocacion (O-310) */
+  .hiper-texto { margin-top:6px; }
+  .barra-hiper { height:10px; border-radius:5px; background:#160b30; overflow:hidden; border:1px solid #8b6fd6; position:relative; }
+  .barra-hiper > i { display:block; height:100%; background:linear-gradient(90deg, #6a3fd0, #d08cff); }
+  .barra-hiper::after { content:""; position:absolute; left:50%; top:0; bottom:0; width:2px; margin-left:-1px; background:#fff; opacity:.85; }
   .ayuda { font-size:var(--t-sm); line-height:1.45; color:#dbe8fb; }
   .ayuda b { color:#fff; }
   /* las pasivas de la ficha, plegadas: con todas a la vista la ficha empujaba
@@ -122,8 +148,26 @@
   .tactica-btn:disabled { cursor:default; background:#3a4a66; }
   .tactica-btn.activa { background:#2f9e5b; box-shadow:0 0 0 2px #ffe14d; }
   .tactica-btn.espiritu { background:linear-gradient(90deg, #3b2a66, #8b6fd6); margin-top:8px; }
+  .tactica-btn.espiritu:disabled { background:linear-gradient(90deg, #2c2a40, #4d4870); }
+  .tactica-btn.espiritu.activa { background:linear-gradient(90deg, #5b2fb0, #b07cff); box-shadow:0 0 0 2px #d9b8ff; }
+  /* el de invocar dentro del panel del tiro (O-310) */
+  .tactica-btn.invocar-duelo { margin-top:0; }
+  .pista.aviso-hiper { color:#d9b8ff; font-weight:800; }
   .tactica-btn small { margin-left:auto; font-weight:700; opacity:.9; }
   .registro .tactica { color:#ffd27a; font-weight:800; }
+  /* las tarjetas (O-311): en "Lo que pasa", en la ficha (la tarjetita de su color),
+     en el resultado de la falta y en el Menu (el expulsado, apagado) */
+  .registro .amarilla { color:#ffe14d; font-weight:800; }
+  .registro .roja { color:#ff8a7a; font-weight:800; }
+  .ficha-tarjeta { display:flex; align-items:center; gap:7px; margin:4px 0 6px; font-weight:800; color:#ffe14d; }
+  .ficha-tarjeta.roja { color:#ff8a7a; }
+  .ficha-tarjeta i, .tarjeta-falta i { flex:none; width:11px; height:15px; border-radius:2px; background:#ffe14d; border:1.5px solid #0d1a33;
+    box-shadow:0 0 0 1px #fff; transform:rotate(-8deg); }
+  .ficha-tarjeta.roja i, .tarjeta-falta.roja i { background:#e8322a; }
+  .pausa .tarjeta-falta { display:flex; align-items:center; justify-content:center; gap:9px; color:#ffe14d; }
+  .pausa .tarjeta-falta.roja { color:#ff8a7a; }
+  .pausa .tarjeta-falta i { width:15px; height:21px; }
+  .menu-fila.expulsado { opacity:.55; grid-template-columns:30px 1fr; }
   .registro { font-size:var(--t-xs); line-height:1.4; max-height:220px; overflow:auto; color:#cfe0f5; }
 
   /* los cambios en la pausa (O-297) */
@@ -153,6 +197,10 @@
      numeros salian amontonados en la esquina de la pantalla (O-305) */
   .comando .poder { position:static; margin-left:auto; font-style:italic; flex:none; }
   .comando .coste { font-size:var(--t-xs); opacity:.85; }
+  /* el boton de la hipertecnica en un foco, morado (O-310); lo que le falta, en rojo */
+  .comando.hiper { background:linear-gradient(90deg, #3b2a66, #8b6fd6); border-color:#d9b8ff; }
+  .comando.hiper:hover:not(:disabled) { background:linear-gradient(90deg, #4a3480, #a07ff0); }
+  .comando .coste.falta { color:#ffb199; opacity:1; }
   /* a la derecha: lo que suma la supertecnica y, debajo, el total con el que
      quedarias (O-306) */
   .comando .cifras { margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; flex:none; line-height:1.15; }
@@ -210,6 +258,29 @@
   .estadisticas .est-goles + .est-que { border-bottom:0; }
   .est-goles .parte { display:inline-block; margin-right:4px; padding:0 3px; border-radius:3px; font-size:var(--t-xxs); font-weight:900; color:#fff; background:#2f9e5b; }
   .est-goles .parte.p2 { background:#e8801c; }
+  .est-goles .parte.p3, .est-goles .parte.p4 { background:#8b6fd6; }
+  /* el empate (O-312): "(4-2 pen.)" bajo el marcador del final; el tablero de la
+     tanda (● gol, ✕ fallo) con la fila de cada equipo de su color; el penalti: la
+     supertecnica marcada y las tres zonas; en el resultado, adonde tiro cada uno */
+  .marcador-final .pen-final { grid-column:1 / -1; text-align:center; font-size:var(--t-md); font-weight:900; font-style:italic; color:#ffe14d; margin-top:-4px; }
+  .tablero-tanda { display:flex; flex-direction:column; gap:4px; }
+  .tanda-fila { display:grid; grid-template-columns:minmax(0, 7em) 1fr auto; align-items:center; gap:8px; padding:3px 8px; border-radius:7px; border:2px solid rgba(255,255,255,.7); }
+  .tanda-fila.azul { background:linear-gradient(90deg, #1b4a8f, #2f6fc4); }
+  .tanda-fila.rojo { background:linear-gradient(90deg, #c23a2a, #a3241a); }
+  .tanda-fila.gana { border-color:#ffe14d; box-shadow:0 0 0 2px rgba(255,225,77,.35); }
+  .tanda-fila .eq { font-size:var(--t-xs); font-weight:900; font-style:italic; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tanda-fila .casillas { display:flex; flex-wrap:wrap; gap:3px; }
+  .tanda-fila .casillas i { width:18px; height:18px; border-radius:50%; border:2px solid #fff; background:rgba(255,255,255,.15);
+    display:flex; align-items:center; justify-content:center; font-style:normal; font-size:11px; font-weight:900; line-height:1; }
+  .tanda-fila .casillas i.gol { background:#ffe14d; color:#0d1a33; }
+  .tanda-fila .casillas i.fallo { background:#0d1a33; color:#ff7a5c; }
+  .tanda-fila > b { font-size:var(--t-lg); font-weight:900; font-style:italic; font-variant-numeric:tabular-nums; }
+  .comando.elegida { border-color:#ffe14d; box-shadow:0 0 0 2px rgba(255,225,77,.45); background:#3a5aa0; }
+  .zonas-penalti { display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; }
+  .zonas-penalti .comando.zona { justify-content:center; text-align:center; padding:10px 6px; background:linear-gradient(180deg, #e8801c, #b85a0c); }
+  .zonas-penalti .comando.zona:hover { background:linear-gradient(180deg, #ff9a3a, #d06a14); }
+  .zonas-resultado { display:flex; flex-direction:column; align-items:center; gap:2px; font-weight:800; font-size:var(--t-sm); color:#9ff0e6; text-align:center; }
+  .zonas-resultado.misma span:last-child { color:#ffb199; }
   /* el resultado de un duelo como un rotulo del juego */
   @keyframes entra { from { opacity:0; transform:translateX(-36px) skewX(-8deg); } to { opacity:1; transform:none; } }
   @keyframes aparece { from { opacity:0; transform:scale(.6); } to { opacity:1; transform:none; } }
@@ -228,6 +299,18 @@
   .rotulo-comando { font-size:var(--t-md); font-style:italic; }
   .rotulo-pasivas { color:#9ff0e6; }
   .rotulo-valor { font-size:var(--t-2xl); font-weight:900; font-style:italic; min-width:72px; text-align:right; font-variant-numeric:tabular-nums; }
+  /* el numero y, encima, "¡Crítico!" en amarillo cuando gana el pequeno (el 90-10
+     de Aaron): su numero salta por encima del otro (O-309). La nota, lo que el
+     muro le quita al tiro */
+  .rotulo-cifra { display:flex; flex-direction:column; align-items:flex-end; flex:none; line-height:1.05; }
+  .rotulo .critico { padding:1px 7px; border-radius:5px; background:#ffe14d; color:#0d1a33; font-size:var(--t-xs); font-weight:900; font-style:italic;
+    text-transform:uppercase; white-space:nowrap; animation:aparece .25s ease-out; }
+  .rotulo.con-critico .rotulo-valor { color:#ffe14d; }
+  /* gana con su hipertecnica: "¡Hipertécnica!" y una estrella en vez del numero (O-310) */
+  .rotulo .hiper-marca { padding:1px 7px; border-radius:5px; background:#b07cff; color:#fff; font-size:var(--t-xs); font-weight:900; font-style:italic;
+    text-transform:uppercase; white-space:nowrap; }
+  .rotulo-valor.estrella { color:#d9b8ff; text-shadow:0 0 8px rgba(176,124,255,.8); }
+  .rotulo-nota { color:#ffb199; }
   /* con la columna de los duelos estrecha (ventana alta y poco ancha) el rotulo se
      compacta: el nombre solo tenia unos 60 px y se partia en 4 lineas (O-305) */
   .pausa .caja { container-type:inline-size; }
@@ -263,10 +346,17 @@
     </div>
     <div class="opciones-partido">
       <label>Duración
-        <select id="duracion">
-          <option value="180">Corto · 2 × 3 min</option>
-          <option value="300">Normal · 2 × 5 min</option>
-          <option value="480">Largo · 2 × 8 min</option>
+        <select id="duracion" title="Minutos del reloj del partido, como en 3DS: una parte de 15 son unos 75 s de juego corriendo">
+          <option value="15">2 × 15 min</option>
+          <option value="30">2 × 30 min</option>
+        </select></label>
+      <!-- que pasa si hay empate al final, como las reglas de GO Light (O-312) -->
+      <label>Si hay empate
+        <select id="empate" title="Prórroga: dos partes de 5 min (de 10 en partes de 30) con su descanso. Penaltis: 5 cada uno y luego muerte súbita">
+          <option value="nada">Nada</option>
+          <option value="prorroga">Prórroga</option>
+          <option value="penaltis">Penaltis</option>
+          <option value="prorroga-penaltis">Prórroga y penaltis</option>
         </select></label>
       <label title="La maquina elige por ti en los focos y disputas (regates y entradas); en los tiros y paradas sigues eligiendo tu">
         <input type="checkbox" id="focos-auto"> Focos automáticos</label>
@@ -301,7 +391,7 @@
       <div class="aviso-pausa" id="aviso-pausa" hidden></div>
     </div>
     <div class="duelos">
-      <div class="marcador"><span id="nombre-a">Local</span><span class="goles" id="goles">0 - 0</span><span id="nombre-b">Rival</span><span class="reloj" id="reloj">1ª 0'</span></div>
+      <div class="marcador"><span id="nombre-a">Local</span><span class="goles" id="goles">0 - 0</span><span id="nombre-b">Rival</span><span class="reloj" id="reloj">1ª 00:00</span></div>
       <div class="pantalla-arriba" id="pantalla-arriba" hidden>
         <canvas id="campo-3d"></canvas>
         <div class="aviso-3d" id="aviso-3d" hidden></div>
@@ -312,7 +402,11 @@
     <aside class="lateral">
       <!-- las tacticas antes que la ficha y "Lo que pasa" antes que la ayuda: con la
            ficha larga se quedaban medio fuera de la vista (O-305) -->
-      <div class="tarjeta"><button class="boton-pausa" id="boton-pausa" title="Barra espaciadora">Pausa</button></div>
+      <!-- en las esperas (pausa, saque y descanso): Menu con los cambios; online, si
+           el rival no responde, "Dejar el partido" (O-308) -->
+      <div class="tarjeta"><button class="boton-pausa" id="boton-pausa" title="Barra espaciadora">Pausa</button>
+        <button class="boton-pausa boton-menu" id="boton-menu" hidden>Menú</button>
+        <button class="boton-pausa boton-dejar" id="boton-dejar" hidden title="Sales del partido y al rival le sale que te has ido">Dejar el partido</button></div>
       <div class="tarjeta"><h3>Tácticas</h3><div id="tacticas" class="tacticas"></div></div>
       <div class="tarjeta" id="tarjeta-jugador"><h3>Tu jugador</h3><div id="ficha-actual" class="ayuda">—</div></div>
       <div class="tarjeta"><h3>Lo que pasa</h3><div class="registro" id="registro"></div></div>
@@ -323,11 +417,20 @@
           <b>Pulsa la portería rival</b> para chutar; si lo haces mientras va un pase, <b>remata de primeras</b>.<br>
           <b>Pulsa al rival con balón</b>: tus dos más cerca van a presionarle.<br>
           Cuando llevas el balón, sobre tus compañeros libres (sin rival cerca y con el pase limpio) sale <b>«¡Aquí!»</b>.<br>
-          <b>Pausa</b> (o barra espaciadora, 3 por parte): con todo parado dibujas rutas a varios y marcas el pase o el tiro, que salen al seguir; si al que le pasas le has dibujado una carrera, le llega en carrera. Pulsa al que lleva el balón para quitar lo marcado. En la pausa o en el <b>descanso</b>, pulsa a uno de los tuyos para <b>cambiarlo</b> por uno del banquillo (3 cambios por partido).<br>
-          En el descanso, la segunda parte empieza al pulsar <b>Segunda parte</b> (online, cuando pulséis los dos) o pasado un minuto. En el descanso y al final, en el centro salen las <b>estadísticas</b>: tiros, supertécnicas, posesión y los goles con su minuto.<br>
-          En cada <b>duelo</b> el partido se para: eliges en el panel del centro y, mientras, puedes dibujar rutas. Arriba ves el <b>poder de base</b> de los dos (con los compañeros que apoyan) y en cada botón el <b>total</b> con el que quedarías. Los comandos fuertes ganan más, pero <b>Entrada</b> y <b>Cargar</b> pueden ser falta (en el área, penalti).<br>
+          El partido dura <b>2 × 15</b> o <b>2 × 30 minutos</b> del reloj, como en 3DS (una parte de 15 son unos 75 s de juego corriendo). Si a las 15:00 el balón está en juego, la parte sigue hasta que se pare, como mucho hasta las 17:00.<br>
+          <b>Antes de cada saque</b> (de centro, banda, córner, puerta, falta y penalti) el juego espera con todos colocados: <b>coloca a tus jugadores</b> arrastrándolos donde quieras (se ponen ahí; no es una ruta), menos muy cerca del balón (los rivales del que saca, a 9,15 m; en el penalti, nadie en el área ni en el semicírculo; en el de centro, cada uno en su campo), marca el pase del que saca y pulsa <b>Jugar</b> (o barra espaciadora). Al sacar, los colocados se quedan en su sitio hasta que alguien coge el balón. Para dibujar la carrera de uno, mantenlo pulsado un momento y arrastra. Online sigue cuando pulsáis los dos.<br>
+          <b>Pausa</b> (o barra espaciadora), cuando quieras y sin límite: con todo parado dibujas rutas a varios y marcas el pase o el tiro, que salen al seguir; si al que le pasas le has dibujado una carrera, le llega en carrera. Pulsa al que lleva el balón para quitar lo marcado. Sigue al pulsar <b>Seguir</b> (online, los dos).<br>
+          <b>Cambios</b> (5 por partido y uno más si hay prórroga): en la pausa, en la espera del saque o en el descanso, con <b>Menú</b> o pulsando a uno de los tuyos. Los que eliges en la pausa entran cuando se pare el balón (fuera, falta, gol...), como en la vida real; hasta entonces los puedes quitar.<br>
+          En el descanso, la segunda parte empieza al pulsar <b>Segunda parte</b> (online, cuando pulséis los dos), sin límite de tiempo. En el descanso y al final, en el centro salen las <b>estadísticas</b>: tiros, supertécnicas, posesión, las tarjetas si las hay y los goles con su minuto.<br>
+          <b>Si hay empate</b> al final, lo que elegiste al empezar: nada, <b>prórroga</b> (dos partes de 5 minutos, o de 10 en partes de 30, con su descanso, cambio de campo en cada una y un cambio más; sin gol de oro), <b>penaltis</b> o las dos cosas. En la <b>tanda de penaltis</b> tiran 5 cada uno por turnos (los de más tiro primero y el portero el último), se acaba antes si uno ya no puede alcanzar al otro y, si siguen empatados, muerte súbita. En cada penalti (también el de una falta en el área) el que tira y el portero eligen a la vez una <b>zona</b> (izquierda, centro o derecha, como la ves en tu pantalla) y, si quieren, una supertécnica: si el portero se tira a otro lado es gol; si acierta, gana el número mayor. En la tanda el reloj está parado: una invocación vale solo para ese penalti.<br>
+          En cada <b>duelo</b> el partido se para: eliges en el panel del centro y, mientras, puedes dibujar rutas. Arriba ves el <b>poder de base</b> de los dos (con los compañeros que apoyan) y en cada botón el <b>total</b> con el que quedarías. Gana el <b>número más alto</b>; a veces hay un <b>¡Crítico!</b> y gana el otro (1 de cada 10 si los números son parecidos, menos cuanto más lejos, y nunca si uno triplica al otro). Los comandos fuertes ganan más, pero <b>Entrada</b> y <b>Cargar</b> pueden ser falta (en el área, penalti).<br>
+          En algunas faltas el árbitro saca <b>tarjeta</b>, pocas veces: <b>amarilla</b> en 1 de cada 5 (1 de cada 3 si fue con Entrada o en el área) y, muy rara vez, <b>roja</b> directa. Dos amarillas son roja. El <b>expulsado</b> sale del campo, su equipo juega con uno menos y no se le puede cambiar (si era el portero, se pone de portero el que mejor para). No se expulsa a nadie de un equipo que ya juega con 7. No hay ley de la ventaja: la falta se pita siempre.<br>
+          Al chutar: <b>Tirar</b> o <b>Vaselina</b> (×0,8, pero pasa por encima del defensa de la línea de tiro si no está pegado a ti, y no se encadena); rematando de primeras un <b>pase bombeado</b>, <b>Testarazo</b> o <b>Volea</b> (cuenta el Físico; la volea es fuerte pero inestable). El portero: <b>Parar</b> (se la queda) o <b>Despejar</b> (×1,25, pero el balón rebota a cualquier sitio y puede acabar en córner). Si el defensa de la línea de tiro bloquea y pierde, le quita al tiro la mitad de su número.<br>
           Si llevas el balón en un duelo, puedes <b>marcar ya el pase o el tiro</b> como en la pausa: sale si ganas el duelo y se borra si lo pierdes.<br>
-          Si tu jugador tiene <b>espíritu</b>, en su ficha puedes <b>invocarlo</b> (100 de tensión): 30 s más fuerte y con su supertécnica.<br>
+          La <b>tensión</b> del equipo (empieza en 105 de 300) paga las supertécnicas (lo que cuestan en Victory Road). Sube al ganar un duelo sin supertécnica (+60), al perder un foco (+30, también con supertécnica) y con un fuera de juego a tu favor (+10); no sube sola.<br>
+          La <b>hiperbarra</b> del equipo (de 0 a 200, empieza en 40) se llena usando supertécnicas: lo que cuestan ×0,4 un tiro, ×0,6 un regate, ×0,8 una defensa y ×1 una parada. Con 100, en la ficha de un jugador con <b>espíritu</b> lo puedes <b>invocar</b> cuando quieras, sin parar el juego (también en la pausa y en la espera del saque): mientras dura (keshin y miximax 45 s, tótem 60 s, despertar 30 s...) es más fuerte, corre más y puede usar su supertécnica ★. Como mucho 2 a la vez y 15 s entre una invocación y otra del equipo.<br>
+          En un <b>duelo</b>, el botón morado <b>★</b> saca su hipertécnica: <b>gana siempre</b>, aunque el rival use una supertécnica, salvo que el rival saque también la suya (entonces gana el número mayor y el que pierde no la paga). Al chutar o al parar, el botón <b>Invocar</b> de arriba sube tus números, pero no gana solo.<br>
+          Las <b>tácticas</b> se lanzan con el juego en marcha, en la pausa o en la espera del saque (las que quitan el balón o aturden, solo con el balón en juego).<br>
           Con <b>Pantalla de arriba en 3D</b>, encima de los duelos ves el partido en 3D, como en la 3DS; se juega siempre en el campo.
         </div></div>
     </aside>

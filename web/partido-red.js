@@ -11,8 +11,15 @@
 
    El que invita lleva el partido (su PC simula); el invitado manda ordenes y
    pinta las fotos. Cada mensaje llega hasta tres veces (uno por servidor):
-   las ordenes van numeradas y las fotos tambien, y lo repetido se tira. */
+   las ordenes van numeradas y las fotos tambien, y lo repetido se tira.
+
+   La version del Partido (REGLAS.VERSION, O-308) va en la presencia, en la
+   invitacion y en la respuesta: con otra version no se juega (sin `v` es la 1). */
 "use strict";
+
+// la version del Partido de un mensaje: sin `v`, un Pizarra anterior (la 1) (O-308)
+function versionDe(m) { return (m && Number(m.v)) || 1; }
+function otraVersion(m) { return versionDe(m) !== REGLAS.VERSION; }
 
 class RedPartido {
   constructor() {
@@ -41,7 +48,7 @@ class RedPartido {
   anunciarme() {
     if (!this.yo || !this.red.conectado) return;
     this.red.publicar("partido/conectados/" + this.yo.slug, { nombre: this.yo.nombre, ts: Date.now(),
-      estado: this.sala ? "jugando" : "libre", equipo: this.equipo }, true);
+      estado: this.sala ? "jugando" : "libre", equipo: this.equipo, v: REGLAS.VERSION }, true);
   }
   salir() {
     // al cerrar la pestana o pulsar Inicio a mitad de partido, el rival se
@@ -64,7 +71,7 @@ class RedPartido {
     const sala = Math.random().toString(36).slice(2, 10);
     this.pendiente = { slug, nombre, sala };
     this._repite("invita", () => this.red.publicar("partido/buzon/" + slug,
-      { tipo: "invita", de: this.yo.slug, nombre: this.yo.nombre, sala, equipo: this.equipo }));
+      { tipo: "invita", de: this.yo.slug, nombre: this.yo.nombre, sala, equipo: this.equipo, v: REGLAS.VERSION }));
     return sala;
   }
   cancelar() {
@@ -74,7 +81,7 @@ class RedPartido {
     this.pendiente = null;
   }
   responder(inv, acepta) {
-    this.red.publicar("partido/buzon/" + inv.de, { tipo: acepta ? "acepta" : "rechaza", de: this.yo.slug, nombre: this.yo.nombre, sala: inv.sala });
+    this.red.publicar("partido/buzon/" + inv.de, { tipo: acepta ? "acepta" : "rechaza", de: this.yo.slug, nombre: this.yo.nombre, sala: inv.sala, v: REGLAS.VERSION });
     if (acepta) this._entrarSala(inv.sala, "invitado", { slug: inv.de, nombre: inv.nombre });
   }
 
@@ -117,6 +124,16 @@ class RedPartido {
       if (msg.tipo === "invita") { if (this.alInvitacion) this.alInvitacion(msg); return; }
       if (msg.tipo === "cancela") { if (this.alInvitacion) this.alInvitacion(msg); return; }
       if (this.pendiente && msg.sala === this.pendiente.sala) {
+        if (msg.tipo === "acepta" && !this.sala && otraVersion(msg)) {
+          // otra version del Partido: no se entra. Un Pizarra anterior no mira la
+          // version y ya esta en la sala esperando los equipos: se le dice adios
+          // en el tema que escucha (O-305 ya sabe ensenarlo) (O-308)
+          this.para("invita");
+          this.red.publicar("partido/sala/" + msg.sala + "/anfitrion", { tipo: "adios" });
+          this.pendiente = null;
+          if (this.alRespuesta) this.alRespuesta(Object.assign({}, msg, { otraVersion: true }));
+          return;
+        }
         if (msg.tipo === "acepta" && !this.sala) {
           this.para("invita");
           this._entrarSala(msg.sala, "anfitrion", { slug: msg.de, nombre: msg.nombre });
@@ -162,8 +179,10 @@ function jugadorParaRed(j) {
       tecnicas: (j.tecnicas || []).map(t => ({ ranura: t.ranura, nombre: t.nombre, tipo: t.tipo, subtipo: t.subtipo,
         elemento: t.elemento, poder: t.poder, tp: t.tp, interno: t.interno, subtipo_valor: t.subtipo_valor, espiritu: t.espiritu,
         jugadores: t.jugadores })),
-      // las pasivas viajan con su efecto (O-288)
-      pasivas: (j.pasivas || []).map(q => ({ texto: q.texto, abierta: q.abierta, efecto: q.efecto })),
+      // las pasivas viajan con su efecto (O-288) y la del espiritu con su marca: solo
+      // cuenta con la hiper puesta (O-310)
+      pasivas: (j.pasivas || []).map(q => ({ texto: q.texto, abierta: q.abierta, efecto: q.efecto, espiritu: !!(q.espiritu || q.ranura === "espiritu") })),
+      // entero: con su id y su tipo de hipertecnica (keshin, totem, despertar...) (O-310)
       espiritu: j.espiritu || null,
   };
 }

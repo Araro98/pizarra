@@ -13,10 +13,11 @@ Columnas de `m_skillInfoList` (fichero `skill_config_*.cfg.bin`):
 | 1 | nombre interno; su prefijo tambien dice la categoria (whs/whd/who/whk) |
 | 6 | name_id, que se busca en los textos del idioma |
 | 9 | **subtipo** |
-| 10 | **TP** que cuesta usarla |
+| 10 | `tp`: el "TP" que ensena el editor; en VR es `power_min`, el poder a nivel 1, NO lo que cuesta (O-310) |
 | 11 | **AT**, el poder que ensena el juego al lado del nombre |
 | 12 | **elemento**: 1 Viento, 2 Bosque, 3 Fuego, 4 Montana |
 | 14 | **categoria**: 1 Tiro, 2 Regate, 3 Defensa, 4 Parada |
+| 17 | **coste**: la tension que cuesta usarla en VR (`consumeTp`); solo lo usa el Partido (O-310) |
 
 El AT de la columna 11 cuadra con lo que se ve en el juego: Aaron mando una
 captura con "Tormenta de fuego AT 440" y "Torbellino de fuego AT 540", y esos son
@@ -186,6 +187,10 @@ def main():
             "descripcion": descripciones.get(u32(c[7]), ""),
             # 1 = individual; 2, 3 o 4 = combinada de tantos jugadores (O-237)
             "jugadores": jugadores_de(c, descripciones.get(u32(c[7]), "")),
+            # lo que cuesta de verdad en VR (consumeTp, campo 17): un tiro keshin de
+            # 800 cuesta 100, no los 140 de `tp`. Al final, para no mover nada de lo
+            # que ya lee la tabla; solo lo usa el Partido (O-310)
+            "coste": numero(c[17]) if len(c) > 17 else 0,
         })
 
     os.makedirs(os.path.dirname(SALIDA), exist_ok=True)
@@ -194,7 +199,9 @@ def main():
                  "# categoria: columna 14, que separa las cuatro sin excepciones.\n"
                  "# subtipo: columna 9. Los nombres los aporto Aaron.\n"
                  "# poder (AT): columna 11. tp: columna 10. elemento: columna 12.\n"
-                 "# jugadores: columna 19 (0 individual; 2-4 combinada), O-237.\n")
+                 "# jugadores: columna 19 (0 individual; 2-4 combinada), O-237.\n"
+                 "# coste: columna 17 (consumeTp), la tension que cuesta en VR; tp es el\n"
+                 "# poder a nivel 1. Solo lo usa el Partido (O-310).\n")
         w = csv.DictWriter(fh, fieldnames=list(filas[0].keys()))
         w.writeheader()
         w.writerows(filas)

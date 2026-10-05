@@ -10,6 +10,16 @@ let EQUIPOS = [], DATOS = {}, PARTIDO = null, PANTALLA = null, MAQUINA = null, M
 let PANTALLA3D = null;        // la pantalla de arriba en 3D, si se ha elegido (O-301)
 const DEMO = new URLSearchParams(location.search).has("demo");   // maquina contra maquina, para mirar
 let ultimoResultado = null, eventosVistos = 0;
+// las esperas sin limite (O-308): online, a los RED_ABANDONO s sin noticias del
+// rival (o esperando a que pulse) sale "Dejar el partido". No se le da por ido
+// solo: el navegador para la pestana oculta y se perderian partidos buenos
+const RED_ABANDONO = 60;
+let menuAbierto = false, menuDespliega = null;   // el Menu de las esperas (los cambios) y a quien se le ven los suplentes
+let miSeguir = null;          // el Seguir/Jugar que he pulsado: {n: numero de la espera, t} (O-308)
+let esperandoDesde = 0;       // desde cuando espero a que el rival pulse (O-308)
+// en la espera de un saque, arrastrar a uno de los tuyos lo coloca; mantenerlo
+// pulsado estos ms antes de arrastrar dibuja su carrera (la ruta) (O-313)
+const MANTENER = 450;
 
 // --- elegir equipos ------------------------------------------------------------
 async function cargarEquipos() {
@@ -41,10 +51,16 @@ async function cargarEquipos() {
   verOnce("#once-b", +$("#equipo-b").value);
 }
 
-// la duracion de cada parte, en segundos (se recuerda)
-function duracionElegida() { return +($("#duracion").value || REGLAS.MITAD); }
-try { const d = localStorage.getItem("partido-duracion"); if (d) $("#duracion").value = d; } catch (e) {}
+// la duracion de cada parte en minutos del reloj de 3DS, 15 o 30 (se recuerda).
+// Lo guardado de antes (180, 300 o 480 s reales) pasa a 15 (O-308)
+function duracionElegida() { const v = +$("#duracion").value; return REGLAS.PARTES_MINUTOS.includes(v) ? v : 15; }
+try { const d = localStorage.getItem("partido-duracion"); $("#duracion").value = REGLAS.PARTES_MINUTOS.includes(+d) ? String(+d) : "15"; } catch (e) {}
 $("#duracion").onchange = () => { try { localStorage.setItem("partido-duracion", $("#duracion").value); } catch (e) {} };
+// que pasa si hay empate: nada (por defecto), prorroga, penaltis o las dos (se
+// recuerda; online vale la del que invita) (O-312)
+function empateElegido() { const v = $("#empate").value; return REGLAS.EMPATE.includes(v) ? v : "nada"; }
+try { const e = localStorage.getItem("partido-empate"); $("#empate").value = REGLAS.EMPATE.includes(e) ? e : "nada"; } catch (e) {}
+$("#empate").onchange = () => { try { localStorage.setItem("partido-empate", $("#empate").value); } catch (e) {} };
 try { $("#focos-auto").checked = localStorage.getItem("partido-focos-auto") === "1"; } catch (e) {}
 try { $("#vista-3d").checked = localStorage.getItem("partido-vista-3d") === "1"; } catch (e) {}
 try { $("#fuera-juego").checked = localStorage.getItem("partido-fuera-juego") !== "0"; } catch (e) {}
@@ -91,10 +107,14 @@ function empezar(a, b, online) {
   MODO = online ? online.modo : "maquina";
   YO = MODO === "invitado" ? 1 : 0;
   const semilla = online ? online.semilla : (Math.random() * 1e9) | 0;
-  const mitad = (online && online.mitad) || duracionElegida();
+  const minutos = (online && online.minutos) || duracionElegida();
   const fueraDeJuego = online && online.fueraDeJuego !== undefined ? online.fueraDeJuego : $("#fuera-juego").checked;
-  PARTIDO = new Partido(a, b, { semilla, manual: MODO === "maquina" ? [!DEMO, false] : [true, true], mitad, fueraDeJuego,
-                                limiteDuelo: online ? REGLAS.DUELO_MAX : 0 });
+  // si hay empate: online, la del que invita (O-312)
+  const empate = online ? online.empate || "nada" : empateElegido();
+  // esperas: [Jugar] antes de cada saque (O-308)
+  PARTIDO = new Partido(a, b, { semilla, manual: MODO === "maquina" ? [!DEMO, false] : [true, true], minutos, fueraDeJuego, empate,
+                                limiteDuelo: online ? REGLAS.DUELO_MAX : 0, esperas: true });
+  menuAbierto = false; menuDespliega = null; miSeguir = null; esperandoDesde = 0;
   // se juega siempre en el campo 2D; la vista 3D (O-293), si se ha elegido y
   // three.js ha cargado, va encima, como la pantalla de arriba de la 3DS (O-301)
   const quiero3d = !!($("#vista-3d").checked && window.Pantalla3D);
@@ -127,8 +147,9 @@ function empezar(a, b, online) {
     };
   }
   duelosElegidos.clear(); ultimaEleccion = null;
-  // focos automaticos: una maquina elige por mi en los regates y entradas
-  AYUDANTE = $("#focos-auto").checked && !DEMO ? new Maquina(PARTIDO, YO, { semilla: (Math.random() * 1e9) | 0 }) : null;
+  // focos automaticos: una maquina elige por mi en los regates y entradas. Sin
+  // hipertecnicas: la hiperbarra la gasta la persona (O-310)
+  AYUDANTE = $("#focos-auto").checked && !DEMO ? new Maquina(PARTIDO, YO, { semilla: (Math.random() * 1e9) | 0, sinHiper: true }) : null;
   $("#nombre-a").textContent = a.nombre; $("#nombre-b").textContent = b.nombre;
   ultimoResultado = null; eventosVistos = 0; mostrando = null;
   $("#registro").textContent = "";
@@ -154,8 +175,8 @@ function bucle(ahora) {
   let n = 0;
   if (MODO === "invitado") {
     PARTIDO.suavizar(sobra); sobra = 0;
-  } else if (MODO === "anfitrion" && RED && Date.now() - (RED.vistoRival || 0) > 8000) {
-    sobra = 0;                                  // sin noticias del rival: se espera
+  } else if (MODO === "anfitrion" && RED && (RED.dejado || Date.now() - (RED.vistoRival || 0) > 8000)) {
+    sobra = 0;                                  // sin noticias del rival (o has dejado el partido): se espera
   } else {
     while (sobra >= REGLAS.PASO && n < 8) {
       if (MAQUINA) MAQUINA.pensar();
@@ -177,53 +198,149 @@ function bucle(ahora) {
 }
 
 function marcador() {
-  const p = PARTIDO;
-  $("#goles").textContent = p.goles[0] + " - " + p.goles[1];
-  // el rival se ha ido (cerro la pestana o pulso Inicio): ya no se le espera (O-305)
-  if (MODO !== "maquina" && RED && RED.rival && RED.rivalFuera && p.fase !== "final") {
-    $("#reloj").textContent = RED.rival.nombre + " ha salido";
+  const p = PARTIDO, gl = $("#goles");
+  // con la tanda, "1 - 1" y pequeno "(4-2 pen.)"; solo se rehace si cambia (O-312)
+  const pen = p.tanda ? " (" + p.golesTanda().join("-") + " pen.)" : "", kg = p.goles.join("-") + pen;
+  if (gl.dataset.k !== kg) {
+    gl.dataset.k = kg;
+    gl.textContent = p.goles[0] + " - " + p.goles[1];
+    if (pen) gl.appendChild(el("small", { class: "pen", text: pen }));
+  }
+  // el rival se ha ido (cerro la pestana o pulso Inicio): ya no se le espera (O-305).
+  // O has dejado tu el partido (O-308)
+  if (MODO !== "maquina" && RED && RED.rivalFuera && p.fase !== "final" && (RED.rival || RED.dejado)) {
+    $("#reloj").textContent = RED.dejado ? "fuera del partido" : RED.rival.nombre + " ha salido";
     return;
   }
   if (MODO !== "maquina" && RED && RED.rival && p.fase !== "final" && Date.now() - (RED.vistoRival || 0) > 8000) {
-    $("#reloj").textContent = "esperando a " + RED.rival.nombre + "...";
+    // al minuto, que lo sepa: puede esperar o dejar el partido (O-308)
+    const s = sinNoticias();
+    $("#reloj").textContent = s ? RED.rival.nombre + " no responde" : "esperando a " + RED.rival.nombre + "...";
     return;
   }
-  $("#reloj").textContent = p.fase === "final" ? "Final" : p.fase === "descanso" ? "Descanso" : (p.mitad === 1 ? "1ª " : "2ª ") + p.minuto() + "'";
+  // el reloj de 3DS: "1ª 07:32", de 00:00 a 15:00 en cada parte (O-308); en la
+  // prorroga "1ª pr. 03:12" y en la tanda, "Penaltis" (O-312)
+  $("#reloj").textContent = p.fase === "final" ? "Final" : p.fase === "descanso" ? "Descanso" : p.tanda ? "Penaltis" : p.etiquetaParte() + " " + p.relojTexto();
 }
 
-// la pausa de 3DS (O-294): boton y barra espaciadora
+// --- el empate: prorroga y penaltis (O-312) ----------------------------------------
+// el boton del descanso: antes de la 2.ª parte "Segunda parte", antes de la prorroga
+// "Prórroga" y entre sus dos partes "Seguir"
+function botonDescanso(p) { const s = p.mitad + 1; return s === 3 ? "Prórroga" : s === 4 ? "Seguir" : "Segunda parte"; }
+// las zonas del penalti como se ven en TU pantalla: tu ataque va siempre hacia
+// arriba y la pantalla pinta x * sentido, asi que con sentido -1 (la tanda: tras la
+// 2.ª parte o la 4.ª) la izquierda de la pantalla es la derecha del campo. Vale para
+// ir y volver (de la pantalla al campo y del campo a la pantalla)
+function zonaCampo(z) { return PANTALLA && PANTALLA._sentido() === -1 ? 2 - z : z; }
+const NOMBRE_ZONA = ["izquierda", "centro", "derecha"];
+const aZona = z => z === 1 ? "al centro" : "a la " + NOMBRE_ZONA[z];
+// el tablero de la tanda: las casillas de cada equipo (● gol, ✕ fallo; 5 o las que
+// lleven en la muerte subita) y el total
+function tableroTanda(p) {
+  const t = p.tanda;
+  if (!t || !t.tiros) return null;
+  const n = Math.max(REGLAS.PENALTIS_TANDA, t.tiros[0].length, t.tiros[1].length);
+  const caja = el("div", { class: "tablero-tanda" });
+  for (const l of [0, 1]) {
+    const cas = el("span", { class: "casillas" });
+    for (let k = 0; k < n; k++) {
+      const v = t.tiros[l][k];
+      cas.appendChild(el("i", { class: v === 1 ? "gol" : v === 0 ? "fallo" : "", text: v === 1 ? "●" : v === 0 ? "✕" : "", title: v === 1 ? "Gol" : v === 0 ? "Fallo" : "" }));
+    }
+    caja.appendChild(el("div", { class: "tanda-fila " + (l === 0 ? "azul" : "rojo") + (t.gana === l ? " gana" : "") }, [
+      el("span", { class: "eq", text: p.nombres[l], title: p.nombres[l] }), cas, el("b", { text: String(t.tiros[l].filter(Boolean).length) })]));
+  }
+  return caja;
+}
+
+// online: los s que lleva el rival sin dar senales, si pasan de RED_ABANDONO; si no, 0 (O-308)
+function sinNoticias() {
+  if (MODO === "maquina" || !RED || !RED.rival || RED.rivalFuera || !RED.vistoRival || PARTIDO.fase === "final") return 0;
+  const s = (Date.now() - RED.vistoRival) / 1000;
+  return s > RED_ABANDONO ? s : 0;
+}
+function nombreRival() { return MODO === "maquina" ? "la máquina" : RED && RED.rival ? RED.rival.nombre : "el rival"; }
+// ya he pulsado Seguir/Jugar/Segunda parte en esta espera: el invitado lo sabe
+// antes de que llegue la foto (O-308)
+function yaListo(p) { return !!(p.listos && p.listos[YO]) || (!!miSeguir && miSeguir.n === p.nEspera); }
+
+// lo que se dice arriba a la izquierda en cada espera (O-308)
+function textoEspera(p) {
+  if (p.fase === "pausa") {
+    return "Pausa de " + (p.pausa ? p.nombres[p.pausa.lado] : "") + ": dibuja rutas, marca el pase o el tiro y prepara cambios (Menú) · Seguir cuando estés";
+  }
+  // antes de la prorroga y entre sus partes, con su boton (O-312)
+  if (p.fase === "descanso") return (p.mitad === 2 ? "Fin del tiempo reglamentario, ¡prórroga!" : p.mitad === 3 ? "Descanso de la prórroga" : "Descanso")
+    + ": los cambios, en el Menú · «" + botonDescanso(p) + "» cuando estés";
+  const s = p.esperaSaque || {}, mio = s.lado === YO;
+  const que = { centro: "Saque de centro", banda: "Saque de banda", corner: "Córner", puerta: "Saque de puerta", falta: "Tiro libre", penalti: "Penalti" }[s.tipo] || "Saque";
+  // colocar a los tuyos arrastrandolos, salvo muy cerca del balon (O-313)
+  const como = s.tipo === "penalti" ? "arrástralos fuera del área" + (mio ? "; al pulsar Jugar se tira" : "")
+    : s.tipo === "centro" ? (mio ? "arrástralos, en tu campo; marca antes el pase" : "arrástralos, en tu campo y fuera del círculo")
+    : mio ? "arrástralos; marca antes el pase" + (s.tipo === "falta" ? " o el tiro" : "") : "arrástralos, no muy cerca del balón";
+  return que + " para " + (p.nombres[s.lado] || "") + ". Coloca a tus jugadores y pulsa Jugar (" + como + ")";
+}
+
+// la pausa de 3DS (O-294): boton y barra espaciadora. En las esperas (pausa, saque
+// y descanso) el boton es Seguir, Jugar o "Segunda parte"; tras pulsarlo, "Esperando
+// a <rival>...". Al lado, Menu (los cambios) (O-308)
 function pintarPausa() {
   const p = PARTIDO, b = $("#boton-pausa"), aviso = $("#aviso-pausa");
-  if (p.fase === "pausa" && p.pausa) {
-    const mia = p.pausa.lado === YO;
-    b.textContent = mia ? "Seguir" : "Pausa del rival";
-    b.classList.add("seguir"); b.disabled = !mia;
-    aviso.hidden = false;
-    aviso.textContent = (mia ? "Pausa: dibuja rutas y marca el pase o el tiro · " : "Pausa del rival: puedes dibujar rutas · ")
-      + Math.ceil(p.pausa.queda) + " s";
-  } else if (p.fase === "descanso") {
-    // el descanso, para hacer los cambios con calma: la segunda parte empieza
-    // cuando pulsan los dos o al acabarse el tiempo (O-305)
-    const listo = !!(p.listos && p.listos[YO]);
-    const cambia = p.puedeCambiar(YO) && (p.banquillos[YO] || []).some((d, k) => !p.banquilloUsado[YO][k]);
-    b.textContent = listo ? "Esperando al rival" : "Segunda parte";
+  const espera = p.parado() || p.fase === "descanso", listo = espera && yaListo(p);
+  if (espera) {
+    b.textContent = listo ? "Esperando a " + nombreRival() + "..." : p.fase === "pausa" ? "Seguir" : p.fase === "saque" ? "Jugar" : botonDescanso(p);     // O-312
     b.classList.add("seguir"); b.disabled = listo || DEMO;
     aviso.hidden = false;
-    aviso.textContent = "Descanso" + (cambia ? ": pulsa a uno de los tuyos para cambiarlo" : "")
-      + " · " + Math.ceil(Math.max(0, p.espera)) + " s";
+    aviso.textContent = textoEspera(p);
   } else {
     b.classList.remove("seguir");
-    b.textContent = "Pausa (quedan " + p.pausasQuedan[YO] + ")";
-    b.disabled = p.fase !== "juego" || p.pausasQuedan[YO] <= 0 || DEMO;
+    // sin limite de pausas (O-308); si un dia se pone en REGLAS, se cuentan
+    const cuenta = REGLAS.PAUSAS_POR_PARTE > 0;
+    b.textContent = "Pausa" + (cuenta ? " (quedan " + p.pausasQuedan[YO] + ")" : "");
+    b.disabled = p.fase !== "juego" || (cuenta && p.pausasQuedan[YO] <= 0) || DEMO;
     aviso.hidden = true;
   }
+  const m = $("#boton-menu");
+  m.hidden = !espera || DEMO;
+  // el rival se ha ido (o has dejado el partido): ya no hay nada que pulsar (O-308)
+  if (MODO !== "maquina" && RED && RED.rivalFuera) { b.disabled = true; m.hidden = true; $("#boton-dejar").hidden = true; return; }
+  m.classList.toggle("activo", menuAbierto);
+  m.textContent = menuAbierto ? "Cerrar el menú" : "Menú";
+  // online, nadie se queda atrapado: sin noticias del rival o esperando a que
+  // pulse mas de RED_ABANDONO s, "Dejar el partido" (O-308)
+  if (espera && listo && !(p.listos && p.listos[1 - YO])) { if (!esperandoDesde) esperandoDesde = Date.now(); }
+  else esperandoDesde = 0;
+  const callado = sinNoticias();
+  const noPulsa = MODO !== "maquina" && RED && RED.rival && !RED.rivalFuera && esperandoDesde && Date.now() - esperandoDesde > RED_ABANDONO * 1000;
+  $("#boton-dejar").hidden = !(callado || noPulsa);
+  if (callado) { aviso.hidden = false; aviso.textContent = RED.rival.nombre + " no responde desde hace " + Math.floor(callado / 60) + " min: puedes esperarle o «Dejar el partido»"; }
+  else if (noPulsa) aviso.textContent = RED.rival.nombre + " aún no ha pulsado: puedes esperarle o «Dejar el partido»";
 }
 $("#boton-pausa").onclick = ev => {
   // el segundo clic de un doble clic no cuenta: pausaba y seguia en el acto y se
   // perdia una pausa (la barra espaciadora llega con detail 0) (O-305)
   if (!PARTIDO || ev.detail > 1) return;
-  if (PARTIDO.fase === "pausa" || PARTIDO.fase === "descanso") PARTIDO.ordenar({ tipo: "seguir", lado: YO });
-  else PARTIDO.ordenar({ tipo: "pausa", lado: YO });
+  const p = PARTIDO;
+  if (p.parado() || p.fase === "descanso") {
+    // con el numero de esta espera: un clic que llega tarde no cuenta en la
+    // siguiente y no se salta un saque (O-308)
+    if (yaListo(p)) return;
+    miSeguir = { n: p.nEspera, t: Date.now() };
+    p.ordenar({ tipo: "seguir", lado: YO, espera: p.nEspera });
+  } else p.ordenar({ tipo: "pausa", lado: YO });
+};
+// el Menu de las esperas: los cambios, en la columna de los duelos (O-308)
+$("#boton-menu").onclick = ev => {
+  if (!PARTIDO || ev.detail > 1) return;
+  menuAbierto = !menuAbierto; menuDespliega = null;
+};
+// online: dejar el partido si el rival no responde o no pulsa (O-308). Manda
+// "adios", como Inicio: al otro le sale que has salido
+$("#boton-dejar").onclick = () => {
+  if (!RED) return;
+  RED.salirSala();
+  RED.rivalFuera = true; RED.dejado = true;
+  mostrando = null;
 };
 document.addEventListener("keydown", ev => {
   if (ev.code !== "Space" || !PARTIDO || $("#pantalla-juego").hidden || /input|select|textarea/i.test(ev.target.tagName)) return;
@@ -239,8 +356,11 @@ let tacticasPintadas = "";
 function pintarTacticas() {
   const p = PARTIDO, caja = $("#tacticas"), tac = p.tacticas[YO] || [];
   const ahora = p.segundosDeJuego(), activa = p.tacticaActiva[YO];
+  // tambien en la pausa y en la espera de un saque (O-307 punto 10), salvo las que
+  // quitan el balon o aturden (solo con el balon en juego) (O-310)
+  const parado = p.parado(), vale = p.fase === "juego" || parado;
   const estado = tac.map((t, k) => (activa && activa.k === k ? "A" + Math.ceil(activa.hasta - ahora)
-    : Math.max(0, Math.ceil(p.tacticaLista[YO][k] - ahora)))).join(",") + (p.fase === "juego" ? "j" : "p");
+    : Math.max(0, Math.ceil(p.tacticaLista[YO][k] - ahora)))).join(",") + (p.fase === "juego" ? "j" : parado ? "p" : "x");
   // con el raton apretado sobre una tactica no se rehacen: si el boton cambiaba
   // entre apretar y soltar, el clic se perdia (O-305)
   if (caja.matches(":active")) return;
@@ -252,9 +372,11 @@ function pintarTacticas() {
     const espera = Math.max(0, Math.ceil(p.tacticaLista[YO][k] - ahora));
     // las que el partido aun no sabe aplicar salen apagadas (O-304)
     const esActiva = activa && activa.k === k, sinEfecto = !(t.efectos || []).length;
+    const soloJuego = parado && p.tacticaSoloEnJuego(t);
     const b = el("button", { class: "tactica-btn" + (esActiva ? " activa" : ""), title: t.descripcion + "\n" + t.texto,
-      disabled: sinEfecto || esActiva || !!activa || espera > 0 || p.fase !== "juego" },
-      [el("span", { text: t.nombre }), el("small", { text: sinEfecto ? "sin efecto en el partido" : esActiva ? "activa " + Math.ceil(activa.hasta - ahora) + " s" : espera > 0 ? espera + " s" : "lista" })]);
+      disabled: sinEfecto || esActiva || !!activa || espera > 0 || !vale || soloJuego },
+      [el("span", { text: t.nombre }), el("small", { text: sinEfecto ? "sin efecto en el partido" : esActiva ? "activa " + Math.ceil(activa.hasta - ahora) + " s"
+        : espera > 0 ? espera + " s" : soloJuego ? "solo con el balón en juego" : "lista" })]);
     b.onclick = () => PARTIDO.ordenar({ tipo: "tactica", lado: YO, k });
     caja.appendChild(b);
   });
@@ -265,12 +387,25 @@ function registro() {
   while (eventosVistos < p.eventos.length) {
     const e = p.eventos[eventosVistos++];
     if (!e) continue;              // online, perdido en un corte de red (O-305)
-    const min = Math.floor(e.reloj / p.duracion * 45) + (e.mitad === 2 ? 45 : 0);
-    caja.prepend(el("div", { text: min + "' " + e.texto, class: e.clase || "" }));
+    // el cambio que prepara el rival no se ve hasta que se hace (O-308)
+    if (e.privado && e.lado !== YO) continue;
+    // "1ª 7'": la parte y el minuto dentro de ella, como el reloj de 3DS (O-308)
+    caja.prepend(el("div", { text: p.etiquetaParte(e.mitad) + " " + p.minuto(e.reloj) + "' " + e.texto, class: e.clase || "" }));
     // lo que no se hace por algo tuyo ("demasiado lejos para chutar") se dice
     // tambien arriba: solo en el registro, pulsar la porteria no hacia nada visible (O-305)
     if (e.clase === "aviso" && e.lado === YO && !DEMO) avisa(e.texto, "mal");
   }
+}
+
+// lo que da la hipertecnica de j, para el "title" de su boton (O-310)
+function textoHiper(j) {
+  const T = REGLAS.HIPER_TIPOS[j.hiperTipo];
+  if (!T) return "";
+  const pr = REGLAS.HIPER_PROPIOS[j.espiritu && j.espiritu.id] || {};
+  return T.nombre + ": dura " + T.dura + " s y vuelve a los " + T.recarga + " s · AT y DF +" + T.atdf + " %"
+    + (T.porFoco ? " (+" + T.porFoco + " % por foco ganado, hasta " + T.atdfTope + " %)" : "")
+    + (T.poder ? " · poder de sus supertécnicas +" + T.poder + " %" : "") + (T.pp || pr.pp ? " · de portero, parada +" + ((T.pp || 0) + (pr.pp || 0)) + " %" : "")
+    + (pr.df ? " · DF +" + pr.df + " %" : "") + (pr.muro ? " · muro +" + pr.muro + " %" : "") + " · corre más";
 }
 
 let pasivasAbiertas = false;   // las pasivas de la ficha, abiertas o no (O-305)
@@ -284,8 +419,12 @@ function fichaElegido() {
   const j = p.jugadores[id];
   // la cuenta del espiritu no baja de 0: sin invocarlo era negativa y la ficha
   // se rehacia cada segundo (O-305)
+  const pend = p.cambiosPendientes[YO] || [], suCambio = j.lado === YO ? pend.find(c => c.sale === j.id) : null;
+  // y la hiperbarra y lo que dice el boton de invocar (O-310)
   const clave = id + ":" + j.nombre + ":" + Math.round(p.tension[YO]) + ":" + (j.espiritu ? Math.max(0, Math.ceil(Math.max(j.aura, j.auraLista) - p.segundosDeJuego())) : "")
-    + ":" + (j.lado === YO && p.puedeCambiar(YO) ? p.cambiosQuedan[YO] : "-");
+    + ":" + (j.lado === YO && p.puedeCambiar(YO) ? p.cambiosQuedan[YO] : "-") + ":" + (j.lado === YO ? JSON.stringify(pend) + p.fase : "")
+    + ":" + Math.floor(p.hiper[YO]) + ":" + (j.espiritu ? p.puedeHiper(j).porque + j.totem : "")
+    + ":" + (j.expulsado ? "E" : j.amarillas || 0);     // y sus tarjetas (O-311)
   if (caja.dataset.id === clave) return;
   caja.dataset.id = clave;
   caja._pintado = performance.now();     // para no aceptar un clic que era para la de antes (O-305)
@@ -293,25 +432,58 @@ function fichaElegido() {
   caja.appendChild(el("div", { class: "quien" }, [
     el("img", { alt: "", src: "/cara/" + encodeURIComponent(j.cara || "") }),
     el("div", {}, [el("b", { text: j.nombre }), el("div", { text: j.posicion + " · " + (j.elemento || "") })])]));
-  const barra = el("div", { class: "barra-pt", title: "Tension del equipo" }, [el("i")]);
+  // sus tarjetas (O-311): el expulsado ya no juega, sin botones (ni invocar ni cambiar)
+  if (j.expulsado) {
+    caja.appendChild(el("div", { class: "ficha-tarjeta roja" }, [el("i"), el("span", { text: "Expulsado (roja): ya no juega y no se le puede cambiar" })]));
+    return;
+  }
+  if (j.amarillas) caja.appendChild(el("div", { class: "ficha-tarjeta" }, [el("i"), el("span", { text: "Tarjeta amarilla: otra sería roja" })]));
+  // en la espera de un saque, como se coloca (o por que este no se mueve) (O-313)
+  if (p.fase === "saque" && j.lado === YO && p.colocable) {
+    caja.appendChild(el("div", { class: "coste", style: "margin:4px 0 6px",
+      text: p.colocable(j) ? "Arrástralo para colocarlo donde quieras, menos muy cerca del balón. Para su carrera, mantenlo pulsado y arrastra."
+        : (p._fijoEnSaque(j) || "") + (p.balon.dueno === j.id ? ". Arrástralo para su carrera." : "") }));
+  }
+  const barra = el("div", { class: "barra-pt", title: "Tensión del equipo: la pagan las supertécnicas" }, [el("i")]);
   barra.firstChild.style.width = Math.round(p.tension[YO] / REGLAS.TENSION_MAX * 100) + "%";
-  caja.appendChild(el("div", { text: "Tension del equipo " + Math.round(p.tension[YO]) + " / " + REGLAS.TENSION_MAX }));
+  caja.appendChild(el("div", { text: "Tensión del equipo " + Math.round(p.tension[YO]) + " / " + REGLAS.TENSION_MAX }));
   caja.appendChild(barra);
+  // la hiperbarra del equipo, partida en dos mitades: cada una, una invocacion (O-310)
+  const hb = Math.floor(p.hiper[YO]);
+  const hiper = el("div", { class: "barra-hiper", title: "Hiperbarra: se llena usando supertécnicas; cada invocación gasta " + REGLAS.HIPER_COSTE }, [el("i")]);
+  hiper.firstChild.style.width = Math.round(hb / REGLAS.HIPER_MAX * 100) + "%";
+  caja.appendChild(el("div", { class: "hiper-texto", text: "Hiperbarra " + hb + " / " + REGLAS.HIPER_MAX }));
+  caja.appendChild(hiper);
   if (j.espiritu && j.lado === YO) {
-    const ahora = p.segundosDeJuego(), activo = p.conAura(j), espera = Math.ceil(j.auraLista - ahora);
-    const b = el("button", { class: "tactica-btn espiritu", disabled: activo || espera > 0 || p.tension[YO] < REGLAS.INVOCAR_COSTE || p.fase !== "juego" },
-      [el("span", { text: "Invocar " + j.espiritu.nombre }),
-       el("small", { text: activo ? "activo " + Math.ceil(j.aura - ahora) + " s" : espera > 0 ? espera + " s" : REGLAS.INVOCAR_COSTE + " de tension" })]);
-    b.onclick = () => PARTIDO.ordenar({ tipo: "invocar", jugador: j.id });
+    // invocar cuando quieras sin parar el juego, tambien en la pausa y en el saque;
+    // en un duelo, desde su panel. Si no se puede, el boton dice por que (O-310)
+    const ph = p.puedeHiper(j), activo = p.conAura(j), cuando = p.fase === "juego" || p.parado();
+    const motivo = activo || !ph.si ? ph.porque : !cuando ? (p.fase === "duelo" ? "en el duelo, desde su panel" : "con el juego en marcha, en la pausa o en el saque") : "";
+    const b = el("button", { class: "tactica-btn espiritu" + (activo ? " activa" : ""), disabled: !ph.si || !cuando, title: textoHiper(j) },
+      [el("span", { text: (activo ? "★ " : "Invocar ") + j.espiritu.nombre }),
+       el("small", { text: motivo || REGLAS.HIPER_COSTE + " de hiperbarra" })]);
+    b.onclick = ev => { if (ev.detail > 1) return; PARTIDO.ordenar({ tipo: "invocar", jugador: j.id }); $("#ficha-actual").dataset.id = ""; };
     caja.appendChild(b);
   }
-  // los cambios (O-297): en la pausa tecnica o en el descanso (O-305), quien entra por este jugador
-  if (j.lado === YO && p.puedeCambiar(YO) && (p.banquillos[YO] || []).length) {
+  // los cambios (O-297): en la pausa, en la espera de un saque o en el descanso,
+  // quien entra por este jugador. En la pausa entra al pararse el balon; si ya
+  // tiene uno preparado, se dice y se puede quitar (O-308)
+  if (suCambio) {
+    const entra = (p.banquillos[YO] || [])[suCambio.entra] || {};
     caja.appendChild(el("div", { class: "coste", style: "margin-top:6px",
-      text: "Cambiar por (quedan " + p.cambiosQuedan[YO] + " cambios):" }));
+      text: "Cambio preparado: entrará " + entra.nombre + " cuando se pare el balón" }));
+    const q = el("button", { class: "btn-mini gris", text: "Quitar el cambio" });
+    q.onclick = ev => {
+      if (ev.detail > 1 || performance.now() - (caja._pintado || 0) < 300) return;
+      PARTIDO.ordenar({ tipo: "quitarCambio", lado: YO, sale: j.id }); $("#ficha-actual").dataset.id = "";
+    };
+    caja.appendChild(q);
+  } else if (j.lado === YO && p.puedeCambiar(YO) && (p.banquillos[YO] || []).length) {
+    caja.appendChild(el("div", { class: "coste", style: "margin-top:6px",
+      text: "Cambiar por (quedan " + (p.cambiosQuedan[YO] - pend.length) + " cambios" + (p.fase === "pausa" ? "; entrará cuando se pare el balón" : "") + "):" }));
     const lista = el("div", { class: "banquillo" });
     p.banquillos[YO].forEach((d, k) => {
-      if (p.banquilloUsado[YO][k]) return;
+      if (p.banquilloUsado[YO][k] || pend.some(c => c.entra === k)) return;
       const b = el("button", { class: "suplente", title: "Entra " + d.nombre + " por " + j.nombre }, [
         el("img", { alt: "", src: "/cara/" + encodeURIComponent(d.cara || "") }),
         el("span", { text: d.nombre }), el("small", { text: (d.posicion || "") + " · " + (d.elemento || "") })]);
@@ -330,7 +502,8 @@ function fichaElegido() {
   for (const t of j.tecnicas) {
     if (vistas.has(t.nombre)) continue;
     vistas.add(t.nombre);
-    caja.appendChild(el("div", { text: "· " + t.nombre + " (" + t.tipo + ", " + t.poder + ", " + t.tp + " de tensión)" }));
+    // el coste de VR (O-310); la del espiritu, solo con la hiper puesta
+    caja.appendChild(el("div", { text: "· " + t.nombre + " (" + t.tipo + ", " + t.poder + ", " + t.tp + " de tensión" + (t.espiritu ? "; con la hiper puesta" : "") + ")" }));
   }
   if ((j.pasivas || []).length) {
     // plegadas: con todas a la vista la ficha empujaba las tacticas y el registro
@@ -338,8 +511,9 @@ function fichaElegido() {
     // recuerda si estaban abiertas (O-305)
     const d = el("details", { class: "pasivas-ficha" }, [
       el("summary", { class: "coste", text: "Pasivas (" + j.pasivas.length + "; las marcadas cuentan en el partido)" })]);
+    // la del espiritu solo cuenta con la hiper puesta (VR) (O-310)
     for (const q of j.pasivas) d.appendChild(el("div", {
-      text: (q.cuenta ? "✓ " : "· ") + q.texto + (q.abierta ? "" : " (cerrada en su arbol)"),
+      text: (q.cuenta ? "✓ " : "· ") + q.texto + (q.abierta ? "" : " (cerrada en su arbol)") + (q.espiritu ? " (de su espíritu: con la hiper puesta)" : ""),
       style: q.cuenta ? "" : "opacity:.55" }));
     d.open = pasivasAbiertas;
     d.ontoggle = () => { pasivasAbiertas = d.open; };
@@ -352,7 +526,8 @@ function raton() {
   const c = $("#campo");
   const pos = ev => { const r = c.getBoundingClientRect(); return { px: ev.clientX - r.left, py: ev.clientY - r.top }; };
   let empezado = null;
-  const sePuede = () => PARTIDO && (PARTIDO.fase === "juego" || PARTIDO.fase === "pausa" || PARTIDO.fase === "duelo");
+  // tambien en la espera de un saque, como en la pausa (O-308)
+  const sePuede = () => PARTIDO && (PARTIDO.fase === "juego" || PARTIDO.parado() || PARTIDO.fase === "duelo");
   c.onpointerdown = ev => {
     // en el descanso solo se elige a uno de los tuyos, para cambiarlo; sin
     // ordenes, que pasarian a la segunda parte (O-305)
@@ -368,7 +543,9 @@ function raton() {
     // la onda cian donde pulsas, como la mirilla de IE3 (O-306)
     PANTALLA.pulsar(PANTALLA.aCampo(q.px, q.py));
     const j = PANTALLA.jugadorEn(q.px, q.py, YO);
-    empezado = { q, j, puntos: [], campo: PANTALLA.aCampo(q.px, q.py), t0: performance.now(), lejos: 0 };
+    // en la espera de un saque, arrastrar a uno de los tuyos lo coloca (O-313)
+    empezado = { q, j, puntos: [], campo: PANTALLA.aCampo(q.px, q.py), t0: performance.now(), lejos: 0,
+                 colocar: !!(j && PARTIDO.colocable && PARTIDO.colocable(j)) };
     if (j) { PANTALLA.elegido = j.id; empezado.puntos.push({ x: j.x, y: j.y }); PANTALLA.trazo = empezado; }
   };
   c.onpointermove = ev => {
@@ -377,17 +554,38 @@ function raton() {
     // lo mas lejos que ha ido el raton, tambien si no empezo en un jugador (O-305)
     empezado.lejos = Math.max(empezado.lejos, Math.hypot(cp.x - empezado.campo.x, cp.y - empezado.campo.y));
     if (!empezado.j) return;
+    // en la espera de un saque, arrastrar a uno de los tuyos lo coloca: no es una
+    // ruta, se pone ahi (Aaron, O-307 punto 14). Si antes de arrastrar lo mantienes
+    // pulsado, se dibuja su carrera, como en la pausa. Se decide al empezar a moverlo;
+    // mientras, el jugador sale donde lo soltarias (en rojo si ahi no puede) (O-313)
+    if (empezado.modo === undefined && empezado.lejos > 1) empezado.modo = empezado.colocar && performance.now() - empezado.t0 < MANTENER ? "colocar" : "ruta";
+    if (empezado.modo === "colocar") {
+      const r = PARTIDO.puedeColocar(empezado.j, cp.x, cp.y);
+      PANTALLA.trazo = null;
+      PANTALLA.colocando = { id: empezado.j.id, x: r.si ? r.x : cp.x, y: r.si ? r.y : cp.y, vale: r.si, porque: r.porque };
+      return;
+    }
     const ult = empezado.puntos[empezado.puntos.length - 1];
     if (!ult || Math.hypot(cp.x - ult.x, cp.y - ult.y) > 1.5) empezado.puntos.push(cp);
   };
   c.onpointerup = ev => {
     if (!empezado) return;
-    const e = empezado; empezado = null; PANTALLA.trazo = null;
+    const e = empezado; empezado = null; PANTALLA.trazo = null; PANTALLA.colocando = null;
     if (!sePuede()) return;
     const q = pos(ev), fin = PANTALLA.aCampo(q.px, q.py);
     const mov = Math.hypot(fin.x - e.campo.x, fin.y - e.campo.y);
     const d = PARTIDO.dueno();
     const tengo = d && d.lado === YO;
+    // colocar (O-313): si ahi no puede, se dice ("Muy cerca del balón") y no se mueve.
+    // Si se ha acabado la espera mientras lo arrastrabas (online, el rival ha
+    // pulsado Jugar), no pasa nada. Volver casi al mismo sitio, tampoco
+    if (e.j && e.modo === "colocar") {
+      if (PARTIDO.fase !== "saque" || mov < 1) return;
+      const r = PARTIDO.puedeColocar(e.j, fin.x, fin.y);
+      if (!r.si) { if (r.porque) avisa(r.porque, "mal"); return; }
+      PARTIDO.ordenar({ tipo: "colocar", lado: YO, jugador: e.j.id, x: r.x, y: r.y });
+      return;
+    }
     if (e.j && mov > 2.5 && e.puntos.length > 1) {
       // arrastrar desde un jugador: su ruta (tambien en la pausa y en los duelos)
       PARTIDO.ordenar({ tipo: "ruta", jugador: e.j.id, puntos: e.puntos.slice(1) });
@@ -418,11 +616,11 @@ function raton() {
       // pulsar a un companero: pasarle (en la pausa queda marcado). Se mira antes
       // que la porteria: si estaba delante de ella, chutaba el del balon (O-305)
       if (e.j && e.j.id !== d.id) { PARTIDO.ordenar({ tipo: "pase", de: d.id, a: e.j.id, alto }); return; }
-      // en la pausa (y en un foco, O-306), pulsar al que lleva el balon quita el
-      // pase o el tiro marcado (O-305)
-      if (e.j && (PARTIDO.fase === "pausa" || marca)) { PARTIDO.ordenar({ tipo: "pase", de: d.id, a: d.id }); return; }
-      // pulsar la porteria rival: chutar. En la pausa el tiro queda marcado y sale
-      // al seguir; antes acababa en un pase a la linea de gol (O-305)
+      // en la pausa y en la espera de un saque (O-308) (y en un foco, O-306),
+      // pulsar al que lleva el balon quita el pase o el tiro marcado (O-305)
+      if (e.j && (PARTIDO.parado() || marca)) { PARTIDO.ordenar({ tipo: "pase", de: d.id, a: d.id }); return; }
+      // pulsar la porteria rival: chutar. En la pausa (y en el saque) el tiro queda
+      // marcado y sale al seguir; antes acababa en un pase a la linea de gol (O-305)
       const g = PARTIDO.porteriaRival(d);
       if (Math.abs(fin.y - g.y) < 7 && Math.abs(fin.x) < 9) { PANTALLA.apuntar(fin.x, g.y); PARTIDO.ordenar({ tipo: "tiro", de: d.id }); return; }
       if (e.j) return;
@@ -489,14 +687,17 @@ function botonComando(o, j, alElegir, total) {
   // (O-306); Romper y Entrada, de cuanto a cuanto (son inestables), y Cargar,
   // su numero de disputa. Sin el (anfitrion anterior), como antes
   const t = total !== undefined ? total : o.total;
+  // la hiper (O-310): gana sola; su numero solo cuenta si el rival saca otra
   const cifra = (o.clave === "nada" && total === undefined) || t === undefined ? null
     : o.min !== undefined ? "de " + o.min + " a " + o.max
-    : o.clave === "cargar" ? "disputa " + t : "total " + t;
-  const b = el("button", { class: "comando", disabled: !o.puede }, [
+    : o.clave === "cargar" ? "disputa " + t : o.hiper ? "contra hiper " + t : "total " + t;
+  const b = el("button", { class: "comando" + (o.hiper ? " hiper" : ""), disabled: !o.puede,
+    title: o.hiper ? "Gana el duelo aunque el rival use una supertécnica. Si el rival también saca su hipertécnica, gana el número mayor y el que pierde no la paga." : "" }, [
     o.tipo ? iconoTipo(o.tipo, 22) : null,
     o.elemento ? iconoElemento(o.elemento, 20) : null,
     el("span", {}, [el("span", { text: o.nombre }), o.nota ? el("div", { class: "coste", text: o.nota }) : null,
-      o.tp ? el("div", { class: "coste", text: o.tp + " de tension (tienes " + Math.round(j.pt) + ")" }) : null]),
+      !o.puede && o.porque ? el("div", { class: "coste falta", text: o.porque }) : null,
+      o.tp ? el("div", { class: "coste", text: o.tp + " de tensión (tienes " + Math.round(j.pt) + ")" }) : null]),
     o.poder || cifra ? el("span", { class: "cifras" }, [
       o.poder ? el("span", { class: "poder", text: "+" + o.poder }) : null,
       cifra ? el("small", { class: "total", text: cifra }) : null]) : null]);
@@ -509,7 +710,7 @@ function botonComando(o, j, alElegir, total) {
   return b;
 }
 
-let mostrando = null;          // "duelo:<id>", "resultado", "final" o "fuera"
+let mostrando = null;          // "duelo:<id>:<v>" (v: invocaciones en el tiro, O-310), "resultado", "final" o "fuera"
 let ultimaEleccion = null;     // online, la ultima eleccion del invitado (O-305)
 function pausa() {
   const p = PARTIDO, capa = $("#pausa");
@@ -524,7 +725,17 @@ function pausa() {
     ue.t = Date.now();
     RED.orden({ tipo: "elegir", lado: ue.lado, eleccion: ue.eleccion, duelo: ue.duelo });
   }
-  // el rival se ha ido a mitad de partido: se dice y se puede empezar otro (O-305)
+  // igual con el Seguir/Jugar del invitado: se repite cada 1,5 s mientras la foto
+  // siga en esa espera sin el listo (con su numero, el anfitrion no lo cuenta en
+  // otra) (O-308)
+  const ms = miSeguir;
+  if (MODO === "invitado" && ms && ms.n === p.nEspera && (p.parado() || p.fase === "descanso") && !(p.listos && p.listos[YO])
+      && Date.now() - ms.t > 1500 && RED && !RED.rivalFuera) {
+    ms.t = Date.now();
+    RED.orden({ tipo: "seguir", lado: YO, espera: ms.n });
+  }
+  // el rival se ha ido a mitad de partido (o lo has dejado tu): se dice y se puede
+  // empezar otro (O-305, O-308)
   if (MODO !== "maquina" && RED && RED.rivalFuera && p.fase !== "final") {
     if (mostrando !== "fuera") mostrarRivalFuera();
     return;
@@ -539,6 +750,17 @@ function pausa() {
     mostrarResultado(p.resultado);
     return;
   }
+  // el Menu de las esperas (los cambios): sigue abierto mientras dure la espera y
+  // se rehace si cambia algo (un cambio hecho o pendiente, otra espera) (O-308)
+  if (menuAbierto && !(p.parado() || p.fase === "descanso")) { menuAbierto = false; menuDespliega = null; }
+  if (menuAbierto) {
+    const clave = "menu:" + [p.fase, p.nEspera, p.cambiosQuedan[YO], JSON.stringify(p.cambiosPendientes[YO] || []), (p.banquilloUsado[YO] || []).join(),
+      p.equipo(YO).map(j => j.nombre).join(), menuDespliega].join("|");
+    if (mostrando !== clave) { mostrando = clave; pintarMenu(p); }
+    return;
+  }
+  // cerrado (Volver, el boton o porque volvio el juego): fuera de la columna
+  if (mostrando && mostrando.startsWith("menu:")) { mostrando = null; capa.hidden = true; }
   if (mostrando === "resultado") return;
   if (p.fase === "final") { if (mostrando !== "final") mostrarFinal(); return; }
   // el descanso: el marcador y las estadisticas de la 1.ª parte (O-306)
@@ -548,9 +770,12 @@ function pausa() {
   // online, lo que queda para elegir (luego va el comando seguro)
   const cuenta = $("#cuenta-duelo");
   if (cuenta) cuenta.textContent = p.limiteDuelo ? "Te quedan " + Math.max(0, Math.ceil(p.limiteDuelo - (p.duelo.reloj || 0))) + " s para elegir" : "";
-  if (mostrando === "duelo:" + p.duelo.id) return;
-  mostrando = "duelo:" + p.duelo.id;
-  pintarEleccion(p, pend);
+  // con `v`: si alguien invoca dentro del tiro, sus numeros cambian y se repinta (O-310)
+  const clave = "duelo:" + p.duelo.id + ":" + (p.duelo.v || 0);
+  if (mostrando === clave) return;
+  const repinta = !!mostrando && mostrando.startsWith("duelo:" + p.duelo.id + ":");
+  mostrando = clave;
+  pintarEleccion(p, pend, repinta);
 }
 
 function elegido(eleccion) {
@@ -559,7 +784,76 @@ function elegido(eleccion) {
   mostrando = null; $("#pausa").hidden = true;
 }
 
-function pintarEleccion(p, pend) {
+// arriba del panel del tiro (y del penalti): si alguien ha invocado con el panel
+// abierto, el aviso; y el boton de invocar del que chuta o del portero (O-310)
+function invocarEnDuelo(p, pend, du, caja, repinta) {
+  // si alguien ha invocado con el panel abierto, los numeros han cambiado: se vuelve
+  // a la primera lista (lo elegido a medias, el muro o el tiro, ya no vale) (O-310)
+  if (repinta && du.vLado !== undefined && du.vLado !== YO) caja.appendChild(el("div", { class: "pista aviso-hiper", text: "El rival ha invocado: los números han cambiado." }));
+  // invocar dentro del tiro (O-310): el que chuta y el portero, si su espiritu no
+  // esta puesto. No gana solo (en VR eso es en los focos): sube sus numeros y da
+  // su supertecnica ★
+  const yo = p.jugadores[pend.jugador];
+  if (yo && yo.espiritu && !p.conAura(yo)) {
+    const ph = p.puedeHiper(yo);
+    const bi = el("button", { class: "tactica-btn espiritu invocar-duelo", disabled: !ph.si, title: textoHiper(yo) },
+      [el("span", { text: "Invocar " + yo.espiritu.nombre }), el("small", { text: ph.si ? REGLAS.HIPER_COSTE + " de hiperbarra (tienes " + Math.floor(p.hiper[YO]) + ")" : ph.porque })]);
+    // sin apagarlo al pulsar: online, si la orden se pierde se puede volver a pulsar
+    // (el anfitrion no deja invocar dos veces)
+    bi.onclick = ev => { if (ev.detail > 1) return; PARTIDO.ordenar({ tipo: "invocar", jugador: yo.id }); };
+    caja.appendChild(bi);
+  }
+}
+
+// el panel del penalti (O-312), el del partido y los de la tanda: arriba el tablero
+// (en la tanda), las caras y el poder de base; luego las supertecnicas (se marca una
+// o "Tirar"/"Parar", sin ninguna) y las tres zonas, como se ven en tu pantalla. Al
+// pulsar una zona se elige: {zona del campo, tecnica}
+function pintarPenalti(p, pend, repinta) {
+  const caja = $("#pausa-caja"), capa = $("#pausa"), du = p.duelo;
+  const tir = p.jugadores[du.tirador], por = p.jugadores[du.portero], tiro = pend.rol === "penalti_tiro", j = p.jugadores[pend.jugador];
+  caja.textContent = "";
+  caja.appendChild(el("div", { class: "titulo-duelo", text: du.tanda ? (tiro ? "Penaltis: ¡tiras tú!" : "Penaltis: ¡te tiran!") : (tiro ? "¡Penalti a favor!" : "¡Penalti en contra!") }));
+  const tab = du.tanda ? tableroTanda(p) : null;
+  if (tab) caja.appendChild(tab);
+  if (p.limiteDuelo) caja.appendChild(el("div", { class: "coste", id: "cuenta-duelo" }));
+  caja.appendChild(el("div", { class: "cara-a-cara" }, [cara(tir), el("b", { text: "VS" }), cara(por)]));
+  invocarEnDuelo(p, pend, du, caja, repinta);
+  const barra = barraBase(du, tir, por, tiro);
+  if (barra) caja.appendChild(barra);
+  caja.appendChild(el("div", { class: "pista", text: tiro
+    ? "Marca una supertécnica si quieres y elige zona: si el portero se tira a otro lado, es gol; si acierta, gana el número mayor."
+    : "Marca una supertécnica si quieres y elige adónde te tiras: si aciertas la zona, gana el número mayor; si no, es gol." }));
+  const lista = el("div", { class: "comandos" }), hechos = [];
+  lista._pintado = performance.now();   // para el doble clic (O-305)
+  let sel = "normal";
+  const marca = () => hechos.forEach(h => h.b.classList.toggle("elegida", h.c === sel));
+  for (const o of pend.opciones) {
+    const b = botonComando(o, j, clave => { sel = clave; marca(); });
+    hechos.push({ b, c: o.clave });
+    lista.appendChild(b);
+  }
+  marca();
+  caja.appendChild(lista);
+  const zonas = el("div", { class: "zonas-penalti" });
+  ["◀ Izquierda", "Centro", "Derecha ▶"].forEach((texto, z) => {
+    const b = el("button", { class: "comando zona", text: texto, title: tiro ? "Tirar " + aZona(z) : "Tirarte " + aZona(z) });
+    b.onclick = ev => {
+      if (ev.detail > 1 || performance.now() - lista._pintado < 300) return;
+      const zc = zonaCampo(z);
+      // la X del cono, en la zona (solo la ves tu)
+      if (tiro && PANTALLA) PANTALLA.apuntar((zc - 1) * REGLAS.PENALTI_ZONA_X, p.porteriaRival(tir).y);
+      elegido({ zona: zc, tecnica: sel === "normal" ? null : sel });
+    };
+    zonas.appendChild(b);
+  });
+  caja.appendChild(el("div", { class: "coste", text: tiro ? "¿Adónde tiras?" : "¿Adónde te tiras?" }));
+  caja.appendChild(zonas);
+  capa.hidden = false;
+}
+
+function pintarEleccion(p, pend, repinta) {
+  if (p.duelo.tipo === "penalti") return pintarPenalti(p, pend, repinta);     // O-312
   const caja = $("#pausa-caja"), capa = $("#pausa"), du = p.duelo;
   caja.textContent = "";
   const lista = el("div", { class: "comandos" });
@@ -583,18 +877,32 @@ function pintarEleccion(p, pend) {
     caja.appendChild(el("div", { class: "titulo-duelo", text: pend.rol === "tiro" ? "¡Tiro a puerta!" : "¡Te chutan!" }));
     if (p.limiteDuelo) caja.appendChild(el("div", { class: "coste", id: "cuenta-duelo" }));
     caja.appendChild(el("div", { class: "cara-a-cara" }, [cara(tir), el("b", { text: "VS" }), cara(por)]));
+    invocarEnDuelo(p, pend, du, caja, repinta);
     const barra = barraBase(du, tir, por, pend.rol === "tiro");
     if (barra) caja.appendChild(barra);
+    // el defensa en la linea de tiro y la vaselina: si no esta pegado al que chuta
+    // le pasa por encima (O-309)
+    const mu = du.muro !== null && du.muro !== undefined ? p.jugadores[du.muro] : null;
     if (pend.rol === "tiro") {
+      // los botones sin supertecnica: con el balon en el suelo Tirar y Vaselina;
+      // rematando de primeras un pase alto, Testarazo y Volea (O-309)
+      if (du.alto) caja.appendChild(el("div", { class: "pista", text: "Balón alto: remata de cabeza (Testarazo) o al aire (Volea); cuenta el Físico en vez del Control." }));
+      if (mu) caja.appendChild(el("div", { class: "pista", text: du.muroPegado
+        ? mu.nombre + " está pegado a ti: también para la vaselina."
+        : mu.nombre + " está en la línea de tiro: la vaselina le pasa por encima." }));
       for (const o of pend.opciones) lista.appendChild(botonComando(o, tir, clave => {
-        if (!pend.cadena) return elegido({ tiro: clave });
+        // tras una vaselina no se encadena (O-309)
+        if (!pend.cadena || clave === "vaselina") return elegido({ tiro: clave });
         // un companero en la linea de tiro: ¿encadena?
         const ch = p.jugadores[pend.cadena.jugador];
         const gasto = (pend.opciones.find(x => x.clave === clave) || {}).tp || 0;
         lista.textContent = ""; lista._pintado = performance.now();
-        lista.appendChild(el("div", { class: "coste", text: ch.nombre + " esta en la linea de tiro: ¿encadena el tiro?" }));
+        lista.appendChild(el("div", { class: "coste", text: ch.nombre + " está en la línea de tiro: ¿encadena el tiro?" }));
         for (const oc of pend.cadena.opciones) {
           const op = Object.assign({}, oc, { puede: oc.puede && oc.tp + gasto <= p.tension[YO] });
+          // con la volea, de cuanto a cuanto (O-309)
+          const rg = oc.rangos && oc.rangos[clave];
+          if (rg) Object.assign(op, { min: rg[0], max: rg[1] });
           // el total del tiro con esta cadena (y sin ella), segun el tiro elegido (O-306)
           lista.appendChild(botonComando(op, ch, c2 => elegido({ tiro: clave, cadena: c2 }), oc.totales ? oc.totales[clave] : undefined));
         }
@@ -613,7 +921,9 @@ function pintarEleccion(p, pend) {
       };
       if (pend.muro) {
         const m = p.jugadores[pend.muro.jugador];
-        lista.appendChild(el("div", { class: "coste", text: m.nombre + " esta en la linea de tiro: ¿bloquea?" }));
+        // no sabes si te tiran una vaselina: si no esta pegado, le pasaria por encima (O-309)
+        lista.appendChild(el("div", { class: "coste", text: m.nombre + " está en la línea de tiro: ¿bloquea? "
+          + (du.muroPegado ? "(está pegado: para también la vaselina)" : "(si es vaselina, pasa por encima)") }));
         for (const o of pend.muro.opciones) lista.appendChild(botonComando(o, m, clave => pideParada(clave)));
       } else pideParada(null);
     }
@@ -640,18 +950,18 @@ function mostrarFinal() {
   const p = PARTIDO, caja = $("#pausa-caja"), capa = $("#pausa");
   mostrando = "final";
   caja.textContent = "";
-  const gano = p.goles[YO] > p.goles[1 - YO], empate = p.goles[0] === p.goles[1];
-  caja.appendChild(el("div", { class: "titulo-duelo", text: empate ? "¡Empate!" : gano ? "¡Has ganado!" : "Has perdido" }));
+  // quien gana: por goles o, con empate, en la tanda de penaltis (O-312)
+  const g = p.ganador(), gano = g === YO, empate = g === null, pen = p.tanda ? " en los penaltis" : "";
+  caja.appendChild(el("div", { class: "titulo-duelo", text: empate ? "¡Empate!" : gano ? "¡Has ganado" + pen + "!" : "Has perdido" + pen }));
   // con estadisticas, el marcador de colores y debajo ellas, con los goles de
-  // cada equipo (O-306); sin ellas (anfitrion anterior), como antes
-  const est = bloqueEstadisticas(p);
-  if (est) { caja.appendChild(marcadorFinal(p)); caja.appendChild(est); }
+  // cada equipo (O-306); sin ellas (anfitrion anterior), como antes. Con la tanda,
+  // su tablero (O-312)
+  const est = bloqueEstadisticas(p), tab = tableroTanda(p);
+  if (est) { caja.appendChild(marcadorFinal(p)); if (tab) caja.appendChild(tab); caja.appendChild(est); }
   else {
     caja.appendChild(el("div", { class: "resultado", text: p.nombres[0] + "  " + p.goles[0] + " - " + p.goles[1] + "  " + p.nombres[1] }));
-    const goles = p.eventos.filter(e => e && e.clase === "gol").map(e => {
-      const min = Math.floor(e.reloj / p.duracion * 45) + (e.mitad === 2 ? 45 : 0);
-      return min + "' " + e.texto.replace(/ \(.*\)$/, "");
-    });
+    const goles = p.eventos.filter(e => e && e.clase === "gol").map(e =>
+      p.etiquetaParte(e.mitad) + " " + p.minuto(e.reloj) + "' " + e.texto.replace(/ \(.*\)$/, ""));     // O-308
     if (goles.length) caja.appendChild(el("div", { class: "registro", text: goles.join("\n"), style: "white-space:pre-line;max-height:160px" }));
   }
   caja.appendChild(el("button", { class: "grande", onclick: () => { if (RED) RED.salirSala(); location.href = "/partido"; } }, [el("span", { text: "Otro partido" })]));
@@ -666,14 +976,85 @@ function mostrarDescanso() {
   const p = PARTIDO, caja = $("#pausa-caja"), capa = $("#pausa");
   mostrando = "descanso";
   caja.textContent = "";
-  caja.appendChild(el("div", { class: "titulo-duelo", text: "Fin de la 1.ª parte" }));
+  // antes de la prorroga, "Fin del tiempo reglamentario"; entre sus partes, el de la
+  // 1.ª de la prorroga (O-312)
+  caja.appendChild(el("div", { class: "titulo-duelo", text: p.mitad === 2 ? "Fin del tiempo reglamentario" : p.mitad === 3 ? "Fin de la 1.ª parte de la prórroga" : "Fin de la 1.ª parte" }));
   caja.appendChild(marcadorFinal(p));
+  if (p.mitad === 2) caja.appendChild(el("div", { class: "pista", text: "¡Empate! Se juega la prórroga: dos partes de " + p.relojTexto(p.duracionParte(3))
+    + (p.empate === "prorroga-penaltis" ? " y, si sigue el empate, penaltis" : "") + "."
+    + (REGLAS.CAMBIOS_PRORROGA > 0 ? " Cada uno tiene " + (REGLAS.CAMBIOS_PRORROGA === 1 ? "un cambio" : REGLAS.CAMBIOS_PRORROGA + " cambios") + " más." : "") }));
   const est = bloqueEstadisticas(p);
   if (est) caja.appendChild(est);
   // como el aviso del campo: lo de cambiar, solo si quedan cambios y suplentes
-  const cambia = p.puedeCambiar(YO) && (p.banquillos[YO] || []).some((d, k) => !p.banquilloUsado[YO][k]);
-  if (!DEMO) caja.appendChild(el("div", { class: "pista", text: (cambia ? "Pulsa a uno de los tuyos en el campo para cambiarlo. Cuando acabes, " : "Cuando estés listo, ")
-    + "«Segunda parte» (a la derecha)." }));
+  const cambia = p.puedeCambiar(YO) && suplentesLibres(p, YO).length > 0;
+  if (!DEMO) caja.appendChild(el("div", { class: "pista", text: (cambia ? "Los cambios, en «Menú» (o pulsa a uno de los tuyos en el campo). Cuando acabes, " : "Cuando estés listo, ")
+    + "«" + botonDescanso(p) + "» (a la derecha)." }));
+  capa.hidden = false;
+}
+
+// los del banquillo que aun pueden entrar: ni usados ni en un cambio pendiente (O-308)
+function suplentesLibres(p, lado) {
+  const pend = p.cambiosPendientes[lado] || [];
+  return (p.banquillos[lado] || []).map((d, k) => ({ d, k })).filter(o => !p.banquilloUsado[lado][o.k] && !pend.some(c => c.entra === o.k));
+}
+
+// el Menu de las esperas (pausa, saque y descanso), como el de 3DS antes de cada
+// saque: los cambios. Tus jugadores en el campo, cada uno con "Cambiar" (despliega
+// los suplentes libres), y los pendientes con "Quitar". En la pausa el cambio queda
+// pendiente y entra al pararse el balon; en el saque y en el descanso, ya (O-308).
+// Todo va por PARTIDO.ordenar: online, el invitado lo manda al anfitrion
+function pintarMenu(p) {
+  const caja = $("#pausa-caja"), capa = $("#pausa");
+  caja.textContent = "";
+  caja._pintado = performance.now();     // para no aceptar un clic que era para el de antes (O-305)
+  const nuevo = () => performance.now() - caja._pintado < 300;
+  const pend = p.cambiosPendientes[YO] || [], quedan = p.cambiosQuedan[YO] - pend.length, libres = suplentesLibres(p, YO);
+  caja.appendChild(el("div", { class: "titulo-duelo", text: "Menú" }));
+  // con la prorroga, uno mas (O-312)
+  const total = REGLAS.CAMBIOS + (p.prorroga ? REGLAS.CAMBIOS_PRORROGA : 0);
+  caja.appendChild(el("div", { class: "menu-sub", text: "Cambios · " + (quedan > 0 ? "te quedan " + quedan + " de " + total : "no te quedan") }));
+  if (p.fase === "pausa") caja.appendChild(el("div", { class: "pista", text: "Con el balón en juego, el cambio entra cuando se pare (fuera, falta, gol...)." }));
+  for (const c of pend) {
+    const sale = p.jugadores[c.sale], entra = (p.banquillos[YO] || [])[c.entra] || {};
+    const q = el("button", { class: "btn-mini gris", text: "Quitar" });
+    q.onclick = ev => { if (ev.detail > 1 || nuevo()) return; PARTIDO.ordenar({ tipo: "quitarCambio", lado: YO, sale: c.sale }); };
+    caja.appendChild(el("div", { class: "menu-fila pendiente" }, [
+      el("img", { alt: "", src: "/cara/" + encodeURIComponent(entra.cara || "") }),
+      el("span", {}, [el("b", { text: "Entrará " + entra.nombre }), el("small", { text: "por " + (sale ? sale.nombre : "?") + ", cuando se pare el balón" })]), q]));
+  }
+  const lista = el("div", { class: "menu-lista" });
+  for (const j of p.equipo(YO)) {
+    const tiene = pend.some(c => c.sale === j.id);
+    const b = el("button", { class: "btn-mini", text: menuDespliega === j.id ? "Cerrar" : "Cambiar", disabled: tiene || quedan <= 0 || !libres.length || !p.puedeCambiar(YO) });
+    b.onclick = ev => { if (ev.detail > 1 || nuevo()) return; menuDespliega = menuDespliega === j.id ? null : j.id; };
+    const fila = el("div", { class: "menu-fila" + (menuDespliega === j.id ? " abierta" : "") }, [
+      el("img", { alt: "", src: "/cara/" + encodeURIComponent(j.cara || "") }),
+      el("span", {}, [el("b", { text: j.nombre }), el("small", { text: (j.posicion || "") + (j.elemento ? " · " + NOMBRE_ELEM(j.elemento) : "") + (tiene ? " · sale cuando se pare el balón" : "") })]), b]);
+    if (menuDespliega === j.id && !tiene) {
+      const banco = el("div", { class: "banquillo" });
+      for (const { d, k } of libres) {
+        const s = el("button", { class: "suplente", title: "Entra " + d.nombre + " por " + j.nombre }, [
+          el("img", { alt: "", src: "/cara/" + encodeURIComponent(d.cara || "") }),
+          el("span", { text: d.nombre }), el("small", { text: (d.posicion || "") + " · " + NOMBRE_ELEM(d.elemento || "") })]);
+        s.onclick = ev => {
+          if (ev.detail > 1 || nuevo()) return;
+          menuDespliega = null;
+          PARTIDO.ordenar({ tipo: "cambio", lado: YO, sale: j.id, entra: k });
+        };
+        banco.appendChild(s);
+      }
+      fila.appendChild(banco);
+    }
+    lista.appendChild(fila);
+  }
+  // los tuyos expulsados, al final y sin boton: no se les puede cambiar (O-311)
+  for (const j of p.jugadores) if (j.lado === YO && j.expulsado) lista.appendChild(el("div", { class: "menu-fila expulsado" }, [
+    el("img", { alt: "", src: "/cara/" + encodeURIComponent(j.cara || "") }),
+    el("span", {}, [el("b", { text: j.nombre }), el("small", { text: "Expulsado: no se le puede cambiar" })])]));
+  caja.appendChild(lista);
+  const volver = el("button", { class: "grande azul chico" }, [el("span", { text: "Volver" })]);
+  volver.onclick = () => { menuAbierto = false; menuDespliega = null; };
+  caja.appendChild(el("div", { class: "botones" }, [volver]));
   capa.hidden = false;
 }
 
@@ -683,7 +1064,9 @@ function marcadorFinal(p) {
   return el("div", { class: "marcador-final" }, [
     el("span", { class: "eq azul", text: p.nombres[0], title: p.nombres[0] }),
     el("b", { text: p.goles[0] + " - " + p.goles[1] }),
-    el("span", { class: "eq rojo", text: p.nombres[1], title: p.nombres[1] })]);
+    el("span", { class: "eq rojo", text: p.nombres[1], title: p.nombres[1] }),
+    // con la tanda, debajo: "(4-2 pen.)" (O-312)
+    p.tanda ? el("small", { class: "pen-final", text: "(" + p.golesTanda().join("-") + " pen.)" }) : null]);
 }
 
 // las estadisticas, como en los cinco juegos (CS, Galaxy, Light, IE3): tiros,
@@ -697,15 +1080,25 @@ function bloqueEstadisticas(p) {
   const caja = el("div", { class: "estadisticas" }, [el("div", { class: "est-titulo", text: "Estadísticas" })]);
   const fila = (a, que, b, title) => [el("b", { text: String(a) }), el("span", { class: "est-que", text: que, title }), el("b", { text: String(b) })]
     .forEach(c => caja.appendChild(c));
-  fila(es.tiros[0], "Tiros", es.tiros[1], "Tiros a puerta, también los bloqueados y los penaltis");
+  fila(es.tiros[0], "Tiros", es.tiros[1], "Tiros a puerta, también los bloqueados y los penaltis del partido (los de la tanda, no)");
   fila(es.tecnicas[0], "Supertécnicas", es.tecnicas[1], "Supertécnicas usadas en regates, entradas, tiros, bloqueos y paradas");
+  // los duelos ganados con un critico, el numero pequeno que gana (O-309)
+  if (es.criticos) fila(es.criticos[0], "Críticos", es.criticos[1], "Duelos ganados con un crítico: el número más bajo que gana (pasa en 1 de cada 10 duelos parejos)");
+  // los espiritus invocados, tambien los de los focos (O-310)
+  if (es.hiper) fila(es.hiper[0], "Hipertécnicas", es.hiper[1], "Espíritus invocados (cada uno gasta 100 de hiperbarra), también los que ganan un duelo con ★");
+  // las tarjetas, solo si ha habido alguna (O-311)
+  if (es.amarillas && es.amarillas[0] + es.amarillas[1] > 0) fila(es.amarillas[0], "Amarillas", es.amarillas[1], "Tarjetas amarillas (la segunda de un jugador cuenta también: con ella es roja)");
+  if (es.rojas && es.rojas[0] + es.rojas[1] > 0) fila(es.rojas[0], "Rojas", es.rojas[1], "Expulsados (roja directa o dos amarillas)");
+  // los goles de la tanda, si la hubo (no cuentan en los tiros ni en los goles) (O-312)
+  if (es.penaltis) fila(es.penaltis[0], "Penaltis", es.penaltis[1], "Goles en la tanda de penaltis");
   fila(pc + " %", "Posesión", (100 - pc) + " %", "Tiempo de juego con el balón (del último que lo tocó)");
   const barra = el("div", { class: "est-barra", title: "Posesión: " + p.nombres[0] + " " + pc + " % · " + p.nombres[1] + " " + (100 - pc) + " %" }, [el("i")]);
   barra.firstChild.style.width = pc + "%";
   caja.appendChild(barra);
-  // los goles: la parte (como el marcador, 1ª o 2ª), el minuto y quien
+  // los goles: la parte (como el marcador, 1ª o 2ª), el minuto dentro de ella
+  // (como el reloj de 3DS, O-308) y quien
   const goles = lado => el("div", { class: "est-goles" }, (es.goles || []).filter(g => g[0] === lado).map(g =>
-    el("div", { title: g[1] + "ª parte, " + g[2] + "' " + g[3] }, [el("small", { class: "parte p" + g[1], text: g[1] + "ª" }), el("span", { text: g[2] + "' " + g[3] })])));
+    el("div", { title: p.etiquetaParte(g[1]) + " parte, " + g[2] + "' " + g[3] }, [el("small", { class: "parte p" + g[1], text: p.etiquetaParte(g[1]) }), el("span", { text: g[2] + "' " + g[3] })])));
   [goles(0), el("span", { class: "est-que", text: "Goles" }), goles(1)].forEach(c => caja.appendChild(c));
   return caja;
 }
@@ -715,16 +1108,23 @@ function mostrarRivalFuera() {
   const p = PARTIDO, caja = $("#pausa-caja"), capa = $("#pausa");
   mostrando = "fuera";
   caja.textContent = "";
-  caja.appendChild(el("div", { class: "titulo-duelo", text: (RED.rival ? RED.rival.nombre : "El rival") + " ha salido del partido" }));
+  // o lo has dejado tu porque el rival no respondia (O-308)
+  caja.appendChild(el("div", { class: "titulo-duelo", text: RED.dejado ? "Has dejado el partido" : (RED.rival ? RED.rival.nombre : "El rival") + " ha salido del partido" }));
   caja.appendChild(el("div", { class: "resultado", text: p.nombres[0] + "  " + p.goles[0] + " - " + p.goles[1] + "  " + p.nombres[1] }));
   caja.appendChild(el("button", { class: "grande", onclick: () => { RED.salirSala(); location.href = "/partido"; } }, [el("span", { text: "Otro partido" })]));
   capa.hidden = false;
+  menuAbierto = false;
 }
 
 /* El resultado de un duelo, como un rotulo del juego: la cara, la
    supertecnica en una tarjeta del color de su elemento y el numero que saca
-   cada uno (con lo que le suman las pasivas). */
-function filaDuelo(j, nombre, esTecnica, elemento, valor, pasivas, gana, retardo, apoyo) {
+   cada uno (con lo que le suman las pasivas).
+   mas (O-309): {cifras, nota}. cifras: los numeros por los que pasa despues del
+   primero, [{v, en (ms desde que empieza el resultado), critico}]: el que gana por
+   critico sube hasta el suyo y salta por encima del otro con "¡Crítico!", y el tiro
+   que pasa el muro baja lo que este le quita. nota: una linea pequena mas. Con
+   valor null (la vaselina que pasa por encima del muro), sin numero */
+function filaDuelo(j, nombre, esTecnica, elemento, valor, pasivas, gana, retardo, apoyo, mas) {
   const fila = el("div", { class: "rotulo" + (gana ? " gana" : ""), style: "animation-delay:" + retardo + "ms" });
   fila.appendChild(el("img", { class: "rotulo-cara", alt: "", src: "/cara/" + encodeURIComponent(j.cara || "") }));
   // "(cadena)" va con el nombre del jugador: detras de la supertecnica la partia
@@ -732,28 +1132,47 @@ function filaDuelo(j, nombre, esTecnica, elemento, valor, pasivas, gana, retardo
   const cadena = / \(cadena\)$/.test(nombre);
   if (cadena) nombre = nombre.replace(/ \(cadena\)$/, "");
   const centro = el("div", { class: "rotulo-centro" }, [el("small", { text: j.nombre + (cadena ? " · en cadena" : "") })]);
+  // una hipertecnica ("★ <espiritu>"): tarjeta morada, como la de los espiritus (O-310)
+  const esHiper = /^★ /.test(nombre);
+  if (esHiper) { esTecnica = true; elemento = ""; }
   if (esTecnica) {
     // el nombre entero tambien al pasar el raton (O-305)
     const t = el("div", { class: "rotulo-tecnica" }, [elemento ? iconoElemento(elemento, 20) : null, el("b", { text: nombre, title: nombre })]);
-    const c = BARRA_ELEM[elemento] || BARRA_SIN;
+    const c = esHiper ? BARRA_ESPIRITU : BARRA_ELEM[elemento] || BARRA_SIN;
     t.style.background = "linear-gradient(90deg, " + c[0] + ", " + c[1] + ")";
     centro.appendChild(t);
   } else centro.appendChild(el("b", { class: "rotulo-comando", text: nombre }));
   // y lo que suman los apoyos en un foco, como en el panel (O-306)
-  const suma = [pasivas ? "pasivas +" + pasivas + " %" : "", apoyo ? "apoyo +" + apoyo + " %" : ""].filter(Boolean).join(" · ");
+  // con una tactica del rival las pasivas pueden restar: "pasivas -30 %", no "+-30" (O-314)
+  const suma = [pasivas ? "pasivas " + (pasivas > 0 ? "+" : "") + pasivas + " %" : "", apoyo ? "apoyo +" + apoyo + " %" : ""].filter(Boolean).join(" · ");
   if (suma) centro.appendChild(el("small", { class: "rotulo-pasivas", text: suma }));
+  if (mas && mas.nota) centro.appendChild(el("small", { class: "rotulo-nota", text: mas.nota }));
   fila.appendChild(centro);
-  const num = el("span", { class: "rotulo-valor", text: "0" });
-  fila.appendChild(num);
-  // el numero sube poco a poco, como en el juego
-  const t0 = performance.now() + retardo;
+  const num = el("span", { class: "rotulo-valor", text: valor === null || valor === undefined ? "" : "0" });
+  const marca = el("span", { class: "critico", text: "¡Crítico!", hidden: true });
+  // gana con su hipertecnica: la estrella en vez del numero (O-310)
+  if (mas && mas.hiper) { num.textContent = "★"; num.classList.add("estrella"); marca.textContent = "¡Hipertécnica!"; marca.className = "hiper-marca"; marca.hidden = false; fila.classList.add("con-hiper"); }
+  fila.appendChild(el("div", { class: "rotulo-cifra" }, [marca, num]));
+  if (valor === null || valor === undefined) return fila;
+  // el numero sube poco a poco, como en el juego; luego pasa por los de `cifras`
+  // (O-309), cada uno en un momento
+  const ahora0 = performance.now(), tramos = [{ de: 0, a: valor, t: ahora0 + retardo, dura: 600 }];
+  for (const c of (mas && mas.cifras) || []) tramos.push({ de: tramos[tramos.length - 1].a, a: c.v, t: ahora0 + c.en, dura: 250, critico: !!c.critico });
+  const ultimo = tramos[tramos.length - 1];
   const sube = ahora => {
-    const k = Math.max(0, Math.min(1, (ahora - t0) / 600));
-    num.textContent = String(Math.round(valor * k));
-    if (k < 1) requestAnimationFrame(sube);
+    let k = 0;
+    while (k + 1 < tramos.length && ahora >= tramos[k + 1].t) k++;
+    const tr = tramos[k], f = Math.max(0, Math.min(1, (ahora - tr.t) / tr.dura));
+    num.textContent = String(Math.round(tr.de + (tr.a - tr.de) * f));
+    if (tramos.some(x => x.critico && ahora >= x.t)) { marca.hidden = false; fila.classList.add("con-critico"); }
+    if (tr !== ultimo || f < 1) requestAnimationFrame(sube);
   };
   requestAnimationFrame(sube);
-  setTimeout(() => { num.textContent = String(valor); }, retardo + 700);
+  // por si la pestana no pinta (oculta): al acabar, lo de verdad
+  setTimeout(() => {
+    num.textContent = String(ultimo.a);
+    if (tramos.some(x => x.critico)) { marca.hidden = false; fila.classList.add("con-critico"); }
+  }, ultimo.t - ahora0 + ultimo.dura + 100);
   return fila;
 }
 
@@ -774,37 +1193,102 @@ function mostrarResultado(r) {
     setTimeout(esconder, 1500);
     return;
   }
+  // los tiempos, los mismos que mira el campo para sus rotulos (O-309)
+  const T = tiemposResultado(r), ms = s => Math.round(s * 1000);
+  const hay = c => c !== null && c !== undefined;
+  if (r.tipo === "penalti") {
+    // el penalti (O-312): adonde tira cada uno (como en tu pantalla) y, si el portero
+    // acierta la zona, los dos numeros como en el tiro (con el critico); si no, gol
+    const tir = p.jugadores[r.tirador], por = p.jugadores[r.portero];
+    caja.appendChild(el("div", { class: "titulo-duelo", text: r.tanda ? "Penaltis" : "Penalti" }));
+    const zt = r.zonas[tir.lado], zp = r.zonas[por.lado];
+    caja.appendChild(el("div", { class: "zonas-resultado" + (r.misma ? " misma" : "") },
+      [el("span", { text: tir.nombre + " tira " + aZona(zonaCampo(zt)) }),
+       el("span", { text: r.misma ? por.nombre + " acierta: " + aZona(zonaCampo(zp)) : por.nombre + " se tira " + aZona(zonaCampo(zp)) })]));
+    r.pasos.forEach((paso, k) => {
+      const j = p.jugadores[paso.quien], crit = hay(paso.critico) && paso.critico === j.lado && hay(paso.antes);
+      const gana = r.final === "gol" ? k === 0 : k === 1;
+      // con la zona distinta no hay numeros que comparar: sin numero
+      const valor = !r.misma ? null : crit ? paso.antes : paso.valor;
+      caja.appendChild(filaDuelo(j, paso.que, paso.tecnica, paso.elemento, valor, paso.pasivas, gana, ms((k + 1) * T.paso), 0,
+        r.misma && crit ? { cifras: [{ v: paso.valor, en: ms(T.critico), critico: true }] } : null));
+    });
+    caja.appendChild(el("div", { class: "titulo-duelo final-duelo", style: "animation-delay:" + ms(T.final) + "ms",
+      text: r.final === "gol" ? (r.misma ? "¡¡GOOOL!!" : "¡¡GOOOL!! Se tira al otro lado") : "¡Parada!" }));
+    const tab = r.tanda ? tableroTanda(p) : null;
+    if (tab) { tab.classList.add("final-duelo"); tab.style.animationDelay = ms(T.final) + "ms"; caja.appendChild(tab); }
+    capa.hidden = false;
+    mostrando = "resultado";
+    setTimeout(esconder, ms(T.final) + 1500);
+    return;
+  }
   if (r.tipo === "tiro") {
     const tir = p.jugadores[r.tirador];
     const final = r.final === "gol" ? "¡¡GOOOL!!" : r.final === "bloqueado" ? "¡Bloqueado!" : r.final === "despeje" ? "¡Despeje!" : "¡Parada!";
     // kAt: la ultima fila del que ataca (la cadena, si la hay). El AT final del
     // tiro va en ella y no en la del primero (salian los dos con el total), y en
     // un gol se marca al que marca; en un bloqueo, solo al muro (O-305)
-    const ladoAt = p.jugadores[r.pasos[0].quien].lado;
+    const ladoAt = p.jugadores[r.pasos[0].quien].lado, n = r.pasos.length;
     let kAt = 0;
     r.pasos.forEach((s, k) => { if (p.jugadores[s.quien].lado === ladoAt) kAt = k; });
+    // O-309: nunca se ve ganar al numero pequeno. Con muro, la fila del tiro
+    // ensena primero su numero contra el muro y, si lo pasa, baja lo que este le
+    // quita; el que gana un paso por critico sube hasta el suyo y salta por encima
+    // del otro. pm: el paso del muro que jugo (no el "¡Por encima!" de la vaselina)
+    const kM = r.pasos.findIndex(s => hay(s.contra)), pm = kM >= 0 ? r.pasos[kM] : null, pf = r.pasos[n - 1];
+    const vf = r.pasos[0].valorFinal, finalReal = r.final !== "bloqueado" && pf.critico === ladoAt ? pf.antes : vf;
     r.pasos.forEach((paso, k) => {
       const j = p.jugadores[paso.quien];
-      const ultimo = k === r.pasos.length - 1;
+      const ultimo = k === n - 1;
       const gana = r.final === "gol" ? k === kAt : ultimo;
-      const valor = k === kAt && r.pasos[0].valorFinal ? r.pasos[0].valorFinal : paso.valor;
-      caja.appendChild(filaDuelo(j, paso.que, paso.tecnica, paso.elemento, valor, paso.pasivas, gana, k * 450));
+      let valor = k === kAt && vf ? vf : paso.valor, nota = null;
+      const cifras = [];
+      if (k === kAt) {
+        if (pm) {
+          valor = pm.critico === ladoAt ? pm.antes : pm.contra;
+          const tm = ms(kM * T.paso + 0.7);
+          if (pm.critico === ladoAt) cifras.push({ v: pm.contra, en: tm, critico: true });
+          if (r.final !== "bloqueado" && hay(finalReal)) cifras.push({ v: finalReal, en: tm + (pm.critico === ladoAt ? 350 : 0) });
+        } else if (hay(finalReal)) valor = finalReal;
+        if (r.final !== "bloqueado" && pf.critico === ladoAt) cifras.push({ v: vf, en: ms(T.critico), critico: true });
+      } else if (hay(paso.critico) && paso.critico === j.lado && hay(paso.antes)) {
+        // el muro o el portero que gana por critico
+        valor = paso.antes;
+        cifras.push({ v: paso.valor, en: ms(k * T.paso + 0.7), critico: true });
+      }
+      if (paso.resta) nota = "le quita " + paso.resta + " al tiro";
+      caja.appendChild(filaDuelo(j, paso.que, paso.tecnica, paso.elemento, valor, paso.pasivas, gana, ms(k * T.paso), 0, { cifras, nota }));
     });
-    caja.appendChild(el("div", { class: "titulo-duelo final-duelo", text: final, style: "animation-delay:" + (r.pasos.length * 450 + 200) + "ms" }));
-    if (r.final === "gol") caja.appendChild(el("div", { class: "resultado", text: "Gol de " + tir.nombre }));
-    dura = r.pasos.length * 450 + 1900;
+    caja.appendChild(el("div", { class: "titulo-duelo final-duelo", text: final, style: "animation-delay:" + ms(T.final) + "ms" }));
+    // y "Gol de X" con el, no antes: con el muro y los criticos el numero del tiro
+    // aun cambia y lo destripaba (O-309)
+    if (r.final === "gol") caja.appendChild(el("div", { class: "resultado final-duelo", text: "Gol de " + tir.nombre, style: "animation-delay:" + ms(T.final) + "ms" }));
+    dura = ms(T.final) + 1700;
   } else {
     const att = p.jugadores[r.atacante], def = p.jugadores[r.defensor], gan = p.jugadores[r.ganador];
     caja.appendChild(el("div", { class: "titulo-duelo", text: r.tipo === "falta" ? (r.penalti ? "¡Falta! ¡Penalti!" : "¡Falta! Tiro libre") : r.tipo === "disputa" ? "Disputa" : "Foco" }));
     [att, def].forEach((j, k) => {
       const elem = r.elementos ? r.elementos[j.lado] : null;
       const ap = r.apoyos && r.apoyos[j.lado];
-      caja.appendChild(filaDuelo(j, r.tecnicas[j.lado], elem !== null && elem !== undefined, elem || "", r.valores[j.lado],
-        r.pasivas ? r.pasivas[j.lado] : 0, j === gan, k * 350, ap ? Math.round((ap.factor - 1) * 100) : 0));
+      // el que gana por critico: sube hasta su numero y salta por encima del otro (O-309)
+      const crit = r.critico === j.lado && hay(r.antes);
+      // el que gana con su hipertecnica: sin numero, la estrella y "¡Hipertécnica!" (O-310)
+      const conHiper = r.hiper === j.lado;
+      caja.appendChild(filaDuelo(j, r.tecnicas[j.lado], elem !== null && elem !== undefined, elem || "", conHiper ? null : crit ? r.antes : r.valores[j.lado],
+        r.pasivas ? r.pasivas[j.lado] : 0, j === gan, ms(k * T.paso), ap ? Math.round((ap.factor - 1) * 100) : 0,
+        conHiper ? { hiper: true } : crit ? { cifras: [{ v: r.valores[j.lado], en: ms(T.critico), critico: true }] } : null));
     });
-    caja.appendChild(el("div", { class: "resultado final-duelo", style: "animation-delay:900ms",
+    caja.appendChild(el("div", { class: "resultado final-duelo", style: "animation-delay:" + ms(T.final) + "ms",
       text: r.tipo === "falta" ? "Falta de " + def.nombre : gan.lado === YO ? "¡Bien! Gana " + gan.nombre : "Gana " + gan.nombre }));
-    dura = 2200;
+    dura = ms(T.final) + 1300;
+    // la tarjeta de la falta, con la tarjetita de su color, un poco despues (O-311)
+    const tj = r.tipo === "falta" && r.tarjeta, quien = tj && p.jugadores[tj.quien];
+    if (quien) {
+      const roja = tj.que === "roja";
+      caja.appendChild(el("div", { class: "resultado final-duelo tarjeta-falta" + (roja ? " roja" : ""), style: "animation-delay:" + (ms(T.final) + 500) + "ms" },
+        [el("i"), el("span", { text: roja ? (tj.segunda ? "¡Segunda amarilla! " : "¡Roja! ") + quien.nombre + " expulsado" : "Tarjeta amarilla para " + quien.nombre })]));
+      dura += 900;
+    }
   }
   capa.hidden = false;
   mostrando = "resultado";
@@ -857,7 +1341,8 @@ function entrarOnline() {
   RED.alGente = pintarGente;
   RED.alInvitacion = alInvitacion;
   RED.alRespuesta = m => {
-    if (m.tipo === "rechaza") avisa(m.nombre + " no puede jugar ahora.", "mal");
+    if (m.otraVersion) avisa(m.nombre + " tiene otra versión del Partido: actualizad Pizarra los dos.", "mal");     // O-308
+    else if (m.tipo === "rechaza") avisa(m.nombre + " no puede jugar ahora.", "mal");
     pintarGente(RED.gente);
   };
   RED.alSala = alSala;
@@ -875,11 +1360,14 @@ function pintarGente(gente) {
   }
   for (const [s, g] of otros) {
     const esperando = RED && RED.pendiente && RED.pendiente.slug === s;
+    // con otra version del Partido no se puede jugar (O-308)
+    const otra = otraVersion(g);
     caja.appendChild(el("div", { class: "persona" }, [
-      el("b", { text: g.nombre }), el("small", { text: (g.equipo ? g.equipo + " · " : "") + (g.estado || "") }),
+      el("b", { text: g.nombre }), el("small", { text: otra ? "otra versión del Partido" : (g.equipo ? g.equipo + " · " : "") + (g.estado || "") }),
       esperando
         ? el("button", { class: "btn-mini gris", text: "Cancelar", onclick: () => { RED.cancelar(); pintarGente(RED.gente); } })
-        : el("button", { class: "btn-mini", text: "Invitar", disabled: g.estado === "jugando" || !!RED.sala,
+        : el("button", { class: "btn-mini", text: "Invitar", disabled: otra || g.estado === "jugando" || !!RED.sala,
+            title: otra ? "Tiene otra versión del Partido: actualizad Pizarra los dos" : "",
             onclick: () => { RED.invitar(s, g.nombre); avisa("Invitacion mandada a " + g.nombre + ".", "bien"); pintarGente(RED.gente); } })]));
   }
 }
@@ -891,9 +1379,12 @@ function alInvitacion(m) {
   const caja = $("#invitaciones");
   caja.textContent = "";
   for (const inv of Object.values(invitaciones)) {
+    // de otra version del Partido: se dice y solo se puede decir que no (O-308)
+    const otra = otraVersion(inv);
     caja.appendChild(el("div", { class: "invitacion" }, [
-      el("b", { text: inv.nombre + " te reta" + (inv.equipo ? " con " + inv.equipo : "") }),
-      el("button", { class: "btn-mini", text: "Aceptar", onclick: () => {
+      el("b", { text: otra ? inv.nombre + " tiene otra versión del Partido: actualizad Pizarra los dos"
+        : inv.nombre + " te reta" + (inv.equipo ? " con " + inv.equipo : "") }),
+      otra ? null : el("button", { class: "btn-mini", text: "Aceptar", onclick: () => {
         for (const k in invitaciones) delete invitaciones[k];
         caja.textContent = "";
         RED.responder(inv, true);
@@ -920,17 +1411,19 @@ async function alSala(m) {
   }
   if (m.tipo === "equipo" && RED.rol === "anfitrion" && !equiposOnline) {
     const mio = equipoParaRed(await equipoDatos(+$("#equipo-a").value));
-    equiposOnline = { tipo: "equipos", a: mio, b: m.datos, semilla: (Math.random() * 1e9) | 0, mitad: duracionElegida(),
-                      fueraDeJuego: $("#fuera-juego").checked };
+    // la duracion va en minutos de reloj (15 o 30), la del que invita (O-308)
+    // y lo del empate, tambien la del que invita (O-312)
+    equiposOnline = { tipo: "equipos", a: mio, b: m.datos, semilla: (Math.random() * 1e9) | 0, minutos: duracionElegida(),
+                      fueraDeJuego: $("#fuera-juego").checked, empate: empateElegido() };
     RED._repite("equipos", () => RED.mandar(equiposOnline));
     empezar(JSON.parse(JSON.stringify(mio)), JSON.parse(JSON.stringify(m.datos)),
-            { modo: "anfitrion", semilla: equiposOnline.semilla, mitad: equiposOnline.mitad, fueraDeJuego: equiposOnline.fueraDeJuego });
+            { modo: "anfitrion", semilla: equiposOnline.semilla, minutos: equiposOnline.minutos, fueraDeJuego: equiposOnline.fueraDeJuego, empate: equiposOnline.empate });
     return;
   }
   if (m.tipo === "equipos" && RED.rol === "invitado" && !PARTIDO) {
     RED.para("equipo");
     RED._repite("listo", () => RED.mandar({ tipo: "listo" }), 5);
-    empezar(m.a, m.b, { modo: "invitado", semilla: m.semilla, mitad: m.mitad, fueraDeJuego: m.fueraDeJuego });
+    empezar(m.a, m.b, { modo: "invitado", semilla: m.semilla, minutos: m.minutos, fueraDeJuego: m.fueraDeJuego, empate: REGLAS.EMPATE.includes(m.empate) ? m.empate : "nada" });
     return;
   }
   if (m.tipo === "listo" && RED.rol === "anfitrion") { RED.para("equipos"); return; }
@@ -944,8 +1437,11 @@ async function alSala(m) {
       return;
     }
     if (o.tipo === "tactica") { if (o.lado === 1) PARTIDO.usarTactica(1, o.k); return; }
-    if (o.tipo === "pausa" || o.tipo === "seguir" || o.tipo === "presionar" || o.tipo === "cambio") { if (o.lado === 1) PARTIDO.ordenar(o); return; }
+    // seguir lleva el numero de su espera; quitarCambio, el de un pendiente (O-308)
+    if (o.tipo === "pausa" || o.tipo === "seguir" || o.tipo === "presionar" || o.tipo === "cambio" || o.tipo === "quitarCambio") { if (o.lado === 1) PARTIDO.ordenar(o); return; }
     if (o.tipo === "invocar") { const jj = PARTIDO.jugadores[o.jugador]; if (jj && jj.lado === 1) PARTIDO.ordenar(o); return; }
+    // colocar en la espera de un saque, solo a los suyos (O-313): se ve en la foto
+    if (o.tipo === "colocar") { const jj = PARTIDO.jugadores[o.jugador]; if (o.lado === 1 && jj && jj.lado === 1) PARTIDO.ordenar(o); return; }
     const j = PARTIDO.jugadores[o.jugador !== undefined ? o.jugador : o.de];
     if (j && j.lado === 1) PARTIDO.ordenar(o);
     return;

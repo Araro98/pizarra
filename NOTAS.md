@@ -7224,6 +7224,647 @@ Ademas: todo con la estetica y el layout de los juegos antiguos (que se
 entienda), y las reglas como en la vida real.
 12. Tarjetas: en VR hay tarjetas al hacer faltas, pero es raro: ponerlas con
     poca probabilidad. Ley de la ventaja: no.
+13. (Al probar la version de O-306) En 3DS se juega EN la pantalla de los
+    modelos 3D: el campo vertical en 3D, cerca del balon. El campo plano con
+    las fichas es solo el mapa (la vista previa). Rediseñar asi.
+14. En los saques (fuera, falta, corner...) se puede colocar a los jugadores
+    donde sea antes de dar a Jugar, menos demasiado cerca del balon.
+15. El rediseño de las pantallas: copiar LITERALMENTE Inazuma Eleven GO
+    Galaxy (el ultimo de 3DS): estetica, layout, graficos y todas las
+    animaciones que se ven en los videos (entrar en duelo, chutar, las
+    supertecnicas...). Con dibujo y codigo propios: no hay ni se usan
+    ficheros de Galaxy; los modelos 3D son los de VR de cada PC.
+
+### O-308 · El juego de partidos: el ritmo de 3DS (reloj, pausa, saques, cambios) y la version online
+
+Primer encargo del diseno de las reglas de Aaron (O-307 puntos 2, 3, 8 y 9;
+scratchpad juego/reglas-vr/DISENO.md, seccion 3). En el codigo los cambios
+citan esta nota.
+- El reloj de 3DS: al elegir equipos, "2 x 15 min" (por defecto) o "2 x 30
+  min" (lo guardado de antes, 2 x 3/5/8 minutos reales, pasa a 15). El reloj
+  va a 12 s por segundo real (`REGLAS.RELOJ_RITMO`): una parte de 15 son 75 s
+  de juego corriendo. En el marcador "1ª 07:32"; cada parte empieza en 00:00.
+  En "Lo que pasa" y en las estadisticas, "1ª 7'" (el minuto dentro de la
+  parte).
+- Si a las 15:00 el balon esta en juego, la parte sigue hasta que se pare
+  (fuera, falta, gol, fuera de juego o el portero con el balon en las manos),
+  como mucho hasta las 17:00 (`FIN_PARTE_EXTRA`, 120 s de reloj; 0 = corta en
+  seco). Un penalti pitado se tira antes.
+- La pausa, sin limite de veces ni de tiempo. La puede pedir cualquiera y el
+  partido sigue cuando han pulsado "Seguir" los dos (contra la maquina, al
+  pulsar tu). Online, al que ya ha pulsado le sale "Esperando a X...".
+- Antes de CADA saque (de centro al empezar y tras un gol, banda, corner,
+  puerta, falta, fuera de juego y penalti), tras su rotulo, el juego espera con
+  todos colocados y el balon a los pies del que saca: se dibujan rutas, se marca
+  el pase (o el tiro de la falta) del que saca y se hacen cambios; "Jugar" (o
+  la barra espaciadora) y, online, cuando pulsan los dos. En el penalti no se
+  marca nada: al pulsar Jugar se tira. La segunda parte no espera dos veces (el
+  descanso ya es su espera). El silbato suena al pulsar Jugar (ya no al salir
+  del gol) y en la 3D todos miran al frente un momento.
+- Los cambios: 5 por partido (antes 3). Boton "Menu" en la pausa, en la espera
+  del saque y en el descanso: tus jugadores con "Cambiar" (salen los suplentes
+  libres) y los pendientes con "Quitar". En la pausa, con el balon en juego, el
+  cambio queda pendiente ("Cambio preparado: entrara X por Y cuando se pare el
+  balon", que solo ve su equipo) y entra en la siguiente parada; en el saque y
+  en el descanso entra ya. Rotulo pequeno "Cambio" en el campo. La ficha sigue
+  sirviendo para cambiar. El banquillo es de 5: con 5 cambios puede entrar
+  entero.
+- El descanso, sin limite de tiempo (antes un minuto).
+- Online: `REGLAS.VERSION` 2 en la presencia, la invitacion y la respuesta. Con
+  otra version: "otra version del Partido" e Invitar apagado; la invitacion sale
+  con "X tiene otra version del Partido: actualizad Pizarra los dos" y solo
+  "No"; si acepta un Pizarra anterior, no se entra y se le manda "adios". **Aaron
+  y su amigo tienen que tener los dos este Pizarra** (cada encargo siguiente
+  sube la version). La foto lleva al final la espera del saque (`sq`), su numero
+  (`ne`) y los cambios pendientes del invitado (`pc`; los del anfitrion no se le
+  ensenan). El "Jugar" del invitado lleva el numero de su espera (uno que llega
+  tarde no cuenta en la siguiente) y se repite cada 1,5 s hasta que llega.
+  Orden nueva `quitarCambio`.
+- Online, que no se cuelgue: si el rival lleva un minuto sin dar senales (o sin
+  pulsar Jugar/Seguir), sale "X no responde" y el boton "Dejar el partido"
+  (manda "adios", como Inicio); si vuelve a responder, el aviso se quita y se
+  sigue. No se le da por ido solo: el navegador para una pestana oculta y se
+  perderian partidos buenos. **El que invita no debe minimizar Pizarra**: su PC
+  lleva el partido y con la pestana oculta se para.
+- Medido (scratchpad prueba/medir-vr.js, 12 partidos maquina contra maquina):
+  en 2 x 15, 5,5 tiros a puerta y 1,67 goles por partido (~220 s de
+  simulacion); en 2 x 30, 11,7 tiros y 3,25 goles. Con partes de 180 s como
+  antes (medir3 MITAD=180), 14,4 tiros y 3,58 goles (el motor anterior: 13,8 y
+  3,17; con otras semillas, de 3,2 a 4,25). Los goles de 2 x 15 se ajustan en
+  el siguiente encargo (quien gana y los tiros). 17 de cada 24 partes llegan al
+  tope de las 17:00: en el Partido el balon casi nunca sale (0,08 fueras por
+  partido) y los focos no paran la parte.
+- Pruebas: prueba3ds 175 OK. Se cambiaron las que miraban las reglas viejas
+  (las 3 pausas, la pausa que se acababa a los 20 s, el cambio en el acto en la
+  pausa, el descanso de 60 s, el minuto del gol de 0 a 90) y a varias se les
+  dio un paso tras "Seguir" (la maquina se da por lista en el primer paso de la
+  espera); fotos.js aplica la foto del final (el partido ya acaba antes de sus
+  9000 pasos). Nuevas: prueba-e1.js (98 OK), comun-vr.js y medir-vr.js. Sin las
+  esperas y sin alargar la parte, el motor da los mismos sucesos que el
+  anterior en las primeras partes de los 12 partidos de medir3.
+- A confirmar con Aaron: 5 cambios o 3; seguir hasta las 17:00 o cortar a las
+  15:00; que la pausa la quiten los dos; el descanso sin limite; "Dejar el
+  partido" al minuto.
+
+### O-309 · El juego de partidos: quien gana (90-10 con critico) y los tiros y paradas de 3DS
+
+Segundo encargo del diseno de las reglas de Aaron (O-307 puntos 5 y 6;
+scratchpad juego/reglas-vr/DISENO.md, seccion 4). En el codigo los cambios
+citan esta nota.
+- Quien gana (Aaron: "90-10"): en cada foco, disputa, bloqueo del muro y tiro
+  contra el portero gana el numero mayor (el del panel, redondeado). A veces hay
+  un critico y gana el otro: el 10 % con numeros parecidos (hasta 1,5 veces),
+  cada vez menos, y nada a partir del triple (`REGLAS.probCritico`: 1600 contra
+  900, el 8 %; 2000 contra 900, el 5 %). Con los dos numeros iguales, a cara o
+  cruz. El critico es invento de Aaron: los "critical" de los datos de VR son
+  del minijuego RPG. Una sola funcion en el motor, `_decidir(a, d)`, que usaran
+  tambien la hiper contra hiper y los penaltis. Se borraron `probabilidad` (la
+  de A^3 de IE3), `probabilidadTiro` (a la quinta, O-302), `TIRO_EXPONENTE` y
+  `AZAR` (el +-10 % del muro): el numero del panel es el que se juega.
+- Nunca se ve ganar al numero pequeno: el que gana por critico ensena el numero
+  del otro x1,05 a x1,20 (`CRITICO_SUBE`) y el suyo de verdad va en `antes`. En
+  el resultado su numero sube hasta el suyo, sale "¡Crítico!" en amarillo encima
+  y salta por encima del otro; en el campo, el rotulo pequeno "¡Crítico!" a la
+  vez (no antes: lo destripaba); en "Lo que pasa", "(¡crítico!)"; y en las
+  estadisticas del descanso y del final, una fila "Críticos" por equipo.
+- El muro: si gana el bloqueo, para el tiro, como antes; si pierde, el tiro
+  sigue con la mitad del numero del muro de menos (`MURO_RESTA`; VR: el bloqueo
+  resta al tiro). Antes se jugaba con +-10 % y solo bloqueaba con 1,25 veces el
+  tiro. En el resultado, la fila del tiro ensena su numero contra el muro y luego
+  baja ("le quita X al tiro"); con muro las filas salen mas despacio.
+- Los tiros sin supertecnica, con los botones de 3DS (O-307 punto 5): con el
+  balon en el suelo, Tirar (Potencia + Control, el de siempre) y Vaselina (x0,8,
+  pero pasa por encima del defensa de la linea de tiro si esta a mas de 2,5 m del
+  que chuta: no juega ni paga su supertecnica; tras una vaselina no se
+  encadena). Rematando de primeras un pase bombeado, Testarazo (Potencia +
+  Fisico) y Volea (lo mismo, pero fuerte e inestable como Romper: x0,75 a x1,65,
+  "de X a Y" en el boton). El portero: Parar (se la queda, como antes) y
+  Despejar (x1,25, pero no se la queda: el balon sale desde 1,5 m del portero
+  hacia el campo, hasta 100 grados a cada lado y a 10-18 m/s; le puede caer a
+  un rival o irse por la banda o a corner). Las supertecnicas de despeje o de
+  puno rebotan igual, sin el x1,25 (antes iban siempre hacia delante). El
+  penalti, hasta que llegue el suyo, con Tirar y Vaselina y sin muro.
+- En el panel del tiro: "Balón alto: ..." al rematar un pase bombeado y, con un
+  defensa en la linea, si la vaselina le pasa por encima o "está pegado a ti:
+  también para la vaselina". El que defiende, que no sabe lo que le van a tirar:
+  "¿bloquea? (si es vaselina, pasa por encima)" o "(está pegado: para también la
+  vaselina)". "Vaselina" es tambien una supertecnica de VR (rhs10010; la lleva
+  Briar Bloomhurst): sale como "Vaselina (técnica)". La ayuda "Como se juega"
+  explica el critico, los cuatro tiros y las dos paradas.
+- La maquina, si no usa supertecnica: con un defensa en la linea que no esta
+  pegado, vaselina el 60 % de las veces; con el balon alto, volea el 40 %; de
+  portero, despeja si el poder de base del tiro pasa del 90 % de su Parar.
+- Online: lo nuevo va dentro de lo que ya viajaba (en el duelo `alto` y
+  `muroPegado`; en el resultado `critico` y `antes`, y en sus pasos `contra`,
+  `resta`, `critico`, `antes` y `encima`; `criticos` en las estadisticas). La
+  eleccion del tiro y de la parada se comprueba contra las opciones del duelo:
+  una Volea sin balon alto o un Despejar en un foco valen como lo seguro.
+  `REGLAS.VERSION` 3: **Aaron y su amigo tienen que tener los dos este
+  Pizarra**.
+- Equilibrio (scratchpad prueba/medir-vr.js, maquina contra maquina, 2 x 15). Con
+  las reglas de antes salian 5,5 tiros a puerta y 1,67 goles por partido (O-308);
+  con el 90-10 y la maquina y el portero de antes, 6,8 tiros y 1,0 goles (solo
+  el 14 % de los tiros pasaba de la parada). Se cambio primero la maquina, que
+  chuta mas (`IA_TIRO`: a menos de 22 m, el 30 % cerca, el 12 % con la linea
+  libre y el 2 % tapado; antes 18 m, 15 %, 5 % y 0), y luego el portero
+  (`KP_ESCALA` 0,30; antes 0,42). Medido con 32 partidos: 9,8 tiros a puerta y
+  3,5 goles por partido, el 35 % de los tiros por encima de la parada; de los
+  focos y disputas parejos (hasta x1,5) el 10,2 % se gana por critico (2,5
+  criticos por partido). Goles por tramos de AT/parada: menos de 0,5, el 3 %;
+  0,5-0,75, el 4 %; 0,75-1, el 7 %; 1-1,33, el 92 %; mas de 1,33, el 91 %. El
+  muro: 1,1 tiros con muro y 0,25 bloqueos por partido (la critica del diseno
+  calculaba ~0,1 con la regla de antes y ~0,3 con esta: casi no cambia); 0,3
+  vaselinas por encima. La maquina elige Despejar en 4 de cada 10 tiros (1,8
+  despejes que paran por partido). En 2 x 30: 18,7 tiros y 6,7 goles. medir3
+  (sin esperas): 9,9 tiros y 3,4 goles. Con el 90-10 el equipo mejor gana mas
+  (salio un 0-7): es lo que pide Aaron.
+- Pruebas: prueba3ds 175 OK (se cambiaron tres: las que comparan el numero del
+  panel con el del resultado miran el de verdad, `antes`, cuando hay critico, y
+  las estadisticas empiezan tambien con `criticos`); prueba-e1 98 OK (la version,
+  2 o mas); nueva prueba-e2.js (68 OK: probCritico, 20.000 decisiones al 90 %,
+  400 focos, los botones, la vaselina y el muro a 5 y a 2 m, 500 despejes con
+  corners, lo que resta el muro, 500 tiros parejos con ~10 % de criticos, la
+  maquina, el online y el rotulo); fotos del invitado iguales. medir3 y medir2
+  leen ahora los numeros de verdad del resultado (el texto ensena los del
+  critico) y medir-vr acepta `SEMILLAS=8`. Capturas en el navegador: el panel
+  del tiro, la vaselina por encima del muro, un foco, un tiro (pasa el muro y
+  gana al portero) y una parada con "¡Crítico!", Parar/Despejar con el muro y
+  las estadisticas.
+- A confirmar con Aaron: el critico que baja hasta nada al triple (¿o el 10 %
+  siempre?); la vaselina (x0,8, a mas de 2,5 m), el testarazo con el Fisico, la
+  volea como Romper, el despeje (x1,25 y 100 grados) y que el muro que pierde le
+  quite al tiro la mitad de su numero.
+
+### O-310 · El juego de partidos: la hiperbarra, los espiritus y las hipertecnicas (con la tension y el coste de VR)
+
+Tercer encargo del diseno de las reglas de Aaron (O-307 puntos 7 y 10;
+scratchpad juego/reglas-vr/DISENO.md, seccion 5; los numeros de VR, en
+reglas-vr/HIPERTENSION.md). En el codigo los cambios citan esta nota.
+- La hiperbarra (Aaron: los espiritus no gastan tension sino hipertension, como
+  en VR): una por equipo, de 0 a 200, empieza en 40. Se llena SOLO usando
+  supertecnicas, con lo que cuestan: x0,4 un tiro (tambien la cadena y el
+  contra-tiro), x0,6 un regate, x0,8 una defensa (y el bloqueo) y x1,0 una
+  parada. Las "habilidades reales" de VR (Vaselina, Tiro con efecto...: nombre
+  interno rh*) no llenan nada, y ganar o perder duelos tampoco (VR game_param).
+  En la ficha, bajo la tension: "Hiperbarra 140 / 200", con una barra morada
+  partida en dos mitades (cada mitad, una invocacion).
+- Invocar un espiritu (una hipertecnica) gasta 100 de hiperbarra y nada de
+  tension, cuando quieras y sin parar el juego (O-307 punto 10): con el balon en
+  juego, en la pausa y en la espera del saque. Sale el rotulo pequeno de su
+  familia ("¡Invocación!", "¡Miximax Trans!", "¡Armadura!", "¡Tótem!",
+  "¡Despertar!", "¡Cambio de modo!", "¡Vínculo!") y en "Lo que pasa" "¡X invoca a
+  Y! (hiperbarra 140 → 40)". Como mucho 2 del mismo equipo con la hiper puesta y
+  15 s entre una invocacion y otra del equipo (la comunidad de VR). Si no se
+  puede, el boton dice por que: "faltan 30 de hiperbarra", "ya hay 2 activos",
+  "espera 9 s (acaba de invocar un compañero)", "vuelve en 40 s", "activo 32 s".
+  En un duelo, desde su panel (abajo).
+- Cada familia, con los numeros de VR (REGLAS.HIPER_TIPOS; AURA_CMD_INFO_LIST y
+  AURA_CMD_EFFECT_LIST), en segundos de juego sin escalar: keshin, dura 45 s y
+  vuelve 60 s despues, AT y DF +50 %; armadura 45 + 60, +30 % y el poder de sus
+  supertecnicas +50 %; miximax 45 + 60, +50 % y poder +20 %; totem 60 + 60, +35 %
+  y +20 % mas por cada foco que gana con el puesto (35, 55 y 75 %; lo ganado lo
+  guarda para la siguiente vez); vinculo 60 + 60, +10 % y poder +20 %; despertar
+  30 + 90, +30 % y poder +30 %; cambio de modo 75 + 90, +60 %. Con la hiper
+  puesta corre un 10 % mas (VR no da el numero), y un portero de keshin,
+  armadura, miximax o totem suma a su parada el 15 % de su KP maximo. Lo propio de
+  dos despertares: Determinacion de portero, parada +20 %; Guardian ferreo, DF
+  +20 % y muro +30 % (los otros tres ya lo llevan en su pasiva). Las mejoras van
+  fuera del tope de las pasivas. Antes eran 30 s y +25 % para todos. El vinculo no
+  se convierte en el companero ni el modo cambia de forma: solo sus %. El tipo de
+  cada espiritu lo pone partido.py (familia y modelo de espiritus.csv) junto con
+  su id. En el campo, el aura sale del color de su familia (keshin morado,
+  armadura gris azulado, miximax amarillo, totem verde, despertar naranja, modo
+  rojo, vinculo turquesa), con un borde para que se vea sobre el cesped.
+- La pasiva del espiritu (la de los keshin y de tres despertares) solo cuenta con
+  su hiper puesta, como en VR (antes contaba siempre): llega marcada desde
+  partido.py y en la ficha sale "(de su espíritu: con la hiper puesta)". Lo mismo
+  la de "cuando el equipo gana en foco o disputa, tension".
+- En un foco, si tu jugador tiene espiritu y no lo tiene puesto, un boton morado
+  mas, el ultimo: "★ <espiritu> · gana el duelo · 100 de hiperbarra" (apagado y
+  con lo que falta si no se puede). Si lo eliges y el rival no saca otra, **ganas
+  siempre** (aunque el rival use una supertecnica, tambien la de un keshin ya
+  invocado, o Cargar), nunca es falta, tu hiper queda puesta y no cobras tension;
+  el rival se lleva +30 (y si eligio una supertecnica, la paga). En el resultado,
+  tu fila dice "¡Hipertécnica!" con una estrella en vez del numero, y en el campo
+  sale el rotulo "¡Hipertécnica!". Si los dos la sacan, duelo de poder: cada uno
+  con su foco sin tecnica como si ya tuviera la hiper puesta (el numero del boton,
+  "contra hiper X"); gana el mayor con el 90-10 y el que pierde no la paga. Si uno
+  ya la tenia puesta y el otro la saca, foco normal (el de la ya puesta juega lo
+  que eligio; con Cargar, la disputa): si gana el que la saca, la paga. La ya
+  puesta contra nada no gana sola: solo suma sus %. Online, un "hiper" sin barra
+  al resolver vale como Regatear o Tapar.
+- En el tiro no hay victoria automatica (en VR es solo de los focos): el que chuta
+  y el portero ven arriba del panel "Invocar <espiritu>" (100 de hiperbarra). Al
+  pulsarlo se invoca en el acto y el panel se rehace con los numeros nuevos y, si
+  la tiene, la supertecnica de su espiritu (✦). Al otro, si estaba eligiendo, se
+  le rehace el panel con "El rival ha invocado: los números han cambiado." y
+  vuelve a la primera lista.
+- La tension como en VR (antes empezaba en 120, subia 0,6 por segundo y 60 en el
+  descanso): empieza en 105, no sube sola ni en el descanso; ganar un foco o
+  disputa sin tecnica ni hiper, +60; perder un foco, +30 SIEMPRE (tambien con
+  tecnica o contra una hiper; antes nada si usaba tecnica); perder una disputa,
+  nada (antes +30); y +10 al equipo al que le pitan un fuera de juego a favor.
+- El coste de las supertecnicas es el de VR. La columna `tp` de tecnicas.csv no es
+  el coste sino el poder a nivel 1 (power_min); el coste es consumeTp (campo 17
+  de m_skillInfoList). herramientas/construir_tecnicas.py la escribe en una
+  columna nueva `coste` al final y tecnicas.csv se ha regenerado: solo cambia esa
+  columna (comprobado fila a fila contra el commit anterior). Solo la usa el
+  Partido (partido.py): un tiro keshin de 800 cuesta 100 (antes 140), uno de 540
+  cuesta 80 (antes 85), las habilidades reales 40 (antes 30). OJO, para otro dia:
+  el "TP" que ensena el editor (fichas, base de datos) sigue siendo el poder a
+  nivel 1, no lo que cuesta.
+- Las tacticas se lanzan tambien en la pausa y en la espera del saque (el
+  "Tactica" del Menu de 3DS), no en un duelo; su tiempo empieza a contar al
+  volver el juego. Las que quitan el balon o aturden, solo con el balon en juego
+  (en una espera se lo quitarian al que va a sacar): salen apagadas con "solo con
+  el balón en juego".
+- La maquina: en un foco que importa (defiende en su tercio o ataca a menos de 30
+  m de la porteria rival) saca la hiper si su mejor total no llega al poder de
+  base del rival x1,05, el 60 % de las veces (el 80 % con la barra llena). En un
+  tiro, su portero invoca si el tiro viene mas fuerte que su mejor parada, y el que
+  chuta si tiene el tiro de su espiritu y tension para el; elige en el siguiente
+  momento, con los numeros nuevos. Fuera de los duelos invoca al del balon cerca
+  del area o al que defiende cerca del balon si le llega la tension para su
+  tecnica ✦, y si no tiene ✦, solo con la barra llena. El ayudante de "focos
+  automaticos" nunca usa la hiperbarra: la gasta la persona.
+- En las estadisticas del descanso y del final, una fila "Hipertécnicas"
+  (invocaciones de cada equipo). La ayuda "Como se juega" explica la tension, la
+  hiperbarra, el boton ★ y las tacticas en las esperas.
+- Online: la foto lleva al final la hiperbarra (`hb`), hasta cuando no puede
+  invocar cada equipo (`hk`) y el totem de cada jugador (`j[k][10]`); el resultado
+  de un foco, `hiper` (el lado que gano con la estrella) y `hipers`; el duelo del
+  tiro, `v` y `vLado` con las opciones rehechas; las estadisticas, `hiper`. Las
+  pasivas viajan con su marca de espiritu y el espiritu con su `id` y su `tipo`.
+  `REGLAS.VERSION` 4: **Aaron y su amigo tienen que tener los dos este Pizarra**.
+- Medido (scratchpad prueba/medir-vr.js, ahora con los equipos _vr, que llevan el
+  coste de VR, el tipo de cada espiritu y la marca de sus pasivas; 32 partidos de
+  2 x 15, maquina contra maquina). Con el motor del O-309 y los _vr: 9,6 tiros a
+  puerta y 3,31 goles por partido. Con todo esto: 9,8 tiros y 3,53 goles, el 35 %
+  de los tiros por encima de la parada. Unas 6 invocaciones por partido entre los
+  dos: 1,7 en focos ganados con la estrella, 0,2 duelos de poder, 1 en tiros y el
+  resto con el balon en juego; ~20 supertecnicas pagadas y ~370 de hiperbarra
+  ganada por equipo; tension media con el balon en juego ~90 por equipo. medir3
+  (equipos de antes, sin esperas): 9,5 tiros y 3,9 goles; medir2, 3,9 goles. En 2 x
+  30: 19 tiros y 7,3 goles.
+- Pruebas: prueba3ds 175 OK (se cambiaron cuatro por las reglas nuevas: la de la
+  maquina que invoca, que ahora necesita 100 de hiperbarra y la tension justa para
+  su tecnica y no gasta tension; la del rotulo de invocar, que necesita hiperbarra;
+  las estadisticas, que empiezan tambien con `hiper`; y el "Romper de X a Y", con
+  +-1 de redondeo: la pasiva del keshin ya no cuenta sin la hiper, la base cambio y
+  caia justo en el medio); prueba-e1 98 OK; prueba-e2 68 OK (la version, 3 o mas);
+  nueva prueba-e3.js 88 OK (la barra y como se llena, invocar y sus limites, las
+  7 familias, la ★ en 200 focos, hiper contra hiper en 400, contra una ya puesta,
+  la pasiva del espiritu, el totem, invocar en el tiro, el portero +15 y +20 %, la
+  tension, tecnicas.csv contra el commit anterior, los equipos _vr, las tacticas
+  en las esperas, el online con un partido entero por la foto y la maquina);
+  fotos del invitado iguales. Los equipos nuevos son `*_vr.json`; los de siempre
+  se quedan como estaban (prueba3ds depende de ellos). Capturas en el navegador
+  (scratchpad juego/cdp, e3_*.png): la ficha con la hiperbarra en el saque, la
+  tactica lanzada en el saque, el foco con el boton ★ y su resultado
+  "¡Hipertécnica!", el tiro con Invocar arriba y tras invocar, el aviso de que el
+  rival ha invocado, las auras de cada familia y las estadisticas del descanso.
+- A confirmar con Aaron: la hiperbarra de 0 a 200, empezando en 40 y 100 por
+  hiper; los 2 activos y los 15 s; hiper contra hiper con el 90-10 (y que el que
+  pierde no paga); hiper contra una ya puesta como un foco normal; las duraciones
+  de VR sin escalar (un keshin de 45 s es mas de media parte de 15); que la pasiva
+  del keshin solo cuente con la hiper puesta; la tension exacta de VR; el coste de
+  VR; vinculo y modo solo con sus %; el +10 % de velocidad; que el que pierde
+  contra una hiper pague su supertecnica; y que en el tiro invocar no gane solo
+  (en VR la victoria automatica es solo de los focos).
+
+### O-311 · El juego de partidos: las tarjetas (amarilla, roja y el expulsado)
+
+Cuarto encargo del diseno de las reglas de Aaron (O-307 punto 12: "en VR hay
+tarjetas al hacer faltas, pero es raro: ponerlas con poca probabilidad"; scratchpad
+juego/reglas-vr/DISENO.md, seccion 6). En el codigo los cambios citan esta nota.
+- En cada falta, una tirada (`REGLAS.TARJETAS`): amarilla en el 20 % de las faltas
+  normales (VR: yellowCardRate 0,2) y en el 35 % de las fuertes (con Entrada o en el
+  area); roja directa en el 0,5 % y el 3 %. Dos amarillas son roja. No se expulsa a
+  nadie de un equipo que tiene menos de 8 en el campo (VR: enableRedCardMemberNum 8;
+  nunca baja de 7): se queda en amarilla y "Lo que pasa" lo dice. Las faltas no
+  cambian (22 % Entrada, 12 % Cargar) y no hay ley de la ventaja (la falta se pita
+  siempre, como ya era).
+- Lo que se ve: detras del rotulo de la falta, "¡Tarjeta amarilla!" o "¡Tarjeta
+  roja!" con el nombre (en la banda del color de su equipo); en "Lo que pasa", en
+  amarillo o en rojo ("¡Segunda amarilla para X: tarjeta roja! Expulsado: Marineros
+  juega con 10"); en el panel de la falta, con la tarjetita de su color, "Tarjeta
+  amarilla para X", "¡Roja! X expulsado" o "¡Segunda amarilla! X expulsado". En la
+  ficha, "Tarjeta amarilla: otra sería roja" o "Expulsado (roja): ya no juega y no se
+  le puede cambiar" (sin botones). En el campo, una tarjetita amarilla arriba a la
+  izquierda de la cara; en la 3D, junto a la cabeza. En el Menu, los expulsados al
+  final y apagados. En las estadisticas del descanso y del final, filas "Amarillas" y
+  "Rojas" si ha habido alguna (la segunda amarilla de un jugador cuenta tambien como
+  amarilla, como en el futbol). La ayuda "Como se juega" lo explica.
+- El expulsado sale del campo (fuera de su banda) pero sigue en `jugadores` con su id
+  (la foto, los cambios y las ordenes van por el). `enCampo()` y `equipo()` lo dejan
+  fuera: no cuenta para apoyos, companeros de una supertecnica, muro, cadena, pasivas
+  del equipo, la linea del fuera de juego (se calcula con 10) ni la maquina; no se
+  mueve ni empuja, no coge el balon, no tiene duelos, no vuelve en los saques, no se
+  le pinta ni en 2D ni en 3D y no se le puede elegir. No acepta ordenes ni pases, no
+  puede invocar, no se le puede cambiar y su cambio pendiente se quita. Si era el
+  portero, el de campo con mejor KP (empate: el de menor id) pasa a portero con el KP
+  lleno y va a su porteria ("X se pone de portero"). En el Partido el portero no hace
+  faltas nunca (no defiende focos): eso es por si acaso.
+- La maquina: un defensa suyo con amarilla entra fuerte (Entrada) la mitad de veces
+  (el 20 % en vez del 40 %).
+- Online: la foto lleva al final, por jugador, `j[k][11]` (0 nada, 1 amarilla, 2
+  expulsado); el invitado repite la roja con `_expulsar` sin apuntar nada y sin azar,
+  asi le sale el mismo portero nuevo. El resultado de la falta lleva `tarjeta` y las
+  estadisticas `amarillas` y `rojas`. `REGLAS.VERSION` 5: **Aaron y su amigo tienen
+  que tener los dos este Pizarra**.
+- Medido (scratchpad prueba/medir-vr.js, 32 partidos de 2 x 15, maquina contra
+  maquina): 0,56 faltas, 0,16 amarillas y 0 rojas por partido, o sea una amarilla
+  cada 6 partidos y una roja casi nunca (el diseno calculaba una cada 50-150
+  partidos); 3,59 goles y 9,9 tiros (antes 3,53 y 9,8: la tirada de cada falta cambia
+  un poco el azar de despues). En 2 x 30 (16 partidos): 2,2 faltas, 0,56 amarillas y
+  0,06 rojas; 7,1 goles. medir3, 3,75 goles; medir2, 3,8.
+- Pruebas: prueba3ds 175 OK (se cambiaron dos: las estadisticas empiezan tambien con
+  `amarillas` y `rojas`, y la del rotulo de la falta busca el suceso de la falta y no
+  el ultimo: detras puede ir el de la tarjeta, y con su semilla sale una amarilla);
+  prueba-e1 98 y prueba-e2 68 OK; prueba-e3 88 OK (se cambiaron dos: la version, 4 o
+  mas, y la foto de cada jugador, 11 datos o mas); nueva prueba-e4.js 65 OK (la
+  tirada en 20.000 faltas de cada clase, la segunda amarilla, el minimo de 7, el
+  expulsado, el portero expulsado y el invitado con el mismo portero, la linea del
+  fuera de juego, la falta con su tarjeta, la maquina, un partido entero online con
+  muchas tarjetas y la pantalla 2D); fotos del invitado iguales. Capturas en el
+  navegador (scratchpad juego/cdp, e4_*.png y e4_3d_*.png): la amarilla (panel,
+  rotulo, ficha y la tarjetita en el campo y en la 3D), la roja (panel, rotulo y el
+  rival con 10, tambien en la 3D), la segunda amarilla (ficha y Menu) y las
+  estadisticas del descanso.
+- A confirmar con Aaron: los numeros (amarilla 20 % y 35 %, roja directa 0,5 % y
+  3 %), que no se expulse con 7 y si las faltas siguen como ahora o como VR (15 % al
+  arriesgar). Con partes de 15 hay poco mas de media falta por partido, asi que sale
+  una amarilla cada 5 o 6 partidos y una roja casi nunca.
+
+### O-312 · El juego de partidos: el empate (prorroga y penaltis) y el equilibrio final
+
+Quinto y ultimo encargo del diseno de las reglas de Aaron (O-307 punto 8: "en empate:
+elegir penaltis, prorroga o nada"; scratchpad juego/reglas-vr/DISENO.md, seccion 7). En
+el codigo los cambios citan esta nota.
+- Al elegir equipos, "Si hay empate": Nada (por defecto), Prórroga, Penaltis o Prórroga
+  y penaltis (como las reglas A/B/C de GO Light). Se recuerda; online vale la del que
+  invita (va en el mensaje `equipos`). `REGLAS.EMPATE`.
+- La prorroga: si al acabar la 2.ª parte hay empate y se eligio, rotulo "Fin del tiempo
+  reglamentario" y un descanso como el de la media parte (estadisticas, Menu, y el boton
+  "Prórroga"; online, los dos). Dos partes de un tercio de las normales
+  (`PRORROGA_FRACCION`: 5:00 en partes de 15, 10:00 en las de 30; VR:
+  soccerExtraTimeDefault 30 de 90), con el rotulo "¡Prórroga!" y el reloj "1ª pr. 03:12"
+  / "2ª pr.", otro descanso entre ellas (boton "Seguir") y cambio de campo en cada parte.
+  Cada equipo tiene un cambio mas (`CAMBIOS_PRORROGA`; el Menu dice "te quedan 6 de 6").
+  Sin gol de oro. Como las partes normales, si a las 5:00 el balon esta en juego sigue
+  hasta que se pare (como mucho 2:00 de reloj mas). Las pasivas "en la segunda parte"
+  siguen valiendo en la prorroga. Todo sale de `_finDeParte()`, el unico sitio que decide
+  que viene tras una parte.
+- La tanda de penaltis (tras la 2.ª parte con "Penaltis", o tras la prorroga con
+  "Prórroga y penaltis"): rotulo "¡Penaltis!" y dos pitidos. El orden es automatico: los
+  de campo con mas tiro primero (su AT de tiro mas su mejor supertecnica de tiro) y el
+  portero el ultimo, sin expulsados y los mismos de cada equipo (si uno juega con 10, el
+  otro deja fuera a su peor tirador). Empieza el que sale en un sorteo y tiran por turnos:
+  5 cada uno, se acaba antes si uno ya no puede alcanzar al otro y, si siguen empatados,
+  muerte subita por parejas (vuelven a tirar los primeros). Los porteros empiezan con el KP
+  lleno y en la tanda no se cansan. El que tira va al punto, el portero a su linea y los
+  demas al centro, en dos filas.
+- Cada penalti (tambien el de una falta en el area, tras su espera de "Jugar"): el que
+  tira y el portero eligen a la vez una zona (izquierda, centro o derecha, como se ve en
+  SU pantalla) y, si quieren, una supertecnica (de tiro o de parada, o "Tirar"/"Parar").
+  Si el portero se tira a otra zona, gol; si acierta, gana el numero mayor con el 90-10
+  (el tiro desde 11 m con su elemento contra la parada, como el tiro normal). En el panel:
+  el tablero (en la tanda), las caras, el poder de base, las supertecnicas con su total
+  (se marca una) y los tres botones de zona. En el resultado, "X tira a la izquierda · Y
+  se tira al centro" y las dos filas con sus numeros si acerto la zona; en el campo, el
+  cono hacia la zona del tiro y, en la red, la zona a la que se tiro el portero (naranja).
+  Las zonas: la pantalla pinta x * sentido (tu ataque siempre hacia arriba), asi que en
+  las partes pares la izquierda de tu pantalla es la derecha del campo; la pagina lo
+  convierte (`zonaCampo`) y el cono sale hacia donde pulsaste.
+- En la tanda: los tiros no cuentan en "Tiros" ni sus goles en el marcador ni en los
+  goles (van en "Penaltis" de las estadisticas); la supertecnica si cuenta y llena la
+  hiperbarra. Rotulo pequeno "¡Gol!" o "¡Parada!" tras cada tiro y el tablero (● gol, ✕
+  fallo) en el panel y en el campo. El reloj esta parado en la tanda: cada penalti empieza
+  sin hipers puestas ni esperas de invocar, asi que una invocacion vale solo para ese
+  penalti (el boton dice "activo en este penalti") y la limita la hiperbarra. La tension
+  no sube en la tanda (no hay focos): se pagan pocas supertecnicas.
+- Quien gana: por goles y, con empate, el de la tanda (`ganador()`). El marcador dice
+  "1 - 1 (4-2 pen.)" (en el de arriba, "Penaltis" en vez del reloj), el final "¡Has ganado
+  en los penaltis!" / "Has perdido en los penaltis" con el tablero, y el rotulo del campo
+  "¡Victoria!" o "Derrota" por la tanda.
+- El penalti del partido es ahora un duelo "penalti" (antes un tiro desde 11 m con Tirar y
+  Vaselina): si es gol, el gol de siempre; si lo para, se la queda el portero (y se cansa,
+  como en el tiro). Cuenta como tiro.
+- La maquina: la zona al azar con los pesos de `IA_PENALTI` (tira 40/20/40 % y se tira
+  35/30/35 %) y la supertecnica como siempre; su portero invoca si el tiro viene mas
+  fuerte que su mejor parada, como en el tiro.
+- Online: la foto lleva al final la tanda (`pn`: orden, tiros, quien empieza y quien gana);
+  la eleccion del penalti es {zona, tecnica} y el anfitrion la comprueba (una zona de fuera
+  vale centro, una supertecnica que no es suya o no sirve, ninguna). El invitado se da el
+  cambio de mas de la prorroga al ver su descanso (no pasa por el). `REGLAS.VERSION` 6:
+  **Aaron y su amigo tienen que tener los dos este Pizarra**.
+- La ayuda "Como se juega" explica el empate, la prorroga, la tanda y las zonas. En la 3D
+  (partido-3d.js, dos lineas) el penalti tiene su patada y su cono, como el tiro.
+- Equilibrio final con todo puesto (scratchpad prueba/medir-vr.js, ahora con
+  `EMPATE=prorroga-penaltis`; 32 partidos de 2 x 15, maquina contra maquina): 3,63 goles
+  en el tiempo normal (4,0 con la prorroga) y 9,9 tiros a puerta (10,8 con la prorroga),
+  el 35 % por encima de la parada; no hizo falta tocar `IA_TIRO` ni `KP_ESCALA`. Acaban
+  en empate el 25 % (8 de 32), 6 se desempatan en la prorroga (92 s de juego de media) y 2
+  van a la tanda. 0,66 faltas, 0,19 amarillas, 0 rojas y 6,9 invocaciones por partido. En
+  2 x 30 (16 partidos): 7,2 goles, 20 tiros, 2,2 faltas, 0,56 amarillas y 0,06 rojas.
+  medir3 (equipos de antes, sin esperas): 9,3 tiros y 3,75 goles; medir2, 3,8. La tanda
+  (scratchpad prueba/medir-tanda.js): tras un partido entero (40 tandas), el 78 % de los
+  penaltis es gol (el diseno pedia 75-85 %; el portero acierta la zona el 35 % y entonces
+  es gol el 38 %), 11 tiros por tanda, 1 de cada 3 llega a la muerte subita, el 13 % de
+  los tiros con supertecnica y 1,3 invocaciones por tanda; empezada en frio (tension 105,
+  hiperbarra 40), el 74 %.
+- Pruebas: prueba3ds 175 OK; prueba-e1 98 OK (se cambio una: el penalti del partido es un
+  duelo "penalti", antes un tiro con `penalti: true`); prueba-e2 68 y prueba-e3 88 OK;
+  prueba-e4 65 OK (se cambio una: la version, 5 o mas); nueva prueba-e5.js 82 OK (lo que
+  se elige, la prorroga entera con la maquina, el tiempo que no baja, el orden, los
+  turnos, el corte anticipado y la muerte subita, 200 penaltis a otra zona todos gol, 400
+  con la misma ~90 %, las elecciones que llegan de cualquier sitio, la supertecnica en la
+  tanda, la maquina en 3.000 penaltis, el penalti del partido, invocar en el penalti, un
+  partido entero online con prorroga y tanda, los rotulos, el tablero, el cono y las zonas
+  en las partes pares desde los dos lados); fotos del invitado iguales. Capturas en el
+  navegador (scratchpad juego/cdp, e5_*.png y e5_3d_*.png): "Si hay empate", el panel y
+  el resultado del penalti del partido con su cono, el fin del tiempo reglamentario, la
+  prorroga, su descanso, el rotulo de la tanda, sus paneles (tiras y paras) con el tablero,
+  sus resultados y el final "1 - 1 (4-5 pen.)".
+- A confirmar con Aaron: la prorroga de 2 x 5 min (2 x 10 en partes de 30) con un cambio
+  mas; el orden automatico de la tanda (en GO Light se ordena a mano) y las tres zonas sin
+  el "Charge" de 3 usos; "Nada" por defecto; que las pasivas de la 2.ª parte sigan en la
+  prorroga; que en la tanda una invocacion valga para un solo penalti y el portero no se
+  canse; y los pesos de la maquina.
+
+### O-313 · El juego de partidos: colocar a los jugadores en los saques
+
+Sexto encargo de las reglas de Aaron (O-307 punto 14: "en los saques (fuera, falta,
+corner...) se puede colocar a los jugadores donde sea antes de dar a Jugar, menos
+demasiado cerca del balon"; scratchpad juego/reglas-vr/DISENO.md, seccion 7.7). En el
+codigo los cambios citan esta nota.
+- En la espera de cada saque (la de "Jugar" de O-308: banda, corner, puerta, falta,
+  centro y penalti) cada uno arrastra a los suyos donde quiera y se ponen ahi en el acto,
+  mirando al balon: no es una ruta. El aviso de arriba lo dice: "Córner para X. Coloca a
+  tus jugadores y pulsa Jugar (arrástralos, no muy cerca del balón)"; al que saca,
+  "(arrástralos; marca antes el pase)" ("el pase o el tiro" en la falta). La ficha del
+  jugador dice como se coloca (y, del que saca, por que no).
+- Lo que no se deja (`REGLAS.COLOCAR_LEJOS`, 9,15 m): a los rivales del que saca, a
+  menos de 9,15 m del balon; en el penalti, a nadie en el area ni en el semicirculo
+  (9,15 m del punto de penalti) salvo el que tira y el portero; en el saque de centro,
+  ademas, cada equipo en su campo. El que saca no se mueve (lleva el balon) y en el
+  penalti el portero tampoco (en su linea). Si lo intentas sale "Muy cerca del balón"
+  (o "En el saque de centro, cada equipo en su campo") y no se mueve. Mientras lo
+  arrastras, el jugador sale donde lo soltarias (en rojo con una X y el porque si ahi no
+  puede), y lo que no puedes pisar se pinta en rojo claro con el borde a rayas (el
+  circulo del balon; en el penalti, el area y el semicirculo) toda la espera, mas fuerte
+  al arrastrar.
+- Al empezar la espera, los que ya estan donde no se dejaria (un rival a 3 m del que
+  saca de banda, uno en el semicirculo del penalti) se apartan al sitio valido mas
+  cerca: si no, al otro no le dejaban poner al suyo donde ya habia uno. En el penalti el
+  que tira se pone detras del punto mirando a la porteria y el balon en el punto.
+- Al pulsar Jugar, los colocados se quedan en su sitio hasta que alguien coge el balon,
+  el que saca se va conduciendo o pasan 3 s (`REGLAS.COLOCADO_SEGUNDOS`): si no, se iban
+  corriendo a su zona en cuanto se sacaba y colocarlos no servia de nada (asi la marca
+  esta pegada al que recibe y hay duelo). El pase marcado a un colocado va a su sitio, al
+  pie (al hueco iba varios metros hacia donde mira). Mandarle presionar o dibujarle una
+  carrera le saca de su sitio.
+- Las rutas siguen en la espera: manteniendo pulsado un momento (450 ms) antes de
+  arrastrar se dibuja su carrera, como en la pausa. Al que saca, arrastrarle le dibuja la
+  carrera. Colocar a uno le quita la ruta que tuviera.
+- La maquina coloca a los suyos con sentido y sin azar (le sale lo mismo cada vez: lo
+  repite mientras dura la espera, sigue a los que mueves y no toca lo que ya esta en su
+  sitio). Defendiendo un tiro libre a menos de 32 m de su porteria, una barrera de 2 a 4
+  (segun la distancia) a 9,65 m del balon tapando el palo cercano: el muro del tiro sale
+  de ella. En faltas y corners marca (1,6 m por delante, hacia su porteria) a los que
+  esperan en su area o cerca; en la banda, a los que estan a menos de 22 m del balon; en
+  el corner pone uno al palo cercano. Atacando un corner mete 4 en el area (primer palo,
+  segundo palo, punto de penalti y frontal) y al sacar la bombea al mas libre (antes
+  salia conduciendo desde el banderin); atacando una falta cerca del area, 3 en la
+  frontal sin pasar del penultimo defensa (hay fuera de juego). Siempre deja a dos sin
+  tocar (arriba si defiende, atras si ataca).
+- Online: orden nueva `colocar` ({lado, jugador, x, y}); el anfitrion la aplica si el
+  jugador es del invitado y se ve en la foto (las posiciones ya viajaban: la foto no
+  cambia). El invitado sabe con su copia del partido donde puede colocar (avisa al
+  momento y pinta lo mismo) y, si el anfitrion no le deja, le llega el aviso solo a el.
+  `REGLAS.VERSION` 7: **Aaron y su amigo tienen que tener los dos este Pizarra**.
+- No va en el saque de centro de la segunda parte (ni de la prorroga): el descanso es su
+  espera y alli aun no estan colocados para la parte siguiente (se cambia de campo al
+  salir). La ayuda "Como se juega" lo explica.
+- Pruebas: prueba3ds 175 OK; prueba-e1 98, e2 68, e3 88 y e4 65 OK; e5 82 OK (se cambio
+  una: la version, 6 o mas); nueva prueba-e6.js 85 OK (lo que se deja y lo que no en cada
+  saque, apartar al empezar, quietos al sacar hasta que se coge el balon, se conduce o
+  pasan 3 s, el pase al pie, la barrera y las marcas de la maquina (que no mueve a nadie
+  si nada cambia y le sale lo mismo con otra semilla), su corner, la banda, el online,
+  la pantalla, el aviso y 8 partidos enteros sin nadie donde no debe); fotos del
+  invitado iguales; medir3 9,3 tiros y 3,75 goles y medir2 3,8 (sin esperas, como
+  antes). medir-vr (64 partidos de 2 x 15, maquina contra maquina): 3,8 goles y 9,8
+  tiros; con la maquina sin colocar y sin apartar, 3,55: es ruido de partidos que se
+  separan tras el primer saque (en los 12 s tras cada saque que no es de centro, 8 goles
+  del que saca con colocar y 10 sin, en 52 saques). Capturas en el navegador (scratchpad
+  juego/cdp, e6_*.png): los avisos, el circulo de la banda, arrastrar a 4 m (rojo con
+  "Muy cerca del balón") y a 13 m, la ficha, la barrera y las marcas de la maquina en un
+  tiro libre, su corner (4 al area y el centro bombeado) y el area y el semicirculo del
+  penalti.
+- A confirmar con Aaron: 9,15 m en todos los saques (en la vida real, en el de banda
+  bastan 2 m); que los colocados esperen al sacar (como mucho 3 s); mantener pulsado
+  para dibujar la carrera en la espera del saque.
+
+### O-314 · El juego de partidos: revision final de las reglas de Aaron (O-308 a O-313)
+
+Revision a fondo de los seis encargos de las reglas de Aaron (O-307; scratchpad
+juego/reglas-vr/DISENO.md) sobre el diff entero, contra O-307 y el diseno, buscando lo que
+falta y lo que se rompe: online (anfitrion e invitado), contra la maquina, pausa, saques,
+cambios, descanso, prorroga, penaltis, tarjetas e hipertecnicas en los duelos. E2, E3 y E4
+se cortaron una vez a medias y se retomaron: no queda nada a medias ni repetido (ni
+funciones ni claves de REGLAS dobles; una entrada de NOTAS y una seccion HECHO del diseno
+por encargo; tecnicas.csv solo gana la columna `coste`).
+- Lo que hay, en una linea cada encargo (los detalles, en su nota):
+  - O-308, el ritmo de 3DS: partes de 15 o 30 minutos de reloj; tras las 15:00 la parte
+    sigue hasta que se para el balon (tope 17:00); pausa y descanso sin limite; Jugar y
+    Menu antes de cada saque; 5 cambios, los de la pausa entran al pararse el balon.
+  - O-309, quien gana: el numero mayor salvo un critico (el 90-10); Tirar/Vaselina,
+    Testarazo/Volea y Parar/Despejar; el muro que pierde resta la mitad de su numero.
+  - O-310, la hiperbarra: espiritus e hipertecnicas sin tension (la ★ gana el foco,
+    Invocar en el tiro no gana solo); tension y coste de VR; tacticas en pausa y saque.
+  - O-311, las tarjetas y el expulsado. O-312, prorroga, tanda de penaltis y el penalti
+    del partido con zonas. O-313, colocar a los jugadores en los saques.
+- Arreglado en la revision: un pase marcado en un foco que acaba en falta con la parte ya
+  alargada (tras las 15:00) pasaba el descanso: se veia en el campo y podia salir en la
+  parte siguiente si el mismo jugador tenia el balon al acabar un duelo. `_descanso()` lo
+  borra (prueba en scratchpad prueba/probar-pase-descanso.js). Y en el resultado de un
+  duelo, las pasivas que restan (una tactica del rival) salian "pasivas +-30 %": ahora
+  "pasivas -30 %" (partido.js, filaDuelo; era de antes).
+- Los numeros con todo puesto (scratchpad prueba/medir-vr.js y medir-revision.js, 32
+  partidos de 2 x 15 maquina contra maquina con "Prorroga y penaltis"; 2 x 30, 16):
+  - Duracion: 75 s de juego corriendo por parte de 15 (150 en las de 30). Tras las 15:00
+    la parte sigue de media 81 s de reloj (unos 7 s de juego) y 33 de 80 partes llegan al
+    tope de las 17:00; 163 s de juego por partido de 2 x 15 (312 en 2 x 30). La prorroga,
+    2 x 5:00 (unos 90 s de juego).
+  - Goles: 3,84 por partido en el tiempo normal (4,06 con la prorroga), 10,8 tiros a
+    puerta, el 34 % por encima de la parada; 25 % de empates; en 2 x 30, 8,3 goles.
+    medir3 (sin esperas, equipos de antes): 9,3 tiros y 3,75 goles; medir2, 3,8.
+  - Critico: el 10 % con numeros parecidos (hasta x1,5), menos cuanto mas lejos y nada al
+    triple. Medido: el 10,8 % de los focos y disputas parejos, 2,5 a 2,8 por partido.
+  - Hiperbarra (la "hipertension"): de 0 a 200, empieza en 40, 100 por hiper; se llena con
+    lo que cuestan las supertecnicas (x0,4 tiro, x0,6 regate, x0,8 defensa, x1 parada);
+    como mucho 2 activos por equipo y 15 s entre invocaciones. Medido: ~384 ganada por
+    equipo y partido, 6 a 7 invocaciones por partido (2,3 de ellas ganando un foco con la
+    ★) y alguna hiper puesta en el 72 % del juego (83 % en 2 x 30). Tension media con el
+    balon en juego, ~87 de 300.
+  - Tarjetas: amarilla el 20 % de las faltas (35 % las fuertes), roja directa el 0,5 %
+    (3 % las fuertes). Medido: 0,53 faltas, 0,22 a 0,25 amarillas y 0 rojas por partido
+    de 2 x 15 (una amarilla cada 4 partidos); en 2 x 30, 0,3 amarillas.
+  - Tanda (scratchpad prueba/medir-tanda.js, 100 tandas tras un partido entero): el 75 %
+    de los penaltis es gol, 10,8 tiros por tanda y 3 de cada 10 llegan a muerte subita.
+- Pruebas: prueba3ds 175 OK, prueba-e1 98, e2 68, e3 88, e4 65, e5 82 y e6 85 OK; fotos
+  del invitado iguales; medir3 y medir2 como antes del arreglo. Un partido entero por la
+  pantalla contra la maquina (scratchpad juego/cdp/rev_partido_entero.mjs, Machangas
+  contra Footsies, 2 x 15 con "Prorroga y penaltis", los botones pulsados como Aaron; los
+  goles se igualaron a mano antes del final para ver la prorroga y la tanda): colocar
+  arrastrando con el raton (y el aviso "En el saque de centro, cada equipo en su campo"),
+  Jugar en cada saque, una pausa con un cambio desde el Menu que entro en la siguiente
+  falta, invocar desde la ficha, 74 clics en los paneles de duelos y penaltis, una
+  amarilla a cada equipo, la ★ ganando focos, "Fin del tiempo reglamentario", la prorroga
+  con su descanso y la tanda hasta "Has perdido en los penaltis" (0 - 0, 3-5 pen.); 6
+  minutos reales con los botones pulsados al momento. Como en ese partido no salio el
+  balon ni hubo penalti, otra pasada (rev_saques.mjs) los forzo: saque de banda del rival
+  (arrastrar a 4 m del balon, en rojo y "Muy cerca del balón"; a 13 m, colocado), un
+  corner propio y un penalti a favor (Jugar, zona, "acierta: a la izquierda", parada).
+  Sin errores en la consola. Capturas en scratchpad juego/cdp, rev_*.png.
+- Visto en la revision y sin tocar, para decidir con Aaron:
+  - El balon casi nunca sale del campo: 0,16 fueras por partido (en el partido por la
+    pantalla, ningun saque de banda, de corner ni de puerta). Las esperas de Jugar,
+    colocar y los cambios de la pausa casi solo llegan tras un gol, una falta o el
+    descanso, y por eso las partes se alargan tanto tras las 15:00. Es del motor de antes,
+    no de estas reglas: si Aaron quiere mas saques, hay que hacer que el balon salga.
+  - Con las duraciones de VR sin escalar hay alguna hiper puesta casi todo el partido (un
+    keshin dura 45 s de los 75 de una parte).
+  - La tension no sube sola (VR): quien usa muchas supertecnicas se queda sin ella (en el
+    partido por la pantalla, 5 de 300 al acabar la 2.a parte).
+  - En la tanda cada equipo tira a la porteria que atacaba (en la vida real, todos a la
+    misma).
+  - Con "Focos automaticos" tu ★ en los focos no sale nunca (el ayudante no gasta la
+    hiperbarra: solo se gasta invocando desde la ficha o en el tiro).
+  - El saque de centro de la 2.a parte y de la prorroga no tiene su espera ni se coloca
+    (el descanso es su espera).
+- A confirmar con Aaron (todo junto; el porque, en cada nota): 5 cambios (y 1 mas en la
+  prorroga) o 3; seguir tras las 15:00 hasta que se pare el balon (tope 17:00) o cortar
+  en seco; que la pausa la quiten los dos; descanso sin limite; "Dejar el partido" al
+  minuto sin noticias; el critico que baja a nada al triple (o el 10 % siempre); la
+  vaselina (x0,8, pasa si el defensa esta a mas de 2,5 m), el testarazo con el Fisico, la
+  volea como Romper, despejar (x1,25 y hasta 100 grados) y el muro que resta la mitad; la
+  hiperbarra (0-200, empieza en 40, 100 por hiper), los 2 activos y los 15 s, hiper contra
+  hiper con el 90-10, hiper contra una ya puesta como foco normal, las duraciones de VR
+  sin escalar, la pasiva del espiritu solo con la hiper puesta, la tension y el coste de
+  VR, vinculo y modo solo con sus %, el +10 % de velocidad y que en el tiro invocar no
+  gane solo; las tarjetas (20/35 % y 0,5/3 %), no expulsar con 7 y las faltas como ahora
+  o como VR; la prorroga de 2 x 5 (2 x 10) con un cambio mas, el orden automatico de la
+  tanda, las tres zonas sin "Charge", "Nada" por defecto, las pasivas de la 2.a parte en
+  la prorroga, una invocacion por penalti en la tanda y los pesos de la maquina; los
+  9,15 m en todos los saques (en la banda bastan 2 m), los colocados quietos hasta 3 s al
+  sacar y mantener pulsado para dibujar la carrera en la espera.
+- Online: `REGLAS.VERSION` 7. **Aaron y su amigo tienen que tener los dos este Pizarra**;
+  el que invita no debe minimizar Pizarra (con la pestana oculta el partido se para). El
+  online de verdad con dos PCs aun no se ha probado (si con las pruebas sin pantalla y la
+  foto).
+- Siguen fuera de estas reglas, para otro encargo: O-307 puntos 1 (zoom con las flechas),
+  13 (jugar en la pantalla 3D) y 15 (copiar Galaxy).
 
 ## SUPUESTO
 

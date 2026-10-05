@@ -20,7 +20,54 @@ const ROTULOS_CAMPO = {
   bloqueo:  { texto: "¡Bloqueo!", color: "#ff8cc6", dura: 1.4 },
   invoca:   { texto: "¡Invocación!", color: "#ffa6f7", dura: 1.3, chico: true },
   miximax:  { texto: "¡Miximax Trans!", color: "#ffe14d", dura: 1.3, chico: true },
+  // las demas familias de hipertecnica (sin parar el juego) y el foco que gana una
+  // hipertecnica (O-310)
+  armadura: { texto: "¡Armadura!", color: "#c9d6ea", dura: 1.3, chico: true },
+  totem:    { texto: "¡Tótem!", color: "#8ff0a4", dura: 1.3, chico: true },
+  despertar: { texto: "¡Despertar!", color: "#ffb35c", dura: 1.3, chico: true },
+  modo:     { texto: "¡Cambio de modo!", color: "#ff9a9a", dura: 1.3, chico: true },
+  vinculo:  { texto: "¡Vínculo!", color: "#9ff0e6", dura: 1.3, chico: true },
+  hiper:    { texto: "¡Hipertécnica!", color: "#d9b8ff", dura: 1.5 },
   tactica:  { texto: "¡Supertáctica!", color: "#ffd27a", dura: 1.3, chico: true },
+  // el cambio que entra al pararse el balon o en el saque (O-308)
+  cambio:   { texto: "Cambio", color: "#9ff0e6", dura: 1.4, chico: true },
+  // el duelo que gana el numero pequeno con un critico (el 90-10 de Aaron, O-309)
+  critico:  { texto: "¡Crítico!", color: "#ffe14d", dura: 1.3, chico: true },
+  // las tarjetas de una falta, detras de su rotulo (O-311)
+  amarilla: { texto: "¡Tarjeta amarilla!", color: "#ffe14d", dura: 1.6 },
+  roja:     { texto: "¡Tarjeta roja!", color: "#ff5c5c", dura: 1.8 },
+  // el empate (O-312): el fin del tiempo antes de la prorroga, su comienzo, la tanda
+  // de penaltis y cada tiro de la tanda (pequenos: "¡Gol!" o "¡Parada!")
+  reglamentario: { texto: "Fin del tiempo reglamentario", color: "#ffe14d", dura: 2.4 },
+  prorroga: { texto: "¡Prórroga!", color: "#ffe14d", dura: 1.8 },
+  penaltis: { texto: "¡Penaltis!", color: "#ffe14d", dura: 2.0 },
+  tandaGol: { texto: "¡Gol!", color: "#ffe14d", dura: 1.3, chico: true },
+  tandaParada: { texto: "¡Parada!", color: "#9ff0e6", dura: 1.3, chico: true },
+};
+// los tiempos del resultado de un duelo en el panel (partido.js, mostrarResultado),
+// en s: cada fila sale `paso` s despues de la anterior (en el tiro con muro, mas
+// despacio: el numero del tiro baja lo que le quita), el numero del que gana por
+// critico salta a los `critico` s y el rotulo final ("¡Bloqueado!", "Gana X"...)
+// sale a los `final`. Aqui, para que los rotulos del campo salgan a la vez y no lo
+// destripen (O-309)
+function tiemposResultado(r) {
+  const hay = c => c !== null && c !== undefined;
+  // el penalti (O-312): primero adonde tira cada uno, luego las dos filas y, si el
+  // portero acerto la zona y hubo critico, el salto del numero
+  if (r && r.tipo === "penalti") return { paso: 0.4, critico: 1.25, final: hay(r.critico) ? 1.55 : r.misma ? 1.2 : 0.95 };
+  if (!r || r.tipo !== "tiro" || !r.pasos || !r.pasos.length) return { paso: 0.35, critico: 1.0, final: r && hay(r.critico) ? 1.2 : 0.9 };
+  const n = r.pasos.length, paso = r.pasos.some(s => hay(s.contra)) ? 0.7 : 0.45;
+  return { paso, critico: (n - 1) * paso + 0.7, final: hay(r.pasos[n - 1].critico) ? (n - 1) * paso + 1.1 : n * paso + 0.2 };
+}
+// el aura de la hiper puesta, del color de su familia (O-310): keshin morado,
+// armadura gris azulado, miximax amarillo, totem verde, despertar naranja, modo
+// rojo y vinculo turquesa. Relleno y borde: el verde del totem, solo relleno, no se
+// veia sobre el cesped
+const AURA_HIPER = {
+  keshin:    ["rgba(160,90,255,.40)", "#c9a2ff"], armadura: ["rgba(150,175,215,.45)", "#dfe8f6"],
+  miximax:   ["rgba(255,215,60,.40)", "#ffe14d"], totem:    ["rgba(120,255,140,.35)", "#c8ffb0"],
+  despertar: ["rgba(255,150,40,.42)", "#ffb35c"], modo:     ["rgba(240,60,60,.40)", "#ff9a9a"],
+  vinculo:   ["rgba(80,220,230,.38)", "#9ff0e6"],
 };
 // la banda, del color del equipo al que le toca (el de sus aros y su dorsal);
 // la de nadie (descanso, final), azul oscuro
@@ -37,6 +84,7 @@ class Pantalla {
     this.p = partido; this.yo = yo;
     this.caras = {};
     this.trazo = null;          // la ruta que se esta dibujando con el raton
+    this.colocando = null;      // el que se arrastra en la espera de un saque: {id, x, y, vale, porque} (O-313)
     this.elegido = null;        // el jugador elegido
     this.colores = [{ aro: "#3fe0d0", fondo: "#1b4a8f", texto: "#fff" }, { aro: "#ff7a4d", fondo: "#a3241a", texto: "#fff" }];
     // los rotulos grandes (O-306): los sucesos ya mirados y los que esperan
@@ -86,9 +134,14 @@ class Pantalla {
     this._campo();
     const ahora = performance.now() / 1000;
     this._nombres = [];          // donde van los nombres: los bocadillos no los tapan (O-306)
+    // el expulsado no se pinta ni se le marca nada (O-311): solo los del campo
+    const js = p.enCampo ? p.enCampo() : p.jugadores;
+    // en la espera de un saque, donde no puedes colocar a los tuyos (muy cerca del
+    // balon, o el area en el penalti); mas fuerte mientras arrastras a uno (O-313)
+    if (p.fase === "saque" && p.zonaSaque) this._zonaSaque(p.zonaSaque(this.yo), !!this.colocando);
     // rutas de mi equipo: flechas azules gruesas con punta, como en CS y Galaxy;
     // la que se esta dibujando, en azul claro (O-306)
-    for (const j of p.jugadores) {
+    for (const j of js) {
       if (j.lado !== this.yo || !j.ruta.length) continue;
       this._flecha([{ x: j.x, y: j.y }, ...j.ruta], "#2f8fff");
     }
@@ -115,13 +168,14 @@ class Pantalla {
         }
       }
     }
-    // el tiro que se esta eligiendo, con el mismo cono; la X, solo en el tuyo
-    const du = p.fase === "duelo" && p.duelo, tir = du && du.tipo === "tiro" ? p.jugadores[du.tirador] : null;
+    // el tiro que se esta eligiendo, con el mismo cono; la X, solo en el tuyo. Tambien
+    // el penalti (O-312)
+    const du = p.fase === "duelo" && p.duelo, tir = du && (du.tipo === "tiro" || du.tipo === "penalti") ? p.jugadores[du.tirador] : null;
     if (tir) this._cono(tir, tir.lado === this.yo);
     // la linea roja de los que presionan (3DS) y, en el rival al que presionas, la
     // marca naranja con pinchos de CS (O-306)
     let presionado = false;
-    for (const j of p.jugadores) {
+    for (const j of js) {
       if (j.lado === this.yo && j.presiona !== null && j.presiona !== undefined && d0 && d0.id === j.presiona) {
         this._linea([{ x: j.x, y: j.y }, { x: d0.x, y: d0.y }], "rgba(255,80,60,.85)", [], 3);
         presionado = true;
@@ -149,10 +203,22 @@ class Pantalla {
     // el elegido y el tuyo con el balon: el aro azul en el suelo (antes, el aro
     // amarillo); el rombo va encima, despues de los jugadores (O-306)
     const actual = this._actual();
-    for (const j of p.jugadores) if (j.id === actual || (j.conBalon && j.lado === this.yo)) this._aroAzul(j, ahora);
+    for (const j of js) if (j.id === actual || (j.conBalon && j.lado === this.yo)) this._aroAzul(j, ahora);
     // los jugadores: primero los de abajo
-    const orden = [...p.jugadores].sort((a, c) => this.aPantalla(a.x, a.y).py - this.aPantalla(c.x, c.y).py);
+    const orden = [...js].sort((a, c) => this.aPantalla(a.x, a.y).py - this.aPantalla(c.x, c.y).py);
     for (const j of orden) this._jugador(j);
+    // el que estas colocando, donde lo soltarias (O-313)
+    if (this.colocando && p.fase === "saque") this._fantasma(this.colocando);
+    // el penalti que se acaba de tirar: el cono hacia la zona del tiro y, en la
+    // porteria, la zona a la que se tiro el portero. Encima de los jugadores: si no,
+    // el portero tapaba su zona (O-312)
+    // Solo el de ahora (con el que tiro aun en el punto de penalti): uno de antes (el
+    // penalti del partido) sigue en p.resultado al empezar la tanda
+    const rp = p.resultado, rt = rp && rp.tipo === "penalti" && rp.zonas && !!rp.tanda === !!p.tanda && (p.fase === "resultado" || p.fase === "gol") ? p.jugadores[rp.tirador] : null;
+    if (rt && Math.abs(Math.abs(p.porteriaRival(rt).y - rt.y) - 11.35) < 1.5 && Math.abs(rt.x) < 1.5) {
+      const po = p.jugadores[rp.portero];
+      this._conoZona(rt, rp.zonas[rt.lado], po ? rp.zonas[po.lado] : null, rp.final === "gol");
+    }
     for (const [de, a, k] of aire) this._arcoPase(de, a, k);
     this._balon();
     if (p.fase === "duelo" && p.duelo && p.duelo.tipo === "foco") {
@@ -164,10 +230,12 @@ class Pantalla {
     // los anillos rojos del duelo que acaba de saltar, el rombo del elegido, los
     // bocadillos de los tuyos y la onda donde pulsas (O-306)
     this._anillos(ahora);
-    if (actual !== null && p.jugadores[actual]) this._rombo(p.jugadores[actual], ahora);
+    if (actual !== null && p.jugadores[actual] && !p.jugadores[actual].expulsado) this._rombo(p.jugadores[actual], ahora);
     this._mirarBocadillos(ahora);
     this._bocadillos(ahora);
     this._ondas(ahora);
+    // en la tanda de penaltis, su tablero arriba (O-312)
+    if (p.tanda) this._tablero();
     // los demas rotulos, encima de todo; durante el del gol no se pintan (O-306)
     this._mirarRotulos();
     if (p.fase === "gol") this._rotuloGol();
@@ -218,22 +286,23 @@ class Pantalla {
     // muchos de golpe: solo los dos ultimos
     for (const ro of nuevos.slice(-2)) {
       const d = ROTULOS_CAMPO[ro.que];
-      // al acabar una parte, lo de la jugada que quedaba por ensenar sobra
-      if (ro.que === "descanso" || ro.que === "final") this.cola = [];
+      // al acabar una parte (o el tiempo, o al empezar la tanda, O-312), lo de la
+      // jugada que quedaba por ensenar sobra
+      if (ro.que === "descanso" || ro.que === "final" || ro.que === "reglamentario" || ro.que === "penaltis") this.cola = [];
       const fondo = BANDA_ROTULO[ro.lado === 0 || ro.lado === 1 ? ro.lado : 2];
       const r = { texto: d.texto, color: d.color, dura: d.dura, chico: !!d.chico, sub: ro.sub || "", fondo };
       // el bloqueo sale cuando el panel dice "¡Bloqueado!" (partido.js,
-      // mostrarResultado: 450 ms por paso y 200 mas): antes lo destripaba
-      if (ro.que === "bloqueo") {
-        const pasos = p.resultado && p.resultado.pasos;
-        r.retardo = pasos ? pasos.length * 0.45 + 0.2 : 1.1;
-      }
+      // mostrarResultado): antes lo destripaba. Y el critico, cuando su numero
+      // salta por encima del otro (O-309)
+      if (ro.que === "bloqueo") r.retardo = tiemposResultado(p.resultado).final;
+      if (ro.que === "critico") r.retardo = tiemposResultado(p.resultado).critico;
       this.cola.push(r);
-      // y luego, desde tu lado, el resultado, que se queda en el campo
+      // y luego, desde tu lado, el resultado, que se queda en el campo. Quien gana: por
+      // goles o en la tanda de penaltis (O-312)
       if (ro.que === "final") {
-        const mios = p.goles[this.yo], suyos = p.goles[1 - this.yo];
-        this.cola.push({ texto: mios > suyos ? "¡Victoria!" : mios === suyos ? "Empate" : "Derrota",
-          color: mios > suyos ? "#ffd23f" : mios === suyos ? "#3fe0d0" : "#b4c2ff", sub: ro.sub || "", fondo, fijo: true });
+        const g = p.ganador ? p.ganador() : p.goles[0] === p.goles[1] ? null : p.goles[0] > p.goles[1] ? 0 : 1;
+        this.cola.push({ texto: g === this.yo ? "¡Victoria!" : g === null ? "Empate" : "Derrota",
+          color: g === this.yo ? "#ffd23f" : g === null ? "#3fe0d0" : "#b4c2ff", sub: ro.sub || "", fondo, fijo: true });
       }
     }
     // que no se acumulen: el que se ve y los dos ultimos
@@ -406,6 +475,58 @@ class Pantalla {
     const t = this.puntoTiro, vale = t && Math.abs(t.y - g.y) < 0.5 && performance.now() / 1000 - t.t < 30;
     this._equis(vale ? t.x : 0, g.y);
   }
+  // el penalti tirado (O-312): en la porteria (dentro de la red, que el portero no lo
+  // tape) la zona a la que se tiro el portero, en naranja, y el cono del tiro hacia la
+  // suya con la X; amarillo si fue gol
+  _conoZona(j, zt, zp, gol) {
+    const ctx = this.ctx, g = this.p.porteriaRival(j), Z = REGLAS.PENALTI_ZONA_X, a = REGLAS.PORTERIA / 6, fondo = Math.sign(g.y) || 1;
+    if (zp === 0 || zp === 1 || zp === 2) {
+      const x = (zp - 1) * Z, P = this.aPantalla(x - a, g.y), Q = this.aPantalla(x + a, g.y + fondo * 2.2);
+      ctx.save();
+      ctx.fillStyle = "rgba(255,122,77,.55)"; ctx.strokeStyle = "#ff7a4d"; ctx.lineWidth = 2 * this.ppp;
+      const x0 = Math.min(P.px, Q.px), y0 = Math.min(P.py, Q.py), w = Math.abs(Q.px - P.px), h = Math.abs(Q.py - P.py);
+      ctx.fillRect(x0, y0, w, h); ctx.strokeRect(x0, y0, w, h);
+      ctx.restore();
+    }
+    const x = (zt - 1) * Z, y = g.y + fondo * 1.1, A = this.aPantalla(j.x, j.y), B = this.aPantalla(x - 0.8, y), C = this.aPantalla(x + 0.8, y);
+    ctx.save();
+    ctx.beginPath(); ctx.moveTo(A.px, A.py); ctx.lineTo(B.px, B.py); ctx.lineTo(C.px, C.py); ctx.closePath();
+    ctx.fillStyle = gol ? "rgba(255,225,77,.30)" : "rgba(95,243,255,.22)"; ctx.fill();
+    ctx.strokeStyle = gol ? "#ffe14d" : "rgba(95,243,255,.85)"; ctx.lineWidth = 2 * this.ppp; ctx.lineJoin = "round"; ctx.stroke();
+    ctx.restore();
+    this._equis(x, y);
+  }
+  // el tablero de la tanda en el campo (O-312): por equipo, sus tiros (● gol, ✕
+  // fallo, ○ los que faltan de los 5), en el color de su equipo; el tuyo, a la
+  // izquierda (el total va en el marcador). Entre el area de arriba y el circulo
+  // central, que en la tanda esta vacio: arriba del todo tapaba la porteria
+  _tablero() {
+    const t = this.p.tanda;
+    if (!t || !t.tiros) return;
+    const ctx = this.ctx, W = this.c.width, ppp = this.ppp, n = Math.max(REGLAS.PENALTIS_TANDA, t.tiros[0].length, t.tiros[1].length);
+    // los dos caben a lo ancho tambien en la muerte subita (mas casillas, mas pequenas)
+    const r = Math.max(3 * ppp, Math.min(9 * ppp, (W * 0.96 - 8 * ppp) / (2 * (2.6 * n + 3)))), paso = r * 2.6, alto = r * 3.2;
+    const ancho = n * paso + r * 3, y = this.cy - REGLAS.LARGO / 4 * this.s, lados = [this.yo, 1 - this.yo];
+    ctx.save();
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    lados.forEach((l, i) => {
+      const x0 = i === 0 ? W / 2 - ancho - 4 * ppp : W / 2 + 4 * ppp;
+      ctx.fillStyle = BANDA_ROTULO[l]; ctx.fillRect(x0, y - alto / 2, ancho, alto);
+      ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.lineWidth = 1.5 * ppp; ctx.strokeRect(x0, y - alto / 2, ancho, alto);
+      for (let k = 0; k < n; k++) {
+        const cx = x0 + r * 1.5 + k * paso, v = t.tiros[l][k];
+        ctx.beginPath(); ctx.arc(cx, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = v === 1 ? "#ffe14d" : v === 0 ? "#0d1a33" : "rgba(255,255,255,.18)"; ctx.fill();
+        ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.2 * ppp; ctx.stroke();
+        if (v === 0) {
+          ctx.strokeStyle = "#ff7a5c"; ctx.lineWidth = 2 * ppp; ctx.beginPath();
+          ctx.moveTo(cx - r * 0.55, y - r * 0.55); ctx.lineTo(cx + r * 0.55, y + r * 0.55);
+          ctx.moveTo(cx + r * 0.55, y - r * 0.55); ctx.lineTo(cx - r * 0.55, y + r * 0.55); ctx.stroke();
+        }
+      }
+    });
+    ctx.restore();
+  }
 
   // el aro azul del elegido y del tuyo con balon, a trozos que giran, como el de CS
   _aroAzul(j, ahora) {
@@ -496,8 +617,9 @@ class Pantalla {
   // de los sucesos, asi que el invitado los ve igual
   // los tuyos a los que se puede pasar ahora, el mas adelantado primero
   _libres(d) {
-    const p = this.p, rivales = p.jugadores.filter(r => r.lado !== d.lado), out = [];
-    for (const j of p.jugadores) {
+    // sin los expulsados: le salia un "¡Aquí!" al de fuera de la banda (O-311)
+    const p = this.p, js = p.enCampo ? p.enCampo() : p.jugadores, rivales = js.filter(r => r.lado !== d.lado), out = [];
+    for (const j of js) {
       if (j.lado !== d.lado || j === d || j.esPortero || j.aturdido > 0) continue;
       const dx = j.x - d.x, dy = j.y - d.y, dist = Math.hypot(dx, dy), avanza = dy * d.dir;
       if (dist < AQUI.cerca || dist > AQUI.lejos || avanza < -AQUI.atras) continue;
@@ -515,8 +637,9 @@ class Pantalla {
 
   _mirarBocadillos(ahora) {
     const p = this.p, d = p.dueno(), bo = this.bocadillos;
-    // con el balon en juego, en la pausa y en tu foco (ahi se marca el pase)
-    const juega = !!d && d.lado === this.yo && (p.fase === "juego" || p.fase === "pausa"
+    // con el balon en juego, en la pausa, en la espera de tu saque (O-308) y en tu
+    // foco (ahi se marca el pase)
+    const juega = !!d && d.lado === this.yo && (p.fase === "juego" || p.fase === "pausa" || p.fase === "saque"
       || (p.fase === "duelo" && !!p.duelo && p.duelo.tipo === "foco"));
     for (const id in bo) {
       const b = bo[id], t = ahora - b.t0;
@@ -556,7 +679,7 @@ class Pantalla {
     ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.lineJoin = "round";
     for (const id in this.bocadillos) {
       const b = this.bocadillos[id], t = ahora - b.t0, j = p.jugadores[id];
-      if (!j || t < 0 || t > b.dura) continue;
+      if (!j || j.expulsado || t < 0 || t > b.dura) continue;     // O-311
       const P = this.aPantalla(j.x, j.y), techo = this._techo[id] !== undefined ? this._techo[id] : P.py - this._radio();
       const ancho = ctx.measureText(b.texto).width + 12 * ppp;
       // encima de la cabeza (y del nombre o del rombo), sin salirse del campo
@@ -615,6 +738,71 @@ class Pantalla {
     ctx.restore();
   }
 
+  // --- colocar en los saques (O-313) ---------------------------------------------------
+  // lo que no pueden pisar los tuyos (del motor, zonaSaque): rojo claro con el borde
+  // a rayas. El circulo alrededor del balon; en el penalti, el area y el semicirculo
+  // (el trozo del circulo que queda dentro del area no se raya). fuerte: arrastrando
+  _zonaSaque(z, fuerte) {
+    if (!z || (!z.circulo && !z.penalti)) return;
+    const ctx = this.ctx, s = this.s, ppp = this.ppp, R = REGLAS.COLOCAR_LEJOS;
+    const circulo = (c, r) => { const C = this.aPantalla(c.x, c.y); ctx.moveTo(C.px + r * s, C.py); ctx.arc(C.px, C.py, r * s, 0, Math.PI * 2); };
+    let area = null;
+    if (z.penalti) {
+      const pe = z.penalti, A = this.aPantalla(-REGLAS.AREA_X, pe.y), B = this.aPantalla(REGLAS.AREA_X, pe.y + pe.s * REGLAS.AREA_Y);
+      area = [Math.min(A.px, B.px), Math.min(A.py, B.py), Math.abs(B.px - A.px), Math.abs(B.py - A.py)];
+    }
+    ctx.save();
+    // relleno: todo junto (el area y el circulo se suman, no se ve doble)
+    ctx.beginPath();
+    if (z.circulo) circulo(z.circulo, z.circulo.r);
+    if (area) { ctx.rect(...area); circulo(z.penalti.punto, R); }
+    ctx.fillStyle = fuerte ? "rgba(255,50,40,.36)" : "rgba(255,50,40,.22)"; ctx.fill("nonzero");
+    ctx.setLineDash([8 * ppp, 6 * ppp]); ctx.lineWidth = 2 * ppp; ctx.strokeStyle = fuerte ? "rgba(255,225,220,.95)" : "rgba(255,225,220,.7)";
+    if (z.circulo) { ctx.beginPath(); circulo(z.circulo, z.circulo.r); ctx.stroke(); }
+    if (area) {
+      ctx.beginPath(); ctx.rect(...area); ctx.stroke();
+      // el semicirculo, solo lo que queda fuera del area
+      ctx.beginPath(); ctx.rect(0, 0, this.c.width, this.c.height); ctx.rect(...area); ctx.clip("evenodd");
+      ctx.beginPath(); circulo(z.penalti.punto, R); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  // el que arrastras, donde lo soltarias: su cara medio transparente y una linea a
+  // rayas desde donde esta; si ahi no puede, en rojo con una X y el porque encima
+  _fantasma(c) {
+    const j = this.p.jugadores[c.id];
+    if (!j) return;
+    const ctx = this.ctx, ppp = this.ppp, A = this.aPantalla(j.x, j.y), B = this.aPantalla(c.x, c.y), r = this._radio();
+    const color = c.vale ? this.colores[j.lado].aro : "#ff4d4d";
+    ctx.save();
+    ctx.setLineDash([6 * ppp, 5 * ppp]); ctx.lineWidth = 2 * ppp; ctx.strokeStyle = c.vale ? "rgba(255,255,255,.85)" : "rgba(255,90,80,.95)";
+    ctx.beginPath(); ctx.moveTo(A.px, A.py); ctx.lineTo(B.px, B.py); ctx.stroke(); ctx.setLineDash([]);
+    ctx.globalAlpha = 0.6;
+    ctx.save();
+    ctx.beginPath(); ctx.arc(B.px, B.py, r, 0, Math.PI * 2); ctx.closePath();
+    ctx.fillStyle = "#fff"; ctx.fill();
+    const im = this.caras[j.cara];
+    if (im && im.complete && im.naturalWidth) { ctx.clip(); ctx.drawImage(im, B.px - r, B.py - r, r * 2, r * 2); }
+    ctx.restore();
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = 3 * ppp; ctx.strokeStyle = color;
+    ctx.beginPath(); ctx.arc(B.px, B.py, r, 0, Math.PI * 2); ctx.stroke();
+    if (!c.vale) {
+      const t = r * 0.55;
+      ctx.lineWidth = 4 * ppp; ctx.lineCap = "round";
+      ctx.beginPath(); ctx.moveTo(B.px - t, B.py - t); ctx.lineTo(B.px + t, B.py + t); ctx.moveTo(B.px + t, B.py - t); ctx.lineTo(B.px - t, B.py + t); ctx.stroke();
+      if (c.porque) {
+        ctx.font = `800 ${Math.round(12 * ppp)}px system-ui, sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        // encima del jugador, sin salirse del campo por los lados
+        const tw = ctx.measureText(c.porque).width + 12 * ppp, h = 18 * ppp, y = Math.max(h, B.py - r - 14 * ppp);
+        const x = Math.max(tw / 2 + 2 * ppp, Math.min(this.c.width - tw / 2 - 2 * ppp, B.px));
+        ctx.fillStyle = "rgba(122,20,14,.92)"; ctx.fillRect(x - tw / 2, y - h / 2, tw, h);
+        ctx.fillStyle = "#fff"; ctx.fillText(c.porque, x, y + 0.5 * ppp);
+      }
+    }
+    ctx.restore();
+  }
+
   _campo() {
     // todo se pinta en metros del campo y pasa por aPantalla: vale en vertical
     const ctx = this.ctx, s = this.s, L = REGLAS.LARGO, A = REGLAS.ANCHO;
@@ -666,11 +854,13 @@ class Pantalla {
     const ctx = this.ctx, P = this.aPantalla(j.x, j.y);
     const r = this._radio();
     const col = this.colores[j.lado];
-    // el aura de un espiritu invocado (O-295)
+    // el aura de un espiritu invocado (O-295), del color de su familia (O-310)
     if (this.p.conAura && this.p.conAura(j)) {
       const t = performance.now() / 300;
-      ctx.fillStyle = "rgba(160,90,255,.35)";
+      const au = AURA_HIPER[j.hiperTipo] || AURA_HIPER.keshin;
+      ctx.fillStyle = au[0];
       ctx.beginPath(); ctx.arc(P.px, P.py, r * (1.55 + 0.12 * Math.sin(t)), 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = au[1]; ctx.lineWidth = 2 * this.ppp; ctx.stroke();
     }
     // sombra
     ctx.fillStyle = "rgba(0,0,0,.25)"; ctx.beginPath(); ctx.ellipse(P.px + r * 0.15, P.py + r * 0.85, r * 0.9, r * 0.35, 0, 0, Math.PI * 2); ctx.fill();
@@ -686,6 +876,15 @@ class Pantalla {
     ctx.strokeStyle = col.aro;
     ctx.beginPath(); ctx.arc(P.px, P.py, r, 0, Math.PI * 2); ctx.stroke();
     if (j.aturdido > 0) { ctx.fillStyle = "rgba(20,30,60,.45)"; ctx.beginPath(); ctx.arc(P.px, P.py, r, 0, Math.PI * 2); ctx.fill(); }
+    // con amarilla, una tarjetita amarilla arriba a la izquierda de la cara (O-311)
+    if (j.amarillas) {
+      const w = r * 0.5, h = r * 0.7;
+      ctx.save();
+      ctx.translate(P.px - r * 0.78, P.py - r * 0.62); ctx.rotate(-0.22);
+      ctx.fillStyle = "#ffe14d"; ctx.fillRect(-w / 2, -h / 2, w, h);
+      ctx.strokeStyle = "#0d1a33"; ctx.lineWidth = 1.5 * this.ppp; ctx.strokeRect(-w / 2, -h / 2, w, h);
+      ctx.restore();
+    }
     // dorsal
     const dr = r * 0.48;
     ctx.fillStyle = col.fondo; ctx.beginPath(); ctx.arc(P.px + r * 0.72, P.py + r * 0.72, dr, 0, Math.PI * 2); ctx.fill();
@@ -735,7 +934,7 @@ class Pantalla {
   jugadorEn(px, py, lado) {
     const q = this.aCampo(px, py);
     let mejor = null, md = Math.max(2.2, 18 / this.s * this.ppp);
-    for (const j of this.p.jugadores) {
+    for (const j of this.p.enCampo ? this.p.enCampo() : this.p.jugadores) {     // al expulsado no se le elige (O-311)
       if (lado !== undefined && j.lado !== lado) continue;
       const d = Math.hypot(j.x - q.x, j.y - q.y);
       if (d < md) { md = d; mejor = j; }

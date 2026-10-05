@@ -11,6 +11,9 @@ class Maquina {
     this.cada = opciones.cada || 0.45;        // segundos entre decisiones
     this.siguiente = 0;
     this.gana = opciones.dificultad || 0.75;  // lo que usa sus tecnicas (0..1)
+    // el AYUDANTE de "focos automaticos" elige por la persona: la hiperbarra la
+    // gasta ella, el no invoca ni saca hipers (O-310)
+    this.sinHiper = !!opciones.sinHiper;
   }
 
   // la llama el bucle en cada paso
@@ -24,11 +27,15 @@ class Maquina {
       p.ordenar({ tipo: "seguir", lado: this.lado });
       return;
     }
+    // la espera de un saque: coloca a los suyos (O-313)
+    if (p.fase === "saque") return this._colocar();
     if (p.fase !== "juego") return;
     this.siguiente -= REGLAS.PASO;
     if (this.siguiente > 0) return;
     this.siguiente = this.cada;
     const d = p.dueno();
+    // el corner que se coloco ya se ha sacado (o lo coge otro): se olvida
+    if (this._corner && (!d || d.id !== this._corner.id)) this._corner = null;
     this._tactica(d);
     this._invocar(d);
     if (d && d.lado === this.lado) this._conBalon(d);
@@ -54,6 +61,106 @@ class Maquina {
     if (mejor) p.ordenar({ tipo: "cambio", lado: this.lado, sale: mejor.sale, entra: mejor.k });
   }
 
+  // en la espera de un saque (O-313; Aaron, O-307 punto 14): coloca a los suyos con
+  // sentido, como una persona arrastrandolos. Defendiendo: barrera en las faltas
+  // cerca de su area y marcas a los que esperan en su area (faltas y corners) o cerca
+  // del balon (banda), y uno al palo en el corner. Atacando un corner o una falta
+  // cerca del area: a los suyos al area (en la falta, sin fuera de juego). Sin azar:
+  // sale lo mismo cada vez, asi que se repite mientras dure la espera (sigue a los que
+  // mueve el rival) y lo que ya esta en su sitio no se toca. Quien va a cada sitio se
+  // elige por donde estaba al empezar la espera, no por donde ya lo ha puesto
+  _colocar() {
+    const p = this.p, sq = p.esperaSaque;
+    if (!sq || !p.colocable) return;
+    if (!this._casa || this._casa.n !== p.nEspera) {
+      this._casa = { n: p.nEspera, sitio: {} };
+      for (const j of p.equipo(this.lado)) this._casa.sitio[j.id] = { x: j.x, y: j.y };
+    }
+    const sitios = sq.lado === this.lado ? this._sitiosAtaque(sq) : this._sitiosDefensa(sq);
+    for (const [id, s] of sitios) {
+      const j = p.jugadores[id];
+      if (!p.colocable(j)) continue;
+      const c = p.sitioValido(j, s.x, s.y);
+      if (!c || Math.hypot(c.x - j.x, c.y - j.y) < 0.5) continue;
+      p.ordenar({ tipo: "colocar", lado: this.lado, jugador: id, x: c.x, y: c.y });
+    }
+  }
+  // los de campo que se pueden colocar y una funcion que da, de los que quedan, el que
+  // estaba mas cerca de un punto al empezar la espera (y lo quita). Los `deja` mas
+  // adelantados (atacando, los mas atrasados) no se tocan: por si hay contraataque
+  _reparto(deja, atras) {
+    const p = this.p, casa = j => this._casa.sitio[j.id] || j;
+    const mios = p.equipo(this.lado).filter(j => !j.esPortero && p.colocable(j));
+    const dir = (p.equipo(this.lado)[0] || { dir: 1 }).dir;
+    const orden = [...mios].sort((a, b) => (casa(b).y - casa(a).y) * dir * (atras ? -1 : 1) || a.id - b.id);
+    const libres = new Set(orden.slice(Math.min(deja, orden.length)).map(j => j.id));
+    return (x, y) => {
+      let m = null, md = Infinity;
+      for (const j of mios) {
+        if (!libres.has(j.id)) continue;
+        const c = casa(j), d = Math.hypot(c.x - x, c.y - y);
+        if (d < md) { md = d; m = j; }
+      }
+      if (m) libres.delete(m.id);
+      return m;
+    };
+  }
+  _sitiosDefensa(sq) {
+    const p = this.p, R = REGLAS, b = p.balon, sitios = [];
+    const dir = (p.equipo(this.lado)[0] || { dir: 1 }).dir, g = { x: 0, y: -R.LARGO / 2 * dir };
+    const coge = this._reparto(2, false);
+    // la barrera: en una falta a menos de 32 m de su porteria, de 2 a 4 en linea a
+    // 9,15 m del balon (y un poco mas), tapando el palo cercano (el portero, el otro)
+    if (sq.tipo === "falta") {
+      const dg = Math.hypot(b.x - g.x, b.y - g.y), n = dg < 21 ? 4 : dg < 26 ? 3 : dg < 32 ? 2 : 0;
+      const ax = Math.abs(b.x) < 3 ? 0 : Math.sign(b.x) * R.PORTERIA / 4;
+      const ux = ax - b.x, uy = g.y - b.y, ul = Math.hypot(ux, uy) || 1, dx = ux / ul, dy = uy / ul, D = R.COLOCAR_LEJOS + 0.5;
+      for (let k = 0; k < n; k++) {
+        const o = (k - (n - 1) / 2) * 1.5, x = b.x + dx * D - dy * o, y = b.y + dy * D + dx * o, j = coge(x, y);
+        if (j) sitios.push([j.id, { x, y }]);
+      }
+    }
+    // las marcas: 1,6 m por delante de cada uno, hacia su porteria. En faltas y
+    // corners, a los que esperan en su area o cerca; en la banda, a los que estan
+    // cerca del balon. Primero los mas peligrosos (los mas cerca de su porteria)
+    const dentro = q => (q.y - g.y) * dir;
+    const rivales = p.equipo(1 - this.lado).filter(r => !r.esPortero && r.id !== b.dueno);
+    const peligro = sq.tipo === "corner" || sq.tipo === "falta" ? rivales.filter(r => dentro(r) < R.AREA_Y + 8 && Math.abs(r.x) < R.AREA_X + 6)
+      : sq.tipo === "banda" ? rivales.filter(r => Math.hypot(r.x - b.x, r.y - b.y) < 22) : [];
+    peligro.sort((r, s) => Math.hypot(r.x - g.x, r.y - g.y) - Math.hypot(s.x - g.x, s.y - g.y) || r.id - s.id);
+    for (const r of peligro.slice(0, 6)) {
+      const vx = g.x - r.x, vy = g.y - r.y, vl = Math.hypot(vx, vy) || 1;
+      const x = r.x + vx / vl * 1.6, y = r.y + vy / vl * 1.6, j = coge(x, y);
+      if (j) sitios.push([j.id, { x, y }]);
+    }
+    // en el corner, uno al palo cercano
+    if (sq.tipo === "corner") {
+      const x = Math.sign(b.x || 1) * (R.PORTERIA / 2 + 0.5), y = g.y + dir * 1.2, j = coge(x, y);
+      if (j) sitios.push([j.id, { x, y }]);
+    }
+    return sitios;
+  }
+  _sitiosAtaque(sq) {
+    const p = this.p, R = REGLAS, b = p.balon, d = p.dueno();
+    if (!d || d.lado !== this.lado) return [];
+    const g = p.porteriaRival(d), dir = d.dir, ns = Math.sign(b.x || 1);
+    // a `fondo` m de la linea de gol rival
+    const P = (x, fondo) => ({ x, y: g.y - dir * fondo });
+    let puntos = [];
+    if (sq.tipo === "corner") puntos = [P(ns * 3, 5.5), P(-ns * 4, 6.5), P(0, 10.5), P(-ns * 7, 16)];
+    else if (sq.tipo === "falta" && Math.hypot(b.x - g.x, b.y - g.y) < 32) {
+      // en la falta hay fuera de juego: no mas alla del penultimo defensa (con 0,8 m
+      // de margen), y nadie encima del que saca
+      const fondo = Math.max(11, R.LARGO / 2 - (p.lineaFueraDeJuego(this.lado) - 0.8));
+      puntos = [P(-8, fondo), P(0, fondo), P(8, fondo)].filter(q => Math.hypot(q.x - b.x, q.y - b.y) > 4);
+    }
+    const coge = this._reparto(2, true), sitios = [];
+    for (const q of puntos) { const j = coge(q.x, q.y); if (j) sitios.push([j.id, q]); }
+    // el corner lo saca hacia uno de estos (el mas libre al volver el juego)
+    if (sq.tipo === "corner") this._corner = { id: d.id, ids: sitios.map(s => s[0]) };
+    return sitios;
+  }
+
   _conBalon(d) {
     const p = this.p;
     // el portero no sale conduciendo: saca en cuanto puede, al companero mejor
@@ -65,6 +172,17 @@ class Maquina {
       else p.ordenar({ tipo: "pasePunto", de: d.id, x: d.x, y: d.y + d.dir * 35, alto: true });
       p.ordenar({ tipo: "ruta", jugador: d.id, puntos: [] });
       return;
+    }
+    // el corner: bombeado al que este mas libre de los que coloco en el area (si no,
+    // salia conduciendo desde el banderin) (O-313)
+    const cs = this._corner;
+    if (cs && cs.id === d.id) {
+      this._corner = null;
+      const rivales = p.equipo(1 - this.lado);
+      const libre = c => Math.min(...rivales.map(r => Math.hypot(r.x - c.x, r.y - c.y)));
+      const a = cs.ids.map(id => p.jugadores[id]).filter(c => c && !c.expulsado && c.lado === this.lado && c.id !== d.id)
+        .sort((x, y) => libre(y) - libre(x) || x.id - y.id)[0];
+      if (a) { p.ordenar({ tipo: "pase", de: d.id, a: a.id, alto: true }); return; }
     }
     const g = p.porteriaRival(d);
     const aPuerta = Math.hypot(g.x - d.x, g.y - d.y);
@@ -124,22 +242,23 @@ class Maquina {
     if (this.azar() < 0.35) p.ordenar({ tipo: "tactica", lado: this.lado, k: quiero });
   }
 
-  // invoca el espiritu del que lleva el balon cerca del area, o del que defiende
+  // invoca el espiritu del que lleva el balon cerca del area, o del que defiende.
+  // Con la hiperbarra (O-310): solo quien puede ya (puedeHiper: barra, recarga, 2
+  // activos y los 15 s del equipo; uno bloqueado le quitaba la invocacion a un
+  // companero, O-305). Si tiene la supertecnica de su espiritu, cuando le llega la
+  // tension para usarla (si no, invocaba y casi nunca podia, O-305); si no la tiene,
+  // solo con la barra llena: si no, se quedaba sin hiper para los focos
   _invocar(d) {
     const p = this.p;
-    if (!d || this.azar() > 0.3) return;
+    if (this.sinHiper || !d || this.azar() > 0.3) return;
     const g = p.porteriaRival(d);
-    // solo quien puede invocar ya (sin aura ni recargando): uno bloqueado le
-    // quitaba la invocacion a un companero (O-305)
-    const puede = j => j.espiritu && !p.conAura(j) && p.segundosDeJuego() >= j.auraLista;
+    const puede = j => p.puedeHiper(j).si;
     let quien = null;
     if (d.lado === this.lado && puede(d) && Math.hypot(g.x - d.x, g.y - d.y) < 30) quien = d;
     if (d.lado !== this.lado) quien = p.equipo(this.lado).find(j => puede(j) && Math.hypot(j.x - d.x, j.y - d.y) < 8) || null;
     if (!quien) return;
-    // invoca si luego le queda tension para la supertecnica del espiritu: si
-    // no, invocaba y casi nunca podia usarla (O-305)
     const te = this._tecEspiritu(quien);
-    if (p.tension[this.lado] < REGLAS.INVOCAR_COSTE + (te ? te.tp : 40)) return;
+    if (te ? p.tension[this.lado] < te.tp : p.hiper[this.lado] < REGLAS.HIPER_MAX) return;
     p.ordenar({ tipo: "invocar", jugador: quien.id });
   }
 
@@ -207,7 +326,9 @@ class Maquina {
       if (tecs.length && this.azar() < this.gana) return tecs[0].clave;
       // en defensa, cargar si tiene mas fisico que tecnica
       if (ops.some(o => o.clave === "cargar") && j.stats[4] + j.stats[3] > j.stats[2] + j.stats[5]) return "cargar";
-      if (ops.some(o => o.clave === "potente") && this.azar() < 0.4) return "potente";
+      // el defensa con amarilla entra fuerte la mitad de veces: otra falta seria
+      // roja (O-311)
+      if (ops.some(o => o.clave === "potente") && this.azar() < (pend.rol === "defensa" && j.amarillas ? 0.2 : 0.4)) return "potente";
       return "normal";
     };
     // la segunda tecnica (cadena o muro) solo si la tension llega para las dos:
@@ -215,16 +336,64 @@ class Maquina {
     // para no tocar las opciones del duelo
     const gastoDe = (ops, c) => (ops.find(o => o.clave === c) || {}).tp || 0;
     const caben = (ops, gasto) => ops.map(o => Object.assign({}, o, { puede: o.puede && o.tp + gasto <= p.tension[this.lado] }));
+    const du = p.duelo;
+    // la hipertecnica (O-310). En un foco: si el duelo importa (defiende en su tercio
+    // o ataca a menos de 30 m de la porteria rival) y su mejor total no llega al poder
+    // de base del rival x1,05, el 60 % de las veces (el 80 % con la barra llena). En
+    // un tiro (no gana sola): el portero invoca si el poder de base del tiro pasa de
+    // su mejor parada; el que chuta, si tiene el tiro de su espiritu y tension para
+    // el. Invoca y elige en el siguiente pensar(), con los numeros nuevos. El
+    // AYUDANTE nunca: la hiperbarra la gasta la persona
+    if (!this.sinHiper) {
+      const rival = du.base ? du.base[1 - this.lado] : undefined;
+      const mejor = ops => Math.max(0, ...ops.filter(o => o.puede && o.clave !== "hiper" && o.clave !== "cargar" && typeof o.total === "number").map(o => o.total));
+      if (du.tipo === "foco") {
+        const oh = pend.opciones.find(o => o.clave === "hiper" && o.puede);
+        if (oh && rival !== undefined) {
+          const g = p.porteriaRival(j);
+          const importa = pend.rol === "ataque" ? Math.hypot(g.x - j.x, g.y - j.y) < 30 : Math.abs(j.y + g.y) < REGLAS.LARGO / 3;
+          if (importa && mejor(pend.opciones) < rival * 1.05 && this.azar() < (p.hiper[this.lado] >= REGLAS.HIPER_MAX ? 0.8 : 0.6)) return p.elegir(this.lado, "hiper");
+        }
+      } else if (p.puedeHiper(j).si) {
+        // (el portero de un penalti, igual que el de un tiro, O-312)
+        const quiere = pend.rol === "porteria" || pend.rol === "penalti_parada" ? rival !== undefined && rival > mejor(pend.opciones)
+          : j.tecnicas.some(t => t.espiritu && REGLAS.sirve(t, "tiro") && t.tp <= p.tension[this.lado]);
+        if (quiere && p.ordenar({ tipo: "invocar", jugador: j.id })) return;
+      }
+    }
+    // el penalti (O-312): la zona al azar con los pesos de IA_PENALTI (izquierda,
+    // centro, derecha) y la supertecnica como siempre (la mejor que pueda pagar, a
+    // veces ninguna)
+    if (pend.rol === "penalti_tiro" || pend.rol === "penalti_parada") {
+      const pesos = REGLAS.IA_PENALTI[pend.rol === "penalti_tiro" ? "tiro" : "parada"];
+      let x = this.azar(), zona = 0;
+      while (zona < 2 && x >= pesos[zona]) { x -= pesos[zona]; zona++; }
+      const c = escoge(pend.opciones);
+      return p.elegir(this.lado, { zona, tecnica: c[0] === "t" ? c : null });
+    }
     if (pend.rol === "tiro") {
       const e = { tiro: escoge(pend.opciones) };
-      if (pend.cadena) {
+      // sin supertecnica (O-309): con un defensa en la linea que no esta pegado, la
+      // vaselina le pasa por encima (a veces); con el balon alto, la volea a veces
+      if (e.tiro === "normal") {
+        if (du.muro !== null && du.muro !== undefined && !du.muroPegado && this.azar() < 0.6) e.tiro = "vaselina";
+        else if (du.alto && this.azar() < 0.4) e.tiro = "volea";
+      }
+      // tras una vaselina no se encadena
+      if (pend.cadena && e.tiro !== "vaselina") {
         const c = caben(pend.cadena.opciones, gastoDe(pend.opciones, e.tiro)).filter(o => o.clave !== "nada" && o.puede).sort((a, b) => b.poder - a.poder)[0];
         e.cadena = c && this.azar() < this.gana ? c.clave : "nada";
-      }
+      } else if (pend.cadena) e.cadena = "nada";
       return p.elegir(this.lado, e);
     }
     if (pend.rol === "porteria") {
       const e = { parada: escoge(pend.opciones) };
+      // sin supertecnica: si el tiro viene fuerte (su poder de base pasa del 90 % de
+      // su Parar), despeja (x1,25, pero no se la queda) (O-309)
+      if (e.parada === "normal") {
+        const parar = (pend.opciones.find(o => o.clave === "normal") || {}).total, tiro = du.base && du.base[1 - this.lado];
+        if (parar && tiro > parar * 0.9 && pend.opciones.some(o => o.clave === "despejar")) e.parada = "despejar";
+      }
       // primero la parada del portero, y el muro con lo que quede
       if (pend.muro) e.muro = escoge(caben(pend.muro.opciones.filter(o => o.clave !== "nada"), gastoDe(pend.opciones, e.parada)));
       return p.elegir(this.lado, e);
