@@ -7234,6 +7234,15 @@ entienda), y las reglas como en la vida real.
     animaciones que se ven en los videos (entrar en duelo, chutar, las
     supertecnicas...). Con dibujo y codigo propios: no hay ni se usan
     ficheros de Galaxy; los modelos 3D son los de VR de cada PC.
+16. Cambios: como en VR, y el que sale no vuelve a entrar. Lo que dice VR
+    (textos de ayuda del juego): se cambia desde la formacion solo con el
+    juego parado (balon parado o descanso); tras un cambio el que entra
+    tiene AT y DF +15 % durante 60 s y los de su misma posicion +5 %; cada
+    cambio suma 30 s de descuento (uAddAdditionalTimeOfPlayerChange); el
+    expulsado no se puede sustituir. No sale un maximo de cambios: con el
+    banquillo de 5 y sin volver a entrar, como mucho 5.
+17. Duracion de las hipertecnicas: igual que en VR (sin acortar).
+18. Critico: como esta (deja de haberlo cuando un numero triplica al otro).
 
 ### O-308 · El juego de partidos: el ritmo de 3DS (reloj, pausa, saques, cambios) y la version online
 
