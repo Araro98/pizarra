@@ -35,8 +35,19 @@ class Pantalla3D {
     this.balon = new THREE.Mesh(new THREE.SphereGeometry(0.35, 20, 14), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 }));
     this.escena.add(this.balon);
     this.lineas = new THREE.Group(); this.escena.add(this.lineas);
-    this.matRuta = new THREE.LineBasicMaterial({ color: 0xffffff });
-    this.matTrazo = new THREE.LineBasicMaterial({ color: 0xffe14d });
+    // las marcas del campo, como las de abajo (O-306): rutas y pases como cintas en
+    // el suelo (las lineas de WebGL son de 1 pixel y apenas se veian), el arco del
+    // bombeado, la X donde cae, el cono del tiro, la presion y los anillos del duelo
+    const mat = (color, opacidad) => new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide,
+      transparent: opacidad < 1, opacity: opacidad, depthWrite: opacidad >= 1 });
+    this.mat = { ruta: mat(0x2f8fff, 1), trazo: mat(0x9fdcff, 1), pase: mat(0x5ff3ff, 1), sombra: mat(0x000000, 0.3),
+      equis: mat(0xffe14d, 1), cono: mat(0x5ff3ff, 0.25), presion: mat(0xff8c1a, 1), linea: mat(0xff503c, 0.85), rojo: mat(0xff2b2b, 0.9) };
+    // el rombo azul que flota sobre el jugador de la ficha, como en el campo
+    this.rombo = new THREE.Mesh(new THREE.OctahedronGeometry(0.3),
+      new THREE.MeshStandardMaterial({ color: 0x2f8fff, emissive: 0x0b3a99, roughness: 0.45, flatShading: true }));
+    this.rombo.scale.set(1, 1.5, 1); this.rombo.visible = false; this.escena.add(this.rombo);
+    this.quieto = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+    this.anillos = null; this.dueloVisto = null;
     this.camX = 0; this.reloj = new THREE.Clock();
     this.ajustar();
     this._prepararModelos();
@@ -233,7 +244,8 @@ class Pantalla3D {
   cerrar() {
     clearTimeout(this._espera); clearTimeout(this._quitaAviso);
     for (const l of this.lineas.children) l.geometry.dispose();
-    this.matRuta.dispose(); this.matTrazo.dispose();
+    for (const m of Object.values(this.mat)) m.dispose();
+    this.rombo.geometry.dispose(); this.rombo.material.dispose();
     try { this.render.dispose(); } catch (e) {}
   }
 
@@ -292,6 +304,8 @@ class Pantalla3D {
     if (this._fase === undefined || (this._fase !== p.fase && (this._fase === "gol" || this._fase === "descanso"))) this._saque = 0.5;
     else if (this._saque > 0) this._saque -= dt;
     this._fase = p.fase;
+    // el jugador de la ficha: el elegido o el tuyo que lleva el balon (O-306)
+    const d0 = p.dueno(), actual = this.elegido !== null && this.elegido !== undefined ? this.elegido : d0 && d0.lado === this.yo ? d0.id : null;
     // jugadores
     p.jugadores.forEach((j, k) => {
       const g = this.figuras[k], u = g.userData;
@@ -308,7 +322,10 @@ class Pantalla3D {
         u.vel = (u.vel || 0) + (paso / Math.max(dt, 1e-3) - (u.vel || 0)) * Math.min(1, dt * 8);
         if (paso > 0.005 && u.vel > 1.2) u.mira = Math.atan2(dx, dz);
       }
-      u.aro.material.color.setHex(j.id === this.elegido ? 0xffe14d : this.colores[j.lado]);
+      // el de la ficha y el tuyo con balon, con el aro azul, como en el campo (O-306)
+      const azul = j.id === actual || (j.conBalon && j.lado === this.yo);
+      u.aro.material.color.setHex(azul ? 0x2f8fff : this.colores[j.lado]);
+      u.aro.scale.setScalar(azul ? 1.2 : 1);
       if (u.cuerpo) {
         u.cuerpo.rotation.y = u.mira !== undefined ? u.mira : Math.atan2(0, j.dir);
         if (!(u.ahora === "tiro" || u.ahora === "patada")) this._anima(g, u.vel > 1.2 ? "correr" : "parado");
@@ -316,6 +333,13 @@ class Pantalla3D {
       }
       u.ficha.material.opacity = j.aturdido > 0 ? 0.5 : 1;
     });
+    // y el rombo flotando sobre su cabeza (O-306)
+    const ja = actual !== null ? p.jugadores[actual] : null, t = performance.now() / 1000;
+    this.rombo.visible = !!ja;
+    if (ja) {
+      this.rombo.position.set(-ja.x, 3.0 + (this.quieto ? 0 : Math.sin(t * 4) * 0.12), ja.y);
+      this.rombo.rotation.y = this.quieto ? 0 : t * 1.5;
+    }
     // el que chuta o pasa, con su animacion
     const r = p.resultado;
     if (r && r !== this._resultadoVisto) {
@@ -340,18 +364,125 @@ class Pantalla3D {
   }
 
   _pintarLineas() {
-    // las lineas se rehacen en cada cuadro: sin soltar la geometria de las de
+    // las marcas se rehacen en cada cuadro: sin soltar la geometria de las de
     // antes, three.js las guardaba todo el partido (memoria de video que solo
-    // crecia). Los dos materiales son fijos (O-305)
+    // crecia). Los materiales son fijos (O-305)
     for (const l of this.lineas.children) l.geometry.dispose();
     this.lineas.clear();
-    const linea = (puntos, mat) => {
-      if (puntos.length < 2) return;
-      const geo = new THREE.BufferGeometry().setFromPoints(puntos.map(q => new THREE.Vector3(-q.x, 0.08, q.y)));
-      this.lineas.add(new THREE.Line(geo, mat));
+    const p = this.p, M = this.mat, d0 = p.dueno();
+    const V = (x, y, h) => [-x, h, y];          // x cambiada de signo (O-305)
+    const malla = (pos, mat) => {
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+      this.lineas.add(new THREE.Mesh(geo, mat));
     };
-    for (const j of this.p.jugadores) if (j.lado === this.yo && j.ruta.length) linea([{ x: j.x, y: j.y }, ...j.ruta], this.matRuta);
-    if (this.trazo && this.trazo.puntos.length > 1) linea(this.trazo.puntos, this.matTrazo);
+    // una cinta en el suelo por los puntos y, con punta, una flecha (O-306)
+    const cinta = (pts, ancho, mat, h, punta) => {
+      const q = [];
+      for (const a of pts) { const u = q[q.length - 1]; if (!u || Math.hypot(a.x - u.x, a.y - u.y) > 0.05) q.push({ x: a.x, y: a.y }); }
+      if (q.length < 2) return;
+      const pos = [], w = ancho / 2;
+      if (punta) {
+        // la punta mira como el final de la ruta (el ultimo tramo puede ser muy corto)
+        const f = q[q.length - 1];
+        let k = q.length - 2;
+        while (k > 0 && Math.hypot(f.x - q[k].x, f.y - q[k].y) < ancho * 2) k--;
+        const l = Math.hypot(f.x - q[k].x, f.y - q[k].y) || 1, ux = (f.x - q[k].x) / l, uy = (f.y - q[k].y) / l;
+        const largo = Math.min(ancho * 2.4, l), an = ancho * 1.35, bx = f.x - ux * largo, by = f.y - uy * largo;
+        pos.push(...V(f.x, f.y, h), ...V(bx - uy * an, by + ux * an, h), ...V(bx + uy * an, by - ux * an, h));
+        q.length = k + 1; q.push({ x: f.x - ux * largo * 0.8, y: f.y - uy * largo * 0.8 });
+      }
+      for (let k = 1; k < q.length; k++) {
+        const a = q[k - 1], b = q[k], l = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+        const nx = -(b.y - a.y) / l * w, ny = (b.x - a.x) / l * w;
+        pos.push(...V(a.x + nx, a.y + ny, h), ...V(a.x - nx, a.y - ny, h), ...V(b.x + nx, b.y + ny, h),
+          ...V(b.x + nx, b.y + ny, h), ...V(a.x - nx, a.y - ny, h), ...V(b.x - nx, b.y - ny, h));
+      }
+      malla(pos, mat);
+    };
+    // la X amarilla donde cae el pase
+    const equis = (x, y) => {
+      const t = 0.75;
+      cinta([{ x: x - t, y: y - t }, { x: x + t, y: y + t }], 0.3, M.equis, 0.1);
+      cinta([{ x: x - t, y: y + t }, { x: x + t, y: y - t }], 0.3, M.equis, 0.11);
+    };
+    // el bombeado, un arco cian por el aire a la altura del balon (O-294)
+    const arco = (de, a, k0) => {
+      if (k0 > 0.97) return;
+      const pts = [];
+      for (let i = 0; i <= 20; i++) {
+        const k = k0 + (1 - k0) * i / 20;
+        pts.push(new THREE.Vector3(-(de.x + (a.x - de.x) * k), 0.35 + Math.sin(Math.PI * k) * 5, de.y + (a.y - de.y) * k));
+      }
+      this.lineas.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 24, 0.1, 6, false), M.pase));
+    };
+    const aro = (x, y, r0, r1, mat) => {
+      const g = new THREE.RingGeometry(r0, r1, 48);
+      g.rotateX(-Math.PI / 2); g.translate(-x, 0.09, y);
+      this.lineas.add(new THREE.Mesh(g, mat));
+    };
+    // el tiro: un cono cian del que chuta a los dos palos
+    const cono = j => {
+      const g = p.porteriaRival(j), m = REGLAS.PORTERIA / 2;
+      malla([...V(j.x, j.y, 0.05), ...V(-m, g.y, 0.05), ...V(m, g.y, 0.05)], M.cono);
+    };
+    // las rutas de los tuyos, flechas azules; la que dibujas, azul claro
+    for (const j of p.jugadores) if (j.lado === this.yo && j.ruta.length) cinta([{ x: j.x, y: j.y }, ...j.ruta], 0.55, M.ruta, 0.07, true);
+    if (this.trazo && this.trazo.puntos.length > 1) cinta(this.trazo.puntos, 0.55, M.trazo, 0.08, true);
+    // el pase o el tiro marcado: el raso, cinta cian; el bombeado, el arco con su sombra
+    const pm = (p.paseMarcado || [])[this.yo];
+    if (pm && d0) {
+      if (pm.tipo === "tiro") cono(d0);
+      else {
+        const dest = pm.a !== undefined ? p.jugadores[pm.a] : { x: pm.x, y: pm.y };
+        if (dest) {
+          if (pm.alto) { cinta([d0, dest], 0.3, M.sombra, 0.06); arco(d0, dest, 0); }
+          else cinta([d0, dest], 0.3, M.pase, 0.07);
+          equis(dest.x, dest.y);
+        }
+      }
+    }
+    // el tiro que se esta eligiendo
+    const du = p.fase === "duelo" && p.duelo;
+    if (du && du.tipo === "tiro" && p.jugadores[du.tirador]) cono(p.jugadores[du.tirador]);
+    // el pase en el aire, desde donde va el balon (el bombeado, desde donde salio)
+    const b = p.balon;
+    if (b.pase) {
+      const dest = b.pase.destino, queda = Math.hypot(dest.x - b.x, dest.y - b.y);
+      if (b.pase.alto && b.pase.total) {
+        if (queda > 0.3) {
+          const ini = { x: dest.x - (dest.x - b.x) / queda * b.pase.total, y: dest.y - (dest.y - b.y) / queda * b.pase.total };
+          cinta([b, dest], 0.3, M.sombra, 0.06);
+          arco(ini, dest, Math.max(0, Math.min(1, 1 - queda / b.pase.total)));
+        }
+      } else cinta([b, dest], 0.3, M.pase, 0.07);
+      equis(dest.x, dest.y);
+    }
+    // los tuyos que presionan: la linea roja y, en el rival, la marca naranja
+    if (d0 && d0.lado !== this.yo) {
+      const van = p.jugadores.filter(j => j.lado === this.yo && j.presiona === d0.id);
+      for (const j of van) cinta([j, d0], 0.2, M.linea, 0.08);
+      if (van.length) aro(d0.x, d0.y, 1.05, 1.4, M.presion);
+    }
+    // los anillos rojos del duelo que acaba de saltar: se cierran en ~0,4 s sobre
+    // los dos (o el que chuta), como en el campo
+    const ahora = performance.now() / 1000;
+    if (du && du.id !== this.dueloVisto) {
+      this.dueloVisto = du.id;
+      this.anillos = { t0: ahora, ids: du.tipo === "foco" ? [du.atacante, du.defensor] : [du.tirador] };
+    }
+    const an = this.anillos;
+    if (an) {
+      const t = ahora - an.t0, js = an.ids.map(id => p.jugadores[id]).filter(Boolean);
+      if (t > 0.55 || !js.length) this.anillos = null;
+      else {
+        const x = js.reduce((s, j) => s + j.x, 0) / js.length, y = js.reduce((s, j) => s + j.y, 0) / js.length;
+        const fin = Math.max(...js.map(j => Math.hypot(j.x - x, j.y - y))) + 2.6;
+        const k = this.quieto ? 1 : Math.min(1, t / 0.4), falta = Math.pow(1 - k, 2);
+        M.rojo.opacity = 0.9 * (t > 0.4 ? Math.max(0, 1 - (t - 0.4) / 0.15) : 0.45 + 0.55 * k);
+        for (const R of [fin + falta * 8, fin + 1.6 + falta * 15]) aro(x, y, R - 0.35, R, M.rojo);
+      }
+    }
   }
 
   // de un punto de la pantalla (px en CSS) al campo, cortando con el suelo

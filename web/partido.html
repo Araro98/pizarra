@@ -153,7 +153,63 @@
      numeros salian amontonados en la esquina de la pantalla (O-305) */
   .comando .poder { position:static; margin-left:auto; font-style:italic; flex:none; }
   .comando .coste { font-size:var(--t-xs); opacity:.85; }
+  /* a la derecha: lo que suma la supertecnica y, debajo, el total con el que
+     quedarias (O-306) */
+  .comando .cifras { margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; flex:none; line-height:1.15; }
+  .comando .cifras .poder { margin-left:0; }
+  .comando .cifras .total { font-size:var(--t-xs); font-weight:800; opacity:.85; white-space:nowrap; }
+  /* el poder de base de los dos antes de elegir, como en CS y Light (O-306): cada
+     numero bajo su cara y del color de su equipo en el campo; en medio, los
+     elementos con la flecha del que tiene ventaja; debajo, la disputa */
+  .base-duelo { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:4px 8px; }
+  .base-lado { display:flex; flex-direction:column; padding:2px 10px; border-radius:7px; border:2px solid #fff; line-height:1.05; min-width:0; }
+  .base-lado.izq { align-items:flex-start; }
+  .base-lado.der { align-items:flex-end; }
+  .base-lado.azul { background:linear-gradient(90deg, #1b4a8f, #2f6fc4); }
+  .base-lado.rojo { background:linear-gradient(90deg, #c23a2a, #a3241a); }
+  .base-lado small { font-size:var(--t-xxs); font-weight:800; opacity:.9; white-space:nowrap; }
+  .base-lado b { font-size:var(--t-xl); font-weight:900; font-style:italic; font-variant-numeric:tabular-nums; }
+  .base-elem { display:flex; align-items:center; gap:3px; }
+  .base-elem .flecha { font-size:var(--t-sm); opacity:.45; }
+  .base-elem .flecha.si { color:#ffe14d; opacity:1; }
+  .base-disputa { grid-column:1 / -1; display:grid; grid-template-columns:1fr auto 1fr; gap:8px; align-items:baseline; padding:0 12px; font-size:var(--t-sm); }
+  .base-disputa b { font-style:italic; font-variant-numeric:tabular-nums; }
+  .base-disputa b:last-child { text-align:right; }
+  .base-disputa small { font-size:var(--t-xs); opacity:.8; }
+  /* los apoyos: las caras pequenas de los companeros que ayudan y lo que suman */
+  .pausa .apoyos { display:flex; align-items:center; justify-content:center; gap:2px; margin-top:3px; font-size:var(--t-xxs); color:#9ff0e6; white-space:nowrap; }
+  .pausa .cara-a-cara .apoyos img { width:20px; height:20px; border-width:1px; }
+  .pausa .apoyos span { margin-left:3px; }
+  .pausa .pista { color:#9ff0e6; text-align:center; font-size:var(--t-xs); font-weight:700; }
   .pausa .resultado { text-align:center; font-weight:900; font-size:var(--t-lg); }
+  /* el descanso y el final (O-306): el marcador con cada equipo de su color y las
+     estadisticas como en los juegos, cada numero en el lado de su equipo y la
+     posesion en una barra azul y roja */
+  .marcador-final { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px; }
+  /* un nombre largo en dos lineas: cortado con "..." no se sabia de quien era */
+  .marcador-final .eq { padding:3px 10px; border-radius:7px; border:2px solid #fff; font-size:var(--t-md); font-weight:900; font-style:italic;
+    line-height:1.15; min-width:0; overflow-wrap:anywhere; }
+  .marcador-final .eq.azul { background:linear-gradient(90deg, #1b4a8f, #2f6fc4); }
+  .marcador-final .eq.rojo { background:linear-gradient(90deg, #c23a2a, #a3241a); text-align:right; }
+  .marcador-final b { font-size:var(--t-2xl); font-weight:900; font-style:italic; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .estadisticas { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; column-gap:8px;
+    background:rgba(10,22,50,.45); border:2px solid rgba(255,255,255,.35); border-radius:9px; padding:4px 10px 8px; }
+  .estadisticas > b { font-size:var(--t-xl); font-weight:900; font-style:italic; text-align:center; font-variant-numeric:tabular-nums;
+    border-bottom:1px solid rgba(255,255,255,.14); line-height:1.25; }
+  .estadisticas .est-que { font-size:var(--t-sm); font-weight:900; font-style:italic; color:#ffe14d; text-align:center;
+    border-bottom:1px solid rgba(255,255,255,.14); align-self:stretch; display:flex; align-items:center; justify-content:center; }
+  .est-titulo { grid-column:1 / -1; text-align:center; font-size:var(--t-xs); font-weight:900; text-transform:uppercase; letter-spacing:.08em; color:#9ff0e6; }
+  .est-barra { grid-column:1 / -1; height:9px; margin:5px 0 7px; border-radius:5px; border:1px solid #fff; overflow:hidden;
+    background:linear-gradient(90deg, #ff6a4d, #c23a2a); }
+  .est-barra > i { display:block; height:100%; background:linear-gradient(90deg, #2f6fc4, #4a9cf0); }
+  /* min-width 0: con un nombre largo la columna no empuja la caja. El nombre pasa
+     a dos lineas: a 1400 de ancho "Lenora Gra..." salia cortado en casi todos */
+  .est-goles { align-self:stretch; min-width:0; min-height:24px; padding:3px 6px; border-radius:6px; background:rgba(0,0,0,.22);
+    font-size:var(--t-xs); font-weight:700; line-height:1.35; display:flex; flex-direction:column; gap:1px; }
+  .est-goles > div { overflow-wrap:anywhere; }
+  .estadisticas .est-goles + .est-que { border-bottom:0; }
+  .est-goles .parte { display:inline-block; margin-right:4px; padding:0 3px; border-radius:3px; font-size:var(--t-xxs); font-weight:900; color:#fff; background:#2f9e5b; }
+  .est-goles .parte.p2 { background:#e8801c; }
   /* el resultado de un duelo como un rotulo del juego */
   @keyframes entra { from { opacity:0; transform:translateX(-36px) skewX(-8deg); } to { opacity:1; transform:none; } }
   @keyframes aparece { from { opacity:0; transform:scale(.6); } to { opacity:1; transform:none; } }
@@ -180,6 +236,9 @@
     .rotulo-cara { width:32px; height:32px; }
     .rotulo-tecnica { padding:3px 7px; gap:4px; }
     .rotulo-valor { font-size:var(--t-xl); min-width:0; }
+    .base-lado { padding:2px 6px; }
+    .base-lado b { font-size:var(--t-lg); }
+    .base-disputa { padding:0 6px; }
   }
   .final-duelo { opacity:0; animation:aparece .3s ease-out forwards; }
   @media (prefers-reduced-motion: reduce) { .rotulo, .final-duelo { animation:none; opacity:1; } }
@@ -263,9 +322,11 @@
           <b>Pulsa a un compañero</b> para pasarle; <b>pulsa un punto</b> para el pase al hueco; <b>mantén pulsado</b> para un <b>pase bombeado</b> (no se corta).<br>
           <b>Pulsa la portería rival</b> para chutar; si lo haces mientras va un pase, <b>remata de primeras</b>.<br>
           <b>Pulsa al rival con balón</b>: tus dos más cerca van a presionarle.<br>
+          Cuando llevas el balón, sobre tus compañeros libres (sin rival cerca y con el pase limpio) sale <b>«¡Aquí!»</b>.<br>
           <b>Pausa</b> (o barra espaciadora, 3 por parte): con todo parado dibujas rutas a varios y marcas el pase o el tiro, que salen al seguir; si al que le pasas le has dibujado una carrera, le llega en carrera. Pulsa al que lleva el balón para quitar lo marcado. En la pausa o en el <b>descanso</b>, pulsa a uno de los tuyos para <b>cambiarlo</b> por uno del banquillo (3 cambios por partido).<br>
-          En el descanso, la segunda parte empieza al pulsar <b>Segunda parte</b> (online, cuando pulséis los dos) o pasado un minuto.<br>
-          En cada <b>duelo</b> el partido se para: eliges en el panel del centro y, mientras, puedes dibujar rutas. Los comandos fuertes ganan más, pero <b>Entrada</b> y <b>Cargar</b> pueden ser falta (en el área, penalti).<br>
+          En el descanso, la segunda parte empieza al pulsar <b>Segunda parte</b> (online, cuando pulséis los dos) o pasado un minuto. En el descanso y al final, en el centro salen las <b>estadísticas</b>: tiros, supertécnicas, posesión y los goles con su minuto.<br>
+          En cada <b>duelo</b> el partido se para: eliges en el panel del centro y, mientras, puedes dibujar rutas. Arriba ves el <b>poder de base</b> de los dos (con los compañeros que apoyan) y en cada botón el <b>total</b> con el que quedarías. Los comandos fuertes ganan más, pero <b>Entrada</b> y <b>Cargar</b> pueden ser falta (en el área, penalti).<br>
+          Si llevas el balón en un duelo, puedes <b>marcar ya el pase o el tiro</b> como en la pausa: sale si ganas el duelo y se borra si lo pierdes.<br>
           Si tu jugador tiene <b>espíritu</b>, en su ficha puedes <b>invocarlo</b> (100 de tensión): 30 s más fuerte y con su supertécnica.<br>
           Con <b>Pantalla de arriba en 3D</b>, encima de los duelos ves el partido en 3D, como en la 3DS; se juega siempre en el campo.
         </div></div>

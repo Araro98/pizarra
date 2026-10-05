@@ -50,6 +50,10 @@ class Partido {
     this.listos = [false, false];  // en el descanso, quien ya ha pulsado "Segunda parte" (O-305)
     this.resultado = null;        // lo que paso en el ultimo duelo (para pintarlo)
     this.eventos = [];            // lo que pasa, para el registro
+    // lo que se ensena en el descanso y al final, como en los juegos (O-306):
+    // tiros, supertecnicas usadas, pasos con el balon (la posesion) y los goles
+    // ([lado, mitad, minuto, quien]). Va en la foto: el invitado ve lo mismo
+    this.estadisticas = { tiros: [0, 0], tecnicas: [0, 0], posesion: [0, 0], goles: [] };
     this.saque(0);
   }
 
@@ -123,10 +127,14 @@ class Partido {
   dueno() { return this.balon.dueno === null ? null : this.jugadores[this.balon.dueno]; }
   // lado: de quien es el suceso; con el, la pagina avisa a ese jugador de los
   // "aviso" (demasiado lejos...). Va en la foto y un Pizarra anterior lo ignora (O-305)
+  // Devuelve el suceso: al de un momento con rotulo grande en el campo se le pone
+  // `ro` = {que, lado, sub} (lado: el equipo al que le toca; va en la foto con el
+  // suceso y un Pizarra anterior no lo mira) (O-306)
   apunta(texto, clase, lado) {
     const e = { paso: this.pasos, mitad: this.mitad, reloj: this.reloj, texto, clase };
     if (lado !== undefined) e.lado = lado;
     this.eventos.push(e);
+    return e;
   }
   minuto() { return Math.floor(this.reloj / this.duracion * 45) + (this.mitad === 2 ? 45 : 0); }
 
@@ -148,6 +156,9 @@ class Partido {
     this.coger(saca);
     saca.respiro = REGLAS.RESPIRO_SAQUE;     // el saque de centro, sin que le salgan al paso
     this.fase = "juego";
+    // "¡Saque!" al empezar cada parte y tras un gol, como en CS y Galaxy. No
+    // empieza por "Saque de": eso son los fueras (lo cuentan las medidas) (O-306)
+    this.apunta("Saca de centro " + this.nombres[lado]).ro = { que: "saque", lado, sub: this.nombres[lado] };
   }
 
   coger(j) {
@@ -190,7 +201,10 @@ class Partido {
       j.presiona = null;
       return true;
     }
-    if (this.fase === "pausa" && (o.tipo === "pase" || o.tipo === "pasePunto" || o.tipo === "tiro")) {
+    // en un foco tambien se marca, como en la pausa: sale si gana el duelo el que
+    // lleva el balon y se borra si lo pierde (CS: el pase programado) (O-306)
+    const enFoco = this.fase === "duelo" && this.duelo && this.duelo.tipo === "foco";
+    if ((this.fase === "pausa" || enFoco) && (o.tipo === "pase" || o.tipo === "pasePunto" || o.tipo === "tiro")) {
       // en la pausa el pase se marca y sale al seguir (3DS); el tiro tambien:
       // pulsar la porteria acababa en un pase a la linea de gol (O-305)
       const dl = this.dueno();
@@ -378,6 +392,7 @@ class Partido {
       },
       elecciones: {},
     };
+    this._previo(this.duelo);          // los numeros antes de elegir (O-306)
     this.apunta("¡" + def.nombre + " sale al paso de " + att.nombre + "!", "duelo");
   }
 
@@ -412,6 +427,8 @@ class Partido {
       },
       elecciones: {},
     };
+    this._previo(this.duelo);          // los numeros antes de elegir (O-306)
+    this.estadisticas.tiros[tirador.lado]++;     // cada tiro a puerta, tambien el penalti (O-306)
     this.apunta(tirador.nombre + (pasador ? " remata de primeras" : " chuta") + " a " + Math.round(distancia) + " m", "tiro");
   }
 
@@ -470,7 +487,8 @@ class Partido {
   _pitarFueraDeJuego(j) {
     const r = this.equipo(1 - j.lado).filter(o => !o.esPortero)
       .sort((a, b) => Math.hypot(a.x - j.x, a.y - j.y) - Math.hypot(b.x - j.x, b.y - j.y))[0];
-    this.apunta("Fuera de juego de " + j.nombre, "mal");
+    // el rotulo, del color del que se queda el balon (O-306)
+    this.apunta("Fuera de juego de " + j.nombre, "mal").ro = { que: "fuera", lado: r.lado, sub: j.nombre };
     r.x = j.x; r.y = j.y - j.dir * 1;
     this.coger(r); r.respiro = 2.5;
     for (const o of this.jugadores) o.ruta = [];
@@ -526,7 +544,9 @@ class Partido {
     this.tension[j.lado] -= REGLAS.INVOCAR_COSTE;
     j.aura = ahora + REGLAS.AURA_SEGUNDOS;
     j.auraLista = ahora + REGLAS.AURA_SEGUNDOS + REGLAS.AURA_RECARGA;
-    this.apunta("¡" + j.nombre + " invoca a " + j.espiritu.nombre + "!", "tactica");
+    // el rotulo: "¡Miximax Trans!" si es de esa familia (en VR es un espiritu mas) (O-306)
+    this.apunta("¡" + j.nombre + " invoca a " + j.espiritu.nombre + "!", "tactica").ro =
+      { que: j.espiritu.familia === "mixi" ? "miximax" : "invoca", lado: j.lado, sub: j.nombre + " · " + j.espiritu.nombre };
     return true;
   }
 
@@ -540,7 +560,7 @@ class Partido {
     if (ahora < this.tacticaLista[lado][k]) return false;
     this.tacticaActiva[lado] = { k, hasta: ahora + (t.duracion || 8) };
     this.tacticaLista[lado][k] = ahora + (t.recarga || 90);
-    this.apunta("¡Tactica de " + this.nombres[lado] + ": " + t.nombre + "!", "tactica");
+    this.apunta("¡Tactica de " + this.nombres[lado] + ": " + t.nombre + "!", "tactica").ro = { que: "tactica", lado, sub: t.nombre };   // O-306
     for (const e of t.efectos || []) {
       if (e.especial === "robo") {
         const d = this.dueno();
@@ -677,11 +697,119 @@ class Partido {
       .sort((a, b) => Math.hypot(a.x - j.x, a.y - j.y) - Math.hypot(b.x - j.x, b.y - j.y)).slice(0, REGLAS.APOYOS_MAX);
     let f = 1;
     for (const o of cerca) f += REGLAS.APOYO + (o.elemento && o.elemento === j.elemento ? REGLAS.APOYO_ELEMENTO : 0);
-    return { n: cerca.length, mismos: cerca.filter(o => o.elemento === j.elemento).length, factor: f };
+    // ids: quienes son, para ensenar sus caras en el panel del duelo (O-306)
+    return { n: cerca.length, mismos: cerca.filter(o => o.elemento === j.elemento).length, factor: f, ids: cerca.map(o => o.id) };
+  }
+
+  // --- lo que se ensena antes de elegir (O-306) ----------------------------------
+  // Las mismas cuentas que el duelo, en un sitio: asi el numero del panel es el
+  // que luego se usa. Sin azar (no toca la semilla); el comando potente aun
+  // multiplica despues por x0,75 a x1,65 y el muro por +-10 %.
+  // Foco o disputa de j contra rival con la supertecnica t (o sin ella). En la
+  // disputa (el defensa carga) el del balon defiende con su DF de disputa.
+  _valorFoco(j, rival, t, ataca, disputa) {
+    const stat = disputa ? (ataca ? REGLAS.dfDisputa(j) : REGLAS.atDisputa(j)) : (ataca ? REGLAS.atFoco(j) : REGLAS.dfFoco(j));
+    return (stat + this._poder(j, t)) * REGLAS.efectoElemental(j, t, rival)
+      * this.bonusPasivas(j, disputa ? "disputa" : "foco", disputa ? !ataca : ataca) * this.apoyos(j).factor;
+  }
+  // el AT del tiro (sin el elemento, que va al final por si hay cadena)
+  _valorTiro(tir, t, du) {
+    let at = (REGLAS.atTiro(tir) + this._poder(tir, t)) * REGLAS.porDistancia(du.distancia, REGLAS.esLarga(t)) * this.bonusPasivas(tir, "tiro", true);
+    // tiro directo: suma el 50 % del AT de tiro del que paso (VR)
+    if (du.directo !== null && du.directo !== undefined) at += REGLAS.atTiro(this.jugadores[du.directo]) * REGLAS.DIRECTO;
+    return at;
+  }
+  // lo que suma el que encadena
+  _valorCadena(ch, t) {
+    const g = this.porteriaRival(ch);
+    return (REGLAS.atTiro(ch) + this._poder(ch, t)) * REGLAS.porDistancia(Math.hypot(g.x - ch.x, g.y - ch.y), false) * this.bonusPasivas(ch, "tiro", true);
+  }
+  // el muro, antes de su +-10 %: un contra-tiro frena con la mitad de su tiro
+  // (VR); un bloqueo, con su DF del muro
+  _valorMuro(muro, t, ultimo) {
+    const base = t && REGLAS.esContra(t) ? (REGLAS.atTiro(muro) + this._poder(muro, t)) * 0.5
+                                         : REGLAS.dfMuro(muro) + this._poder(muro, t);
+    return base * (t && REGLAS.gana(t.elemento, ultimo.elemento) ? 1.2 : 1) * this.bonusPasivas(muro, "muro", false);
+  }
+  // la parada del portero
+  _valorParada(por, t, tir) {
+    const dfTec = this._poder(por, t) * (t && REGLAS.gana(t.elemento, tir.elemento) ? 1.2 : 1);
+    return (por.kp + dfTec) * this.bonusPasivas(por, "kp", false);
+  }
+  // con la tension que le quedaria tras pagar `gasto`: las pasivas y tacticas
+  // "con la tension a x %" se miran despues de pagar la tecnica
+  _trasPagar(lado, gasto, fn) {
+    const antes = this.tension[lado];
+    this.tension[lado] = Math.max(0, antes - (gasto || 0));
+    try { return fn(); } finally { this.tension[lado] = antes; }
+  }
+  // Al empezar un duelo: el poder de base de cada lado (sin comando ni tecnica),
+  // los apoyos y el total de cada boton. Va dentro del duelo, que viaja entero
+  // en la foto: el invitado ve lo mismo (uno anterior no lo trae y no se ensena)
+  _previo(du) {
+    const R = Math.round;
+    if (du.tipo === "foco") {
+      const att = this.jugadores[du.atacante], def = this.jugadores[du.defensor];
+      const apA = this.apoyos(att), apD = this.apoyos(def);
+      du.base = {
+        [att.lado]: R(this._valorFoco(att, def, null, true, false)), [def.lado]: R(this._valorFoco(def, att, null, false, false)),
+        // si el defensa carga se juega la disputa, con otros numeros
+        disputa: { [att.lado]: R(this._valorFoco(att, def, null, true, true)), [def.lado]: R(this._valorFoco(def, att, null, false, true)) },
+        apoyos: { [att.lado]: { ids: apA.ids, pct: R((apA.factor - 1) * 100) }, [def.lado]: { ids: apD.ids, pct: R((apD.factor - 1) * 100) } },
+      };
+      for (const [j, rival, ataca] of [[att, def, true], [def, att, false]]) {
+        for (const o of du.lados[j.lado].opciones) {
+          const t = this._tecnica(j, o.clave);
+          if (o.clave === "cargar") { o.total = du.base.disputa[j.lado]; continue; }
+          const v = this._trasPagar(j.lado, t ? t.tp : 0, () => this._valorFoco(j, rival, t, ataca, false));
+          o.total = R(v);
+          // Romper y Entrada: x0,75 a x1,65 al resolver
+          if (o.clave === "potente") { o.min = R(v * 0.75); o.max = R(v * 1.65); }
+        }
+      }
+      return;
+    }
+    const tir = this.jugadores[du.tirador], por = this.jugadores[du.portero];
+    du.base = {
+      [tir.lado]: R(this._valorTiro(tir, null, du) * REGLAS.efectoElemental(tir, null, por)),
+      [por.lado]: R(this._valorParada(por, null, tir)),
+    };
+    const lt = du.lados[tir.lado], lp = du.lados[por.lado];
+    const crudo = {};             // el AT de cada tiro antes del elemento, para la cadena
+    for (const o of lt.opciones) {
+      const t = this._tecnica(tir, o.clave);
+      crudo[o.clave] = { at: this._trasPagar(tir.lado, t ? t.tp : 0, () => this._valorTiro(tir, t, du)), tp: t ? t.tp : 0 };
+      o.total = R(crudo[o.clave].at * REGLAS.efectoElemental(tir, t, por));
+    }
+    if (lt.cadena) {
+      // con cada tiro el total cambia: uno por tiro, con la cadena el elemento es el suyo
+      const ch = this.jugadores[lt.cadena.jugador];
+      for (const o of lt.cadena.opciones) {
+        const t = this._tecnica(ch, o.clave);
+        o.totales = {};
+        for (const k in crudo) {
+          const suma = t ? this._trasPagar(tir.lado, crudo[k].tp + t.tp, () => this._valorCadena(ch, t)) : 0;
+          o.totales[k] = R((crudo[k].at + suma) * (t ? REGLAS.efectoElemental(ch, t, por) : REGLAS.efectoElemental(tir, this._tecnica(tir, k), por)));
+        }
+      }
+    }
+    for (const o of lp.opciones) {
+      const t = this._tecnica(por, o.clave);
+      o.total = R(this._trasPagar(por.lado, t ? t.tp : 0, () => this._valorParada(por, t, tir)));
+    }
+    if (lp.muro) {
+      const muro = this.jugadores[lp.muro.jugador];
+      for (const o of lp.muro.opciones) {
+        if (o.clave === "nada") continue;
+        const t = this._tecnica(muro, o.clave);
+        o.total = R(this._trasPagar(por.lado, t ? t.tp : 0, () => this._valorMuro(muro, t, tir)));
+      }
+    }
   }
 
   _tirada(v) { return v * (1 + (this.azar() * 2 - 1) * REGLAS.AZAR); }
-  _gastar(j, t) { if (t) this.tension[j.lado] = Math.max(0, this.tension[j.lado] - t.tp); }
+  // se gasta lo de cada supertecnica que se usa de verdad: ahi se cuenta (O-306)
+  _gastar(j, t) { if (t) { this.tension[j.lado] = Math.max(0, this.tension[j.lado] - t.tp); this.estadisticas.tecnicas[j.lado]++; } }
   _tension(lado, mas) { this.tension[lado] = Math.min(REGLAS.TENSION_MAX, this.tension[lado] + mas); }
 
   _resolver() {
@@ -697,21 +825,13 @@ class Partido {
     if (ta && ta.tp > att.pt) ta = null;
     if (td && td.tp > def.pt) td = null;
     this._gastar(att, ta); this._gastar(def, td);
-    let a, d, como;
     const apA = this.apoyos(att), apD = this.apoyos(def);
     const pa = this.bonusPasivas(att, cd === "cargar" ? "disputa" : "foco", cd !== "cargar");
     const pd = this.bonusPasivas(def, cd === "cargar" ? "disputa" : "foco", cd === "cargar");
-    if (cd === "cargar") {
-      // disputa: el que carga usa su AT de disputa contra la DF de disputa del que lleva el balon
-      a = (REGLAS.dfDisputa(att) + this._poder(att, ta)) * REGLAS.efectoElemental(att, ta, def) * this.bonusPasivas(att, "disputa", false);
-      d = REGLAS.atDisputa(def) * REGLAS.efectoElemental(def, null, att) * this.bonusPasivas(def, "disputa", true);
-      como = "disputa";
-    } else {
-      a = (REGLAS.atFoco(att) + this._poder(att, ta)) * REGLAS.efectoElemental(att, ta, def) * this.bonusPasivas(att, "foco", true);
-      d = (REGLAS.dfFoco(def) + this._poder(def, td)) * REGLAS.efectoElemental(def, td, att) * this.bonusPasivas(def, "foco", false);
-      como = "foco";
-    }
-    a *= apA.factor; d *= apD.factor;
+    // disputa: el que carga usa su AT de disputa contra la DF de disputa del que
+    // lleva el balon. Con los apoyos; la cuenta es la del panel (_valorFoco, O-306)
+    const como = cd === "cargar" ? "disputa" : "foco";
+    let a = this._valorFoco(att, def, ta, true, como === "disputa"), d = this._valorFoco(def, att, td, false, como === "disputa");
     // el comando potente: +35 % pero inestable (DS); luego, como en IE3,
     // gana con probabilidad A^3 / (A^3 + D^3)
     if (ca === "potente") a *= 0.55 + this.azar() * 0.9 + 0.2;
@@ -726,7 +846,10 @@ class Partido {
     const gA = this.porteriaRival(att);
     if (Math.abs(att.y - gA.y) < REGLAS.AREA_Y && Math.abs(att.x) < REGLAS.AREA_X) riesgo *= 0.4;
     if (riesgo && this.azar() < riesgo) return this._falta(att, def, ra, rd, ta, td, ca, cd);
-    if (gana === def) { this.coger(def); this.ultimoRobo[def.lado] = this.segundosDeJuego(); }
+    if (gana === def) {
+      this.coger(def); this.ultimoRobo[def.lado] = this.segundosDeJuego();
+      this.paseMarcado[att.lado] = null;     // perdio el balon: lo marcado se borra (O-306)
+    }
     // la tension: +60 al que gana y +30 al que pierde, salvo si gano con tecnica
     const tecGana = gana === att ? ta : td, tecPierde = gana === att ? td : ta;
     if (!tecGana) this._tension(gana.lado, this._gananciaTension(gana.lado, REGLAS.TENSION_GANA));
@@ -741,8 +864,11 @@ class Partido {
       pasivas: { [att.lado]: Math.round((pa - 1) * 1000) / 10, [def.lado]: Math.round((pd - 1) * 1000) / 10 },
       apoyos: { [att.lado]: apA, [def.lado]: apD },
     };
-    this.apunta((ta ? ta.nombre + ": " : "") + att.nombre + " " + ra + " contra " + (td ? td.nombre + ": " : "") + def.nombre + " " + rd +
+    const ev = this.apunta((ta ? ta.nombre + ": " : "") + att.nombre + " " + ra + " contra " + (td ? td.nombre + ": " : "") + def.nombre + " " + rd +
       " → " + (gana === att ? "¡se va!" : "¡roba " + def.nombre + "!"), gana === att ? "bien" : "mal");
+    // quien pierde el balon, para su "¡Uy!" en el campo; va en la foto con el
+    // suceso y un Pizarra anterior no lo mira (O-306)
+    if (gana === def) ev.pierde = att.id;
     this._acabarDuelo(1.6);
   }
 
@@ -753,10 +879,8 @@ class Partido {
     let tt = this._tecnica(tir, et && et.tiro !== undefined ? et.tiro : et);
     if (tt && tt.tp > tir.pt) tt = null;
     this._gastar(tir, tt);
-    const larga = REGLAS.esLarga(tt);
-    let at = (REGLAS.atTiro(tir) + this._poder(tir, tt)) * REGLAS.porDistancia(du.distancia, larga) * this.bonusPasivas(tir, "tiro", true);
-    // tiro directo: suma el 50 % del AT de tiro del que paso (VR)
-    if (du.directo !== null && du.directo !== undefined) at += REGLAS.atTiro(this.jugadores[du.directo]) * REGLAS.DIRECTO;
+    // con la distancia, las pasivas y el tiro directo: la cuenta del panel (O-306)
+    let at = this._valorTiro(tir, tt, du);
     const pasos = [{ quien: tir.id, que: tt ? tt.nombre : (du.directo !== null && du.directo !== undefined ? "Tiro directo" : "Tiro"), valor: Math.round(at), tecnica: !!tt,
       elemento: tt ? tt.elemento || "" : "", pasivas: Math.round((this.bonusPasivas(tir, "tiro", true) - 1) * 1000) / 10 }];
     // la cadena: el companero remata y los AT se suman (VR); el gol es suyo
@@ -767,9 +891,7 @@ class Partido {
       if (tc && tc.tp > ch.pt) tc = null;
       if (tc) {
         this._gastar(ch, tc);
-        const g = this.porteriaRival(ch);
-        const suma = (REGLAS.atTiro(ch) + this._poder(ch, tc)) * REGLAS.porDistancia(Math.hypot(g.x - ch.x, g.y - ch.y), false) * this.bonusPasivas(ch, "tiro", true);
-        at += suma;
+        at += this._valorCadena(ch, tc);
         pasos.push({ quien: ch.id, que: tc.nombre + " (cadena)", valor: Math.round(at), tecnica: true, elemento: tc.elemento || "" });
         ultimo = ch; tecUltima = tc;
       }
@@ -779,17 +901,16 @@ class Partido {
       let tm = this._tecnica(muro, ed.muro);
       if (tm && tm.tp > muro.pt) tm = null;
       this._gastar(muro, tm);
-      // un contra-tiro frena con la mitad de su tiro (VR); un bloqueo, con su DF del muro
-      const base = tm && REGLAS.esContra(tm) ? (REGLAS.atTiro(muro) + this._poder(muro, tm)) * 0.5
-                                             : REGLAS.dfMuro(muro) + this._poder(muro, tm);
-      const df = this._tirada(base * (tm && REGLAS.gana(tm.elemento, ultimo.elemento) ? 1.2 : 1) * this.bonusPasivas(muro, "muro", false));
+      // un contra-tiro frena con la mitad de su tiro (VR); un bloqueo, con su DF
+      // del muro (_valorMuro, la cuenta del panel, O-306)
+      const df = this._tirada(this._valorMuro(muro, tm, ultimo));
       pasos.push({ quien: muro.id, que: tm ? tm.nombre : "Bloqueo", valor: Math.round(df), tecnica: !!tm, elemento: tm ? tm.elemento || "" : "" });
       const r = df / Math.max(1, at);
       if (r > 0.75) at *= 0.7;
       if (r >= 1.25) {
         this.nResultado = (this.nResultado || 0) + 1;
     this.resultado = { tipo: "tiro", final: "bloqueado", pasos, tirador: tir.id };
-        this.apunta("¡" + muro.nombre + " bloquea el tiro!", "mal");
+        this.apunta("¡" + muro.nombre + " bloquea el tiro!", "mal").ro = { que: "bloqueo", lado: muro.lado, sub: muro.nombre };   // O-306
         this.soltar();
         this.balon.x = muro.x; this.balon.y = muro.y;
         this.balon.vx = (this.azar() - 0.5) * 8; this.balon.vy = -tir.dir * 6;
@@ -801,13 +922,15 @@ class Partido {
     let tp = this._tecnica(por, ed.parada);
     if (tp && tp.tp > por.pt) tp = null;
     this._gastar(por, tp);
-    const dfTec = this._poder(por, tp) * (tp && REGLAS.gana(tp.elemento, tir.elemento) ? 1.2 : 1);
-    const df = (por.kp + dfTec) * this.bonusPasivas(por, "kp", false);
+    const df = this._valorParada(por, tp, tir);     // la cuenta del panel (O-306)
     pasos.push({ quien: por.id, que: tp ? tp.nombre : "Parada", valor: Math.round(df), tecnica: !!tp, elemento: tp ? tp.elemento || "" : "",
       pasivas: Math.round((this.bonusPasivas(por, "kp", false) - 1) * 1000) / 10 });
     pasos[0].valorFinal = Math.round(at);
     if (this.azar() < REGLAS.probabilidadTiro(at, df)) {
       this.goles[tir.lado]++;
+      // el gol con su minuto (el del registro) y quien lo marca: el nombre, que
+      // tras un cambio el mismo numero es otro jugador (O-306)
+      this.estadisticas.goles.push([tir.lado, this.mitad, this.minuto(), ultimo.nombre]);
       this.nResultado = (this.nResultado || 0) + 1;
       this.resultado = { tipo: "tiro", final: "gol", pasos, tirador: ultimo.id };
       this.apunta("¡¡GOL de " + ultimo.nombre + "!! (" + Math.round(at) + " contra " + Math.round(df) + ")", "gol");
@@ -847,7 +970,8 @@ class Partido {
                   [def.lado]: td ? td.nombre : ({ cargar: "Cargar", potente: "Entrada" }[cd] || "Tapar") },
       elementos: { [att.lado]: null, [def.lado]: null }, pasivas: {},
     };
-    this.apunta("¡Falta de " + def.nombre + " sobre " + att.nombre + "!" + (enArea ? " ¡PENALTI!" : " Tiro libre."), "mal");
+    this.apunta("¡Falta de " + def.nombre + " sobre " + att.nombre + "!" + (enArea ? " ¡PENALTI!" : " Tiro libre."), "mal").ro =
+      { que: enArea ? "penalti" : "falta", lado: att.lado, sub: (enArea ? "Para " : "Tiro libre para ") + this.nombres[att.lado] };   // O-306
     for (const j of this.jugadores) j.ruta = [];
     if (enArea) {
       // penalti: el que la recibe tira desde el punto; el resto, fuera del area
@@ -860,6 +984,7 @@ class Partido {
       this.coger(att);
       this.duelo = null;
       this._penalti = att.id;
+      this.paseMarcado[att.lado] = null;     // tira el penalti: no sale lo marcado en el duelo (O-306)
       this.fase = "resultado"; this.espera = 2.0;
       return;
     }
@@ -911,6 +1036,13 @@ class Partido {
       }
       if (this.fase === "descanso") { this._segundaParte(); return; }
       this.fase = "juego";
+      // el pase o el tiro marcado durante un foco sale en cuanto vuelve el juego,
+      // si el que lo marco sigue con el balon (O-306)
+      for (const l of [0, 1]) {
+        const o = this.paseMarcado[l], j = o && this.jugadores[o.de];
+        this.paseMarcado[l] = null;
+        if (j && j.conBalon) this.ordenar(o);
+      }
       return;
     }
     if (this.fase === "final") return;
@@ -921,13 +1053,17 @@ class Partido {
         // antes duraba 3 s y no daba tiempo a cambiar: ahora espera a que los
         // dos pulsen "Segunda parte", como mucho REGLAS.DESCANSO s (O-305)
         this.fase = "descanso"; this.espera = REGLAS.DESCANSO; this.listos = [false, false];
-        this.apunta("Descanso: " + this.goles[0] + " - " + this.goles[1], "fin");
+        // "Fin de la 1.ª parte" y "Fin del partido" en el campo (O-306)
+        this.apunta("Descanso: " + this.goles[0] + " - " + this.goles[1], "fin").ro = { que: "descanso", sub: this.goles[0] + " - " + this.goles[1] };
       } else {
         this.fase = "final";
-        this.apunta("Final: " + this.goles[0] + " - " + this.goles[1], "fin");
+        this.apunta("Final: " + this.goles[0] + " - " + this.goles[1], "fin").ro = { que: "final", sub: this.goles[0] + " - " + this.goles[1] };
       }
       return;
     }
+    // la posesion: cada paso con el reloj en marcha es del ultimo equipo que
+    // toco el balon (el que lo lleva, o el que lo paso o lo despejo) (O-306)
+    this.estadisticas.posesion[this.balon.ultimo]++;
 
     for (const l of [0, 1]) {
       this._tension(l, REGLAS.TENSION_POR_SEGUNDO * P);
@@ -1067,7 +1203,8 @@ class Partido {
       if (b.fueraDe === j.id) return this._pitarFueraDeJuego(j);
       const directo = b.pase && b.pase.directo && j.lado === this.jugadores[b.pase.de].lado ? this.jugadores[b.pase.de] : null;
       if (b.pase && j.lado !== this.jugadores[b.pase.de].lado) {
-        this.apunta("¡" + j.nombre + " corta el pase!", "mal");
+        // el que dio el pase lo pierde: su "¡Uy!" en el campo (O-306)
+        this.apunta("¡" + j.nombre + " corta el pase!", "mal").pierde = b.pase.de;
         this.ultimoRobo[j.lado] = this.segundosDeJuego();
       }
       this.coger(j);
@@ -1086,21 +1223,22 @@ class Partido {
     if (Math.abs(b.y) > ay) {
       // por el fondo: si la toco el que ataca hacia ahi, saque de puerta; si no, corner
       const fondoDe = this.jugadores.find(j => j.esPortero && Math.sign(-j.dir) === Math.sign(b.y)) || this.portero(contra);
+      // los rotulos del color del que saca (O-306)
       if (fondoDe.lado !== b.ultimo) {
-        this.apunta("Saque de puerta");
+        this.apunta("Saque de puerta").ro = { que: "puerta", lado: fondoDe.lado, sub: "Para " + this.nombres[fondoDe.lado] };
         fondoDe.x = 0; fondoDe.y = Math.sign(b.y) * (ay - 5);
         this.coger(fondoDe); this._sacando(fondoDe);
       } else {
         const ataca = this.equipo(contra).filter(j => !j.esPortero)
           .sort((p, q) => Math.hypot(p.x - b.x, p.y - b.y) - Math.hypot(q.x - b.x, q.y - b.y))[0];
-        this.apunta("Corner para " + this.nombres[contra]);
+        this.apunta("Corner para " + this.nombres[contra]).ro = { que: "corner", lado: contra, sub: "Para " + this.nombres[contra] };
         ataca.x = Math.sign(b.x || 1) * (ax - 0.6); ataca.y = Math.sign(b.y) * (ay - 0.6);
         this.coger(ataca); this._sacando(ataca);
       }
     } else {
       const saca = this.equipo(contra).filter(j => !j.esPortero)
         .sort((p, q) => Math.hypot(p.x - b.x, p.y - b.y) - Math.hypot(q.x - b.x, q.y - b.y))[0];
-      this.apunta("Saque de banda para " + this.nombres[contra]);
+      this.apunta("Saque de banda para " + this.nombres[contra]).ro = { que: "banda", lado: contra, sub: "Saque para " + this.nombres[contra] };
       saca.x = Math.sign(b.x) * (ax - 0.5); saca.y = Math.max(-ay + 1, Math.min(ay - 1, b.y));
       this.coger(saca); this._sacando(saca);
     }
@@ -1137,6 +1275,8 @@ class Partido {
       re: this.resultado ? Object.assign({ k: this.nResultado || 0 }, this.resultado) : null,
       cb: this.cambios,
       ev: this.eventos.length, ul: this.eventos.slice(-10),
+      // al final: las estadisticas del descanso y del final (O-306), copiadas
+      es: JSON.parse(JSON.stringify(this.estadisticas)),
     };
   }
 
@@ -1178,6 +1318,9 @@ class Partido {
       while (this.eventos.length < primero) this.eventos.push(null);
     }
     for (let k = Math.max(this.eventos.length, primero); k < f.ev; k++) this.eventos[k] = f.ul[k - primero];
+    // las estadisticas (O-306); un anfitrion anterior no las manda: se quedan a 0
+    // y la pagina no las ensena (mira si hubo algun paso de posesion)
+    if (f.es && f.es.tiros && f.es.posesion) this.estadisticas = f.es;
     return true;
   }
 

@@ -359,11 +359,14 @@ function raton() {
     if (PARTIDO && PARTIDO.fase === "descanso") {
       const q = pos(ev), j = PANTALLA.jugadorEn(q.px, q.py, YO);
       if (j) PANTALLA.elegido = j.id;
+      PANTALLA.pulsar(PANTALLA.aCampo(q.px, q.py));
       return;
     }
     if (!sePuede()) return;
     c.setPointerCapture(ev.pointerId);
     const q = pos(ev);
+    // la onda cian donde pulsas, como la mirilla de IE3 (O-306)
+    PANTALLA.pulsar(PANTALLA.aCampo(q.px, q.py));
     const j = PANTALLA.jugadorEn(q.px, q.py, YO);
     empezado = { q, j, puntos: [], campo: PANTALLA.aCampo(q.px, q.py), t0: performance.now(), lejos: 0 };
     if (j) { PANTALLA.elegido = j.id; empezado.puntos.push({ x: j.x, y: j.y }); PANTALLA.trazo = empezado; }
@@ -393,7 +396,10 @@ function raton() {
     // un arrastre que no empezo en un jugador no es "pulsar un punto": salia un
     // pase al hueco (o un tiro) que no se queria (O-305)
     if (!e.j && Math.max(mov, e.lejos) > 2.5) return;
-    if (PARTIDO.fase === "duelo") return;          // en un duelo, solo rutas
+    // en un duelo, solo rutas; en un foco, el que lleva el balon deja marcado el
+    // pase o el tiro, como en la pausa: sale si gana el duelo (O-306)
+    const marca = PARTIDO.fase === "duelo" && tengo && PARTIDO.duelo && PARTIDO.duelo.tipo === "foco";
+    if (PARTIDO.fase === "duelo" && !marca) return;
     const alto = performance.now() - e.t0 > 450;   // mantener pulsado: pase bombeado
     // pulsar al rival que lleva el balon: los tuyos van a presionarle
     if (d && d.lado !== YO) {
@@ -405,18 +411,20 @@ function raton() {
     const pd = PARTIDO.balon.pase && PARTIDO.jugadores[PARTIDO.balon.pase.de];
     if (!tengo && pd && pd.lado === YO) {
       const rec = PARTIDO.jugadores[PARTIDO.balon.pase.a], g = PARTIDO.porteriaRival(rec);
-      if (Math.abs(fin.y - g.y) < 7 && Math.abs(fin.x) < 9) { PARTIDO.ordenar({ tipo: "directo", de: PARTIDO.balon.pase.de }); return; }
+      // la X del cono del tiro, donde has pulsado (O-306)
+      if (Math.abs(fin.y - g.y) < 7 && Math.abs(fin.x) < 9) { PANTALLA.apuntar(fin.x, g.y); PARTIDO.ordenar({ tipo: "directo", de: PARTIDO.balon.pase.de }); return; }
     }
     if (tengo) {
       // pulsar a un companero: pasarle (en la pausa queda marcado). Se mira antes
       // que la porteria: si estaba delante de ella, chutaba el del balon (O-305)
       if (e.j && e.j.id !== d.id) { PARTIDO.ordenar({ tipo: "pase", de: d.id, a: e.j.id, alto }); return; }
-      // en la pausa, pulsar al que lleva el balon quita el pase o el tiro marcado (O-305)
-      if (e.j && PARTIDO.fase === "pausa") { PARTIDO.ordenar({ tipo: "pase", de: d.id, a: d.id }); return; }
+      // en la pausa (y en un foco, O-306), pulsar al que lleva el balon quita el
+      // pase o el tiro marcado (O-305)
+      if (e.j && (PARTIDO.fase === "pausa" || marca)) { PARTIDO.ordenar({ tipo: "pase", de: d.id, a: d.id }); return; }
       // pulsar la porteria rival: chutar. En la pausa el tiro queda marcado y sale
       // al seguir; antes acababa en un pase a la linea de gol (O-305)
       const g = PARTIDO.porteriaRival(d);
-      if (Math.abs(fin.y - g.y) < 7 && Math.abs(fin.x) < 9) { PARTIDO.ordenar({ tipo: "tiro", de: d.id }); return; }
+      if (Math.abs(fin.y - g.y) < 7 && Math.abs(fin.x) < 9) { PANTALLA.apuntar(fin.x, g.y); PARTIDO.ordenar({ tipo: "tiro", de: d.id }); return; }
       if (e.j) return;
       // pulsar un punto: pase al hueco
       PARTIDO.ordenar({ tipo: "pasePunto", de: d.id, x: fin.x, y: fin.y, alto });
@@ -432,17 +440,66 @@ function raton() {
 }
 
 // --- la pausa de un duelo ---------------------------------------------------------
-function cara(j) {
-  return el("figure", {}, [el("img", { alt: "", src: "/cara/" + encodeURIComponent(j.cara || "") }), el("figcaption", { text: j.nombre })]);
+// apoyo: los companeros que le ayudan en un foco ({ids, pct}, del motor): sus
+// caras pequenas y lo que suman, como la cara del que apoya en CS (O-306)
+function cara(j, apoyo) {
+  const fig = el("figure", {}, [el("img", { alt: "", src: "/cara/" + encodeURIComponent(j.cara || "") }), el("figcaption", { text: j.nombre })]);
+  const quienes = apoyo && apoyo.ids ? apoyo.ids.map(id => PARTIDO.jugadores[id]).filter(Boolean) : [];
+  if (quienes.length) {
+    const pct = c => Math.round((REGLAS.APOYO + (c.elemento && c.elemento === j.elemento ? REGLAS.APOYO_ELEMENTO : 0)) * 100);
+    fig.appendChild(el("div", { class: "apoyos",
+      title: "Le apoyan (compañeros a menos de " + REGLAS.APOYO_RADIO + " m; más si son de su elemento): "
+        + quienes.map(c => c.nombre + " +" + pct(c) + " %").join(", ") },
+      [...quienes.map(c => el("img", { alt: c.nombre, src: "/cara/" + encodeURIComponent(c.cara || "") })),
+       el("span", { text: "apoyo +" + apoyo.pct + " %" })]));
+  }
+  return fig;
 }
 
-function botonComando(o, j, alElegir) {
+const NOMBRE_ELEM = e => e === "Montana" ? "Montaña" : e;
+// el poder de base de los dos antes de elegir, como el "Poder de base" de CS o
+// la barra de Light (O-306): cada numero bajo su cara (izq. el que ataca) y en
+// medio los elementos, con la flecha hacia el que pierde si hay ventaja (+20 %).
+// En un foco, debajo, la disputa: si el defensa carga se juega con otros numeros.
+// En el tiro el elemento del portero no le suma (solo el de su supertecnica)
+function barraBase(du, izq, der, yoIzq) {
+  const b = du.base;
+  if (!b || b[izq.lado] === undefined) return null;     // un anfitrion anterior no lo manda
+  const gI = REGLAS.gana(izq.elemento, der.elemento), gD = du.tipo === "foco" && REGLAS.gana(der.elemento, izq.elemento);
+  const lado = (j, clase) => el("div", { class: "base-lado " + clase + (j.lado === 0 ? " azul" : " rojo") },
+    [el("small", { text: "Poder de base" }), el("b", { text: String(b[j.lado]) })]);
+  const caja = el("div", { class: "base-duelo" }, [
+    lado(izq, "izq"),
+    el("div", { class: "base-elem", title: gI ? NOMBRE_ELEM(izq.elemento) + " gana a " + NOMBRE_ELEM(der.elemento) + ": " + izq.nombre + " +20 %"
+        : gD ? NOMBRE_ELEM(der.elemento) + " gana a " + NOMBRE_ELEM(izq.elemento) + ": " + der.nombre + " +20 %" : "Sin ventaja de elemento" }, [
+      izq.elemento ? iconoElemento(izq.elemento, 20) : null,
+      el("b", { class: "flecha" + (gI || gD ? " si" : ""), text: gI ? "▶" : gD ? "◀" : "·" }),
+      der.elemento ? iconoElemento(der.elemento, 20) : null]),
+    lado(der, "der")]);
+  if (b.disputa) caja.appendChild(el("div", { class: "base-disputa", title: "Cargar es una disputa: cuentan otros stats (Presión, Físico, Inteligencia)" }, [
+    el("b", { text: String(b.disputa[izq.lado]) }),
+    el("small", { text: yoIzq ? "si te carga: disputa" : "si cargas: disputa" }),
+    el("b", { text: String(b.disputa[der.lado]) })]));
+  return caja;
+}
+
+// total: el de este boton si no es el suyo (la cadena cambia con el tiro elegido)
+function botonComando(o, j, alElegir, total) {
+  // a la derecha, lo que suma la supertecnica y el total con el que quedarias
+  // (O-306); Romper y Entrada, de cuanto a cuanto (son inestables), y Cargar,
+  // su numero de disputa. Sin el (anfitrion anterior), como antes
+  const t = total !== undefined ? total : o.total;
+  const cifra = (o.clave === "nada" && total === undefined) || t === undefined ? null
+    : o.min !== undefined ? "de " + o.min + " a " + o.max
+    : o.clave === "cargar" ? "disputa " + t : "total " + t;
   const b = el("button", { class: "comando", disabled: !o.puede }, [
     o.tipo ? iconoTipo(o.tipo, 22) : null,
     o.elemento ? iconoElemento(o.elemento, 20) : null,
     el("span", {}, [el("span", { text: o.nombre }), o.nota ? el("div", { class: "coste", text: o.nota }) : null,
       o.tp ? el("div", { class: "coste", text: o.tp + " de tension (tienes " + Math.round(j.pt) + ")" }) : null]),
-    o.poder ? el("span", { class: "poder", text: "+" + o.poder }) : null]);
+    o.poder || cifra ? el("span", { class: "cifras" }, [
+      o.poder ? el("span", { class: "poder", text: "+" + o.poder }) : null,
+      cifra ? el("small", { class: "total", text: cifra }) : null]) : null]);
   // ni el segundo clic de un doble clic ni uno recien rehecha la lista: caia en
   // el boton nuevo de debajo (la parada tras el muro, la cadena tras el tiro) (O-305)
   b.onclick = ev => {
@@ -484,6 +541,8 @@ function pausa() {
   }
   if (mostrando === "resultado") return;
   if (p.fase === "final") { if (mostrando !== "final") mostrarFinal(); return; }
+  // el descanso: el marcador y las estadisticas de la 1.ª parte (O-306)
+  if (p.fase === "descanso") { if (mostrando !== "descanso") mostrarDescanso(); return; }
   const pend = p.fase === "duelo" && !DEMO && !duelosElegidos.has(p.duelo.id) ? p.pendientes()[YO] : null;
   if (!pend) { if (mostrando) { mostrando = null; capa.hidden = true; } return; }
   // online, lo que queda para elegir (luego va el comando seguro)
@@ -509,7 +568,14 @@ function pintarEleccion(p, pend) {
     const att = p.jugadores[du.atacante], def = p.jugadores[du.defensor];
     caja.appendChild(el("div", { class: "titulo-duelo", text: pend.rol === "ataque" ? "¡Te sale al paso!" : "¡A por el balón!" }));
     if (p.limiteDuelo) caja.appendChild(el("div", { class: "coste", id: "cuenta-duelo" }));
-    caja.appendChild(el("div", { class: "cara-a-cara" }, [cara(att), el("b", { text: "VS" }), cara(def)]));
+    const ap = (du.base && du.base.apoyos) || {};
+    caja.appendChild(el("div", { class: "cara-a-cara" }, [cara(att, ap[att.lado]), el("b", { text: "VS" }), cara(def, ap[def.lado])]));
+    const barra = barraBase(du, att, def, pend.rol === "ataque");
+    if (barra) caja.appendChild(barra);
+    // con el balon, el pase o el tiro se puede dejar marcado ya (O-306). Online,
+    // un anfitrion anterior (sin base) no lo acepta: entonces no se dice
+    if (pend.rol === "ataque" && du.base) caja.appendChild(el("div", { class: "pista",
+      text: "Ya puedes marcar en el campo el pase o el tiro: sale si ganas." }));
     const j = p.jugadores[pend.jugador];
     for (const o of pend.opciones) lista.appendChild(botonComando(o, j, clave => elegido(clave)));
   } else {
@@ -517,6 +583,8 @@ function pintarEleccion(p, pend) {
     caja.appendChild(el("div", { class: "titulo-duelo", text: pend.rol === "tiro" ? "¡Tiro a puerta!" : "¡Te chutan!" }));
     if (p.limiteDuelo) caja.appendChild(el("div", { class: "coste", id: "cuenta-duelo" }));
     caja.appendChild(el("div", { class: "cara-a-cara" }, [cara(tir), el("b", { text: "VS" }), cara(por)]));
+    const barra = barraBase(du, tir, por, pend.rol === "tiro");
+    if (barra) caja.appendChild(barra);
     if (pend.rol === "tiro") {
       for (const o of pend.opciones) lista.appendChild(botonComando(o, tir, clave => {
         if (!pend.cadena) return elegido({ tiro: clave });
@@ -527,7 +595,8 @@ function pintarEleccion(p, pend) {
         lista.appendChild(el("div", { class: "coste", text: ch.nombre + " esta en la linea de tiro: ¿encadena el tiro?" }));
         for (const oc of pend.cadena.opciones) {
           const op = Object.assign({}, oc, { puede: oc.puede && oc.tp + gasto <= p.tension[YO] });
-          lista.appendChild(botonComando(op, ch, c2 => elegido({ tiro: clave, cadena: c2 })));
+          // el total del tiro con esta cadena (y sin ella), segun el tiro elegido (O-306)
+          lista.appendChild(botonComando(op, ch, c2 => elegido({ tiro: clave, cadena: c2 }), oc.totales ? oc.totales[clave] : undefined));
         }
       }));
     } else {
@@ -573,14 +642,72 @@ function mostrarFinal() {
   caja.textContent = "";
   const gano = p.goles[YO] > p.goles[1 - YO], empate = p.goles[0] === p.goles[1];
   caja.appendChild(el("div", { class: "titulo-duelo", text: empate ? "¡Empate!" : gano ? "¡Has ganado!" : "Has perdido" }));
-  caja.appendChild(el("div", { class: "resultado", text: p.nombres[0] + "  " + p.goles[0] + " - " + p.goles[1] + "  " + p.nombres[1] }));
-  const goles = p.eventos.filter(e => e && e.clase === "gol").map(e => {
-    const min = Math.floor(e.reloj / p.duracion * 45) + (e.mitad === 2 ? 45 : 0);
-    return min + "' " + e.texto.replace(/ \(.*\)$/, "");
-  });
-  if (goles.length) caja.appendChild(el("div", { class: "registro", text: goles.join("\n"), style: "white-space:pre-line;max-height:160px" }));
+  // con estadisticas, el marcador de colores y debajo ellas, con los goles de
+  // cada equipo (O-306); sin ellas (anfitrion anterior), como antes
+  const est = bloqueEstadisticas(p);
+  if (est) { caja.appendChild(marcadorFinal(p)); caja.appendChild(est); }
+  else {
+    caja.appendChild(el("div", { class: "resultado", text: p.nombres[0] + "  " + p.goles[0] + " - " + p.goles[1] + "  " + p.nombres[1] }));
+    const goles = p.eventos.filter(e => e && e.clase === "gol").map(e => {
+      const min = Math.floor(e.reloj / p.duracion * 45) + (e.mitad === 2 ? 45 : 0);
+      return min + "' " + e.texto.replace(/ \(.*\)$/, "");
+    });
+    if (goles.length) caja.appendChild(el("div", { class: "registro", text: goles.join("\n"), style: "white-space:pre-line;max-height:160px" }));
+  }
   caja.appendChild(el("button", { class: "grande", onclick: () => { if (RED) RED.salirSala(); location.href = "/partido"; } }, [el("span", { text: "Otro partido" })]));
   capa.hidden = false;
+}
+
+// el descanso, como el "Fin de la 1.ª parte" de CS o el "Half Time" de Light: el
+// marcador y las estadisticas. Sin botones: los cambios se hacen en el campo y
+// en la ficha de la derecha, y la 2.ª parte empieza con "Segunda parte", el de
+// siempre (O-305). Va en la columna de los duelos, que en el descanso esta libre (O-306)
+function mostrarDescanso() {
+  const p = PARTIDO, caja = $("#pausa-caja"), capa = $("#pausa");
+  mostrando = "descanso";
+  caja.textContent = "";
+  caja.appendChild(el("div", { class: "titulo-duelo", text: "Fin de la 1.ª parte" }));
+  caja.appendChild(marcadorFinal(p));
+  const est = bloqueEstadisticas(p);
+  if (est) caja.appendChild(est);
+  // como el aviso del campo: lo de cambiar, solo si quedan cambios y suplentes
+  const cambia = p.puedeCambiar(YO) && (p.banquillos[YO] || []).some((d, k) => !p.banquilloUsado[YO][k]);
+  if (!DEMO) caja.appendChild(el("div", { class: "pista", text: (cambia ? "Pulsa a uno de los tuyos en el campo para cambiarlo. Cuando acabes, " : "Cuando estés listo, ")
+    + "«Segunda parte» (a la derecha)." }));
+  capa.hidden = false;
+}
+
+// el marcador grande del descanso y del final: cada equipo de su color (azul el
+// de la izquierda, rojo el de la derecha, como el marcador de 3DS) (O-306)
+function marcadorFinal(p) {
+  return el("div", { class: "marcador-final" }, [
+    el("span", { class: "eq azul", text: p.nombres[0], title: p.nombres[0] }),
+    el("b", { text: p.goles[0] + " - " + p.goles[1] }),
+    el("span", { class: "eq rojo", text: p.nombres[1], title: p.nombres[1] })]);
+}
+
+// las estadisticas, como en los cinco juegos (CS, Galaxy, Light, IE3): tiros,
+// supertecnicas, posesion en % con la barra de los dos colores y los goles de
+// cada equipo con su minuto. Las cuenta el motor y van en la foto (O-306); las
+// de un anfitrion anterior no llegan (posesion a 0) y no se ensenan
+function bloqueEstadisticas(p) {
+  const es = p.estadisticas, po = es && es.posesion;
+  if (!po || !(po[0] + po[1] > 0)) return null;
+  const pc = Math.round(po[0] / (po[0] + po[1]) * 100);
+  const caja = el("div", { class: "estadisticas" }, [el("div", { class: "est-titulo", text: "Estadísticas" })]);
+  const fila = (a, que, b, title) => [el("b", { text: String(a) }), el("span", { class: "est-que", text: que, title }), el("b", { text: String(b) })]
+    .forEach(c => caja.appendChild(c));
+  fila(es.tiros[0], "Tiros", es.tiros[1], "Tiros a puerta, también los bloqueados y los penaltis");
+  fila(es.tecnicas[0], "Supertécnicas", es.tecnicas[1], "Supertécnicas usadas en regates, entradas, tiros, bloqueos y paradas");
+  fila(pc + " %", "Posesión", (100 - pc) + " %", "Tiempo de juego con el balón (del último que lo tocó)");
+  const barra = el("div", { class: "est-barra", title: "Posesión: " + p.nombres[0] + " " + pc + " % · " + p.nombres[1] + " " + (100 - pc) + " %" }, [el("i")]);
+  barra.firstChild.style.width = pc + "%";
+  caja.appendChild(barra);
+  // los goles: la parte (como el marcador, 1ª o 2ª), el minuto y quien
+  const goles = lado => el("div", { class: "est-goles" }, (es.goles || []).filter(g => g[0] === lado).map(g =>
+    el("div", { title: g[1] + "ª parte, " + g[2] + "' " + g[3] }, [el("small", { class: "parte p" + g[1], text: g[1] + "ª" }), el("span", { text: g[2] + "' " + g[3] })])));
+  [goles(0), el("span", { class: "est-que", text: "Goles" }), goles(1)].forEach(c => caja.appendChild(c));
+  return caja;
 }
 
 // online: el rival ha cerrado o ha salido a mitad de partido (O-305)
@@ -597,7 +724,7 @@ function mostrarRivalFuera() {
 /* El resultado de un duelo, como un rotulo del juego: la cara, la
    supertecnica en una tarjeta del color de su elemento y el numero que saca
    cada uno (con lo que le suman las pasivas). */
-function filaDuelo(j, nombre, esTecnica, elemento, valor, pasivas, gana, retardo) {
+function filaDuelo(j, nombre, esTecnica, elemento, valor, pasivas, gana, retardo, apoyo) {
   const fila = el("div", { class: "rotulo" + (gana ? " gana" : ""), style: "animation-delay:" + retardo + "ms" });
   fila.appendChild(el("img", { class: "rotulo-cara", alt: "", src: "/cara/" + encodeURIComponent(j.cara || "") }));
   // "(cadena)" va con el nombre del jugador: detras de la supertecnica la partia
@@ -612,7 +739,9 @@ function filaDuelo(j, nombre, esTecnica, elemento, valor, pasivas, gana, retardo
     t.style.background = "linear-gradient(90deg, " + c[0] + ", " + c[1] + ")";
     centro.appendChild(t);
   } else centro.appendChild(el("b", { class: "rotulo-comando", text: nombre }));
-  if (pasivas) centro.appendChild(el("small", { class: "rotulo-pasivas", text: "pasivas +" + pasivas + " %" }));
+  // y lo que suman los apoyos en un foco, como en el panel (O-306)
+  const suma = [pasivas ? "pasivas +" + pasivas + " %" : "", apoyo ? "apoyo +" + apoyo + " %" : ""].filter(Boolean).join(" · ");
+  if (suma) centro.appendChild(el("small", { class: "rotulo-pasivas", text: suma }));
   fila.appendChild(centro);
   const num = el("span", { class: "rotulo-valor", text: "0" });
   fila.appendChild(num);
@@ -628,8 +757,13 @@ function filaDuelo(j, nombre, esTecnica, elemento, valor, pasivas, gana, retardo
   return fila;
 }
 
+// cada resultado tiene su turno: el temporizador de uno anterior (un foco, 2,2 s)
+// escondia el siguiente (un fuera de juego) a los pocos ms (O-306)
+let turnoResultado = 0;
 function mostrarResultado(r) {
   const p = PARTIDO, caja = $("#pausa-caja"), capa = $("#pausa");
+  const turno = ++turnoResultado;
+  const esconder = () => { if (mostrando === "resultado" && turno === turnoResultado) { mostrando = null; capa.hidden = true; } };
   caja.textContent = "";
   let dura = 1600;
   if (r.tipo === "fuera") {
@@ -637,7 +771,7 @@ function mostrarResultado(r) {
     caja.appendChild(el("div", { class: "titulo-duelo", text: "¡Fuera de juego!" }));
     caja.appendChild(el("div", { class: "resultado", text: j.nombre + " estaba por delante del penúltimo rival" }));
     capa.hidden = false; mostrando = "resultado";
-    setTimeout(() => { if (mostrando === "resultado") { mostrando = null; capa.hidden = true; } }, 1500);
+    setTimeout(esconder, 1500);
     return;
   }
   if (r.tipo === "tiro") {
@@ -664,8 +798,9 @@ function mostrarResultado(r) {
     caja.appendChild(el("div", { class: "titulo-duelo", text: r.tipo === "falta" ? (r.penalti ? "¡Falta! ¡Penalti!" : "¡Falta! Tiro libre") : r.tipo === "disputa" ? "Disputa" : "Foco" }));
     [att, def].forEach((j, k) => {
       const elem = r.elementos ? r.elementos[j.lado] : null;
+      const ap = r.apoyos && r.apoyos[j.lado];
       caja.appendChild(filaDuelo(j, r.tecnicas[j.lado], elem !== null && elem !== undefined, elem || "", r.valores[j.lado],
-        r.pasivas ? r.pasivas[j.lado] : 0, j === gan, k * 350));
+        r.pasivas ? r.pasivas[j.lado] : 0, j === gan, k * 350, ap ? Math.round((ap.factor - 1) * 100) : 0));
     });
     caja.appendChild(el("div", { class: "resultado final-duelo", style: "animation-delay:900ms",
       text: r.tipo === "falta" ? "Falta de " + def.nombre : gan.lado === YO ? "¡Bien! Gana " + gan.nombre : "Gana " + gan.nombre }));
@@ -673,7 +808,7 @@ function mostrarResultado(r) {
   }
   capa.hidden = false;
   mostrando = "resultado";
-  setTimeout(() => { if (mostrando === "resultado") { mostrando = null; capa.hidden = true; } }, dura);
+  setTimeout(esconder, dura);
 }
 
 /* --- online (O-287) ----------------------------------------------------------- */

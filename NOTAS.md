@@ -7108,6 +7108,89 @@ Arreglados todos; en el codigo los cambios citan esta nota.
   minuto 0); al acabar el partido sale "Final" aunque el rival se haya ido;
   en la ficha cada supertecnica sale una vez. Medido: 3,2 goles por partido.
 
+### O-306 · El juego de partidos: lo que se ve en los videos de Inazuma
+
+Se estudiaron 5 partidos grabados (Chrono Stones, Galaxy, IE3, GO Light y CS en
+frances). Los informes, el plan por prioridad y la critica del plan estan en el
+scratchpad (juego/videos/resultado.json). Lo que dependia de Aaron se le
+pregunto (sus respuestas, en O-307); aqui va lo que se hizo sin esperar. En el
+codigo los cambios citan esta nota.
+- Los numeros antes de elegir (los cuatro juegos los ensenan: "Poder de base"
+  en CS, "Valeur de base" en el CS frances, la barra Form de Light, IE3):
+  - Al empezar un foco o un tiro, el motor guarda en el duelo `base` (lo de
+    cada lado sin comando ni tecnica: stats, elemento, pasivas y apoyos) y en
+    cada boton `total`. Romper y Entrada dicen "de X a Y" (x0,75 a x1,65),
+    Cargar su numero de disputa y la cadena un total por cada tiro
+    (`totales`). Va dentro del duelo, que ya viajaba en la foto.
+  - Las cuentas estan en `_valorFoco`, `_valorTiro`, `_valorCadena`,
+    `_valorMuro` y `_valorParada`, que usa tambien el duelo: el numero del
+    panel es el que se juega (12 partidos con semilla dan lo mismo que antes).
+    Si se cambian las formulas, hay que hacerlo ahi.
+  - Como dijo la critica, un foco tiene dos numeros: si el defensa carga se
+    juega la disputa (otros stats); sale en una segunda fila.
+  - Panel: bajo las caras, "Poder de base" de cada uno en el color de su
+    equipo, los dos elementos y una flecha amarilla hacia el que pierde la
+    ventaja (en el tiro solo cuenta la del tirador). Los apoyos que ya habia
+    (`apoyos()` da ahora `ids`) salen con sus caras pequenas y "apoyo +x %";
+    en el resultado del foco, "pasivas +x % · apoyo +y %".
+  - Aproximados: la parada no descuenta lo que paga el muro, el muro aun
+    lleva su +-10 % al resolver y los totales del que ataca suponen foco.
+- Pase marcado durante el foco (CS frances 9:32, "pase programado"): el que
+  lleva el balon puede marcar el pase, el pase al hueco o el tiro como en la
+  pausa (`paseMarcado`). Si gana, sale al acabar el resultado; si pierde (o
+  hay penalti), se borra. En el duelo de un tiro no se marca nada y el que
+  defiende tampoco marca.
+- Rotulos grandes en el campo, como el del gol (salen en los cinco juegos):
+  "¡Saque!", "Fin de la 1.ª parte", "Fin del partido" y luego "¡Victoria!",
+  "Empate" o "Derrota" desde tu lado (este se queda), "¡Fuera de juego!",
+  "¡Falta!", "¡Penalti!", "Fuera de banda", "¡Corner!", "Saque de puerta",
+  "¡Bloqueo!", "¡Invocacion!" o "¡Miximax Trans!" y "¡Supertactica!". Los
+  pone el motor en el suceso (`ro` = {que, lado, sub}): viajan en la foto con
+  los sucesos. La banda va del color del equipo al que le toca y no tapa el
+  balon; los de jugada son mas pequenos y cortos (el juego no se para, O-307).
+  El saque de centro es un suceso nuevo, "Saca de centro <equipo>" (no empieza
+  por "Saque de": eso son los fueras que cuentan las medidas).
+- Estadisticas en el descanso y al final (las cinco las tienen): tiros
+  (tambien bloqueados y penaltis), supertecnicas pagadas, posesion (cada paso
+  con el reloj en marcha es del ultimo que toco el balon) y los goles con la
+  parte, el minuto y quien (el nombre: tras un cambio el id es otro). En
+  `estadisticas`, y en la foto al final como `es`. En el descanso salen en la
+  columna de los duelos con el marcador; los cambios y "Segunda parte" siguen
+  como en O-305.
+- El campo como en 3DS (CS, CS frances, Galaxy, IE3): rutas como flechas
+  azules gruesas con punta (la que se dibuja, azul claro); el pase raso, linea
+  cian; el bombeado, arco cian con su sombra (el balon va por el arco, que en
+  2D se abre de lado para no quedar encima de la sombra); X amarilla donde
+  cae; una onda cian donde pulsas (la mirilla de IE3); el jugador de la ficha
+  con aro azul que gira y un rombo azul encima (antes aro amarillo); el rival
+  al que presionas, con la marca naranja de pinchos; el tiro, un cono cian a
+  los palos con la X donde pulsaste. En la 3D igual: cintas en el suelo en vez
+  de lineas de 1 pixel, el arco en tubo y el rombo flotando.
+- Anillos rojos que se cierran en 0,4 s sobre los dos del foco o sobre el que
+  chuta. La critica corrigio el plan: en los videos salen cuando el duelo ya
+  ha saltado, no como aviso a 6 m (eso seria un invento; se pregunto).
+- Bocadillos de tu equipo: "¡Aqui!" sobre los companeros libres cuando llevas
+  el balon (sin rival a 5 m ni cerca de la linea de pase, entre 5 y 38 m y no
+  por detras; como mucho 2; constante `AQUI`) y "¡Uy!" sobre el tuyo que
+  pierde el balon en un foco o al cortarle un pase (el suceso lleva `pierde`).
+  El "¡Regate!" no se hizo.
+- Repaso final: el temporizador de un resultado anterior (un foco, 2,2 s) ya
+  no esconde el siguiente (un fuera de juego) a los pocos ms: cada resultado
+  tiene su turno. En las estadisticas un nombre largo de los goles pasa a dos
+  lineas (a 1400 de ancho salia "Lenora Gra..." en casi todos).
+- Online: lo nuevo va dentro de lo que ya viajaba (`base` y `total` en el
+  duelo, `ro` y `pierde` en los sucesos) o al final (`es`). Un Pizarra
+  anterior lo ignora; con un anfitrion anterior no sale nada de esto (ni
+  barra, ni totales, ni rotulos, ni estadisticas) y el pase marcado en un
+  foco lo rechaza.
+- Medido: prueba3ds 172 OK; fotos del invitado iguales (2545 bytes de media,
+  antes 2364); medir3 13,8 tiros y 3,17 goles por partido, como antes. Pintar
+  el campo 2D cuesta ~0,2 ms por cuadro.
+- Queda, por las respuestas de O-307: gana el numero mayor (90-10) con
+  critico, zoom del campo, "Jugar" antes de cada saque, invocar e
+  hipertecnicas en el duelo, el tiro que viaja con bloqueos, el reloj de
+  cada parte y las tacticas sin parar el juego.
+
 ### O-307 · El juego de partidos: como se juega, segun Aaron (2026-10-05)
 
 Respuestas de Aaron tras el estudio de los videos (O-306). Mandan sobre lo
