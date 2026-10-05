@@ -7108,6 +7108,38 @@ Arreglados todos; en el codigo los cambios citan esta nota.
   minuto 0); al acabar el partido sale "Final" aunque el rival se haya ido;
   en la ficha cada supertecnica sale una vez. Medido: 3,2 goles por partido.
 
+### O-307 · El juego de partidos: como se juega, segun Aaron (2026-10-05)
+
+Respuestas de Aaron tras el estudio de los videos (O-306). Mandan sobre lo
+anterior:
+1. Campo de abajo con ZOOM siguiendo al balon, como la tactil de 3DS, y con
+   las flechas del teclado se puede mover la camara. Arriba, el mapa del
+   campo entero (y lo demas de la pantalla de arriba de 3DS).
+2. Pausa tecnica: sin limite (de momento).
+3. Antes de cada saque se espera a que los dos den a "Jugar", sin limite (de
+   momento).
+4. Duelos sin supertecnica: se quedan Regatear/Romper y Tapar/Entrada/Cargar.
+5. Tiros sin supertecnica: Vaselina = balon bombeado, puede pasar por encima
+   de los defensas si no estan encima del que chuta; Testarazo/Volea igual con
+   el balon alto. Portero: Parar = se la queda; Despejar = la despeja y rebota
+   a donde sea.
+6. Quien gana: 90-10. Casi siempre el numero mas fuerte, pero puede haber un
+   critico y ganar el otro.
+7. Espiritus: NO gastan tension, gastan HIPERTENSION, como en VR; la
+   hipertension se consigue haciendo supertecnicas. En VR se puede invocar en
+   mitad de un duelo. Si usas espiritu, mixi max o cualquier hipertecnica y el
+   rival no (o usa supertecnica), ganas siempre el duelo; si los dos usan
+   hipertecnica, duelo de poder: gana el que mas tiene. Revisar en VR como va.
+8. Duracion de cada parte: elegir 15 o 30 (reloj de 3DS). En empate: elegir
+   penaltis, prorroga o nada (todo elegible).
+9. Cambios: se eligen en la pausa, pero no se aplican hasta que el balon se
+   para (fuera, falta, gol...), como en la vida real.
+10. Supertacticas, invocar e hipertecnicas: como en VR, cada uno cuando
+    quiera sin parar el juego; en un duelo, como en el punto 7.
+11. Colores: da igual.
+Ademas: todo con la estetica y el layout de los juegos antiguos (que se
+entienda), y las reglas como en la vida real.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
