@@ -7139,6 +7139,8 @@ anterior:
 11. Colores: da igual.
 Ademas: todo con la estetica y el layout de los juegos antiguos (que se
 entienda), y las reglas como en la vida real.
+12. Tarjetas: en VR hay tarjetas al hacer faltas, pero es raro: ponerlas con
+    poca probabilidad. Ley de la ventaja: no.
 
 ## SUPUESTO
 
