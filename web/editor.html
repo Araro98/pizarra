@@ -1811,7 +1811,12 @@ function seccionPasivas(d) {
                             opciones:r.opciones.map(o => ({...o, valor:o.id, etiqueta:o.nombre,
                                                            icono200:o.icono200 || ""}))})),
                   v => manda({tipo:"pasiva_personal", fila:d.fila, ranura:x.ranura, id:v}))})
-            : el("span", {class:"bloqueada", text:"las pone el juego"})]));
+            : el("span", {class:"bloqueada", text:"las pone el juego"}),
+          // quitarla, como en el juego: el manual vuelve a la mochila (O-317)
+          pp.se_puede_cambiar && !pasFijas && x.id
+            ? el("button", {class:"btn chico", text:"Quitar",
+                onclick:() => manda({tipo:"pasiva_personal", fila:d.fila, ranura:x.ranura, id:""})})
+            : null]));
     else
       caja.appendChild(el("p", {class:"pie-seccion", text:"Como " + pp.rol + " sus pasivas " + pp.motivo + "."}));
     caja.appendChild(el("div", {class:"seccion-nav"}, [el("h4", {text:"Pasivas como jugador"})]));

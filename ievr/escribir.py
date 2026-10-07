@@ -2151,6 +2151,9 @@ def poner_pasiva_personal(plain, fila, ranura, nombre):
                      "solo las tiene quien lleva la medalla")
 
     texto = (nombre or "").strip()
+    # sin nombre: quitarla, como en el juego (vuelve el manual a la mochila; O-317)
+    if not texto:
+        return quitar_pasiva_personal(plain, fila, ranura)
     id_hex = None
     de_rol = O.pasivas_de_personal_del_rol(rol)
     if len(texto) == 8 and all(c in "0123456789abcdefABCDEF" for c in texto):
@@ -2202,6 +2205,33 @@ def poner_pasiva_personal(plain, fila, ranura, nombre):
     return plain, {"fila": fila, "ranura": ranura, "rol": rol,
                    "antes": O.nombre_pasiva(antes, "vacia") if antes != "00000000" else "vacia",
                    "despues": O.texto_con_valor(id_hex, valor, id_hex)}
+
+
+def quitar_pasiva_personal(plain, fila, ranura):
+    """Deja vacia una de las cinco pasivas de un gerente o entrenador, como al
+    quitarsela en el juego (O-317): la ranura de la tabla queda a cero, como la
+    de un convertido (O-185), y el manual deja de contar como puesto, asi que
+    vuelve a estar libre en la mochila. Un Diamante no tiene manual que devolver."""
+    from ievr import opciones as O
+    if not 1 <= ranura <= 5:
+        raise Ilegal("la ranura de pasiva tiene que ir de 1 a 5")
+    if rol_de_personal(plain, fila) not in ("gerente", "entrenador"):
+        raise Ilegal("ese no es gerente ni entrenador")
+    pos = J.pos_tabla_pasivas(plain, fila, ranura - 1)
+    if pos is None:
+        raise Ilegal("esa fila no esta en la tabla de pasivas de la partida")
+    antes = plain[pos + 8:pos + 12].hex().upper()
+    if antes == "00000000":
+        raise Ilegal("esa ranura ya esta vacia")
+    buf = bytearray(plain)
+    buf[pos + 8:pos + 12] = bytes(4)
+    struct.pack_into("<f", buf, pos + 20, 0.0)
+    plain = bytes(buf)
+    if J.array(plain, J.ARRAY_RAREZA)[fila] != 8:
+        porid = {f["id"].upper(): f for f in inventario.todas_las_filas(plain)}
+        if antes in porid:
+            plain = inventario.ajustar_equipada(plain, porid[antes], -1)
+    return plain, {"fila": fila, "ranura": ranura, "antes": O.nombre_pasiva(antes, antes), "despues": "vacia"}
 
 
 def valor_de_pasiva_personal(plain, fila, id_hex):
