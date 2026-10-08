@@ -2151,6 +2151,9 @@ def poner_pasiva_personal(plain, fila, ranura, nombre):
                      "solo las tiene quien lleva la medalla")
 
     texto = (nombre or "").strip()
+    # las de un Diamante las pone el juego: ni se quitan ni se cambian (Aaron, O-317)
+    if J.array(plain, J.ARRAY_RAREZA)[fila] == 8:
+        raise Ilegal("las pasivas de un gerente o entrenador Diamante las pone el juego: no se pueden cambiar ni quitar")
     # sin nombre: quitarla, como en el juego (vuelve el manual a la mochila; O-317)
     if not texto:
         return quitar_pasiva_personal(plain, fila, ranura)
@@ -2217,6 +2220,8 @@ def quitar_pasiva_personal(plain, fila, ranura):
         raise Ilegal("la ranura de pasiva tiene que ir de 1 a 5")
     if rol_de_personal(plain, fila) not in ("gerente", "entrenador"):
         raise Ilegal("ese no es gerente ni entrenador")
+    if J.array(plain, J.ARRAY_RAREZA)[fila] == 8:
+        raise Ilegal("las pasivas de un gerente o entrenador Diamante las pone el juego: no se pueden quitar")
     pos = J.pos_tabla_pasivas(plain, fila, ranura - 1)
     if pos is None:
         raise Ilegal("esa fila no esta en la tabla de pasivas de la partida")
@@ -2619,9 +2624,10 @@ def sincronizar_tabla_pasivas(plain, fila):
             # todo); y a un Diamante solo se le rehace si lleva alguna que no es
             # de su juego (cambio de arquetipo), no si le falta alguna
             recien = vacia and not any(x["marca"] for x in (actual or []))
-            otro_juego = any(x != "00000000" and x not in esperado for x in ids_actual) if esperado else False
-            if esperado and ((recien and (de_fabrica or rareza == 8))
-                             or (rareza == 8 and otro_juego)):
+            # un Diamante lleva siempre las que pone el juego: no se le quitan
+            # ni se le cambian (Aaron), asi que se rehace si le falta alguna
+            if esperado and ((recien and de_fabrica)
+                             or (rareza == 8 and ids_actual != esperado)):
                 plain = _escribir_juego_de_personal(plain, fila, esperado, marcas)
                 actual = J.tabla_pasivas(plain, fila)
             # Los numeros de las pasivas de personal van por su rareza (O-197) y

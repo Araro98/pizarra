@@ -576,7 +576,8 @@ def _pasivas_de_personal_reales(plain, fila):
         lista.append({"ranura": ranura, "id": "" if vacia else idh,
                       "texto": "vacia" if vacia else O.texto_con_valor(idh, valor, idh),
                       "icono200": "" if vacia else iconos.get(idh, "")})
-    return {"rol": rol, "lista": lista, "se_puede_cambiar": True,
+    # las de un Diamante las pone el juego: ni se cambian ni se quitan (O-317)
+    return {"rol": rol, "lista": lista, "se_puede_cambiar": J.array(plain, J.ARRAY_RAREZA)[fila] != 8,
             "motivo": ""}
 
 
