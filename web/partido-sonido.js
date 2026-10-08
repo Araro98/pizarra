@@ -9,6 +9,11 @@ const Sonido = {
   activo: true,
   ctx: null,
   _antes: null,
+  // con el Director (O-319; diseno 6.7) los sonidos de un resultado (la patada del tiro,
+  // el silbato de la falta y del fuera de juego, el publico en el gol) suenan en su tramo
+  // de la animacion: los manda el, no mirar(). Sin el (las pruebas, una pagina sin
+  // animaciones), como siempre
+  director: false,
 
   // el navegador solo deja sonar despues de un clic: se llama al empezar
   despertar() {
@@ -99,7 +104,7 @@ const Sonido = {
     if (!a) return ahora.fase === "saque" ? undefined : this.silbato(1);
     if (ahora.pase && ahora.pase !== a.pase) this.patada(false);
     if (ahora.duelo && ahora.duelo !== a.duelo) this.duelo();
-    if (ahora.resultado && ahora.resultado !== a.resultado) {
+    if (ahora.resultado && ahora.resultado !== a.resultado && !this.director) {
       const r = ahora.resultado, t = r.tipo;
       // el penalti suena como el tiro y, en la tanda, el gol con el publico (los goles
       // de la tanda no suben el marcador) (O-312)
@@ -112,7 +117,7 @@ const Sonido = {
     }
     // empieza la tanda de penaltis: dos pitidos (O-312)
     if (ahora.tanda && !a.tanda) this.silbato(2, 0.25);
-    if (ahora.goles > a.goles) {
+    if (ahora.goles > a.goles && !this.director) {
       const r = p.resultado, tir = r && r.tirador !== undefined ? p.jugadores[r.tirador] : null;
       this.gol(!tir || tir.lado === yo);
     }

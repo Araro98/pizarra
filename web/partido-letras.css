@@ -1,0 +1,38 @@
+/* Las letras de las pantallas como Galaxy (NOTAS O-316; diseno 2.6). El codigo
+   pinta siempre con estas cuatro familias:
+     "GX Redonda"  botones, fichas, franjas, listas y mensajes (Galaxy: redonda y gruesa)
+     "GX Cifras"   el reloj, el marcador y los valores (cifras cuadradas)
+     "GX Nombre"   nombres de supertecnica y de espiritu (condensada, gruesa)
+     "GX Rotulo"   los rotulos grandes (¡SAQUE!, ¡GOL!, Fin del partido...)
+   Las letras libres (OFL) que propone la guia (Nunito, Russo One, Anton y Lilita One)
+   hay que bajarlas de internet y eso necesita el permiso de Aaron: hasta tenerlo,
+   cada familia apunta a una letra que trae Windows (Pizarra va en la ventana de
+   Edge WebView2, siempre en Windows) y no se copia ninguna. Cuando haya permiso,
+   aqui van las cuatro en base64 (src: url(data:font/ttf;base64,...)) y su licencia
+   en LICENCIA-letras-partido.txt; el codigo no cambia. */
+
+@font-face {
+  font-family: "GX Redonda";
+  src: local("Segoe UI Black"), local("SegoeUI-Black");
+  font-weight: 850 1000;
+}
+@font-face {
+  font-family: "GX Redonda";
+  src: local("Segoe UI Bold"), local("SegoeUI-Bold");
+  font-weight: 100 849;
+}
+@font-face {
+  font-family: "GX Cifras";
+  src: local("Bahnschrift Bold"), local("Bahnschrift-Bold"), local("Bahnschrift");
+  font-weight: 100 1000;
+}
+@font-face {
+  font-family: "GX Nombre";
+  src: local("Impact");
+  font-weight: 100 1000;
+}
+@font-face {
+  font-family: "GX Rotulo";
+  src: local("Arial Black"), local("Arial-Black");
+  font-weight: 100 1000;
+}

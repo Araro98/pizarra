@@ -1,0 +1,20 @@
+Las letras del Partido (NOTAS O-316)
+====================================
+
+Hoy el Partido NO lleva ninguna letra copiada: partido-letras.css hace que las cuatro
+familias que usa el codigo ("GX Redonda", "GX Cifras", "GX Nombre" y "GX Rotulo") sean
+letras que ya trae Windows (Segoe UI Bold/Black, Bahnschrift, Impact y Arial Black). No
+se reparten con Pizarra, asi que aqui no hace falta ninguna licencia.
+
+Las que propone la guia de Galaxy son cuatro letras libres (SIL Open Font License 1.1),
+de github.com/google/fonts (unos 0,5 MB en total):
+
+  - Nunito       (ofl/nunito)      para "GX Redonda"  - The Nunito Project Authors
+  - Russo One    (ofl/russoone)    para "GX Cifras"   - Jovanny Lemonad
+  - Anton        (ofl/anton)       para "GX Nombre"   - The Anton Project Authors
+  - Lilita One   (ofl/lilitaone)   para "GX Rotulo"   - Juan Montoreano
+
+Bajarlas es una descarga y necesita el permiso de Aaron. Cuando lo haya: se copian TAL
+CUAL (sin recortar), van en base64 dentro de partido-letras.css y aqui se pega, para
+cada una, el fichero OFL.txt que trae en su carpeta (con su linea de copyright y, si
+la tiene, su "Reserved Font Name").

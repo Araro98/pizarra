@@ -16,8 +16,14 @@ const REGLAS = {
   // 4: la hiperbarra, los espiritus y las hipertecnicas (O-310). 5: las tarjetas
   // (la foto lleva j[k][11], O-311). 6: el empate, la prorroga y los penaltis (la
   // foto lleva `pn`, el duelo "penalti" y la eleccion {zona, tecnica}, O-312). 7:
-  // colocar a los jugadores en los saques (la orden "colocar", O-313)
-  VERSION: 7,
+  // colocar a los jugadores en los saques (la orden "colocar", O-313). 8: las
+  // distancias de cada saque (las zonas de colocar), la tanda a una sola porteria
+  // (la tanda lleva `porteria` y cambia el sentido de los equipos en cada penalti) y
+  // los cambios como en VR (la foto lleva j[k][12], el refuerzo, y `dc`, el
+  // descuento) (O-315). 9: las animaciones de Galaxy (O-319): con ellas las esperas de
+  // cada resultado duran lo que su animacion (el resultado lleva `anim`) y `equipos`
+  // lleva `animaciones`; un Pizarra de antes no sabria ensenarlas
+  VERSION: 9,
   // el reloj de 3DS (O-308): partes de 15 o 30 minutos de reloj, a 12 s de reloj
   // por segundo real (videos: 11-12; VR: 12 lento / 14,1 normal). Una parte de
   // 15 son 75 s de juego corriendo
@@ -68,6 +74,14 @@ const REGLAS = {
   // cambios por partido (O-308: 5, como el futbol de hoy; antes 3). Se eligen
   // cuando quieras y entran al pararse el balon
   CAMBIOS: 5,
+  // los cambios como en VR (Aaron, O-307 punto 16; textos de ayuda de VR) (O-315): el
+  // que entra, AT y DF +`entra` % durante `segundos` s de juego, y sus companeros de
+  // la misma posicion, +`posicion` % el mismo tiempo (se suman si hay varios). Va
+  // fuera del tope de las pasivas, como la hiper; la parada del portero no (sube solo
+  // con PP, O-304). Cada cambio con la parte en juego (no en el descanso) suma
+  // CAMBIO_DESCUENTO s de RELOJ a la parte (VR: uAddAdditionalTimeOfPlayerChange 30;
+  // aqui 2,5 s de juego)
+  CAMBIO_REFUERZO: { entra: 15, posicion: 5, segundos: 60 }, CAMBIO_DESCUENTO: 30,
   // el descanso espera a que los dos pulsen "Segunda parte" (O-305), sin limite
   // de tiempo (O-308); 0 = sin limite
   DESCANSO: 0,
@@ -80,7 +94,11 @@ const REGLAS = {
   // decision (cerca de la porteria, con la linea libre o tapada). O-309: en partes
   // de 15 solo hay 150 s corriendo: tira mas (antes 18, 11, 0,15, 0,05, 0) para
   // unos 10 tiros a puerta por partido
-  IA_TIRO: { lejos: 22, cerca: 13, pCerca: 0.30, pLibre: 0.12, pTapado: 0.02 },
+  // O-315: y desde mas lejos (hasta `lejano` m, con la linea tapada un tercio) a veces,
+  // como en la vida real: muchos de esos se van fuera (saque de puerta) o los para el
+  // portero. Tira mas (antes 22, 13, 0,30, 0,12, 0,02) porque ahora despeja, centra y
+  // el balon sale: con lo de antes salian 2,5 goles y 0,6 saques de puerta por partido
+  IA_TIRO: { lejos: 26, cerca: 14, pCerca: 0.6, pLibre: 0.3, pTapado: 0.06, lejano: 34, pLejano: 0.3 },
   DUELO_MAX: 0,            // online: segundos para elegir en un duelo; 0 = sin limite, como en 3DS (Aaron, O-299)
   // apoyos en un duelo (DS/3DS): cada companero cerca suma, mas si es de su elemento
   APOYO_RADIO: 7, APOYO: 0.05, APOYO_ELEMENTO: 0.05, APOYOS_MAX: 3,
@@ -89,10 +107,13 @@ const REGLAS = {
   FALTA_ENTRADA: 0.22, FALTA_CARGA: 0.12, DISTANCIA_BARRERA: 9.15,
   // colocar a los tuyos antes de un saque (Aaron, O-307 punto 14: "donde sea, menos
   // demasiado cerca del balon") (O-313): los rivales del que saca, a esta distancia
-  // del balon como poco (en la vida real 9,15 m en la falta, el corner y el saque de
-  // centro, y 2 m en el de banda). En el penalti, nadie en el area ni en el
-  // semicirculo (9,15 m del punto de penalti) salvo el que tira y el portero
-  COLOCAR_LEJOS: 9.15,
+  // del balon como poco, la de cada saque como en la vida real (O-315; antes 9,15 m
+  // en todos): 2 m en el de banda y 9,15 m en la falta, el corner y el saque de
+  // centro. En el penalti, nadie en el area ni en el semicirculo (los 9,15 m del
+  // punto de penalti) salvo el que tira y el portero; en el saque de puerta, los
+  // rivales fuera del area (regla 16)
+  COLOCAR_LEJOS: { banda: 2, falta: 9.15, corner: 9.15, centro: 9.15, penalti: 9.15 },
+  colocarLejos(tipo) { return this.COLOCAR_LEJOS[tipo] || this.COLOCAR_LEJOS.falta; },
   // al volver el juego, los colocados se quedan en su sitio hasta que alguien coge
   // el balon, como mucho estos segundos (si no, se iban a su zona al sacar) (O-313)
   COLOCADO_SEGUNDOS: 3,
@@ -169,6 +190,48 @@ const REGLAS = {
   // (VR: el bloqueo resta al tiro)
   MURO_RESTA: 0.5,
 
+  // los balones que salen del campo (O-315; Aaron, O-307: "las reglas como en la vida
+  // real"). Antes casi nunca salia (0,16 fueras por partido) y apenas habia saques de
+  // banda, corners ni de puerta. Numeros inventados con sentido y medidos para unos
+  // 6-12 saques de banda, 2-5 corners y 3-6 saques de puerta por partido de 2 x 15:
+  // - los pases no son perfectos: el balon va a unos metros de donde se apunta. El
+  //   error tipico (m) es base + porMetro x lo largo del pase + presion si tiene a un
+  //   rival a menos de `cerca` m (todo a 0 m, menos cuanto mas lejos), x alto en el
+  //   bombeado, hasta `tope`. Un pase de 20 m sin nadie encima, ~1,1 m; apretado, ~2 m.
+  //   Mas fallo quitaba goles (los centros no llegaban) y casi no sacaba balones: los
+  //   pases van al medio, lejos de las lineas
+  PASE_ERROR: { base: 0.3, porMetro: 0.04, presion: 1, cerca: 4, alto: 1.5, tope: 8 },
+  // - el tiro sin supertecnica a veces se va fuera (saque de puerta): desde `desde` m,
+  //   `porMetro` por cada metro mas, y `presion` mas con un rival a menos de `cerca` m;
+  //   la volea x`volea`; hasta `tope` (a 20 m, un 48 %; a 30 m, un 75 %; a 11 m, nada
+  //   o un 10 % con un rival encima). Con supertecnica va a puerta. Si el muro lo toca
+  //   y pierde, se desvia a corner el `muro` de las veces (tambien con supertecnica)
+  TIRO_FUERA: { desde: 12, porMetro: 0.06, presion: 0.1, cerca: 4, volea: 1.4, tope: 0.75, muro: 0.3 },
+  // - de los despejes del portero (Despejar o su supertecnica) y de los bloqueos del
+  //   muro, estos se van directos a corner (por encima o junto al palo)
+  A_CORNER: { despeje: 0.6, bloqueo: 0.6 },
+  // - el balon disputado que se escapa: el defensa que gana un foco sin supertecnica
+  //   ni hiper a veces no se queda el balon y sale rodando (ESCAPA_VEL m/s, hasta
+  //   ESCAPA_ANGULO grados a cada lado de hacia donde iba el que lo llevaba). Por lo
+  //   que eligio el defensa: Tapar, Entrada o Cargar. Pocos: cada uno quitaba goles
+  ESCAPA: { normal: 0.06, potente: 0.15, cargar: 0.15 }, ESCAPA_VEL: [10, 16], ESCAPA_ANGULO: 110,
+  // - la maquina con el balon cerca de su porteria (a menos de `zona` m) y un rival
+  //   encima (a menos de `presion` m) no se la juega: despeja a la banda con esta
+  //   probabilidad en cada decision, bombeado y apuntando de `fuera`[0] a `fuera`[1] m
+  //   pasada la linea (casi siempre sale: los despejes que se quedaban dentro eran
+  //   balones perdidos delante de su area y bajaban los goles de 3,8 a 3,2); a menos de
+  //   `corner` m de su linea de fondo y por un lado, a corner el `pCorner` de las veces
+  IA_DESPEJE: { zona: 34, presion: 6, p: 0.65, corner: 20, pCorner: 0.6, fuera: [1, 8] },
+  // - el balon bombeado del rival (un centro, un despeje) que corta un defensa de
+  //   campo a menos de `zona` m de su porteria no se lo queda: lo despeja de cabeza, a
+  //   corner el `corner` de las veces y si no hacia el campo (hasta `angulo` grados a
+  //   cada lado, a `vel` m/s), suelto
+  CABEZA: { zona: 26, corner: 0.5, angulo: 75, vel: [8, 14] },
+  // - la maquina centra: con el balon a mas de `banda` m del centro y a menos de
+  //   `fondo` m de la linea de fondo rival, con esta probabilidad en cada decision, un
+  //   pase bombeado al area (a veces rematado de primeras: `remate`)
+  IA_CENTRO: { banda: 14, fondo: 28, p: 0.3, remate: 0.5 },
+
   // velocidad de carrera en m/s segun la Agilidad (stats a nivel 99 de 150 a 700)
   velocidad(j) { return 6.2 + Math.min(700, j.stats[5]) / 260 - (j.conBalon ? 0.6 : 0); },
 
@@ -238,6 +301,134 @@ const REGLAS = {
   esContra(t) { return !!t && t.tipo === "Tiro" && t.subtipo_valor === 16; },
   // tiro directo (VR): rematar un pase suma el 50 % del AT de tiro del que pasa
   DIRECTO: 0.5,
+
+  // --- el tiempo de las animaciones de Galaxy (NOTAS O-319; diseno 6.3; guia 8) ----------
+  // Lo que dura cada tramo (s) con las animaciones "completas" (como Galaxy) o "cortas"
+  // (mas o menos la mitad). Las supertecnicas de Galaxy duran 5,4-8 s: aqui 4,2. "Cortas"
+  // solo acorta lo que se VE: lo que dura la hiper (HIPER_TIPOS) no cambia (O-307 p17)
+  ANIM: {
+    completas: { entrada: 0.87, choque: 1.4, prepara: 1.0, transicion: 0.2, tecnica: 4.2, hiper: 5.0,
+      sinTecnica: { foco: 1.4, tiro: 1.2, muro: 1.2, portero: 1.4 }, fijar: 0.6, vuelta: 0.2, negroTiro: 0.5,
+      vuelo: 0.7, bloqueo: 1.7, porEncima: 0.5, fueraTiro: 1.2, destello: 0.3, gol: 10.8, entraPenalti: 1.2,
+      tandaRotulo: 1.3, falta: 1.6, tarjeta: 1.6, penaltiRotulo: 1.8, fueraJuego: 2.5, chico: 1.1, penaltis: 2.0 },
+    cortas: { entrada: 0.87, choque: 0.8, prepara: 0.6, transicion: 0.2, tecnica: 1.6, hiper: 2.0,
+      sinTecnica: { foco: 1.0, tiro: 0.8, muro: 0.8, portero: 1.0 }, fijar: 0.5, vuelta: 0.2, negroTiro: 0.2,
+      vuelo: 0.5, bloqueo: 0.9, porEncima: 0.4, fueraTiro: 1.0, destello: 0.3, gol: 4.4, entraPenalti: 0.8,
+      tandaRotulo: 1.0, falta: 1.2, tarjeta: 1.2, penaltiRotulo: 1.4, fueraJuego: 1.6, chico: 0.8, penaltis: 2.0 },
+  },
+  // la opcion del partido: "completas", "cortas" o false (sin animaciones: como antes)
+  modoAnim(m) { return m === "completas" || m === "cortas" ? m : false; },
+  // los comandos de un foco (sin supertecnica): en la falta el resultado no trae los
+  // elementos y la tecnica del que la recibe se mira por su nombre
+  COMANDOS_FOCO: ["Regatear", "Romper", "Tapar", "Entrada", "Cargar"],
+  // El plan de la animacion de un resultado (diseno 6.3): los tramos uno detras de otro,
+  // {que, de, a, ...datos}, y lo que dura todo. Pura: el motor (la espera) y el Director
+  // (lo que se ensena) sacan el mismo plan del mismo resultado, tambien online. entrada:
+  // lo que le falta a la entrada al duelo (va delante). ladoDe(id): el lado de un jugador
+  // (el orden de las tecnicas de un foco; sin el, los 11 primeros son del lado 0)
+  planAnim(r, modo, entrada, ladoDe) {
+    const A = this.ANIM[modo] || this.ANIM.cortas, tramos = [];
+    const lado = id => { const l = ladoDe ? ladoDe(id) : undefined; return l === 0 || l === 1 ? l : id < 11 ? 0 : 1; };
+    const hay = v => v !== null && v !== undefined;
+    let t = 0;
+    const pon = (que, dura, datos) => {
+      if (!(dura > 0)) return;
+      tramos.push(Object.assign({ que, de: Math.round(t * 1000) / 1000, a: Math.round((t + dura) * 1000) / 1000 }, datos || {}));
+      t += dura;
+    };
+    // una supertecnica de espiritu (✦) o la hiper (★) duran lo de la hiper
+    const durTec = nombre => /[★✦]/.test(nombre || "") ? A.hiper : A.tecnica;
+    const queTec = nombre => /[★✦]/.test(nombre || "") ? "hiper" : "tecnica";
+    pon("entrada", Math.max(0, Math.min(A.entrada, entrada || 0)));
+    if (!r) return { total: t, tramos };
+    if (r.tipo === "fuera") { pon("fueraJuego", A.fueraJuego, { jugador: r.quien }); return { total: t, tramos }; }
+    if (r.tipo === "foco" || r.tipo === "disputa" || r.tipo === "falta") {
+      // el que ataca primero; cada uno con su hiper (★), su supertecnica o nada
+      const usa = id => {
+        const l = lado(id), n = r.tecnicas ? r.tecnicas[l] : "";
+        if ((r.hipers && r.hipers[l]) || /^★/.test(n || "")) return "hiper";
+        if (r.elementos && hay(r.elementos[l])) return queTec(n);
+        if (r.tipo === "falta" && n && !this.COMANDOS_FOCO.includes(n)) return queTec(n);
+        return null;
+      };
+      pon("choque", A.choque);
+      const ua = usa(r.atacante), ud = usa(r.defensor);
+      if (ua || ud) {
+        pon("transicion", A.transicion);
+        if (ua) pon(ua, ua === "hiper" ? A.hiper : A.tecnica, { jugador: r.atacante });
+        if (ud) pon(ud, ud === "hiper" ? A.hiper : A.tecnica, { jugador: r.defensor });
+        pon("fijar", A.fijar);
+      } else pon("sinTecnica", A.sinTecnica.foco, { sub: "foco" });
+      pon("vuelta", A.vuelta);
+      if (r.tipo === "falta") {
+        pon("falta", A.falta);
+        if (r.tarjeta) pon("tarjeta", A.tarjeta);
+        if (r.penalti) pon("penaltiRotulo", A.penaltiRotulo);
+      }
+      return { total: t, tramos };
+    }
+    const pasos = r.pasos || [], n = pasos.length;
+    // el tiro o el penalti por su tecnica o sin ella (el boton)
+    const tecnica = (k, sub, mas) => {
+      const s = pasos[k];
+      if (!s) return;
+      if (s.tecnica) pon(queTec(s.que), durTec(s.que), Object.assign({ jugador: s.quien, paso: k }, mas || {}));
+      else pon("sinTecnica", A.sinTecnica[sub], Object.assign({ sub, jugador: s.quien, paso: k }, mas || {}));
+    };
+    if (r.tipo === "penalti") {
+      pon("prepara", A.prepara, { jugador: r.tirador });
+      if (!r.misma) pon("entraPenalti", A.entraPenalti);
+      else {
+        pon("transicion", A.transicion);
+        tecnica(0, "tiro");
+        pon("transicion", A.transicion);
+        tecnica(1, "portero", { portero: true });
+        pon("fijar", A.fijar, { paso: 1 });
+      }
+      if (r.tanda) pon("tandaRotulo", A.tandaRotulo, { gol: r.final === "gol" });
+      else if (r.final === "gol") { pon("destello", A.destello); pon("gol", A.gol); }
+      else pon("vuelta", A.vuelta);
+      return { total: t, tramos };
+    }
+    // el tiro (diseno 6.3): prepara, la tecnica (y la de la cadena), el negro y el vuelo;
+    // el muro (su rotulo, su tecnica: si gana se acaba) o la vaselina por encima; fuera o
+    // desviado; el portero; la parada o el gol
+    const kC = pasos.findIndex((s, k) => k > 0 && / \(cadena\)$/.test(s.que || ""));
+    const kM = pasos.findIndex(s => hay(s.contra) || s.encima);
+    const muro = kM >= 0 ? pasos[kM] : null;
+    pon("prepara", A.prepara, { jugador: r.tirador });
+    pon("transicion", A.transicion);
+    tecnica(0, "tiro");
+    if (kC > 0) tecnica(kC, "tiro", { cadena: true });
+    pon("negroTiro", A.negroTiro);
+    pon("vuelo", A.vuelo, { hasta: muro ? "muro" : r.final === "fuera" ? "fuera" : "porteria" });
+    if (muro && !muro.encima) {
+      pon("bloqueo", A.bloqueo, { jugador: muro.quien, paso: kM });
+      pon("transicion", A.transicion);
+      tecnica(kM, "muro", { muro: true });
+      if (r.final === "bloqueado") { pon("fijar", A.fijar, { paso: kM }); pon("vuelta", A.vuelta); return { total: t, tramos }; }
+      pon("vuelo", A.vuelo, { hasta: r.final === "fuera" ? "fuera" : "porteria", segundo: true });
+    }
+    if (muro && muro.encima) pon("porEncima", A.porEncima, { jugador: muro.quien });
+    if (r.final === "fuera") {
+      pon("fueraTiro", A.fueraTiro, { desviado: hay(r.desvia) && r.desvia !== r.tirador });
+      pon("vuelta", A.vuelta);
+      return { total: t, tramos };
+    }
+    pon("transicion", A.transicion);
+    tecnica(n - 1, "portero", { portero: true });
+    pon("fijar", A.fijar, { paso: n - 1 });
+    if (r.final === "gol") { pon("destello", A.destello); pon("gol", A.gol); }
+    else pon("vuelta", A.vuelta);
+    return { total: t, tramos };
+  },
+  // las esperas sin resultado nuevo (diseno 6.2): el rotulo del saque de banda, de
+  // corner o de puerta ("chico") y el de la tanda de penaltis
+  esperaAnim(que, modo) {
+    const A = this.ANIM[modo];
+    if (!A) return 0;
+    return que === "banda" || que === "corner" || que === "puerta" ? A.chico : que === "penaltis" ? A.penaltis : 0;
+  },
 };
 
 /* Azar con semilla (mulberry32): los dos PCs de un partido online sacan los

@@ -114,7 +114,7 @@ class Maquina {
     if (sq.tipo === "falta") {
       const dg = Math.hypot(b.x - g.x, b.y - g.y), n = dg < 21 ? 4 : dg < 26 ? 3 : dg < 32 ? 2 : 0;
       const ax = Math.abs(b.x) < 3 ? 0 : Math.sign(b.x) * R.PORTERIA / 4;
-      const ux = ax - b.x, uy = g.y - b.y, ul = Math.hypot(ux, uy) || 1, dx = ux / ul, dy = uy / ul, D = R.COLOCAR_LEJOS + 0.5;
+      const ux = ax - b.x, uy = g.y - b.y, ul = Math.hypot(ux, uy) || 1, dx = ux / ul, dy = uy / ul, D = R.COLOCAR_LEJOS.falta + 0.5;
       for (let k = 0; k < n; k++) {
         const o = (k - (n - 1) / 2) * 1.5, x = b.x + dx * D - dy * o, y = b.y + dy * D + dx * o, j = coge(x, y);
         if (j) sitios.push([j.id, { x, y }]);
@@ -169,7 +169,9 @@ class Maquina {
     if (d.esPortero) {
       const m = this._mejorPase(d, p.equipo(1 - this.lado));
       if (m) p.ordenar({ tipo: "pase", de: d.id, a: m.id });
-      else p.ordenar({ tipo: "pasePunto", de: d.id, x: d.x, y: d.y + d.dir * 35, alto: true });
+      // en largo, hacia una banda, como los porteros de verdad (O-315; antes por el
+      // medio): a veces se va fuera
+      else p.ordenar({ tipo: "pasePunto", de: d.id, x: (this.azar() < 0.5 ? -1 : 1) * (18 + this.azar() * 12), y: d.y + d.dir * 35, alto: true });
       p.ordenar({ tipo: "ruta", jugador: d.id, puntos: [] });
       return;
     }
@@ -182,9 +184,31 @@ class Maquina {
       const libre = c => Math.min(...rivales.map(r => Math.hypot(r.x - c.x, r.y - c.y)));
       const a = cs.ids.map(id => p.jugadores[id]).filter(c => c && !c.expulsado && c.lado === this.lado && c.id !== d.id)
         .sort((x, y) => libre(y) - libre(x) || x.id - y.id)[0];
-      if (a) { p.ordenar({ tipo: "pase", de: d.id, a: a.id, alto: true }); return; }
+      if (a) {
+        p.ordenar({ tipo: "pase", de: d.id, a: a.id, alto: true });
+        // y a veces lo remata de primeras, como un centro (O-315)
+        if (REGLAS.IA_CENTRO && this.azar() < REGLAS.IA_CENTRO.remate) p.ordenar({ tipo: "directo", de: d.id });
+        return;
+      }
     }
     const g = p.porteriaRival(d);
+    const rivales = p.equipo(1 - this.lado);
+    const presion = Math.min(...rivales.map(r => Math.hypot(r.x - d.x, r.y - d.y)));
+    // apretado cerca de su porteria, despeja hacia la banda mas cerca, arriba (O-315):
+    // como en la vida real, mejor un saque de banda que perderla delante del area
+    // (REGLAS.IA_DESPEJE). Apunta pasada la linea: casi siempre sale
+    const D = REGLAS.IA_DESPEJE, fondo = d.y * d.dir + REGLAS.LARGO / 2;     // m hasta su linea de fondo
+    if (Math.hypot(d.x, d.y + REGLAS.LARGO / 2 * d.dir) < D.zona && presion < D.presion && this.azar() < D.p) {
+      const banda = Math.sign(d.x) || (this.azar() < 0.5 ? -1 : 1);
+      // pegado a su linea de fondo y por un lado, a veces la manda a corner
+      if (fondo < (D.corner || 0) && Math.abs(d.x) > REGLAS.AREA_X / 2 && this.azar() < (D.pCorner || 0)) {
+        p.ordenar({ tipo: "despeje", de: d.id, x: banda * (REGLAS.PORTERIA / 2 + 6 + this.azar() * 20), y: -d.dir * (REGLAS.LARGO / 2 + 2 + this.azar() * 4) });
+        return;
+      }
+      const [f0, f1] = D.fuera;
+      p.ordenar({ tipo: "despeje", de: d.id, x: banda * (REGLAS.ANCHO / 2 + f0 + this.azar() * (f1 - f0)), y: d.y + d.dir * (14 + this.azar() * 14) });
+      return;
+    }
     const aPuerta = Math.hypot(g.x - d.x, g.y - d.y);
     // chutar: cerca de la porteria, mas cuanto mas cerca
     const libre = !p.equipo(1 - this.lado).some(r => !r.esPortero && p._distanciaALinea(r, d, g).delante && p._distanciaALinea(r, d, g).d < 2.5);
@@ -193,9 +217,29 @@ class Maquina {
       p.ordenar({ tipo: "tiro", de: d.id });
       return;
     }
+    // el tiro lejano (O-315): con la linea tapada, un tercio
+    if (aPuerta >= T.lejos && aPuerta < (T.lejano || 0) && this.azar() < (T.pLejano || 0) * (libre ? 1 : 1 / 3)) {
+      p.ordenar({ tipo: "tiro", de: d.id });
+      return;
+    }
+    // el centro (O-315): por la banda cerca del area rival, bombeado al area, como en
+    // la vida real (antes iba siempre por el medio): a una zona (primer palo, segundo
+    // palo o punto de penalti), la mas cerca del companero del area mas libre; va a por
+    // el el que este mas cerca y a veces lo remata de primeras (testarazo o volea).
+    // Puede irse de largo (saque de puerta) o cortarlo un defensa (REGLAS.IA_CENTRO)
+    const CE = REGLAS.IA_CENTRO;
+    if (CE && Math.abs(d.x) > CE.banda && (g.y - d.y) * d.dir < CE.fondo && this.azar() < CE.p) {
+      const s = Math.sign(d.x), zonas = [[s * 2.5, 5], [-s * 3.5, 6], [-s * 1, 11]].map(([x, f]) => ({ x, y: g.y - d.dir * f }));
+      const libreDe = c => Math.min(...rivales.map(r => Math.hypot(r.x - c.x, r.y - c.y)));
+      const enArea = p.equipo(this.lado).filter(c => c !== d && !c.esPortero && c.aturdido <= 0 && Math.abs(c.x) < REGLAS.AREA_X
+        && (g.y - c.y) * d.dir < REGLAS.AREA_Y + 2 && !p.fueraEnPase(c, d));
+      const a = enArea.sort((x, y) => libreDe(y) - libreDe(x) || x.id - y.id)[0];
+      const z = a ? zonas.sort((u, v) => Math.hypot(u.x - a.x, u.y - a.y) - Math.hypot(v.x - a.x, v.y - a.y))[0] : zonas[1];
+      p.ordenar({ tipo: "pasePunto", de: d.id, x: z.x, y: z.y, alto: true });
+      if (a && this.azar() < CE.remate) p.ordenar({ tipo: "directo", de: d.id });
+      return;
+    }
     // presionado: pasar al companero mejor colocado
-    const rivales = p.equipo(1 - this.lado);
-    const presion = Math.min(...rivales.map(r => Math.hypot(r.x - d.x, r.y - d.y)));
     if (presion < 6 && this.azar() < 0.7) {
       const mejor = this._mejorPase(d, rivales);
       if (mejor) {

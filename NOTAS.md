@@ -7875,6 +7875,808 @@ por encargo; tecnicas.csv solo gana la columna `coste`).
 - Siguen fuera de estas reglas, para otro encargo: O-307 puntos 1 (zoom con las flechas),
   13 (jugar en la pantalla 3D) y 15 (copiar Galaxy).
 
+### O-315 · El juego de partidos: reglas como en la vida real (el balon que sale, las distancias, la tanda y los cambios de VR)
+
+Lo que dejo la revision O-314 (Aaron, O-307: "las reglas como en la vida real"; O-307
+punto 16 para los cambios). Un primer intento se corto a medias (se apago el PC) y se
+retomo sobre el git diff: nada repetido ni a medias. En el codigo los cambios citan
+esta nota.
+- El balon sale del campo (antes 0,16 fueras por partido: casi no habia saques de
+  banda, corners ni de puerta, ni las esperas de Jugar, colocar y cambios que traen):
+  - Los pases no son perfectos (`REGLAS.PASE_ERROR`): el balon va a unos metros de
+    donde se apunta (`objetivo`), en largo y de lado como una normal con el azar del
+    partido (sale igual en los dos PCs). Error tipico 0,3 m + 0,04 por metro + hasta
+    1 m con un rival a menos de 4 m, x1,5 el bombeado, tope 8 (un pase de 20 m sin
+    nadie, ~1,1 m). El que recibe va adonde va el balon (dentro del campo). Mas fallo
+    quitaba goles (los centros no llegaban) y casi no sacaba balones: los pases van
+    por el medio, lejos de las lineas.
+  - El tiro sin supertecnica (ni la de la cadena) puede irse fuera (`TIRO_FUERA`):
+    0 hasta 12 m, +6 % por metro (48 % a 20 m), +10 % con un rival a menos de 4 m, la
+    volea x1,4, tope 75 %. Sin azar en la cuenta: el boton lo dice ("puede irse fuera:
+    48 %", `o.fuera` en el duelo) y al resolver se tira. Se va por la linea de fondo
+    junto a un palo, el portero no juega ni paga, en el panel "Se va fuera" sin numero
+    del portero y "¡FUERA!", y luego saque de puerta. El muro que lo toca y pierde lo
+    desvia a corner el 30 % ("¡Desviado a córner!", gana el muro). El penalti, a
+    puerta siempre.
+  - A corner directo (`A_CORNER`): el 60 % de los despejes del portero (Despejar o su
+    supertecnica de despeje) y el 60 % de los bloqueos del muro.
+  - El balon disputado se escapa (`ESCAPA`): el defensa que gana un foco sin
+    supertecnica ni hiper a veces no se lo queda (6 % con Tapar, 15 % con Entrada o
+    Cargar) y sale rodando a 10-16 m/s hacia donde iba el que lo llevaba ("se la quita,
+    pero el balón se escapa").
+  - El despeje de cabeza (`CABEZA`): el balon bombeado del rival (un centro, un
+    despeje) que corta un defensa de campo a menos de 26 m de su porteria no se lo
+    queda: lo despeja de cabeza, a corner la mitad de las veces.
+  - La maquina: apretada (rival a menos de 6 m) a menos de 34 m de su porteria despeja
+    a la banda el 65 % de las veces (`IA_DESPEJE`, orden nueva "despeje"), apuntando de
+    1 a 8 m pasada la linea (los despejes que se quedaban dentro eran balones perdidos
+    delante de su area y bajaban los goles a 3,2); pegada a su linea de fondo y por un
+    lado, a corner el 60 %. Su portero saca en largo hacia una banda. Centra desde la
+    banda cerca del area rival (`IA_CENTRO`, a primer palo, segundo palo o el punto de
+    penalti, y a veces lo remata de primeras, tambien el corner). Tira mas y desde mas
+    lejos (`IA_TIRO`: con lo de antes salian 2,5 goles y 0,6 saques de puerta).
+  - Medido (scratchpad prueba/medir-o315.js, 192 partidos de 2 x 15 maquina contra
+    maquina con esperas): 7,5 saques de banda, 3,0 corners y 3,3 saques de puerta por
+    partido (160, 129 y 112 de 192 partidos dentro de 6-12, 2-5 y 3-6), 3,59 goles
+    (antes 3,84) y 15 tiros (4 fuera). De donde salen: la banda, casi toda de despejes
+    de la maquina; los corners, del portero (0,8), del muro (0,7 desviados y 0,45
+    bloqueos), de la maquina (0,6) y de cabeza (0,4); los de puerta, de tiros fuera
+    (3,3). medir-revision: 3,88 goles, 7,6 / 2,75 / 3,3 (32 partidos); en 2 x 30, 7,1
+    goles y 14,6 / 7 / 6,2 (16). medir2 y medir3 (12 partidos, equipos de antes, sin
+    esperas) dan 2,2 goles (antes 3,8): son pocos partidos; con 96 de esos
+    (medir-o315 VIEJOS=1 SIN_ESPERAS=1), 3,28 contra 3,31 antes. medir3 ya no cuenta
+    los que se van fuera como tiros que llegan al portero.
+- Las distancias de cada saque (`COLOCAR_LEJOS`, antes 9,15 m en todos): 2 m en el de
+  banda; 9,15 en la falta, el corner y el de centro; en el penalti, el area y el
+  semicirculo; y en el saque de puerta, los rivales fuera del area (regla 16) ("En el
+  saque de puerta, fuera del área"; el aviso "arrástralos, fuera de su área"; la
+  pantalla pinta el area sin semicirculo). Al empezar la espera se apartan y la
+  maquina coloca respetandolo.
+- La tanda de penaltis a una sola porteria (antes cada uno a la que atacaba): la
+  sortea el arbitro (`tanda.porteria`, +1 o -1). En cada penalti el que tira ataca
+  hacia ella y el otro la defiende (cambia el sentido de los equipos: porteriaRival,
+  el portero y las pasivas valen como siempre). La pantalla y la 3D la ponen arriba
+  para los dos (`sentidoPantalla`) y no giran entre penaltis; izquierda y derecha
+  son las mismas para el que tira y para el portero.
+- Los cambios como en VR (O-307 punto 16; `CAMBIO_REFUERZO`, `CAMBIO_DESCUENTO`):
+  el que entra, AT y DF +15 % durante 60 s de juego, y sus companeros de la misma
+  posicion +5 % (se suman si entran varios). Va en focos, disputas, tiro, cadena y
+  muro, fuera del tope de las pasivas; la parada del portero no (solo con PP, O-304).
+  Ficha: "Recién entrado: AT y DF +15 % (quedan 42 s)" o "Cambio en su posición: AT y
+  DF +5 %". Cada cambio con la parte en juego suma 30 s de reloj de descuento (VR:
+  uAddAdditionalTimeOfPlayerChange 30; aqui 2,5 s de juego); los del descanso no
+  (como en la vida real). El reloj lo ensena: "1ª 07:32 +0:30". La parte acaba a las
+  15:00 mas el descuento (y sigue hasta que se pare el balon, 2:00 de reloj como
+  mucho); si ya se alargaba y el descuento le devuelve tiempo, vuelve a ser tiempo de
+  la parte. El expulsado no se puede cambiar y el que sale no vuelve (ya era asi:
+  comprobado tambien con la cola de la pausa de O-308, que no deja dos cambios del
+  mismo que sale ni del mismo que entra). El Menu y la ayuda lo explican.
+- Online: `REGLAS.VERSION` 8. La foto lleva al final, por jugador, `j[k][12]` (los
+  refuerzos [[pct, hasta]]) y `dc` (el descuento de cada parte); la tanda lleva
+  `porteria` en `pn`. Una foto sin ellos los deja como estaban. **Aaron y su amigo
+  tienen que tener los dos este Pizarra.**
+- La pagina: en las estadisticas, "Tiros" cuenta tambien los que se van fuera; la
+  ayuda "Cómo se juega" explica el balon que sale, las distancias, la tanda y los
+  cambios.
+- Pruebas: prueba3ds 175, e1 98, e2 68, e3 88, e4 65, e5 82 y e6 85 OK; nueva
+  prueba-o315.js 84 OK (el fallo del pase y sus pases fuera, los tiros fuera con su
+  boton y su saque de puerta, desviados, bloqueos y despejes a corner, el balon que se
+  escapa, el despeje de cabeza, el despeje de la maquina, 48 partidos enteros con los
+  saques y los goles en lo pedido, las distancias, el saque de puerta, la tanda a una
+  porteria en 10 tandas y en el invitado, los cambios con el refuerzo, el descuento,
+  el fin de la parte, el expulsado, el que no vuelve, la cola, la foto y la pagina);
+  fotos del invitado iguales. Pruebas viejas cambiadas: prueba3ds (el fuera de juego
+  del pase al hueco, sin el fallo del pase; el desmarque mira adonde apunta), e2 (los
+  despejes y los criticos, sin tiros fuera ni despejes a corner), e3 (tecnicas.csv
+  contra el commit anterior a E3: contra HEAD fallaba desde que se hizo el commit
+  3910c27), e5 (pn y dc al final de la foto; la tanda arriba para los dos) y e6 (2 m
+  en la banda; el pase al pie sin el fallo). Capturas en el navegador (scratchpad
+  juego/cdp, o315_ver.mjs y o315_ver3d.mjs, o315_*.png): el Menu, la ficha del que
+  entra con el reloj "+0:30", el saque de banda (a 1,4 m no, a 3 m si), el saque de
+  puerta (el area en rojo y "En el saque de puerta, fuera del área"), el panel del tiro
+  ("puede irse fuera: 75 %"), "¡FUERA!" y su saque de puerta, y la tanda tirando y
+  parando con la misma porteria arriba (tambien la 3D). Sin errores en la consola.
+- A confirmar con Aaron: los numeros (el fallo del pase, el % de fuera, el 60 % a
+  corner, los balones que se escapan, cuanto despeja la maquina); 30 s de reloj de
+  descuento por cambio (VR los da en un partido de 90 minutos: escalado a partes de
+  15 serian 10 s) y los 60 s de juego del refuerzo (casi una parte entera de 15); que
+  los cambios del descanso no sumen descuento y los de antes del saque inicial si; que
+  la parada del portero que entra no suba; la tanda con la misma vista para los dos.
+
+### O-316 · El juego de partidos: la consola y la pantalla de arriba como GO Galaxy (E1)
+
+Primer encargo del diseno de las pantallas como Galaxy (scratchpad
+juego/galaxy/DISENO_PANTALLAS.md, E1; O-307 puntos 1, 13 y 15). En el codigo los cambios
+citan esta nota. El motor, la IA, la 3D, el raton y los paneles no cambian.
+- La pagina es una 3DS: dos pantallas a escala, ARRIBA (400x240 px de 3DS, "u") y ABAJO
+  (320x240 u), una encima de otra como la consola (por defecto) o una al lado de otra (mas
+  grandes; opcion "Pantallas"). Sin la cabecera de Pizarra: un "‹ Inicio" pequeno arriba
+  a la izquierda; fuera de las pantallas, casi negro. La escala es fraccionaria y llena la
+  ventana (8 px de margen): en la de Pizarra de 1366x768 maximizada, la de abajo sale de
+  448x336 (593x445 al lado); en 1920x1080, 649x486. Con la ventana muy pequena (S < 0,8)
+  solo un aviso; si sale pequena (S < 1,4), en la pestana Pantalla "Maximiza la ventana"
+  (la ventana de Pizarra no tiene F11 ni pantalla completa).
+- web/partido-consola.js: `Consola` (montar, escala pura, las capas de cada pantalla: un
+  canvas 2D encima que dibuja en u y una capa HTML con `zoom`, el canvas WebGL de detras
+  para E2, el raton en u, alCambiar, las letras, registrar/modulo para los modulos ES, el
+  limite de FPS por tiempo (60, o 30 en Baja; tambien en pantallas de 144 Hz) y la calidad
+  automatica por el intervalo entre cuadros, y el contador "Ver FPS") y `GX` (toda la
+  paleta de la guia de Galaxy con nombres, el texto con contornos y degradado, botones,
+  placas, el escudo dibujado, los iconos y las caras). GX.color: tu equipo azul y a la
+  izquierda en cada PC (tambien el invitado), el rival rojo.
+- web/partido-arriba.js: la pantalla de ARRIBA en 2D. En juego, el mapa de Galaxy: los
+  marcadores (tus goles a la izquierda), la pestana del reloj ("1.ª 07 : 32", el descuento
+  "+0:30", "1.ª pr.", "Penaltis 4-2"; online, "esperando a X...", "X no responde", "X ha
+  salido": la logica del marcador() de antes), el campo entero en vertical con un punto por
+  jugador (morado con la hiper puesta) y el balon, los paneles de goles ("1.ª 21' Zanark",
+  las 5 ultimas) y, en la tanda, el tablero de cada equipo en su panel. La ficha del
+  elegido o del que lleva el balon (la tuya a la izquierda, la del rival a la derecha en
+  espejo; en la espera del saque solo la del elegido, como el tiempo de tactica de
+  Galaxy): placa del color de su elemento, su cara con la camiseta de su equipo debajo,
+  el balon si lo lleva, el elemento, la pastilla de su posicion, el nombre y dos barras:
+  TEN (tension del equipo) e HIP (hiperbarra, con la raya de la mitad); el portero KP y
+  TEN; con la hiper puesta AURA (lo que le queda) y PODER ("+50 %"); la amarilla y el
+  "+15 %" del que acaba de entrar. La ficha grande (retrato, nivel, tension, hiperbarra,
+  espiritu, los 7 stats, las supertecnicas y las pasivas): hasta el icono T de E3, el
+  boton "Ficha grande arriba" del aside. El descanso y el final: la pantalla verde de
+  Galaxy con el titulo ("Descanso", "Fin del tiempo reglamentario", "Descanso de la
+  prórroga", "Fin del partido"), los escudos, el marcador grande en perspectiva, "(4-2
+  pen.)", la banda negra con los nombres y el VS, y "Nivel del equipo" (la media de los
+  11 que empezaron). Lo que no cambia se pinta una vez en un lienzo aparte.
+- La pantalla de elegir, dentro de la consola: ARRIBA los dos equipos con sus 11 caras,
+  la banda VS, el nivel y el resumen ("2 × 15 min · Empate: nada · Fuera de juego"); ABAJO
+  la lista azul de Galaxy con dos pestanas, Partido (tu equipo, rival, duracion, empate,
+  focos automaticos, fuera de juego) y Pantalla (animaciones, campo en 3D, pantallas,
+  calidad 3D, sonido, ver FPS), filas de casillas cian con flechas o Si/No, la rejilla de
+  equipos 2x4 con paginas al pulsar el nombre, Online en la tactil (con [Atrás]), "Cómo se
+  juega" y la barra con [Jugar] y [Online]. Los <select> y casillas de siempre siguen en
+  partido.html, ocultos, como modelo de datos (localStorage, el online y las pruebas los
+  leen igual; las filas los cambian con un "change" de verdad); los ids de siempre. Las
+  opciones nuevas se guardan solo en este PC (partido-pantallas, partido-calidad,
+  partido-animaciones, partido-campo-3d, partido-fps); "Pantalla de arriba en 3D" se va.
+- El Director de mentira (partido-director.js: arriba "mapa", "descanso", "final" o
+  "ficha"; los goles del motor) y los esqueletos de los encargos siguientes
+  (partido-hud-abajo.js, partido-abajo.js y .css, partido-hud-duelo.js, partido-rotulos.js,
+  partido-escenas.js), cargados ya en el orden del diseno. El bucle pinta con el limite de
+  FPS; lo de los paneles (que repite la eleccion del invitado) va antes del corte.
+- Provisional hasta E2 y E3: abajo, el campo 2D de hoy encajado en la pantalla de abajo;
+  los paneles de hoy (duelos, tacticas, ficha, registro, ayuda, pausa, menu) en un aside a
+  la derecha de la consola (como la columna lleva ahora tambien las tacticas y la ficha,
+  verPausa sube el panel si un duelo largo la habia bajado: si no, el final quedaba fuera
+  de la vista). La vista 3D de arriba de antes ya no se ve (vuelve abajo en E2).
+- Las letras: las cuatro libres (OFL) de la guia hay que bajarlas y no hay permiso de
+  Aaron: el codigo usa las familias "GX Redonda", "GX Cifras", "GX Nombre" y "GX Rotulo",
+  que hoy son letras de Windows (Segoe UI Bold/Black, Bahnschrift, Impact, Arial Black;
+  todas con ñ, tildes, ¡¿, ª, · y ×). LICENCIA-letras-partido.txt dice como cambiarlo.
+  Los 30 iconos SVG propios van en partido-iconos.js.
+- Lo que no es Galaxy [PIZARRA]: la pastilla de la posicion en vez del icono de sexo, las
+  barras con los nombres de VR, los escudos dibujados con las iniciales (no hay emblemas en
+  los datos), la camiseta del busto (las caras de Pizarra son solo la cabeza), la tanda en
+  los paneles (como GO Light) y la pantalla de elegir entera (Galaxy no ensena un menu asi:
+  se hizo con sus piezas, la lista de tecnicas, los botones y la banda VS).
+- Pruebas: nueva prueba-g1.js (56 OK: la escala de la ventana de Pizarra y la de Chrome en
+  los dos modos, el aviso y la linea de maximizar, GX.color por perspectiva, la paleta y los
+  iconos, el limite de FPS a 60/144 Hz y en Baja, Arriba en la espera del saque, juego,
+  pausa, el rival con balon, el portero, la hiper, los goles en perspectiva y sus lineas,
+  el gol que aun no se ve, la ficha grande, la prorroga "1.ª pr. 03:12 +0:30", la tanda
+  "Penaltis 4-2" y la muerte subita, descanso y final con "Nivel del equipo" y "(4-5
+  pen.)", el online "esperando a Ana...", la pantalla de elegir y un partido entero de
+  maquina contra maquina con prorroga y tanda pintando arriba para los dos lados). Las de
+  siempre en verde (prueba3ds, e1 a e6, o315; fotos "iguales: true"); prueba-o315 lee ahora
+  "la pagina" como la union de partido.js y los ficheros nuevos (el reloj esta en
+  partido-arriba.js), sin quitar nada de lo que mira.
+- Capturas (Chrome headless, scratchpad juego/cdp/gx_e1.mjs con gx_comun.mjs; comparadas
+  con galaxy/trabajo/comparar.py en galaxy/comparado/, Pizarra a la izquierda y Galaxy a la
+  derecha): a 1366x633 y 1920x945 "encima", 1366x633 "lado" y 1536x795 al 125 %: arriba en
+  juego contra p02 y la maqueta m01, marcador a01, reloj a02, minimapa a03, paneles a04,
+  fichas a05-a07 con m10, descanso a25, final a26, y la de elegir (pestanas, filas,
+  rejilla, online) contra b13, b15, b25 y la banda VS de a25. Lo que no queda igual: las
+  letras (las de Windows en vez de las de Galaxy), los escudos, las caras (solo cabeza) y
+  el minimapa con las medidas reales del campo (las areas un poco mas grandes que las de
+  Galaxy). Un partido entero contra la maquina con el aside (esperas, duelos, descanso,
+  tanda y final) sin errores en la consola. Sin scroll en ningun tamano.
+- A confirmar con Aaron: bajar las 4 letras OFL (~0,5 MB de github.com/google/fonts) o
+  quedarse con las de Windows; las pantallas una encima de otra por defecto; tu equipo
+  siempre azul y a la izquierda tambien de invitado; los escudos dibujados y la camiseta
+  del busto; los colores de las pastillas de posicion (DEL rojo, MED azul, DEF verde, POR
+  naranja).
+
+### O-317 · El juego de partidos: el campo 3D de abajo como GO Galaxy (E2)
+
+Segundo encargo del diseno de las pantallas como Galaxy (scratchpad
+juego/galaxy/DISENO_PANTALLAS.md, E2; O-307 puntos 1, 13 y 15). En el codigo los cambios
+citan esta nota. El motor, la IA, el online (la foto no cambia: VERSION igual) y la
+pantalla de arriba no cambian.
+- Se juega EN el 3D de abajo, como la tactil de Galaxy (O-307 punto 13). web/partido-3d.js
+  rehecho como Mundo3D: un solo WebGL detras de las dos pantallas (#gl) con tijera y dos
+  escenas, Campo (abajo) y Estudio (arriba, vacia hasta E5). El renderer, el campo y la
+  cache de modelos se hacen una vez por pagina. Se van la camara desde la banda, el rombo
+  flotante y _pintarLineas (creaba mallas nuevas en cada cuadro).
+- El campo de Galaxy: cesped moteado sin franjas (el verde de p03), las lineas en UNA
+  malla de cintas (nitidas de cerca), la pista roja teja, las porterias con su red, un
+  estadio sencillo (muro, gradas con publico, techo con focos y cielo, sobre todo para la
+  pantalla de arriba de E5) y luces para los modelos.
+- Los jugadores: el modelo de VR a x2,2 (cabezones de ~28 u, como los de Galaxy; antes
+  x1,45) o la ficha con su cara mientras llega; debajo el disco de su color (tu equipo
+  azul, el rival rojo, con borde blanco: 22 discos en dos llamadas), el cursor del elegido
+  o del tuyo con balon (el aro azul a trozos con tres pestanas blancas que gira), el aura
+  de la hiper puesta (un brillo del color de su familia detras de el), la tarjetita
+  amarilla y un cilindro invisible para el raton. El expulsado no se ve.
+- Los modelos: como mucho 2 cargandose a la vez; sus texturas, reducidas a 512 (calidad
+  Alta) o 256 (Media y Baja) antes de subirlas (los 22 con las de 1024 eran ~410 MB en la
+  grafica, que en un portatil es su RAM); al tener los 22 se compilan los shaders y se
+  sube todo de una vez: el primer duelo no se atasca y la memoria no crece despues
+  (mismas mallas y texturas a los 10 y a los 60 s). Las animaciones, solo de los que se
+  ven (y a 30 por segundo en Baja). La calidad cambia el pixelRatio del 3D (Alta hasta
+  1,5, Media 1, Baja 0,8; Baja con el publico liso).
+- La camara (guia 7.1): 48 grados, FOV 25 y a 53 m del punto mirado, como Galaxy: en la
+  fila del centro se ven 31 m de ancho (el 46 % del campo), el circulo central sale como
+  una elipse de 0,75 y el balon queda al 58 % del alto (mira 2,5 m por delante del
+  balon). Sigue al balon con un suavizado de 0,2 s sin pasar de 24 m a cada lado ni de
+  50 m a lo largo (pegado a la banda se ve la pista). Las FLECHAS del teclado la mueven a
+  25 m/s (el doble con Mayusculas; O-307 punto 1); con el balon en juego vuelve sola al
+  balon a los 1,5 s de soltarlas; con el juego parado (pausa, espera del saque, duelo,
+  descanso) se queda donde la dejes y tambien se arrastra con el raton desde un sitio
+  vacio; al seguir el juego vuelve al balon. Al saltar un duelo, corte al portador (o al
+  que chuta); al empezar la espera de un saque, viaja al balon. En el penalti, mas baja y
+  cerca (35 grados, 25 m), detras del que tira o de tu porteria, sin girar (la izquierda
+  y la derecha de las zonas, como O-315). Esta camara (CamaraAbajo) es la misma para el
+  3D y para la reserva 2D.
+- El raton por rayo (raton() escucha ahora la pantalla de abajo entera, con la misma
+  logica de siempre): aCampo corta el suelo; jugadorEn, los cilindros (manda el corte mas
+  cercano) y, si no, el que tenga su cuerpo a menos de 14 u; la X del tiro y del remate
+  de primeras sale de cortar con la linea de gol de pie (pulsar la red de pie caia 2-3 m
+  detras). Los controles de la tactil (E3) no son gestos del campo.
+- En el suelo (debajo de los jugadores): la zona de tiro de Galaxy (b28) cuando tu
+  jugador con balon esta a su alcance de tiro (no en el saque de centro) o en el duelo de
+  tiro: el cono cian a los dos palos, la linea amarilla con borde oscuro hasta la X (de
+  pie en la linea de gol, donde pulsaste) y el rombo azul sobre su cabeza (sin su nombre:
+  el rombo ya dice quien es); el destino del pase, un circulo cian (b53; antes una X); la
+  zona roja del saque (O-313, un lienzo que solo se repinta al empezar la espera o un
+  arrastre) y la sombra del balon.
+- Encima (web/partido-hud-abajo.js, HudAbajo, el mismo para el 3D y la reserva 2D, en u y
+  proyectando cada punto: las rayas tienen el grosor de Galaxy por lejos que esten): las
+  rutas (flecha azul gruesa con punta), el pase raso y el bombeado (un arco con su altura
+  de verdad y su sombra en el suelo, b11), la estela roja del pase del rival (b10, b53),
+  la presion, los ANILLOS del duelo y del tiro, que ahora CRECEN como en Galaxy (dos
+  alrededor del portador o del que chuta, de 8 y 16 u a 100 y 200 u: medidos en t01, a
+  los 133, 333 y 466 ms el de dentro mide 35, 75 y 95 u; se apagan desde los 530 ms),
+  las ondas donde pulsas, el fantasma de colocar, la linea del fuera de juego, los
+  triangulos amarillos de los que no se ven (b03; de los dos equipos), el nombre del
+  elegido y del que lleva el balon, las barras KP del portero y AURA de la hiper (b49) y
+  los bocadillos de Galaxy con su tamano: "¡Aquí!", "¡Uy!", "¡Bien!" (azul, al ganar un
+  foco), "¡A por ellos!" (al soltar una ruta en la pausa) y "¡Atrás!" (el que esta en
+  fuera de juego con tu balon). Los rotulos de hoy (¡Saque!, ¡Falta!, Fin del partido...)
+  se movieron ahi tal cual (E4 los cambia por los de Galaxy). El tablero de la tanda ya
+  no sale en el campo: esta arriba, en los paneles (O-316).
+- La reserva 2D (web/partido-pantalla.js): sin WebGL, con "Campo en 3D" quitado o con
+  /partido?2d, el campo de arriba con la misma camara (31 m de ancho, las flechas, el
+  arrastre), los colores de Galaxy, las caras de pie sobre su disco y el mismo HUD.
+- En "Cómo se juega", una linea con las flechas y el arrastre de la camara.
+- Pruebas: nueva prueba-g2.js (la camara: 31,3 m, la elipse 0,75, el balon al 58 %, los
+  limites, la derecha de la pantalla en los dos sentidos y en la reserva 2D, ida y vuelta
+  pantalla-campo en 200 puntos; jugadorEn con dos a 1 m y por cercania; la X del tiro en la
+  porteria; las flechas a 25 m/s, la vuelta a los 1,5 s solo en juego, el corte del duelo
+  y el viaje al saque; el penalti sin girar; HudAbajo con los rotulos, ¡Uy!, ¡Aquí!,
+  ¡Bien!, ¡A por ellos!, los anillos que crecen, los triangulos, nombres y barras; el
+  limite de FPS). Las de siempre en verde (prueba3ds, e1 a e6, o315, g1; fotos "iguales:
+  true"): las que miraban rotulos, bocadillos, anillos, el fantasma o el cono del penalti
+  en la pantalla 2D los miran ahora en HudAbajo (prueba/vista-abajo.js los carga juntos),
+  sin quitar nada de lo que comprobaban; los anillos del foco van alrededor del portador.
+- Capturas (Chrome headless, juego/cdp/gx_e2.mjs y gx_e2_entero.mjs; comparadas en
+  galaxy/comparado/e2_*, Pizarra a la izquierda y Galaxy a la derecha) en la ventana de
+  Pizarra de un portatil 1366x768 (1366x697) y de un 1920x1080 (1920x1001), y la reserva
+  2D: abajo contra p03 y la maqueta m02, pases b11, pase del rival b10/b53, triangulos
+  b03, bocadillos b05-b09, discos b50, cursor b04/b51, zona de tiro b28, las tiras de los
+  anillos contra t01 y t02 (+0, +133, +333, +466, +533, +666 ms con el reloj congelado) y
+  colocar en un saque; una vez a 1536x795 al 125 % y una con las pantallas una al lado de
+  otra. Dos partidos enteros contra la maquina jugados con el raton por el 3D (gx_e2_entero:
+  pases, bombeados, pases al hueco, rutas, presionar, elegir y mandar, colocar, las flechas
+  y el arrastre en la pausa; los duelos y las esperas con el aside), sin errores en la
+  consola; cada gesto montado a mano y comprobado (gx_e2_gestos: tambien el tiro con su X y
+  el remate de primeras), todos bien tambien al 125 %. Memoria: 180 mallas y 274 texturas a
+  los 10 y a los 60 s de juego (iguales); JS de abajo por cuadro ~0,2 ms sin el render.
+- Lo que no queda igual que Galaxy: el estadio es sencillo; los modelos son los de VR
+  (proporciones de VR, no cabezones de verdad: solo mas grandes); la camara corta al
+  portador centrado (Galaxy lo deja donde cae); los nombres y las barras encima son de
+  Pizarra; la zona de tiro sale desde mas lejos porque en Pizarra se chuta desde 38 m (o
+  mas con un tiro largo). Junto a la porteria (p03) Galaxy se ve ~20 % mas cerca que con
+  la camara de la guia (31 m, medida en el circulo central): se dejo la de la guia. La
+  columna de iconos de m02 es de E3.
+- A confirmar con Aaron: los jugadores del tamano de Galaxy (x2,2) o del real; los
+  triangulos de los dos equipos o solo de los tuyos; el nombre del elegido y del que
+  lleva el balon y las barras del portero y del aura (Galaxy no pone nada); la camara que
+  vuelve sola al balon a los 1,5 s; la zona de tiro desde tan lejos (o solo cerca del
+  area, como Galaxy); que pruebe la calidad Automatica en su portatil.
+
+### O-318 · El juego de partidos: la tactil como GO Galaxy (E3)
+
+Tercer encargo del diseno de las pantallas como Galaxy (scratchpad
+juego/galaxy/DISENO_PANTALLAS.md, E3; O-307 puntos 10 y 15). En el codigo los cambios
+citan esta nota. El motor, la IA, el online (la foto no cambia: VERSION igual) y la
+pantalla de arriba no cambian.
+- Se va el aside provisional de O-316: todo lo que iba en los paneles de al lado esta
+  ahora DENTRO de la pantalla de abajo, como la tactil de Galaxy (web/partido-abajo.js y
+  partido-abajo.css: una capa HTML de 320x240 px de 3DS con zoom encima del campo 3D; lo
+  que no es un boton deja pasar el raton al campo, asi que se siguen dibujando rutas):
+  - En juego, la columna de hexagonos de la derecha (m02, b01, b02): la mano (la pausa;
+    tambien la barra espaciadora), TS (las tacticas), el aura (los espiritus, con el
+    numero de invocaciones que se pueden hacer ya: la hiperbarra, el limite de 2 activos
+    y los 15 s entre una y otra, O-310) y la T (la ficha grande arriba, alterna con el
+    mapa). Rellenos de verde oscuro cuando ahora no se puede; al pulsarlos dicen por que
+    en la franja de abajo (TS y el aura abren su panel igual, para mirar).
+  - Las tacticas y los espiritus en juego: paneles compactos PEGADOS ABAJO (no tapan el
+    balon ni lo de delante) que suben como el de auras de Galaxy y NO paran el juego
+    (O-307 punto 10). Pulsar una tactica la lanza; [Invocar] invoca al elegido en la fila
+    de las 11 caras (los que no tienen espiritu, apagados), con su tarjeta morada
+    (familia, espiritu, "HIP 100 + AT/DF +50 % = 45 s") y lo que le falta.
+  - La pausa (b12, b13): sin columna, el rotulo "Pausa", la caja de ayuda de Galaxy (la
+    camara con las flechas y lo que se puede hacer) y [Registro] [Equipo] [Táctica]
+    [Seguir]. El tiempo de tactica, en cada espera de saque (m06, p16): "Tiempo de
+    táctica" con el saque, la ayuda (lo de siempre en dos lineas, y como se coloca el que
+    has elegido) y [Jugar] [Menú]; el Menú: [Registro] [Equipo] [Táctica] [Atrás]. Al
+    pulsar Seguir o Jugar el boton se pone naranja y, online, sale "Espera unos
+    instantes..." hasta que pulse el otro (con [Dejar el partido] si no pulsa en 60 s).
+  - Equipo (los cambios, como la formacion de p26): el mini campo con las caras en los
+    puestos de la formacion (el que entra ocupa el del que sale), el banquillo, los
+    recursos del equipo (tension e hiperbarra; en la ficha de un rival no se veian) y los
+    cambios que quedan; se elige uno del campo (arriba sale su ficha grande) y uno del
+    banquillo y [Cambiar]; [Quitar] el pendiente. En la pausa entra al pararse el balon;
+    en el saque y en el descanso, en el acto. El expulsado sale apagado.
+  - Registro: "Lo que pasa" (lo ultimo arriba) y "Cómo se juega", [Salir del partido]
+    (con un segundo clic, para no salir sin querer) y [Dejar el partido] si el rival no
+    responde. Táctica: las pestanas Tácticas y Espíritus (el panel de auras entero de
+    p19): asi tambien se invoca en la pausa y en la espera del saque (O-310).
+  - El duelo (m04, b19-b23): la franja del objetivo ("¡Esquiva la defensa del
+    oponente!", "¡Detén el regate del oponente!", "¡Elige un tiro!", "¡Bloquea el
+    tiro!", "¿Encadenas el tiro?", "¡Defiende la portería!") y la barra [izquierdo]
+    [rayo] [derecho]: Regatear | Romper, Tapar | Entrada/Cargar (el boton partido en dos,
+    como el "Volée Tir"), Tirar | Vaselina, Testarazo | Volea, Bloquear | Dejar pasar, No
+    encadenar | (nada), Parar | Despejar; debajo de cada uno su total ("total 1407", "de
+    1055 a 2322", "disputa 478") y lo que se puede ir fuera. El rayo abre la lista de
+    supertecnicas (m05: 2x4 casillas con su elemento, ✦ si es de espiritu y su coste en
+    tension; con mas de 8, paginas): se marca una y [¡Aceptar!]; sube como en Galaxy
+    (t03: la barra aun se ve 67 ms y sus botones salen por los lados). La franja morada
+    del espiritu: en un foco la hipertecnica (★ Usar: gana el duelo), en el tiro y el
+    penalti [Invocar]. La caja de ayuda con lo de antes (marcar el pase en un foco, el
+    balon alto, quien esta en la linea de tiro, el rival que ha invocado). Siguen los dos
+    pasos muro -> portero y tiro -> cadena con la tension de cada uno. Tras elegir, la
+    barra azul con [Atrás] apagado y, online, "Espera unos instantes...". Con los focos
+    automaticos no sale la barra.
+  - El penalti (b46): "PK" y la porteria dibujada de frente con 3 casillas (al pasar el
+    raton, cian con la mano); pulsar una elige la zona (como se ve en tu pantalla);
+    antes, si quieres, una supertecnica con el rayo.
+  - El descanso y el final (b44, b45): las estadisticas en el panel verde (tus cifras a
+    la izquierda, la posesion en la barra azul y roja, los goles de cada lado), [Menú] y
+    [Segunda parte] / [Prórroga] / [Seguir]; al final [Otro partido] y quien ha ganado.
+  - El rival que se ha ido (online): la caja con quien se ha ido, el marcador y [Otro
+    partido], en cualquier fase.
+  - La franja oscura de abajo (b47): los avisos de lo tuyo ("demasiado lejos para
+    chutar", "Muy cerca del balón", el cambio preparado) y, como en Galaxy, cuando a uno
+    de los tuyos se le acaba el espiritu ("X se queda sin su espíritu (vuelve en N s)",
+    hasta ahora no se decia en ningun sitio). Fuera del partido (errores, invitaciones),
+    en la franja de la pantalla de elegir.
+- Las defensas de los clics de siempre (O-305): el segundo clic de un doble clic no
+  cuenta, ni un clic en algo que acaba de salir (300 ms), y la tactil no se rehace con
+  el raton apretado. La barra espaciadora pulsa el boton que toca (la mano, Seguir,
+  Jugar o "Segunda parte").
+- partido.js: sin los paneles de antes; vigilar() hace cada cuadro lo que no es pintar
+  (repetir la eleccion y el Jugar del invitado cada 1,5 s, el ayudante de los focos
+  automaticos, los avisos), aunque la tactil no se rehaga. De momento (hasta E4), arriba
+  encima del mapa: en un duelo las caras con el poder de base y luego el resultado con
+  las filas de siempre.
+- "Cómo se juega" al dia: los iconos, la pausa, Equipo, el rayo y la franja morada.
+- Pruebas: nueva prueba-g3.js (142 OK: en cada fase y papel, que paneles y botones salen
+  y cuales apagados con su porque: juego (la columna, el numero del aura con 40, 150 y 200
+  de hiperbarra, tras invocar y sin espiritus; TS sin tacticas o con una activa; la T),
+  los compactos, la pausa, el saque y el Menú, Equipo (los puestos, el cambio en dos
+  pasos, pendiente en la pausa y en el acto en el saque, el expulsado), Registro, Táctica
+  con los espiritus en la pausa y en el saque, los focos con balon y defendiendo (el
+  boton partido), el tiro en el suelo, alto y desde lejos, muro -> portero con la tension
+  del bloqueo, tiro -> cadena con su total, el rival que invoca, la lista con 3, 8 y 10
+  tecnicas, el penalti tirando y parando, la espera, el descanso, la prorroga, el final,
+  el rival que no responde o se va; vigilar() repite la eleccion y el Jugar del invitado
+  sin pintar; y con un DOM de mentira las 19 vistas montadas y las defensas de los
+  clics). Las de siempre en verde (prueba3ds, e1 a e6, o315, g1, g2; fotos "iguales:
+  true"): prueba-e3, e4, e5 y e6 leen ahora la pagina como partido.js + partido-abajo.js
+  + partido-arriba.js, sin quitar nada de lo que miran.
+- Capturas (Chrome headless, juego/cdp/gx_e3.mjs; comparadas con comparar.py e3 en
+  galaxy/comparado/e3_*, Pizarra a la izquierda y Galaxy a la derecha) en la ventana de
+  Pizarra de 1366x697 y 1920x1001, y una vez una al lado de otra y al 125 %: la columna
+  (b01, b02, m02), la pausa (b12, m07), el Menú (b13), el tiempo de tactica (b14, b15,
+  b16, m06, p16), el foco (b19, m04), el robo (b20), el tiro (b21), el portero y el muro
+  (b22), la franja del espiritu (b23), la lista (b24-b27, m05 y la tira de t03 a +0, +33,
+  +67, +170 y +270 ms), la espera (b17, b18, m08), las auras enteras y compactas (b39-b41,
+  m09, p19), Equipo (p26), las estadisticas (b44, b45), el penalti (b46, p24) y el aviso
+  (b47). Un partido entero contra la maquina jugado solo con la tactil y el raton de
+  verdad (gx_e3_entero.mjs: pausa con un cambio en Equipo pulsado con doble clic (un
+  solo cambio), Registro, una tactica en la pausa y otra con TS, invocar con el aura, la
+  T, los focos con la barra y 21 veces con la lista, la ★, muro y portero, cambios en el
+  saque, el descanso con su Menú, la prorroga y la tanda hasta el final con [Otro
+  partido]), sin errores en la consola; y otro haciendo de invitado online de un
+  anfitrion simulado en la misma pagina que pierde la primera eleccion y el primer
+  Jugar: los dos se repiten y acaban con el mismo marcador.
+- Lo que no queda igual que Galaxy: los botones dicen lo de Pizarra (Registro en vez de
+  Objetos, que Pizarra no tiene) y llevan debajo los totales [PIZARRA]; la tarjeta del
+  espiritu lleva la cara del jugador (no hay dibujos de los espiritus) y la segunda
+  tarjeta es lo que da su hipertecnica; Equipo no tiene el "Coach" (van la tension y la
+  hiperbarra); la pantalla de las tacticas y la franja de los avisos fuera del espiritu
+  no salen en Galaxy; las letras siguen siendo las de Windows (O-316). El resultado de
+  los duelos arriba es el de antes hasta E4.
+- A confirmar con Aaron: los paneles de tacticas y espiritus pegados abajo sin parar el
+  juego; Registro en el sitio de "Objetos"; Equipo con el cambio en dos pasos (uno del
+  campo, uno del banquillo y Cambiar); el segundo clic para salir del partido; los
+  textos de la franja del duelo como CS espanol.
+
+### O-319 · El juego de partidos: el tiempo de las animaciones como GO Galaxy (E4)
+
+Cuarto encargo del diseno de las pantallas como Galaxy (scratchpad
+juego/galaxy/DISENO_PANTALLAS.md, E4; el tiempo de cada cosa sale de las tiras t01-t23 y de la
+guia 8). En el codigo los cambios citan esta nota. Retomado tras apagarse el PC.
+- Las animaciones (una opcion nueva en la pantalla de elegir: "Completas" o "Cortas"; online
+  valen las del que invita y viajan en el mensaje "equipos"; un invitado con un valor raro o
+  sin el, sin animaciones). Con ellas el partido se para lo que dura cada animacion, como en
+  Galaxy: la entrada al duelo (0,87 s), el choque, la supertecnica de cada uno (4,2 s
+  completas, 1,6 cortas; la ★ y las de espiritu 5,0 / 2,0), las cifras que se fijan, el
+  tiro en vuelo, el bloqueo, el portero, el gol (10,8 s completo con la repeticion), la
+  tanda, la falta y la tarjeta, el fuera de juego y la banda, el corner y la puerta.
+- El motor (web/partido-motor.js) solo cambia lo que espera: cada espera de un resultado o
+  de un gol vale lo que dura su animacion (REGLAS.planAnim, en partido-reglas.js con la
+  tabla REGLAS.ANIM), y el resultado lleva `anim` (el modo, la entrada y el total). Lo que
+  pasa en el partido es lo MISMO con animaciones o sin ellas (los sucesos, los goles y las
+  estadisticas de 12 partidos con semilla: prueba-g4). VERSION 9: online, los dos con el
+  mismo Pizarra.
+- El Director (web/partido-director.js, nuevo): decide en cada cuadro que se ve en cada
+  pantalla, tramo a tramo del mismo plan que hace esperar al motor (en el invitado, con la
+  espera que llega en las fotos). Lo que cuenta el resultado no sale antes de su momento:
+  el marcador de arriba cambia al acabar el gol, y los rotulos y los sonidos del
+  resultado, en su tramo. Graba los ultimos segundos de juego para la repeticion (tambien
+  si el tiro se resolvio sin que lo viera empezar, como el invitado entre dos fotos).
+- Arriba (web/partido-hud-duelo.js, nuevo), con un fondo 2D hasta que llegue el 3D (E5):
+  el duelo eligiendo (las caras, el "Poder de base", los elementos, los apoyos con su
+  "+ %"), y en la animacion las cifras "Poder total" rodando y fijandose (la que gana
+  amarilla y la que pierde morada), "¡Crítico!", la ★ e "¡Hipertécnica!", la barra TEN /
+  HIP con lo que gasta la tecnica, el nombre de la supertecnica grande y de su color, el
+  rayo contra la mano del portero, "¡Tiro debilitado!" con "le quita N" y "¡Tiro
+  bloqueado!", el "Talento +N %", las zonas del penalti, y el gol: el balon que rompe la
+  mano, la porteria, el balon en la red con su fuego, "¡GOL!" y el marcador nuevo enorme.
+- Abajo: los rotulos de Galaxy (web/partido-rotulos.js) con su tiempo y su forma:
+  "¡SAQUE!", "Fuera de juego", "Descanso", "Fin del tiempo reglamentario", "Fin del
+  partido" con "¡Victoria!" / "Derrota..." / "Empate", "¡Bloqueo!" con sus estallidos,
+  la invocacion ("¡Invocación!", "¡Despertar!"... con su espiral), "¡Supertáctica!", el
+  panel CAMBIOS cuando entran cambios de cualquier equipo, la placa "Poder total" del tiro
+  en vuelo con la estela del balon, la repeticion del gol con "Vídeo" y, tras el gol,
+  [Repetir] / [Reanudar partido] (cada uno en su PC; Reanudar lleva al tiempo de
+  tactica). La tactil se apaga mientras sale una animacion y la barra del duelo sale a los
+  670 ms, como en Galaxy. Se van los rotulos de antes (partido-hud-abajo.js) y el
+  resultado provisional de E3 (mostrarResultado, filaDuelo).
+- "Cómo se juega" al dia: las animaciones (completas o cortas) y Repetir / Reanudar.
+- Lo que alarga un partido (medir-anim.js, 32 partidos de 2x15 maquina contra maquina, con
+  los mismos goles): sin animaciones 3:58 min de media (78 s de esperas), con las cortas
+  5:50 (como mucho 7:07) y con las completas 7:55 (como mucho 10:03). Por partido salen
+  unos 19 focos, 16 tiros y 3,2 goles.
+- Pruebas: nueva prueba-g4.js (60 OK: los mismos sucesos, goles y estadisticas con false,
+  completas y cortas; cada espera = planAnim().total y `resultado.anim`; las duraciones de
+  cada caso de planAnim; la entrada 0,87 / 0; el Director con un motor de mentira (que
+  tramo a cada t, la sincronia con una espera que llega a saltos, el plan corto sin
+  `anim`); fotos.js "iguales: true" con animaciones; los rotulos, los sonidos y el
+  marcador no antes de su tramo; la foto no cambia mientras se elige; Repetir / Reanudar
+  solo hacia el saque de centro, tambien con un gol que el Director no ve empezar; Sonido
+  sin Director suena como antes). Las de siempre en
+  verde (prueba3ds, e1 a e6, o315, g1, g2, g3; fotos "iguales: true"), adaptadas a los
+  rotulos nuevos (copias de antes en prueba/*.antes-g4.js).
+- Capturas (Chrome headless, juego/cdp/gx_e4.mjs con el reloj del Director parado;
+  comparadas con comparar_e4.py en galaxy/comparado/e4_*, Pizarra a la izquierda y Galaxy
+  a la derecha) en la ventana de Pizarra de 1366x697 y 1920x1001: las tiras t01, t02, t04
+  a t15, t19, t20 y t21 fotograma a fotograma, y m03, a08 a a16, a20, a21, b31, b43, b48,
+  p13, p14 y la ★. Con ellas se ajustaron los tamanos (las cifras, el nombre de la
+  tecnica, los rotulos de abajo, "¡Tiro debilitado!" enorme medio segundo), los apoyos a
+  la altura de a12, la escena de la tecnica que sigue detras al fijar, los estallidos
+  azules del bloqueo, el rayo contra la mano y el fuego del balon en la red. Un partido entero con las completas y otro con las cortas jugados solo
+  con la tactil (gx_e4_entero.mjs), sin errores en la consola: con las completas (18 min, con prorroga y tanda: la tactil apagada mientras salen, Repetir y Reanudar tras el gol, el marcador de arriba igual al del motor al final; lo que salio mal era del script, que contaba como atasco el tiempo de las animaciones, ya corregido) y con las cortas (9 min, todo bien). Y dos pestanas online en el mismo
+  Chrome (gx_e4_online.mjs, unidas por una red de mentira en vez de los servidores
+  publicos): valen las cortas del que invita en las dos, las dos con el mismo plan del gol y en su tramo a la vez (1,10 y 1,09 s), el mismo marcador arriba, Repetir / Reanudar en las dos y luego el tiempo de tactica y Jugar, sin errores (13 de 13).
+- Lo que no queda igual que Galaxy: arriba un fondo 2D con la cara del jugador en vez de
+  la escena 3D (E5); "¡GOL!" en vez de "BUT !"; en la escena del gol sale el que marca (no
+  hay modelo del portero caido); tras el vuelo del tiro el negro antes del portero dura
+  0,2 s (Galaxy ~0,7: la tabla del diseno); las franjas del bloqueo van en horizontal; el
+  tiro no pierde fuerza en el vuelo (la placa se queda fija); y los rotulos que Galaxy no
+  tiene: falta, tarjeta, penalti, "¡Fuera!" / "¡Desviado a córner!", el de la tanda
+  [NO GALAXY]. El nombre de cada supertecnica entra a los 0,33 s (en Galaxy depende de la
+  tecnica: la del muro de t08 a los ~2 s) y las tecnicas duran 4,2 s (Galaxy 5,4-8).
+- A confirmar con Aaron: si las animaciones por defecto son las completas (un partido de
+  2x15 pasa de 4 a unos 8 minutos) o las cortas (unos 6); Repetir / Reanudar tras cada
+  gol; el panel CAMBIOS tambien con tus cambios (tapa la tactil 4,4 s); la cara del que
+  marca en el gol.
+
+### O-317 · Quitar una pasiva de gerente o entrenador
+
+- En el juego se le puede quitar una pasiva a un gerente o entrenador y en el
+  editor no se podia. Ahora hay un boton "Quitar" junto a "Cambiar" en cada
+  pasiva de personal (editor normal y draft: es la misma orden pasiva_personal
+  con el id vacio, que el draft ya permitia salvo con la regla sin pasivas).
+- `E.quitar_pasiva_personal`: la ranura de la tabla con numero queda a cero
+  (id y valor, como un convertido de O-185) y el contador de puestos del manual
+  baja uno, asi que vuelve a estar libre en la mochila. Un Diamante no tiene
+  manual que devolver. Probado en la partida de Aaron: quitar y volver a ponerla
+  deja el contador como estaba.
+- Al quitar las cinco se volvian a rellenar: `sincronizar_tabla_pasivas` tomaba la
+  tabla vacia por la de un recien fichado. Ahora quitar deja la marca de
+  desbloqueada puesta y solo se rellena si esta a cero del todo (marca incluida).
+- Aaron: las de un gerente o entrenador DIAMANTE las pone el juego: no se
+  quitan ni se cambian. El servidor lo rechaza, la ficha ensena "las pone el
+  juego" y, si a alguno le faltaba alguna, se le vuelve a poner su juego.
+
+### O-320 · El juego de partidos: el 3D de arriba como GO Galaxy (E5)
+
+Quinto encargo del diseno de las pantallas como Galaxy (scratchpad
+juego/galaxy/DISENO_PANTALLAS.md, E5; guia 7.2, 8.4-8.8 y 10; O-307 punto 15). En el codigo los
+cambios citan esta nota. El motor, la IA, el online (la foto no cambia: VERSION igual), la
+tactil y el HUD de E4 no cambian. Retomado tras cortarse a medias (se reinicio el PC).
+- Con WebGL, arriba se ve en 3D lo que hasta ahora era un fondo 2D: los duelos eligiendo, cada
+  supertecnica, el choque, el tiro, el penalti, la invocacion y el gol, con el HUD de E4 encima
+  tal cual (las cifras, la barra, el nombre, los rotulos). Sin WebGL (o con "Campo en 3D"
+  quitado) sigue el fondo 2D de O-319.
+- web/partido-escenas.js (Escenas, modulo ES): el Estudio, uno por pagina, con el estadio y
+  el campo de abajo en mallas nuevas que comparten geometria y material (no sube nada nuevo a
+  la grafica), las mismas luces y los ACTORES: un clon del modelo de VR de cada jugador
+  (SkeletonUtils: comparte las mallas y las texturas ya reducidas de O-317; solo hace huesos
+  nuevos), hecho una vez cuando abajo ya tiene su modelo y guardado (como mucho 22; al empezar
+  otro partido se sueltan los que no juegan), y una ficha con su cara mientras llega. Lo unico
+  que es solo de arriba: la pista detras de cada porteria (en Galaxy la red de atras da a la
+  pista; abajo hay 4 m de cesped que no se ven).
+- Cada cuadro, Escenas.componer() decide sin three (la prueba lo cuenta en node) que plano
+  se ve, donde va la camara y que hace cada actor; lo llama el Director y lo deja en
+  estado.arriba.escena (solo si el 3D esta listo: si no, HudDuelo pinta su fondo 2D); el Mundo
+  lo pinta arriba (Mundo.alPintarArriba). Nada nuevo por cuadro: la salida se reutiliza (unos
+  2 microsegundos) y en las mallas solo cambian posiciones y uniforms.
+- Los planos del duelo (guia 7.2): a +530 ms (+600 en el tiro) la entrada baja (0,9 m)
+  delante del que lleva el balon, que corre hacia la camara; a +870 el lateral de los dos
+  frente a frente, el tuyo a la izquierda como sus fichas, con un vaiven lento; el tirador de
+  frente y a +800 mas cerca; si te tiran, tu portero de frente en su porteria (p09).
+- Las plantillas (diseno 6.6; guia 10), una por tipo, con el color y las particulas del
+  elemento: el tiro (primer plano de la cara, el plano general subiendo con su aura, el golpe
+  con un destello blanco y el balon en vuelo con su estela), el regate (le da la vuelta al
+  defensa y se va), la defensa (se lanza y lo tumba), el bloqueo (salta y la cupula
+  translucida del color de su elemento, con su shader) y la parada (la mano gigante, dibujada
+  una vez). Sin tecnica: el choque en el lateral (al fijarse, el que pierde cae), la patada, el
+  muro que salta y el portero que para; la preparacion del tiro y, en el penalti, la carrera
+  desde detras y el balon que entra. Cada plantilla se estira o encoge a lo que dura su tramo
+  (REGLAS.ANIM, completas y cortas).
+- El fondo de las tecnicas: un plano de pantalla con un shader (el degradado radial del
+  elemento y las lineas de velocidad que salen de los bordes, 24 cambios por segundo; las
+  llamas de la armadura); encima del estadio, solo las lineas. Las particulas: 512 puntos con
+  atributos fijos (su semilla) que mueve el shader: llamas que suben (fuego), espirales
+  (viento), hojas que giran (bosque), rocas y polvo (montana); en Baja no salen (diseno 7.4).
+- El espiritu: la ★ de un foco y las ✦ (tiro, muro, portero) empiezan con la carga (la camara
+  sube desde los pies, la espiral de cintas cian que lo envuelve y crece, el fondo pasa al azul
+  con lineas) y el espiritu que sale detras: el clon del jugador x3, translucido y del color de
+  su familia (hecho una vez por jugador con espiritu); luego lo de su tipo con la silueta
+  detras. Invocar sobre el mapa (t17, 4,3 s, sin parar el juego): negro, la carga, el
+  espiritu enorme y su nombre (el del HUD). La armadura (t18): destello y el jugador con su
+  armadura pegada (la misma silueta a x1,06) sobre llamas radiales.
+- El gol (guia 8.6): la mano que se rompe entre fuego, detras del portero que se tira, el
+  balon que se clava en la red de atras (desde detras de ella, con la pista debajo) y, tras el
+  negro, la escena del portero caido de cerca y bajo con el balon botando delante (el "0 - 1"
+  y "¡GOL!" son del HUD). Con las cortas, solo la escena.
+- Los clips de VR nuevos (ievr/g4.py, ANIM_PARTIDO y VERSION_MODELO 3) NO se han hecho: falta
+  el si de Aaron. partido-3d.js ya tiene el mapa de esos clips (ANIM_VR: regate y robo que
+  ganan o pierden, entrada, cargar, testarazo, volea, parar, despejar, el gol encajado, el
+  portero caido, celebrar, aturdido, salto): el Estudio usa cada uno si el modelo lo trae y,
+  si no (los modelos de hoy), los 4 de siempre movidos a mano (saltos, la caida, tumbado).
+- partido-3d.js (solo eso): alPintarArriba, lo fijo del campo y sus luces para el Estudio
+  (c.fijas, c.luces) y ANIM_VR. partido-director.js (solo eso): estado.arriba.escena.
+  partido-hud-duelo.js: con la escena 3D debajo no pinta su fondo 2D (el degradado, los
+  retratos, la porteria y la red dibujadas); el HUD no cambia. partido-galaxy.css: la
+  pantalla de arriba deja ver el WebGL de detras.
+- Pruebas: nueva prueba-g5.js (66 OK: la plantilla de las 50 combinaciones de tipo, elemento e
+  hiper con su color y sus particulas; la cupula, la mano, la silueta y la espiral donde
+  tocan; cada plantilla cabe en su tramo con las completas y las cortas (los planos seguidos,
+  el ultimo al acabar, ninguno de menos de 0,15 s); la camara de cada plano mira al actor
+  correcto y ese actor sale en la pantalla de 400x240 (con three en node): la entrada, el
+  lateral con el tuyo a la izquierda, el vaiven, el tirador (a 18 m tambien si chuta de
+  cerca), el portero, los ~700 tramos de 4
+  partidos maquina contra maquina con completas y cortas, el bloqueo, la ★, el penalti, la
+  invocacion, la armadura y el gol; el clip de VR si el modelo lo trae; el Director solo
+  compone con el 3D listo; componer reutiliza su salida). Las de siempre en verde (prueba3ds,
+  e1 a e6, o315, g1 a g4; fotos "iguales: true" sin animaciones, completas y cortas);
+  prueba-g3 lee partido.js sin los CR (desde el 2026-10-08 los ficheros de la pagina estan en
+  CRLF), sin quitar nada de lo que mira.
+- Capturas (Chrome headless, juego/cdp/gx_e5.mjs con el reloj del Director parado; comparadas
+  con galaxy/trabajo/comparar_e5.py en galaxy/comparado/e5_*, Pizarra a la izquierda y Galaxy
+  a la derecha) en la ventana de Pizarra de 1366x697 y 1920x1001 (las de un portatil de
+  1366x768 y una pantalla de 1920x1080 maximizadas): la entrada a un duelo con el plano bajo y
+  el lateral (t01, +533 a +1000 ms), el tiro (t02, p08), el portero (p09), una supertecnica de
+  cada elemento (t04 y p10; el nombre contra a17-a19), el bloqueo (t08), la parada (t10), el
+  gol (t11, t12, p13), la invocacion (t17), la armadura (t18, a22) y el nombre del espiritu
+  (a24). Con ellas se ajustaron: la silueta del espiritu (salia a x2 en vez de x3 y la
+  armadura no se veia), la espiral de la carga (cintas cian que crecen, el fondo que pasa al
+  azul), la camara de los tres planos del gol (detras del portero, desde dentro de la
+  porteria; la red, desde detras de ella) y de la escena del portero caido con el balon a la
+  izquierda, la pista detras de la porteria y el regate que se salia del plano al fijarse
+  las cifras. En el partido entero salio ademas que un tiro de cerca metia la camara y el
+  balon en vuelo dentro de la red: arriba el que chuta se pone a 18 m como poco (no en el
+  penalti).
+- Memoria y tiempo (diseno 7.5; en el headless, gx_e5.mjs): MUNDO.info() con 187 geometrias y
+  588 texturas antes y despues de 20 animaciones seguidas (focos y tiros con y sin tecnicas,
+  muro, parada y gol): la memoria no crece (los 22 actores y sus 22 siluetas ya estaban hechos
+  y subidos). JS por cuadro en una animacion de tiro, cuadro a cuadro: el Director con
+  componer 0,04 ms de media (0,1 como mucho) y lo de Escenas sin el render 0,03 ms (0,2 como
+  mucho; el reloj del headless va de 0,1 en 0,1 ms).
+- Un partido entero contra la maquina jugado solo con la tactil (gx_e5_entero.mjs, como el de
+  O-319 mirando ademas el 3D de arriba): con las completas, 14 min, 37 planos distintos (la
+  entrada, el lateral, el portero, el choque, el regate, la defensa, la ★ de
+  defensa, la ✦ de tiro, el tiro, el bloqueo con su cupula, la parada con su mano, sin
+  tecnica, la preparacion y el gol en sus tres planos y la escena), el marcador de arriba
+  igual al del motor, sin errores en la consola; MUNDO.info() acaba con 203 geometrias y 646
+  texturas (los dos que entraron del banquillo traen su modelo y su actor). Y otro con las
+  cortas (14 min, 38 planos: tambien la ★ de regate y la invocacion sobre el mapa entera),
+  con todo lo de la tactil bien (invocar y la tactica en juego, cambios, Repetir y Reanudar,
+  el final con [Otro partido]) y sin errores en la consola.
+- Lo que no queda igual que Galaxy: las supertecnicas son plantillas por tipo y elemento (en
+  Galaxy cada una es una pelicula); los espiritus no tienen modelo (la silueta del jugador x3
+  del color de su familia); el portero caido no tiene la pose de Galaxy (tumbado a mano: el clip
+  esta en VR, a confirmar); la red es de rombos (la del campo de abajo) y no de hexagonos; el
+  estadio es el sencillo de abajo; "¡Armadura!" sale en la tactil (el rotulo de E4) y no
+  arriba.
+- A confirmar con Aaron: rehacer los modelos con los clips nuevos de VR (VERSION_MODELO 3: cada
+  PC los vuelve a convertir una vez, ~1,2 s cada uno; va en el Pizarra.exe siguiente); la
+  silueta translucida x3 como espiritu; la pista detras de las porterias solo arriba.
+
+### O-321 · El juego de partidos: rendimiento, acabado y revision de las pantallas como GO Galaxy (E6)
+
+Sexto y ultimo encargo del diseno de las pantallas como Galaxy (scratchpad
+juego/galaxy/DISENO_PANTALLAS.md, E6; diseno 7 y 10). En el codigo los cambios citan esta
+nota. Las reglas, la IA y la foto del online no cambian (VERSION igual).
+- El contador de FPS (la opcion "Ver FPS" de la pestana Pantalla, o /partido?medir para las
+  capturas) dice ahora "60 FPS · JS 1,8 ms · 3D 2,9 ms · Media (auto)": las imagenes por
+  segundo, lo que tarda cada una en el programa (el motor, el Director, los HUD y la
+  tactil) y lo que tarda en mandar el 3D a la grafica, por separado, y la calidad que ha
+  puesto la automatica. Es lo que Aaron tiene que mirar en su portatil (abajo, a
+  confirmar). Por dentro: el bucle mide cada cuadro (Consola.finCuadro), el Mundo cuenta
+  los ms de sus render (msRender) y las llamadas de dibujo de cada pantalla (MUNDO.info()
+  las da: llamadasAbajo, llamadasArriba) y Escenas.pintar dice cuanto fue su JS; cada
+  medio segundo queda en Consola.rendimiento. El contador pasa de arriba a la derecha de
+  la ventana a abajo a la derecha: mas largo, tapaba la esquina del marcador rival en una
+  ventana pequena con las pantallas una encima de otra.
+- La calidad automatica, ajustada (diseno 7.4): sigue empezando en Media, bajando un
+  nivel si el intervalo entre cuadros pasa de 22 ms 3 s seguidos (44 en Baja) y subiendo
+  uno, una vez por partido, tras 10 s sin perder cuadros; nunca en mitad de una animacion.
+  Lo nuevo: (1) no mide mientras se cargan los modelos o el servidor los convierte (el
+  Mundo lo dice cada cuadro, MUNDO.cargando()), ni los 3 primeros s del partido, ni 1 s
+  despues de cambiar el tamano de la ventana o el nivel: esos tirones no son de la grafica
+  y la bajaban al empezar; (2) no vuelve a subir al nivel del que ya bajo por lento (en el
+  headless iba Media -> Baja -> Media -> Baja: el cambio se ve y no sirve de nada). En Baja
+  pinta 30 de verdad (30,0 por segundo medidos), tambien en pantallas de 75, 120 o 144 Hz.
+- Arreglo: en Baja los modelos de abajo se movian a unas 20 imagenes por segundo y no a 30:
+  con el limite de 30 FPS los cuadros llegan cada 33,2 o 33,4 ms y la cuenta "lo que ha
+  pasado >= 1/30 s" se saltaba uno de cada tres. Con 4 ms de margen, una por cuadro
+  (medido: de 9,4 a 12,9 modelos movidos por cuadro, los que se ven).
+- Arreglo: tras un gol a veces no salian [Repetir] / [Reanudar partido]. El reloj del
+  Director puede ir hasta 0,25 s por delante del motor (con cuadros lentos el motor pierde
+  tiempo y el Director solo se corrige pasado ese margen); si la animacion acababa con el
+  motor aun en el gol, el Director daba el gol por visto antes de la espera del saque y no
+  ponia los botones. Salio en el partido online de dos pestanas (al que invita). Ahora la
+  animacion espera en su ultimo cuadro a que el motor salga (partido-director.js).
+- "Cómo se juega" al dia: las animaciones en 3D arriba con los modelos, la invocacion que
+  se ve arriba sin parar el juego, los focos automaticos, el online que no responde
+  ("Espera unos instantes...", "Dejar el partido") y la pestana Pantalla (las pantallas,
+  la calidad, Ver FPS, el campo en 3D).
+- Medido en el navegador (Chrome headless con el 3D por software: valen los ms de JS, las
+  llamadas y la memoria, no los FPS; juego/cdp/gx_e6_medir.mjs, un partido de 2 x 30 con
+  las completas, tu lado tambien a maquina, 1366x697):
+  - la carga: los 22 modelos (ya convertidos) en unos 3 s, dos a la vez; al acabar, dos
+    cuadros de ~350 ms (se sube y se compila todo de una vez, abajo y arriba), en la espera
+    del saque inicial.
+  - a los 0, 1 y 5 minutos, 187 geometrias, 587 texturas (~41 MB en la grafica con Media,
+    las de los modelos a 256) y 40-42 MB de memoria JS; tras dos cambios (dos modelos y dos
+    actores nuevos), 203, 646 (~44 MB) y 44,5 MB, y asi hasta los 10 minutos. Con Alta (a
+    512) las texturas son ~131 MB (el presupuesto de 7.3 bis era 130).
+  - el JS por cuadro: en juego 1,0-1,6 ms de media (el 95 % por debajo de 3,7); en las
+    animaciones 0,9-1,2 ms (el 95 % por debajo de 2,5). Presupuesto: 4 y 6 ms. Lo que pasa
+    de 20 ms es una vez: al llegar un modelo nuevo (copiarlo y reducir sus texturas).
+  - las llamadas de dibujo: abajo hasta 107 en juego (presupuesto 120); arriba 18-32 en
+    casi todos los planos, 38-39 en algunos duelos de los partidos enteros y 46 una vez en
+    la medida de 10 minutos (presupuesto 40); el cuadro en que se sube todo, una vez,
+    ~340-370.
+  - la calidad automatica en el headless (lento a proposito): baja a Baja a los 20-50 s y
+    ahi se queda.
+- Un partido entero contra la maquina jugado solo con la tactil (gx_e6_entero.mjs, como el
+  de O-320, con una medida cada minuto) en la ventana de un portatil de 1366x768 (1366x697)
+  y de una pantalla de 1920x1080 (1920x1001) con las pantallas una encima de otra y las
+  completas, y otro con las cortas una al lado de otra (1366x697, con prorroga y tanda):
+  sin errores en la consola, el marcador de arriba igual al del motor, la memoria JS
+  estable (44-45 MB de los 7 a los 13 minutos), las geometrias y texturas solo crecen con
+  los que entran del banquillo. Dos comprobaciones salieron mal una vez cada una (invocar
+  con el aura y la tactica con TS en juego): un duelo empezo justo despues de abrir el
+  panel; probadas aparte con el raton y el motor quieto (gx_e6_ts.mjs), van bien.
+- Online con dos pestanas del mismo Chrome (gx_e6_online.mjs, la red de mentira de O-319):
+  un partido corto entero (el gol del que invita, Repetir / Reanudar en las dos, luego las
+  maquinas del que invita por los dos lados con el reloj adelantado a los 14:40 de cada
+  parte, segunda parte y final): las dos con el mismo plan del gol a la vez, el mismo
+  marcador (motor y arriba), [Otro partido] al final y sin errores (17 de 17, tras el
+  arreglo de Repetir / Reanudar).
+- Revision de las 32 pantallas de Galaxy (p01-p32), cada una con la de Pizarra en el mismo
+  momento al lado (juego/cdp/gx_e6.mjs y galaxy/trabajo/comparar_e6.py; en
+  galaxy/comparado/e6_pNN_<tamano>.png, Pizarra a la izquierda con las dos pantallas como
+  el video y Galaxy a la derecha; e6_indice_<tamano>.png, todas juntas) en 1366x697 y
+  1920x1001, una al lado de otra en 1366x697 y, algunas, en 1536x795 al 125 % y en
+  1366x633 (Chrome). Contra O-307: se juega en el 3D de abajo cerca del balon y arriba esta
+  el mapa entero (puntos 1 y 13); la estetica, el layout y las animaciones son las de
+  Galaxy (punto 15) con lo de abajo. Lo que NO queda igual que Galaxy (sin cambiar, por
+  ser decisiones de otros encargos o grande):
+  - Pizarra no tiene objetos, fusion ni auras de animal: en su sitio, Registro (p25), la ★
+    de un foco (p30) y el panel de los espiritus en juego (p20).
+  - el tiro en vuelo con la tactil sin la columna de iconos (en Galaxy, p11, se ve) y sin
+    el numero que baja (a confirmar: 16).
+  - en la eleccion del tiro y del portero Galaxy pone una barrita de rayos y mano sobre la
+    ficha del portero (p07, p08, p09): Pizarra no (no se sabe que mide).
+  - la caja de ayuda sale siempre en la pausa y en el tiempo de tactica (en Galaxy, solo a
+    veces); "¡SAQUE!" tapa la tactil 1,6 s al pulsar Jugar.
+  - el estadio de arriba es el sencillo (cielo liso, gradas de puntos); la red de rombos.
+  - los "¡Aquí!" se encienden y apagan (1,1 s si, 0,6 s no) aunque el juego este quieto.
+  - con una supertecnica de tiro lejano la zona de tiro sale desde el medio campo (a
+    confirmar: 14).
+- Lo grande, apuntado para otro dia: (1) cada modelo de VR son ~7 mallas (7 llamadas de
+  dibujo por jugador): juntarlas por material bajaria a la mitad las llamadas de abajo y
+  de arriba; (2) que la automatica recuerde el nivel de un partido a otro (hoy empieza en
+  Media cada vez y en un ordenador lento tarda unos segundos en bajar); (3) abrir Pizarra
+  con la ventana maximizada (maximized=True en lanzador.py, va en el .exe); (4) los clips
+  de VR nuevos (O-320).
+- Pruebas: nueva prueba-g6.js (21 OK: el limite de FPS a 60, 75 y 144 Hz y en Baja con
+  vaiven; la automatica en un ordenador lento (baja a los 6 s y no vuelve a subir), en uno
+  rapido (sube a Alta una vez y si va lenta vuelve a Media y ahi se queda), sin medir
+  mientras se cargan los modelos o tras cambiar el tamano, nunca en una animacion; el
+  contador con el JS y el 3D; lo que dan el Mundo y las Escenas para medir; los
+  mezcladores de Baja; y Repetir / Reanudar con el reloj del Director por delante, que con
+  el Director de antes falla). Las de siempre en verde (prueba3ds 175, e1 98, e2 68, e3
+  88, e4 65, e5 82, e6 85, o315 84, g1 56, g2 58, g3 142, g4 60, g5 66 OK; fotos "iguales:
+  true" sin animaciones, con las completas y con las cortas); ninguna se ha tocado.
+  medir-vr y medir-anim dan lo mismo que antes de E6, linea a linea (4,08 goles y 14,75
+  tiros por partido; 3,19 goles y 16 tiros, 3:58 / 5:50 / 7:55 min).
+
+A confirmar con Aaron (la lista entera del diseno, con lo que fue anadiendo cada encargo):
+1. Las pantallas una encima de otra como la 3DS por defecto (en un portatil de 1366x768
+   con la ventana maximizada la de abajo, donde se juega, mide 448x336; en 1920x1080,
+   649x486) o una al lado de otra, mas grandes (593x445). Y abrir Pizarra ya maximizada.
+2. Las letras: bajar las 4 OFL (~0,5 MB de github.com/google/fonts) o seguir con las de
+   Windows.
+3. Tu equipo siempre azul y a la izquierda, tambien cuando eres el invitado.
+4. Los escudos dibujados con las iniciales (no hay emblemas en los datos), la camiseta del
+   busto y los colores de las pastillas de posicion (DEL rojo, MED azul, DEF verde, POR
+   naranja).
+5. Las animaciones "Completas" por defecto (un 2 x 15 pasa de ~4 a ~8 minutos) o "Cortas"
+   (~6).
+6. [Repetir] / [Reanudar partido] tras cada gol (cada uno en su PC).
+7. El panel CAMBIOS tambien con tus cambios (tapa la tactil 4,4 s).
+8. La camara vuelve sola al balon a los 1,5 s de soltar las flechas con el balon en juego;
+   parado, se queda donde la dejes.
+9. Las tacticas y los espiritus en paneles pegados abajo que no paran el juego; en la pausa
+   y en la espera del saque, en Táctica > Espíritus.
+10. El icono T con la ficha grande arriba; el Menú [Registro] [Equipo] [Táctica] [Atrás] y
+    la pausa [Registro] [Equipo] [Táctica] [Seguir] (Registro en el sitio de "Objetos").
+11. Equipo con el cambio en dos pasos (uno del campo, uno del banquillo y Cambiar) y el
+    segundo clic para salir del partido.
+12. Sobre los jugadores: el nombre del elegido y del que lleva el balon, la barra del
+    portero (KP) y la del que tiene el espiritu (AURA) (Galaxy no pone nada); los
+    triangulos de los que no se ven, de los dos equipos.
+13. Los jugadores y los discos del tamano de Galaxy (cabezones, x2,2) o del real.
+14. La zona de tiro desde tan lejos (con una supertecnica de tiro lejano sale desde el
+    medio campo) o solo cerca del area, como Galaxy.
+15. Los textos de la franja del duelo como Chrono Stones en espanol ("¡Esquiva la defensa
+    del oponente!" al que lleva el balon) aunque Galaxy los ponga al reves.
+16. El tiro en vuelo con el numero fijo (en Galaxy baja con la distancia; en Pizarra el
+    tiro no pierde fuerza).
+17. Las animaciones de VR que faltan para los duelos, las paradas y los goles: rehacer los
+    modelos en cada PC (una vez, ~1,2 s cada uno; va en el Pizarra.exe siguiente).
+18. El espiritu como la silueta translucida del jugador x3 del color de su familia; la
+    pista detras de las porterias solo arriba.
+19. "¡Supertáctica!", "¡Falta!" y las tarjetas con rotulos que no salen en Galaxy (de
+    Chrono Stones y GO Light).
+20. Que active "Ver FPS" en la pestana Pantalla, juegue un rato en su portatil y diga lo
+    que pone (los FPS, los ms de JS y de 3D y la calidad), y si la calidad Automatica le
+    va bien o prefiere fijarla.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
