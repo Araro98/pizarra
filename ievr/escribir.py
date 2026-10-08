@@ -2226,6 +2226,9 @@ def quitar_pasiva_personal(plain, fila, ranura):
     buf = bytearray(plain)
     buf[pos + 8:pos + 12] = bytes(4)
     struct.pack_into("<f", buf, pos + 20, 0.0)
+    # la marca de desbloqueada se queda puesta: asi se distingue de un recien
+    # fichado y no se vuelve a rellenar con las de fabrica (sincronizar_tabla_pasivas)
+    buf[pos + 32] = 1
     plain = bytes(buf)
     if J.array(plain, J.ARRAY_RAREZA)[fila] != 8:
         porid = {f["id"].upper(): f for f in inventario.todas_las_filas(plain)}
@@ -2611,8 +2614,14 @@ def sincronizar_tabla_pasivas(plain, fila):
             esperado = juego_de_personal(plain, fila, rol)
             ids_actual = [x["id"] for x in (actual or [])]
             vacia = not any(x != "00000000" for x in ids_actual)
-            if esperado and ((vacia and (de_fabrica or rareza == 8))
-                             or (rareza == 8 and ids_actual != esperado)):
+            # vaciada a mano (O-317): las ranuras vacias con la marca puesta son
+            # pasivas que se quitaron, no un recien fichado (que llega a cero del
+            # todo); y a un Diamante solo se le rehace si lleva alguna que no es
+            # de su juego (cambio de arquetipo), no si le falta alguna
+            recien = vacia and not any(x["marca"] for x in (actual or []))
+            otro_juego = any(x != "00000000" and x not in esperado for x in ids_actual) if esperado else False
+            if esperado and ((recien and (de_fabrica or rareza == 8))
+                             or (rareza == 8 and otro_juego)):
                 plain = _escribir_juego_de_personal(plain, fila, esperado, marcas)
                 actual = J.tabla_pasivas(plain, fila)
             # Los numeros de las pasivas de personal van por su rareza (O-197) y
