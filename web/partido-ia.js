@@ -16,6 +16,15 @@ class Maquina {
     this.sinHiper = !!opciones.sinHiper;
   }
 
+  // adonde apunta al chutar j (O-335): al lado de la porteria en el que no esta su portero (si
+  // esta en medio, a suertes), de 1 m del centro hasta el margen del palo. Como la persona, el
+  // tiro va ahi y nunca fuera
+  _apunte(j) {
+    const p = this.p, g = p.porteriaRival(j), por = p.portero(1 - j.lado), dentro = REGLAS.PORTERIA / 2 - REGLAS.APUNTAR.margen;
+    const s = por && Math.abs(por.x - g.x) > 0.3 ? -Math.sign(por.x - g.x) : this.azar() < 0.5 ? -1 : 1;
+    return Math.round(s * (1 + this.azar() * (dentro - 1)) * 10) / 10;
+  }
+
   // la llama el bucle en cada paso
   pensar() {
     const p = this.p;
@@ -193,7 +202,7 @@ class Maquina {
       if (a) {
         p.ordenar({ tipo: "pase", de: d.id, a: a.id, alto: true });
         // y a veces lo remata de primeras, como un centro (O-315)
-        if (REGLAS.IA_CENTRO && this.azar() < REGLAS.IA_CENTRO.remate) p.ordenar({ tipo: "directo", de: d.id });
+        if (REGLAS.IA_CENTRO && this.azar() < REGLAS.IA_CENTRO.remate) p.ordenar({ tipo: "directo", de: d.id, x: this._apunte(a) });
         return;
       }
     }
@@ -216,23 +225,26 @@ class Maquina {
       return;
     }
     const aPuerta = Math.hypot(g.x - d.x, g.y - d.y);
-    // chutar: cerca de la porteria, mas cuanto mas cerca
+    // chutar: cerca de la porteria, mas cuanto mas cerca. Solo desde donde se puede, como la
+    // persona (el area y un poco mas; con un tiro largo a punto, mas lejos; O-335), y adonde
+    // apunta (_apunte)
+    const llega = p.enRangoTiro ? p.enRangoTiro(d) : true;
     const libre = !p.equipo(1 - this.lado).some(r => !r.esPortero && p._distanciaALinea(r, d, g).delante && p._distanciaALinea(r, d, g).d < 2.5);
     const T = REGLAS.IA_TIRO;
     // el portero rival tocado (O-328): con el PP de VR, que se gasta con cada parada, cuando
     // su mejor tiro ya llega a lo que le queda chuta casi siempre, tambien desde mas lejos
     // (hasta `lejano`) y con la linea libre
-    if (aPuerta < (T.lejano || T.lejos) && (libre || aPuerta < T.cerca) && this.azar() < (T.pDebil || 0) && this._porteroTocado(d, aPuerta)) {
-      p.ordenar({ tipo: "tiro", de: d.id });
+    if (llega && aPuerta < (T.lejano || T.lejos) && (libre || aPuerta < T.cerca) && this.azar() < (T.pDebil || 0) && this._porteroTocado(d, aPuerta)) {
+      p.ordenar({ tipo: "tiro", de: d.id, x: this._apunte(d) });
       return;
     }
-    if (aPuerta < T.lejos && this.azar() < (aPuerta < T.cerca ? T.pCerca : libre ? T.pLibre : T.pTapado)) {
-      p.ordenar({ tipo: "tiro", de: d.id });
+    if (llega && aPuerta < T.lejos && this.azar() < (aPuerta < T.cerca ? T.pCerca : libre ? T.pLibre : T.pTapado)) {
+      p.ordenar({ tipo: "tiro", de: d.id, x: this._apunte(d) });
       return;
     }
     // el tiro lejano (O-315): con la linea tapada, un tercio
-    if (aPuerta >= T.lejos && aPuerta < (T.lejano || 0) && this.azar() < (T.pLejano || 0) * (libre ? 1 : 1 / 3)) {
-      p.ordenar({ tipo: "tiro", de: d.id });
+    if (llega && aPuerta >= T.lejos && aPuerta < (T.lejano || 0) && this.azar() < (T.pLejano || 0) * (libre ? 1 : 1 / 3)) {
+      p.ordenar({ tipo: "tiro", de: d.id, x: this._apunte(d) });
       return;
     }
     // el centro (O-315): por la banda cerca del area rival, bombeado al area, como en
@@ -249,7 +261,7 @@ class Maquina {
       const a = enArea.sort((x, y) => libreDe(y) - libreDe(x) || x.id - y.id)[0];
       const z = a ? zonas.sort((u, v) => Math.hypot(u.x - a.x, u.y - a.y) - Math.hypot(v.x - a.x, v.y - a.y))[0] : zonas[1];
       p.ordenar({ tipo: "pasePunto", de: d.id, x: z.x, y: z.y, alto: true });
-      if (a && this.azar() < CE.remate) p.ordenar({ tipo: "directo", de: d.id });
+      if (a && this.azar() < CE.remate) p.ordenar({ tipo: "directo", de: d.id, x: this._apunte(a) });
       return;
     }
     // presionado: pasar al companero mejor colocado
@@ -259,7 +271,7 @@ class Maquina {
         p.ordenar({ tipo: "pase", de: d.id, a: mejor.id });
         // si el companero queda cerca de la porteria, a veces remata de primeras
         const gm = p.porteriaRival(mejor);
-        if (Math.hypot(gm.x - mejor.x, gm.y - mejor.y) < 16 && this.azar() < 0.2) p.ordenar({ tipo: "directo", de: d.id });
+        if (Math.hypot(gm.x - mejor.x, gm.y - mejor.y) < 16 && this.azar() < 0.2) p.ordenar({ tipo: "directo", de: d.id, x: this._apunte(mejor) });
         return;
       }
     }

@@ -12,6 +12,7 @@ import * as THREE from "./partido-three.module.js";
 import { GLTFLoader } from "./partido-GLTFLoader.js";
 import { clone as clonarModelo } from "./partido-SkeletonUtils.js";
 import { mergeGeometries } from "./partido-BufferGeometryUtils.js";
+import { prepararRopa, vestir, partesVestido } from "./partido-vestir.js";
 
 // la camara de abajo (guia 7.1; diseno 5.3): 48 grados bajo la horizontal, FOV vertical
 // de 25 (casi teleobjetivo: las bandas apenas convergen), 4:3 y a 53 m del punto
@@ -39,8 +40,25 @@ export const ANIM_VR = {
   caido: "戦1うつ伏せダウン1", celebra: "戦1ゴール後走り喜び1入", lamenta: "戦1ゴール後その場がっかり1入", aturdido: "戦1スタン1", salto: "ジャンプ上1",
 };
 // el modelo 3D que se ve de un jugador: el de su forma con la hiper puesta (la armadura, el
-// mixi max o el personaje del modo, O-327) o el de su cara
-export function modeloDe(j) { return (j && (j.modelo || j.cara)) || ""; }
+// mixi max o el personaje del modo, O-327) o el de su cara, vestido con la equipacion de su
+// equipo (O-334)
+export function modeloDe(j) { return vestidoDe(j, (j && (j.modelo || j.cara)) || ""); }
+// el modelo `cod` de un jugador (su cara de siempre, la de la forma de su modo o el de su
+// armadura o mixi max) con la ropa que le toca con la equipacion de su equipo, en el diseno
+// de su equipo y de portero si lo es (O-334): "<cod>_cuerpo+<ropa>+<dorsal>[c]"
+// (partido-vestir.js). Sin ropa (los que llevan lo suyo, o un equipo de un Pizarra de antes),
+// el modelo tal cual. j puede ser un jugador del partido o los datos de uno del banquillo
+export function vestidoDe(j, cod) {
+  if (!j || !cod || typeof REGLAS === "undefined" || !REGLAS.vestido) return cod || "";
+  const f = j.formaHiper, base = (j.propio && j.propio.cara) || j.cara;
+  const r = cod === base ? j.ropa : f && cod === (f.modelo || f.cara) ? f.ropa : cod === j.modeloHiper ? j.ropaHiper : null;
+  const portero = j.esPortero !== undefined ? !!j.esPortero : j.posicion === "POR";
+  return REGLAS.vestido(cod, REGLAS.ropaDe(r, j.diseno || 0, portero), j.dorsal, j.capitan);
+}
+// los ficheros que convierte el servidor de un modelo (vestido: el cuerpo y la ropa)
+export function ficherosDe(cod) { return typeof REGLAS !== "undefined" && REGLAS.ficheros ? REGLAS.ficheros(cod) : (cod ? [cod] : []); }
+// si estan ya en el servidor (hechos: Set) los ficheros de un modelo
+function hechoEn(cod, hechos) { const f = ficherosDe(cod); return f.length > 0 && f.every(x => hechos.has(x)); }
 // el keshin (o el alma) detras del que lo tiene puesto (O-327): a esta escala (los de VR miden
 // 6-8 m: con la de las figuras taparian medio campo), algo detras y medio transparente, como
 // la silueta de Galaxy
@@ -185,7 +203,8 @@ export class CampoAbajo3D {
   }
   // donde pulsaste en la porteria al chutar: ahi va la X del tiro (solo se ve aqui)
   apuntar(x, y) {
-    const m = REGLAS.PORTERIA / 2 - 0.6;
+    // tal cual (hasta lo que se toma por la porteria): la X dice adonde va (O-335)
+    const m = REGLAS.APUNTAR ? REGLAS.APUNTAR.max : REGLAS.PORTERIA / 2 - 0.6;
     this.puntoTiro = { x: Math.max(-m, Math.min(m, x)), y, t: performance.now() / 1000 };
   }
   pintar(estado) { if (this.mundo) this.mundo.pintar(estado || {}); }
@@ -430,8 +449,21 @@ function construirCampo(render) {
 
 // los modelos: como mucho 2 cargandose a la vez; cache por URL (el mismo gltf para
 // todos los partidos de la pagina). Si no esta (404) o no se puede leer, la promesa se
-// olvida: asi se vuelve a pedir cuando la cola del servidor lo haya convertido
+// olvida: asi se vuelve a pedir cuando la cola del servidor lo haya convertido.
+// Uno vestido (O-334): el cuerpo y la ropa por separado (en la cache, compartidos) y,
+// con los dos, el jugador vestido (otra cache, por su codigo con el dorsal)
+const VESTIDOS = {};
 function pedirModelo(cara) {
+  const v = partesVestido(cara);
+  if (v) {
+    if (!VESTIDOS[cara]) {
+      VESTIDOS[cara] = Promise.all([pedirModelo(v.cuerpo), pedirModelo(v.ropa).then(g => (g ? prepararRopa(g) : null))])
+        .then(([c, r]) => (c && r ? vestir(c, r, v) : null))
+        .catch(e => { console.warn(e); return null; })
+        .then(g => { if (!g) delete VESTIDOS[cara]; return g; });
+    }
+    return VESTIDOS[cara];
+  }
   const url = "/api/partido/modelo/" + encodeURIComponent(cara) + ".glb";
   if (!CACHE[url]) {
     CACHE[url] = new Promise(ok => { COLA.esperan.push({ url, ok }); siguienteModelo(); })
@@ -591,7 +623,9 @@ class Mundo {
       u.cuerpo = cuerpo; u.codCuerpo = cod;
       const mezcla = new THREE.AnimationMixer(cuerpo);
       u.mezcla = mezcla; u.acciones = {}; u.ahora = null;
-      for (const [clave, nombre] of Object.entries(ANIM)) {
+      // (y el de VR de ganar el balon: el defensa que para el tiro del todo, O-335; el salto de
+      // VR dura 0,03 s, una pose)
+      for (const [clave, nombre] of Object.entries(Object.assign({ bloquea: ANIM_VR.robarGana }, ANIM))) {
         const clip = gltf.animations.find(a => a.name === nombre);
         if (clip) u.acciones[clave] = mezcla.clipAction(clip);
       }
@@ -611,8 +645,9 @@ class Mundo {
   _prepararModelos() {
     // detras de los 22, lo que se ve al invocar: la armadura, el mixi max, la forma del modo
     // y el keshin o el alma (O-327), para que esten cuando hagan falta
-    const formas = this.p.jugadores.map(j => [j.modeloHiper, j.formaHiper && j.formaHiper.modelo, j.keshinHiper]).flat();
-    const codigos = [...new Set(this.p.jugadores.map(j => j.cara).concat(formas).filter(Boolean))];
+    // (vestidos con la equipacion: el cuerpo y la ropa de cada uno, O-334)
+    const formas = this.p.jugadores.map(j => [j.modeloHiper && vestidoDe(j, j.modeloHiper), j.formaHiper && j.formaHiper.modelo && vestidoDe(j, j.formaHiper.modelo), j.keshinHiper]).flat();
+    const codigos = [...new Set(this.p.jugadores.map(j => vestidoDe(j, j.cara)).concat(formas).filter(Boolean).flatMap(ficherosDe))];
     if (!codigos.length) return;
     fetch("/api/partido/modelos/preparar", {
       method: "POST", headers: { "Content-Type": "application/json" },
@@ -623,14 +658,14 @@ class Mundo {
   _verModelos(e) {
     if (this.cerrado) return;           // ya es otro partido
     const hechos = new Set(e.hechos || []), errores = e.errores || {};
-    this.p.jugadores.forEach((j, k) => { if (hechos.has(modeloDe(j)) && this.figuras[k]) this._cargarModelo(j, this.figuras[k]); });
+    this.p.jugadores.forEach((j, k) => { if (hechoEn(modeloDe(j), hechos) && this.figuras[k]) this._cargarModelo(j, this.figuras[k]); });
     const enCola = new Set([...(e.pendientes || []), e.actual].filter(Boolean));
     // se cuenta sobre los que juegan ahora: tras un cambio salia "23 de 24"
     // contando tambien al que se fue (O-305)
     const ahora = [...new Set(this.p.jugadores.map(j => modeloDe(j)).filter(Boolean))];
-    const quedan = ahora.filter(c => enCola.has(c)).length;
-    const listos = ahora.filter(c => hechos.has(c)).length;
-    const fallan = ahora.filter(c => errores[c]).length;
+    const quedan = ahora.filter(c => ficherosDe(c).some(x => enCola.has(x))).length;
+    const listos = ahora.filter(c => hechoEn(c, hechos)).length;
+    const fallan = ahora.filter(c => ficherosDe(c).some(x => errores[x])).length;
     // sin juego no se convierte nada, pero los que ya estaban hechos se ven: solo se avisa si falta alguno
     if (e.error) return this._avisar(listos < ahora.length ? e.error : "", 9000);
     this._convirtiendo = quedan > 0;
@@ -667,7 +702,7 @@ class Mundo {
   _pedirModelo(j, g) {
     fetch("/api/partido/modelos/preparar", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ codigos: [g.userData.cara] }),
+      body: JSON.stringify({ codigos: ficherosDe(g.userData.cara) }),
     }).then(r => r.json()).then(e => this._verModelos(e)).catch(() => this._cargarModelo(j, g));
   }
   // el keshin o el alma detras del que lo tiene puesto (O-327): su modelo (k######, con su
@@ -866,7 +901,7 @@ class Mundo {
       }
       if (u.cuerpo) {
         u.cuerpo.rotation.y = u.mira !== undefined ? u.mira : Math.atan2(0, j.dir);
-        if (!(u.ahora === "tiro" || u.ahora === "patada")) this._anima(g, u.vel > 1.2 ? "correr" : "parado");
+        if (!(u.ahora === "tiro" || u.ahora === "patada" || u.ahora === "bloquea")) this._anima(g, u.vel > 1.2 ? "correr" : "parado");
         // solo los que se ven (y en Baja, 30 veces por segundo): los demas se quedan en
         // su pose hasta que entran (diseno 7.4). Con 4 ms de margen: a 30 FPS los cuadros
         // llegan a 33,2 o 33,4 ms y sin el se saltaba uno de cada tres (O-321)
@@ -885,6 +920,10 @@ class Mundo {
       // encadenar (el que lo hace: `chuta`), no en el muro ni en el portero
       const chuta = r.etapa ? (r.etapa === "chute" || r.etapa === "cadena" ? r.chuta : null) : r.tirador;
       if ((r.tipo === "tiro" || r.tipo === "penalti") && chuta !== null && chuta !== undefined && this.figuras[chuta]) this._anima(this.figuras[chuta], "tiro", true);
+      // el defensa que para el tiro del todo se queda el balon (Aaron, O-335): su clip de VR de
+      // ganar el balon, que se ve con el "¡Bloqueo!" sobre el campo
+      const pm = r.tipo === "tiro" && r.final === "bloqueado" ? (r.pasos || []).find(s => s.contra !== undefined && s.contra !== null) : null;
+      if (pm && this.figuras[pm.quien]) this._anima(this.figuras[pm.quien], "bloquea", true);
     }
     if (p.balon.pase && p.balon.pase !== this._paseVisto) {
       this._paseVisto = p.balon.pase;
@@ -948,6 +987,8 @@ class Mundo {
       a.setXYZ(0, -T.x0, 0, T.y0); a.setXYZ(1, m, 0, gy); a.setXYZ(2, -m, 0, gy); a.needsUpdate = true;
       c.cono.geometry.computeBoundingSphere();
       c.equis.position.set(-T.tx, 0.7, T.ty);
+      // (roja si va fuera, O-335)
+      c.equis.material.color.setHex(Math.abs(T.tx) > REGLAS.PORTERIA / 2 ? 0xff5a48 : 0xffffff);
     }
     if (tir) {
       const g = p.porteriaRival(tir), m = REGLAS.PORTERIA / 2, a = c.cono.geometry.attributes.position;
@@ -957,6 +998,8 @@ class Mundo {
         const X = SueloAbajo.equis(p, tir, ab.puntoTiro), dx = -X.x - -tir.x, dz = X.y - tir.y, l = Math.hypot(dx, dz) || 1, giro = Math.atan2(dx, dz);
         for (const [ms, ancho] of [[c.lineaBorde, 0.6], [c.linea, 0.36]]) { ms.position.x = -tir.x; ms.position.z = tir.y; ms.rotation.y = giro; ms.scale.set(ancho, 1, l); }
         c.equis.position.set(-X.x, 0.7, X.y);
+        // roja si apuntas muy fuera: el tiro se ira por ahi (O-335)
+        c.equis.material.color.setHex(X.fuera ? 0xff5a48 : 0xffffff);
         c.rombo.position.set(-tir.x, FIGURA.alto + 1.9 + (this.quieto ? 0 : Math.sin(ahora * 4) * 0.15), tir.y);
         c.rombo.rotation.y = this.quieto ? 0 : ahora * 1.5;
       }

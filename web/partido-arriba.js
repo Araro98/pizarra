@@ -87,6 +87,7 @@ const Arriba = {
     GX.texto(ctx, goles[0], 82.5, 24, cifra);
     GX.texto(ctx, goles[1], 317.5, 24, cifra);
     this._reloj(ctx, p, yo, ver.red);
+    this._paseMarcado(ctx, p, yo);
     this._puntos(ctx, p, yo);
     if (p.tanda) this._tablerosTanda(ctx, p, yo);
     else this._lineasGoles(ctx, p, yo, estado);
@@ -225,6 +226,41 @@ const Arriba = {
       }
     }
     ctx.restore();
+  },
+  // el pase marcado (en la pausa o en un foco), una raya cian del que pasa adonde va; y si se
+  // quita con el juego parado (Aaron, O-335), en rojo a trozos con una X que se apaga en 0,9 s,
+  // como en la tactil (HudAbajo._quitado)
+  _paseMarcado(ctx, p, yo) {
+    // (lo de otro partido no cuenta)
+    if (this._pmDe !== p) { this._pmDe = p; this._pmAntes = null; this._quitado = null; }
+    const pm = (p.paseMarcado || [])[yo], d0 = p.dueno ? p.dueno() : null, ahora = typeof performance !== "undefined" ? performance.now() / 1000 : 0;
+    const du = p.duelo, parado = (p.parado && p.parado()) || p.fase === "invocacion" || (p.fase === "duelo" && du && du.tipo === "foco");
+    const raya = (q, col, a, trozos) => {
+      const A = this._aMapa(p, yo, q.x0, q.y0), B = this._aMapa(p, yo, q.x1, q.y1);
+      ctx.save(); ctx.globalAlpha = a; ctx.lineCap = "round"; ctx.strokeStyle = col; ctx.lineWidth = 1.4;
+      if (trozos) ctx.setLineDash([3, 2]);
+      ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.stroke();
+      ctx.restore();
+      return B;
+    };
+    if (pm && d0 && pm.tipo !== "tiro") {
+      const a = pm.a !== undefined ? p.jugadores[pm.a] : { x: pm.x, y: pm.y };
+      this._pmAntes = a ? { x0: d0.x, y0: d0.y, x1: a.x, y1: a.y } : null;
+      if (this._pmAntes) {
+        const B = raya(this._pmAntes, "#35E8F5", 0.9, false);
+        ctx.save(); ctx.strokeStyle = "#35E8F5"; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(B.x, B.y, 3.6, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+      }
+    } else {
+      if (this._pmAntes && !pm && parado) this._quitado = Object.assign({ t0: ahora }, this._pmAntes);
+      this._pmAntes = null;
+    }
+    const q = this._quitado, k = q ? (ahora - q.t0) / 0.9 : 1;
+    if (!q || k >= 1 || k < 0) { this._quitado = null; return; }
+    const B = raya(q, "#FF5A48", 1 - k * k, true), t = 4.2 * (1 + 0.3 * k);
+    ctx.save(); ctx.globalAlpha = 1 - k * k; ctx.lineCap = "round"; ctx.strokeStyle = "#FF5A48"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(B.x - t, B.y - t); ctx.lineTo(B.x + t, B.y + t); ctx.moveTo(B.x + t, B.y - t); ctx.lineTo(B.x - t, B.y + t); ctx.stroke();
+    ctx.restore();
+    this.visto.quitado = true;
   },
   // un punto de ~5 u por jugador del campo (azul tuyo, rojo el rival, borde blanco;
   // morado con la hiper puesta) y el balon blanco con borde azul. Sin rectangulo de
@@ -545,6 +581,41 @@ const Arriba = {
     ctx.fillStyle = "rgba(0,0,0,.35)"; ctx.fillRect(0, 214, 400, 20);
     GX.texto(ctx, d.resumen || "", 200, 224.5, { tam: 10, peso: 700, alinea: "center", color: "#F4F4F4", ancho: 384 });
     this.visto = { modo: "elegir", resumen: d.resumen };
+  },
+  // la pantalla de carga (O-329): los dos equipos como al elegir, "PREPARANDO EL PARTIDO" y la
+  // barra con lo que va de verdad (d: Carga.datosArriba(), partido-carga.js)
+  pintarCarga(ctx, d) {
+    this._franjas(ctx);
+    ctx.fillStyle = GX.vertical(ctx, 6, 34, ["#1CB6D4", "#188EC8"]); ctx.fillRect(0, 6, 400, 28);
+    ctx.fillStyle = "rgba(255,255,255,.85)"; ctx.fillRect(0, 7, 400, 1); ctx.fillRect(0, 32, 400, 1);
+    GX.texto(ctx, "PREPARANDO EL PARTIDO", 200, 20.5, { letra: "rotulo", tam: 19, peso: 400, alinea: "center", degradado: GX.rotulo.saque.relleno, contornos: GX.rotulo.saque.contornos, sesgo: -8 });
+    this._placaEquipo(ctx, 8, d.a, GX.tuyo);
+    this._placaEquipo(ctx, 224, d.b, GX.rival);
+    ctx.fillStyle = "rgba(10,12,14,.9)"; ctx.fillRect(0, 160, 400, 31);
+    ctx.fillStyle = "rgba(255,255,255,.18)"; ctx.fillRect(0, 160, 400, 0.8); ctx.fillRect(0, 190.2, 400, 0.8);
+    const nom = { tam: 15, peso: 700, alinea: "center", color: "#F4F4F4", ancho: 150 };
+    GX.texto(ctx, d.a ? d.a.nombre : "", 98, 175.5, nom);
+    GX.texto(ctx, d.b ? d.b.nombre : "?", 302, 175.5, nom);
+    GX.texto(ctx, "VS", 200, 176, { letra: "rotulo", tam: 27, peso: 400, alinea: "center", degradado: GX.descanso.vs, contornos: [["#3A1400", 1.2]], sesgo: -12 });
+    // la barra: el carril oscuro, lo hecho en cian y un brillo que corre (que se vea que anda)
+    const x0 = 14, w = 336, y = 197, h = 12, f = Math.max(0, Math.min(1, (d.pct || 0) / 100));
+    GX.redondo(ctx, x0, y, w, h, 6); ctx.fillStyle = "rgba(4,10,30,.88)"; ctx.fill();
+    ctx.strokeStyle = "#8FD8FF"; ctx.lineWidth = 1; ctx.stroke();
+    const wf = Math.max(f > 0 ? 6 : 0, (w - 3) * f);
+    if (wf > 0) {
+      ctx.save(); GX.redondo(ctx, x0 + 1.5, y + 1.5, wf, h - 3, 4.5); ctx.clip();
+      ctx.fillStyle = GX.vertical(ctx, y, y + h, ["#8FF4FF", "#12BDF6", "#068AFB"]); ctx.fillRect(x0, y, wf + 2, h);
+      const k = (Date.now() / 1400) % 1, bx = x0 - 40 + k * (wf + 80);
+      const g = ctx.createLinearGradient(bx - 24, 0, bx + 24, 0);
+      g.addColorStop(0, "rgba(255,255,255,0)"); g.addColorStop(0.5, "rgba(255,255,255,.55)"); g.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = g; ctx.fillRect(bx - 24, y, 48, h);
+      ctx.restore();
+    }
+    GX.texto(ctx, (d.pct || 0) + " %", 392, y + h / 2 + 0.5, { letra: "cifras", tam: 12, peso: 700, alinea: "right", color: "#FFFFFF", contornos: [["#0A1E5A", 1]] });
+    ctx.fillStyle = "rgba(0,0,0,.4)"; ctx.fillRect(0, 213, 400, 27);
+    GX.texto(ctx, d.modelos + "   ·   " + d.eventos, 200, 221.5, { tam: 9.5, peso: 700, alinea: "center", color: "#F4F4F4", ancho: 388 });
+    if (d.nota) GX.texto(ctx, d.nota, 200, 233, { tam: 7.5, peso: 700, alinea: "center", color: d.aviso ? "#FFB070" : "#FFE680", ancho: 388 });
+    this.visto = { modo: "carga", pct: d.pct, modelos: d.modelos, eventos: d.eventos, nota: d.nota };
   },
   // la placa de un equipo: su escudo y sus 11 caras en dos filas de 6 y 5 (22x22 u)
   _placaEquipo(ctx, x, e, col) {

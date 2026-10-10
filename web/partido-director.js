@@ -16,6 +16,11 @@
      la supertactica, los cambios (el panel CAMBIOS), el descanso y el final.
    - El tiro que viaja (O-325): cada etapa (chute, muro, cadena, portero) tiene su plan y,
      entre una y otra, el balon de verdad vuela por el campo con su estela y su placa.
+   - El duelo (O-336): el plan solo trae la animacion del que gana (antes, a veces la del que
+     perdia antes del resultado); con tecnica los dos, antes el choque de los nombres arriba.
+   - La espera de la animacion de VR (O-329): si la del tramo existe pero aun no esta lista en
+     este PC (Escenas pone esperaVR), el plan y la invocacion de arriba se quedan donde estan
+     (con `retenerVR`; el invitado no, que su plan lo marca la foto) y partido.js para el motor.
    Su reloj es Director.ahora (sustituible: las capturas y las pruebas lo paran). */
 "use strict";
 
@@ -45,6 +50,13 @@ const Director = {
   yo: 0,
   ahora: () => (typeof performance !== "undefined" ? performance.now() : Date.now()),
   sonidos: [],                // los ultimos que ha mandado sonar (para las pruebas)
+  // O-329: la animacion de VR de este cuadro aun no esta (lo dice Escenas); con retenerVR el
+  // plan se para mientras (partido.js lo quita en el invitado). esperaPlan: es la de un
+  // resultado (partido.js para tambien el motor; la de una invocacion sobre el mapa no, que el
+  // juego sigue debajo)
+  esperaVR: false,
+  esperaPlan: false,
+  retenerVR: true,
   _s: null,
 
   reiniciar(o = {}) {
@@ -67,6 +79,7 @@ const Director = {
     };
     this.fichaGrande = false;
     this.sonidos = [];
+    this.esperaVR = false; this.esperaPlan = false;
     return this.estado;
   },
 
@@ -74,6 +87,12 @@ const Director = {
   tick(p) {
     if (!this._s) this.reiniciar();
     const S = this._s, e = this.estado, t = this.ahora() / 1000;
+    // esperando a la animacion de VR (O-329): el plan y la invocacion no corren
+    if (this.esperaVR && this.retenerVR && S.t !== null && t > S.t) {
+      const dt = t - S.t;
+      if (S.res) S.res.t0 += dt;
+      if (S.invoca) S.invoca.pausa = (S.invoca.pausa || 0) + dt;
+    }
     S.t = t;
     if (!p) return e;
     if (S.p !== p) this._nuevo(p);
@@ -299,9 +318,12 @@ const Director = {
     }
     S.faseRes = true;
     const R = S.res;
-    if (R && R.motor) {
+    if (R && R.motor && !(this.esperaVR && this.retenerVR)) {
       const esperado = R.total - p.espera, local = t - R.t0;
-      if (Math.abs(local - esperado) > DIRECTOR.sincronia) R.t0 = t - esperado;
+      // (por delante del motor, se queda a `sincronia` s: el anfitrion puede estar esperando a una
+      // animacion de VR con el motor parado y el invitado repetia el mismo trozo, O-329)
+      if (local > esperado + DIRECTOR.sincronia) R.t0 = t - esperado - DIRECTOR.sincronia;
+      else if (Math.abs(local - esperado) > DIRECTOR.sincronia) R.t0 = t - esperado;
     }
   },
 
@@ -403,7 +425,7 @@ const Director = {
     if (S.seq) this._secuencia(p, t, S.seq);
     // la invocacion sobre el mapa, sin parar el juego (6.5 p)
     if (S.invoca) {
-      const ti = t - S.invoca.t0, dura = S.invoca.dura || DIRECTOR.invoca;
+      const ti = t - S.invoca.t0 - (S.invoca.pausa || 0), dura = S.invoca.dura || DIRECTOR.invoca;
       if (ti >= dura || p.fase === "duelo" || S.seq || p.fase === "final") S.invoca = null;
       else if (!R && A.modo === "mapa") {
         A.invoca = S.invoca;
@@ -436,6 +458,8 @@ const Director = {
       const v = Es.componer(p, A, this.yo);
       if (v && v.hay) A.escena = v;
     }
+    this.esperaVR = !!(A.escena && A.escena.esperaVR);
+    this.esperaPlan = this.esperaVR && !!R && A.tramo === R.tramo;
     this._cola(p, t, !!R || !!S.seq);
   },
   // Escenas (partido-escenas.js, un modulo que llega despues), si hay un Mundo con su Estudio
@@ -477,7 +501,7 @@ const Director = {
     const tr = R.tramo;
     tr.que = q.que; tr.t = tt; tr.dura = dura; tr.q = q; tr.k = k; tr.tp = tp;
     const ant = k > 0 ? ts[k - 1] : null;
-    const negroAbajo = x => x && (x.que === "tecnica" || x.que === "hiper" || (x.que === "sinTecnica" && x.sub !== "foco") || x.que === "transicion" || x.que === "negroTiro" || x.que === "destello");
+    const negroAbajo = x => x && (x.que === "tecnica" || x.que === "hiper" || ((x.que === "sinTecnica" || x.que === "fallo") && x.sub !== "foco") || x.que === "transicion" || x.que === "negroTiro" || x.que === "destello");
     // los rotulos del plan, para las pruebas y para quien quiera ver lo que viene
     for (const x of ts) { const r = this._rotuloPlan(p, R, x); if (r) e.programa.push(r); }
     const sale = r => { if (r) { r.t = tt; e.rotulos.push(r); } };
@@ -502,6 +526,10 @@ const Director = {
       }
       case "tecnica": case "hiper": A.modo = "anim"; A.tramo = tr; B.modo = "negro"; break;
       case "sinTecnica": A.modo = "anim"; A.tramo = tr; if (q.sub !== "foco") B.modo = "negro"; break;
+      // O-336: el choque de los nombres arriba (abajo el campo, como en CS) y la accion normal del
+      // que gana con "Fallo" (como sin tecnica)
+      case "nombres": A.modo = "anim"; A.tramo = tr; if (negroAbajo(ant)) B.modo = "negro"; break;
+      case "fallo": A.modo = "anim"; A.tramo = tr; if (q.sub !== "foco") B.modo = "negro"; break;
       case "fijar": A.modo = "anim"; A.tramo = tr; if (negroAbajo(ant)) B.modo = "negro"; break;
       case "vuelta": {
         const m = dura / 2;
@@ -582,6 +610,8 @@ const Director = {
     else if (r && r.tipo === "penalti" && i > 0 && ts[i - 1].que === "prepara") this._sonar("patada", true);
     else if (q.que === "falta") this._sonar("silbato", 1, 0.4);
     else if (q.que === "fueraJuego") this._sonar("silbato", 1, 0.22);
+    // el choque de los nombres: los rayos y el golpe al chocar (O-336)
+    else if (q.que === "nombres") { const N = typeof HUD_DUELO !== "undefined" ? HUD_DUELO.nombres : null; this._sonar("choque", N ? N.choque * (q.a - q.de) / N.nominal : 0.9); }
     else if (q.que === "gol" && r) { const tir = p.jugadores[r.tirador]; this._sonar("gol", !tir || tir.lado === this.yo); }
     else if (q.que === "tandaRotulo" && r && r.final === "gol") { const tir = p.jugadores[r.tirador]; this._sonar("gol", !tir || tir.lado === this.yo); }
   },

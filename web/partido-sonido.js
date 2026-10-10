@@ -80,6 +80,22 @@ const Sonido = {
     });
   },
 
+  // el choque de los nombres de las dos tecnicas (O-336): el chisporroteo de los rayos y un golpe
+  // seco al chocar, a `impacto` s
+  choque(impacto = 0.9) {
+    if (!this._listo()) return;
+    const c = this.ctx, t0 = c.currentTime, ti = t0 + Math.max(0.1, impacto);
+    const r = this._ruido(Math.max(0.1, impacto) + 0.2), f = c.createBiquadFilter(), g = c.createGain();
+    f.type = "bandpass"; f.frequency.value = 3200; f.Q.value = 0.8;
+    g.gain.setValueAtTime(0.001, t0); g.gain.linearRampToValueAtTime(0.08, t0 + 0.08);
+    g.gain.setValueAtTime(0.08, ti - 0.05); g.gain.exponentialRampToValueAtTime(0.001, ti + 0.15);
+    r.connect(f); f.connect(g); g.connect(c.destination); r.start(t0);
+    const o = c.createOscillator(), go = c.createGain();
+    o.type = "sawtooth"; o.frequency.setValueAtTime(220, ti); o.frequency.exponentialRampToValueAtTime(60, ti + 0.25);
+    go.gain.setValueAtTime(0.001, t0); go.gain.setValueAtTime(0.22, ti); go.gain.exponentialRampToValueAtTime(0.001, ti + 0.3);
+    o.connect(go); go.connect(c.destination); o.start(ti); o.stop(ti + 0.32);
+  },
+
   // el publico: un rugido que sube y se apaga
   gol(mio) {
     if (!this._listo()) return;
@@ -95,6 +111,8 @@ const Sonido = {
   // lo que ha cambiado desde el cuadro anterior
   mirar(p, yo) {
     if (!p) return;
+    // las voces de VR (O-339): las de las animaciones y las jugadas, en su momento
+    if (typeof Voces !== "undefined" && Voces.mirar) Voces.mirar(p);
     const b = p.balon, pase = b.pase ? b.pase.a + ":" + b.pase.destino.x + ":" + b.pase.destino.y : "";
     const ahora = { fase: p.fase, mitad: p.mitad, goles: p.goles[0] + p.goles[1], pase,
                     duelo: p.duelo ? p.duelo.id + ":" + p.duelo.tipo : "", resultado: p.resultado, tanda: !!p.tanda };

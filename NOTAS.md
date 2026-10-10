@@ -9289,6 +9289,774 @@ cambios citan esta nota.
   tiro atraviese el muro sin perder nada; que el "del mismo elemento" de un entrenador sin
   elemento no valga; las goleadas.
 
+### O-329 · El juego de partidos: que todo cargue al iniciar el partido (la pantalla de carga)
+
+Lo que pidio Aaron (2026-10-10, tras jugar una partida de prueba): "no he visto las animaciones de
+las supertecnicas, me salian las estandar; intenta poner exactamente las mismas que el VR... que todo
+cargue al iniciar el partido". Su Pizarra.exe aun no tenia el conversor de O-323 (ya rehecho); y
+aunque lo tuviera, el partido empezaba enseguida y cada animacion de VR se convertia y se cargaba
+durante el partido: si no llegaba en 0,6 s, salia la plantilla. En el codigo los cambios citan esta
+nota.
+- El servidor (ievr/modelos3d.py y las rutas /api/partido/... de ievr/servidor.py):
+  - En cuanto se saben los dos equipos (al elegirlos; online, el tuyo) la pagina pide al servidor
+    TODO lo del partido y lo va convirtiendo en segundo plano: los modelos de los 22 y de los 10 del
+    banquillo, sus formas (modo, armadura, mixi max), su keshin o alma, el aura del campo, los
+    modelos de las tecnicas y el balon, los eventos de VR de todas sus supertecnicas (tambien las
+    de las formas y el de fallo de las paradas y los muros) y de sus espiritus, y los rotulos. Sin
+    los limites de antes (40 jugadores y 16 tecnicas por peticion; las formas y el banquillo en
+    otra): un partido entero en una peticion (hasta 80 jugadores, 40 tecnicas y 160 modelos).
+  - `solo` (nuevo, opcional; un Pizarra de antes no lo mira): lo pendiente que no es de este
+    partido se quita de la cola. Al mirar equipos al elegir ya no se convierte todo lo de cada uno
+    (un partido grande son ~1,4 GB en datos/modelos3d/eventos).
+  - Lo ultimo pedido va delante tambien en los eventos; lo que ya esta al dia no se vuelve a mirar
+    leyendo su escena.json en cada peticion (hasta 0,8 MB cada uno, con el cerrojo cogido); y el
+    hilo espera 90 s (ESPERA_HILO) con el juego y sus indices abiertos antes de soltarlos (lo que se
+    pide al elegir y al empezar no vuelve a leer el indice).
+- La pantalla de carga (web/partido-carga.js, nuevo; arriba Arriba.pintarCarga): al pulsar Jugar,
+  antes del primer saque, en las dos pantallas como Galaxy: arriba los dos equipos con sus caras,
+  "PREPARANDO EL PARTIDO", la barra con el % y "Modelos 3D x de N · Animaciones de VR x de N"; abajo
+  el fondo azul de la lista de tecnicas con las dos filas cian y su barra, la barra grande, el
+  reloj de lo que lleva y la franja con lo que pasa ("Convirtiendo desde tu juego (solo la primera
+  vez: tarda unos minutos).", "Preparando las animaciones en la grafica…"). El % es de verdad: lo
+  convertido por el servidor (GET /api/partido/modelos/estado cada 0,7 s), los modelos bajados a la
+  cache de la pagina y las animaciones fijas ya leidas y subidas a la grafica. Mientras, el motor no
+  anda (el reloj del partido a 0, en la espera del saque) y del juego no se pinta nada; no se puede
+  sacar hasta que esta todo. Si en 3 min no avanza nada (algo colgado) lo dice y deja seguir.
+- En la pagina (partido-escenas.js `precargar` / `avancePrecarga`): los modelos se bajan a la cache
+  en cuanto estan convertidos; con todos (si no, las animaciones saldrian sin el balon o el keshin),
+  las fijas se leen (EventoVR.cargar), se suben a la grafica y se compilan sus sombreadores
+  (`preparar`: renderer.compile y sus texturas), de 2 en 2. Tambien los actores del Estudio y su
+  pasada por la grafica, y las figuras de abajo con su modelo.
+- La memoria (medido, Chrome headless, Gorodos contra Marineros: 99 modelos y 186 eventos):
+  | | heap de JS | grafica (texturas y mallas) |
+  |---|---|---|
+  | solo los modelos | 520-620 MB | 300 MB |
+  | con las 156 de un solo actor | 1.775 MB | 713 MB |
+  | TODO (y las de 2 o mas una vez) | 2.425 MB | 900 MB |
+  | lo que queda (fijas hasta 450 MB) | 1.000-1.230 MB | ~470 MB |
+  Cargarlo todo es demasiado para un PC normal (mas de 3 GB entre las dos), y no por la grafica: lo
+  gordo es lo leido (las pistas de cada actor, el escena.json leido, los clones: ~7,8 MB de heap por
+  evento). Por eso:
+  - Se quedan cargadas (las "fijas", VR_EV.fijasMB 450, unas 67-73): las que en el partido no
+    tendrian tiempo de leerse y las que ya se sabe con quien salen (la misma clave que tendran):
+    por este orden, la invocacion de cada espiritu (sale al momento; tambien la ★), las paradas de
+    los porteros (a 0,2 s del resultado; si para y si es gol), los tiros de un solo actor de los 22
+    (la cadena sale a 0,2 s), los de sus formas y los del banquillo.
+  - Las demas (todas las de 2 o mas actores: regates, defensas, muros, tiros con companeros, cuyo
+    rival y companeros se saben en el duelo) se leen al EMPEZAR CADA DUELO, mientras se elige: las
+    "candidatas", las supertecnicas que puede elegir cada uno con los actores que tendran (nadie se
+    mueve mientras se elige), y en la parada y el muro las dos (si para y si no). Al saberse el
+    resultado ya estan. Cada una tarda 45-230 ms. Se quedan como mucho 12 ademas de las fijas.
+  - No se guardan los ficheros bajados en memoria: costaria ~700 MB mas para ahorrar ~100 ms por
+    lectura (el servidor los sirve del disco), y las candidatas ya se leen mientras se elige.
+- Nunca la plantilla si la animacion de VR existe (y este PC la ha convertido): si al empezar su
+  tramo aun no esta lista, se espera: arriba negro con el HUD y abajo a la derecha, pequeno, la
+  vuelta y "Cargando la animación"; el plan del Director y el motor se paran (Director.esperaVR /
+  esperaPlan; la invocacion sobre el mapa para solo su animacion, el juego sigue debajo) y al estar
+  sale desde su principio. Si tarda mas de 12 s (VR_EV.esperaMax: algo va mal), la plantilla. El
+  invitado no puede parar el plan (lo marca la foto): espera con el indicador y la ensena desde
+  donde va (si queda poco tramo, sus ultimos cortes); y si el que espera es el anfitrion, el
+  invitado se queda donde va (antes, por delante del motor, volvia atras y repetia el trozo).
+- Online: cada PC convierte y carga lo suyo y el partido no empieza hasta que estan los dos: cada
+  uno manda "carga" con su % cada segundo (y al acabar, que esta listo, un rato); el que acaba
+  antes ve "Esperando a Beto: 40 %" y sigue en la pantalla de carga. Contra la maquina, solo lo
+  tuyo. `REGLAS.VERSION` 14 (un Pizarra de antes no manda "carga" y el otro le esperaria): **Aaron y
+  su amigo tienen que tener los dos este Pizarra**.
+- Un Pizarra.exe de antes (POST /api/partido/eventos/preparar da 404): carga los modelos y dice
+  "Tu Pizarra no tiene aún las animaciones de VR: cierra Pizarra y ábrelo con la versión nueva.
+  Mientras, se juega con las animaciones de siempre." con [Seguir] (o la barra espaciadora). Sin el
+  juego, el aviso del servidor ("No encuentro Inazuma Eleven: Victory Road en este
+  ordenador...") igual. Sin el campo 3D no hay nada que cargar.
+- Lo que tarda (el PC de Aaron, de uno en uno):
+  | | Gorodos contra Marineros (99 modelos, 186 eventos) |
+  |---|---|
+  | la primera vez (carpeta vacia), antes de O-329 (la cola sola) | 364 s |
+  | la primera vez, con la pantalla de carga | 355 s desde Jugar (125 s los modelos, 230 los eventos) |
+  | la segunda (ya convertido) | 8,5-9 s desde Jugar |
+  La primera vez pasa de los 3 min. En modelos3d.py no se repetia trabajo que importe (847
+  lecturas de 838 ficheros en 30 eventos seguidos): el tiempo esta dentro de la conversion. Medido
+  por funcion (cProfile) y apuntado para quien lleva el conversor en el scratchpad
+  juego/animvr/VELOCIDAD.md: g4anim.pistas_de_clip (la mitad de los eventos: el bucle del mismo
+  hemisferio fotograma a fotograma, que va en numpy en 3 lineas), muestrear y claves_y_valores (una
+  llamada por canal), la descompresion de los .cpk (42 % de los modelos), las texturas DDS y el
+  escena.json. Lo que vendria bien del reproductor (cambiar los actores de un evento ya leido sin
+  volver a leerlo, el elemento en la clave): juego/animvr/PARA_EL_OTRO.md.
+- La ayuda "Como se juega" lo dice.
+- Pruebas: nueva prueba-precarga.js 75 OK (la pagina lo tiene puesto; Carga con un servidor de
+  mentira: lo que pide de dos equipos, al elegir una vez y con `solo`, la cuenta, el online con
+  "Esperando a Ana: 40 %", el 404, sin juego, sin 3D, colgado; nunca la plantilla si existe, la
+  espera, el tope de 12 s, sin convertir, el invitado; el Director parado mientras se espera y la
+  invocacion; las fijas con la misma clave que en el partido (el tiro, la parada para y gol, la
+  invocacion de Thaddeus convertido en Byron y la ★); las candidatas de un foco y de la etapa del
+  portero; la cola de 2 en 2 por prioridad, las fijas y candidatas que no se sueltan; el tope de
+  memoria; la cola del servidor con un conversor de mentira: `solo`, lo ultimo delante, el hilo
+  que espera y no vuelve a abrir el juego, el escena.json que no se vuelve a leer). Cambiada (copia
+  .antes-precarga.js) prueba-o323 (sin cargar ya no sale la plantilla a los 0,6 s: se espera).
+  Todas OK (prueba3ds 175, e1 101, e2 68, e3 90, e4 65, e5 82, e6 86, o315 84, g1 56, g2 58,
+  g3 142, g4 60, g5 66, g6 21, saques 83, tiro-que-viaja 86, boton-t 75, espiritus 94, o328 81, o323
+  57, o330 38, precarga 75) y las fotos del invitado iguales. En el navegador (scratchpad
+  juego/cdp: o329_carga.mjs, o329_memoria.mjs, o329_avisos.mjs y o329_online.mjs; capturas
+  gx/o329_*): la pantalla de carga la primera vez y la segunda; nada mas acabar, el tiro de VR
+  (Tiro amasado) y un foco con sus dos de VR (sin esperar); el Pizarra sin eventos con su aviso y
+  las plantillas; la espera con la lectura frenada 3 s (el indicador, el motor y el plan parados y
+  la de VR desde su principio); online con dos pestanas, el que invita esperando al invitado
+  ("Esperando a Beto: 40 %") y luego los dos. Sin errores en la consola.
+- A confirmar con Aaron: los ~6 min de la primera vez con los equipos mas grandes (convierte en
+  cuanto eliges los equipos); los ~1,4 GB en disco de un partido grande; que se vea la pantalla
+  aunque ya este todo (9 s); el tope de 450 MB (si su PC va sobrado se pueden dejar mas cargadas);
+  que la espera sea negra con el indicador pequeno.
+
+### O-330 · El juego de partidos: las particulas de VR (.ptlb) en las animaciones de VR
+
+Lo que pidio Aaron (2026-10-10): "intenta poner exactamente las mismas que el VR". Las animaciones
+de VR (O-323) salian sin sus particulas: las chispas, las llamitas sueltas, el polvo, los
+destellos y las rayas del aura del balon. Son los emisores de los .ptlb del juego (582 ficheros,
+1.642 emisores; 429 supertecnicas tienen). En el codigo los cambios citan esta nota.
+- Lo que dice cada numero de un emisor (bloques T2B entre PARTICLE_INFO_BGN y _END; uno por cada
+  PARTICLE_NODE_INFO, el hueso `_900_par*` del efecto del que salen), sacado de comparar los 1.642
+  y de mirarlo al lado de videos de VR (abajo). Los tiempos de las curvas van de 0 a 1 de la vida
+  (o de lo que emite); las curvas son [n, valores(n), tiempos(n)] y las de tres ejes y los colores
+  van x(n), y(n), z(n) / r(n), g(n), b(n) (no por clave: con eso salian chispas magenta y verdes):
+  - EMITTER_INFO [segundos que emite, en bucle, retraso, ?, ?, ?, cuantas a la vez como mucho, por
+    metro (las estelas: salen al moverse el hueso), cuantas por segundo, ?, curva del ritmo].
+  - LIFE_TIME_INFO [al azar, vida min, max, ?]; SPEED_INFO [al azar, min, max (m/s), curva con la
+    vida: casi todas frenan]; FORCE_FIELD_INFO [gravedad m/s2 (las negativas suben: humo,
+    llamitas del aura del keshin), ...].
+  - COLOR_INFO [transparencia con su curva (va AL REVES: 0 = se ve entera), color con su curva
+    (pasa de 1: brillan), y con "al azar" una segunda transparencia y un segundo color: cada una
+    sale entre las dos]. SCALE_INFO [al azar, min xyz, max xyz, azar entre dos curvas, el mismo
+    azar en los tres ejes, curva por eje (si no, la x vale para todo), las curvas y las segundas].
+  - SHAPE_INFO [0 bola (hacia fuera), 1 aro (plano XZ), 2 cono (por +Y del hueso, con su
+    apertura), radio, escala]: con la escala y el giro del hueso (asi las del aura del balon salen
+    hacia atras, por +Z). MODEL_INFO [ancho, alto (m); 1 mira a la camara, 2 a lo largo de su
+    velocidad: chispas y rayas, que salen en estrella desde donde nacen]. ROTATION_INFO [giro
+    inicial y al azar, velocidad de giro en grados/s]. UV_INFO [modo: 0 la textura entera, 1 una
+    casilla al azar, 2 animada con la vida; columnas, filas, vueltas, fila al azar].
+  - MATERIAL_INFO [la textura (la del efecto o "#/" otra de dx11), 2 suma luz / 3 mezcla normal,
+    el sombreador]. Las del aura del balon (Effect_BallAura1, 198 emisores): la forma es la
+    segunda textura (BallAura_05, 4x4 animada) y el color sale de BallAura0010 (effCmnTex): una
+    rampa por elemento (de blanco al color: Montana dorado, Viento azul, Fuego naranja, Bosque
+    verde; sin elemento, morado): el color de la estela es el del elemento de la tecnica.
+  - MOTION_INFO [en que clips del efecto sale; en cuales y a que segundos se borran las que
+    queden]. En cada corte el efecto toca un clip (j.actores[efecto].clips): sale en esos cortes,
+    desde su retraso, lo que dure.
+  - Sin saber (van en "sin_saber"): EMITTER_INFO 3, 4, 5 y 9, el resto de FORCE_FIELD_INFO, WIND
+    (12 emisores), SHADER_INFO, el "estirar" de MODEL_INFO, el modo 0 (9 emisores), la ultima de
+    UV_INFO. Los sombreadores de particula que no son T1 (SmokePar1 21, T1M1 19, ThresholdGrd 16 y
+    5 mas) se pintan como T1.
+- El conversor (ievr/g4evento.py): escena.json `particulas[efecto]` con todo eso ya descifrado
+  (emisor_vr) en vez de en crudo, la textura de la forma (part_<nombre>.png, 256 px), su hoja de
+  fotogramas, en las del aura las 5 rampas, y `elemento` (el de la tecnica del evento, por
+  eventos-tecnicas.csv y tecnicas.csv). VERSION_EVENTO 3: se rehacen solos escena.json,
+  escena.glb y pistas_modelos.glb (~1 s por evento); las pistas de los jugadores y del keshin/alma
+  van con VERSION_PISTAS (sigue en la 2): no se rehacen (en un partido ya convertido: 128 eventos
+  en 113 s).
+- La pagina: web/partido-particulasvr.js (nuevo), lo carga el reproductor (partido-eventosvr.js):
+  - EventoVR.cargar carga las particulas del evento con lo demas (antes de verse: tambien en la
+    pantalla de carga de O-329), preparar sube sus texturas y su sombreador, poner(t) las mueve y
+    soltar las suelta. ev.elemento(el) cambia el color del aura en un evento ya cargado (para los 24
+    eventos que comparten tecnicas de varios elementos, los de keshin y alma; en los demas viene en
+    escena.json; partido-escenas.js aun no lo llama: scratchpad juego/animvr/PARA_EL_OTRO.md).
+  - Un sistema propio: por emisor una malla de quads instanciados con un solo buffer (centro, eje,
+    tamano, color, giro y casilla) en arrays fijos (nada nuevo por cuadro); se mueven en la CPU a
+    pasos de como mucho 1/30 s (las que nacen entre dos cuadros, a lo largo del camino del hueso:
+    las estelas de un balon rapido no salen a saltos). Volver atras o saltar mas de 0,5 s las vacia.
+    Topes: los de VR por emisor (como mucho 600) y 3.000 por evento (el peor de los 582, ~1.000).
+    Suman luz "en pantalla" como los efectos, sin escribir profundidad.
+  - Las pegadas a la camara (menos de 15 cm) no se pintan, se apagan hasta 80 cm y ninguna pasa de
+    un tercio del alto de la pantalla (en Gran tifon pasaban gotas por la camara).
+  - El buffer se sube entero cada cuadro: subir solo el trozo usado (addUpdateRange) hacia en
+    Chrome cuadros de 1 a 7 s de vez en cuando con muchos efectos delante (medido en Gran tifon:
+    media de 35 ms por cuadro; entero, 1,1 ms). Con el reloj parado no se sube nada.
+- Comparado con videos de VR (YouTube, "HD ... Victory Road Hissatsu Animation": la primera pasada
+  va a velocidad real y empieza con el evento; fotogramas cada 0,1 s al lado de los nuestros en el
+  mismo instante, construccion/pruebas-animvr/particulas/finales):
+  - Tornado de fuego: las llamitas alrededor de la bola de fuego al salir el tiro (4,1-4,6 s) y las
+    del giro (2 s), en el mismo sitio y momento, del mismo tamano.
+  - Mano celestial: los puntos amarillos a los lados del balon en la mano (6,1-6,6 s), donde y
+    cuando en VR (en VR van sobre la red oscura: amarillos; aqui sobre el cielo, mas claros).
+  - Paisaje helado (Land of Ice): los destellos de estrella que parpadean alrededor del jugador
+    (0,4-1,5 s), igual.
+  - Otras con particulas mirados en el visor: Flecha de hielo (destellos), Rayo de Ganimedes
+    (bolitas de colores), Remate dragon, Ciclon blanco, Tormenta de fuego, Relampago bestial y Gran
+    tifon (gotas). Y en el partido de verdad: Fuego rapido (31 llamitas al chutar).
+  - Lo que se ve distinto NO es de las particulas: en Mano celestial la estela del balon que vuela
+    (mallas BallAura1 colocadas a 30 m con escala 750: la herencia de escala de esos huesos) y la
+    mano de canto; los petalos de fuego de la explosion de Tornado de fuego (efectos de malla con
+    sombreadores aproximados o FakeParticle, sin pintar); el estallido amarillo a los pies al
+    empezar cada tecnica (ega0001, sin pintar). Apuntado en PARA_EL_OTRO.md.
+- Rendimiento (Chrome headless, como en O-323): en un partido de verdad (Lightyear contra
+  Marineros, 4 min, calidad alta, "Ver FPS"), con las animaciones de VR arriba 46,4 FPS con
+  particulas y 46,3 sin (JS 1,01 / 0,98 ms, grafica 2,38 / 2,31 ms); jugando 51,8 / 42,1 (ruido).
+  El peor evento (Gran tifon, 300 vivas, 1366x697): 1,1-1,2 ms por cuadro con particulas y 1,0 sin.
+  La CPU del sistema, como mucho 0,35 ms por cuadro (Mano celestial).
+- Pruebas: nueva prueba-o330.js (42 OK: el descifrado con dos emisores de verdad, la transparencia
+  al reves, los colores y la escala por eje, un bloque roto, el elemento, las versiones; con el
+  juego de este PC Tornado de fuego y Mano celestial convertidos de verdad; el sistema con un
+  evento de mentira: cuando y cuantas, la vida, los topes, borrar en un clip, el cono por +Y del
+  hueso, la gravedad, por metro, volver atras, los atributos, el buffer entero, el reloj parado,
+  la camara, la rampa por elemento y cambiarla, soltar; el reproductor; Mano celestial de verdad y
+  lo que tarda) y todas las de antes OK; fotos del invitado iguales. En el navegador
+  (scratchpad juego/particulas: visor_part.mjs con el reproductor de la pagina tal cual,
+  p330_partido.mjs en el partido; servidor de pruebas 8752 con su carpeta de modelos en
+  construccion/pruebas-animvr/particulas), sin errores en la consola.
+- A confirmar con Aaron: si las particulas se ven como en VR (las comparadas cuadran; de las demas
+  no hay video); el color de la estela por elemento (Montana dorado); que las que pasan pegadas a
+  la camara no salgan.
+
+### O-331 · El juego de partidos: los sombreadores de VR tal cual en los efectos y las caras de VR
+
+Lo que pidio Aaron (2026-10-10): "intenta poner exactamente las mismas que el VR". Los efectos de
+las animaciones de VR (O-323) salian con sombreadores aproximados por familia (casi todo sumaba
+luz: fuego blanco o rosa, rectangulos, velos que lavaban la imagen), la distorsion y las
+particulas falsas no se pintaban y los ojos y la boca no cambiaban. Ahora cada material de efecto
+se pinta con SU sombreador de VR, traducido del juego en el PC de cada uno, y las caras cambian
+como en VR. En el codigo los cambios citan esta nota.
+- Lo que hay en el juego (sacado de los 56.457 materiales de los 1.894 efectos de eventos y
+  comunes; scratchpad juego/sombreadores):
+  - Los sombreadores compilados: dx11/shader/1.00.41/*.vfxo (vertices), *.pfxo (pixeles) y
+    *.gfxo (geometria), DXBC de Direct3D 11 con los nombres de sus variables.
+    shader_list.cfg.bin dice el .fxbin de cada nombre y el .fxbin las tecnicas ("main"; la de
+    nombre _vb es la de piel). Effect_T3Threshold es effect_test_threshold.fxbin; la cara,
+    Chr_ToonVariable.
+  - La tabla de materiales del G4MD (0x64, 16 B por material, 8 u16): color (0x66, 48 B: difuso
+    rgba, ambiente y un tercero), parametros (0x6A, 16 B cada uno: u_shaderParamN), estados de
+    dibujo (0x6C, en palabras de 2 B), texturas (0x68, 6 B: indice en los crc32 de 0x76, 3, juego
+    de UV, 0, u16), sombreador (byte alto: indice en los crc32 de nombre de 0x78), n parametros,
+    n texturas y ranuras (0x8A, 5 floats por ranura: escala u, v, giro, desplazamiento u, v;
+    0x88 la matriz que sale de ellos).
+  - Los estados de dibujo son pares (id, valor) hasta que se repite uno: 1 prueba de alfa (2
+    funcion, 3 referencia/255), 4 prueba de profundidad, 5 escribir profundidad, 6 mezcla (7
+    operacion: 1 suma, 5 maximo; 9 origen y 10 destino: 0 cero, 1 uno, 4 alfa, 5 1-alfa...) y
+    14 recortar las caras de atras. 53.946 mezclan normal con el alfa, 2.362 suman luz y 52 son
+    MAX: casi nada suma luz, al reves de lo que se creia en O-323. 4 y 14 por estadistica (los
+    planos los llevan mas a 0), sin confirmar del todo.
+  - Lo que lee el sombreador del material (cbuffer CBUSE_UB_MODEL_MATERIAL_IDX): u_ubParam (w =
+    la referencia de alfa), u_diffuse, u_ambient (x = brillo: el color por 1 + x), u_texProj[6]
+    (la matriz 2x3 de UV de cada ranura: u' = (u - du)/eu, v' = 1 - ((1 - v) - dv)/ev, comprobado
+    con las matrices que guarda el G4MD) y u_shaderParamN (fila 22 + N).
+  - Las animaciones de material (G4MA): el tipo es la componente (16..19 = x, y, z, w; 32..35
+    igual) y el byte 7 del canal la ranura: 16..19 de la ranura 0 = difuso (19 la opacidad), de
+    la 1 = ambiente; 32..35 de la ranura N = u_shaderParamN. Antes se juntaban y en 4.896
+    materiales el brillo del ambiente (de 2 a 12) pisaba al rojo del difuso. G4TP por textura: 1/2
+    escala, 8 giro, 10/11 desplazamiento.
+  - Cada ranura lee su juego de UV (el byte 2 de su referencia: TEXCOORDn del sombreador) y su
+    textura va al registro del sombreador por orden. Las que no trae el efecto estan en
+    effCmnTex/effAuraTex (la rampa de elementos del aura del balon, BallAura0010: un pixel de
+    ancho por elemento; u_grdValue.x elige la columna).
+  - Las caras: los ojos (eye_10M) y la boca (mouth_10M) son una hoja de 4 x 2 caras cuadradas
+    (la textura de la cara, 2048x1024; en las 40 caras miradas igual) y u_shaderParam4 = (cara,
+    4 columnas, alto/ancho 0,5): el sombreador suma (columna/4, fila x 0,5) a la UV. Los eventos
+    la animan con G4MA tipo 32 de la ranura 4 (salia ya en pistas_<cuerpo>.glb
+    asset.extras.caras, sin rehacer nada): en Tornado de fuego Axel aprieta los dientes y grita
+    al chutar (boca 1 y 7) y entorna los ojos (1 y 3); Mark grita al parar.
+- El traductor, ievr/sombrasvr.py (nuevo, lo usa g4evento): desensambla con D3DDisassemble del
+  D3DCompiler_47 de Windows y traduce el ensamblador a GLSL ES 3.0 instruccion a instruccion
+  (registros sin tipo como en Direct3D: las comparaciones son mascaras de bits, los enteros van
+  por sus bits; movc, discard, sat, mascaras y swizzles). Lo que pone el motor del juego: las
+  matrices de three (la proyeccion en el convenio de Direct3D, z de 0 a 1, un uniform que pone la
+  pagina una vez por cuadro), la camara (u_eyeNearFarInvAspect = cerca, lejos, 1, 1/aspecto: a
+  confirmar) y luces fijas; solo las filas que lee cada sombreador.
+  Lo que la pagina no tiene: la profundidad de la escena lee "lejos" (los efectos no se funden
+  con el suelo), las sombras "con luz" y la imagen de detras de la distorsion es una copia de lo
+  ya pintado del cuadro. Los de geometria (particulas falsas: cada triangulo de la malla es una
+  particula que se coloca con una textura de posiciones) pasan al de vertices, con la malla
+  repetida por la pagina. De los 72 sombreadores de efecto, 69 se traducen y compilan en WebGL2
+  (los otros 3, FakeParticleVF/DOF y Grass1, no los usa ningun material de los eventos; si
+  faltara alguno, ese material sale como antes). Sin D3DCompiler_47, todo como antes.
+- El conversor (ievr/g4evento.py, VERSION_EVENTO 4: se rehacen escena.json y escena.glb, ~1 s
+  por evento; las pistas de los jugadores no, siguen en la 2): material_vr lee la tabla; cada
+  material de efecto lleva en extras.vr su sombreador, color, parametros, estados y ranuras (con
+  sus texturas en el glb), las mallas los juegos de UV 1..5, el segundo color y la tangente;
+  sombreadores.json (nuevo, en la carpeta de cada evento: los programas de sus materiales);
+  escena.json materiales por ranura (d difuso, a ambiente, p parametros, t texturas; las listas
+  quietas, un valor); las texturas comunes de effCmnTex/effAuraTex. El contorno de los solidos
+  ya no se hincha a mano (lo hace su sombreador). VERSION_INDICE 2 (el indice de eventos con
+  dx11/shader: se rehace solo, 1,5 s). ievr/g4anim.py: cada canal dice su "ranura".
+- La pagina: web/partido-sombrasvr.js (nuevo, lo carga partido-eventosvr.js): SombrasVR monta el
+  ShaderMaterial de cada material con la mezcla, la profundidad y las caras de VR, sus texturas tal
+  cual (sin pasar de sRGB) y sus juegos de UV; cada fotograma el difuso, el ambiente, los parametros
+  y las UV animados (lo que se queda sin alfa con la mezcla del alfa no se pinta); el color del aura
+  por elemento (ev.elemento); las particulas falsas (la malla repetida); la distorsion (copia de lo
+  pintado una vez por cuadro, al final). Las texturas de los efectos se repiten en espejo
+  (SOMBRAS_VR.espejo): las UV de sus mallas van de -1 a 1 sobre cuartos de mancha y anillos (el
+  juego no guarda el modo; repetidas salian bordes rectos en Espiral de distorsion y peor la
+  explosion de Tornado de fuego; en espejo cuadran con los videos). EventoVR.preparar hace ademas
+  una pasada de un pixel con todo a la vista (sube a la grafica las mallas grandes de las particulas
+  falsas: sin ella, cuadros de 40-90 ms al aparecer). CarasVR: copia los materiales de ojos y boca
+  de cada jugador del evento (los demas no cambian) y pone la celda de cada fotograma. El
+  reproductor (partido-eventosvr.js) baja sombreadores.json con el evento (404: como antes) y lo
+  monta al construir; los datos de antes siguen valiendo. Nada del motor ni de la foto cambia
+  (online igual; REGLAS.VERSION no sube).
+- Comparado con VR (los videos de O-330 y uno de Mano magica, "All Mark Evans Hissatsu that ft.
+  MAJIN"; antes | ahora en construccion/pruebas-animvr/sombreadores-caras/):
+  - Tornado de fuego (lado_tornado.jpg): el fuego naranja y rojo del giro, el fondo oscurecido
+    (el velo rojo oscuro de MA_c00_aura_tamaY_02, mezcla normal al 40 %), la explosion de petalos
+    de fuego al chutar (3,5-3,8 s: las particulas falsas y los T3Threshold) y la bola de fuego con
+    su estela roja, donde y cuando en VR. Antes: blanco y rosa lavados.
+  - Mano celestial (lado_mano.jpg): la mano dorada con su contorno blanco y sus brillos (SolidToon1
+    con su sombreado de dibujo animado) y la estela del balon dorada (Montana). Antes: amarilla
+    plana. Sigue distinto (no es del sombreador): la mano de canto y la estela lejos (O-330).
+  - Mano magica: el rayo amarillo y naranja y el fuego del final como en VR; el majin (un modelo
+    de la tecnica con sombreador de personaje) sigue amarillo palido (en VR, naranja).
+- 8 tecnicas de familias distintas y 2 invocaciones (hoja_<evento>.jpg, antes | ahora): Tornado
+  de fuego (T1, T1M1Rim, T3Threshold, ThresholdGrd, FakeParticleLine2), Mano celestial
+  (SolidToon1, BallAura1, FakeParticle), Mano magica (DistortionBlur, SolidToon1, T1M1), Torbellino
+  (VDispRim, Distortion, T1M1Flow, FakeParticleRotZPat: los tornados de viento con polvo de arena),
+  Duna gravitacional (T1M1Flow, DistortionBlur), Vuelo de fenix (T3ThresholdF, PatternFade,
+  FakeParticle: el fondo de espacio con estrellas y el fenix de fuego; antes todo blanco), Fiebre
+  del oro (Solid, T2M1: destellos dorados; antes rectangulos rosas), Espiral de distorsion
+  (Distortion), Torbellino dragon (regate con el rival: el remolino de arena), el keshin Lancelot
+  (ev80, FakeParticleRotZ, PatternFade) y el mixi max de Axel con Shawn (ev82, T1M1Rim). Sin
+  errores en la consola.
+- Rendimiento (Chrome headless, 1366x697, calidad alta, "Ver FPS", un partido de verdad,
+  Gorodos contra Marineros con sus 186 animaciones de VR, 150 s cada vez): con las animaciones
+  de VR arriba 44,6 FPS antes y 42,7 ahora (grafica 2,75 ms las dos; JS 1,03 y 1,12 ms) y en
+  otra tanda 43,2 y 42,6: baja un 1-4 % (el ruido de la medida es mayor: jugando, sin nada de
+  esto, 51,8 y 43,6). Por cuadro con el reproductor solo (Vuelo de fenix, Torbellino, Tornado de
+  fuego) lo mismo que antes, sin los tirones al aparecer las particulas falsas.
+- Pruebas: nueva prueba-o331.js (61 OK: el traductor con un sombreador de mentira, los
+  literales, lo que no sabe traducir; la tabla de materiales de un G4MD de mentira y uno roto; las
+  animaciones por ranura; con el juego de este PC los sombreadores de verdad (T1, FakeParticle con
+  su geometria, DistortionBlur con la pantalla, T3Threshold, SolidToon1), la ranura 4 de la cara
+  y Tornado de fuego convertido de verdad; SombrasVR con un efecto de mentira: mezcla,
+  profundidad, caras, la matriz de UV, cada fotograma, sin alfa, MAX, opaco, el aura por
+  elemento, la camara, las particulas falsas, la distorsion una vez por cuadro, sin sombreadores
+  como antes, soltar; CarasVR; el reproductor con todo). Cambiada (copia .antes-o331.js)
+  prueba-o330 (VERSION_EVENTO 4 y la linea de ev.elemento). Todas OK (prueba3ds 175, e1 101, e2
+  68, e3 90, e4 65, e5 82, e6 86, o315 84, g1 56, g2 58, g3 142, g4 60, g5 66, g6 21, saques 83,
+  tiro-que-viaja 86, boton-t 75, espiritus 94, o328 81, o323 57, o330 42, precarga 75, o331 61) y
+  las fotos del invitado iguales. Los 69 sombreadores traducidos compilan y enlazan en WebGL2
+  (Chrome headless). En el navegador: scratchpad juego/sombreadores (visor.mjs con el reproductor
+  de la pagina tal cual, p331_partido.mjs en un partido), servidor de pruebas 8753 con su carpeta
+  construccion/pruebas-animvr/sombreadores-caras/modelos.
+- A confirmar con Aaron: si los efectos se ven ahora como en VR (las comparadas cuadran; los
+  colores de VR son algo mas vivos, p. ej. las llamas del giro de Tornado de fuego salen mas
+  amarillas que en VR: alli hay brillo alrededor de lo claro y otra mezcla de colores, aqui no);
+  los estados 4 y 14 (profundidad y caras), la repeticion en espejo y u_eyeNearFarInvAspect (la
+  distorsion); que el oscurecido del fondo en las tecnicas es de VR.
+- Falta (apuntado en scratchpad juego/animvr/PARA_EL_OTRO.md): la cara "normal" de cada
+  personaje fuera de los eventos (en VR no siempre es la 0: u_shaderParam4.x; los .glb de los
+  jugadores no lo traen); los modelos que no son efectos (keshin, almas, el majin) con sus
+  sombreadores de personaje; el brillo (bloom); la profundidad de la escena para los efectos que
+  se funden con el suelo; la mano de Mano celestial de canto y la estela del balon lejos (O-330,
+  no es del sombreador).
+
+### O-334 · El juego de partidos: la equipacion del equipo y los brazos en los modelos
+
+Lo que dijo Aaron (2026-10-10, al probar): "las animaciones se ven bastante bien, las pocas que vi,
+el problema es que los modelos se ven sin brazos o raros muchas veces y no llevan el uniforme del
+equipo en el que estan, sino el suyo de su equipo en la historia". Ahora cada jugador lleva la
+equipacion del equipo con el que juega (la que tiene puesta en la partida), con brazos y manos,
+dorsal y brazalete de capitan, como en VR. En el codigo los cambios citan esta nota.
+- Por que faltaban los brazos (pendiente desde O-293): la camiseta de equipo (u000101...) solo
+  trae la manga. El cuello, los brazos y las manos son otra pieza, la PIEL `sk` (sk000101/
+  sk0001NN: c_n, l_a_1_0, l_a_1_1 y los dedos) que VR pone siempre debajo de la ropa; la de
+  portero (sk000201) es solo el cuello: la manga larga y los guantes tapan lo demas. Tampoco se
+  ponian el dorsal `n` (una hoja de 10x10 numeros, 0 a 99, que se elige moviendo la UV; el
+  numero y su borde con dos colores de cada ropa) ni el brazalete de capitan `m` (brazo izquierdo).
+- Lo "raro": 27 porteros de historia (Galileo, Grent, Nero...) salian con picos negros y la
+  cabeza suelta: su camiseta de portero esta en una carpeta con tallas 51..58 (u020351..u020358)
+  y construir_modelos_personaje.py buscaba la talla 01..08, no la encontraba y les ponia la 51, la
+  del cuerpo de nino, en un esqueleto grande. Con la ropa de equipo (las filas del juego por
+  cuerpo) ya no pasa. Tambien arreglado en la tabla de siempre (talla(): la carpeta dice desde
+  que numero van sus tallas, 01, 51, 81...): 29 uniformes y 131 botas de modelos-personaje.csv
+  cambian a su talla ("talla aproximada" de 285 a 9). Solo se nota en los .glb de siempre que
+  se conviertan de nuevo (los que ya hay no se rehacen: VERSION_MODELO sigue en 3), que en el
+  partido solo salen si un equipo llega sin ropa.
+- Donde lo dice el juego: `chara_parts_0.07.22.cfg.bin`. CHARA_PARTS_CLOTHES_MODEL_LIST: crc32 de
+  la ropa (u010101_10) -> (inicio, n) en CHARA_PARTS_CLOTHES_INFO_LIST (15.328 filas): una fila
+  por cuerpo (col 2 = CHARA_BODY_INFO col 4, 0..13) con col 0/1 camiseta y pantalon y su textura
+  (solo en la primera fila; las demas la heredan), 3/4 el dorsal, 5 la clave de sus colores
+  (CHARA_PARTS_COLOR_LIST: col 1 el numero, col 2 el borde, RRGGBBAA), 6/7 la piel, 8/9 el
+  brazalete (12..21: banderas y hashes sin mirar). SHOES y GLOVE igual, una fila por tipo de
+  esqueleto. La col 5 de CHARA_MODEL_INFO es una de estas ropas (con el sufijo de su cuerpo
+  especial si lo tiene), no solo el nombre de una textura como se creia en O-293.
+- La equipacion: `uniform_config`. m_UniformInfoList (uniformId -> sus filas) y
+  m_UniformModelInfoList, una fila por diseno (col 23: 0 el de casa, 1 el otro) con la ropa de
+  cada papel: col 0 campo, 1 portero, 4/5 _slv, 6/7 _fld, 8/9 _dam, 10/11 _dmn, 12/13 _lse,
+  14/15 _lsa, 16/17 _bly (los cuerpos especiales: el personaje lleva ese sufijo en su col 5),
+  18/19 las botas de campo y de portero, 22 los guantes (2/3, cuando estan, iguales que 0/1).
+  Excepciones por personaje: m_CharaUniformExInfoList (crc32 del codigo) -> m_UniformExInfoList
+  (uniformId) -> m_UniformExModelInfoList (col 0/1 ropa, 2/3 botas, 4 guantes, 11 diseno): p. ej.
+  Mark Evans con la del Raimon lleva sus botas. En uniform_config la primera linea del volcado ya
+  es dato (como en O-79); en chara_parts es la cuenta.
+- Los cuerpos de 14 en adelante (59 modelos) no tienen fila en las ropas de 14 filas: va la de
+  su talla (CHARA_BODY_INFO col 6). Las botas y guantes de 4 filas, por tipo de esqueleto mod 4.
+- herramientas/construir_modelos_personaje.py saca ademas `modelos-equipacion.csv` (2.177 filas:
+  equipacion, diseno, papeles, botas, guantes y las excepciones) y `modelos-ropa.csv` (0,76 MB: las
+  ropas con su "forma", las filas de modelos por cuerpo, que comparten muchas: 2,6 MB sin
+  compartirlas; botas, guantes y los 18 cuerpos con su esqueleto), y en `modelos-personaje.csv`
+  las columnas cuerpo, tipo, talla, ropa (la de serie) y vestir.
+- Quien se viste (vestir = 1, 5.508): los de cuerpo de persona (con modelo sh en CHARA_BODY_INFO
+  col 2), sin armadura de keshin y sin ropa de cuerpo entero (f, ka). Tambien los de ropa propia
+  (Layton, Raika, Harper Evans, entrenadores...): SUPUESTO, las tablas no dicen otra cosa y es lo
+  que pide Aaron. Las armaduras, los animales y los monstruos de esqueleto propio, lo suyo, como en
+  VR (195).
+- La conversion, sin multiplicarla (ievr/g4.py):
+  - `<codigo>_cuerpo.glb`: el personaje sin ropa (esqueleto, cara, animaciones) y su color de piel
+    en asset.extras.piel. ~1 s.
+  - `ropa_<ropa>_<cuerpo>_<botas>_<guantes>.glb` (g4.ropa_de): camiseta y pantalon, piel, dorsal,
+    brazalete, botas y guantes sobre el esqueleto comun de ese cuerpo (los mismos nombres de hueso
+    que el de cada jugador); la piel SIN tintar (la mascara msk aparte, material extras
+    mascaraPiel) y el dorsal con sus colores horneados (extras dorsal). Una por ropa, papel y
+    cuerpo, compartida por todos los de ese cuerpo: ~1 MB y ~1 s. El cuello alto (collar_11) no va:
+    salian los dos cuellos a la vez y no se sabe a quien le toca.
+  - Los de siempre (`<codigo>.glb`, con la ropa de historia) no cambian: VERSION_MODELO sigue en 3
+    y no se rehace nada de lo que Aaron ya tiene. Se usan para lo que no se viste y si un equipo
+    llega sin ropa (un Pizarra de antes).
+  - La cola (ievr/modelos3d.py): codigos de hasta 64 letras (las ropas llegan a 45) y las formas
+    que se visten no se convierten tambien con su ropa de historia.
+- partido.py: el equipo lleva `equipacion` {id, disenos} (sin hueco de mochila, la Equipacion
+  sencilla, como la ensena el juego, O-190; equipacion desconocida: sin ropa) y cada ficha `ropa`
+  {campo: [una por diseno], portero: [...]} y `capitan`; lo mismo la forma del modo
+  (espiritu.forma.ropa) y el modelo de la armadura o el mixi max (espiritu.ropa_modelo).
+- La pagina (web/partido-vestir.js, nuevo): el modelo vestido es "<codigo>_cuerpo+<ropa>+<dorsal>"
+  y una c si es el capitan (REGLAS.vestido). partido-3d.js (pedirModelo) baja el cuerpo y la ropa
+  (en la cache, compartidos) y los junta: las mallas de la ropa se atan a los huesos del jugador
+  por su nombre con las matrices de enlace de la ropa (en un esqueleto propio, siguen a sus
+  huesos), la piel se tinta con la suya (sombreador: color por mix(1, piel, mascara) a la 2,2, lo
+  mismo que hornea el conversor en la cara), el dorsal mueve la UV a su numero y el brazalete solo
+  lo lleva el capitan. modeloDe(j) y vestidoDe(j, codigo): el jugador, la forma de su modo o su
+  mixi max con la ropa que le toca, en el diseno de su equipo y de portero si lo es. Vale abajo,
+  en el Estudio de arriba, en las animaciones de VR (sus actores son clones de lo que da
+  m.modelo; tambien la invocacion y el banquillo) y en la pantalla de carga (O-329: cuenta los
+  cuerpos y las ropas; los codigos en una sola peticion, trozo 160: la primera de varias quitaba
+  de la cola lo de las demas y una consulta en medio lo daba por fallado).
+- El diseno: el de casa; el de fuera, su otro diseno si los dos llevan la misma equipacion
+  (REGLAS.disenos; en la partida de pruebas Marineros y Lightyear, y AllStars Alius y Footsies).
+  Online: `equipos` lleva la equipacion, la ropa y el capitan (equipoParaRed) y el invitado ve lo
+  mismo que el anfitrion: REGLAS.VERSION 15.
+- Comprobado: hojas de los 181 de los 11 equipos de la partida de pruebas (titulares, banquillo,
+  formas) de frente y de lado, en reposo y chutando, antes y despues, y de cerca de espaldas y
+  corriendo (scratchpad juego/o334/hojas y zoom_*.png): antes, cada uno con la ropa de su equipo de
+  historia y sin antebrazos ni manos en las de manga corta; despues, la del equipo con brazos y
+  manos de su piel, el dorsal con sus colores, los porteros con la suya y guantes, chicas, cuerpos
+  grandes y pequenos, Layton con su sombrero, el de esqueleto propio c11080500, los mixi max y las
+  formas del modo. En el partido (Gorodos contra Marineros, Marineros contra Lightyear y online con
+  dos pestanas): los 22 vestidos abajo y arriba y en la animacion de VR (Tiro amasado de Goldie
+  con el traje del Servicio Secreto). 60 FPS con la ropa y 60 sin ella (Chrome headless, Alta), 44
+  llamadas abajo las dos veces; la carga con todo convertido, 24 s con ropa y 21 s sin ella.
+  node prueba-o334.js (37 OK) y todas las pruebas.
+- Sin saber: a quien le toca el cuello alto (collar_11; en los iconos de VR es la variante _01) y
+  la col 13 de CHARA_MODEL_INFO (1.213 personajes a 1) no lo parece; las col 5/6 de
+  m_UniformExModelInfoList (Mark Evans y Axel Blaze con la del Raimon: un hash que no es de
+  fichero, quiza su cinta del pelo); chara_mesh_mask_config y chara_mesh_type (_50, _51,
+  _wc010...). Uno del banquillo que entra de portero sin serlo se convierte al entrar (1-2 s con
+  la ficha).
+- Vuelta 2 (lo que encontro la revision; del mas grave al menos):
+  1. La placa del nombre. El dorsal n000201 (10 equipaciones, 94 ropas: la Equipacion sencilla, la
+     que lleva un equipo sin equipacion en la mochila, la estandar, Stormridge, Northbright,
+     Campeones Raimon...) trae otra malla encima del numero, name_10 (material name_10M): una hoja
+     de 8x16 letras (512x1024: A-Z, a-z, acentos, cifras y signos; el blanco con la forma en el
+     alfa y la letra en msk G, como la de numeros) que VR rellena con el nombre del jugador. El
+     conversor la tomaba por el dorsal (empieza por n y tiene mascara) y la pagina le movia la UV
+     con el numero: salia un trozo del abecedario ("GHABCDEF / NOPIJKLMN" con el 7). Ahora
+     g4._material: dorsal solo la hoja n<cifra>; la placa se hornea igual (con los colores del
+     numero) y va marcada extras nombre [8, 16]; partido-vestir.js no la pinta (esPlacaNombre: por
+     esa marca o por el material name_, que es como se conoce en las ropas ya convertidas, donde
+     va marcada como dorsal; VERSION_MODELO sigue en 3). Solo es la placa de n000201 (mirados los
+     74 modelos de dorsal). El nombre aun no se pinta: no se sabe que nombre pone VR (el apodo?
+     en mayusculas?) ni de que tamano. Lo que dice la malla: 17 vertices, la UV de 0 a 1 de un lado
+     al otro y en alto la franja de arriba 0,01-0,13 (5 cm, en arco: el centro mas alto) y la de
+     abajo 0,13-0,75 (6 cm, estirada): el nombre iria en la de arriba, con letras de unos 4,5 cm.
+     Hace falta ver a uno de espaldas con esa equipacion en VR.
+  2. El diseno de fuera. REGLAS.disenos miraba el id de la equipacion y 7 de las 180 de la
+     mochila llevan de casa la misma ropa que otra (Uniforme vendaval y Colmillo del Norte,
+     u045301_10; Raimon revolucionario, Caballeros de la Mesa Redonda y El Dorado, u040101_10;
+     Equipo Ogro y Equipo Ogro Redux, u031001_10): dos equipos asi salian iguales. (Otras 12
+     comparten la ropa de su otro diseno, como Zeus y su visitante: de casa no chocan.) Ahora la equipacion trae `campo` (la
+     ropa de campo de cada diseno, g4.campo_de_disenos) y se compara esa; sin ella (un Pizarra de
+     antes), el id. Solo cambia lo que se ve: la misma VERSION.
+  3. Los 404 de pistas_*.glb de la precarga (de O-329). Reproducido (scratchpad juego/vu2/
+     repro3.mjs: eventos ya convertidos para otro equipo sin las pistas de los keshin y del cuerpo
+     c000401 de los de ahora, cambiando de equipo al elegir y con la peticion de los eventos 5 s
+     mas lenta, como en un PC lento): el servidor daba esos eventos por hechos (para el equipo que
+     se veia al entrar) y la pantalla de carga los apuntaba; al pedirlos el partido volvian a su
+     cola, pero la pagina no los quitaba de los hechos y los leia a medias (6 leidas con el evento
+     en la cola, 404 de ev85_00010/pistas_c000401.glb): asi se quedaban todo el partido (el keshin
+     o el alma quietos, o el cuerpo con las del c000101). Ahora (Carga._estado y
+     Escenas._vrEstado) lo que vuelve a la cola deja de estar hecho; las leidas sin alguna pista
+     (EventoVR: faltan y sinPistas, las que no tienen ni las del c000101 en su lugar) se sueltan
+     si el servidor las esta rehaciendo y se leen al acabar (las fijas, en la pantalla de carga,
+     que las espera); si las da por hechas se le pide una vez que las mire (POST eventos sin pedir
+     nada nuevo: si le falta algo de lo ya pedido, las rehace) y si no, se quedan asi (lo que el
+     juego no trae). La que se esta viendo, al acabar. Una leida entera vale aunque su evento
+     vuelva a la cola (al entrar un suplente). Con el arreglo, el mismo caso: 0 leidas en la cola
+     y 0 404. El servidor no cambia.
+  - Comprobado: hojas de espaldas de cerca antes y despues (la sencilla con el 7, el 23 de
+    capitan, cuerpos 0, 4 y 5 _slv y su portero; con las ropas ya convertidas y convertidas otra
+    vez), un partido AllStars Alius (con el Uniforme vendaval) contra Footsies (con Colmillo del
+    Norte) antes y despues (antes [0,0] y los 22 iguales; despues [0,1]), y repro3 antes y despues
+    (scratchpad juego/vu2). node prueba-o334b.js (25 OK) y todas las pruebas.
+
+### O-339 · El juego de partidos: las voces de VR (las de las supertecnicas y las del partido)
+
+Lo que dijo Aaron (2026-10-10): "tambien añade voces del juego, cuando hacen una supertecnica, hay
+personajes que tienen lineas de voz en esas tecnicas, y en general, ya que son suyas del anime y
+cosas asi, busca donde esta todo eso e intenta meterlas tambien". En el codigo los cambios citan
+esta nota. Investigacion e indice (que personaje, que linea, que fichero; los equipos de la
+partida de pruebas): scratchpad juego/animvr/VOCES.md.
+- Donde estan: common/sound_asset/<idioma>/c<8 cifras>.acb/.awb, el banco de voz de cada personaje
+  con voz (CRI ADX2: el .acb con los nombres de las lineas y sus variantes, el .awb con el audio):
+  1.936 en japones y solo 106 en ingles. El numero es el de su cara (modelos-personaje.csv; Mark
+  Evans c01000010): la voz va con la cara; los que no tienen banco no hablan en VR (64 de los 176
+  de la partida de pruebas). Lineas: whs/whd/who/whk + 5 cifras, el nombre de la supertecnica (solo
+  las de "su" anime: 825 tecnicas en 1.222 bancos); k######_inc / a######_inc invocar su keshin o
+  alma; armed (armadura), wmt (mixi max); y las generales: sh010 chutar, sp020 arrancar, sp050 el
+  esfuerzo, sp150 perder o encajar, bt060/bt070 ganar un duelo regateando o robando, kp020/kp030
+  parar o despejar, pa010 el pase, gl010..gl170 celebrar un gol. Lo de la historia (partvoice,
+  event_stream_voice, ev##_*...) y los efectos de las tecnicas (waza_stream) no son voces del partido.
+- Cuando: cada evento de VR (O-323) tiene su guion de sonido, common/event_cfg/snd/<ev>_snd.cfg.bin:
+  en que fotograma suena cada linea y de quien (s00 el que la hace, s01.. el rival o los companeros,
+  <ASSIGN> el keshin: la dice el que lo invoca). 1.123 de los 1.134 eventos de supertecnicas e
+  invocaciones llevan voces (p. ej. Supertiro: whs00050 del que chuta a 1,817 s y sh010 al chutar;
+  invocar un keshin: <keshin>_inc a 0,967 s). Las jugadas sin tecnica de VR son los eventos ev71
+  (tiro sh010, portero kp020/kp030, duelos bt060/bt070 y sp150, gol glNNN a 0,83 s, pase pa010).
+  Las de pareja especial (_sp_voice: falta saber que pareja) no se usan.
+- El audio es HCA 3.0 a 48 kHz, mono, SIN CIFRAR (los 34.833 audios de voz, ja y en: no hace falta
+  clave). ievr/hca.py (nuevo): decodificador propio en numpy (factores de escala, resolucion,
+  codigos de prefijo, relleno de ruido, IMDCT con la ventana de HCA y solape, CRC-16); todas las
+  tramas de un banco a la vez: un banco entero (60 lineas, 85 s) en 0,6-1 s. Comprobado que sale
+  voz con 5 bancos (Mark, Axel, Keenan Sharpe, Cedric y uno en ingles): todas las lineas con las
+  muestras que dice el .acb, el CRC de todas las tramas bien y ninguna lectura se pasa de su trama;
+  picos medianos 0,55-0,81 (sin saturar; alguna llega a 1,03 y se baja a 0,999), centro del
+  espectro 980-1.460 Hz, 93-98 % de la energia por debajo de 4 kHz y tono marcado. Lo que VR no usa
+  (cifrado, HFR...) da NoSoportado: no se inventa.
+- El idioma: el de las voces del juego de este PC, la opcion VoiceLanguage de su partida de sistema
+  (XXXXXXXX-SYSTEMLIVE, mismo cifrado que la de usuario; en VR ja 0, en 1, fr 2, es 3...). Aaron: 0,
+  japones. En ingles solo hay 106 bancos: los demas en japones. IEVR_VOZ_IDIOMA lo fuerza.
+- ievr/voces.py (nuevo): con las animaciones del partido (POST /api/partido/eventos/preparar, que
+  ahora devuelve tambien "voces") pone en su cola los bancos de los jugadores y de en lo que se
+  convierten (armadura, mixi max, modo) y los convierte en el PC de cada uno, desde SU juego, a
+  datos/modelos3d/voces/<idioma>/<banco>.wav (PCM de 16 bits, mono, 24 kHz: el navegador lo toca
+  sin librerias) con su .json (donde empieza cada linea): las de sus tecnicas y espiritus, las
+  generales y 4 de gol, como mucho 2 variantes, el mismo audio una vez; y voces/eventos.json (las
+  voces de los 1.123 eventos: segundo, linea y quien). Nunca va al repo ni a los zips (datos/modelos3d
+  esta en .gitignore; publicar.py y empaquetar.py no lo llevan). Su propio hilo, al lado de la cola
+  de los modelos, de banco en banco; `solo` como en O-329. Rutas nuevas: GET /api/partido/voz/<idioma>/
+  <banco>.json|wav y voz/eventos.json, y GET /api/partido/voces/estado. ievr.voces e ievr.hca en
+  OCULTOS de construir_exe.py.
+- La pagina (web/partido-voces.js, nuevo; enganches en partido-carga.js, partido-sonido.js y
+  partido.html): la pantalla de carga (O-329) pasa a Voces lo del servidor, Voces baja cada banco en
+  cuanto esta y lo guarda tal cual (Int16), y la carga no acaba sin ellas (si son lo ultimo:
+  "Preparando las voces de los jugadores…"). Suenan (Voces.mirar, desde Sonido.mirar, cada cuadro):
+  en cada animacion de VR (supertecnicas, la ★, invocar y transformarse) en el segundo en que las pone
+  el juego, cada una en el banco de su actor (el que la hace, el rival, los companeros); con la
+  plantilla (este PC no tiene esa animacion) igual, con el tiempo de su tramo (las cortas, su final);
+  nada mientras se espera una de VR (O-329) y desde su principio cuando esta. Sin tecnica, como los
+  ev71 de VR: sh010 el que chuta, kp020/kp030 el portero que para o despeja, sp150 el que encaja,
+  bt070 el muro, bt060/bt070 el que gana el duelo y sp150 el que pierde, una de gol del que marca a
+  0,9 s, y pa010 en los pases (no todos: uno cada 3 s como mucho, el mismo cada 8 s). Si un personaje
+  no tiene voz para algo, no suena nada. Con "Sonido" quitado nada (Sonido._listo); como mucho 4 a la
+  vez. Online cada PC las suyas: nada va en la foto (el invitado oye lo que ve), REGLAS.VERSION igual.
+- Medido: Gorodos y Marineros, 36 bancos (con las formas): 23 con voz y 13 sin, convertidos en 3-6 s
+  la primera vez (al elegir los equipos ya estan, antes que los modelos), 14,7 MB en disco. En la
+  pagina, Lightyear contra Gorodos: 30 bancos, 23 MB, bajados en 0,1-0,25 s; la pantalla de carga no
+  tarda nada mas (19-31 s, como antes: las voces estan antes que lo demas). Voces.mirar 0,011-0,016
+  ms por cuadro (max 1,6 ms al sonar una), decir 0,5 ms; los FPS iguales con y sin voces (a ratos
+  alternos de 10 s: 40,6/48,4 y 33,7/30, lo que cambia es la carga del PC).
+- Pruebas: nueva prueba-voces.js (60 OK; con py_voces.py y el juego de este PC: el decodificador con
+  bancos de verdad, los guiones, el idioma y la cola; la precarga y la pantalla de carga; cuando
+  suenan con el Director de mentira y con el de verdad en un duelo de Lightyear contra Marineros) y
+  todas las de antes OK, fotos iguales. En el navegador (scratchpad juego/cdp o339_voces.mjs,
+  o339_online.mjs y o339_medir.mjs; capturas gx/o339_*): Disparo sagrado de Byron Love con su
+  animacion de VR (sp020 a 1,17 s, "whs00900" a 2,62 y sh010 a 6,02), invocar a Archipegaso
+  ("k000330_inc" de Arion a 1,0 s), un duelo sin tecnica (bt060 y sp150) y un rato de partido de la
+  maquina contra la maquina (pases, tiros, una parada de supertecnica); online con dos pestanas, la
+  misma linea en las dos, cada una con sus voces; el audio en marcha y sin errores en la consola.
+- Falta / a confirmar con Aaron: que lo oiga (aqui solo se mide: el headless no tiene altavoces) y
+  si el volumen esta bien (VOCES.volumen 0,75); los efectos de sonido de cada supertecnica
+  (waza_stream, el mismo sistema) y el comentarista, si los quiere; que celebracion de gol lleva cada
+  uno (ahora una de sus 4 al azar); las lineas de pareja especial.
+
+### O-335 · El juego de partidos: los tiros (el bloqueo, el rango, adonde van) y quitar el pase marcado
+
+Lo que dijo Aaron al probar (2026-10-10):
+- "cuando se bloquea un tiro entero, que el tiro se quede a 0 y es bloqueado por un defensa, que no
+  rebote, la pelota se la queda el defensa que ha bloqueado"
+- "hay tiros que no son tiros largos que chutan desde demasiado lejos, por ejemplo raika me chutaba
+  desde bastante lejos del area con el tornado de fuego, que el rango sea un poco mas de fuera del
+  area"
+- "cuando tiras, a veces los tiros se van fuera, haz que siempre vayan donde apuntas al chutar, y una
+  vez le has dado a la porteria para chutar, puedas clicar dentro del rango de la porteria para
+  ajustar un poco, pero que los tiros no salgan fuera a no ser que hayas apuntado a algun angulo muy
+  raro"
+- "cuando en algun momento que esta el partido parado, ya sea por ejemplo pausa tecnica o lo que sea,
+  y marcas un pase, deberias poder cancelar el pase dandole otra vez donde le diste a pasar en vez de
+  darle al jugador que paso"
+En el codigo los cambios citan esta nota.
+- (a) El bloqueo entero: el defensa que gana el bloqueo se queda el balon (Partido._quedaMuro: lo
+  coge, con el respiro de 3 s del que gana un duelo), en el tiro que viaja y en el tiro de antes (el
+  de las pruebas viejas); la cadena y los remates de primeras son el mismo tiro (el muro les llega
+  igual). Antes rebotaba hacia el campo o se iba a corner el 60 % (REGLAS.A_CORNER.bloqueo, quitado).
+  Si el muro solo lo debilita, el tiro sigue como antes (y a veces lo desvia a corner, TIRO_FUERA.muro:
+  eso no es un bloqueo entero). Los penaltis no tienen muro: no aplica.
+  - Se ve: abajo, con el "Bloqueo!" sobre el campo, el defensa hace el clip de VR de ganar el balon
+    (robarGana, 1,5 s; el salto de VR, el que usa arriba, dura 0,03 s: es una pose) y al volver el
+    juego lleva el balon (su aro). Arriba, en la plantilla sin supertecnica (sin.muro) y en la de la
+    supertecnica de bloqueo (la cupula), al final el balon le cae a los pies (Escenas._M.finalBloqueo);
+    con la animacion de VR sale la de acierto (_1), como antes.
+- (b) El rango (REGLAS.TIRO_RANGO, REGLAS.enRangoTiro; Partido.enRangoTiro(j, x, y), que sustituye a
+  _alcanceTiro): un tiro que no es largo, desde el area grande rival o a menos de `fuera` 5 m de ella
+  en todas las direcciones (la distancia al rectangulo del area, 40,32 x 16,5 m): de frente hasta 21,5
+  m de la linea de gol, de lado hasta 25,2 m del centro del campo, por las esquinas redondeado. Antes
+  38 m en redondo desde el centro de la porteria (Raika chutaba desde 30 m). Con un tiro largo a punto
+  (lo paga; el del espiritu, con el aura), hasta `largo` 60,8 m de la porteria, como antes (38 x 1,6):
+  contiene todo el del normal (su punto mas lejano, la esquina, esta a 33 m). Lo usan: el tiro (la
+  orden y el marcado en la pausa, con "X esta demasiado lejos para chutar"), el remate de primeras
+  (desde donde llega el pase), la T (botonT, el largo), la maquina (solo chuta desde su rango; antes
+  pedia el tiro desde 28-38 m y el motor lo rechazaba) y la zona de tiro de la pantalla (el cono, la
+  raya y la X solo salen a tiro, SueloAbajo.tirador).
+- (c) Adonde va el tiro (REGLAS.APUNTAR {margen 0,7, tolera 1,5, max 9}, REGLAS.apunteTiro(x) ->
+  {x, fuera}): al punto de la linea de gol que pulsaste. Entre los palos, ahi (como mucho a 0,7 m de
+  un palo: el balon entra); pulsando un poco fuera (hasta 1,5 m por fuera de un palo), pegado a ese
+  palo por dentro: un dedo que se va un poco no lo manda fuera. "Un angulo muy raro" = pulsar a mas de
+  1,5 m por fuera de un palo (a mas de 5,16 m del centro; la pagina toma por porteria hasta 9 m): se va
+  fuera por ahi y saque de puerta. Ya no se va fuera al azar: con el tiro que viaja _probFuera es 0
+  (O-315: sin supertecnica, desde lejos o con un rival encima, hasta un 75 %) y el boton ya no dice
+  "puede irse fuera" (queda para el tiro de antes).
+  - La orden del tiro lleva `x` (donde pulsaste la porteria: la X); el duelo del chute, `apunta`; la
+    eleccion del chute, `x` (lo ultimo que pulsaste). Eligiendo el tiro, pulsar dentro de la porteria
+    mueve la X sin chutar (ayuda "El tiro va a la X: pulsa dentro de la porteria para afinar adonde
+    va."); en la pausa, pulsar otra vez la porteria cambia el tiro marcado (no lo quita: para eso, al
+    que pasa). El remate de primeras igual (la orden "directo" lleva x). La T: al centro (x 0, donde
+    pone la X) y se afina en el chute. La cadena va al mismo sitio, siempre a puerta (si se apunto
+    fuera, al palo de dentro). La X sale en rojo si va fuera (3D y reserva 2D; tambien con el balon en
+    vuelo). La maquina apunta al lado de la porteria en el que no esta el portero (de 1 a 2,96 m del
+    centro) y nunca fuera. Sin x (una orden de un Pizarra de antes), al azar dentro de la porteria,
+    como antes. Arriba, en la escena del gol, el balon entra por donde se apunto (el resultado lleva
+    `tx`).
+- (d) Quitar el pase marcado (Partido._quitaPase): con el juego parado (la pausa) o en un foco (el pase
+  que sale si ganas), tocar otra vez al companero del pase, o el sitio (o el companero que esta en el)
+  a menos de PASE_MARCADO.quitar 2 m de adonde va, lo quita; otro companero u otro sitio lo cambian,
+  como antes, y tocar al que pasa sigue quitandolo. La franja dice "Pase a X quitado" o "Pase al hueco
+  quitado". Se ve: en la tactil (HudAbajo._quitado, 3D y reserva) la raya se pone roja a trozos con
+  una X donde iba y se apaga en 0,9 s; el mapa de arriba ahora ensena el pase marcado (raya cian con un
+  aro) y al quitarlo, lo mismo en rojo. En la espera de un saque no se marca (antes de Jugar se
+  coloca; tras Jugar el pase sale en el acto, O-324) y en el tiempo de invocacion el panel de auras
+  ocupa toda la tactil: alli no hay pase marcado que quitar.
+- Online: la orden del invitado lleva su x y su eleccion del chute tambien (llegan al anfitrion, que
+  lo chuta ahi; los dos ven el balon ir a la X); quitar el pase es la orden de pase de siempre y la
+  foto (pm) y su aviso lo llevan. REGLAS.VERSION 16: **Aaron y su amigo tienen que tener los dos este
+  Pizarra** (uno de antes chutaria desde mas lejos y al azar).
+- La ayuda "Como se juega" lo explica (el rango, la X, afinar, lo que se va fuera, el bloqueo que se
+  queda el defensa, quitar el pase).
+- Medido (medir-o328.js, 96 partidos maquina contra maquina de 2 x 15 con las opciones de la pagina;
+  antes = este mismo Partido sin O-335): goles 3,13 -> 3,98 por partido; tiros 18,2 -> 16,8 (desde
+  mas cerca); a puerta 10,9 -> 12,7; los que se iban fuera 2,57 -> 0 y los saques de puerta 2,59 ->
+  0,04; corners 4,9 -> 4,1; bloqueos enteros 2,7 -> 1,9 (todos se los queda el defensa).
+- Pruebas: nueva prueba-tiros.js (63 OK: las reglas; el rango puro y en el motor, la T, el remate de
+  primeras y la zona de tiro; adonde va: la orden, afinar al elegir, un poco fuera, muy fuera, sin
+  apuntar nunca fuera, la cadena, la eleccion valida, online y la pagina; el bloqueo entero en el
+  tiro que viaja y en el de antes, el que solo debilita y la tactil; quitar el pase en la pausa, en un
+  foco, el tiro marcado que se cambia, online, la tactil y el mapa; la maquina en 4 partidos: siempre
+  desde su rango, a puerta y sus bloqueos; arriba, el balon a los pies y el gol por la X), en todas.sh.
+  Cambiadas (copias .antes-o335.js): prueba3ds (la X: lo pulsado hasta 9 m), prueba-o315 (el bloqueo
+  ya no va a corner; la ayuda), prueba-g2 (fuera del rango nuevo), prueba-tiro-que-viaja (9: se va
+  fuera solo apuntando fuera), prueba-boton-t (60,8 m, la orden de la T con x 0, el tiro sin tension
+  a 20 m) y prueba-g4 (semilla 33: con la 31 en ese partido solo salian bandas). Todas OK y las fotos
+  del invitado iguales.
+- Jugando en el navegador (scratchpad juego/cdp, o335_tiros.mjs y o335_online.mjs, Chrome headless
+  contra el servidor de pruebas; capturas gx/o335_*): a 23 m sin zona de tiro y pulsar la porteria
+  dice que esta lejos; a 19 m el cono y la X; en la pausa pulso junto al palo, otra vez en otro sitio
+  y muy fuera (la X roja fuera); Seguir, en el chute afino pulsando la porteria y Tirar: el balon va a
+  la X; apuntando a 8 m se va fuera por ahi y saque de puerta; me chuta la maquina, mi defensa lo para
+  del todo, hace el clip de ganar el balon, arriba el balon le cae a los pies y vuelve el juego con el
+  balon en el; marco un pase y lo quito pulsando otra vez al companero (rojo en la tactil y en el
+  mapa, "Pase a X quitado") y el pase al hueco pulsando otra vez el sitio. Online: el invitado marca su
+  tiro, afina en el chute y el anfitrion lo chuta a su X; marca un pase y lo quita (el anfitrion ya
+  no lo tiene; lo ve en rojo y su aviso); su defensa para del todo el tiro del anfitrion y se queda el
+  balon en las dos pestanas. Sin errores en la consola.
+- A confirmar con Aaron: los 5 m de mas del area (de frente, 21,5 m de la linea de gol); que "muy
+  raro" sea pulsar a mas de 1,5 m fuera del palo; el tiro largo hasta 60,8 m; que la maquina apunte
+  lejos del portero; que haya mas goles y casi ningun saque de puerta (los tiros ya no se van fuera);
+  el respiro de 3 s del defensa que se queda el balon; quitar el pase tocando a menos de 2 m.
+
+### O-336 · El juego de partidos: el duelo, solo la animacion del que gana (el choque de los nombres y "Fallo")
+
+Lo que dijo Aaron (2026-10-10): "cuando hay un duelo de por ejemplo regate vs defensa, que solo salga la
+animacion de quien gana, a veces sale la animacion de alguna tecnica y luego ha ganado el otro, deberia
+salir solo la animacion de quien gana, que antes haya como un choque de los nombres de las técnicas y se
+quede solo con la que gana, en los juegos de ds y 3ds es asi, si gana algo que no es una tecnica a una
+tecnica, que se vea como le roba el balon o le regatea mientras ponga fallo, si gana una supertecnica a un
+jugador que no la usa, que salga directamente la supertecnica". En el codigo los cambios citan esta nota.
+- Como es en los juegos (fotogramas): Chrono Stones de Aaron (su video, 29:48-29:51, sacado a 0,1 s con
+  scratchpad o336/densos.mjs) y GO Light (extra-1, 6:22 y 13:35): tras el choque, arriba los dos nombres
+  (el del rival arriba entrando por la derecha, el tuyo abajo por la izquierda, del color de su
+  elemento) entran en ~90 ms, se acercan despacio entre rayos amarillos que cruzan la pantalla, a los
+  ~0,9 s el del que pierde se va y el del que gana sube al centro y se queda hasta el negro (~2,2 s);
+  luego SOLO la animacion del que gana. IE3 de DS igual ("A × B" en la tactil). En CS frances y Galaxy
+  a veces salen las dos: se hace como dice Aaron.
+- El plan (REGLAS.planAnim, web/partido-reglas.js; el mismo que hace esperar al motor y que ve el
+  invitado): en cada duelo solo la animacion del que gana. Tramos nuevos (REGLAS.ANIM, completas /
+  cortas): "nombres" 2,2 / 1,4 s, "fallo" 1,8 / 1,2 y "golpe" 2,0 / 1,2.
+  - Foco y disputa (en la falta, el que la recibe): (1) tecnica (o ★) los dos: choque, nombres, la
+    tecnica del que gana (con su `seg` de VR) y fijar; (2) gana Regatear/Romper/Tapar/Entrada/Cargar a
+    una tecnica: choque y "fallo" (su accion normal; las cifras se fijan dentro); (3) gana una tecnica a
+    uno sin ella: directamente la tecnica; (4) sin tecnicas: como antes. Antes salian las dos, la del
+    que ataca primero. La ★ que pierde (con el aura ya puesta del otro) no se invoca: "Fallo".
+  - El tiro que viaja: el chute y la cadena no cambian (solo elige el que chuta: su tecnica entera). En
+    el muro y en el portero, el duelo con lo que trae el tiro (tras la cadena, la de la cadena): el que
+    defiende y gana, su tecnica (el evento _1 de VR); el tiro que gana, el final de su tecnica ("golpe":
+    los ultimos cortes de su animacion de VR o la plantilla del tiro desde su golpe), con "¡Tiro
+    debilitado!" si un muro le quita; si gana una accion normal a una tecnica, "fallo" (la patada, el
+    bloqueo o la parada normales); con tecnica los dos, antes "nombres". Gana el muro si lo para o lo
+    desvia a corner. El penalti de la misma zona igual, con la tecnica del tiro entera (no se ha visto);
+    sin tecnicas, como antes. El tiro de antes (sin vuelo) tambien.
+  - Ya no sale nunca la tecnica del que pierde: tampoco la de fallo de VR (_2: la parada que encaja, el
+    muro que no para); la pantalla de carga no la espera y ievr/g4evento.py ya no la convierte (las ya
+    convertidas se quedan, no estorban).
+- El Director (web/partido-director.js): "nombres" arriba con el campo abajo (como en CS); "fallo" como
+  sin tecnica (abajo el campo en el foco, negro en el tiro); el sonido del choque (Sonido.choque: el
+  chisporroteo y el golpe a los 0,9 s).
+- Arriba (web/partido-hud-duelo.js, HUD_DUELO.nombres y .fallo): el choque de los nombres como en CS
+  (posiciones y tiempos medidos en sus fotogramas; los rayos con el mismo azar a la misma t). "¡Fallo!":
+  el nombre de la tecnica del que pierde entra como siempre, a los 0,76 s (con las cifras que se fijan)
+  se pone gris, una raya roja lo tacha y cae "¡Fallo!" encima con un rebote; sigue al fijar y en la
+  vuelta. Al fijar tras el golpe o "Fallo" no sale el nombre de la tecnica que no se ha visto; el
+  "¡Tiro debilitado!" ya sale tambien al fijar.
+- El 3D de arriba (web/partido-escenas.js): plantillas "nombres" (los dos quietos en el lateral del duelo)
+  y "nombres.tiro" (el que defiende ante el tiro), y la accion normal del que gana a una tecnica:
+  normal.Regatear / Romper (le regatea rodeandole), normal.Tapar / Entrada / Cargar (se lanza y le quita
+  el balon: el balon pasa de sus pies a los suyos), con los clips de VR de los duelos de su modelo
+  (ANIM_VR, sin su avance: el avance a mano). El que pierde se cae a mano solo si no tiene su clip de VR.
+- La precarga (O-329) sabe lo que hace falta: en el muro y el portero solo la de si para/bloquea (ya no
+  la de gol), y al llegar el tiro a ellos, el final de la tecnica del tiro con los companeros que tenga
+  cerca; las fijas, sin las de fallo (167 en la partida de pruebas).
+- Las voces (O-339): "fallo" dice lo mismo que sin tecnica (el regate o el robo del que gana y el "¡Uy!"
+  del que pierde, la parada, el bloqueo).
+- "Como se juega" lo explica. Online: el plan cambia (otras esperas): REGLAS.VERSION 17, **Aaron y su
+  amigo tienen que tener los dos este Pizarra**.
+- Pruebas: nueva prueba-duelo-ganador.js (59 OK: los planes de cada caso, foco, disputa, falta, la ★,
+  ★ contra ★, el muro y el portero en los 16 casos, la cadena, el penalti y el tiro de antes; 6
+  partidos de maquina contra maquina (completas y cortas): en ningun resultado sale la tecnica del que
+  pierde (96 focos, 76 muros, 56 porteros: 21 choques, 44 "Fallo", 25 golpes), la espera del motor es la
+  del plan nuevo y el invitado saca el mismo plan con la foto (240 de 240); focos forzados de cada caso;
+  el Director y el HUD cuadro a cuadro (el nombre del que pierde solo en el choque hasta que se va o con
+  "¡Fallo!"); las plantillas, el golpe con la de VR, las candidatas y las fijas; las voces y Repetir).
+  Cambiadas (copias .antes-o336.js): prueba-g4 (las duraciones del foco con dos, el muro, el penalti),
+  g5 (el bloqueo, en un tiro que bloquea), o323 (el foco con la ★: solo la del que gana) y precarga (sin
+  las de gol). Todas OK (prueba3ds 175, e1 101, e2 68, e3 90, e4 65, e5 82, e6 86, o315 84, g1 56, g2
+  58, g3 142, g4 60, g5 67, g6 21, saques 83, tiro-que-viaja 86, boton-t 75, espiritus 94, o328 81,
+  o323 57, o330 42, o331 61, precarga 75, o334 37, o334b 25, tiros 63, voces 60, duelo-ganador 59) y
+  las fotos del invitado iguales (sin, completas y cortas).
+- Jugando en el navegador (scratchpad o336/o336_maquina.mjs y o336_online.mjs, Chrome headless 9362 y
+  el servidor de pruebas 8762 con sus modelos en construccion/pruebas-animvr/duelo-ganador, ya borrada;
+  capturas en scratchpad o336/capturas): contra la maquina, Aceleron contra Zona de contencion (los dos
+  nombres con los rayos, se queda Zona de contencion, el negro y solo su animacion de VR ev62_01490);
+  Tapar del rival gana a mi Aceleron (su robo normal y "¡Fallo!"); mi Regatear gana a Zona de contencion
+  (mi regate y "¡Fallo!"); El muro pierde contra Fuego rapido (el choque con el muro, el final de Fuego
+  rapido de VR con "¡Tiro debilitado!"; El muro no sale); el portero para con Parar Fuego rapido (su
+  parada normal y "¡Fallo!"); Fuego rapido gana a Malla electrica (el choque, su final y el gol). Online
+  (dos pestanas): el que invita y el invitado ven el mismo choque y solo la tecnica del que gana, y el
+  "¡Fallo!". Sin errores en la consola. Comparado con CS: o336/capturas/o336_comparado_choque.png.
+- A confirmar con Aaron: que el portero (y el muro) que pierde no ensene su tecnica (en VR, DS y 3DS la
+  parada sale y el balon la rompe: es su evento _2; si la quiere, se vuelve a poner solo para el
+  portero); el "golpe" (el final de la tecnica del tiro) cada vez que el tiro gana a un muro o al
+  portero; los tiempos del choque (2,2 s) y de "Fallo" (1,8 s); que el nombre del rival vaya arriba y el
+  tuyo abajo (como en CS; en GO Light al reves).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

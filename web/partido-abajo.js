@@ -562,6 +562,8 @@ const Abajo = {
       const af = p.afinidad ? Math.round(p.afinidad[yo]) : 0, co = p.combo ? p.combo[yo] : 0, cp = co ? (REGLAS.COMBO.tiro[co] || 0) : 0;
       if (af > 0 || co > 0) ayuda.push((af > 0 ? "Poder de afinidad +" + af + " %" : "") + (af > 0 && co > 0 ? " y " : "") + (co > 0 ? "combo ×" + co + " (+" + cp + " %)" : "") + ": ya van en el total y se gastan al chutar.");
       if (largos) ayuda.push("Tiro largo desde " + Math.round(du.distancia) + " m: va como un tiro normal (el balón viaja hacia la portería).");
+      // el tiro va adonde apuntas y se puede afinar (O-335)
+      if (du.etapa === "chute") ayuda.push("El tiro va a la X: pulsa dentro de la portería para afinar adónde va.");
       if (du.alto) ayuda.push("Balón alto: remata de cabeza (Testarazo) o al aire (Volea); cuenta el Físico.");
       if (mu) ayuda.push(du.muroPegado ? mu.nombre + " está pegado a ti: también para la vaselina." : mu.nombre + " está en la línea de tiro: la vaselina le pasa por encima.");
     }

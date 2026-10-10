@@ -1462,6 +1462,22 @@ class Manejador(BaseHTTPRequestHandler):
                 # como va la cola de conversion (ievr/modelos3d.py)
                 from ievr import modelos3d as M3
                 return self._responder(200, M3.estado())
+            if u.path == "/api/partido/voces/estado":
+                # como va la cola de las voces de VR (ievr/voces.py, O-339)
+                from ievr import voces as VO
+                return self._responder(200, VO.estado())
+            if u.path.startswith("/api/partido/voz/"):
+                # las voces de VR convertidas en este PC desde su juego: <idioma>/<banco>.wav y
+                # .json, y eventos.json (datos/modelos3d/voces, no se reparte; O-339)
+                import re
+                from ievr import voces as VO
+                resto = unquote(u.path[len("/api/partido/voz/"):])
+                tipos = {".json": "application/json", ".wav": "audio/wav"}
+                if re.fullmatch(r"(ja|en)/c\d{8}\.(json|wav)|eventos\.json", resto):
+                    ruta = os.path.join(VO.carpeta(), *resto.split("/"))
+                    if os.path.isfile(ruta):
+                        return self._fichero(ruta, tipos[os.path.splitext(ruta)[1]])
+                return self._responder(404, {"error": "esa voz no esta convertida"})
             if u.path == "/api/partido/equipos":
                 from ievr import partido as PA
                 with self.ses.lock:
@@ -1733,7 +1749,8 @@ class Manejador(BaseHTTPRequestHandler):
                 codigos = cuerpo.get("codigos")
                 if not isinstance(codigos, list):
                     raise E.Ilegal("faltan los codigos de los modelos")
-                return self._responder(200, M3.preparar(codigos[:64]))
+                # O-329: los de un partido entero (solo: lo pendiente de otros partidos se quita)
+                return self._responder(200, M3.preparar(codigos[:160], solo=bool(cuerpo.get("solo"))))
             if u.path == "/api/partido/eventos/preparar":
                 # las animaciones reales de VR de los jugadores del partido (sus supertecnicas,
                 # su espiritu y en lo que se transforman), en segundo plano detras de los
@@ -1741,10 +1758,19 @@ class Manejador(BaseHTTPRequestHandler):
                 from ievr import modelos3d as M3
                 jugadores = cuerpo.get("jugadores")
                 if isinstance(jugadores, list):
+                    # O-329: el partido entero en una peticion (los 32 con el banquillo y las
+                    # formas); antes 40 jugadores y 16 tecnicas
                     limpios = [{"cara": str(j.get("cara") or ""), "espiritu": str(j.get("espiritu") or ""),
-                                "tecnicas": [str(t) for t in (j.get("tecnicas") or [])[:16]]}
-                               for j in jugadores[:40] if isinstance(j, dict)]
-                    return self._responder(200, M3.preparar_partido(limpios))
+                                "tecnicas": [str(t) for t in (j.get("tecnicas") or [])[:40]]}
+                               for j in jugadores[:80] if isinstance(j, dict)]
+                    r = M3.preparar_partido(limpios, solo=bool(cuerpo.get("solo")))
+                    # y las voces de VR de esos jugadores (O-339): si fallan, el partido va sin ellas
+                    try:
+                        from ievr import voces as VO
+                        r["voces"] = VO.preparar(limpios, solo=bool(cuerpo.get("solo")))
+                    except Exception as ex:
+                        r["voces"] = {"error": "no se han podido preparar las voces (%s)" % ex}
+                    return self._responder(200, r)
                 eventos = cuerpo.get("eventos")
                 if isinstance(eventos, dict):
                     return self._responder(200, M3.preparar_eventos(

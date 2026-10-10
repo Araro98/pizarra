@@ -33,7 +33,18 @@ const REGLAS = {
   // la fatiga del portero en j[k][13]), la carga de configuracion, la afinidad y el combo
   // (la foto lleva `cf`, `af` y `co`) y las pasivas del entrenador y los gerentes (`equipos`
   // lleva `personal` y `configuracion`); un Pizarra de antes sacaria otros numeros
-  VERSION: 13,
+  // 14: la pantalla de carga (O-329): el partido no empieza hasta que los dos han cargado todo
+  // (cada uno manda "carga" con su %); un Pizarra de antes no lo manda y el otro le esperaria
+  // 15: la equipacion del equipo en los modelos (O-334): `equipos` lleva la equipacion de cada
+  // equipo y la ropa y el capitan de cada jugador; un Pizarra de antes los veria con la ropa
+  // de su equipo de historia y el otro con la del equipo
+  // 16: los tiros de O-335: el rango del tiro (el area y un poco mas), el tiro va adonde se
+  // apunta (la orden del tiro y la eleccion del chute llevan `x`), el bloqueo entero se lo queda
+  // el defensa y el pase marcado se quita tocandolo otra vez; un Pizarra de antes chutaria desde
+  // mas lejos y al azar
+  // 17: el duelo de O-336: solo la animacion del que gana (el choque de los nombres, "Fallo");
+  // un Pizarra de antes sacaria otro plan (otras esperas y la tecnica del que pierde)
+  VERSION: 17,
   // el reloj de 3DS (O-308): partes de 15 o 30 minutos de reloj, a 12 s de reloj
   // por segundo real (videos: 11-12; VR: 12 lento / 14,1 normal). Una parte de
   // 15 son 75 s de juego corriendo
@@ -64,7 +75,14 @@ const REGLAS = {
   ATURDIDO: 1.2,                // el que pierde un duelo se queda quieto esto
   VEL_PASE: 20, VEL_TIRO: 30,   // metros por segundo del balon
   ROCE: 0.985,                  // lo que frena el balon suelto cada paso
-  DISTANCIA_TIRO: 38,           // desde mas lejos no se puede chutar a puerta
+  // hasta donde se chuta (Aaron, O-335: "hay tiros que no son tiros largos que chutan desde
+  // demasiado lejos... que el rango sea un poco mas de fuera del area"; antes, a 38 m de la
+  // porteria en redondo): un tiro que no es largo, desde el area grande rival o a menos de
+  // `fuera` m de ella en todas las direcciones (de frente, hasta 21,5 m de la linea de gol; de
+  // lado, hasta 25,2 m del centro del campo). El tiro largo a punto, hasta `largo` m de la
+  // porteria, como antes (38 x 1,6, O-326): contiene todo lo del normal (su punto mas lejano,
+  // la esquina, esta a 33 m) y llega a 8 m de tu campo
+  TIRO_RANGO: { fuera: 5, largo: 60.8 },
   // la TENSION de VR: una barra del equipo (max 300) que pagan las
   // supertecnicas. Su coste es el de VR (consumeTp, la columna `coste` de
   // tecnicas.csv; el "tp" de la tabla era el poder a nivel 1). Como en VR (O-310,
@@ -118,6 +136,7 @@ const REGLAS = {
   // vaselina. Medido (prueba/medir-o328.js, 96 partidos de 2 x 15 con las opciones de la
   // pagina y los 11 equipos de la partida de pruebas): 3,1 goles por partido (el Partido de
   // antes de O-328, 2,45; con estos calculos y la maquina de antes, 2,8)
+  // (O-335: y solo desde su rango, TIRO_RANGO, como la persona)
   IA_TIRO: { lejos: 28, cerca: 16, pCerca: 0.8, pLibre: 0.5, pTapado: 0.04, lejano: 38, pLejano: 0.3, debil: 0.6, pDebil: 0.9, tecnica: 0.95 },
   DUELO_MAX: 0,            // online: segundos para elegir en un duelo; 0 = sin limite, como en 3DS (Aaron, O-299)
   // apoyos en un duelo (DS/3DS): cada companero cerca suma, mas si es de su elemento. No
@@ -264,6 +283,18 @@ const REGLAS = {
   // de un balon alto. Numeros inventados con sentido (Galaxy no da ninguno) y medidos
   // (medir-vuelo.js): con 2 m y 2 que cortan se bloqueaban 4,5 tiros por partido
   VUELO: { vel: 15, radio: 1.6, cortan: 1, portero: 1.6, cadenaDesde: 4, alto: { normal: 0.9, vaselina: 3.4, cabeza: 1.4 } },
+  // adonde va el tiro (Aaron, O-335: "haz que siempre vayan donde apuntas... que los tiros no
+  // salgan fuera a no ser que hayas apuntado a algun angulo muy raro"): al punto de la linea
+  // de gol que pulsaste (`x`, m del centro de la porteria). Entre los palos, ahi (como mucho a
+  // `margen` m de un palo: el balon entra); pulsando un poco fuera (hasta `tolera` m del palo),
+  // pegado al palo por dentro: un dedo que se va un poco no lo manda fuera. Mas alla es "un
+  // angulo muy raro": se va fuera por ahi. Lo que se pulsa vale hasta `max` m del centro (lo
+  // que la pagina toma por la porteria)
+  APUNTAR: { margen: 0.7, tolera: 1.5, max: 9 },
+  // el pase marcado (en la pausa o en un foco) se quita tocando otra vez al companero o el
+  // sitio al que va, a menos de `quitar` m (Aaron, O-335); como antes, tambien tocando al que
+  // pasa
+  PASE_MARCADO: { quitar: 2 },
   // la T de la tactil sin tiro largo: el pase hacia delante (O-326; Aaron, O-322 punto 4).
   // Al companero que este al menos `avance` m por delante, entre `cerca` y `lejos` m (como
   // los pases de la maquina), sin un rival a menos de `linea` m del camino y sin fuera de
@@ -286,11 +317,14 @@ const REGLAS = {
   //   `porMetro` por cada metro mas, y `presion` mas con un rival a menos de `cerca` m;
   //   la volea x`volea`; hasta `tope` (a 20 m, un 48 %; a 30 m, un 75 %; a 11 m, nada
   //   o un 10 % con un rival encima). Con supertecnica va a puerta. Si el muro lo toca
-  //   y pierde, se desvia a corner el `muro` de las veces (tambien con supertecnica)
+  //   y pierde, se desvia a corner el `muro` de las veces (tambien con supertecnica).
+  //   O-335: con el tiro que viaja (el de la pagina) ya no se va fuera al azar: va adonde
+  //   se apunta (APUNTAR); `desde`...`tope` quedan para el tiro de antes y `muro` sigue
   TIRO_FUERA: { desde: 12, porMetro: 0.06, presion: 0.1, cerca: 4, volea: 1.4, tope: 0.75, muro: 0.3 },
-  // - de los despejes del portero (Despejar o su supertecnica) y de los bloqueos del
-  //   muro, estos se van directos a corner (por encima o junto al palo)
-  A_CORNER: { despeje: 0.6, bloqueo: 0.6 },
+  // - de los despejes del portero (Despejar o su supertecnica), estos se van directos a
+  //   corner (por encima o junto al palo). El tiro que el muro para del todo ya no se va a
+  //   corner ni rebota: se lo queda el defensa (Aaron, O-335; antes `bloqueo` 0,6)
+  A_CORNER: { despeje: 0.6 },
   // - el balon disputado que se escapa: el defensa que gana un foco sin supertecnica
   //   ni hiper a veces no se queda el balon y sale rodando (ESCAPA_VEL m/s, hasta
   //   ESCAPA_ANGULO grados a cada lado de hacia donde iba el que lo llevaba). Por lo
@@ -424,12 +458,18 @@ const REGLAS = {
     completas: { entrada: 0.87, choque: 1.4, prepara: 1.0, transicion: 0.2, tecnica: 4.2, hiper: 5.0,
       sinTecnica: { foco: 1.4, tiro: 1.2, muro: 1.2, portero: 1.4 }, fijar: 0.6, vuelta: 0.2, negroTiro: 0.5,
       vuelo: 0.7, bloqueo: 1.7, porEncima: 0.5, fueraTiro: 1.2, destello: 0.3, gol: 10.8, entraPenalti: 1.2,
-      tandaRotulo: 1.3, falta: 1.6, tarjeta: 1.6, penaltiRotulo: 1.8, fueraJuego: 2.5, chico: 1.1, penaltis: 2.0 },
+      tandaRotulo: 1.3, falta: 1.6, tarjeta: 1.6, penaltiRotulo: 1.8, fueraJuego: 2.5, chico: 1.1, penaltis: 2.0,
+      nombres: 2.2, fallo: 1.8, golpe: 2.0 },
     cortas: { entrada: 0.87, choque: 0.8, prepara: 0.6, transicion: 0.2, tecnica: 1.6, hiper: 2.0,
       sinTecnica: { foco: 1.0, tiro: 0.8, muro: 0.8, portero: 1.0 }, fijar: 0.5, vuelta: 0.2, negroTiro: 0.2,
       vuelo: 0.5, bloqueo: 0.9, porEncima: 0.4, fueraTiro: 1.0, destello: 0.3, gol: 4.4, entraPenalti: 0.8,
-      tandaRotulo: 1.0, falta: 1.2, tarjeta: 1.2, penaltiRotulo: 1.4, fueraJuego: 1.6, chico: 0.8, penaltis: 2.0 },
+      tandaRotulo: 1.0, falta: 1.2, tarjeta: 1.2, penaltiRotulo: 1.4, fueraJuego: 1.6, chico: 0.8, penaltis: 2.0,
+      nombres: 1.4, fallo: 1.2, golpe: 1.2 },
   },
+  // O-336 (Aaron: "que solo salga la animacion de quien gana"): nombres, el choque de los nombres
+  // de las dos tecnicas (Chrono Stones de Aaron, 29:48: ~2,2 s hasta el negro); fallo, la accion
+  // normal del que gana con "Fallo" sobre la tecnica del que pierde; golpe, el final de la tecnica
+  // del tiro que gana al muro o al portero (la entera ya se vio al chutar)
   // con las completas, una supertecnica (y la ★) dura lo de su animacion REAL de VR: `seg`
   // de cada paso del tiro o `segs` del foco, que el motor apunta en el resultado desde
   // partido.py (eventos-tecnicas.csv). Aaron: "animaciones completas" (O-322; O-307 p17).
@@ -474,14 +514,19 @@ const REGLAS = {
         return null;
       };
       pon("choque", A.choque);
-      const ua = usa(r.atacante), ud = usa(r.defensor);
-      if (ua || ud) {
+      // solo la animacion del que gana (O-336; en la falta, el que la recibe): con tecnica los
+      // dos, antes el choque de los nombres; si gana una accion normal a una tecnica, esa accion
+      // con "Fallo" sobre la del otro; si gana una tecnica a uno sin ella, directamente la
+      // tecnica; sin tecnicas, como antes. Antes salian las dos, la del que ataca primero
+      const g = r.tipo !== "falta" && hay(r.ganador) ? r.ganador : r.atacante, pd = g === r.atacante ? r.defensor : r.atacante;
+      const ug = usa(g), up = usa(pd);
+      if (ug) {
+        if (up) pon("nombres", A.nombres, { jugador: g, pierde: pd });
         pon("transicion", A.transicion);
-        const sg = id => deVR(r.segs ? r.segs[lado(id)] : 0);
-        if (ua) pon(ua, sg(r.atacante) || (ua === "hiper" ? A.hiper : A.tecnica), { jugador: r.atacante });
-        if (ud) pon(ud, sg(r.defensor) || (ud === "hiper" ? A.hiper : A.tecnica), { jugador: r.defensor });
+        pon(ug, deVR(r.segs ? r.segs[lado(g)] : 0) || (ug === "hiper" ? A.hiper : A.tecnica), { jugador: g });
         pon("fijar", A.fijar);
-      } else pon("sinTecnica", A.sinTecnica.foco, { sub: "foco" });
+      } else if (up) pon("fallo", A.fallo, { sub: "foco", jugador: g, pierde: pd });
+      else pon("sinTecnica", A.sinTecnica.foco, { sub: "foco" });
       pon("vuelta", A.vuelta);
       if (r.tipo === "falta") {
         pon("falta", A.falta);
@@ -498,14 +543,32 @@ const REGLAS = {
       if (s.tecnica) pon(queTec(s.que), deVR(s.seg) || durTec(s.que), Object.assign({ jugador: s.quien, paso: k }, mas || {}));
       else pon("sinTecnica", A.sinTecnica[sub], Object.assign({ sub, jugador: s.quien, paso: k }, mas || {}));
     };
+    // un duelo del tiro (O-336): el que defiende (paso kD, el muro o el portero) contra el tiro
+    // que le llega (paso kT); ganaD: si gana el que defiende. Solo la animacion del que gana: con
+    // tecnica los dos, antes el choque de los nombres; el que defiende y gana, su tecnica; el
+    // tiro que gana, el final de su tecnica si ya se vio entera al chutar (visto: el tiro que
+    // viaja) o entera (el penalti); si gana una accion normal a una tecnica, esa accion con
+    // "Fallo" sobre la tecnica del otro. Sin tecnicas, como antes (en el penalti, la patada y
+    // la parada; si no, lo del que defiende)
+    const duelo = (kT, kD, ganaD, sub, mas, visto) => {
+      const sT = pasos[kT] || {}, sD = pasos[kD] || {}, tT = !!sT.tecnica, tD = !!sD.tecnica;
+      const kG = ganaD ? kD : kT, kP = ganaD ? kT : kD, tG = ganaD ? tD : tT, tP = ganaD ? tT : tD;
+      const datos = o => Object.assign({ jugador: (pasos[kG] || {}).quien, pierde: (pasos[kP] || {}).quien, paso: kG, pasoPierde: kP, defiende: sD.quien }, o || {});
+      if (tG && tP) pon("nombres", A.nombres, datos(mas));
+      if (!tT && !tD && !visto) { pon("transicion", A.transicion); tecnica(kT, "tiro"); }
+      pon("transicion", A.transicion);
+      if (tG && ganaD) tecnica(kD, sub, mas);
+      else if (tG && visto) pon(queTec(sT.que), A.golpe, { jugador: sT.quien, paso: kT, golpe: true });
+      else if (tG) tecnica(kT, "tiro");
+      else if (tP) pon("fallo", A.fallo, datos(Object.assign({ sub: ganaD ? sub : "tiro" }, ganaD ? mas : {})));
+      else tecnica(kD, sub, mas);
+    };
     if (r.tipo === "penalti") {
       pon("prepara", A.prepara, { jugador: r.tirador });
       if (!r.misma) pon("entraPenalti", A.entraPenalti);
       else {
-        pon("transicion", A.transicion);
-        tecnica(0, "tiro");
-        pon("transicion", A.transicion);
-        tecnica(1, "portero", { portero: true });
+        // los dos eligen a la vez: solo la del que gana (O-336)
+        duelo(0, 1, r.final !== "gol", "portero", { portero: true }, false);
         pon("fijar", A.fijar, { paso: 1 });
       }
       if (r.tanda) pon("tandaRotulo", A.tandaRotulo, { gol: r.final === "gol" });
@@ -529,14 +592,13 @@ const REGLAS = {
         pon("negroTiro", A.negroTiro);
       } else if (r.etapa === "muro") {
         pon("bloqueo", A.bloqueo, { jugador: (pasos[n - 1] || {}).quien, paso: n - 1 });
-        pon("transicion", A.transicion);
-        tecnica(n - 1, "muro", { muro: true });
+        // gana el muro si lo para o lo desvia a corner (O-336)
+        duelo(0, n - 1, r.final === "bloqueado" || r.final === "fuera", "muro", { muro: true }, true);
         pon("fijar", A.fijar, { paso: n - 1 });
         if (r.final === "fuera") pon("fueraTiro", A.fueraTiro, { desviado: true });
         pon("vuelta", A.vuelta);
       } else if (r.etapa === "portero") {
-        pon("transicion", A.transicion);
-        tecnica(n - 1, "portero", { portero: true });
+        duelo(0, n - 1, r.final !== "gol", "portero", { portero: true }, true);
         pon("fijar", A.fijar, { paso: n - 1 });
         if (r.final === "gol") { pon("destello", A.destello); pon("gol", A.gol); }
         else pon("vuelta", A.vuelta);
@@ -560,8 +622,8 @@ const REGLAS = {
     pon("vuelo", A.vuelo, { hasta: muro ? "muro" : r.final === "fuera" ? "fuera" : "porteria" });
     if (muro && !muro.encima) {
       pon("bloqueo", A.bloqueo, { jugador: muro.quien, paso: kM });
-      pon("transicion", A.transicion);
-      tecnica(kM, "muro", { muro: true });
+      // (O-336) el tiro que le llega es el de la cadena si la hubo
+      duelo(kC > 0 && kC < kM ? kC : 0, kM, r.final === "bloqueado" || (r.final === "fuera" && hay(r.desvia) && r.desvia === muro.quien), "muro", { muro: true }, true);
       if (r.final === "bloqueado") { pon("fijar", A.fijar, { paso: kM }); pon("vuelta", A.vuelta); return { total: t, tramos }; }
       pon("vuelo", A.vuelo, { hasta: r.final === "fuera" ? "fuera" : "porteria", segundo: true });
     }
@@ -571,8 +633,7 @@ const REGLAS = {
       pon("vuelta", A.vuelta);
       return { total: t, tramos };
     }
-    pon("transicion", A.transicion);
-    tecnica(n - 1, "portero", { portero: true });
+    duelo(kC > 0 ? kC : 0, n - 1, r.final !== "gol", "portero", { portero: true }, true);
     pon("fijar", A.fijar, { paso: n - 1 });
     if (r.final === "gol") { pon("destello", A.destello); pon("gol", A.gol); }
     else pon("vuelta", A.vuelta);
@@ -584,6 +645,55 @@ const REGLAS = {
     const A = this.ANIM[modo];
     if (!A) return 0;
     return que === "banda" || que === "corner" || que === "puerta" ? A.chico : que === "penaltis" ? A.penaltis : 0;
+  },
+
+  // --- la equipacion del equipo en los modelos 3D (O-334) -------------------------------
+  // el diseno de cada equipo (indice en equipacion.disenos y en la ropa de cada jugador): el de
+  // casa; el de fuera, el otro si los dos van con la misma ropa de campo y la suya tiene otro.
+  // O-334, vuelta 2: se mira la ropa (equipacion.campo), no la equipacion: dos distintas pueden
+  // llevar la misma ("Uniforme vendaval" y "Colmillo del Norte") y salian iguales; sin `campo`
+  // (un Pizarra de antes), la misma equipacion
+  disenos(a, b) {
+    const ea = (a && a.equipacion) || {}, eb = (b && b.equipacion) || {};
+    const ca = (ea.campo || [])[0], cb = (eb.campo || [])[0];
+    const iguales = ca && cb ? ca === cb : !!ea.id && ea.id === eb.id;
+    return [0, iguales && (eb.disenos || []).length > 1 ? 1 : 0];
+  },
+  // la ropa (el .glb que convierte el servidor, ievr/g4.py ropa_de) de un jugador con ese
+  // diseno, de portero o de campo: r = su `ropa` de partido.py ({campo, portero}: una por
+  // diseno); "" si lleva lo suyo (o es de un Pizarra de antes, que no la manda)
+  ropaDe(r, k, portero) {
+    const l = r && (portero ? r.portero : r.campo);
+    return (Array.isArray(l) && (l[k] || l[0])) || "";
+  },
+  // el modelo vestido (partido-vestir.js): "<codigo>_cuerpo+<ropa>+<dorsal>[c]" (c: capitan);
+  // sin ropa, el modelo tal cual (con la de su equipo de historia)
+  vestido(cod, ropa, dorsal, capitan) {
+    if (!cod || !ropa) return cod || "";
+    const n = dorsal === null || dorsal === undefined || dorsal === "" || isNaN(+dorsal) ? "" : Math.max(0, Math.min(99, +dorsal | 0));
+    return cod + "_cuerpo+" + ropa + "+" + n + (capitan ? "c" : "");
+  },
+  // los ficheros que convierte el servidor para un modelo (vestido o no)
+  ficheros(cod) {
+    const p = String(cod || "").split("+");
+    return p.length > 1 ? p.slice(0, 2).filter(Boolean) : (cod ? [String(cod)] : []);
+  },
+  // si desde (x, y) se llega a la porteria de la linea gy (O-335, TIRO_RANGO): a menos de
+  // `fuera` m del area grande (la distancia al rectangulo del area: 0 dentro) o, con un tiro
+  // largo a punto (`largo`), a menos de TIRO_RANGO.largo m del centro de la porteria
+  enRangoTiro(x, y, gy, largo) {
+    const R = this.TIRO_RANGO, s = Math.sign(gy) || 1;
+    const dx = Math.max(0, Math.abs(x) - this.AREA_X), dy = Math.max(0, (gy - y) * s - this.AREA_Y);
+    return Math.hypot(dx, dy) <= R.fuera || (!!largo && Math.hypot(x, gy - y) <= R.largo);
+  },
+  // adonde va el tiro que apunta a x (APUNTAR, O-335): {x, fuera}. Sin x (una orden de un
+  // Pizarra de antes), null: el motor lo echa a suertes dentro de la porteria
+  apunteTiro(x) {
+    const A = this.APUNTAR, palo = this.PORTERIA / 2, dentro = palo - A.margen;
+    if (typeof x !== "number" || !isFinite(x)) return null;
+    x = Math.round(Math.max(-A.max, Math.min(A.max, x)) * 10) / 10;
+    if (Math.abs(x) > palo + A.tolera) return { x, fuera: true };
+    return { x: Math.max(-dentro, Math.min(dentro, x)), fuera: false };
   },
 };
 

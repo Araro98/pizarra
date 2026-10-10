@@ -10,6 +10,11 @@
      pistas_<cuerpo>.glb solo pistas de los jugadores ("s00|<hueso>") para ese tipo de cuerpo
      pistas_<k/a>.glb    las del keshin o alma (<ASSIGN>, clave "asignado_s00")
      pistas_modelos.glb  las del balon ("b000001_s00") y los modelos fijos
+     part_<nombre>.png   las texturas de las particulas (escena.json particulas: los emisores
+                         de VR descifrados; las pinta partido-particulasvr.js, O-330)
+     sombreadores.json   los sombreadores de VR de sus efectos traducidos a GLSL: con ellos
+                         cada material de efecto se pinta como en VR, y las caras de los
+                         jugadores cambian como en VR (partido-sombrasvr.js, O-331)
    Cada modelo (el del jugador, el keshin, el balon...) se clona y se le aplican sus pistas sin
    el "<clave>|": la del hueso raiz ("output") ya lleva donde esta el actor en cada fotograma.
    Base: el reproductor probado del conversor (scratchpad animvr/o323/visor), con la cache de
@@ -18,6 +23,8 @@
 import * as THREE from "./partido-three.module.js";
 import { GLTFLoader } from "./partido-GLTFLoader.js";
 import { clone as clonarModelo } from "./partido-SkeletonUtils.js";
+import { ParticulasVR } from "./partido-particulasvr.js";
+import { SombrasVR, CarasVR, cuadroNuevo, ponerCamara } from "./partido-sombrasvr.js";
 
 export const EVENTO_VR = { fps: 60, raiz: "/api/partido/evento/", cuerpo: "c000101", suma: "pantalla" };
 
@@ -86,7 +93,8 @@ export function sumar(m, modo = EVENTO_VR.suma) {
 // contorno y la mascara de profundidad (un poco detras: si no, rayas contra la malla solida)
 function prepararMaterial(m) {
   const u = m.userData || {};
-  if (!u.efecto || u._listo) return;
+  // los de VR ya vienen montados (partido-sombrasvr.js, O-331)
+  if (!u.efecto || u._listo || m.isShaderMaterial) return;
   u._listo = true;
   // (la textura se repite o va en espejo segun su muestreador del glb: los cuartos de mancha,
   // en espejo; ievr/g4evento.es_cuarto)
@@ -110,11 +118,13 @@ const enK = (x, k) => (x ? x[Math.min(k, x.length - 1)] : undefined);
 export class EventoVR {
   // ev: "ev60_00030". modelo(codigo) -> promesa del gltf (la cache de partido-3d: el jugador,
   // el balon, el keshin...; null si no esta). actores: {s00: codigo, s01: codigo...} de los
-  // jugadores; asignado: el keshin o alma que pone el juego (<ASSIGN>), o null
-  static async cargar(ev, { modelo, actores = {}, asignado = null, base = EVENTO_VR.raiz } = {}) {
+  // jugadores; asignado: el keshin o alma que pone el juego (<ASSIGN>), o null; elemento: el
+  // de la tecnica (el color del aura del balon; si no, el que dice escena.json)
+  static async cargar(ev, { modelo, actores = {}, asignado = null, base = EVENTO_VR.raiz, elemento = null } = {}) {
     const url = base + ev + "/";
     const j = await cargarJson(url + "escena.json");
-    const escena = await cargarGltf(url + "escena.glb");
+    // los sombreadores de VR (O-331): si no estan, los materiales como antes
+    const [escena, programas] = await Promise.all([cargarGltf(url + "escena.glb"), SombrasVR.cargar(url)]);
     // las rampas de los materiales de forma y rampa (una por textura, sin repetirse)
     const rampas = new Map(), conR = [];
     escena.scene.traverse(o => { if (o.isMesh) for (const m of [].concat(o.material)) { const r = m.userData && m.userData.rampa; if (r && r.textura !== undefined) conR.push(r); } });
@@ -140,20 +150,38 @@ export class EventoVR {
       else if (a.tipo === "asignado") quiero.add("pistas_" + asignado + ".glb");
       else if (a.tipo === "modelo" || a.tipo === "balon") quiero.add("pistas_modelos.glb");
     }
+    // las que no estan (faltan) y, de esas, las que no tienen ni las del c000101 en su lugar
+    // (sinPistas: ese actor no se moveria): Escenas la vuelve a leer si el servidor aun las
+    // estaba haciendo (O-334, vuelta 2)
+    const faltan = [], sinPistas = [];
     await Promise.all([...quiero].map(async f => {
       try { pistas[f] = await cargarGltf(url + f); }
       catch (e) {
+        faltan.push(f);
         // un tipo de cuerpo sin convertir: las del c000101 (los huesos se llaman igual)
         if (f.startsWith("pistas_c000") && f !== "pistas_c000101.glb") {
           try { pistas[f] = await cargarGltf(url + "pistas_c000101.glb"); } catch (e2) {}
         }
+        if (!pistas[f]) sinPistas.push(f);
       }
     }));
-    return new EventoVR(ev, j, escena, pistas, modelos, cuerpos, asignado);
+    let sombras = null;
+    if (programas) {
+      sombras = new SombrasVR(escena, programas, elemento || j.elemento || "");
+      const conVR = [];
+      escena.scene.traverse(o => { if (o.isMesh) for (const m of [].concat(o.material)) if (m.userData && m.userData.vr) conVR.push(m); });
+      await sombras.texturasDe(conVR);
+    }
+    const e = new EventoVR(ev, j, escena, pistas, modelos, cuerpos, asignado, sombras);
+    e.faltan = faltan.sort(); e.sinPistas = sinPistas.sort();
+    // las particulas (O-330): con el resto, antes de verse; si fallan, el evento sin ellas
+    try { e.particulas = await ParticulasVR.cargar(e, url, { elemento }); } catch (err) { e.particulas = null; }
+    return e;
   }
 
-  constructor(ev, j, escena, pistas, modelos, cuerpos, asignado) {
+  constructor(ev, j, escena, pistas, modelos, cuerpos, asignado, sombras = null) {
     this.ev = ev; this.j = j;
+    this.sombras = sombras;
     this.raiz = new THREE.Group(); this.raiz.name = "evento_" + ev;
     this.escena = escena;
     this.raiz.add(escena.scene);
@@ -170,6 +198,8 @@ export class EventoVR {
       if (o.name && !this.nodos.has(o.name)) this.nodos.set(o.name, o);
       if (!o.isMesh) return;
       o.frustumCulled = false;
+      // con su sombreador de VR (O-331); si no, como antes
+      if (sombras) sombras.montar(o);
       for (const m of [].concat(o.material)) {
         prepararMaterial(m);
         if (m.userData.efecto && !this.todos.includes(m)) this.todos.push(m);
@@ -193,6 +223,18 @@ export class EventoVR {
       nodo.traverse(o => { if (o.isMesh) o.frustumCulled = false; });
       this.raiz.add(nodo);
       this.actores[clave] = { tipo: a.tipo, nodo, mezcla: new THREE.AnimationMixer(nodo), clips };
+      // las caras de VR (O-331): los ojos y la boca de cada fotograma; el numero de cada uno va
+      // desde que empieza el clip del actor en el corte (su primera pista)
+      if (a.tipo === "personaje") {
+        let caras = null;
+        try { caras = ((pistas[f].parser.json.asset.extras || {}).caras || {})[clave]; } catch (e) { caras = null; }
+        if (caras) {
+          const actor = this.actores[clave];
+          actor.caras = new CarasVR(nodo, caras);
+          actor.inicio = {};
+          for (const [nc, cl] of Object.entries(clips)) actor.inicio[nc] = Math.min(...cl.tracks.map(t => t.times[0]));
+        }
+      }
     }
     // las listas por fotograma de escena.json, una vez: [clave, actor, lista] de quien se ve;
     // por corte, [materiales, desde, datos] y [nodos, desde, lista] de los efectos
@@ -213,6 +255,7 @@ export class EventoVR {
       }
     }
     this.corte = null;
+    this.particulas = null;
   }
 
   // donde esta y hacia donde mira el que hace la tecnica (s00) al empezar, en el marco del
@@ -232,6 +275,11 @@ export class EventoVR {
     return this._ancla;
   }
 
+  // el elemento de la tecnica (el color de las particulas del aura del balon): los eventos que
+  // comparten tecnicas de varios elementos (24, las de keshin y alma) lo necesitan; en los demas
+  // ya viene en escena.json (O-330)
+  elemento(el) { if (this.particulas) this.particulas.ponerElemento(el); if (this.sombras) this.sombras.elemento(el); }
+
   // el fotograma g (del evento entero) -> el corte
   cortePara(g) {
     let c = this.cortes[0];
@@ -244,6 +292,7 @@ export class EventoVR {
     const g = Math.max(0, Math.min(Math.round(t * EVENTO_VR.fps), this.fin));
     const c = this.cortePara(g), f = g - c.ini;
     const tl = f / EVENTO_VR.fps;
+    cuadroNuevo();
     if (this.corte !== c.nombre) {
       this.corte = c.nombre;
       this.mezcla.stopAllAction();
@@ -261,6 +310,10 @@ export class EventoVR {
     }
     this.mezcla.setTime(tl);
     for (const a of Object.values(this.actores)) if (a.mezcla && a.clips[c.nombre]) a.mezcla.setTime(tl);
+    // las caras de VR de este fotograma (O-331)
+    for (const a of Object.values(this.actores)) {
+      if (a.caras && a.clips[c.nombre]) a.caras.poner(c.nombre, Math.round((tl - (a.inicio[c.nombre] || 0)) * EVENTO_VR.fps));
+    }
     // quien se ve (VISIBLE del guion, por fotograma del evento entero)
     for (const [a, lista] of this._visible) {
       let v = 1;
@@ -269,6 +322,8 @@ export class EventoVR {
     }
     // materiales de los efectos: opacidad, color y desplazamiento de UV por fotograma
     for (const m of this.todos) {
+      // con su sombreador de VR: sus valores fijos (O-331)
+      if (m.isShaderMaterial) { this.sombras.ponerBase(m); continue; }
       m.opacity = 1; m.visible = !m.userData.oculto; m.transparent = !!m.userData.transparente0;
       if (m.userData.color0) m.color.copy(m.userData.color0);
       if (m.map) m.map.offset.set(0, 0);
@@ -276,6 +331,17 @@ export class EventoVR {
     for (const [ms, desde, d] of this._mat[c.nombre] || []) {
       const k = Math.max(0, f - desde);
       for (const m of ms) {
+        if (m.isShaderMaterial) { this.sombras.aplicar(m, d, k); continue; }
+        // los de antes con lo de O-331 (d: difuso; t: desplazamiento de la textura de su ranura)
+        if (d.d && !d.opacidad) {
+          const o = enK(d.d[3], k);
+          if (o !== undefined && o !== null) { m.opacity = o; m.visible = o > 0.001 && !m.userData.oculto; if (!m.transparent && o < 0.99) m.transparent = true; }
+          if (d.d[0] || d.d[1] || d.d[2]) m.color.setRGB(enK(d.d[0], k) ?? 1, enK(d.d[1], k) ?? 1, enK(d.d[2], k) ?? 1);
+        }
+        if (m.map && d.t && d.t[m.userData.ranura || 0]) {
+          const tt = d.t[m.userData.ranura || 0];
+          m.map.offset.set(-(enK(tt.tu, k) || 0), enK(tt.tv, k) || 0);
+        }
         if (d.opacidad) { const o = enK(d.opacidad, k); m.opacity = o; m.visible = o > 0.001 && !m.userData.oculto; if (!m.transparent && o < 0.99) m.transparent = true; }
         if (d.r || d.g || d.b) m.color.setRGB(enK(d.r, k) ?? 1, enK(d.g, k) ?? 1, enK(d.b, k) ?? 1);
         if (m.map && (d.u || d.v)) m.map.offset.set(enK(d.u, k) || 0, enK(d.v, k) || 0);
@@ -295,6 +361,10 @@ export class EventoVR {
       if (cam && cam.fov) { const fv = cam.fov[Math.min(f, cam.fov.length - 1)]; if (fv > 0 && fv !== this.camara.fov) { this.camara.fov = fv; this.camara.updateProjectionMatrix(); } }
       this.camara.updateMatrixWorld(true);
     }
+    // la proyeccion para los sombreadores de VR (O-331)
+    if (this.sombras) ponerCamara(this.camara);
+    // las particulas de VR, con los huesos del efecto ya en su sitio (O-330)
+    if (this.particulas) this.particulas.poner(Math.max(0, Math.min(t, this.fin / EVENTO_VR.fps)));
     return c.nombre;
   }
 
@@ -311,16 +381,57 @@ export class EventoVR {
           if (tx && !vistas.has(tx)) { vistas.add(tx); render.initTexture(tx); }
         }
       });
+      if (this.particulas) for (const tx of this.particulas.texturas.values()) render.initTexture(tx);
+      if (this.sombras) for (const tx of this.sombras.texturasParaSubir()) render.initTexture(tx);
     } catch (e) { console.warn(e); }
+    // con los sombreadores de VR (O-331), una pasada a 1x1 con todo a la vista: sube a la grafica
+    // sus mallas (las de las particulas falsas, repetidas, son grandes) y no hay tirones cuando
+    // aparecen a mitad de la animacion (medido: cuadros de 40-90 ms sin ella)
+    // (en un pixel de donde pinte ahora, como el calentado del Estudio: en otro destino three
+    // compilaria otros programas)
+    if (this.sombras && render && typeof render.setScissorTest === "function" && typeof render.render === "function") {
+      const ocultos = [], vp = new THREE.Vector4(), ti = new THREE.Vector4(), conTijera = render.getScissorTest(), borrar = render.autoClear;
+      let padre = null;
+      render.getViewport(vp); render.getScissor(ti);
+      try {
+        this.raiz.traverse(o => {
+          if (!o.visible) { ocultos.push(o); o.visible = true; }
+          if (o.isMesh) for (const m of [].concat(o.material)) if (!m.visible) { ocultos.push(m); m.visible = true; }
+        });
+        render.setViewport(vp.x, vp.y, 1, 1); render.setScissor(vp.x, vp.y, 1, 1); render.setScissorTest(true);
+        render.autoClear = false;
+        // dentro de la escena donde se vera (sus luces y su niebla: los mismos programas)
+        padre = this.raiz.parent;
+        if (escena && escena.isScene && padre !== escena) escena.add(this.raiz);
+        render.render(escena && escena.isScene ? escena : this.raiz, this.camara);
+      } catch (e) { console.warn(e); }
+      finally {
+        if (escena && escena.isScene && padre !== escena) { if (padre) padre.add(this.raiz); else this.raiz.removeFromParent(); }
+        render.autoClear = borrar;
+        render.setViewport(vp); render.setScissor(ti); render.setScissorTest(conTijera);
+        for (const o of ocultos) o.visible = false;
+        this.corte = null; this.poner(0);
+      }
+    }
   }
 
   // suelta lo suyo: los clones de los modelos comparten mallas y texturas con la cache (no
   // se tocan); lo de escena.glb y los huesos de los clones, si
   soltar() {
+    if (this.particulas) { this.particulas.soltar(); this.particulas = null; }
     this.mezcla.stopAllAction();
     for (const a of Object.values(this.actores)) {
       if (a.mezcla) a.mezcla.stopAllAction();
       if (a.nodo && a.mezcla) a.nodo.traverse(o => { if (o.isSkinnedMesh && o.skeleton) o.skeleton.dispose(); });
+      if (a.caras) a.caras.soltar();
+    }
+    // los materiales de VR y lo suyo; los del glb que sustituyeron, con sus texturas (O-331)
+    if (this.sombras) {
+      for (const sm of this.sombras.materiales.values()) {
+        const b = sm.userData.base;
+        if (b) { for (const k of ["map", "alphaMap", "emissiveMap"]) if (b[k]) b[k].dispose(); b.dispose(); }
+      }
+      this.sombras.soltar();
     }
     this.raiz.removeFromParent();
     const texturas = new Set();

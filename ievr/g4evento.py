@@ -9,7 +9,11 @@ desde SU juego (son arte del juego: no se reparten nunca), a la carpeta de los m
 
   eventos/<ev>/escena.json          el guion ya masticado: cortes, actores, camara (fov y giro
                                     por fotograma), quien se ve, materiales y mallas de los
-                                    efectos por fotograma, rotulo (ver INTEGRAR en la nota O-323)
+                                    efectos por fotograma, rotulo (ver INTEGRAR en la nota O-323),
+                                    los emisores de particulas descifrados y el elemento (O-330)
+  eventos/<ev>/sombreadores.json    los sombreadores de VR de sus efectos traducidos a GLSL
+                                    (ievr/sombrasvr.py, O-331)
+  eventos/<ev>/part_<nombre>.png    las texturas de esas particulas
   eventos/<ev>/escena.glb           lo que se pone en la escena: los efectos (mallas, texturas y
                                     sus huesos) y la camara de VR; una animacion glTF por corte
   eventos/<ev>/pistas_c000X01.glb   solo pistas: las de los jugadores (s00, s01...) con ese tipo de
@@ -37,20 +41,27 @@ import struct
 
 import numpy as np
 
-from ievr import cfgbin, g4, g4anim
+from ievr import cfgbin, g4, g4anim, sombrasvr
 from ievr import evento as EV
-from ievr.g4 import Glb, crc, leer_g4md, leer_g4pk, leer_g4sk, leer_g4tx, leer_vertices, mat_a_quat
+from ievr.g4 import Glb, crc, leer_g4md, leer_g4pk, leer_g4sk, leer_g4tx, leer_vertices, mat_a_quat, u16
 
 # Sube si cambia lo que sale: los eventos ya convertidos de otra version se rehacen solos
 # (2: los materiales Grd/Threshold con su forma y su rampa, y los cuartos de mancha en espejo,
-# O-323 Fase B)
-VERSION_EVENTO = 2
-VERSION_INDICE = 1
+# O-323 Fase B; 3: las particulas descifradas en escena.json, O-330; 4: los sombreadores de VR
+# con su material entero, sus texturas y UV, sombreadores.json y las animaciones de material
+# por ranura, O-331)
+VERSION_EVENTO = 4
+# las pistas de los jugadores y del keshin/alma (pistas_c000X01.glb, pistas_<k/a>.glb), aparte:
+# son lo que mas tarda y no cambiaron con la 3 (solo escena.json, escena.glb y pistas_modelos)
+VERSION_PISTAS = 2
+VERSION_INDICE = 2          # 2: con los sombreadores del juego (dx11/shader, O-331)
 FPS = 60
 # los materiales de la cara que animan los eventos (G4MA tipo 32: el numero de expresion de
 # los ojos, 1..3, y de la boca, 0..7; la rejilla de su atlas aun no se sabe)
 CARAS = {crc(n): n for n in ("eye_10M", "mouth_10M", "eye_00M", "mouth_00M")}
 MAX_TEX_EFECTO = 512        # lado maximo de las texturas de los efectos
+# las texturas comunes de los efectos (las que un material usa y no trae su efecto, O-331)
+TEX_COMUNES = ("dx11/effect/battle/common/effCmnTex/effCmnTex.g4tx", "dx11/effect/battle/common/effAuraTex/effAuraTex.g4tx")
 MAX_TEX_ROTULO = 1024       # ancho maximo del rotulo (el de VR mide 1728x352)
 IDIOMA_ROTULO = "es"
 
@@ -60,7 +71,7 @@ _CARPETAS = ("data/common/event/", "data/common/event_cfg/evt/", "data/common/ev
              "data/common/effect/event/", "data/common/effect/battle/common/",
              "data/dx11/effect/event/", "data/dx11/effect/battle/common/",
              "data/dx11/menu/220_img/telop_waza/%s/" % IDIOMA_ROTULO,
-             "data/common/chr/", "data/dx11/chr/")
+             "data/common/chr/", "data/dx11/chr/", "data/dx11/shader/")
 
 
 def _hace_falta(ruta):
@@ -205,6 +216,12 @@ class Fuente:
             self._sk[ruta] = (sk, _reposo(sk))
         return self._sk[ruta]
 
+    def sombras(self):
+        """Los sombreadores del juego traducidos (ievr/sombrasvr.py, O-331), una vez."""
+        if not hasattr(self, "_sombras"):
+            self._sombras = sombrasvr.Biblioteca(self.leer, self.hay, getattr(self.juego, "ficheros", ()))
+        return self._sombras
+
 
 def ruta_de_modelo(fuente, codigo):
     """El .g4pkm de un modelo que no es personaje (keshin, alma, modelo de tecnica, balon,
@@ -303,6 +320,81 @@ def es_cuarto(dds):
     return False
 
 
+def material_vr(b, k):
+    """El material k de un G4MD como lo usa su sombreador de VR (O-331), o None:
+    {"crc": del nombre del sombreador, "color": difuso, ambiente y el tercero (12 floats),
+    "params": [u_shaderParamN], "estados": {id: valor}, "ranuras": [{"tex": crc32, "uv": juego
+    de UV, "smp": [escala u, escala v, giro, desplazamiento u, v]}]}.
+    Tabla de materiales (0x64, 16 B): u16 color (0x66, 48 B cada uno), u16 parametros (0x6A,
+    16 B cada uno), u16 estados (0x6C, en palabras de 2 B), u16 texturas (0x68, 6 B: indice en
+    los crc32 de texturas, 3, juego de UV, 0, u16), u16 sombreador (byte alto: indice en los
+    crc32 de 0x78), u16 (byte bajo: n parametros), u16 (byte bajo: n texturas), u16 ranuras
+    (texProj, 0x8A: 5 floats cada una). Los estados son pares (id, valor) hasta que se repite
+    uno: 1 prueba de alfa (2 funcion, 3 referencia/255), 4 prueba de profundidad, 5 escribir
+    profundidad, 6 mezcla (7 operacion, 9 origen, 10 destino), 14 recortar las caras de atras.
+    Sacado de los 56.457 materiales de los efectos de VR (nota O-331)."""
+    try:
+        base = u16(b, 0x0A) * 4
+
+        def tabla(o):
+            return base + u16(b, o) * 4
+        v = struct.unpack_from("<8H", b, tabla(0x64) + k * 16)
+        out = {"crc": "%08x" % struct.unpack_from("<I", b, tabla(0x78) + (v[4] >> 8) * 4)[0],
+               "color": [round(x, 5) for x in struct.unpack_from("<12f", b, tabla(0x66) + v[0] * 48)],
+               "params": [[round(x, 5) for x in struct.unpack_from("<4f", b, tabla(0x6A) + (v[1] + j) * 16)]
+                          for j in range(v[5] & 0xFF)]}
+        est, p, fin = {}, tabla(0x6C) + v[2] * 2, tabla(0x6E)
+        while p + 1 < len(b) and (p < fin or fin <= tabla(0x6C)):
+            ide, val = b[p], b[p + 1]
+            if ide in est or (ide == 0 and val == 0):
+                break
+            est[ide] = val
+            p += 2
+        out["estados"] = {str(i): x for i, x in est.items()}
+        hashes = struct.unpack_from("<%dI" % b[0x27], b, tabla(0x76))
+        out["ranuras"] = []
+        for j in range(v[6] & 0xFF):
+            r = b[tabla(0x68) + (v[3] + j) * 6: tabla(0x68) + (v[3] + j) * 6 + 6]
+            out["ranuras"].append({"tex": hashes[r[0]] if r[0] < len(hashes) else 0, "uv": r[2],
+                                   "smp": [round(x, 5) for x in struct.unpack_from("<5f", b, tabla(0x8A) + (v[7] + j) * 20)]})
+        return out
+    except (struct.error, IndexError):
+        return None
+
+
+def _uvs_y_mas(md, mg, m):
+    """Lo que los sombreadores de VR leen ademas de lo de siempre (O-331): los juegos de UV 1..5
+    (elementos 11..15 con formato de UV), el segundo color (9) y la tangente (3)."""
+    nv, z = m["nv"], m["zancada"]
+    lay = md["layouts"][m["layout"]]
+    crudo = np.frombuffer(mg, np.uint8, nv * z, m["vo"]).reshape(nv, z)
+
+    def campo(off, dtype, n):
+        return crudo[:, off:off + np.dtype(dtype).itemsize * n].copy().view(dtype).reshape(nv, n)
+    out = {}
+    for k in range(1, 6):
+        if 10 + k not in lay:
+            continue
+        off, fmt = lay[10 + k]
+        if fmt in (2, 3):
+            out["uv%d" % k] = campo(off, "<f4", 2).astype(np.float32)
+        elif fmt == 18:
+            out["uv%d" % k] = (campo(off, "<i2", 2) / 32767.0).astype(np.float32)
+        elif fmt == 12:
+            out["uv%d" % k] = (campo(off, "u1", 2) / 255.0).astype(np.float32)
+        elif fmt == 14:
+            out["uv%d" % k] = (campo(off, "<u2", 2) / 65535.0).astype(np.float32)
+    if 9 in lay and lay[9][1] == 12:
+        out["color1"] = (campo(lay[9][0], "u1", 4) / 255.0).astype(np.float32)
+    if 3 in lay and lay[3][1] == 20:
+        t = campo(lay[3][0], "<i2", 4).astype(np.float32) / 32767.0
+        lon = np.linalg.norm(t[:, :3], axis=1, keepdims=True)
+        t[:, :3] = t[:, :3] / np.where(lon < 1e-6, 1, lon)
+        t[:, 3] = np.where(t[:, 3] < 0, -1.0, 1.0)
+        out["tangente"] = t.astype(np.float32)
+    return out
+
+
 def familia_de(material):
     """El sombreador, por el nombre del material sin su numero: 'Effect_T3Threshold_02' ->
     'T3Threshold', 'Effect_T1_low_03' -> 'T1_low'; los de artista 'MA'; los demas su nombre."""
@@ -321,6 +413,8 @@ class Montaje:
         self.anims = {}
         self.obj = {}            # clave -> {sk, reposo, base, raices, ancla, mallas, mats}
         self.ranura = {}         # material de efecto -> ranura de su textura (para el G4TP)
+        self.sombras = None      # la biblioteca de sombreadores de VR (O-331)
+        self.sombreadores = set()
 
     def esqueleto(self, clave, sk, reposo, prefijo=True, ancla=False):
         """Los nodos de los huesos ("<clave>|<hueso>"); con `ancla`, colgados de un nodo vacio
@@ -369,10 +463,45 @@ class Montaje:
             o["skin"] = len(g.j["skins"]) - 1
         return o["skin"]
 
-    def _material_efecto(self, mat, mezcla, por_hash, max_tex):
+    def _textura(self, h, por_hash, max_tex):
+        """El indice de textura glTF de la textura `h` (una vez); los cuartos de mancha, en espejo
+        (O-323 Fase B)."""
         g = self.g
-        # el mismo nombre de material puede ir con otras texturas en otro efecto del evento
-        clave = (mat["nombre"], mezcla, tuple(mat["tex"]))
+        if h not in self.tex:
+            png, alfa = g4.dds_a_png(por_hash[h][1], max_tex)
+            self.tex[h] = (g.imagen_png(png), alfa)
+            try:
+                cuarto = es_cuarto(por_hash[h][1])
+            except (ValueError, OSError, IndexError):
+                cuarto = False
+            if cuarto:
+                if "_espejo" not in self.tex:
+                    g.j["samplers"].append({"magFilter": 9729, "minFilter": 9987, "wrapS": 33648, "wrapT": 33648})
+                    self.tex["_espejo"] = len(g.j["samplers"]) - 1
+                g.j["textures"][self.tex[h][0]]["sampler"] = self.tex["_espejo"]
+        return self.tex[h][0]
+
+    def _vr(self, vr, por_hash, max_tex):
+        """Lo de un material para su sombreador de VR (O-331): el nombre del sombreador y, por
+        ranura, su textura glTF; None si el sombreador no se pudo traducir."""
+        if not vr or not self.sombras:
+            return None
+        nombre = self.sombras.nombre_de_crc(vr["crc"])
+        if not nombre or "error" in self.sombras.programa(nombre):
+            return None
+        self.sombreadores.add(nombre)
+        out = {k: vr[k] for k in ("color", "params", "estados")}
+        out["sombreador"] = nombre
+        out["ranuras"] = [{"textura": self._textura(r["tex"], por_hash, max_tex) if r["tex"] in por_hash else -1,
+                           "uv": r["uv"], "smp": r["smp"]} for r in vr["ranuras"]]
+        return out
+
+    def _material_efecto(self, mat, mezcla, por_hash, max_tex, vr=None):
+        g = self.g
+        vr = self._vr(vr, por_hash, max_tex)
+        # el mismo nombre de material puede ir con otras texturas (u otros parametros) en otro
+        # efecto del evento
+        clave = (mat["nombre"], mezcla, tuple(mat["tex"]), json.dumps(vr, sort_keys=True))
         if clave in self.tex.setdefault("_mats", {}):
             return self.tex["_mats"][clave]
         color = [h for h in mat["tex"] if h in por_hash]
@@ -405,25 +534,14 @@ class Montaje:
                 color = [forma]
         if color and mezcla != "contorno":
             h = color[0]
-            if h not in self.tex:
-                png, alfa = g4.dds_a_png(por_hash[h][1], max_tex)
-                self.tex[h] = (g.imagen_png(png), alfa)
-                # un cuarto de mancha: en espejo (O-323 Fase B)
-                try:
-                    cuarto = es_cuarto(por_hash[h][1])
-                except (ValueError, OSError, IndexError):
-                    cuarto = False
-                if cuarto:
-                    if "_espejo" not in self.tex:
-                        g.j["samplers"].append({"magFilter": 9729, "minFilter": 9987, "wrapS": 33648, "wrapT": 33648})
-                        self.tex["_espejo"] = len(g.j["samplers"]) - 1
-                    g.j["textures"][self.tex[h][0]]["sampler"] = self.tex["_espejo"]
-            gm["pbrMetallicRoughness"]["baseColorTexture"] = {"index": self.tex[h][0]}
+            gm["pbrMetallicRoughness"]["baseColorTexture"] = {"index": self._textura(h, por_hash, max_tex)}
             gm["extras"]["textura"] = por_hash[h][0]
             gm["extras"]["ranura"] = mat["tex"].index(h)
             self.ranura[mat["nombre"]] = mat["tex"].index(h)
         if mezcla == "contorno":
             gm["pbrMetallicRoughness"]["baseColorFactor"] = [0.05, 0.03, 0.02, 1.0]
+        if vr:
+            gm["extras"]["vr"] = vr
         g.j["materials"].append(gm)
         self.tex["_mats"][clave] = len(g.j["materials"]) - 1
         return self.tex["_mats"][clave]
@@ -462,7 +580,11 @@ class Montaje:
                         tri = tri[:, [0, 2, 1]]
                 mat_g4 = md["mats"][m["mat"]]
                 es_efecto = efecto or mat_g4["nombre"].startswith(("Effect_", "MA_"))
-                if es_efecto and "nor" in v and mezcla_de(mat_g4["nombre"], m["nombre"]) == "contorno":
+                vr = material_vr(md_b, m["mat"]) if es_efecto else None
+                nom_vr = self.sombras.nombre_de_crc(vr["crc"]) if vr and self.sombras else None
+                con_vr = bool(nom_vr) and "error" not in self.sombras.programa(nom_vr)
+                # (con el sombreador de VR lo hincha el: SolidToon1, u_shaderParam4.y)
+                if es_efecto and not con_vr and "nor" in v and mezcla_de(mat_g4["nombre"], m["nombre"]) == "contorno":
                     # el contorno es la misma malla: el sombreador del juego la hincha por las
                     # normales; sin eso se pelea con la de delante (rayas en la mano de Mark)
                     diag = float(np.linalg.norm(v["pos"].max(0) - v["pos"].min(0)))
@@ -474,10 +596,23 @@ class Montaje:
                     atrib["TEXCOORD_0"] = g.accesor(v["uv"], "VEC2", 34962)
                 if es_efecto:
                     mezcla = mezcla_de(mat_g4["nombre"], m["nombre"])
-                    # en los solidos el color de vertice no es color (la mano salia roja)
-                    if "color" in v and mezcla in ("suma", "normal"):
+                    # en los solidos el color de vertice no es color (la mano salia roja); los
+                    # sombreadores de VR si lo leen (O-331)
+                    if "color" in v and (mezcla in ("suma", "normal") or con_vr):
                         atrib["COLOR_0"] = g.accesor(v["color"], "VEC4", 34962)
-                    mat = self._material_efecto(mat_g4, mezcla, por_hash, min(max_tex, MAX_TEX_EFECTO))
+                    if con_vr:
+                        mas = _uvs_y_mas(md, mg, m)
+                        ultimo = max([int(x[2:]) for x in mas if x.startswith("uv")] or [0])
+                        for k in range(1, ultimo + 1):
+                            uvk = mas.get("uv%d" % k, v.get("uv"))
+                            if uvk is not None:
+                                atrib["TEXCOORD_%d" % k] = g.accesor(uvk, "VEC2", 34962)
+                        if "color1" in mas:
+                            atrib["COLOR_1"] = g.accesor(mas["color1"], "VEC4", 34962)
+                        if "tangente" in mas:
+                            atrib["TANGENT"] = g.accesor(mas["tangente"], "VEC4", 34962)
+                    mat = self._material_efecto(mat_g4, mezcla, por_hash, min(max_tex, MAX_TEX_EFECTO),
+                                                vr if con_vr else None)
                 else:
                     mat, _nt = g4._material(g, mat_g4, por_hash, self.tex, piel, g4.SOMBRA, True)
                 o["mats"].add(mat_g4["nombre"])
@@ -596,8 +731,61 @@ def _muestras(mt, clip, nombres):
                 continue
             k, v = g4anim.claves_y_valores(mt, c)
             s = g4anim.muestrear(k, v, fot, c["interp"])[:, 0]
-            out.setdefault(nm, {})[c["tipo"]] = [round(float(x), 4) for x in s]
+            # el primero de cada tipo: en G4MA el 16 de la ranura 0 (difuso) va antes que el de
+            # la 1 (ambiente); antes el segundo pisaba al primero (O-331)
+            out.setdefault(nm, {}).setdefault(c["tipo"], [round(float(x), 4) for x in s])
     return out
+
+
+def _muestras_vr(mt, clip, nombres):
+    """{nombre: {(tipo, ranura): [valores por fotograma]}} de un G4MA/G4TP (O-331)."""
+    fot = np.arange(clip["ini"], clip["fin"] + 1, dtype=np.float64)
+    out = {}
+    for inf in mt["infos"][clip["info_ini"]: clip["info_ini"] + clip["info_n"]]:
+        h = mt["objetivos"][inf["obj"]]
+        if h not in nombres:
+            continue
+        for c in mt["canales"][inf["can_ini"]: inf["can_ini"] + inf["can_n"]]:
+            if not c["k_n"]:
+                continue
+            k, v = g4anim.claves_y_valores(mt, c)
+            s = g4anim.muestrear(k, v, fot, c["interp"])[:, 0]
+            out.setdefault(nombres[h], {})[(c["tipo"], c.get("ranura", 0))] = [round(float(x), 4) for x in s]
+    return out
+
+
+def _quieta(lista):
+    """Una lista por fotograma; si no cambia, solo su valor (escena.json ocupa menos)."""
+    return [lista[0]] if lista and all(x == lista[0] for x in lista) else lista
+
+
+def _materiales_vr(ma, tp, clip_nombre, mats, ranuras_tp):
+    """{material: {"d": [x, y, z, w] difuso, "a": ambiente, "p": {N: parametro N}, "t": {N:
+    {"su", "sv", "rot", "tu", "tv"}}}} por fotograma de un clip de un efecto (O-331): G4MA
+    16..19 de la ranura 0 (difuso) y 1 (ambiente), 32..35 del parametro N (la ranura); G4TP
+    1/2 escala, 8 giro y 10/11 desplazamiento de la textura N. Lo que no se anima va a null."""
+    out = {}
+    if ma:
+        c2 = next((c for c in ma["clips"] if c["nombre"] == clip_nombre), None)
+        if c2:
+            for nm, canales in _muestras_vr(ma, c2, mats).items():
+                d = out.setdefault(nm, {})
+                for (tipo, ranura), lista in canales.items():
+                    if 16 <= tipo <= 19 and ranura in (0, 1):
+                        d.setdefault("d" if ranura == 0 else "a", [None] * 4)[tipo - 16] = _quieta(lista)
+                    elif 32 <= tipo <= 35:
+                        d.setdefault("p", {}).setdefault(str(ranura), [None] * 4)[tipo - 32] = _quieta(lista)
+    if tp:
+        c2 = next((c for c in tp["clips"] if c["nombre"] == clip_nombre), None)
+        if c2:
+            for nm, canales in _muestras_vr(tp, c2, ranuras_tp).items():
+                mat, _, n = nm.partition("#tex")
+                t = out.setdefault(mat, {}).setdefault("t", {}).setdefault(n, {})
+                for (tipo, _r), lista in canales.items():
+                    clave = {1: "su", 2: "sv", 8: "rot", 10: "tu", 11: "tv"}.get(tipo)
+                    if clave:
+                        t[clave] = _quieta(lista)
+    return {k: v for k, v in out.items() if v}
 
 
 def _materiales_limpios(crudo, ranura, de_tp=False):
@@ -826,7 +1014,7 @@ def convertir(nombre, destino, fuente, tipos=("01",), asignados=(), informe=None
     for tipo in tipos:
         cuerpo = EV.cuerpo(tipo)
         ruta = os.path.join(carpeta, "pistas_%s.glb" % cuerpo)
-        if not personajes or _al_dia_glb(ruta):
+        if not personajes or _al_dia_glb(ruta, VERSION_PISTAS):
             continue
         mj = Montaje()
         caras, por_actor = {}, {}
@@ -837,7 +1025,7 @@ def convertir(nombre, destino, fuente, tipos=("01",), asignados=(), informe=None
         if not any(por_actor.values()):
             informe("  %s: sin animaciones para el tipo de cuerpo %s" % (nombre, cuerpo))
             continue
-        mj.guardar(ruta, {"version": VERSION_EVENTO, "evento": nombre, "cuerpo": cuerpo,
+        mj.guardar(ruta, {"version": VERSION_PISTAS, "evento": nombre, "cuerpo": cuerpo,
                           "actores": por_actor, "caras": caras}, orden_cortes)
         informe("  %s -> pistas_%s.glb (%.2f MB)" % (nombre, cuerpo, os.path.getsize(ruta) / 1e6))
 
@@ -845,7 +1033,7 @@ def convertir(nombre, destino, fuente, tipos=("01",), asignados=(), informe=None
     asignables = [a for a in actores if EV.tipo_de_actor(a) == "asignado"]
     for asg in asignados if asignables else ():
         ruta = os.path.join(carpeta, "pistas_%s.glb" % asg)
-        if _al_dia_glb(ruta):
+        if _al_dia_glb(ruta, VERSION_PISTAS):
             continue
         sk_ruta = ruta_de_modelo(fuente, asg)
         if not sk_ruta:
@@ -855,7 +1043,7 @@ def convertir(nombre, destino, fuente, tipos=("01",), asignados=(), informe=None
         por_actor = {}
         for a in asignables:
             por_actor[EV.clave(a)] = pistas_actor(mj, a, EV.clave(a), EV.rellenar(a, asignado=asg), sk_ruta)
-        mj.guardar(ruta, {"version": VERSION_EVENTO, "evento": nombre, "asignado": asg, "actores": por_actor},
+        mj.guardar(ruta, {"version": VERSION_PISTAS, "evento": nombre, "asignado": asg, "actores": por_actor},
                    orden_cortes)
         informe("  %s -> pistas_%s.glb (%.2f MB)" % (nombre, asg, os.path.getsize(ruta) / 1e6))
 
@@ -894,8 +1082,9 @@ def convertir(nombre, destino, fuente, tipos=("01",), asignados=(), informe=None
 
 
 def _escena(nombre, ev, fuente, puntos, carpeta, actores, info_actores, informe):
-    """escena.glb (camara y efectos) y lo de escena.json."""
+    """escena.glb (camara y efectos), sombreadores.json y lo de escena.json."""
     mj = Montaje()
+    mj.sombras = fuente.sombras()
     cortes = ev["cortes"]
     out = {"version": VERSION_EVENTO, "evento": nombre, "fps": FPS,
            "cortes": [{"nombre": c[0], "ini": c[1], "fin": c[2]} for c in cortes],
@@ -903,7 +1092,9 @@ def _escena(nombre, ev, fuente, puntos, carpeta, actores, info_actores, informe)
            "rotulo_png": EV.nombre_del_rotulo(ev["rotulo"]) if "<" not in (ev["rotulo"] or "") else "",
            "visible": {}, "camara": {}, "efectos": {}, "materiales": {}, "mallas": {},
            "auras": [[fr, EV.clave(a), n] for fr, a, n in ev["auras"]], "particulas": {},
-           "efectos_comunes": sorted(set(ev["efectos_comunes"]))}
+           "efectos_comunes": sorted(set(ev["efectos_comunes"])),
+           # el elemento de la tecnica: el color de las particulas del aura del balon (O-330)
+           "elemento": elemento_de_evento(nombre)}
     if ev["camara"] and fuente.hay(ev["camara"]):
         out["camara"] = _camara(fuente, ev["camara"], mj)
     else:
@@ -932,6 +1123,11 @@ def _escena(nombre, ev, fuente, puntos, carpeta, actores, info_actores, informe)
             info_actores.pop(cl, None)
     mj.guardar(os.path.join(carpeta, "escena.glb"), {"version": VERSION_EVENTO, "evento": nombre},
                [c[0] for c in cortes])
+    # los sombreadores de VR de sus materiales, traducidos (O-331); la pagina los busca por el
+    # nombre que lleva cada material (extras.vr.sombreador)
+    _escribir_json(os.path.join(carpeta, "sombreadores.json"),
+                   {"version": sombrasvr.VERSION, "programas": {n: mj.sombras.programa(n) for n in sorted(mj.sombreadores)}})
+    out["sombreadores"] = sorted(mj.sombreadores)
     return out
 
 
@@ -943,7 +1139,10 @@ def _efecto(mj, cl, actor, pk, ptlb, ev, fuente, puntos, out, info_actores, info
     o = mj.esqueleto(cl, sk, reposo, ancla=True)
     if "G4MD" in p and fuente.hay(base + ".g4mg"):
         tex = _textura_de(base)
-        texs = [fuente.leer(tex)] if fuente.hay(tex) else []
+        # las texturas comunes de los efectos van primero: las del efecto, si se llaman igual,
+        # mandan (O-331: la rampa de elementos del aura del balon, BallAura0010, esta en effCmnTex)
+        texs = [fuente.leer(r) for r in TEX_COMUNES if fuente.hay(r)]
+        texs += [fuente.leer(tex)] if fuente.hay(tex) else []
         mj.mallas(cl, [(os.path.basename(base), p["G4MD"], fuente.leer(base + ".g4mg"))], texs, efecto=True,
                   informe=informe)
     mats = {crc(m): m for m in o["mats"]}
@@ -974,17 +1173,11 @@ def _efecto(mj, cl, actor, pk, ptlb, ev, fuente, puntos, out, info_actores, info
         ancla = puntos.ancla(actor, corte, t * FPS, None)
         mj.pistas(cl, corte_nombre, t, locales, ancla)
         info["clips"][corte_nombre] = {"clip": clip_nombre, "desde": desde, "fotogramas": nf}
-        crudo = {}
-        for banco, nombres in ((ma, mats), (tp, ranuras)):
-            if banco:
-                c2 = next((c for c in banco["clips"] if c["nombre"] == clip_nombre), None)
-                if c2:
-                    crudo[banco is tp] = _muestras(banco, c2, nombres)
-        limpio = _materiales_limpios(crudo.get(False, {}), mj.ranura)
-        for k, v in _materiales_limpios(crudo.get(True, {}), mj.ranura, de_tp=True).items():
-            limpio.setdefault(k, {}).update(v)
-        if limpio:
-            out["materiales"].setdefault(corte_nombre, {})[cl] = limpio
+        # opacidad, colores, parametros y UV de cada material por fotograma (O-331: por ranura;
+        # la pagina saca de ahi tambien lo de antes)
+        anim = _materiales_vr(ma, tp, clip_nombre, mats, ranuras)
+        if anim:
+            out["materiales"].setdefault(corte_nombre, {})[cl] = anim
         if vs:
             c2 = next((c for c in vs["clips"] if c["nombre"] == clip_nombre), None)
             if c2:
@@ -1005,16 +1198,202 @@ def _efecto(mj, cl, actor, pk, ptlb, ev, fuente, puntos, out, info_actores, info
             informe("  particulas de %s: no se pudo (%s)" % (actor, e))
 
 
+# --------------------------------------------------------------------------- particulas (O-330)
+# Los emisores de particulas de VR (.ptlb, T2B): un bloque PARTICLE_INFO_BGN..END por emisor.
+# Lo que dice cada numero salio de comparar los 1.642 emisores de los 582 .ptlb del juego (los
+# tiempos van de 0 a 1 de la vida; las curvas son [n, valores, tiempos] y las de tres ejes van
+# como x(n), y(n), z(n)) y de mirarlo al lado de los videos de VR (nota O-330). Lo que aun no se
+# sabe va en "sin_saber" tal cual.
+ELEMENTOS_AURA = ("Montana", "Viento", "Fuego", "Bosque", "")   # columnas de BallAura0010
+_RAMPAS_AURA = {}
+
+
+def _n(v, i, defecto=0.0):
+    """El numero v[i] (o `defecto` si no esta o no es numero)."""
+    try:
+        x = v[i]
+    except (IndexError, TypeError):
+        return defecto
+    return x if isinstance(x, (int, float)) and not isinstance(x, bool) else defecto
+
+
+def _cuantas(v, i, tope=64):
+    return max(0, min(int(_n(v, i, 0)), tope))
+
+
+def _curva_simple(v, i, invertir=False):
+    """[[t, valor]...] de una curva [n, valores(n), tiempos(n)] que empieza en v[i]."""
+    n = _cuantas(v, i)
+    out = [[round(_n(v, i + 1 + n + k), 5), round(1 - _n(v, i + 1 + k, 1) if invertir else _n(v, i + 1 + k, 1), 5)]
+           for k in range(n)]
+    return sorted(out, key=lambda x: x[0])
+
+
+def _tres(v, p, n, k, defecto=1.0):
+    """La clave k de una curva de tres ejes guardada como x(n), y(n), z(n) desde v[p]."""
+    return [round(_n(v, p + k, defecto), 5), round(_n(v, p + n + k, defecto), 5), round(_n(v, p + 2 * n + k, defecto), 5)]
+
+
+def emisor_vr(e):
+    """Un emisor de VR ({bloque: [numeros]} de un PARTICLE_INFO) con su significado, para la
+    pagina (web/partido-particulasvr.js). Los tiempos en segundos; los angulos en grados."""
+    E = e.get("EMITTER_INFO") or []
+    L = e.get("LIFE_TIME_INFO") or []
+    C = e.get("COLOR_INFO") or []
+    S = e.get("SPEED_INFO") or []
+    X = e.get("SCALE_INFO") or []
+    R = e.get("ROTATION_INFO") or []
+    F = e.get("FORCE_FIELD_INFO") or []
+    M = e.get("MODEL_INFO") or []
+    SH = e.get("SHAPE_INFO") or []
+    MAT = e.get("MATERIAL_INFO") or []
+    MO = e.get("MOTION_INFO") or []
+    # MOTION_INFO [n, clips del efecto en que sale (n), m, (clip, segundos) x m]: los m son
+    # los clips en que se borran las que queden, a esos segundos de empezar
+    n = _cuantas(MO, 0)
+    clips = [x for x in MO[1:1 + n] if isinstance(x, str)]
+    m = _cuantas(MO, 1 + n)
+    parar = []
+    for k in range(m):
+        c = MO[2 + n + 2 * k] if 2 + n + 2 * k < len(MO) else None
+        if isinstance(c, str):
+            parar.append([c, round(_n(MO, 3 + n + 2 * k), 5)])
+    # LIFE_TIME_INFO [al azar, min, max, ?]: la vida de cada una (con el 0, siempre la min)
+    vida = sorted([_n(L, 1, 0.5), _n(L, 2, 0.5)]) if _n(L, 0) else [_n(L, 1, 0.5)] * 2
+    # COLOR_INFO [na, transparencia(na) (la curva va al reves: 0 = se ve entera), tiempos(na),
+    # nc, rgb(3 nc), tiempos(nc), al azar, transparencia 2 (na), al azar, rgb 2 (3 nc)]: con el
+    # azar, cada una sale entre la curva y la 2. Los colores pasan de 1 (brillan)
+    na = _cuantas(C, 0)
+    p = 1 + 2 * na
+    nc = _cuantas(C, p)
+    q = p + 1 + 4 * nc
+    alfa = sorted([[round(_n(C, 1 + na + k), 5), round(1 - _n(C, 1 + k), 5), round(1 - _n(C, q + 1 + k), 5)]
+                   for k in range(na)], key=lambda x: x[0])
+    rgb = sorted([[round(_n(C, p + 1 + 3 * nc + k), 5)] + _tres(C, p + 1, nc, k) + _tres(C, q + 2 + na, nc, k)
+                  for k in range(nc)], key=lambda x: x[0])
+    # SPEED_INFO [al azar, min, max, n, multiplicador(n), tiempos(n)] (m/s; el multiplicador
+    # con la vida: casi todas frenan)
+    vel = [_n(S, 1), _n(S, 2)] if _n(S, 0) else [_n(S, 1)] * 2
+    # SCALE_INFO [al azar, min xyz, max xyz, azar entre curvas, el mismo azar en los tres
+    # ejes, curva por eje (si no, la x para todo), n, x(n), y(n), z(n), tiempos(n), x2, y2, z2]
+    ne = _cuantas(X, 10)
+    te = [_n(X, 11 + 3 * ne + k) for k in range(ne)]
+    escala = sorted([[round(te[k], 5)] + _tres(X, 11, ne, k) + _tres(X, 11 + 4 * ne, ne, k) for k in range(ne)],
+                    key=lambda x: x[0])
+    esc_min = [_n(X, 1, 1), _n(X, 2, 1), _n(X, 3, 1)]
+    esc_max = [_n(X, 4, 1), _n(X, 5, 1), _n(X, 6, 1)] if _n(X, 0) else esc_min
+    out = {
+        "clips": clips, "parar": parar,
+        # EMITTER_INFO [segundos que emite, en bucle, retraso, ?, ?, ?, cuantas a la vez como
+        # mucho, por metro (en vez de por segundo: las estelas), ritmo, ?, curva del ritmo]
+        "dur": _n(E, 0, 0.1), "bucle": int(_n(E, 1)), "retraso": _n(E, 2), "max": _n(E, 6, 20),
+        "por_metro": int(_n(E, 7)), "ritmo": _n(E, 8, 10), "ritmo_curva": _curva_simple(E, 10),
+        "vida": [round(x, 5) for x in vida],
+        # SHAPE_INFO [0 bola, 1 aro, 2 cono; radio (m), apertura del cono (grados), escala xyz,
+        # ?, ?]: salen de esa forma en el hueso (con su escala), hacia fuera / por el eje +Y
+        "forma": {"tipo": int(_n(SH, 0)), "radio": _n(SH, 1), "angulo": _n(SH, 2, 30),
+                  "escala": [_n(SH, 3, 1), _n(SH, 4, 1), _n(SH, 5, 1)]},
+        "vel": [round(x, 5) for x in vel], "vel_curva": _curva_simple(S, 3),
+        # FORCE_FIELD_INFO [gravedad (m/s2; las negativas suben: humo, llamitas), ...]
+        "gravedad": _n(F, 0),
+        # MODEL_INFO [?, ancho, alto (m), 1 mira a la camara / 2 a lo largo de su velocidad
+        # (chispas, rayas) / 0 plana, ..., estirar con la velocidad]
+        "tam": [_n(M, 1, 0.1), _n(M, 2, 0.1)], "orienta": int(_n(M, 3, 1)), "estira": int(_n(M, 10)),
+        "esc_min": esc_min, "esc_max": esc_max, "esc_curvas_azar": int(_n(X, 7)),
+        "esc_mismo_azar": int(_n(X, 8, 1)), "esc_por_eje": int(_n(X, 9)), "escala": escala,
+        # [t, a, a2] y [t, r, g, b, r2, g2, b2]
+        "alfa": alfa, "alfa_azar": int(_n(C, q)), "rgb": rgb, "rgb_azar": int(_n(C, q + 1 + na)),
+        # ROTATION_INFO [al azar, giro inicial xyz, cuanto al azar xyz, gira, velocidad min xyz,
+        # max xyz (grados/s), ?, ?]: solo cuenta el de la pantalla (z)
+        "giro": [_n(R, 3), _n(R, 6) if _n(R, 0) else 0],
+        "giro_vel": [_n(R, 10), _n(R, 13)] if _n(R, 7) else [0, 0],
+        # MATERIAL_INFO [9]: 2 suma luz (casi todas), 3 mezcla normal
+        "mezcla": "normal" if _n(MAT, 9) == 3 else "suma",
+        "sombreador": MAT[11] if len(MAT) > 11 and isinstance(MAT[11], str) else "",
+        "sin_saber": {"emisor": [_n(E, 3), _n(E, 4), _n(E, 5), _n(E, 9)], "fuerza": list(F[1:]),
+                      "forma": list(SH[6:8]), "material": [_n(MAT, 6), _n(MAT, 8), _n(MAT, 10)]},
+    }
+    return out
+
+
+def _uv_vr(U):
+    """UV_INFO de una textura: [modo (0 entera, 1 una casilla al azar, 2 animada con la vida),
+    columnas, filas, vueltas en la vida, fila al azar]."""
+    modo = int(_n(U, 10))
+    return [modo, max(1, int(_n(U, 11, 1))) if modo else 1, max(1, int(_n(U, 12, 1))) if modo else 1,
+            _n(U, 13, 1) or 1, int(_n(U, 14))]
+
+
+def rampas_aura(fuente):
+    """Los colores del aura del balon (BallAura0010 de effCmnTex: una columna por elemento, de
+    blanco arriba al color abajo), 8 por elemento, 0..1."""
+    if _RAMPAS_AURA:
+        return _RAMPAS_AURA
+    r = "dx11/effect/battle/common/effCmnTex/effCmnTex.g4tx"
+    try:
+        dds = dict(leer_g4tx(fuente.leer(r))).get("BallAura0010") if fuente.hay(r) else None
+        im = g4.dds_a_imagen(dds).convert("RGB") if dds else None
+    except (OSError, ValueError, KeyError, struct.error):
+        im = None
+    if im is None:
+        return {}
+    for x, elem in enumerate(ELEMENTOS_AURA):
+        _RAMPAS_AURA[elem] = [[round(c / 255, 3) for c in im.getpixel((min(x, im.width - 1), round(k * (im.height - 1) / 7)))]
+                              for k in range(8)]
+    return _RAMPAS_AURA
+
+
+_ELEMENTOS_EV = {}
+
+
+def elemento_de_evento(nombre):
+    """El elemento de la supertecnica de ese evento (Fuego, Viento, Bosque, Montana) por
+    eventos-tecnicas.csv y tecnicas.csv, o "" (invocaciones, sin elemento, sin tablas)."""
+    if not _ELEMENTOS_EV:
+        try:
+            from ievr import reglas
+            elem = {f["nombre_interno"]: f.get("elemento") or "" for f in reglas._tabla("tecnicas.csv")}
+            for f in reglas._tabla("eventos-tecnicas.csv"):
+                for ev in (f.get("evento"), f.get("evento_fallo")):
+                    if ev and elem.get(f["interno"]) and not _ELEMENTOS_EV.get(ev):
+                        _ELEMENTOS_EV[ev] = elem[f["interno"]]
+        except (OSError, KeyError, ValueError):
+            pass
+        _ELEMENTOS_EV.setdefault("", "")
+    return _ELEMENTOS_EV.get(nombre, "")
+
+
+def _png_particula(fuente, archivo, nombre_tex, base_efecto, carpeta, texturas):
+    """(part_<nombre>.png, tiene alfa) de una textura de particula, o ("", False): la del
+    efecto o, con "#/", otra de dx11/."""
+    if not isinstance(nombre_tex, str) or not nombre_tex:
+        return "", False
+    g4tx = "dx11/" + archivo[2:] if isinstance(archivo, str) and archivo.startswith("#/") else _textura_de(base_efecto)
+    png = "part_%s.png" % re.sub(r"[^A-Za-z0-9_]", "_", nombre_tex)[:50]
+    ruta = os.path.join(carpeta, png)
+    clave = (g4tx, nombre_tex)
+    if clave in texturas:
+        return texturas[clave]
+    if g4tx not in texturas:
+        texturas[g4tx] = dict(leer_g4tx(fuente.leer(g4tx))) if fuente.hay(g4tx) else {}
+    dds = texturas[g4tx].get(nombre_tex)
+    if dds is None:
+        texturas[clave] = ("", False)
+        return texturas[clave]
+    datos, alfa = g4.dds_a_png(dds, 256)
+    with open(ruta, "wb") as fh:
+        fh.write(datos)
+    texturas[clave] = (png, bool(alfa))
+    return texturas[clave]
+
+
 def _particulas(fuente, ptlb, base_efecto, carpeta):
-    """Los emisores de particulas (.ptlb, T2B) de un efecto, en crudo para la pagina: el
-    sistema de particulas lo hara la pagina (Fase B del plan de animvr) y el significado de
-    cada numero aun no esta entendido del todo. Por emisor: el hueso del efecto donde nace
+    """Los emisores de particulas (.ptlb) de un efecto, descifrados (emisor_vr) para la pagina
+    (web/partido-particulasvr.js, O-330). Por emisor ademas: el hueso del efecto donde nacen
     (PARTICLE_NODE_INFO, uno por emisor y en el mismo orden; en escena.glb "<efecto>|<hueso>"),
-    el corte en que sale (MOTION_INFO), su textura (MATERIAL_INFO: la del efecto o, con "#/",
-    otra de dx11/; se pasa a part_<nombre>.png en la carpeta del evento), su sombreador y
-    todos los bloques tal cual (EMITTER_INFO ritmo y tiempos, SHAPE_INFO, LIFE_TIME_INFO,
-    COLOR_INFO, SPEED_INFO, SCALE_INFO, ROTATION_INFO, UV_INFO (hoja de fotogramas),
-    FORCE_FIELD_INFO, WIND_INFO, MODEL_INFO...)."""
+    su textura (part_<nombre>.png en la carpeta del evento) con su hoja de fotogramas (UV_INFO)
+    y, en las del aura del balon (Effect_BallAura1), los colores de cada elemento: alli la
+    primera textura es esa rampa y la forma es la segunda."""
     entradas = cfgbin.leer(fuente.leer(ptlb))
     nodos = [v[0] for n, v in entradas if n == "PARTICLE_NODE_INFO" and v]
     emisores, actual = [], None
@@ -1033,26 +1412,18 @@ def _particulas(fuente, ptlb, base_efecto, carpeta):
     texturas = {}
     out = []
     for i, e in enumerate(emisores):
+        d = emisor_vr(e)
         mat = e.get("MATERIAL_INFO") or []
-        png = ""
-        if len(mat) > 1 and isinstance(mat[1], str) and mat[1]:
-            g4tx = "dx11/" + mat[0][2:] if isinstance(mat[0], str) and mat[0].startswith("#/") else _textura_de(base_efecto)
-            nombre = re.sub(r"[^A-Za-z0-9_]", "_", mat[1])[:50]
-            png = "part_%s.png" % nombre
-            ruta = os.path.join(carpeta, png)
-            if not os.path.isfile(ruta):
-                if g4tx not in texturas:
-                    texturas[g4tx] = dict(leer_g4tx(fuente.leer(g4tx))) if fuente.hay(g4tx) else {}
-                dds = texturas[g4tx].get(mat[1])
-                if dds is None:
-                    png = ""
-                else:
-                    datos, _alfa = g4.dds_a_png(dds, 256)
-                    with open(ruta, "wb") as fh:
-                        fh.write(datos)
-        out.append({"nodo": _nombre(nodos[i]) if i < len(nodos) else "",
-                    "corte": (e.get("MOTION_INFO") or [None, ""])[1] or "",
-                    "textura": png, "sombreador": mat[11] if len(mat) > 11 else "", "crudo": e})
+        uvs = e.get("UV_INFO") or [[]]
+        cual = 1 if d["sombreador"] == "Effect_BallAura1" and len(mat) > 3 and mat[3] else 0
+        png, alfa = _png_particula(fuente, mat[2 * cual] if len(mat) > 2 * cual else 0,
+                                   mat[2 * cual + 1] if len(mat) > 2 * cual + 1 else "", base_efecto, carpeta, texturas)
+        d.update({"nodo": _nombre(nodos[i]) if i < len(nodos) else "",
+                  "corte": d["clips"][0] if d["clips"] else "",
+                  "textura": png, "textura_alfa": int(alfa), "uv": _uv_vr(uvs[min(cual, len(uvs) - 1)])})
+        if cual:
+            d["rampas"] = rampas_aura(fuente)
+        out.append(d)
     return out
 
 
@@ -1063,8 +1434,8 @@ def _escribir_json(ruta, d):
     os.replace(tmp, ruta)
 
 
-def _al_dia_glb(ruta):
-    return os.path.isfile(ruta) and g4.version_de(ruta) == VERSION_EVENTO
+def _al_dia_glb(ruta, version=VERSION_EVENTO):
+    return os.path.isfile(ruta) and g4.version_de(ruta) == version
 
 
 def _al_dia_json(ruta):
@@ -1088,11 +1459,11 @@ def al_dia(destino, nombre, tipos=(), asignados=()):
     tipos_act = {i["tipo"] for i in (d.get("actores") or {}).values()}
     if "personaje" in tipos_act:
         for t in tipos:
-            if not _al_dia_glb(os.path.join(carpeta, "pistas_%s.glb" % EV.cuerpo(t))):
+            if not _al_dia_glb(os.path.join(carpeta, "pistas_%s.glb" % EV.cuerpo(t)), VERSION_PISTAS):
                 return False
     if "asignado" in tipos_act:
         for a in asignados:
-            if not _al_dia_glb(os.path.join(carpeta, "pistas_%s.glb" % a)):
+            if not _al_dia_glb(os.path.join(carpeta, "pistas_%s.glb" % a), VERSION_PISTAS):
                 return False
     return True
 
@@ -1257,7 +1628,8 @@ def pedidos_de(jugadores):
             tipos = (tipos & hay) or {sorted(hay)[0]}
             asg = [asignado] if f.get("asignado") and asignado else []
             pedir(f["evento"], tipos, asg)
-            pedir(f["evento_fallo"], tipos, asg)
+            # el de fallo (el gol de la parada, el muro que no para) ya no sale: el que pierde no
+            # ensena su tecnica (O-336); no se convierte
             for m in (f.get("modelos") or "").split():
                 poner(codigos, m)
             poner(rotulos, f.get("rotulo"))

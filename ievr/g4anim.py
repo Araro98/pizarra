@@ -22,6 +22,9 @@ info-objetivo, u16 n info, u8 flags (bit 0 = aditiva), u8 fps, u8 inicio info (b
 Canal (20 B): tipo (1..3 escala, 9 rotacion xyzw, 10..12 traslacion), codec (1 sin cuantizar,
 2 sin signo, 3 con signo), interpolacion, bytes por componente, n componentes, bytes por clave,
 indice de escala, ranura, u32 primera clave, u32 offset de datos, u32 n claves.
+En G4MA la ranura dice que vector del material anima el tipo (16..19 = x, y, z, w de la ranura
+0 color difuso o 1 ambiente; 32..35 = x, y, z, w del parametro N del sombreador: la cara de los
+ojos y la boca es la 4); en G4TP los tipos 1/2 escala, 8 giro y 10/11 desplazamiento (O-331).
 """
 import struct
 
@@ -82,10 +85,10 @@ def leer_g4mt(b):
     n_can = max((x["can_ini"] + x["can_n"] for x in infos), default=0)
     canales = []
     for i in range(n_can):
-        tipo, codec, interp, var, ncomp, bpk, esc, _x7, k_ini, dat, k_n = struct.unpack_from(
+        tipo, codec, interp, var, ncomp, bpk, esc, ranura, k_ini, dat, k_n = struct.unpack_from(
             "<8B3I", b, o_can + i * 20)
         canales.append({"tipo": tipo, "codec": codec, "interp": interp, "var": var, "ncomp": ncomp,
-                        "bpk": bpk, "esc": esc, "k_ini": k_ini, "dat": dat, "k_n": k_n})
+                        "bpk": bpk, "esc": esc, "ranura": ranura, "k_ini": k_ini, "dat": dat, "k_n": k_n})
     return {"magia": mag.decode(), "b": b, "clips": clips, "infos": infos, "canales": canales,
             "escalas": escalas, "objetivos": h_obj, "o_claves": o_claves, "o_datos": o_datos}
 

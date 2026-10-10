@@ -21,6 +21,17 @@ una y DESPUES de los modelos de los jugadores: los eventos de las supertecnicas 
 espiritus (`preparar_eventos` / `preparar_partido`) a `datos/modelos3d/eventos/<ev>/`, y los
 modelos que no son personajes (keshin kNNNNNN, almas aNNNNNN, el balon, los de las
 tecnicas, el aura del keshin ega_kNNNNNNa) como un codigo mas de `preparar`.
+
+La equipacion del equipo (O-334): los que juegan con la ropa del equipo se piden como dos
+codigos mas, su cuerpo sin ropa (`c03030080_cuerpo`) y la ropa que llevan
+(`ropa_<ropa>_<cuerpo>_<botas>_<guantes>`, una por diseno, papel y cuerpo, compartida por
+todos los que la llevan); los dos los hace ievr/g4.py convertir y la pagina los junta.
+
+La precarga del partido (O-329): la pagina lo pide todo en cuanto se saben los dos equipos y
+espera a que este antes del primer saque. Por eso lo ultimo pedido va delante (tambien los
+eventos), lo que ya esta al dia no se vuelve a mirar leyendo su escena.json y el hilo espera
+un rato (ESPERA_HILO) con el juego y sus indices abiertos antes de soltarlos: al elegir equipos
+y al empezar se pide seguido y no se vuelve a leer el indice cada vez.
 """
 import os
 import re
@@ -41,6 +52,12 @@ _ev_pendientes = []    # nombres de evento por orden
 _ev_errores = {}
 _ev_actual = None
 _rotulos = []          # rotulos de VR por hacer (telop_waza)
+# O-329: lo que ya se ha visto al dia en esta sesion {evento: (fecha de su escena.json, tipos,
+# asignados)}, para no leer cada escena.json (hasta 800 KB) cada vez que la pagina pide el
+# partido; y el aviso al hilo que espera trabajo
+_ev_listos = {}
+_hay_trabajo = threading.Event()
+ESPERA_HILO = 90       # s que el hilo espera mas trabajo antes de soltar el juego y sus indices
 
 
 def carpeta():
@@ -53,8 +70,10 @@ def ruta_glb(codigo):
 
 
 def codigo_valido(codigo):
-    """Solo codigos de modelo (c03030080, c01000010_5000...): van a parar a un nombre de fichero."""
-    return isinstance(codigo, str) and re.fullmatch(r"[A-Za-z0-9_]{1,40}", codigo) is not None
+    """Solo codigos de modelo (c03030080, c01000010_5000...): van a parar a un nombre de fichero.
+    Las ropas de equipo y los cuerpos sin ropa (ropa_u051851_10_lsa_0_950799d1_bb42b843,
+    c01000010_cuerpo; O-334) llegan a 45 letras."""
+    return isinstance(codigo, str) and re.fullmatch(r"[A-Za-z0-9_]{1,64}", codigo) is not None
 
 
 def evento_valido(nombre):
@@ -100,24 +119,50 @@ def _sin_juego():
 
 
 def _arrancar():
-    """Arranca el hilo si hay trabajo y no esta ya (con el cerrojo cogido)."""
+    """Arranca el hilo si hay trabajo y no esta ya (con el cerrojo cogido); si esta esperando
+    trabajo, se le avisa (O-329)."""
     global _hilo
-    if (_pendientes or _ev_pendientes or _rotulos) and _hilo is None:
+    if not (_pendientes or _ev_pendientes or _rotulos):
+        return
+    if _hilo is None:
         _hilo = threading.Thread(target=_trabajar, name="modelos3d", daemon=True)
         _hilo.start()
+    else:
+        _hay_trabajo.set()
 
 
-def preparar(codigos):
+def _ev_al_dia(ev, tipos, asignados):
+    """GE.al_dia recordando lo ya visto en esta sesion (O-329): si su escena.json no ha
+    cambiado y lo pedido ya estaba, sin volver a leerlo. Con el cerrojo cogido."""
+    from ievr import g4evento as GE
+    try:
+        fecha = os.path.getmtime(os.path.join(carpeta(), "eventos", ev, "escena.json"))
+    except OSError:
+        return False
+    visto = _ev_listos.get(ev)
+    if visto and visto[0] == fecha and set(tipos) <= visto[1] and set(asignados) <= visto[2]:
+        return True
+    if not GE.al_dia(carpeta(), ev, tipos, asignados):
+        return False
+    _ev_listos[ev] = (fecha, frozenset(tipos), frozenset(asignados))
+    return True
+
+
+def preparar(codigos, solo=False):
     """Pone en la cola los codigos que aun no tienen .glb y arranca el hilo si hace falta.
     Los que fallaron antes se vuelven a intentar (puede que ya este el juego).
     Lo ultimo pedido va delante: si se deja un partido a medias y se empieza otro, o
     entra un suplente, no espera a que acaben los que ya no se ven; esos se siguen
-    haciendo despues, para la proxima vez (O-305)."""
+    haciendo despues, para la proxima vez (O-305). Con `solo` (la precarga de un partido,
+    O-329) lo pendiente que no es de este pedido se quita de la cola: al mirar equipos al
+    elegir no se convierte todo lo de cada uno (casi 1,5 GB un partido grande)."""
     global _error
     codigos = [c for c in codigos if codigo_valido(c)]
     error = _sin_juego()
     with _cerrojo:
         _error = error
+        if solo:
+            _pendientes[:] = [c for c in _pendientes if c in codigos]
         nuevos = []
         for c in codigos:
             if c not in _pedidos:
@@ -133,14 +178,19 @@ def preparar(codigos):
     return estado()
 
 
-def preparar_eventos(pedidos, rotulos=()):
+def preparar_eventos(pedidos, rotulos=(), solo=False):
     """Pone en la cola los eventos de VR {evento: {"tipos": ['01'..], "asignados": [kNNNNNN..]}}
-    que falten (O-323). Van despues de los modelos: primero se ven los jugadores."""
+    que falten (O-323). Van despues de los modelos: primero se ven los jugadores. Lo ultimo
+    pedido va delante, en el orden pedido: el partido que va a empezar antes que lo de otro
+    que se miro al elegir; con `solo`, lo de otros se quita de la cola (O-329)."""
     global _error
-    from ievr import g4evento as GE
     error = _sin_juego()
     with _cerrojo:
         _error = error
+        if solo:
+            _ev_pendientes[:] = [e for e in _ev_pendientes if e in pedidos]
+            _rotulos[:] = [r for r in _rotulos if r in rotulos]
+        nuevos = []
         for ev, p in pedidos.items():
             if not evento_valido(ev):
                 continue
@@ -149,14 +199,17 @@ def preparar_eventos(pedidos, rotulos=()):
             d = _ev_pedidos.setdefault(ev, {"tipos": set(), "asignados": set()})
             d["tipos"] |= tipos
             d["asignados"] |= asignados
-            if error or ev in _ev_pendientes:
+            if error or ev in nuevos:
                 continue
             # el que se esta haciendo vuelve a la cola por si piden otro tipo de cuerpo o keshin
             # (lo ya hecho no se rehace)
-            if ev != _ev_actual and GE.al_dia(carpeta(), ev, d["tipos"], d["asignados"]):
+            if ev not in _ev_pendientes and ev != _ev_actual and _ev_al_dia(ev, d["tipos"], d["asignados"]):
                 continue
             _ev_errores.pop(ev, None)
-            _ev_pendientes.append(ev)
+            if ev in _ev_pendientes:
+                _ev_pendientes.remove(ev)
+            nuevos.append(ev)
+        _ev_pendientes[:0] = nuevos
         for r in rotulos:
             if r and codigo_valido(r) and r not in _rotulos and \
                     not os.path.isfile(os.path.join(carpeta(), "eventos", "_rotulos", r + ".png")):
@@ -166,7 +219,7 @@ def preparar_eventos(pedidos, rotulos=()):
     return estado()
 
 
-def preparar_partido(jugadores):
+def preparar_partido(jugadores, solo=False):
     """Todo lo de las animaciones de VR de los jugadores de un partido (O-323): los modelos
     sueltos y transformados (keshin, alma, armadura, mixi max, modo, aura del campo), los
     eventos de sus supertecnicas y de su espiritu, y sus rotulos. jugadores: [{"cara",
@@ -174,6 +227,9 @@ def preparar_partido(jugadores):
     "espiritus": que evento, que modelo y que rotulo lleva cada una (para la pagina)."""
     from ievr import g4evento as GE
     codigos, pedidos, rotulos, mapa = GE.pedidos_de(jugadores)
+    # las formas que son personas (mixi max, modo) se ven vestidas con la equipacion del equipo:
+    # la pagina pide su cuerpo y su ropa (O-334); con su ropa de historia no hacen falta
+    codigos = [c for c in codigos if not _se_viste(c)]
     with _cerrojo:
         # los modelos sueltos detras de los que ya esten: los jugadores primero
         extra = [c for c in codigos if codigo_valido(c) and c not in _pendientes and c != _actual
@@ -185,11 +241,21 @@ def preparar_partido(jugadores):
             for c in extra:
                 _errores.pop(c, None)
             _pendientes.extend(extra)
-    preparar_eventos(pedidos, rotulos)
+    preparar_eventos(pedidos, rotulos, solo)
     e = estado()
     e.update(mapa)
     e["modelos"] = codigos
     return e
+
+
+def _se_viste(codigo):
+    """Si en el partido ese personaje lleva la equipacion del equipo (modelos-personaje.csv,
+    columna vestir; O-334)."""
+    from ievr import g4
+    try:
+        return (g4.piezas(codigo) or {}).get("vestir") == "1"
+    except Exception:
+        return False
 
 
 def _texto(e):
@@ -207,7 +273,8 @@ def _trabajar():
     """El hilo: convierte los pendientes de uno en uno y se acaba cuando no queda ninguno.
     Primero los modelos (los jugadores y lo que pidan los eventos), luego los eventos de VR
     y al final los rotulos. El indice del juego y lo ya sacado (banco de animaciones,
-    camisetas del mismo equipo) se aprovechan mientras haya cola; al acabar se suelta todo."""
+    camisetas del mismo equipo) se aprovechan mientras haya cola y ESPERA_HILO s despues por
+    si piden mas (O-329); luego se suelta todo."""
     global _actual, _hilo, _error, _ev_actual
     from ievr import g4
     juego = None
@@ -234,8 +301,18 @@ def _trabajar():
                 codigo = _rotulos.pop(0)
                 tarea = "rotulo"
             else:
-                _actual, _ev_actual, _hilo = None, None, None
-                return
+                tarea = None
+                _actual, _ev_actual = None, None
+                _hay_trabajo.clear()
+        if tarea is None:
+            # sin trabajo: un rato con el juego abierto por si llega mas (O-329)
+            if _hay_trabajo.wait(ESPERA_HILO):
+                continue
+            with _cerrojo:
+                if not (_pendientes or _ev_pendientes or _rotulos):
+                    _hilo = None
+                    return
+            continue
         try:
             if tarea == "modelo":
                 if not _al_dia(codigo):

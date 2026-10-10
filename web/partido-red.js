@@ -175,6 +175,8 @@ function equipoParaRed(d) {
     personal: (d.personal || []).map(s => ({ nombre: s.nombre, elemento: s.elemento, posicion: s.posicion,
       pasivas: (s.pasivas || []).map(q => ({ texto: q.texto, efecto: q.efecto })) })),
     configuracion: d.configuracion || null,
+    // la equipacion del equipo para los modelos 3D (O-334)
+    equipacion: d.equipacion || null,
   };
 }
 function jugadorParaRed(j) {
@@ -190,5 +192,7 @@ function jugadorParaRed(j) {
       pasivas: (j.pasivas || []).map(q => ({ texto: q.texto, abierta: q.abierta, efecto: q.efecto, espiritu: !!(q.espiritu || q.ranura === "espiritu") })),
       // entero: con su id y su tipo de hipertecnica (keshin, totem, despertar...) (O-310)
       espiritu: j.espiritu || null,
+      // su ropa con la equipacion del equipo y el brazalete (O-334)
+      ropa: j.ropa || null, capitan: !!j.capitan,
   };
 }

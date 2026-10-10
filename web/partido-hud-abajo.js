@@ -27,6 +27,8 @@ const AQUI = { libre: 5, linea: 2, cerca: 5, lejos: 38, atras: 2, max: 2, dura: 
 const ANILLOS = { r0: [8, 16], r1: [100, 200], foco: { crece: 0.47, apaga: 0.53, fuera: 0.16 }, tiro: { crece: 0.57, apaga: 0.6, fuera: 0.1 } };
 // la estela del pase del rival (b10, b53): los ultimos puntos del balon, que se apagan
 const ESTELA = { puntos: 12, cada: 0.04, dura: 0.6 };
+// el pase marcado que se quita (O-335): la raya roja a trozos y la X (de `x` u) que se apagan
+const QUITADO = { dura: 0.9, x: 7, color: "#FF5A48" };
 
 const HudAbajo = {
   // lo que recuerda cada vista (un partido nuevo, una vista nueva: de cero)
@@ -169,6 +171,7 @@ const HudAbajo = {
   // sombra en el suelo (b11). El destino, un circulo cian en el suelo de la vista
   _pases(s) {
     const p = s.p, pm = (p.paseMarcado || [])[s.yo], d0 = p.dueno(), b = p.balon;
+    this._quitado(s, pm, d0);
     if (pm && d0 && pm.tipo !== "tiro") {
       const dest = pm.a !== undefined ? p.jugadores[pm.a] : { x: pm.x, y: pm.y };
       if (dest) { if (pm.alto) this._arco(s, d0, dest, 0); else this._raso(s, d0, dest); }
@@ -186,6 +189,36 @@ const HudAbajo = {
         }
       } else if (!rival) this._raso(s, b, dest);
     }
+  },
+  // el pase marcado que se quita con el juego parado (tocando otra vez su destino o al que
+  // pasa, Aaron, O-335) se ve: su raya se pone roja y se apaga en QUITADO.dura s con una X
+  // donde iba. Si sale (vuelve el juego y el balon va), nada. Vale tambien online: se mira lo
+  // marcado de la foto
+  _quitado(s, pm, d0) {
+    const p = s.p, du = p.duelo;
+    const parado = (p.parado && p.parado()) || p.fase === "invocacion" || (p.fase === "duelo" && du && du.tipo === "foco");
+    if (pm && d0 && pm.tipo !== "tiro") {
+      const a = pm.a !== undefined ? p.jugadores[pm.a] : { x: pm.x, y: pm.y };
+      s.pmAntes = a ? { x0: d0.x, y0: d0.y, x1: a.x, y1: a.y } : null;
+    } else {
+      if (s.pmAntes && !pm && parado) s.quitado = Object.assign({ t0: s.ahora }, s.pmAntes);
+      s.pmAntes = null;
+    }
+    const q = s.quitado;
+    if (!q) return;
+    const k = (s.ahora - q.t0) / QUITADO.dura;
+    if (k >= 1 || k < 0) { s.quitado = null; return; }
+    const ctx = s.ctx, A = this._P(s, q.x0, q.y0, 0, s.q[0]), B = this._P(s, q.x1, q.y1, 0, s.q[1]);
+    if (A.detras && B.detras) return;
+    const t = QUITADO.x * (1 + 0.3 * k);
+    ctx.save(); ctx.globalAlpha = 1 - k * k; ctx.lineCap = "round";
+    ctx.strokeStyle = "rgba(60,10,10,.55)"; ctx.lineWidth = 4.2; ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.stroke();
+    ctx.strokeStyle = QUITADO.color; ctx.lineWidth = 2.6; ctx.setLineDash([5, 4]); ctx.stroke(); ctx.setLineDash([]);
+    for (const [col, g] of [["rgba(60,10,10,.8)", 5], [QUITADO.color, 3]]) {
+      ctx.strokeStyle = col; ctx.lineWidth = g; ctx.beginPath();
+      ctx.moveTo(B.x - t, B.y - t * 0.8); ctx.lineTo(B.x + t, B.y + t * 0.8); ctx.moveTo(B.x + t, B.y - t * 0.8); ctx.lineTo(B.x - t, B.y + t * 0.8); ctx.stroke();
+    }
+    ctx.restore();
   },
   // con el raton encima de la T (O-326), adonde iria, a rayas: el tiro largo a la porteria
   // (amarillo), el pase al companero o al hueco (cian), con un aro donde acaba

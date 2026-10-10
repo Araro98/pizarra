@@ -532,9 +532,38 @@ def _piel_de_vertices(g, v, m, nodo_hueso, cabeza, faltan):
     return (g.accesor(j4.astype(np.uint16), "VEC4", 34962), g.accesor(w4.astype(np.float32), "VEC4", 34962))
 
 
-def _material(g, mat, por_hash, tex_glb, piel, sombra, sin_luz):
+def mascara_png(msk):
+    """La zona de piel (canal R de la capa msk) como PNG gris, para tintarla en la pagina con el
+    color de piel de cada jugador (la ropa de equipo se comparte, O-334)."""
+    s = io.BytesIO()
+    msk.getchannel("R").save(s, "PNG", compress_level=6)
+    return s.getvalue()
+
+
+def dorsal_png(dds, msk, colores, max_lado=MAX_TEX):
+    """La hoja de dorsales (10x10 numeros: el blanco con la forma en el alfa) con los dos colores
+    de la ropa horneados: el numero (msk G) del primero y su borde (lo que el alfa tiene de mas)
+    del segundo, como lo pinta VR (O-334). Igual la hoja de letras de la placa del nombre."""
+    from PIL import Image
+    im = dds_a_imagen(dds)
+    if max(im.size) > max_lado:
+        f = max_lado / max(im.size)
+        im = im.resize((max(1, int(im.width * f)), max(1, int(im.height * f))), Image.LANCZOS)
+    a = np.asarray(im, dtype=np.float32) / 255.0
+    m = np.asarray(msk.resize(im.size, Image.BILINEAR), dtype=np.float32)[..., 1:2] / 255.0
+    c1, c2 = (np.array(c, dtype=np.float32) / 255.0 for c in colores)
+    a[..., :3] = c1 * m + c2 * (1 - m)
+    s = io.BytesIO()
+    Image.fromarray(np.clip(a * 255 + 0.5, 0, 255).astype(np.uint8), "RGBA").save(s, "PNG", compress_level=6)
+    return s.getvalue()
+
+
+def _material(g, mat, por_hash, tex_glb, piel, sombra, sin_luz, piel_aparte=False, dorsal=None):
     """Material glTF sin luz (aspecto anime plano) con la textura de color, la piel tintada y la
-    sombra horneadas. Devuelve (material, nombre de la textura usada)."""
+    sombra horneadas. Devuelve (material, nombre de la textura usada).
+    piel_aparte (la ropa de equipo, O-334): la piel no se hornea; su mascara va aparte (extras
+    mascaraPiel) y la pagina la tinta con la de cada jugador. dorsal: los dos colores (rgb) del
+    numero de esa ropa, para la hoja de dorsales y la de letras de la placa del nombre."""
     color = [h for h in mat["tex"] if h in por_hash and capa(por_hash[h][0]) == ""]
     gm = {"name": mat["nombre"], "doubleSided": False,
           "pbrMetallicRoughness": {"metallicFactor": 0.0, "roughnessFactor": 1.0}}
@@ -546,12 +575,32 @@ def _material(g, mat, por_hash, tex_glb, piel, sombra, sin_luz):
                   if x in por_hash and capa(por_hash[x][0]) in ("msk", "oc")}
         if not sombra:
             extras.pop("oc", None)
-        clave = (h, tuple(sorted(extras)))
+        # la hoja de numeros del dorsal (n000201_10...) y la de letras de la placa del nombre
+        # (name_10: 8x16 letras, en el dorsal n000201, encima del numero), que VR rellena con el
+        # nombre del jugador. Antes la placa se tomaba por el dorsal (empieza por n y tiene
+        # mascara) y salia un trozo del abecedario movido segun el numero (O-334, vuelta 2)
+        es_nombre = piel_aparte and nombre_tex.startswith("name") and "msk" in extras
+        es_dorsal = bool(dorsal) and re.match(r"n\d", nombre_tex) is not None and "msk" in extras
+        mascara = extras.pop("msk", None) if (piel_aparte and not (es_dorsal or es_nombre)) else None
+        clave = (h, tuple(sorted(extras)), es_dorsal or es_nombre)
         if clave not in tex_glb:
-            imagenes = {k: dds_a_imagen(d) for k, d in extras.items()}
-            png, alfa = dds_a_png(por_hash[h][1], MAX_TEX, imagenes, piel, sombra)
-            tex_glb[clave] = (g.imagen_png(png), alfa)
+            if es_dorsal or es_nombre:
+                colores = dorsal or ((255, 255, 255), (255, 255, 255))
+                tex_glb[clave] = (g.imagen_png(dorsal_png(por_hash[h][1], dds_a_imagen(extras["msk"]), colores)), True)
+            else:
+                imagenes = {k: dds_a_imagen(d) for k, d in extras.items()}
+                png, alfa = dds_a_png(por_hash[h][1], MAX_TEX, imagenes, piel, sombra)
+                tex_glb[clave] = (g.imagen_png(png), alfa)
         ti, alfa = tex_glb[clave]
+        if mascara:
+            if ("msk", h) not in tex_glb:
+                tex_glb[("msk", h)] = g.imagen_png(mascara_png(dds_a_imagen(mascara)))
+            gm["extras"] = {"mascaraPiel": tex_glb[("msk", h)]}
+            nombre_tex += "+msk aparte"
+        if es_dorsal:
+            gm["extras"] = {"dorsal": 10}       # hoja de 10x10: la pagina mueve la UV a su numero
+        if es_nombre:
+            gm["extras"] = {"nombre": [8, 16]}  # hoja de letras (columnas, filas): la pagina la esconde
         if extras:
             nombre_tex += "+" + "+".join(sorted(extras))
         gm["pbrMetallicRoughness"]["baseColorTexture"] = {"index": ti}
@@ -565,11 +614,13 @@ def _material(g, mat, por_hash, tex_glb, piel, sombra, sin_luz):
 
 
 def armar(esqueleto, modelos, texturas, piel=None, sombra=SOMBRA, sin_luz=True, bancos=(), sin_avance=True,
-          informe=None):
+          informe=None, piel_aparte=False, dorsal=None, omitir=()):
     """El .glb en memoria (un Glb) a partir de las piezas ya leidas:
     esqueleto: bytes del G4SK (o del .g4pkm que lo lleva); modelos: [(nombre, g4md, g4mg)];
     texturas: [bytes de G4TX]; piel: (r, g, b) o None (se saca de la cara);
-    bancos: [(nombre del banco, [G4MT leidos], [clips])] (ver ievr/g4anim.py)."""
+    bancos: [(nombre del banco, [G4MT leidos], [clips])] (ver ievr/g4anim.py).
+    La ropa de equipo (O-334): piel_aparte, dorsal (ver _material) y omitir (submallas que no
+    van). La piel usada queda en g.piel."""
     informe = informe or (lambda *_: None)
     g = Glb()
     sk = leer_g4sk(esqueleto)
@@ -578,7 +629,8 @@ def armar(esqueleto, modelos, texturas, piel=None, sombra=SOMBRA, sin_luz=True, 
         for nombre, dds in leer_g4tx(t):
             por_hash[crc(nombre)] = (nombre, dds)
     informe("texturas: %d (%s)" % (len(por_hash), ", ".join(sorted(n for n, _ in por_hash.values()))))
-    piel = tuple(piel) if piel else color_de_piel(por_hash)
+    piel = tuple(piel) if piel else ((254, 214, 186) if piel_aparte else color_de_piel(por_hash))
+    g.piel = piel
     informe("color de piel: %s" % (piel,))
     reposo, nodo_hueso = _esqueleto(g, sk, informe)
     cabeza = nodo_hueso.get(crc("c_head_1_0"), 0)
@@ -587,7 +639,7 @@ def armar(esqueleto, modelos, texturas, piel=None, sombra=SOMBRA, sin_luz=True, 
         md = leer_g4md(md_b)
         prims = []
         for m in md["mallas"]:
-            if "_LOD" in m["nombre"]:          # niveles de detalle lejanos: solo el LOD0
+            if "_LOD" in m["nombre"] or m["nombre"] in omitir:   # niveles de detalle lejanos: solo el LOD0
                 continue
             faltan = {h for h in m["huesos"] if h not in nodo_hueso}
             if len(faltan) * 2 > len(m["huesos"]):
@@ -613,7 +665,8 @@ def armar(esqueleto, modelos, texturas, piel=None, sombra=SOMBRA, sin_luz=True, 
                 atrib["TEXCOORD_0"] = g.accesor(v["uv"], "VEC2", 34962)
             if "pesos" in v:
                 atrib["JOINTS_0"], atrib["WEIGHTS_0"] = _piel_de_vertices(g, v, m, nodo_hueso, cabeza, faltan)
-            mat, nombre_tex = _material(g, md["mats"][m["mat"]], por_hash, tex_glb, piel, sombra, sin_luz)
+            mat, nombre_tex = _material(g, md["mats"][m["mat"]], por_hash, tex_glb, piel, sombra, sin_luz,
+                                        piel_aparte, dorsal)
             prims.append({"attributes": atrib, "material": mat,
                           "indices": g.accesor(tri.reshape(-1).astype(np.uint32), "SCALAR", 34963)})
             informe("  %s:%s: %d vert, %d tri, tex=%s%s" % (nombre, m["nombre"], m["nv"], len(tri), nombre_tex,
@@ -735,9 +788,10 @@ def piezas(codigo):
     return reglas._cache["modelos_personaje"].get(codigo)
 
 
-def rutas_de(f):
+def rutas_de(f, solo_cuerpo=False):
     """Los ficheros del juego que hacen falta para la fila `f` de modelos-personaje.csv:
-    (esqueleto, [(nombre, g4md, g4mg)], [g4tx], banco de animacion o None)."""
+    (esqueleto, [(nombre, g4md, g4mg)], [g4tx], banco de animacion o None). solo_cuerpo: sin su
+    ropa (la de equipo se le pone en la pagina, O-334)."""
     modelos, texturas = [], []
     if f.get("armadura"):
         # con armadura (los `_5000`/`_5100` de las armaduras de keshin): el cuerpo es el modelo
@@ -746,7 +800,7 @@ def rutas_de(f):
         modelos.append((os.path.basename(f["armadura"]), m + ".g4md", m + ".g4mg"))
         if f.get("armadura_tex"):
             texturas.append("dx11/chr/_armd/%s/%s.g4tx" % (f["armadura"].split("/")[0], f["armadura_tex"]))
-    for k in () if f.get("armadura") else ("uniforme", "botas", "guantes"):
+    for k in () if (f.get("armadura") or solo_cuerpo) else ("uniforme", "botas", "guantes"):
         if f.get(k):
             m = "common/chr/_uniform/" + f[k]
             modelos.append((os.path.basename(f[k]), m + ".g4md", m + ".g4mg"))
@@ -812,12 +866,16 @@ def convertir(codigo, carpeta_juego, destino, juego=None, informe=None):
     informe = informe or (lambda *_: None)
     if not re.fullmatch(r"[A-Za-z0-9_]+", codigo or ""):
         raise ValueError("codigo de modelo raro: %r" % codigo)
-    f = piezas(codigo)
+    if codigo.startswith(PREFIJO_ROPA):
+        return convertir_ropa(codigo, carpeta_juego, destino, juego, informe)
+    # `<codigo>_cuerpo`: el personaje sin su ropa, para vestirlo con la del equipo (O-334)
+    solo_cuerpo = codigo.endswith(SUFIJO_CUERPO)
+    f = piezas(codigo[:-len(SUFIJO_CUERPO)] if solo_cuerpo else codigo)
     if not f:
         raise LookupError("no se con que piezas se arma %s (no esta en modelos-personaje.csv)" % codigo)
     os.makedirs(destino, exist_ok=True)
     juego = juego or Juego(carpeta_juego, os.path.join(destino, "indice.json"))
-    esqueleto, modelos, texturas, banco = rutas_de(f)
+    esqueleto, modelos, texturas, banco = rutas_de(f, solo_cuerpo)
     leidos = [(n, _leer_g4md(juego, md), juego.leer(mg)) for n, md, mg in modelos]
     texs = []
     for t in texturas:
@@ -839,8 +897,179 @@ def convertir(codigo, carpeta_juego, destino, juego=None, informe=None):
         bancos.append((os.path.splitext(os.path.basename(ruta_banco))[0], mts, [c for c in clips if c in hay]))
     piel = bytes.fromhex(f["piel"]) if f.get("piel") else None
     g = armar(juego.leer(esqueleto), leidos, texs, piel=piel, bancos=bancos, informe=informe)
+    # (con la piel usada: la pagina tinta con ella la ropa de equipo, O-334)
     g.j["asset"]["extras"] = {"version": VERSION_MODELO, "codigo": codigo,
-                              "piezas": {k: v for k, v in f.items() if v and k != "codigo"}}
+                              "piezas": {k: v for k, v in f.items() if v and k != "codigo"},
+                              "piel": "%02X%02X%02X" % tuple(int(x) for x in g.piel[:3])}
+    ruta = os.path.join(destino, codigo + ".glb")
+    g.guardar(ruta)
+    informe("-> %s (%.2f MB)" % (ruta, os.path.getsize(ruta) / 1e6))
+    return ruta
+
+
+# --------------------------------------------------------------------------- la equipacion (O-334)
+# En el partido cada jugador lleva la equipacion del equipo con el que juega, como en VR: una
+# "ropa" por diseno, papel (campo o portero) y cuerpo (camiseta y pantalon, la piel del cuello,
+# los brazos y las manos, el dorsal, el brazalete de capitan, las botas y, el portero, los
+# guantes) en su propio .glb `ropa_<ropa>_<cuerpo>_<botas>_<guantes>.glb`, compartido por todos
+# los que la llevan; la pagina (web/partido-vestir.js) la viste sobre el esqueleto de cada uno
+# (`<codigo>_cuerpo.glb`: el personaje sin su ropa) y le tinta la piel con la suya. Las tablas,
+# de herramientas/construir_modelos_personaje.py: modelos-equipacion.csv y modelos-ropa.csv.
+PREFIJO_ROPA = "ropa_"
+SUFIJO_CUERPO = "_cuerpo"
+# la equipacion del equipo que no tiene ninguna puesta: la "Equipacion sencilla" (la que pone el
+# juego en un equipo nuevo, equipos.EQUIPACION_DE_SERIE)
+EQUIPACION_SENCILLA = 0xB0842F13
+# los sufijos de la ropa de serie que tienen papel propio en la equipacion (cuerpos especiales)
+VARIANTES = ("slv", "fld", "dam", "dmn", "lse", "lsa", "bly")
+# el cuello alto (collar_11) no se sabe aun a quien le toca: el cuello normal (O-334)
+SIN_MALLAS_ROPA = ("collar_11",)
+
+
+def _tablas_ropa():
+    """{tipo: {clave: [filas]}} de modelos-ropa.csv (ropa, forma, botas, guantes, cuerpo) y
+    {(id, diseno, personaje): fila} de modelos-equipacion.csv, una vez."""
+    from ievr import reglas
+    if "modelos_ropa" not in reglas._cache:
+        r = {}
+        for f in reglas._tabla("modelos-ropa.csv"):
+            r.setdefault(f["tipo"], {}).setdefault(f["clave"], []).append(f)
+        e = {(f["id"].upper(), f["diseno"], f.get("personaje") or ""): f for f in reglas._tabla("modelos-equipacion.csv")}
+        reglas._cache["modelos_ropa"] = (r, e)
+    return reglas._cache["modelos_ropa"]
+
+
+def disenos(uniforme):
+    """Los disenos de esa equipacion con ropa de campo distinta, por orden (['0', '1'], o ['0']
+    si los dos son iguales), o [] si no se conoce."""
+    _r, e = _tablas_ropa()
+    hx = "%08X" % ((uniforme or EQUIPACION_SENCILLA) & 0xFFFFFFFF)
+    filas = sorted((k[1], f) for k, f in e.items() if k[0] == hx and not k[2])
+    out = []
+    for d, f in filas:
+        if not any(e[(hx, x, "")]["campo"] == f["campo"] for x in out):
+            out.append(d)
+    return out
+
+
+def campo_de_disenos(uniforme):
+    """La ropa de campo (u045301_10...) de cada diseno de disenos(uniforme), por orden: dos
+    equipaciones distintas pueden llevar la misma ("Uniforme vendaval" y "Equipacion Colmillo
+    del Norte"; 18 de las de la mochila), y entonces el de fuera lleva su otro diseno (O-334,
+    vuelta 2)."""
+    _r, e = _tablas_ropa()
+    hx = "%08X" % ((uniforme or EQUIPACION_SENCILLA) & 0xFFFFFFFF)
+    return [e[(hx, d, "")]["campo"] for d in disenos(uniforme)]
+
+
+def ropa_de(codigo, uniforme, diseno="0", portero=False):
+    """El codigo del .glb de la ropa que lleva el personaje `codigo` con la equipacion
+    `uniforme` (uniformId del equipo; 0 = la sencilla), en ese diseno y de portero o de campo,
+    o "" si se queda con lo suyo (animales, armaduras, cuerpos que no son de persona: columna
+    vestir de modelos-personaje.csv) o no se conoce la equipacion."""
+    f = piezas(codigo)
+    if not f or f.get("vestir") != "1" or f.get("cuerpo", "") == "":
+        return ""
+    r, e = _tablas_ropa()
+    hx = "%08X" % ((uniforme or EQUIPACION_SENCILLA) & 0xFFFFFFFF)
+    diseno = str(diseno)
+    g = e.get((hx, diseno, "")) or e.get((hx, "0", ""))
+    if not g:
+        return ""
+    papel = "portero" if portero else "campo"
+    var = (f.get("ropa") or "").split("_")[2:3]
+    var = var[0][:3] if var else ""
+    ropa = (g.get(papel + "_" + var) if var in VARIANTES else "") or g.get(papel) or ""
+    botas = g.get("botas_portero" if portero else "botas") or ""
+    guantes = g.get("guantes") if portero else ""
+    # lo que cambia para ese personaje con esa equipacion (m_CharaUniformExInfoList)
+    x = e.get((hx, diseno, codigo)) or e.get((hx, "0", codigo))
+    if x:
+        ropa = x.get(papel) or ropa
+        botas = x.get("botas_portero" if portero else "botas") or botas
+        guantes = (x.get("guantes") or guantes) if portero else ""
+    if not ropa or ropa not in r.get("ropa", {}):
+        return ""
+    return "%s%s_%s_%s_%s" % (PREFIJO_ROPA, ropa, f["cuerpo"], botas or "0", guantes or "0")
+
+
+def _fila_por_indice(filas, indice, otro=None):
+    """La fila de ese indice; si no la hay, la de `otro` (la talla) y si no, la primera."""
+    por = {f["indice"]: f for f in filas}
+    return por.get(str(indice)) or (por.get(str(otro)) if otro is not None else None) or (filas[0] if filas else None)
+
+
+def piezas_ropa(codigo):
+    """Lo que lleva el .glb de una ropa (codigo de ropa_de): {esqueleto, cuerpo, tipo, modelos:
+    [(nombre, ruta sin extension)], texturas: [rutas], dorsal: (rgb, rgb) o None}."""
+    m = re.fullmatch(re.escape(PREFIJO_ROPA) + r"(\w+?)_(\d+)_([0-9a-f]{8}|0)_([0-9a-f]{8}|0)", codigo or "")
+    if not m:
+        raise LookupError("codigo de ropa raro: %r" % codigo)
+    clave, cuerpo, botas, guantes = m.groups()
+    r, _e = _tablas_ropa()
+    c = (r.get("cuerpo") or {}).get(cuerpo)
+    ropa = (r.get("ropa") or {}).get(clave)
+    if not c or not ropa:
+        raise LookupError("no se con que piezas se arma %s" % codigo)
+    c, ropa = c[0], ropa[0]
+    tipo, talla = int(c["indice"] or 0), int(c["textura"] or 0)
+    fila = _fila_por_indice(r.get("forma", {}).get(ropa["modelo"], []), cuerpo, talla)
+    if not fila:
+        raise LookupError("la ropa %s no tiene modelos" % clave)
+    modelos, texturas = [], []
+
+    def pon(nombre, modelo, tex):
+        if modelo:
+            modelos.append((nombre, modelo))
+            if tex and tex not in texturas:
+                texturas.append(tex)
+    pon("ropa", fila["modelo"], fila["textura"] or ropa["textura"])
+    pon("piel", fila["piel"], fila["piel_tex"] or ropa["piel_tex"])
+    pon("dorsal", fila["numero"], fila["numero_tex"] or ropa["numero_tex"])
+    pon("capitan", fila["marca"], fila["marca_tex"] or ropa["marca_tex"])
+    for nombre, k in (("botas", botas), ("guantes", guantes)):
+        filas = (r.get(nombre) or {}).get(k) or []
+        if filas:
+            b = _fila_por_indice(filas, tipo, tipo % 4)
+            pon(nombre, b["modelo"], b["textura"] or filas[0]["textura"])
+    # los colores del dorsal: los de esa ropa o, en las de cuerpos especiales (_lsa...), los de
+    # su ropa normal
+    dorsal, colores = None, ropa
+    if not colores.get("numero_color"):
+        colores = ((r.get("ropa") or {}).get("_".join(clave.split("_")[:2])) or [{}])[0]
+    if colores.get("numero_color"):
+        def rgb(h):
+            return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+        dorsal = (rgb(colores["numero_color"]), rgb(colores.get("numero_color2") or colores["numero_color"]))
+    return {"esqueleto": "common/chr/" + c["modelo"], "cuerpo": int(cuerpo), "tipo": tipo,
+            "modelos": modelos, "texturas": texturas, "dorsal": dorsal}
+
+
+def convertir_ropa(codigo, carpeta_juego, destino, juego=None, informe=None):
+    """`<destino>/<codigo>.glb` de una ropa de equipo: su esqueleto (el comun de ese cuerpo, con
+    los mismos nombres de hueso que el de cada jugador) y una malla por pieza (ropa, piel,
+    dorsal, capitan, botas, guantes), sin animaciones. La piel sin tintar (mascara aparte) y el
+    dorsal con sus colores (O-334)."""
+    informe = informe or (lambda *_: None)
+    p = piezas_ropa(codigo)
+    os.makedirs(destino, exist_ok=True)
+    juego = juego or Juego(carpeta_juego, os.path.join(destino, "indice.json"))
+    leidos = []
+    for nombre, ruta in p["modelos"]:
+        m = "common/chr/_uniform/" + ruta
+        leidos.append((nombre, juego.leer(m + ".g4md"), juego.leer(m + ".g4mg")))
+    texs = []
+    for t in p["texturas"]:
+        ruta = "dx11/chr/_uniform/%s.g4tx" % t
+        if juego.hay(ruta):
+            texs.append(juego.leer(ruta))
+        else:
+            informe("  (el juego no trae %s: esa pieza sale sin textura)" % ruta)
+    g = armar(juego.leer(p["esqueleto"]), leidos, texs, informe=informe, piel_aparte=True,
+              dorsal=p["dorsal"], omitir=SIN_MALLAS_ROPA)
+    g.j["asset"]["extras"] = {"version": VERSION_MODELO, "codigo": codigo, "ropa": True,
+                              "cuerpo": p["cuerpo"], "tipo": p["tipo"],
+                              "piezas": {n: r for n, r in p["modelos"]}}
     ruta = os.path.join(destino, codigo + ".glb")
     g.guardar(ruta)
     informe("-> %s (%.2f MB)" % (ruta, os.path.getsize(ruta) / 1e6))

@@ -616,16 +616,62 @@ def equipo(plain, hueco):
         except Exception as ex:          # un hueco roto no tumba el partido
             ficha = {"fila": fila, "nombre": "?", "error": str(ex)}
         ficha.update({"puesto": m["puesto"], "dorsal": m["dorsal"]})
+        # O-334: el capitan lleva el brazalete
+        if e["capitan"] and m["jugador"] == e["capitan"]:
+            ficha["capitan"] = True
         (jugadores if m["puesto"] < TITULARES else banquillo).append(ficha)
     jugadores.sort(key=lambda j: j["puesto"])
+    equipacion = _equipacion(e, jugadores + banquillo)
     from ievr import opciones as O
     return {"hueco": hueco, "nombre": O.sin_marcadores(e["nombre"]),
             "formacion": {"valor": "%08X" % e["formacion"], "nombre": nombre_formacion, "puestos": puestos},
             "capitan": e["capitan"], "jugadores": jugadores,
+            # O-334: la equipacion que lleva el equipo (cada jugador, su ropa con ella)
+            "equipacion": equipacion,
             "tacticas": _tacticas_del_equipo(e),
             "banquillo": [b for b in banquillo if b["puesto"] < 16],
             # O-328: el entrenador y los gerentes, y la configuracion del equipo (la carga)
             "personal": personal, "configuracion": _configuracion(plain, e)}
+
+
+def _equipacion(e, fichas):
+    """La equipacion del equipo para los modelos 3D (O-334): {id (uniformId en hex), disenos
+    (los que tiene con ropa distinta: el de casa y el otro), campo (la ropa de campo de cada
+    uno: con ella se mira si los dos equipos van iguales)}, y a cada ficha (y a su forma del
+    modo y al modelo de su armadura o mixi max) su "ropa": {campo: [.glb por diseno], portero:
+    [...]} (ievr/g4.py ropa_de), o nada si se queda con lo suyo. Sin hueco de la mochila el
+    juego ensena la Equipacion sencilla (O-190): aqui igual. Si algo falla, sin ropa: cada uno
+    con la de su equipo de historia, como antes."""
+    from ievr import g4
+    try:
+        uniforme = (e["equipacion"] if e.get("hueco_equipacion") else 0) or g4.EQUIPACION_SENCILLA
+        disenos = g4.disenos(uniforme)
+        if not disenos:
+            return None
+
+        def ropa(cara):
+            if not cara:
+                return None
+            r = {"campo": [g4.ropa_de(cara, uniforme, d, False) for d in disenos],
+                 "portero": [g4.ropa_de(cara, uniforme, d, True) for d in disenos]}
+            return r if any(r["campo"]) else None
+        for f in fichas:
+            r = ropa(f.get("cara"))
+            if r:
+                f["ropa"] = r
+            esp = f.get("espiritu")
+            if esp:
+                fo = esp.get("forma")
+                r = ropa(fo and (fo.get("modelo") or fo.get("cara")))
+                if r:
+                    fo["ropa"] = r
+                r = ropa(esp.get("modelo"))
+                if r:
+                    esp["ropa_modelo"] = r
+        # O-334, vuelta 2: la ropa de campo de cada diseno (dos equipaciones pueden llevar la misma)
+        return {"id": "%08X" % uniforme, "disenos": disenos, "campo": g4.campo_de_disenos(uniforme)}
+    except Exception:              # sin las tablas de la ropa se juega igual
+        return None
 
 
 def _configuracion(plain, e):
