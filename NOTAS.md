@@ -8677,6 +8677,35 @@ A confirmar con Aaron (la lista entera del diseno, con lo que fue anadiendo cada
     que pone (los FPS, los ms de JS y de 3D y la calidad), y si la calidad Automatica le
     va bien o prefiere fijarla.
 
+### O-322 · El juego de partidos: lo que dijo Aaron al probar el rediseno (2026-10-10)
+
+Respuestas: animaciones COMPLETAS, buscando en todos los ficheros del juego las
+animaciones reales de VR de cada supertecnica y de cada transformacion (mixi max,
+kenshin, alma, modo...); Repetir/Reanudar tras el gol, si; rehacer los modelos con
+mas clips de VR, si; va fluido en su PC.
+Fallos y como tiene que ser:
+1. Al mover a un jugador en un saque, si hay un rival cerca se mueven juntos.
+2. Saques (y faltas, etc.): en la pantalla de "Jugar" se puede MOVER a los
+   jugadores pero no dibujar flechas. Al dar a Jugar se pueden dibujar flechas pero
+   no moverlos. Nadie se mueve (ni los rivales) hasta que el balon esta en
+   movimiento (saca uno u otro): hasta entonces solo se ven las flechas. Nada de
+   duelos antes del saque.
+3. El tiro: el que chuta elige la tecnica y chuta; el balon viaja hacia la
+   porteria; si hay un jugador en medio, al llegarle sale elegir el bloqueo; al
+   llegar a la porteria, el portero elige su tecnica. Mientras el balon va, se
+   pueden dibujar flechas para llevar a los jugadores a rango de bloqueo. (No como
+   ahora, que sale el bloqueo y la parada a la vez antes de chutar.)
+4. La T de la pantalla es el tiro largo: si tienes un tiro largo, lo usas y va
+   como un tiro normal; si no, la T es un pase hacia delante.
+5. El boton de espiritus guerreros PARA el juego para elegir (como en Galaxy o
+   CS); en esa parada los dos pueden invocar (keshin, alma...), uno cada uno, y
+   como mucho 3 en el campo. El boton tiene recarga antes de poder usarlo otra vez.
+6. Las invocaciones (keshin, alma, modo, mixi max...) como en el juego: Thaddeus
+   no se convertia en Byron ni cambiaba sus tecnicas. Tienen que cambiar el
+   modelo, las pasivas, las tecnicas... igual que en VR.
+7. Los calculos van raros: el portero saca mucho menos que en el juego. Revisar
+   todos los calculos para que cuadren con VR (y con la calculadora de Pizarra).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
