@@ -25,9 +25,10 @@ const ABAJO_OK = [110, 206, 97, 30];
 const ABAJO_TRASGOL = [[118, 62, 84, 30], [104, 142, 112, 30]];
 const ABAJO_SAQUES = { centro: "Saque de centro", banda: "Saque de banda", corner: "Córner", puerta: "Saque de puerta", falta: "Tiro libre", penalti: "Penalti" };
 // lo que dice la franja del duelo en cada paso (CS espanol; guia 9) [A CONFIRMAR: Galaxy
-// pone al reves la del que lleva el balon]. Muro y cadena son de Pizarra
+// pone al reves la del que lleva el balon]. Muro, cadena y el tiro largo de la T (O-326)
+// son de Pizarra
 const ABAJO_FRANJA = { ataque: "¡Esquiva la defensa del oponente!", defensa: "¡Detén el regate del oponente!", tiro: "¡Elige un tiro!",
-  cadena: "¿Encadenas el tiro?", muro: "¡Bloquea el tiro!", portero: "¡Defiende la portería!" };
+  cadena: "¿Encadenas el tiro?", muro: "¡Bloquea el tiro!", portero: "¡Defiende la portería!", largo: "¡Elige un tiro largo!" };
 const ABAJO_TIPO = { ataque: "regate", defensa: "defensa", tiro: "tiro", cadena: "tiro para encadenar", muro: "bloqueo", portero: "parada" };
 const ABAJO_PARTES = ["1.ª", "2.ª", "1.ª pr.", "2.ª pr."];
 const ABAJO_PASA = "Como en Victory Road: el que entra tiene AT y DF +";
@@ -42,7 +43,7 @@ const Abajo = {
   reiniciar(o = {}) {
     this.ui = { fase: null, panel: null, menu: false, sub: null, subDe: null, pestTactica: "tacticas", pestRegistro: "pasa",
       aura: null, tac: null, eqCampo: null, eqBanco: null, lista: false, pagina: 0, marcada: null,
-      duelo: null, paso: null, penal: "normal", vAviso: false, verT: false, salir: 0, formaciones: o.formaciones || ["", ""] };
+      duelo: null, paso: null, penal: "normal", vAviso: false, salir: 0, formaciones: o.formaciones || ["", ""] };
     this.enPartido = !!o.enPartido;
     this._clave = ""; this._forma = ""; this._auras = {}; this._v = null;
     return this.ui;
@@ -60,7 +61,7 @@ const Abajo = {
   que(p, yo, ctx = {}) {
     const u = this.ui || this.reiniciar();
     const v = { vista: "nada", botones: [] };
-    this._yo = yo;
+    this._yo = yo; this._p = p;      // (el partido, para la T al pulsarla, O-326)
     if (!p) return v;
     // al cambiar de fase se cierra lo que era de la anterior (el compacto, el Menu...)
     if (u.fase !== p.fase) {
@@ -82,6 +83,8 @@ const Abajo = {
     // maquina contra maquina (?demo): sin columna ni botones, como antes
     if (ctx.demo) { v.vista = p.fase === "juego" ? "juego" : "anim"; return v; }
     if (p.fase === "duelo" && p.duelo) return this._duelo(v, p, yo, ctx);
+    // el tiempo de invocacion: el panel de auras en toda la tactil (O-327)
+    if (p.fase === "invocacion") return this._red(this._tiempoInvocar(v, p, yo, ctx), ctx);
     // tras el gol, en la espera del saque de centro: Repetir / Reanudar (b48; O-319)
     if (ctx.trasGol && p.fase === "saque") return this._trasGol(v, ctx);
     if (p.parado()) {
@@ -118,6 +121,14 @@ const Abajo = {
     v.columna = this._columna(p, yo, ctx);
     if (u.panel === "tacticas") v.panel = { que: "tacticas", tacticas: this._tacticas(p, yo) };
     else if (u.panel === "espiritus") v.panel = Object.assign({ que: "espiritus" }, this._espiritus(p, yo, ctx));
+    // tras pulsar Jugar, hasta que se saca: que nadie se mueve y como se saca (O-324);
+    // online, si el rival no saca en un minuto, esperarle o dejar el partido
+    else if (ctx.sacar) v.ayuda = { lineas: this._dosLineas(ctx.sacar) };
+    // con el tiro en vuelo: llevar a los tuyos a su camino (O-325)
+    else if (ctx.vuelo) v.ayuda = { lineas: this._dosLineas(ctx.vuelo) };
+    const red = ctx.red || {};
+    if (ctx.sacar && red.noPulsa && p.porSacar && p.porSacar.lado !== yo)
+      v.espera = { texto: "Espera unos instantes...", linea: (red.rival || "El rival") + " aún no ha sacado: puedes esperarle o dejar el partido", dejar: true };
     return this._red(v, ctx);
   },
 
@@ -133,9 +144,50 @@ const Abajo = {
       : activa && tac[activa.k] ? "Táctica activa: " + tac[activa.k].nombre + " (" + tac[activa.k].estado + ")"
       : "Ninguna táctica lista" + (vuelve ? ": " + vuelve.nombre + " " + vuelve.estado : "") };
     const au = this._contarAura(p, yo);
-    const d = p.dueno(), e = ctx.elegido !== null && ctx.elegido !== undefined ? p.jugadores[ctx.elegido] : null;
-    const t = { si: !!((e && e.lado === yo && !e.expulsado) || (d && d.lado === yo)), activo: !!this.ui.verT, porque: "Pulsa a uno de tus jugadores para ver su ficha arriba" };
-    return { mano, ts, aura: { si: au.n > 0, n: au.n, porque: au.porque }, t };
+    let aura = { si: au.n > 0, n: au.n, porque: au.porque };
+    // con el tiempo de invocacion (O-327) el aura PARA el juego para invocar; apagada
+    // mientras vuelve ("Vuelve en 12 s") o si no se puede invocar a nadie
+    if (p.conTiempoInvocar) {
+      const ti = p.puedeTiempoInvocar(yo);
+      aura = { si: au.n > 0 && ti.si, n: au.n, porque: ti.si ? au.porque : this._cap(ti.porque), parar: true };
+    }
+    return { mano, ts, aura, t: this._botonT(p, yo) };
+  },
+  // el aura con el tiempo de invocacion: para el juego (orden "tiempoInvocar", O-327)
+  pedirInvocacion() {
+    const p = this._p, yo = this._yo;
+    if (!p) return;
+    const r = p.puedeTiempoInvocar(yo);
+    if (!r.si) return this.aviso(this._cap(r.porque));
+    if (this.acc.ordenar) this.acc.ordenar({ tipo: "tiempoInvocar", lado: yo });
+  },
+  // la T (O-326; Aaron, O-322 punto 4): el tiro largo del tuyo que lleva el balon o, si no
+  // tiene (o no le llega), un pase hacia delante. Lo que hara se lee debajo (etiqueta) y en
+  // su titulo; la orden se saca otra vez al pulsar (Partido.botonT), aqui solo los nombres:
+  // con las coordenadas del hueco la tactil se rehacia en cada cuadro. Antes la T ponia la
+  // ficha grande arriba: ahora sale en Equipo
+  _botonT(p, yo) {
+    const d = p.dueno();
+    const b = d && d.lado === yo && p.botonT ? p.botonT(d) : { que: null, porque: "La T es del que lleva el balón: su tiro largo o, si no tiene, un pase hacia delante" };
+    if (!b.que) return { si: false, que: null, etiqueta: [], porque: b.porque };
+    const a = b.a !== null && b.a !== undefined ? p.jugadores[b.a] : null, sin = b.sinTiro ? " (" + b.sinTiro + ")" : "";
+    if (b.que === "tiro") return { si: true, que: "tiro", etiqueta: ["Tiro", "largo"],
+      titulo: "Tiro largo de " + d.nombre + " a " + b.distancia + " m: " + b.tecnicas.filter(o => o.puede).map(o => o.nombre + " (TEN " + o.tp + ")").join(", ") + ". Va como un tiro normal" };
+    if (b.que === "pase") return { si: true, que: "pase", etiqueta: ["Pase", "adelante"], titulo: "Pase hacia delante a " + a.nombre + sin };
+    return { si: true, que: "hueco", etiqueta: ["Pase", "al hueco"], titulo: "Pase al hueco, hacia delante" + (a ? " (va " + a.nombre + ")" : "") + sin };
+  },
+  // si el raton esta encima de la T (el HUD de abajo pinta adonde iria, O-326)
+  encimaT() {
+    try { return typeof document !== "undefined" && !!document.querySelector("#boton-t:hover"); } catch (e) { return false; }
+  },
+  // pulsar la T: lo que diga el motor ahora (el tiro largo con su X en el centro de la
+  // porteria, el pase o el pase al hueco)
+  pulsarT() {
+    const p = this._p, yo = this._yo, d = p && p.dueno();
+    const b = d && d.lado === yo && p.botonT ? p.botonT(d) : null;
+    if (!b || !b.que) return this.aviso(b ? b.porque : "La T es del que lleva el balón: su tiro largo o, si no tiene, un pase hacia delante");
+    if (b.que === "tiro" && this.acc.apuntar) this.acc.apuntar(0, p.porteriaRival(d).y);
+    if (this.acc.ordenar) this.acc.ordenar(b.orden);
   },
   _contarAura(p, yo) {
     const con = p.equipo(yo).filter(j => j.espiritu);
@@ -151,7 +203,8 @@ const Abajo = {
   // o aturden (solo con el balon en juego)
   _tacticas(p, yo) {
     const tac = p.tacticas[yo] || [], ahora = p.segundosDeJuego(), activa = p.tacticaActiva[yo];
-    const parado = p.parado(), vale = p.fase === "juego" || parado;
+    // (antes de que se saque, el balon tampoco esta en juego, O-324)
+    const parado = p.parado() || !!p.porSacar, vale = p.fase === "juego" || parado;
     return tac.map((t, k) => {
       const espera = Math.max(0, Math.ceil(p.tacticaLista[yo][k] - ahora));
       const esActiva = !!activa && activa.k === k, sinEfecto = !(t.efectos || []).length, soloJuego = parado && p.tacticaSoloEnJuego(t);
@@ -192,8 +245,12 @@ const Abajo = {
     if (!sel) return { activos: p.hiperActivas(yo), max: REGLAS.HIPER_ACTIVAS_MAX, caras, tarjeta: null, hiper: hb,
       mensaje: "Nadie de tu equipo tiene espíritu", invocar: { si: false, porque: "Nadie de tu equipo tiene espíritu" } };
     const T = REGLAS.HIPER_TIPOS[sel.hiperTipo] || REGLAS.HIPER_TIPOS.keshin, activo = p.conAura(sel), ahora = p.segundosDeJuego();
-    const ph = p.puedeHiper(sel), cuando = p.fase === "juego" || p.parado();
-    const porque = !ph.si ? ph.porque : !cuando ? "con el juego en marcha, en la pausa o en el saque" : "";
+    // en el tiempo de invocacion, uno por parada; con el balon en juego, solo parando el
+    // juego con el aura (O-327)
+    const ti = p.tiempoInvocar, enParada = p.fase === "invocacion";
+    const ph = p.puedeHiper(sel), cuando = enParada ? !!ti && ti.hechos[yo] < 0 && !(p.listos && p.listos[yo]) : (p.fase === "juego" && !p.conTiempoInvocar) || p.parado();
+    const porque = !ph.si ? ph.porque : !cuando ? (enParada ? "ya has elegido en esta parada"
+      : p.fase === "juego" && p.conTiempoInvocar ? "pulsa el aura: el juego se para para invocar" : "con el juego en marcha, en la pausa o en el saque") : "";
     return {
       activos: p.hiperActivas(yo), max: REGLAS.HIPER_ACTIVAS_MAX, caras, hiper: hb, jugador: sel.id, nombre: sel.nombre,
       tarjeta: { espiritu: sel.espiritu.nombre, familia: T.nombre.toUpperCase(), elemento: sel.elemento || "", cara: sel.cara,
@@ -204,6 +261,34 @@ const Abajo = {
     };
   },
 
+  // --- el tiempo de invocacion (O-327; Aaron, O-322 punto 5; guia 8.8) -----------------
+  // El juego parado y el panel de auras (p19) en toda la tactil: eliges a quien invocas
+  // y [Invocar], o [Seguir] sin invocar. Los dos a la vez, uno cada uno; arriba, quien la
+  // ha pedido y lo que ha invocado el rival. Online, la caja de espera y la cuenta
+  _tiempoInvocar(v, p, yo, ctx) {
+    const ti = p.tiempoInvocar || { lado: yo, hechos: [-1, -1], t: 0 }, listo = !!ctx.listo;
+    const e = this._espiritus(p, yo, ctx), rival = ctx.rival || "el rival";
+    const J = id => (id >= 0 ? p.jugadores[id] : null), suyo = J(ti.hechos[1 - yo]), mio = J(ti.hechos[yo]);
+    const nombre = j => (j.propio ? j.propio.nombre : j.nombre);
+    v.vista = "invocacion";
+    v.invocacion = Object.assign({}, e, {
+      titulo: "¡Tiempo de invocación!",
+      quien: suyo ? this._cap(rival) + " invoca: " + nombre(suyo) + " · " + (suyo.espiritu || {}).nombre
+        : ti.lado === yo ? "Lo has pedido tú" : "Lo ha pedido " + rival,
+      cuenta: p.limiteDuelo ? Math.max(0, Math.ceil(REGLAS.TIEMPO_INVOCAR.limite - (ti.t || 0))) + " s" : "",
+    });
+    if (mio) v.invocacion.mensaje = "Has invocado a " + mio.espiritu.nombre + (listo && ctx.modo && ctx.modo !== "maquina" ? ": esperando a " + rival : "");
+    else if (listo) v.invocacion.mensaje = "Sigues sin invocar: esperando a " + rival;
+    v.botones = [
+      this._b("invocar", "Invocar", "verde", e.invocar.si && !listo, listo ? "Ya has elegido: esperando a " + rival : e.invocar.porque, ABAJO_FILA4[0],
+        () => this.acc.invocarEnParada ? this.acc.invocarEnParada(e.jugador) : this.acc.ordenar && this.acc.ordenar({ tipo: "invocar", jugador: e.jugador })),
+      this._b("boton-pausa", "Seguir", "azul", !listo, "Ya has elegido: esperando a " + rival, ABAJO_FILA4[3],
+        () => this.acc.seguir && this.acc.seguir(), { pulsado: listo, titulo: "Seguir sin invocar (barra espaciadora)" }),
+    ];
+    if (listo && ctx.modo && ctx.modo !== "maquina") v.espera = this._cajaEspera(ctx);
+    return v;
+  },
+
   // --- la pausa y el tiempo de tactica (t22, b12-b16, m06, m07) ------------------------
   _esperaSaque(v, p, yo, ctx) {
     const u = this.ui, saque = p.fase === "saque", listo = !!ctx.listo, s = p.esperaSaque || {};
@@ -212,9 +297,10 @@ const Abajo = {
     v.ayuda = { camara: true, lineas: this._dosLineas(ctx.espera || "") };
     // en el saque, como se coloca el que has elegido (o por que no se mueve) (O-313)
     const j = ctx.elegido !== null && ctx.elegido !== undefined ? p.jugadores[ctx.elegido] : null;
+    // Las carreras, tras pulsar Jugar (O-324)
     if (saque && j && j.lado === yo && !j.expulsado && p.colocable) v.ayuda.extra = p.colocable(j)
-      ? j.nombre + ": arrástralo para colocarlo donde quieras, menos muy cerca del balón; para su carrera, mantenlo pulsado y arrastra."
-      : (p._fijoEnSaque(j) || j.nombre + " no se mueve") + (p.balon.dueno === j.id ? ". Arrástralo para su carrera." : "");
+      ? j.nombre + ": arrástralo para colocarlo donde quieras, menos muy cerca del balón. Su carrera, tras pulsar Jugar."
+      : (p._fijoEnSaque(j) || j.nombre + " no se mueve") + (p.balon.dueno === j.id && s.tipo !== "penalti" ? ". Saca tras pulsar Jugar." : "");
     const seguir = this._b("boton-pausa", saque ? "Jugar" : "Seguir", saque ? "verde" : "azul", !listo, "Ya has pulsado: esperando a " + (ctx.rival || "el rival"),
       saque ? ABAJO_SAQUE[0] : ABAJO_FILA4[3], () => this.acc.seguir && this.acc.seguir(), { pulsado: listo, titulo: "Barra espaciadora" });
     if (saque) v.botones = [seguir, this._b("menu", "Menú", "verde", true, "", ABAJO_SAQUE[1], () => { u.menu = true; })];
@@ -408,6 +494,13 @@ const Abajo = {
     let paso, ops, accion;
     if (pend.rol === "ataque" || pend.rol === "defensa") {
       paso = pend.rol; ops = pend.opciones; accion = c => this.acc.elegir && this.acc.elegir(c);
+    } else if (pend.rol === "muro" || pend.rol === "cadena") {
+      // el tiro que viaja (O-325): al llegarle el balon, el muro (Bloquear, Dejar pasar o su
+      // supertecnica) o el companero que puede encadenar (No encadenar o su tiro, con el
+      // total del tiro con el)
+      paso = pend.rol;
+      ops = pend.rol === "cadena" ? pend.opciones.map(o => o.clave === "nada" ? o : Object.assign({}, o, { _total: o.total })) : pend.opciones;
+      accion = c => this.acc.elegir && this.acc.elegir({ [pend.rol]: c });
     } else if (pend.rol === "tiro") {
       if (u.paso && u.paso.tiro && pend.cadena) {
         paso = "cadena";
@@ -447,9 +540,12 @@ const Abajo = {
       }
     }
     const bt = (o, flecha) => o ? this._opBoton(o, accion, flecha) : null;
-    const izq = bt(op(ops, { cadena: "nada" }[paso] || "normal"), paso === "ataque" ? "izq" : null);
+    // el tiro largo de la T (O-326): sin Tirar ni Vaselina; a los lados sus tiros largos (el
+    // primero que paga a la izquierda) y todos en el rayo
+    const largos = paso === "tiro" && pend.largo ? ops.filter(o => o.clave[0] === "t").sort((a, b) => (b.puede ? 1 : 0) - (a.puede ? 1 : 0)) : null;
+    const izq = largos ? bt(largos[0]) : bt(op(ops, { cadena: "nada" }[paso] || "normal"), paso === "ataque" ? "izq" : null);
     // el boton partido de la defensa: Entrada | Cargar, como el "Volee Tir" de Galaxy
-    const der = paso === "ataque" ? bt(op(ops, "potente"), "der")
+    const der = largos ? bt(largos[1]) : paso === "ataque" ? bt(op(ops, "potente"), "der")
       : paso === "defensa" ? [bt(op(ops, "potente")), bt(op(ops, "cargar"))].filter(Boolean)
       : paso === "tiro" ? bt(op(ops, "vaselina") || op(ops, "volea"))
       : paso === "muro" ? bt(op(ops, "nada")) : paso === "portero" ? bt(op(ops, "despejar")) : null;
@@ -462,13 +558,25 @@ const Abajo = {
     if (paso === "ataque" && du.base) ayuda.push("Ya puedes marcar el pase o el tiro: sale si ganas.");
     const mu = du.muro !== null && du.muro !== undefined ? p.jugadores[du.muro] : null;
     if (paso === "tiro") {
+      // el poder de afinidad y el combo de tecnicas de VR (O-328): ya van en el total
+      const af = p.afinidad ? Math.round(p.afinidad[yo]) : 0, co = p.combo ? p.combo[yo] : 0, cp = co ? (REGLAS.COMBO.tiro[co] || 0) : 0;
+      if (af > 0 || co > 0) ayuda.push((af > 0 ? "Poder de afinidad +" + af + " %" : "") + (af > 0 && co > 0 ? " y " : "") + (co > 0 ? "combo ×" + co + " (+" + cp + " %)" : "") + ": ya van en el total y se gastan al chutar.");
+      if (largos) ayuda.push("Tiro largo desde " + Math.round(du.distancia) + " m: va como un tiro normal (el balón viaja hacia la portería).");
       if (du.alto) ayuda.push("Balón alto: remata de cabeza (Testarazo) o al aire (Volea); cuenta el Físico.");
       if (mu) ayuda.push(du.muroPegado ? mu.nombre + " está pegado a ti: también para la vaselina." : mu.nombre + " está en la línea de tiro: la vaselina le pasa por encima.");
     }
-    if (paso === "cadena") ayuda.push(p.jugadores[pend.cadena.jugador].nombre + " está en la línea de tiro: ¿encadena el tiro?");
-    if (paso === "muro") ayuda.push(p.jugadores[pend.muro.jugador].nombre + " está en la línea de tiro: ¿bloquea? " + (du.muroPegado ? "(está pegado: para también la vaselina)" : "(si es vaselina, pasa por encima)"));
-    if (paso === "portero" && pend.muro) ayuda.push("Ahora el portero: " + p.jugadores[pend.jugador].nombre);
-    return { paso, rol: pend.rol, franja: ABAJO_FRANJA[paso], izq, der, rayo, tecnicas, ayuda, morada: this._morada(p, yo, pend, paso, accion), cuenta: !!p.limiteDuelo };
+    if (du.etapa && du.etapa !== "chute") {
+      // el tiro que viaja (O-325): a quien le ha llegado y lo que trae
+      const tv = du.base ? du.base[(p.jugadores[du.tirador] || {}).lado] : null, de = (p.jugadores[du.tirador] || {}).nombre || "";
+      if (paso === "muro") ayuda.push("¡El tiro de " + de + " te llega! Bloquéalo: si ganas, lo paras; si no, le quitas fuerza" + (tv ? " (trae " + tv + ")" : ""));
+      if (paso === "cadena") ayuda.push("El tiro de " + de + " le llega a " + p.jugadores[pend.jugador].nombre + ": ¿lo encadena? Suma su tiro y el gol sería suyo");
+      if (paso === "portero") ayuda.push("¡El tiro de " + de + " llega a la portería!" + (tv ? " Trae " + tv + "." : ""));
+    } else {
+      if (paso === "cadena") ayuda.push(p.jugadores[pend.cadena.jugador].nombre + " está en la línea de tiro: ¿encadena el tiro?");
+      if (paso === "muro") ayuda.push(p.jugadores[pend.muro.jugador].nombre + " está en la línea de tiro: ¿bloquea? " + (du.muroPegado ? "(está pegado: para también la vaselina)" : "(si es vaselina, pasa por encima)"));
+      if (paso === "portero" && pend.muro) ayuda.push("Ahora el portero: " + p.jugadores[pend.jugador].nombre);
+    }
+    return { paso, rol: pend.rol, franja: largos ? ABAJO_FRANJA.largo : ABAJO_FRANJA[paso], izq, der, rayo, tecnicas, ayuda, morada: this._morada(p, yo, pend, paso, accion), cuenta: !!p.limiteDuelo };
   },
   // la franja morada del espiritu (b23) [PIZARRA en el contenido]: en un foco, la
   // hipertecnica ★ (gana el duelo, O-310); en el tiro y el penalti, Invocar (sube tus
@@ -500,6 +608,8 @@ const Abajo = {
   _cifra(o) {
     const t = o._total !== undefined ? o._total : o.total;
     if ((o.clave === "nada" && o._total === undefined) || t === undefined) return "";
+    // contra: lo que trae el tiro contra esta parada si su tecnica le gana en elemento (O-328)
+    if (o.contra !== undefined) return "total " + t + " · el tiro " + o.contra;
     return o.min !== undefined ? "de " + o.min + " a " + o.max : o.clave === "cargar" ? "disputa " + t : o.hiper ? "contra hiper " + t : "total " + t;
   },
   // una casilla de la lista (b25): la tecnica, su elemento, ✦ si es de espiritu, su coste
@@ -640,12 +750,13 @@ const Abajo = {
     if (!p) return;
     for (const j of p.jugadores) {
       if (j.lado !== yo || !j.espiritu) continue;
-      const activo = p.conAura(j), antes = this._auras[j.id];
-      if (antes && antes.nombre === j.nombre && antes.activo && !activo && !j.expulsado && !p.tanda) {
+      // (con su nombre de siempre: con un modo se llama como su forma, O-327)
+      const activo = p.conAura(j), antes = this._auras[j.id], nom = j.propio ? j.propio.nombre : j.nombre;
+      if (antes && antes.nombre === nom && antes.activo && !activo && !j.expulsado && !p.tanda) {
         const n = Math.max(0, Math.ceil(j.auraLista - p.segundosDeJuego()));
-        this.aviso(j.nombre + " se queda sin su espíritu" + (n ? " (vuelve en " + n + " s)" : ""), j.nombre);
+        this.aviso(nom + " se queda sin su espíritu" + (n ? " (vuelve en " + n + " s)" : ""), nom);
       }
-      this._auras[j.id] = { nombre: j.nombre, activo };
+      this._auras[j.id] = { nombre: nom, activo };
     }
   },
 
@@ -663,7 +774,7 @@ const Abajo = {
     const t = String(texto), k = resalta ? t.indexOf(resalta) : -1;
     if (k >= 0) f.append(t.slice(0, k), el("b", { text: resalta }), t.slice(k + resalta.length)); else f.textContent = t;
     // encima de los botones y de la barra del duelo, si los hay
-    const v = this._v, bajo = v && (v.botones.length || v.duelo || v.estadisticas), entera = v && /^(equipo|registro|tactica)$/.test(v.vista);
+    const v = this._v, bajo = v && (v.botones.length || v.duelo || v.estadisticas), entera = v && /^(equipo|registro|tactica|invocacion)$/.test(v.vista);
     f.classList.toggle("alto", !!bajo && !entera);
     // en la tactil entera, por encima de su linea de mensajes
     f.classList.toggle("entera", !!entera);
@@ -701,8 +812,9 @@ const Abajo = {
     const ab = (estado && estado.abajo) || {};
     ctx.tactil = ab.tactil !== false; ctx.trasGol = !!ab.trasGol; ctx.repetir = ab.repetir !== false;
     const v = this.que(p, yo, ctx), u = this.ui;
-    // la ficha grande arriba: con el icono T y, en Equipo, la del que eliges (diseno 4.3)
-    if (typeof Director !== "undefined") Director.fichaGrande = !!(u.verT || (v.vista === "equipo" && u.eqCampo !== null));
+    // la ficha grande arriba: en Equipo, la del que eliges (diseno 4.3; la T ya no, es el
+    // tiro largo, O-326)
+    if (typeof Director !== "undefined") Director.fichaGrande = !!(v.vista === "equipo" && u.eqCampo !== null);
     this._v = v;
     this._vivos(p, v);
     const clave = JSON.stringify(v);
@@ -783,6 +895,7 @@ const Abajo = {
     if (v.vista === "equipo") caja.appendChild(this._domEquipo(v.equipo));
     if (v.vista === "registro") caja.appendChild(this._domRegistro(v.registro, p, yo));
     if (v.vista === "tactica") caja.appendChild(this._domTactica(v.tactica));
+    if (v.vista === "invocacion") caja.appendChild(this._domInvocacion(v.invocacion));
     if (v.estadisticas && (fondo === "descanso" || fondo === "final")) caja.appendChild(this._domEstad(v.estadisticas, !!v.franja));
     if (v.franja && !v.duelo) caja.appendChild(el("div", { class: "gx-franja-abajo", text: v.franja }));
     if (v.vista === "espera") caja.appendChild(el("div", { class: "gx-barra-azul gx-control" }));
@@ -807,11 +920,16 @@ const Abajo = {
     const mano = () => this.acc.pausa && this.acc.pausa();
     mano.soloSi = true;
     const ts = () => { u.panel = u.panel === "tacticas" ? null : "tacticas"; };
-    const aura = () => { u.panel = u.panel === "espiritus" ? null : "espiritus"; };
-    const t = () => { if (!c.t.si && !u.verT) return this.aviso(c.t.porque); u.verT = !u.verT; };
+    // con el tiempo de invocacion, para el juego (O-327); si no, el compacto de siempre
+    const aura = () => { if (c.aura.parar) return this.pedirInvocacion(); u.panel = u.panel === "espiritus" ? null : "espiritus"; };
+    aura.soloSi = !!c.aura.parar;
+    // la T: el tiro largo o el pase hacia delante (O-326); debajo, lo que hara
+    const t = () => this.pulsarT();
+    t.soloSi = true;
     col.append(hex("mano", c.mano, 4, "icono_mano", "Pausa (barra espaciadora)", mano, "boton-pausa"),
-      hex("ts", c.ts, 33, "icono_ts", "Tácticas", ts), hex("aura", c.aura, 62, "icono_aura", "Espíritus", aura),
-      hex("t", c.t, 100, "icono_t", u.verT ? "Volver al mapa arriba" : "La ficha grande arriba", t));
+      hex("ts", c.ts, 33, "icono_ts", "Tácticas", ts), hex("aura", c.aura, 62, "icono_aura", c.aura.parar ? "Espíritus: para el juego para invocar" : "Espíritus", aura),
+      hex("t", c.t, 100, "icono_t", c.t.titulo || "Tiro largo", t, "boton-t"));
+    if (c.t.si) col.appendChild(el("div", { class: "gx-hex-que " + c.t.que, title: c.t.titulo }, [el("b", { text: c.t.etiqueta[0] }), el("small", { text: c.t.etiqueta[1] })]));
     return col;
   },
 
@@ -865,6 +983,15 @@ const Abajo = {
       const atras = this._b("atras", "Atrás", "azul", true, "", [236, 68, 40, 20], () => { u.panel = null; }, { chico: true });
       caja.append(this._boton(inv, "rel"), this._boton(atras, "rel"));
     }
+    return caja;
+  },
+
+  // el tiempo de invocacion (O-327): la franja de arriba (el rotulo, quien la ha pedido o
+  // lo que ha invocado el rival y la cuenta online) y el panel de auras entero
+  _domInvocacion(t) {
+    const caja = el("div", { class: "gx-invocacion gx-control" });
+    caja.appendChild(el("div", { class: "cab-inv" }, [el("b", { text: t.titulo }), el("span", { text: t.quien }), t.cuenta ? el("em", { text: t.cuenta }) : null]));
+    caja.appendChild(this._domEspiritus(t, false));
     return caja;
   },
 

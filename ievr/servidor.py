@@ -1444,6 +1444,20 @@ class Manejador(BaseHTTPRequestHandler):
                 if nombre.endswith(".glb") and os.path.isfile(ruta):
                     return self._fichero(ruta, "model/gltf-binary")
                 return self._responder(404, {"error": "ese personaje no tiene modelo convertido"})
+            if u.path.startswith("/api/partido/evento/"):
+                # una animacion real de VR (supertecnica, invocacion) convertida en este PC
+                # desde su juego: escena.json, escena.glb, pistas_*.glb y los rotulos
+                # (datos/modelos3d/eventos, no se reparte; ievr/g4evento.py, O-323)
+                import re
+                from ievr import modelos3d as M3
+                partes = unquote(u.path[len("/api/partido/evento/"):]).split("/")
+                tipos = {".json": "application/json", ".glb": "model/gltf-binary", ".png": "image/png"}
+                if (len(partes) == 2 and re.fullmatch(r"(ev\d\d_\d{5}(_\d{1,2})?|_rotulos)", partes[0])
+                        and re.fullmatch(r"[A-Za-z0-9_]{1,60}\.(json|glb|png)", partes[1])):
+                    ruta = os.path.join(M3.carpeta(), "eventos", partes[0], partes[1])
+                    if os.path.isfile(ruta):
+                        return self._fichero(ruta, tipos[os.path.splitext(ruta)[1]])
+                return self._responder(404, {"error": "esa animacion no esta convertida"})
             if u.path == "/api/partido/modelos/estado":
                 # como va la cola de conversion (ievr/modelos3d.py)
                 from ievr import modelos3d as M3
@@ -1720,6 +1734,22 @@ class Manejador(BaseHTTPRequestHandler):
                 if not isinstance(codigos, list):
                     raise E.Ilegal("faltan los codigos de los modelos")
                 return self._responder(200, M3.preparar(codigos[:64]))
+            if u.path == "/api/partido/eventos/preparar":
+                # las animaciones reales de VR de los jugadores del partido (sus supertecnicas,
+                # su espiritu y en lo que se transforman), en segundo plano detras de los
+                # modelos; dice que evento lleva cada una (ievr/modelos3d.py, O-323)
+                from ievr import modelos3d as M3
+                jugadores = cuerpo.get("jugadores")
+                if isinstance(jugadores, list):
+                    limpios = [{"cara": str(j.get("cara") or ""), "espiritu": str(j.get("espiritu") or ""),
+                                "tecnicas": [str(t) for t in (j.get("tecnicas") or [])[:16]]}
+                               for j in jugadores[:40] if isinstance(j, dict)]
+                    return self._responder(200, M3.preparar_partido(limpios))
+                eventos = cuerpo.get("eventos")
+                if isinstance(eventos, dict):
+                    return self._responder(200, M3.preparar_eventos(
+                        {str(k): v for k, v in list(eventos.items())[:200] if isinstance(v, dict)}))
+                raise E.Ilegal("faltan los jugadores o los eventos")
             if self.draft and u.path in ("/api/abrir", "/api/guardar", "/api/instalar"):
                 raise E.Ilegal("esto es el equipo del draft: se pasa a tu partida con "
                                "Importar equipo, no guardando aqui")

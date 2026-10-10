@@ -50,13 +50,26 @@ import numpy as np
 # parado, correr, tiro y patada. Los mismos nombres usa web/partido-3d.js.
 BANCO_PARTIDO = "p020"
 ANIM_PARTIDO = ["戦1立ち1L", "戦1走り1L", "戦1シュート1", "戦1キック1"]
+# y los de VR para los duelos, las paradas y el gol (ANIM_VR de web/partido-3d.js, O-320; Aaron
+# dijo que si a rehacer los modelos con ellos, O-322/O-323), por banco del cuerpo: p020 el
+# partido, p021 los duelos, p030 regates y el gol, p040 las paradas, p010 el salto
+ANIM_VR = {
+    "p020": ["戦1スライディング1", "戦1Hシュート1前上1", "戦1シュート3右", "戦1うつ伏せダウン1", "戦1スタン1",
+             "戦1GKキャッチミス前1"],
+    "p021": ["戦1エラシコ1勝利1", "戦1エラシコ1敗北1", "戦1ショルダーチャージ1勝利1", "戦1ショルダーチャージ1敗北1",
+             "戦1スチールダッシュ1勝利1", "戦1スチールダッシュ1敗北1"],
+    "p030": ["戦1すりぬけ1勝利", "戦1すりぬけ1敗北", "戦1ゴール後走り喜び1入", "戦1ゴール後その場がっかり1入"],
+    "p040": ["戦1GKキャッチ前", "戦1GKキャッチ右", "戦1GKキャッチ左", "戦1GKパンチング前"],
+    "p010": ["ジャンプ上1"],
+}
 SOMBRA = 0.72          # cuanto oscurece la sombra de dibujo animado horneada (0 = nada)
 MAX_TEX = 1024         # lado maximo de las texturas del .glb
 VERSION_INDICE = 1
 # Sube cada vez que cambie lo que sale en el .glb: los que ya tenga un PC de
 # otra version se rehacen solos (ievr/modelos3d.py). 1 = el script de pruebas
-# (tallas de ropa mal en 12 de 22); 2 = Pizarra con modelos-personaje.csv.
-VERSION_MODELO = 2
+# (tallas de ropa mal en 12 de 22); 2 = Pizarra con modelos-personaje.csv;
+# 3 = con los clips de VR (ANIM_VR), las rotaciones en int16 y las armaduras de _armd (O-323).
+VERSION_MODELO = 3
 
 
 def crc(nombre):
@@ -95,6 +108,22 @@ def leer_g4pk(b):
 
 
 # --------------------------------------------------------------------------- G4SK (esqueleto)
+def _nombres_g4sk(b, s, n):
+    """Los n nombres de una tabla (u16 offsets relativos a `s` + textos), o None si no lo
+    es (fuera del fichero o con bytes que no son texto)."""
+    try:
+        out = []
+        for i in range(n):
+            o = s + u16(b, s + 2 * i)
+            t = bytes(b[o:b.index(b"\0", o)])
+            if not t or any(c < 0x20 or c > 0x7e for c in t):
+                return None
+            out.append(t.decode("ascii"))
+        return out
+    except (ValueError, struct.error, IndexError):
+        return None
+
+
 def leer_g4sk(b):
     """Esqueleto. Cabecera 0x40; 0x20 u16 n_huesos; 0x24 8 x u16 = inicio de secciones (palabras, +0x40).
     0x40           n x 3x4 float  matriz MUNDO de reposo (filas; traslacion en la 4a columna)
@@ -103,7 +132,9 @@ def leer_g4sk(b):
     sec2           n x u32        crc32 del nombre de cada hueso
     sec3           n x u16        padre (n = sin padre)
     sec7           n x u16        offset de nombre (relativo a sec7) + textos
-    Un .g4pkm (esqueleto propio de algunos personajes) lo lleva dentro."""
+    Un .g4pkm (esqueleto propio de algunos personajes) lo lleva dentro.
+    Los G4SK pequenos de los eventos (puntos de colocacion, efectos) llevan los nombres en la
+    seccion 6 (o antes): se buscan alli si en la 7 no hay nombres legibles (O-323)."""
     if b[:4] == b"G4PK":
         b = next((x for _n, x in leer_g4pk(b) if x[:4] == b"G4SK"), b"")
     if b[:4] != b"G4SK":
@@ -115,7 +146,15 @@ def leer_g4sk(b):
     loc = np.frombuffer(b, "<f4", n * 12, sec[1]).reshape(n, 12).astype(np.float64)
     hashes = list(struct.unpack_from("<%dI" % n, b, sec[2]))
     padres = list(struct.unpack_from("<%dH" % n, b, sec[3]))
-    nombres = [texto(b, sec[7] + u16(b, sec[7] + 2 * i)) for i in range(n)]
+    nombres = None
+    for k in (7, 6, 5, 4):
+        if k != 7 and sec[k] == sec[2]:
+            continue
+        nombres = _nombres_g4sk(b, sec[k], n)
+        if nombres:
+            break
+    if not nombres:
+        raise ValueError("esqueleto G4SK sin nombres legibles")
 
     def a4(m):
         out = np.zeros((len(m), 4, 4))
@@ -133,12 +172,13 @@ def leer_g4sk(b):
 # tipos de elemento de vertice (byte 0 de cada elemento de la declaracion)
 E_POS, E_NOR, E_BIN, E_PESO, E_HUESO, E_COLOR, E_UV0, E_TAN = 1, 2, 3, 5, 6, 8, 10, 13
 # formatos: 3 float3 | 20 snorm16x4 | 32 unorm16x8 (pesos) | 24 u8x8 (indices) | 12 unorm8x4 | 14 unorm16x2
+# | 16 unorm16x4 y 8 u8x4 (pesos e indices de los efectos y modelos de tecnica, O-323)
 
 
 def leer_g4md(b):
     """Descriptor de modelo.
     0x04 u16 inicio de la tabla de submallas | 0x0A u16 base de tablas en palabras
-    0x20 u16 n submallas | 0x22 u16 n materiales | 0x24 u8 n huesos | 0x26 u8 n declaraciones
+    0x20 u16 n submallas | 0x22 u16 n materiales | 0x24 u16 n huesos | 0x26 u8 n declaraciones
     0x27 u8 n texturas | 0x5C u32 inicio del buffer de indices dentro del .g4mg
     0x60..0x8B u16 en palabras desde la base: 0x64 materiales, 0x68 refs de textura, 0x74 crc32 de
     huesos, 0x76 crc32 de texturas, 0x82 paleta de huesos, 0x84 nombres de submalla, 0x86 de material.
@@ -153,7 +193,9 @@ def leer_g4md(b):
     def tabla(o):
         return base + u16(b, o) * 4
     n_mallas, n_mats = u16(b, 0x20), u16(b, 0x22)
-    n_huesos, n_layouts, n_tex = b[0x24], b[0x26], b[0x27]
+    # n huesos es u16: los efectos y modelos con mas de 255 (hasta 677) reventaban leyendo
+    # solo el byte bajo; en los demas el alto es 0 (comprobado en 1.900 modelos, O-323)
+    n_huesos, n_layouts, n_tex = u16(b, 0x24), b[0x26], b[0x27]
     ib_base = u32(b, 0x5C)
     sub = u16(b, 0x04)
     mallas = []
@@ -220,8 +262,16 @@ def leer_vertices(md, mg, m):
         else:                                   # 14 = unorm16 x2 (lo normal)
             out["uv"] = campo(E_UV0, "<u2", 2).astype(np.float32) / 65535.0
     if E_PESO in lay and E_HUESO in lay:
-        out["pesos"] = campo(E_PESO, "<u2", 8).astype(np.float32)
-        out["joints"] = campo(E_HUESO, "u1", 8)
+        # personajes: pesos formato 32 (unorm16 x8) e indices 24 (u8 x8); efectos, keshin y
+        # modelos de tecnica: 16 (unorm16 x4) y 8 (u8 x4), comprobado: suman 1 (O-323)
+        k = 4 if lay[E_PESO][1] == 16 else 8
+        out["pesos"] = campo(E_PESO, "<u2", k).astype(np.float32)
+        out["joints"] = campo(E_HUESO, "u1", 4 if lay[E_HUESO][1] == 8 else 8)
+        if out["joints"].shape[1] != k:
+            k = min(k, out["joints"].shape[1])
+            out["pesos"], out["joints"] = out["pesos"][:, :k], out["joints"][:, :k]
+    if E_COLOR in lay and lay[E_COLOR][1] == 12:   # color de vertice unorm8 x4 (los efectos)
+        out["color"] = campo(E_COLOR, "u1", 4).astype(np.float32) / 255.0
     if m["ni"]:
         out["ind"] = np.frombuffer(mg, "<u2", m["ni"], md["ib_base"] + m["io"]).astype(np.uint32)
     else:   # sin indices: los vertices ya van de tres en tres (las botas de c11802040)
@@ -339,12 +389,21 @@ class Glb:
         self.j["bufferViews"].append(v)
         return len(self.j["bufferViews"]) - 1
 
-    def accesor(self, arr, tipo, target=None, minmax=False):
+    def rotaciones(self, q):
+        """Accesor de cuaternios (F, 4) en int16 normalizado: la mitad que en float y glTF lo
+        admite en las animaciones (three.js los pasa a float al cargar); error 3e-5 (O-323)."""
+        q = np.asarray(q, np.float64)
+        q = q / np.maximum(np.linalg.norm(q, axis=1, keepdims=True), 1e-12)
+        return self.accesor(np.round(np.clip(q, -1, 1) * 32767).astype(np.int16), "VEC4", normalizado=True)
+
+    def accesor(self, arr, tipo, target=None, minmax=False, normalizado=False):
         arr = np.ascontiguousarray(arr)
         comp = {np.dtype("float32"): 5126, np.dtype("uint32"): 5125, np.dtype("uint16"): 5123,
-                np.dtype("uint8"): 5121}[arr.dtype]
+                np.dtype("uint8"): 5121, np.dtype("int16"): 5122}[arr.dtype]
         a = {"bufferView": self.vista(arr.tobytes(), target), "componentType": comp,
              "count": int(arr.shape[0]), "type": tipo}
+        if normalizado:                         # enteros que se leen como -1..1 (rotaciones, O-323)
+            a["normalized"] = True
         if minmax:                              # glTF lo exige en POSITION y en los tiempos
             a["min"] = [float(x) for x in arr.min(axis=0)]
             a["max"] = [float(x) for x in arr.max(axis=0)]
@@ -602,10 +661,14 @@ class Juego:
 
     MEMORIA = 192 << 20
 
-    def __init__(self, carpeta, cache=None):
+    def __init__(self, carpeta, cache=None, filtro=None, version=VERSION_INDICE):
+        """`filtro(ruta)` decide que ficheros entran en el indice (los de personajes si no se
+        dice); con otro filtro, otra cache y otra `version` (los eventos de VR, O-323)."""
         if not carpeta or not os.path.isdir(carpeta):
             raise FileNotFoundError("no encuentro la carpeta del juego (data/packs)")
         self.carpeta = carpeta
+        self._filtro = filtro or _hace_falta
+        self._version = version
         self.ficheros = self._indice(cache)
         if not self.ficheros:
             raise FileNotFoundError("en %s no estan los paquetes .cpk del juego" % carpeta)
@@ -619,20 +682,20 @@ class Juego:
             try:
                 with open(cache, encoding="utf-8") as fh:
                     d = json.load(fh)
-                if d.get("version") == VERSION_INDICE and d.get("firma") == firma:
+                if d.get("version") == self._version and d.get("firma") == firma:
                     paq = d["paquetes"]
                     return {r: (paq[v[0]], v[1], v[2], v[3]) for r, v in d["ficheros"].items()}
             except (OSError, ValueError, KeyError, IndexError, TypeError):
                 pass
         from ievr import cpk
-        rutas, errores = cpk.indice_de_carpeta(self.carpeta, _hace_falta)
+        rutas, errores = cpk.indice_de_carpeta(self.carpeta, self._filtro)
         paq = sorted({nom for nom, _e in rutas.values()})
         num = {n: i for i, n in enumerate(paq)}
         ficheros = {r[len("data/"):]: (nom, e["offset"], e["tam"], e["tam_extraido"]) for r, (nom, e) in rutas.items()}
         # si algun paquete no se pudo leer (el antivirus o Steam lo tenian abierto) no se guarda:
         # la firma no cambiaria y sus ficheros faltarian hasta la proxima actualizacion del juego
         if cache and not errores:
-            d = {"version": VERSION_INDICE, "firma": firma, "paquetes": paq,
+            d = {"version": self._version, "firma": firma, "paquetes": paq,
                  "ficheros": {r: [num[v[0]], v[1], v[2], v[3]] for r, v in sorted(ficheros.items())}}
             os.makedirs(os.path.dirname(os.path.abspath(cache)), exist_ok=True)
             with open(cache + ".tmp", "w", encoding="utf-8") as fh:
@@ -676,7 +739,14 @@ def rutas_de(f):
     """Los ficheros del juego que hacen falta para la fila `f` de modelos-personaje.csv:
     (esqueleto, [(nombre, g4md, g4mg)], [g4tx], banco de animacion o None)."""
     modelos, texturas = [], []
-    for k in ("uniforme", "botas", "guantes"):
+    if f.get("armadura"):
+        # con armadura (los `_5000`/`_5100` de las armaduras de keshin): el cuerpo es el modelo
+        # de _armd que dice CHARA_MODEL_INFO, en vez del uniforme, las botas y los guantes (O-323)
+        m = "common/chr/_armd/" + f["armadura"]
+        modelos.append((os.path.basename(f["armadura"]), m + ".g4md", m + ".g4mg"))
+        if f.get("armadura_tex"):
+            texturas.append("dx11/chr/_armd/%s/%s.g4tx" % (f["armadura"].split("/")[0], f["armadura_tex"]))
+    for k in () if f.get("armadura") else ("uniforme", "botas", "guantes"):
         if f.get(k):
             m = "common/chr/_uniform/" + f[k]
             modelos.append((os.path.basename(f[k]), m + ".g4md", m + ".g4mg"))
@@ -687,6 +757,19 @@ def rutas_de(f):
     texturas.append("dx11/chr/%s.g4tx" % cara)
     banco = "common/chr/{0}/{0}_{1}.g4pk".format(f["anim"], BANCO_PARTIDO) if f.get("anim") else None
     return "common/chr/" + f["esqueleto"], modelos, texturas, banco
+
+
+def bancos_de_fila(f, banco=None):
+    """[(ruta del banco, [clips])] que lleva el modelo: el banco del partido (p020) con los 4 de
+    siempre y los de VR de cada banco del cuerpo (ANIM_VR, O-323)."""
+    if not f.get("anim"):
+        return []
+    out = []
+    for sufijo in [BANCO_PARTIDO] + [s for s in ANIM_VR if s != BANCO_PARTIDO]:
+        ruta = banco if banco and sufijo == BANCO_PARTIDO else "common/chr/{0}/{0}_{1}.g4pk".format(f["anim"], sufijo)
+        clips = (ANIM_PARTIDO if sufijo == BANCO_PARTIDO else []) + ANIM_VR.get(sufijo, [])
+        out.append((ruta, clips))
+    return out
 
 
 def version_de(ruta):
@@ -743,10 +826,17 @@ def convertir(codigo, carpeta_juego, destino, juego=None, informe=None):
         else:
             informe("  (el juego no trae %s: esa pieza sale sin textura)" % t)
     bancos = []
-    if banco and juego.hay(banco):
-        if banco not in juego.objetos:
-            juego.objetos[banco] = g4anim.bancos_de(juego.leer(banco))
-        bancos.append((os.path.splitext(os.path.basename(banco))[0], juego.objetos[banco], ANIM_PARTIDO))
+    for ruta_banco, clips in bancos_de_fila(f, banco):
+        if not juego.hay(ruta_banco):
+            continue
+        if ruta_banco not in juego.objetos:
+            juego.objetos[ruta_banco] = g4anim.bancos_de(juego.leer(ruta_banco))
+        mts = juego.objetos[ruta_banco]
+        hay = {c["nombre"] for mt in mts for c in mt["clips"]}
+        faltan = [c for c in clips if c not in hay]
+        if faltan:
+            informe("  (el banco %s no trae %s)" % (ruta_banco, ", ".join(faltan)))
+        bancos.append((os.path.splitext(os.path.basename(ruta_banco))[0], mts, [c for c in clips if c in hay]))
     piel = bytes.fromhex(f["piel"]) if f.get("piel") else None
     g = armar(juego.leer(esqueleto), leidos, texs, piel=piel, bancos=bancos, informe=informe)
     g.j["asset"]["extras"] = {"version": VERSION_MODELO, "codigo": codigo,

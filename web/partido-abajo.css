@@ -23,6 +23,13 @@
 .gx-hex.apagado { opacity: .92; }
 .gx-hex.activo { background-size: 22px 24px, 26px 28px; outline: 1.5px solid #F2E070; outline-offset: -3px; border-radius: 6px; }
 .gx-hex .n { position: absolute; left: 23px; top: 18px; font: 900 7.5px/1 var(--gx-redonda); color: #fff; text-shadow: var(--gx-contorno); }
+/* lo que hara la T (O-326): "Tiro largo" en amarillo o "Pase adelante" en cian, debajo */
+.gx-hex-que { position: absolute; left: 279px; top: 129px; width: 40px; display: flex; flex-direction: column; align-items: center; pointer-events: none;
+  text-shadow: var(--gx-contorno); line-height: 1; }
+.gx-hex-que b { font: italic 900 8px/1 var(--gx-redonda); color: #8FE8FF; }
+.gx-hex-que small { font: 800 6.5px/1.1 var(--gx-redonda); color: #DDF6FF; white-space: nowrap; }
+.gx-hex-que.tiro b { color: #F8D040; }
+.gx-hex-que.tiro small { color: #FFF0B0; }
 
 /* --- los paneles compactos en juego: PEGADOS ABAJO (y146-238), suben en 200 ms (8.8) --- */
 .gx-compacto { position: absolute; left: 2px; top: 146px; width: 280px; height: 92px; box-sizing: border-box; padding: 2px 4px; border-radius: 6px;
@@ -297,6 +304,15 @@
 .gx-equipo .pend { font: 800 7px/1.2 var(--gx-redonda); color: #9FF0E6; }
 .gx-equipo .reglas { margin-top: 2px; font: 700 6.3px/1.22 var(--gx-redonda); color: #DDEFD8; }
 .gx-franja-abajo.eq { top: 187px; }
+
+/* --- el tiempo de invocacion (O-327): el panel de auras en toda la tactil, con su franja */
+.gx-invocacion { position: absolute; left: 0; top: 0; width: 320px; height: 240px; background: linear-gradient(180deg, #1C2266, #120E4A); }
+.gx-invocacion .cab-inv { position: absolute; left: 0; top: 0; width: 320px; height: 21px; display: flex; align-items: center; gap: 6px; padding: 0 6px; box-sizing: border-box;
+  background: linear-gradient(180deg, #6A1A9A, #3A0E6A); border-bottom: 1px solid #C080F0; }
+.gx-invocacion .cab-inv b { font: 900 11px/1 var(--gx-redonda); color: #fff; text-shadow: 0 0 3px #35DBF5, var(--gx-contorno); white-space: nowrap; }
+.gx-invocacion .cab-inv span { flex: 1; min-width: 0; font: 800 7.5px/1.1 var(--gx-redonda); color: #F0D8FF; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: right; }
+.gx-invocacion .cab-inv em { font: 700 10px/1 var(--gx-cifras); font-style: normal; color: #F8E040; }
+.entra .gx-invocacion .gx-auras { animation: gx-sube-panel .2s ease-out both; }
 
 /* --- Registro y Tactica: el panel azul de la lista con dos pestanas ----------------- */
 .gx-registro, .gx-tacticas { position: absolute; left: 0; top: 0; width: 320px; height: 240px;

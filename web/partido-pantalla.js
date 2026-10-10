@@ -104,7 +104,8 @@ class CamaraAbajo {
     if (du && du.id !== this._duelo) {
       this._duelo = du.id;
       const j = p.jugadores[du.tipo === "foco" ? du.atacante : du.tirador];
-      if (j && !pen) this.cortarA(j.x, j.y);
+      // en las etapas del tiro que viaja la camara ya va con el balon (O-325)
+      if (j && !pen && !(du.etapa && du.etapa !== "chute")) this.cortarA(j.x, j.y);
     }
     if (p.fase !== this._fase) {
       const antes = this._fase;
@@ -113,7 +114,12 @@ class CamaraAbajo {
       if (p.fase === "saque" && antes !== null) { this.libre = false; this.suave = C.viaje; }
       else if (p.fase === "juego" && this.libre) { this.libre = false; this.suave = C.vuelta; }
     }
-    if (this.libre && p.fase === "juego" && this.soltadaEn !== null && this.t - this.soltadaEn >= C.espera) { this.libre = false; this.suave = C.vuelta; }
+    // tras pulsar Jugar, hasta que se saca, el juego sigue parado: se queda donde la
+    // dejes y vuelve al sacar (O-324)
+    const sinSacar = !!p.porSacar;
+    if (this._sinSacar && !sinSacar && this.libre) { this.libre = false; this.suave = C.vuelta; }
+    this._sinSacar = sinSacar;
+    if (this.libre && p.fase === "juego" && !sinSacar && this.soltadaEn !== null && this.t - this.soltadaEn >= C.espera) { this.libre = false; this.suave = C.vuelta; }
     if (!this.libre) {
       const o = this.objetivo(p, h, this._o);
       if (!this.lista) { this.x = o.x; this.y = o.y; this.lista = true; this.suave = C.suave; }
@@ -134,6 +140,8 @@ const SueloAbajo = {
   // el que chuta: el del duelo de tiro, o tu jugador con balon a tiro de porteria o con el
   // tiro marcado (b28: al acercarse a la porteria rival ya se ven el cono, la linea y la X)
   tirador(p, yo) {
+    // con el tiro en vuelo, el cono es el suyo, desde donde se chuto (p.tiro, O-325)
+    if (p.tiro) return null;
     const du = p.fase === "duelo" && p.duelo;
     if (du && (du.tipo === "tiro" || du.tipo === "penalti")) return p.jugadores[du.tirador] || null;
     const d = p.dueno();
@@ -326,7 +334,18 @@ class Pantalla {
   // la zona de tiro (b28): cono cian a los dos palos, la linea amarilla con borde oscuro
   // hasta la X y el rombo azul; la linea, la X y el rombo solo en el tuyo
   _zonaTiro() {
-    const j = SueloAbajo.tirador(this.p, this.yo);
+    const j = SueloAbajo.tirador(this.p, this.yo), T = this.p.tiro;
+    if (!j && T) {
+      // el tiro en vuelo (O-325): el cono desde donde se chuto y la X donde va
+      const ctx = this.ctx, m = REGLAS.PORTERIA / 2, gy = Math.sign(T.ty || 1) * REGLAS.LARGO / 2;
+      const A = this._dp(T.x0, T.y0), B = this._dp(-m, gy), C = this._dp(m, gy), E = this._dp(T.tx, T.ty);
+      ctx.save();
+      ctx.beginPath(); ctx.moveTo(A.px, A.py); ctx.lineTo(B.px, B.py); ctx.lineTo(C.px, C.py); ctx.closePath();
+      ctx.globalAlpha = 0.45; ctx.fillStyle = GX.cono; ctx.fill(); ctx.globalAlpha = 1;
+      this._equis(E.px, E.py);
+      ctx.restore();
+      return;
+    }
     if (!j) return;
     const ctx = this.ctx, p = this.p, g = p.porteriaRival(j), m = REGLAS.PORTERIA / 2, ppp = this.ppp;
     const A = this._dp(j.x, j.y), B = this._dp(-m, g.y), C = this._dp(m, g.y);
@@ -504,6 +523,8 @@ class Pantalla {
       const queda = Math.hypot(b.pase.destino.x - b.x, b.pase.destino.y - b.y);
       alto = Math.sin(Math.PI * Math.max(0, Math.min(1, 1 - queda / b.pase.total))) * 5;
     }
+    // el tiro en vuelo, a su altura (O-325)
+    if (!en && this.p.tiro && this.p.alturaTiro) alto = Math.max(alto, this.p.alturaTiro() - 0.4);
     ctx.fillStyle = "rgba(0,0,0,.3)"; ctx.beginPath(); ctx.ellipse(P.px, P.py, r * 1.1, r * 0.6, 0, 0, Math.PI * 2); ctx.fill();
     const Q = this._dp(b.x, b.y, alto + 0.4);
     ctx.fillStyle = "#fff"; ctx.strokeStyle = "#222"; ctx.lineWidth = 1.2 * this.ppp;

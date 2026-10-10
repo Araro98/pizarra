@@ -8706,6 +8706,589 @@ Fallos y como tiene que ser:
 7. Los calculos van raros: el portero saca mucho menos que en el juego. Revisar
    todos los calculos para que cuadren con VR (y con la calculadora de Pizarra).
 
+### O-323 · El juego de partidos: las animaciones REALES de VR (supertecnicas y transformaciones), la conversion
+
+Lo que pidio Aaron en O-322 ("animaciones completas, buscando en todos los ficheros del juego las
+reales de VR de cada supertecnica y transformacion"; "rehacer los modelos con mas clips de VR: si").
+Investigacion y plan: scratchpad juego/animvr/INFORME.md. Fase A: el conversor (Python). Fase B: la
+pagina ya las ensena arriba (abajo, "Fase B"; lo que habia que hacer: juego/animvr/INTEGRAR.md). Todo
+se convierte en el PC de cada uno desde SU juego; nada del juego va al repo ni a los zips
+(datos/modelos3d/ esta en .gitignore y no lo empaquetan publicar.py ni empaquetar.py). En el codigo
+los cambios citan esta nota.
+- En VR cada supertecnica es un "evento": un guion (event_cfg/evt y eff, .cfg.bin T2B) con sus cortes
+  de camara y, por corte, la animacion de cada actor (el jugador en sus 4 tipos de cuerpo, el rival o
+  los companeros, el balon, el keshin/alma), la camara (G4CM) y los efectos (mallas, texturas y sus
+  animaciones G4MT/G4MA/G4TP/G4VS). Las invocaciones son eventos iguales: ev80 keshin, ev81 armadura,
+  ev82 mixi max, ev83 alma, ev84 lazo, ev85 despertar y cambio de modo (Thaddeus -> Byron).
+- Nuevo: ievr/cfgbin.py (lector propio de T2B: el volcado.exe revienta con los guiones),
+  ievr/evento.py (el guion: cortes, actores con plantilla, a que punto va pegado cada uno segun su
+  tipo de cuerpo, quien se ve, efectos, camara, rotulo) y ievr/g4evento.py (el conversor). Por evento,
+  en datos/modelos3d/eventos/<ev>/: escena.json (el guion masticado: cortes, camara de VR con su fov y
+  giro por fotograma, quien se ve, opacidad/color/UV de los materiales y mallas de los efectos por
+  fotograma, emisores de particulas en crudo), escena.glb (efectos y camara), pistas_c000X01.glb (las
+  pistas de los jugadores para ese tipo de cuerpo, se aplican al modelo de cada jugador),
+  pistas_<keshin/alma>.glb y pistas_modelos.glb (balon y modelos de la tecnica). Donde va cada actor
+  (pegado a un hueso de un punto animado) va horneado en su hueso raiz. Y los rotulos de VR con el
+  nombre (telop_waza/es) en eventos/_rotulos/. VERSION_EVENTO para rehacerlos si cambia.
+- Modelos sueltos por la misma cola: keshin kNNNNNN (con su pose 化身立ち1L), almas aNNNNNN, el balon,
+  los modelos de las tecnicas (_waza) y el aura del keshin en el campo (ega_kNNNNNNa, clips
+  in/loop/out). Los transformados (armadura, mixi max, modo) son personajes normales.
+- Tablas nuevas (herramientas/construir_eventos.py): datos/reglas-extraidas/eventos-tecnicas.csv (973
+  supertecnicas: evento, evento de fallo (el del gol en paradas y bloqueos), segundos, jugadores,
+  keshin/alma, modelos, tipos de cuerpo, rotulo) y eventos-espiritus.csv (442: evento, keshin/alma,
+  en que se convierte (armadura y mixi por AURA_CMD_INFO col 13; modo por modos.csv), aura del campo,
+  rotulo). Solo nombres: nada de dibujos.
+- La cola (ievr/modelos3d.py) hace primero los modelos de los jugadores y luego, de uno en uno, los
+  eventos de sus tecnicas y su espiritu (para el tipo de cuerpo del que la hace y, si sale otro
+  jugador, los de todos los del partido), los modelos sueltos y los rotulos. Rutas nuevas (solo
+  anadidas): POST /api/partido/eventos/preparar (los jugadores -> que evento lleva cada tecnica y
+  espiritu) y GET /api/partido/evento/<ev>/<fichero>; /api/partido/modelos/estado dice tambien como
+  van los eventos.
+- ievr/g4.py: VERSION_MODELO 3: los modelos traen los 21 clips de VR de ANIM_VR (web/partido-3d.js:
+  duelos, paradas, gol, caido...; de los bancos p020/p021/p030/p040/p010 del cuerpo), con las
+  rotaciones en int16 (3,5 MB por modelo; cada PC los rehace una vez, ~2 s cada uno), y las
+  armaduras con su cuerpo de _armd (modelos-personaje.csv: columnas nuevas armadura y armadura_tex,
+  165 filas; antes salian con el uniforme). Arreglos que salieron en la investigacion: n huesos u16
+  en G4MD (los 20 efectos y algun modelo con mas de 255 reventaban), pesos/indices x4 de los efectos y
+  keshin, G4SK con los nombres en la seccion 6, G4TP/G4VS, color de vertice y cuaternios a cero.
+  Comprobado que los personajes de antes no cambian (707 esqueletos iguales; ninguna cara afectada).
+- Pruebas (scratchpad juego/animvr/o323): 45 eventos de todos los grupos x4 tipos + keshin/almas y
+  los 1.122 de las tablas (tipo 01) sin fallos y con los .glb validos (0,8 s de media); la cola y
+  las rutas en el servidor de pruebas (8 jugadores: 10 eventos, 9 modelos y 9 rotulos en 7 s);
+  Chrome headless con el reproductor: Tornado de fuego, Torbellino dragon (con el rival), Mano
+  celestial (para y gol), un tiro de keshin, invocar a Lancelot, armadura Guiverno, mixi max de Axel,
+  totem bufalo y Thaddeus -> Byron, como en las pruebas de la investigacion, sin errores en la
+  consola. Un partido: ~100 eventos y 150-300 MB.
+- Fase B, la pagina (hecha, 2026-10-10):
+  - web/partido-eventosvr.js (nuevo): el reproductor de los eventos de VR (el de referencia del
+    conversor, con la cache de modelos de la pagina): por corte la camara de VR (giro y fov por
+    fotograma), los efectos con sus materiales y mallas por fotograma, quien se ve, y el que la hace,
+    el rival o los companeros, el balon, los modelos de la tecnica y el keshin o alma con sus pistas.
+    Se carga entero y se sube a la grafica antes de verse; se ve uno a la vez y como mucho hay 3
+    cargados (el de ahora y los del plan).
+  - El Estudio (partido-escenas.js) pide al servidor, al empezar el partido, las animaciones de los
+    22 (detras de sus modelos en la cola), luego las de las formas de los modos y el banquillo, y las
+    de los que entran en un cambio. En cada supertecnica y en la ★ del plan sale su evento de VR: la
+    tecnica por su nombre interno; la parada que acaba en gol y el muro que no para el tiro, el de
+    fallo (_2); en los regates y defensas el rival de verdad, en los tiros de 2-3 los companeros mas
+    cerca. Al invocar (sobre el mapa o la ★), el evento de su espiritu (ev80-85): s00 el jugador como
+    era y s01 en lo que se convierte (Thaddeus -> Byron, el mixi max de Cade, la armadura), el keshin o
+    el alma; con eso se ve el cambio de uno a otro (lo que faltaba de O-327). Va en el sitio del que la
+    hace en el estadio, mirando a la porteria que ataca (el que chuta a 18 m como poco; los de campo
+    lejos de las gradas), con la camara de VR, y el HUD de Galaxy encima como siempre. Se carga en
+    cuanto sale el resultado (antes del choque o de prepararse, 1-2 s antes de su tramo); si no llega
+    en 0,6 s (mientras, el primer plano de la plantilla) o este PC aun no la ha convertido, ese tramo
+    con la plantilla de antes. Con las cortas, sus ultimos cortes (el golpe, la parada).
+  - Completas (las de por defecto, como pidio Aaron): cada supertecnica dura lo de su animacion de VR
+    (`seg` de eventos-tecnicas.csv, que partido.py manda en cada tecnica y espiritu; el motor lo apunta
+    en el resultado y REGLAS.planAnim lo usa, como mucho 12 s): de 3,5 a 10 s (antes 4,2 todas). La
+    invocacion sobre el mapa dura lo de la suya (4-5 s; el nombre del HUD y el fundido al final).
+    Online `seg` va en el equipo y en el resultado de la foto: los dos sacan el mismo plan
+    (REGLAS.VERSION ya es 13 en esta version).
+  - Los efectos, mejor (ievr/g4evento.py, VERSION_EVENTO 2: los convertidos antes se rehacen solos):
+    los Grd/Threshold de VR llevan tres texturas (la rampa de colores, la forma y un ruido) y salian
+    como rectangulos enteros con el degradado; ahora la pagina pinta la forma con los colores de la
+    rampa (la luna con adornos de Escudo lunar, los rayos). Los "cuartos de mancha" (las ALP de los
+    MA_) van en espejo (salian rectangulos con el borde duro). Lo que suma luz se suma "en pantalla"
+    (no pasa de blanco: con el estadio claro detras, Zona de contencion lavaba la imagen entera). La
+    distorsion y las particulas falsas (van con texturas de posiciones) aun no se pintan.
+  - Repetir y Reanudar tras el gol: siguen. Con el tiro que viaja y el chute de VR largo la repeticion
+    se quedaba sin la jugada (solo el vuelo, o nada si el vuelo era corto): ahora son los ultimos 2,5 s
+    de juego sin los parones (la animacion del chute, un duelo).
+  - Quitados los comentarios de partido-3d.js y partido-escenas.js que decian que VERSION_MODELO 3 (los
+    clips de VR de los duelos) estaba "a confirmar".
+  - Medido (Chrome headless, 1366x697, calidad alta, "Ver FPS"): 49 FPS con la animacion de VR arriba
+    (JS 0,9 ms, 3D 2,1 ms), 38 con las plantillas (3D 2,9 ms) y 52 jugando: no baja. Cargar una tarda
+    340-960 ms; en 4 ratos de partido de verdad (4 min cada uno, Lightyear contra Marineros) 96 de 96
+    supertecnicas e invocaciones con su animacion de VR, ninguna tarde. Un partido convierte 128 eventos
+    en ~3,5 min la primera vez (con los 22 modelos ya hechos): ~700 MB en datos/modelos3d/eventos (mas
+    que los 150-300 calculados: los de 2 o mas jugadores van con los 4 tipos de cuerpo; se pueden
+    borrar, se rehacen).
+  - Pruebas: nueva prueba-o323.js (57 OK: el plan con `seg`, el motor, el invitado, el Director, el HUD
+    de la invocacion, que evento y donde, la gracia, las cortas, la parada y el muro con _1/_2, la ★,
+    el reproductor con un evento de mentira, la rampa, la distorsion, Repetir y las texturas de Escudo
+    lunar con el juego de este PC) y todas las de antes OK (prueba3ds 175, e1 101, e2 68, e3 90, e4 65,
+    e5 82, e6 86, o315 84, g1 56, g2 58, g3 142, g4 60, g5 66, g6 21, saques 83, tiro-que-viaja 86,
+    boton-t 75, espiritus 94, o328 81) y las fotos del invitado iguales (sin, completas y cortas).
+    Jugando en el navegador (scratchpad juego/cdp, o323_capturas.mjs con el servidor de pruebas y su
+    propia carpeta de modelos): el tiro (Fuego rapido), un foco (Aceleron contra Zona de contencion),
+    la parada y el gol (Escudo lunar _1 y _2), el muro (El muro), invocar (keshin Brunilda, totem
+    Delfinus, despertar, Thaddeus -> Byron, el mixi max de Cade), la ★, las cortas y los ratos de
+    partido con Repetir; sin errores en la consola. Capturas: cdp/gx/o323_hoja_*.png y, al lado de
+    Galaxy, o323_comparado_*.png.
+- Falta: las particulas (.ptlb: los datos salen en escena.json pero el significado de cada numero esta
+  sin confirmar), la distorsion, las expresiones de la cara (sale el numero; falta la rejilla del
+  atlas), el aura del keshin a sus pies en el campo de abajo (ega_k######a; el keshin ya sale detras,
+  O-327), las manos de los uniformes (O-293) y el rotulo de VR con el nombre (sale el de Galaxy).
+- A confirmar con Aaron: un video o capturas de 2-3 tecnicas de VR (Tornado de fuego, Mano celestial,
+  invocar un keshin) para ajustar los sombreadores, el fov y las particulas; si los efectos se ven
+  como en VR (algun destello aun sale muy blanco).
+
+### O-324 · El juego de partidos: los saques en dos tiempos (fallos 1 y 2 de O-322)
+
+Arreglo de los fallos 1 y 2 que vio Aaron (O-322) en todos los saques: centro, banda,
+corner, puerta, falta (y fuera de juego) y penalti. En el codigo los cambios citan esta nota.
+- Fallo 1 ("al mover a un jugador, si hay un rival cerca se mueven juntos"): era la
+  maquina. En la espera colocaba a los suyos en cada paso y seguia a los que movias (O-313:
+  "sigue a los que mueves"): su marca iba pegada al tuyo. Ahora coloca UNA vez, al empezar
+  la espera (barrera, marcas, el area del corner...), y luego no toca a nadie: al arrastrar
+  a uno de los tuyos solo se mueve ese. La pagina ya cogia solo a uno de tu equipo.
+- Fallo 2, el saque en dos tiempos (Aaron: "en la pantalla de Jugar mover pero no flechas;
+  al dar a Jugar flechas pero no mover; nadie se mueve hasta que la pelota esta en
+  movimiento"):
+  - En la espera ("Tiempo de tactica", [Jugar] [Menu]) solo se COLOCA arrastrando. Ya no se
+    dibujan carreras (antes, manteniendo pulsado 450 ms), ni se manda presionar, ni se
+    marca el pase o el tiro del que saca (O-308 lo dejaba y salia al pulsar Jugar). El
+    motor lo rechaza (tambien online). Al empezar la espera se borran las rutas, la presion
+    y el pase marcado de antes de la parada. Arrastrar al que saca dice por que no se mueve;
+    pulsar un sitio con el balon, "Primero pulsa Jugar; luego sacas...".
+  - Al pulsar Jugar los dos, el saque queda por hacer (`porSacar`: quien saca, su lado, el
+    tipo). Ya no se coloca; se dibujan las flechas (y se puede mandar presionar, invocar,
+    una tactica o la pausa), pero NADIE se mueve, ni la maquina: no hay duelos, el reloj
+    no corre y no sube la tension, como en la espera. Las tacticas que roban el balon o
+    aturden, no ("solo con el balon en juego"). Arriba a la izquierda de la tactil, una
+    caja: "Saque de banda: dibuja las carreras de los tuyos y saca: pulsa a un companero
+    o un sitio. Nadie se mueve hasta que saques" (al rival: "Saque de banda de X: dibuja
+    las carreras de los tuyos. Nadie se mueve hasta que saque"). Arrastrar en vacio mueve
+    la camara y se queda donde la dejes, como en la espera.
+  - Se saca con el pase, el pase al hueco, el despeje, el tiro (el de la falta) o la carrera
+    del que saca (se va conduciendo). Entonces todos echan a correr: los de flecha por ella,
+    los colocados sin flecha se quedan en su sitio hasta que alguien coge el balon (O-313;
+    sus 3 s cuentan desde que se saca, no desde Jugar) y los demas, a su zona. Un tiro que
+    no llega no saca. La maquina saca a los `REGLAS.SAQUE_MAQUINA` 3,5 s de pulsar Jugar
+    (para que de tiempo a dibujar las flechas; en el de centro el rotulo "¡Saque!" tapa
+    1,6 s); la persona, cuando quiera (sin limite, como Jugar).
+  - El saque de centro de la segunda parte (y de la prorroga), que no tiene espera (el
+    descanso lo es), tambien espera a que se saque. El penalti no cambia: al pulsar Jugar es
+    el tiro.
+- Sin la opcion `esperas` (pruebas viejas y medidas) se saca en el acto, como antes: medir2
+  y medir3 dan lo mismo.
+- Online: la foto lleva al final `ps` (el saque por hacer, para la caja del invitado); si
+  el rival no saca en un minuto sale "X aun no ha sacado: puedes esperarle o dejar el
+  partido". `REGLAS.VERSION` 10 (la espera ya no deja rutas ni pase marcado): **Aaron y su
+  amigo tienen que tener los dos este Pizarra**.
+- Y en el campo de abajo ya no se selecciona texto al arrastrar (se pintaban de azul la caja
+  de ayuda y los botones).
+- La ayuda "Como se juega" lo explica.
+- Pruebas: nueva prueba-saques.js 83 OK (la maquina coloca una vez y no sigue al que
+  mueves; en la espera solo colocar; tras Jugar flechas si, colocar no, nadie se mueve ni
+  hay duelo ni corre el reloj aunque haya un rival pegado; cada forma de sacar; la maquina
+  saca a los 3,5 s; la persona cuando quiera; la pausa; la segunda parte; el penalti y el
+  gol; online; 8 partidos enteros sin nadie moviendose antes de sacar; la tactil y la
+  pagina). Cambiadas (copias .antes-saques.js) las que miraban lo de antes: prueba-e1 (la
+  ruta y el pase marcado en la espera, el reloj tras Jugar), e6 (lo mismo, la marca que
+  seguia y la maquina que sacaba enseguida), o315 (el aviso; y los saques de puerta de sus
+  48 partidos, 2,73: con 144 partidos 3,12 contra 3,25 del motor de antes, ruido: el limite
+  baja a 2,5), e5 y o315 (`ps` al final de la foto), g2 (en juego, ya sacado), g3 (la
+  ficha del que saca) y g4 (VERSION 9 o mas); comun-vr.js saca por la persona sin maquina.
+  Todas OK (prueba3ds 175, e1 101, e2 68, e3 88, e4 65, e5 82, e6 86, o315 84, g1 56, g2 58,
+  g3 142, g4 60, g5 66, g6 21, saques 83) y las fotos del invitado iguales. Jugando en el
+  navegador (scratchpad juego/cdp, o324_saques.mjs y o324_online.mjs; capturas gx/o324_*):
+  la espera, colocar manteniendo pulsado, el que saca que no se mueve, la caja tras Jugar,
+  la flecha sin que nadie se mueva, sacar pulsando a un companero, el saque de banda de la
+  maquina (a los 3,8 s, nadie se mueve antes), un tiro libre con la maquina marcando a 3 y
+  el marcado movido sin su marca; online, el invitado coloca, dibuja su flecha y nadie se
+  mueve en ninguna pestana hasta que saca el que invita. Sin errores en la consola.
+- A confirmar con Aaron: los 3,5 s de la maquina; que el reloj este parado hasta que se
+  saca; que la carrera del que saca cuente como sacar (tambien en la banda); que los
+  colocados sin flecha esperen a que alguien coja el balon (3 s como mucho); que la
+  maquina ya no reaccione a donde colocas a los tuyos.
+
+### O-325 · El juego de partidos: el tiro que viaja (fallo 3 de O-322)
+
+Arreglo del fallo 3 que vio Aaron (O-322): "el que chuta elige la tecnica y chuta; el balon
+viaja hacia la porteria; si hay un jugador en medio, al llegarle sale elegir el bloqueo; al
+llegar a la porteria, el portero elige su tecnica; mientras va, se dibujan flechas" (antes se
+elegian a la vez el muro y la parada antes de chutar). Como en Galaxy. En el codigo los
+cambios citan esta nota.
+- El motor, con la opcion `vuelo` (la pone la pagina; sin ella, el tiro de antes: las
+  pruebas viejas y medir2/medir3 dan lo mismo). El tiro va por etapas y cada una es un duelo
+  de UN solo lado (`duelo.etapa`), con su resultado (la misma `etapa`) y su animacion:
+  - chute: solo elige el que chuta (Tirar o Vaselina, Testarazo o Volea, o su supertecnica),
+    con el poder de base de el y del portero arriba. Paga, su AT es la cuenta de siempre
+    (distancia, pasivas, tiro directo...) y, sin supertecnica, se decide ya si se va fuera
+    (O-315): el balon va junto a un palo. Animacion: prepara, su tecnica y el negro.
+  - el balon VIAJA (`this.tiro`): a `REGLAS.VUELO.vel` 15 m/s (a 20 m, 1,3 s) hacia un punto
+    de la porteria, con el juego en marcha: corre el reloj, se dibujan flechas, se puede
+    invocar, pausar o usar una tactica. Nadie lo coge: le salen al paso.
+  - muro: el rival (no el portero) por el que pasa a menos de `VUELO.radio` 1,6 m: el balon se
+    para ahi y elige el (rol "muro": Bloquear, Dejar pasar o su supertecnica de bloqueo). Si
+    gana, lo para (rebota o a corner); si pierde, le quita al tiro la mitad de su numero (VR)
+    y el balon sigue (a veces lo desvia a corner, O-315). Si hay varios, uno detras de otro.
+  - cadena: el companero con un tiro de cadena que pague, a mas de `VUELO.cadenaDesde` 4 m de
+    donde se chuto: elige si encadena (rol "cadena": No encadenar o su tiro, con el total del
+    tiro con el). Si encadena, los AT se suman, el balon sale de el hacia la porteria (a
+    puerta) y el gol es suyo.
+  - portero: al llegar el balon a su altura (si ha salido, como mucho a 5 m de la linea) o a
+    1,6 m de el, elige Parar, Despejar o su supertecnica contra lo que trae el tiro (con su
+    elemento): gol, parada o despeje como siempre.
+  - llegada: el que iba fuera cruza la linea sin que juegue el portero: "¡Fuera!" y saque de
+    puerta.
+  - La vaselina va por alto: solo la para el que esta a su salida (2,5 m mas el radio); a los
+    demas les pasa por encima ("¡Por encima!" sobre ellos). Tras ella no se encadena.
+  - Los defensas sin flecha: el que antes llega a su camino (`VUELO.cortan` 1) va solo a
+    cortarlo, como antes iban a por el balon; los demas, a su zona; el portero, a su linea
+    frente adonde va el balon. Con flechas, a quien quieras (Aaron).
+  - El remate de primeras es un chute mas (y luego viaja). Invocar vale en cada etapa para el
+    que elige (se rehacen sus numeros, como en el tiro de antes).
+- La maquina: el muro bloquea siempre (con su mejor supertecnica si la paga), encadena como
+  antes y el portero como antes (ahora ve lo que trae el tiro).
+- La pagina: la tactil de cada etapa ("¡Elige un tiro!"; "¡Bloquea el tiro!" [Bloquear]
+  [rayo] [Dejar pasar]; "¿Encadenas el tiro?" [No encadenar] [rayo]; "¡Defiende la porteria!"
+  [Parar] [rayo] [Despejar]) con su ayuda ("¡El tiro de X te llega! Bloquealo..."); el que no
+  elige espera. Mientras va, la caja de arriba: "¡Te chuta X! Lleva a tus defensas a su camino
+  con flechas para bloquearlo; luego elige tu portero" (al que chuta, lo de la cadena). Abajo
+  el balon de verdad a su altura (la vaselina, alta), su estela, el cono desde donde se chuto
+  con la X donde va y la placa "Poder total" con lo que trae (baja con cada muro); la patada
+  al salir (y al encadenar). El Director pone los anillos y el 3D de arriba en el que elige
+  cada etapa (el muro, el que encadena, el portero); la repeticion del gol lleva el vuelo de
+  verdad. El 3D de abajo solo patea al chutar y al encadenar. La reserva 2D, igual.
+- Online: la foto lleva al final `tv` (el tiro en vuelo: de donde salio, adonde va, lo alto,
+  lo que lleva) y los duelos de cada etapa; el invitado ve el balon viajar y elige su bloqueo
+  o su parada cuando le toca. `REGLAS.VERSION` 11: **Aaron y su amigo tienen que tener los dos
+  este Pizarra**.
+- La ayuda "Como se juega" lo explica.
+- Medido (medir-vuelo.js, 40 partidos de maquina contra maquina de 2 x 15): 16,5 tiros, 7,4
+  muros jugados (3,5 lo bloquean y 1,4 lo desvian), 2,8 se van fuera y 2,45 goles por partido;
+  con el tiro de antes, 3,7 goles y 2,1 muros. Hay mas bloqueos, el portero sabe lo que le
+  llega y el balon vuela unos 12 s por partido (con el reloj en marcha). Con 2 m de radio y 2
+  defensas cortando se bloqueaban 4,5 por partido: se dejo en 1,6 m y 1.
+- Pruebas: nueva prueba-tiro-que-viaja.js 86 OK (los planes de cada etapa; el chute de un
+  solo lado; el balon que viaja con el reloj y los jugadores; el portero al llegar; el gol y
+  la parada; el muro: dejar pasar, bloquear, debilitar y desviar; dos muros seguidos; la
+  flecha que lleva al defensa a tiempo y la que no; el que va solo a cortarlo; la vaselina
+  por encima y la del pegado; la cadena y su gol; el remate de primeras; el que se va fuera;
+  invocar en una etapa; la maquina y 6 partidos enteros con cada etapa de un solo lado;
+  online con la foto `tv`; la tactil, la caja de ayuda y el Director). Cambiadas (copias
+  .antes-vuelo.js) prueba-e5 y o315: `tv` va al final de la foto. Todas OK (prueba3ds 175,
+  e1 101, e2 68, e3 88, e4 65, e5 82, e6 86, o315 84, g1 56, g2 58, g3 142, g4 60, g5 66,
+  g6 21, saques 83, tiro-que-viaja 86) y las fotos del invitado iguales. Jugando en el
+  navegador (scratchpad juego/cdp, o325_tiro.mjs y o325_online.mjs; capturas gx/o325_*): en
+  la pausa pulso la porteria, Seguir, solo yo elijo el tiro, el balon viaja con su estela, su
+  placa y su cono, el defensa de la maquina lo bloquea o lo frena y luego el portero; me chuta
+  la maquina, con el balon en vuelo dibujo la flecha de mi defensa a su camino, me sale
+  "¡Bloquea el tiro!", lo frena y al llegar "¡Defiende la porteria!"; online, el invitado
+  espera en el chute, ve el balon viajar, su flecha llega y elige su bloqueo y su parada
+  mientras el que invita espera. Sin errores en la consola.
+- A confirmar con Aaron: la velocidad del balon (15 m/s) y el radio de bloqueo (1,6 m); que un
+  defensa sin flecha vaya solo a cortarlo; que el reloj corra mientras vuela; que la maquina
+  bloquee siempre; que el portero vea lo que trae el tiro antes de elegir (como en Galaxy);
+  los goles con la maquina (bajan de 3,7 a 2,5 por partido).
+
+### O-326 · El juego de partidos: la T es el tiro largo (punto 4 de O-322)
+
+Lo que pidio Aaron (O-322 punto 4): "la T de la pantalla es el tiro largo: si tienes un tiro
+largo, lo usas y va como un tiro normal; si no, la T es un pase hacia delante". En el codigo
+los cambios citan esta nota.
+- El motor, `Partido.botonT(j)`: lo que hara la T con el que lleva el balon (sin azar: lo que
+  dice la tactil es lo que pasa).
+  - Tiro largo: si tiene una supertecnica de tiro largo (subtipo 4 de VR) que puede usar ya (la
+    paga; la del espiritu, con el aura; la de varios, con companeros) y la porteria esta a su
+    alcance (`_alcanceTiro`: 38 x 1,6 = 60,8 m), la T chuta con la orden de siempre
+    `{tipo: "tiro", de, largo: true}`. En el chute solo salen sus tiros largos (sin Tirar ni
+    Vaselina; el duelo lleva `largo`) y luego todo como un tiro normal (O-325): el balon viaja,
+    los muros, la cadena, el portero. Cuenta como siempre (con la distancia pierde la mitad que
+    un tiro normal, `porDistancia`). Si al llegar la orden ya no puede (online, la tension ha
+    bajado), el tiro de siempre. La eleccion segura (se acaba el tiempo online) es su primer
+    tiro largo que pague; Tirar o Vaselina que lleguen valen como el. Invocar en el chute
+    rehace sus numeros y siguen solo los largos.
+  - Si no (no tiene, no le llega la tension o esta lejos): pase hacia delante (`{tipo: "pase"}`)
+    al companero (no el portero) que este al menos `REGLAS.BOTON_T.avance` 4 m por delante, a
+    5-38 m, sin un rival a menos de 1,6 m del camino y sin fuera de juego: el que mas avanza y
+    mas libre esta (la nota de los pases de la maquina con el avance primero). Si no hay
+    ninguno, al hueco (`{tipo: "pasePunto"}`): 14 m por delante y un poco hacia el centro (sin
+    pasar del area pequena), y va el companero mas cerca, como en el pase al hueco de siempre.
+  - En el saque de banda no se chuta (es con las manos): pase. En la falta, el tiro largo. Tras
+    pulsar Jugar, la T saca (O-324).
+- La tactil: debajo de la T pone lo que hara ("Tiro largo" en amarillo; "Pase adelante" o
+  "Pase al hueco" en cian) y su titulo lo dice entero ("Tiro largo de X a 42 m: Lanza letal
+  (TEN 60). Va como un tiro normal"; "Pase hacia delante a Y (no le llega la tension para su
+  tiro largo (TEN 60))"). Apagada sin el balon: "La T es del que lleva el balon: su tiro largo
+  o, si no tiene, un pase hacia delante". Con el raton encima, el campo de abajo pinta a rayas
+  adonde va: amarillo a la porteria, cian al companero o al hueco, con un aro donde acaba. Al
+  pulsarla con tiro largo, la X del cono al centro de la porteria; el duelo dice "¡Elige un
+  tiro largo!" con sus tiros largos a los lados (el primero que paga a la izquierda) y en el
+  rayo, y la ayuda "Tiro largo desde N m: va como un tiro normal (el balon viaja hacia la
+  porteria)". La columna solo lleva los nombres (no las coordenadas del hueco): la tactil no
+  se rehace en cada cuadro; la orden se calcula otra vez al pulsar.
+- La T antes ponia la ficha grande arriba (diseno 4.3): ahora sale solo en Equipo (Menu).
+- Online: las ordenes son las de siempre (el invitado calcula la T en su copia del partido y
+  manda el tiro o el pase, que el anfitrion hace porque son de su lado) y el duelo va en la
+  foto con su `largo`. No sube `REGLAS.VERSION`: un Pizarra anterior trataria la T del otro
+  como un tiro normal.
+- La ayuda "Como se juega" lo explica.
+- Medido (medir-boton-t.js, 6 partidos de 2 x 15 con la persona pulsando la T cada vez que
+  tiene el balon 0,6 s, contra la maquina): 13,3 tiros largos por partido desde 16-60 m
+  (mediana 42 m), 7 goles de 80 (9 %; los tiros de la maquina, mas cerca, 18 %): desde lejos
+  le salen 2 o 3 muros que le quitan fuerza o lo paran, y el portero; ademas 12 pases adelante
+  y 12 al hueco por partido. No es un boton de gol.
+- Pruebas: nueva prueba-boton-t.js 75 OK (que hace la T con tiro largo, de cerca y hasta 60,8
+  m; el chute solo con sus tiros largos, la eleccion segura, el balon que viaja y el portero;
+  sin tension, lejos o sin tiro largo, el pase con su porque; el mejor colocado por delante,
+  el rival en el camino, el fuera de juego; el hueco y su companero; la banda y la falta;
+  cuando no se puede; el tiro de antes sin `vuelo`; la orden que llega sin tension; invocar en
+  el chute; online; la columna, su etiqueta y su titulo, que no cambia con los jugadores
+  moviendose; pulsarla; el duelo "¡Elige un tiro largo!" con uno y con dos; el DOM y el clic;
+  el HUD con el raton encima; 4 partidos enteros pulsando la T). Cambiada (copia
+  .antes-botont.js) prueba-g3: la T apagada con el balon del rival aunque haya un elegido tuyo
+  (antes era la ficha del elegido). Todas OK (prueba3ds 175, e1 101, e2 68, e3 88, e4 65, e5 82, e6 86, o315 84, g1 56, g2 58, g3 142, g4 60, g5 66, g6 21, saques 83, tiro-que-viaja 86, boton-t 75) y las fotos del invitado iguales. Jugando en
+  el navegador (scratchpad juego/cdp, o326_t.mjs; capturas gx/o326_*): con un tiro largo a 42
+  m, debajo de la T "Tiro largo", con el raton encima la raya a la porteria, al pulsarla
+  "¡Elige un tiro largo!" [Lanza letal total 2045] [rayo] [-], el balon viaja y el portero
+  (gol); sin tension "Pase adelante" con la raya cian y el pase sale a el; sin nadie delante
+  "Pase al hueco"; con el balon del rival, apagada y su porque; en un saque de banda la T saca
+  con un pase. Sin errores en la consola.
+- A confirmar con Aaron: que la T chute tambien de cerca (vale en cualquier sitio a su
+  alcance) y hasta 60,8 m; que con varios tiros largos elija cual (a los lados y en el rayo) en
+  vez de usar el mejor; que en la banda sea pase; que el pase adelante prefiera avanzar a estar
+  libre y el hueco a 14 m; que la ficha grande ya solo salga en Equipo.
+
+### O-327 · El juego de partidos: el tiempo de invocacion y las transformaciones (puntos 5 y 6 de O-322)
+
+Lo que pidio Aaron (O-322 puntos 5 y 6): "el boton de espiritus guerreros PARA el juego para
+elegir (como en Galaxy o CS); en esa parada los dos pueden invocar, uno cada uno, y como mucho 3
+en el campo; el boton tiene recarga" y "las invocaciones como en el juego: Thaddeus no se
+convertia en Byron ni cambiaba sus tecnicas; tienen que cambiar el modelo, las pasivas, las
+tecnicas... igual que en VR". En el codigo los cambios citan esta nota.
+- El tiempo de invocacion, en el motor con la opcion `tiempoInvocar` (la pone la pagina; sin
+  ella se invoca sin parar, como antes: las pruebas viejas y medir2/medir3 dan lo mismo):
+  - El aura de la columna ya no abre el panel pequeno: PARA el juego (orden "tiempoInvocar",
+    fase "invocacion"), como en Galaxy (guia 8.8: el panel de auras sube y es la ventana para
+    responder). Se pide con el balon en juego (tambien tras pulsar Jugar antes de sacar y con
+    el tiro en vuelo) si alguno de los tuyos puede invocar (`puedeTiempoInvocar`; si no, el
+    aura apagada dice por que). Con el balon en juego ya no se invoca sin parar.
+  - En la parada nada se mueve ni corre el reloj. Los dos eligen a la vez en el panel de auras
+    en toda la tactil (las 11 caras, la tarjeta del elegido, "Activos N/3") con una franja
+    arriba ("¡Tiempo de invocación!" y "Lo has pedido tú", "Lo ha pedido la máquina" o lo que
+    ha invocado el rival: "La máquina invoca: Judge · Guardián férreo") y [Invocar] [Seguir]
+    (Seguir sin invocar, tambien con la barra espaciadora). Uno por lado en cada parada; al
+    invocar ya has elegido; con los dos, el juego sigue donde estaba.
+  - La maquina: en la parada que pides decide al momento (invoca a quien invocaria con el balon
+    en juego: el del balon cerca del area o el que defiende cerca, con la tension para su
+    tecnica de espiritu o la barra llena; si no, sigue). Cuando quiere invocar con el balon en
+    juego pide su parada, ya con su invocacion hecha, y te espera (sin limite). El ayudante de
+    los focos automaticos no decide por ti.
+  - El aura vuelve a los `REGLAS.TIEMPO_INVOCAR.recarga` 20 s de juego, para los dos (los dos
+    han tenido su parada): apagada, "Vuelve en 12 s".
+  - Como mucho 3 hipers puestas a la vez por equipo (`HIPER_ACTIVAS_MAX` 3; Aaron, y Galaxy
+    pone "Activos N/3"; en VR son 2). Siguen los 15 s de VR entre una invocacion y otra del
+    mismo equipo y la recarga de cada espiritu.
+  - En la pausa y en la espera del saque el juego ya esta parado: se invoca como antes
+    (Tactica > Espiritus). En un duelo, la franja morada de siempre (la ★ del foco, Invocar en
+    el tiro y el penalti). En la tanda no hay tiempo de invocacion.
+- Las transformaciones como en VR (partido.py `_aspecto_hiper`; motor `_transformar` y
+  `_formas`, que pone o quita la forma segun la hiper en cada paso, al invocar y con la foto):
+  - Modo: partido.py manda la forma de modos.csv (O-225) del que la tiene: nombre, cara y modelo
+    (el de eventos-espiritus.csv, O-323), elemento, stats (los de la forma a su nivel y rareza
+    mas lo que el jugador suma encima de los suyos: judias, equipacion, arbol y pasivas de stat
+    fijo) y supertecnicas (las del arbol de la forma en las ranuras que el tiene abiertas: el
+    tronco y su rama). Con la hiper puesta el jugador ES su forma en los duelos, la tactil, la
+    ficha y el campo: Thaddeus Bellefax (2323 de stats; Vaselina, Aceleron, Habichuelas
+    magicas...) es Byron Love (2648; Entrada cegadora, Sabiduria divina, Hora celestial,
+    Disparo sagrado, Remate caotico) y a los 75 s vuelve. Se dice: "¡Thaddeus Bellefax se
+    convierte en Byron Love! (Modo Aphrody)" y "Byron Love vuelve a ser Thaddeus Bellefax"
+    (Seth Bael, cuya forma se llama igual: "cambia de forma"). La ★ de un foco ("contra hiper")
+    ya cuenta con la forma; un portero con forma conserva la parte de su KP que le quedaba.
+  - Armadura y mixi max: cambian el modelo (cara_a de eventos-espiritus.csv; Cade Shelby con su
+    Miximax Trans: Raika, c11010230); nombre, cara, stats y tecnicas los suyos (lo demas, sus %
+    de O-310).
+  - Keshin y totem: su keshin o su alma (kNNNNNN, aNNNNNN) detras de el en el campo, medio
+    transparente y con su pose de VR en bucle, a escala 1 (los de VR miden 6-8 m; `KESHIN` en
+    partido-3d.js).
+  - Las pasivas son las del jugador (VR no le da otras; la del espiritu ya contaba solo con la
+    hiper puesta, O-310). El vinculo sigue con solo sus % (no se sabe en que companero se
+    convierte).
+  - El campo 3D (`modeloDe(j)`: el modelo de su forma o el de su cara) cambia el cuerpo al
+    transformarse y al volver, sin pasar por la ficha; los modelos de las formas y de los
+    keshin y almas se piden a la cola al empezar el partido, detras de los 22 (cada PC los
+    convierte una vez desde su juego). El Estudio de arriba usa tambien el de su forma, y el
+    Director busca al que invoca por su id (con un modo, al llegar ya se llama como su forma).
+    El aviso "X se queda sin su espíritu" sale con su nombre de siempre.
+- Online: la foto lleva al final `iv` (la parada y desde cuando vuelve el aura de cada uno); la
+  forma viaja con el equipo (el espiritu entero) y el invitado se transforma con la hiper de la
+  foto, sin apuntarlo dos veces. Online la parada dura como mucho `TIEMPO_INVOCAR.limite` 20 s
+  (luego sigue sin mas, como el limite de los duelos). Invocar en la parada cuenta como elegir
+  (si la orden se pierde, su Seguir repetido sigue sin invocar). `REGLAS.VERSION` 12: **Aaron
+  y su amigo tienen que tener los dos este Pizarra**.
+- La ayuda "Como se juega" lo explica.
+- Medido (prueba/medir-espiritus.js, 10 partidos de maquina contra maquina Lightyear-Marineros
+  con las opciones de la pagina): 5,3 invocaciones por partido con 2,1 paradas (sin la parada,
+  6,0 invocaciones) y 0,6 cambios de forma; los mismos goles. medir3 da lo mismo con 2 o 3
+  activos (2,17 goles).
+- Pruebas: nueva prueba-espiritus.js 94 OK (los datos de partido.py sacados de la partida de
+  pruebas con prueba/equipos_o327.py; la parada: pedirla, nada se mueve, uno por lado, Seguir,
+  la recarga, los 3 activos, la pausa, el saque y el chute; Thaddeus -> Byron y vuelta, su foco
+  con las tecnicas de Byron, la ★, Seth Bael, el mixi, el keshin, un portero con forma; la
+  tanda; sin la opcion y con equipos de antes; la maquina; online; la tactil y su DOM; el 3D; 5
+  partidos enteros). Cambiadas (copias .antes-espiritus.js): prueba-e3 y g3 (3 activos), e5 y
+  o315 (`iv` al final de la foto) y comun-vr.js (la persona sin maquina sigue en la parada).
+  Todas OK (prueba3ds 175, e1 101, e2 68, e3 89, e4 65, e5 82, e6 86, o315 84, g1 56, g2 58,
+  g3 142, g4 60, g5 66, g6 21, saques 83, tiro-que-viaja 86, boton-t 75, espiritus 94) y las
+  fotos del invitado iguales. Jugando en el navegador (scratchpad juego/cdp, o327_espiritus.mjs
+  y o327_aspecto.mjs; capturas gx/o327_*): Lightyear contra Marineros; pulso el aura y se para
+  el juego con el panel de auras; elijo a Thaddeus (MODO · Modo Aphrody, 75 s) e Invocar: sigue
+  el juego, arriba "¡Cambio de modo!" y abajo su figura con el modelo de Byron; en un foco su
+  lista es la de Byron; el aura apagada "Vuelve en 17 s"; la maquina con el balon cerca de mi
+  area pide su parada ("La máquina invoca: Judge · Guardián férreo") y sigo; Cade Shelby con
+  el modelo de su mixi max (convertido en el momento) y el keshin de Gabriel Garcia detras de
+  el; acabado el modo, Thaddeus otra vez con su modelo. Sin errores en la consola.
+- Falta (Fase B de O-323): la animacion de arriba de la invocacion ya ensena la forma desde el
+  principio (Byron cargando); con el evento de VR (ev85: s00 el de antes y s01 la forma) se
+  vera el cambio de uno a otro.
+- A confirmar con Aaron: 3 activos por equipo (en VR 2); la recarga de 20 s y que sea para los
+  dos; que la parada no tenga limite fuera del online; que en la pausa y el saque se siga
+  invocando sin parada; los stats de la forma con lo entrenado encima; las tecnicas de la forma
+  por las ranuras abiertas; las pasivas, las del jugador; el keshin a escala 1 detras.
+
+### O-328 · El juego de partidos: los calculos de VR (punto 7 de O-322)
+
+Lo que pidio Aaron (O-322 punto 7): "los calculos van raros: el portero saca mucho menos que
+en el juego; revisar todos los calculos para que cuadren con VR (y con la calculadora de
+Pizarra)". La especificacion, con de donde sale cada numero (game_param, la ayuda del juego,
+O-156/O-157 y la comunidad japonesa): scratchpad juego/calculos/CALCULOS.md. En el codigo los
+cambios citan esta nota.
+- El portero, lo gordo (el Partido le daba un 25-30 % de lo de VR):
+  - PP = 4 x Agilidad + 3 x Fisico + 2 x Presion, ENTERO (game_param calcKP_AGMultiply 4,
+    PSMultiply 3, PRMultiply 2; O-157: Mark Evans 1427 exacto). Antes x0,30 (KP_ESCALA, O-309).
+  - Como en VR es una barra que se GASTA: el tiro es gol si pasa de lo que le queda (con sus
+    pasivas de PP) mas su supertecnica; si no, para y el PP baja lo que el tiro pasa de su
+    supertecnica (la tecnica se gasta primero; con Despejar sin tecnica, el tiro entero: el
+    x1,25 no es un escudo). Antes perdia como mucho un 34 % y nunca bajaba del 25 %. El critico
+    del portero es la "parada" de VR: el PP no baja. En la tanda, como antes, no baja.
+  - Fatiga (game_param gkTiredAttenuation 0.05, gkTiredCountMax 5): cada parada, -5 % a su
+    supertecnica de parada, hasta 5; el PP no. A 0 en el descanso.
+  - No se recupera con el tiempo (antes +2 % por segundo). La hiper de un portero le SUMA al
+    invocar el 15 % de su PP maximo (Determinacion de portero, 20 %) y se queda, aunque pase
+    del maximo (antes solo mientras duraba). En el descanso se llena (en VR sin confirmar).
+  - Las pasivas de PP solo multiplican el PP; las de DF general (y la hiper, el cambio)
+    suben la parte de la supertecnica, no el PP. El elemento, solo en la supertecnica.
+  - En la pantalla, "PP" (antes "KP") con el numero de VR; en la ficha grande, "(cansado N)".
+- Lo demas, como VR:
+  - El muro que pierde le quita al tiro su numero ENTERO (ayuda del juego; antes la mitad). Si
+    el tiro le gana por critico, lo atraviesa sin perder nada (la "perforacion de muro" de VR;
+    antes perdia igual). Sin supertecnica el muro no tiene elemento; con ella, el de los
+    jugadores y el de su tecnica contra la del tiro.
+  - Los elementos: +20 % si el del jugador gana al del rival y +20 % si su supertecnica gana a
+    la SUPERTECNICA del rival (los dos con una); sumados, al final (antes la tecnica contra el
+    elemento del jugador rival). En el foco y en la parada lo de tecnica contra tecnica se sabe
+    al resolver: el panel lleva lo del jugador y el resultado dice "Elemento +20 %". Al
+    portero, el boton de cada parada a la que gana la tecnica del tiro dice lo que trae contra
+    ella: "total 5596 · el tiro 5378". En la disputa, x1,05 / x0,95 (game_param
+    scrambleCharaMultiplier; antes +20 %).
+  - La distancia: nada hasta 16 m y como mucho -10 % a 35 m; el tiro largo, nada (antes hasta
+    -50 % a 45 m: a 30 m, -24 %). La ley exacta de VR no se sabe (vistos 14 y 53 de AT).
+  - El tiro directo (+50 % del tiro del que pasa), solo sin supertecnica.
+  - Sin el tope general de +60 % de las pasivas (no es de VR); quedan los de cada tipo.
+  - El entrenador y los gerentes: partido.py manda `personal` con la regla de las Pasivas de
+    equipo de Pizarra (O-193; solo su tabla de personal con numero, O-185/O-228) y el motor las
+    suma como del equipo (las de "propio" y "jugadores cercanos" no: no estan en el campo). Asi
+    Lightyear y Marineros tienen el PP +20 % que solo llevan sus gerentes. (Las "del mismo
+    elemento" de un entrenador sin elemento, como Riccardo Di Rigo, no valen.)
+  - La carga de configuracion: partido.py manda `configuracion` (la de O-204). Rango 1 a 5:
+    Justicia +1 cada 25 s de juego sin falta propia y -3 por falta, y PP del equipo +5 % por
+    rango desde el 2 (tope 20); Contraataque +4 al robar en su campo y +2 en el rival, -1 cada
+    15 s; Juego sucio +1 por Entrada o Cargar que gana sin falta, -1 por falta; Tension +1 por
+    cada 150 de tension gastada, -1 tras 45 s sin gastar; Vinculo +1 por cada 15 % de afinidad
+    gastada, -1 cada dos balones perdidos; Brecha +1 cada 15 s, -4 con su critico. Las pasivas
+    "Por cada rango de Conf. X, ... +N %" (partido.py ahora las lee; antes sin efecto) valen N x
+    rango, con su tope por rango, y solo las de la configuracion del equipo: 9 de los 11 equipos
+    de Aaron llegan al tope (Justicia a rango 5: AT y DF del equipo +50 %; Contraataque: foco
+    +75 %). En la ficha grande, "Justicia 3"; al subir de rango sale en Lo que pasa.
+  - El poder de afinidad (game_param maxKizunaPower 30...): +1 % por pase completado (y lo de
+    "Al hacer un pase, poder de afinidad +N %", tope 5; y "Cuando el rival comete una falta"),
+    hasta 30 %; sin el balon baja 2 % por segundo; el tiro a puerta lo suma y lo gasta (la
+    cadena suma con el mismo x; en el penalti no cuenta).
+  - El combo de tecnicas: ganar un duelo con supertecnica +1 (hasta 3); el siguiente tiro +10,
+    15 o 20 % y las supertecnicas cuestan la mitad o un cuarto de tension; se pierde si el rival
+    coge el balon y se gasta al chutar. Al chutar, la tactil dice "Poder de afinidad +N % y
+    combo xN (+M %): ya van en el total".
+  - El poder de una supertecnica por nivel: floor(minimo + (poder - minimo) x (nivel - 1) / 98),
+    con el poder minimo de tecnicas.csv (partido.py manda `poderMin`). Cuadra con los 5 medidos
+    en VR (O-156); el de antes fallaba 3. A Nv. 99 (los equipos de Aaron) no cambia nada.
+  - La cadena con una habilidad real (rh*: Vaselina, Tiro con efecto...): el total x0,5 (6.0.1).
+- No cambia: el 90-10 de Aaron (`_decidir`: solo cambia lo que compara), Despejar x1,25, Romper
+  y Entrada, la vaselina, el testarazo y los apoyos de DS (no son de VR: se quedan hasta que
+  Aaron diga). Los criticos siguen llamandose "¡Crítico!".
+- Los goles: con los numeros de VR y la maquina de antes salian 2,8 por partido (y el muro
+  entero se comia los tiros). Sin tocar ningun numero de VR, la maquina chuta algo mas y mejor
+  (`IA_TIRO`: lejos 28, cerca 16, pCerca 0,8, pLibre 0,5, pTapado 0,04, lejano 38, pLejano
+  0,3): si su mejor tiro llega al 60 % de lo que le queda al portero rival, chuta casi siempre
+  (tambien de lejos, con la linea libre); al chutar usa su mejor supertecnica si la paga (el
+  95 %); y si el defensa de la linea le quitaria mas que la vaselina, vaselina. Su portero
+  despeja como antes (si el tiro pasa del 90 % de su Parar).
+- Antes y despues, con ejemplos reales (calculos/tabla-o328.js, sin criticos; los mismos
+  equipos de partido.py para los dos motores):
+
+| | Partido antes | Partido ahora | VR (CALCULOS.md) |
+|---|---|---|---|
+| PP de Vee Wai (Lightyear) | 1712 | 5707; 6848 con sus gerentes | 5707; 6848 |
+| PP de Dax Prescott (Marineros) | 1673 | 5577; 6692 | 5577; 6692 |
+| PP de Sam Idol (Gafas) | 1402; 1549 | 4673; 5164 | 4673; 5164 |
+| PP de Amara Myles (Narices) | 947 | 3158; 3379 | 3158; 3379 |
+| Bash Lancer, Tornado doble, a 16 m | 2964 (pasivas cortadas en +60 %) | 3531 (+87 %) | igual que ahora |
+| el mismo a 22 / 30 m | 2658 / 2249 | 3419 / 3270 | pierde poco |
+| tres tiros de Bash Lancer contra Vee Wai con Escudo lunar | 2964 contra 2333: gol al primero | 3531 contra 7532 y 4650: para; 3531 contra 1734: gol al tercero | para dos y el tercero es gol |
+| foco Bash Lancer, Coz 3 (Fuego), contra Lean, Sorpresa (Montana) | 2047 contra 2093 | 2047 contra 2642 (Montana gana a Fuego: tecnica contra tecnica; y Justicia rango 1) | la tecnica contra la tecnica |
+| muro de un defensa de Lightyear contra ese tiro a 20 m | 1043 contra 2760: le quita 522 | 1147 contra 3456: le quita 1147 | le quita su DF entera |
+
+  Partidos de maquina contra maquina de 2 x 15 (prueba/medir-o328.js, 96 partidos, los 11
+  equipos, con las opciones de la pagina: esperas, tiro que viaja y tiempo de invocacion):
+
+| | antes | ahora |
+|---|---|---|
+| goles por partido | 2,45 | 3,13 |
+| tiros / a puerta | 13,9 / 8,0 | 18,2 / 10,9 |
+| muros jugados | 6,8 | 9,2 |
+| lo que baja el PP en cada parada (mediana, del maximo) | 24 % | 26 % (p25 15, p75 41) |
+| partidos con 4 goles o mas de diferencia | 13 % | 27 % |
+
+  Con el tiro de antes (sin `vuelo`): medir3, 2,17 -> 2,75 goles (9,8 -> 14,5 a puerta);
+  medir-revision, 3,31 -> 3,38 goles y 2,8 -> 5,2 saques de puerta; medir2, 2,2 -> 2,8 goles.
+  Las goleadas: un portero vaciado (un tiro de keshin de 6000 le deja a 500) encaja lo que le
+  llegue hasta el descanso (salio un 11-0, Gorodos contra Prohibido Divertirse), y el equipo
+  flojo (Narices) pierde 0-8 o 0-9 con Lightyear.
+- Online: `REGLAS.VERSION` 13 (los numeros cambian): **Aaron y su amigo tienen que tener los
+  dos este Pizarra**. La foto lleva la fatiga del portero (j[k][13]) y al final `cf` (la carga),
+  `af` (la afinidad) y `co` (el combo); el equipo que viaja lleva `personal`, `configuracion` y
+  el `poderMin` de cada tecnica (partido-red.js). Una foto de un anfitrion anterior los deja como
+  estaban.
+- La ayuda "Como se juega" lo explica (el PP que se gasta, los elementos, la afinidad, el
+  combo, la carga y el muro entero).
+- Pruebas: nueva prueba-o328.js 81 OK (las reglas y los 5 poderes medidos; los datos de
+  partido.py; el PP de VR de Vee Wai y Dax con y sin personal; la parte de la tecnica, la
+  fatiga y el elemento; los tres tiros; Despejar, la parada por critico, el tiempo, el descanso
+  y la tanda; la hiper del portero; el muro y la perforacion; el directo y la cadena rh; sin
+  tope; el personal; la carga de Justicia y Contraataque; la afinidad y el combo; tecnica
+  contra tecnica en el foco y en la etapa del portero; online; la maquina; 8 partidos enteros
+  como la pagina; la pagina). Equipos nuevos de prueba: prueba/*_o328.json y
+  calculos/equipos-o328 (los 11, con calculos/equipos_o328.py). Cambiadas (copias
+  .antes-o328.js), porque los numeros son otros: prueba-e2 (el muro resta entero; la maquina
+  hace vaselina el 60 % o siempre que el muro le quitaria mas; al portero le tiene que quedar
+  un 20 % para despejar), e3 (el PP +15 % de la hiper se queda; al portero de la maquina le
+  tiene que quedar poco para invocar), e5 (la parada sin la hiper; cf, af y co al final de la
+  foto), o315 (corners 1,5-5 con el tiro de antes: el portero casi no despeja; con el que viaja,
+  4,9; la fatiga y cf/af/co en la foto), g1 y g2 ("PP"), tiro-que-viaja (los partidos con los
+  equipos _o328: con el PP de VR, los _vr sin personal ni configuracion apenas marcan) y
+  espiritus (lo que suma la hiper al PP del portero con forma; iv antes de cf/af/co). Todas OK
+  (prueba3ds 175, e1 101, e2 68, e3 90, e4 65, e5 82, e6 86, o315 84, g1 56, g2 58, g3 142, g4
+  60, g5 66, g6 21, saques 83, tiro-que-viaja 86, boton-t 75, espiritus 94, o328 81) y las
+  fotos del invitado iguales. En el navegador (scratchpad juego/cdp, o328_calculos.mjs;
+  capturas gx/o328_*): Gafas contra Lightyear, Vee Wai con PP 5707 (6848), la ficha con "PP
+  5707", chuto con Bash Lancer (3531 contra 8351: para y le baja a 3708, fatiga 1) y me chuta
+  Sol Daystar con su keshin (4482): mis botones "Parada peliaguda 5596 (el tiro 5378)". Sin
+  errores en la consola.
+- Fuera de este encargo: la calculadora de Pizarra (web/calculadora.html) sigue con PP = 3 x
+  (Fis + Agi + Pre) y la tecnica por nivel de O-156; con lo de aqui tendria que ser 4/3/2 y el
+  poder minimo.
+- A confirmar con Aaron (CALCULOS.md seccion 7): si en VR el PP se llena en el descanso y al
+  encajar un gol (si se llena al encajar no habria goleadas, pero saldrian menos goles); cuanto
+  baja el PP al parar con supertecnica (lo del tiro menos la tecnica, como aqui, o el tiro
+  entero); si la carga de Justicia vuelve a 1 en el descanso (aqui no); el elemento en la
+  disputa (x1,05 / x0,95); si se quitan los apoyos de DS; si los criticos del tiro y del
+  portero se llaman "¡Brecha!" y "¡Parada!" y solo con la tension al 30 %; que el critico del
+  tiro atraviese el muro sin perder nada; que el "del mismo elemento" de un entrenador sin
+  elemento no valga; las goleadas.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

@@ -22,6 +22,8 @@ NOMBRE = "Pizarra"
 # y PNG (las que van dentro de cada .glb).
 OCULTOS = ["ievr.servidor", "ievr.basedatos",
            "ievr.cpk", "ievr.g4", "ievr.g4anim", "ievr.modelos3d",
+           # las animaciones reales de VR del partido (O-323)
+           "ievr.cfgbin", "ievr.evento", "ievr.g4evento",
            "numpy", "PIL.Image", "PIL.DdsImagePlugin", "PIL.PngImagePlugin"]
 
 

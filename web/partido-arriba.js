@@ -341,7 +341,8 @@ const Arriba = {
     GX.texto(ctx, pos, 88.5 + dx, 211.3, { tam: 7.5, alinea: "center", color: "#FFFFFF", ancho: 17 });
     GX.texto(ctx, j.nombre, 101 + dx, 211.5, { tam: 13.5, peso: 700, color: "#E4E8FF", contornos: [["rgba(10,20,40,.5)", 0.7]], ancho: 66 });
     // las dos filas de barra, con los nombres de VR [PIZARRA]: TEN (la tension del equipo)
-    // y HIP (la hiperbarra, con la raya de la mitad = una invocacion); el portero KP y
+    // y HIP (la hiperbarra, con la raya de la mitad = una invocacion); el portero PP (el
+    // de VR: lo que le queda de su maximo; con la hiper puede pasar del 100 %, O-328) y
     // TEN; con la hiper puesta, AURA (lo que le queda) y PODER (solo el numero)
     const R = typeof REGLAS !== "undefined" ? REGLAS : { TENSION_MAX: 300, HIPER_MAX: 200, HIPER_TIPOS: {} };
     const ten = { et: "TEN", col: GX.barraTen, v: p.tension[j.lado] / R.TENSION_MAX, n: Math.round(p.tension[j.lado]) };
@@ -352,7 +353,7 @@ const Arriba = {
       const poder = p._factorHiper ? Math.round((p._factorHiper(j, "foco", false) - 1) * 100) : (T.atdf || 0);
       filas = [{ et: "AURA", col: [GX.barraHip, GX.barraHip], v: p.tanda ? 1 : queda / (T.dura || 45), n: p.tanda ? "" : Math.ceil(queda) },
                { et: "PODER", poder: "+" + poder + " %" }];
-    } else if (j.esPortero && j.kpMax) filas = [{ et: "KP", col: [GX.barraKp, GX.barraKp], v: j.kp / j.kpMax, n: Math.round(j.kp) }, ten];
+    } else if (j.esPortero && j.kpMax) filas = [{ et: "PP", col: [GX.barraKp, GX.barraKp], v: j.kp / j.kpMax, n: Math.round(j.kp) }, ten];
     filas.forEach((f, k) => {
       const y = k ? 230 : 221;
       if (f.poder) {
@@ -410,9 +411,12 @@ const Arriba = {
     const ie = GX.icono("elemento_" + (el === "ninguno" ? "viento" : el.toLowerCase()));
     if (el !== "ninguno" && GX.cargada(ie)) ctx.drawImage(ie, 344, 11, 14, 14);
     if (j.dorsal !== undefined && j.dorsal !== null) GX.texto(ctx, j.dorsal, 388, 18.5, { letra: "cifras", tam: 15, peso: 700, alinea: "right", color: "#F8E070" });
-    // nivel, tension e hiperbarra del equipo (o el KP del portero)
+    // nivel, tension e hiperbarra del equipo (o el PP del portero, con las paradas que lleva:
+    // cada una, -5 % a su tecnica de parada; y la carga de configuracion del equipo, O-328)
     const fila2 = ["Nv. " + (j.nivel || 99)];
-    if (j.esPortero && j.kpMax) fila2.push("KP " + Math.round(j.kp) + " / " + Math.round(j.kpMax));
+    if (j.esPortero && j.kpMax) fila2.push("PP " + Math.round(j.kp) + " / " + Math.round(j.kpMax) + (j.fatiga ? " (cansado " + j.fatiga + ")" : ""));
+    const cg = p.carga && p.carga[j.lado];
+    if (cg && cg.tipo && R && R.CARGA && R.CARGA[cg.tipo]) fila2.push(R.CARGA[cg.tipo].nombre + " " + cg.rango);
     if (R) fila2.push("TEN " + Math.round(p.tension[j.lado]) + " / " + R.TENSION_MAX, "HIP " + Math.floor(p.hiper[j.lado]) + " / " + R.HIPER_MAX);
     GX.texto(ctx, fila2.join("   "), 108, 40, { letra: "cifras", tam: 10, peso: 700, color: "#E8F4F0", ancho: 284 });
     // el espiritu: su familia, su nombre y como esta

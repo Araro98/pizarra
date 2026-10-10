@@ -27,10 +27,10 @@ export const FIGURA = { escala: 2.2, alto: 4.1, cilindro: { radio: 0.9, alto: 1.
 // las animaciones de los modelos (las 4 que saca el conversor, ievr/g4.py). El Estudio de
 // arriba (partido-escenas.js, O-320) usa las mismas
 export const ANIM = { parado: "戦1立ち1L", correr: "戦1走り1L", tiro: "戦1シュート1", patada: "戦1キック1" };
-// los clips de VR que harian falta para los duelos, las paradas y el gol (diseno 6.6; banco
-// del cuerpo de modelos3d/clips_c000101.txt). Hoy el conversor no los saca: entran con
-// ANIM_PARTIDO y VERSION_MODELO 3 en ievr/g4.py si Aaron dice que si (O-320). El Estudio los
-// usa si el modelo los trae; si no, los 4 de ANIM movidos a mano
+// los clips de VR de los duelos, las paradas y el gol (diseno 6.6; banco del cuerpo de
+// modelos3d/clips_c000101.txt). Los trae cada modelo desde VERSION_MODELO 3 (ievr/g4.py,
+// O-323: Aaron dijo que si). El Estudio los usa si el modelo los trae (uno de antes, no: los
+// 4 de ANIM movidos a mano)
 export const ANIM_VR = {
   regateGana: "戦1すりぬけ1勝利", regatePierde: "戦1すりぬけ1敗北", romperGana: "戦1エラシコ1勝利1", romperPierde: "戦1エラシコ1敗北1",
   entrada: "戦1スライディング1", cargarGana: "戦1ショルダーチャージ1勝利1", cargarPierde: "戦1ショルダーチャージ1敗北1",
@@ -38,6 +38,13 @@ export const ANIM_VR = {
   parar: "戦1GKキャッチ前", pararDer: "戦1GKキャッチ右", pararIzq: "戦1GKキャッチ左", despejar: "戦1GKパンチング前", encaja: "戦1GKキャッチミス前1",
   caido: "戦1うつ伏せダウン1", celebra: "戦1ゴール後走り喜び1入", lamenta: "戦1ゴール後その場がっかり1入", aturdido: "戦1スタン1", salto: "ジャンプ上1",
 };
+// el modelo 3D que se ve de un jugador: el de su forma con la hiper puesta (la armadura, el
+// mixi max o el personaje del modo, O-327) o el de su cara
+export function modeloDe(j) { return (j && (j.modelo || j.cara)) || ""; }
+// el keshin (o el alma) detras del que lo tiene puesto (O-327): a esta escala (los de VR miden
+// 6-8 m: con la de las figuras taparian medio campo), algo detras y medio transparente, como
+// la silueta de Galaxy
+export const KESHIN = { escala: 1.0, detras: 1.6, opacidad: 0.55 };
 // la calidad (diseno 7.4): el pixelRatio del 3D, las texturas de los modelos (7.3 bis)
 // y los mezcladores a 30 por segundo en Baja
 const CALIDAD = {
@@ -539,7 +546,8 @@ class Mundo {
   // la figura de un jugador: su modelo si lo hay; si no, una ficha con su cara. El aura
   // y la tarjetita, una vez
   _figura(j) {
-    const g = new THREE.Group(), u = { cara: j.cara, cuerpo: null, mezcla: null, acciones: {}, ahora: null, cargando: false, vel: 0, mira: undefined, px: -j.x, pz: j.y, acum: 0 };
+    // j: el jugador (otro objeto tras un cambio); cara: el modelo que lleva o pide (O-327)
+    const g = new THREE.Group(), u = { j, cara: modeloDe(j), cuerpo: null, codCuerpo: null, mezcla: null, acciones: {}, ahora: null, cargando: false, vel: 0, mira: undefined, px: -j.x, pz: j.y, acum: 0, keshin: null };
     g.userData = u;
     u.ficha = this._ficha(j); g.add(u.ficha);
     u.aura = new THREE.Sprite(new THREE.SpriteMaterial({ map: this.c.texAura, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
@@ -566,21 +574,23 @@ class Mundo {
     return s;
   }
 
+  // el modelo que toca (u.cara: el de su forma con la hiper puesta, O-327). Si ya lleva otro
+  // cuerpo (al transformarse o al volver), se cambia cuando llegue el nuevo, sin ficha
   _cargarModelo(j, g) {
-    const u = g.userData;
-    if (!j.cara || u.cuerpo || u.cargando) return;
-    u.cargando = true;
-    pedirModelo(j.cara).then(gltf => {
-      u.cargando = false;
-      if (!gltf || u.cuerpo || this.cerrado || !this.figuras.includes(g)) return;
+    const u = g.userData, cod = u.cara;
+    if (!cod || u.cargando === cod || (u.cuerpo && u.codCuerpo === cod)) return;
+    u.cargando = cod;
+    pedirModelo(cod).then(gltf => {
+      if (u.cargando === cod) u.cargando = false;
+      if (!gltf || u.cara !== cod || (u.cuerpo && u.codCuerpo === cod) || this.cerrado || !this.figuras.includes(g)) return;
       const cuerpo = clonarModelo(gltf.scene);
       cuerpo.scale.setScalar(FIGURA.escala);
       g.add(cuerpo);
-      g.remove(u.ficha);
-      u.ficha.material.map.dispose(); u.ficha.material.dispose(); u.ficha = null;
-      u.cuerpo = cuerpo;
+      if (u.cuerpo) { g.remove(u.cuerpo); if (u.mezcla) u.mezcla.stopAllAction(); }
+      if (u.ficha) { g.remove(u.ficha); u.ficha.material.map.dispose(); u.ficha.material.dispose(); u.ficha = null; }
+      u.cuerpo = cuerpo; u.codCuerpo = cod;
       const mezcla = new THREE.AnimationMixer(cuerpo);
-      u.mezcla = mezcla;
+      u.mezcla = mezcla; u.acciones = {}; u.ahora = null;
       for (const [clave, nombre] of Object.entries(ANIM)) {
         const clip = gltf.animations.find(a => a.name === nombre);
         if (clip) u.acciones[clave] = mezcla.clipAction(clip);
@@ -599,7 +609,10 @@ class Mundo {
   // tiene (ievr/modelos3d.py) y aqui se mira cada 2 s como va; cada ficha se cambia por
   // su modelo en cuanto esta (O-293)
   _prepararModelos() {
-    const codigos = [...new Set(this.p.jugadores.map(j => j.cara).filter(Boolean))];
+    // detras de los 22, lo que se ve al invocar: la armadura, el mixi max, la forma del modo
+    // y el keshin o el alma (O-327), para que esten cuando hagan falta
+    const formas = this.p.jugadores.map(j => [j.modeloHiper, j.formaHiper && j.formaHiper.modelo, j.keshinHiper]).flat();
+    const codigos = [...new Set(this.p.jugadores.map(j => j.cara).concat(formas).filter(Boolean))];
     if (!codigos.length) return;
     fetch("/api/partido/modelos/preparar", {
       method: "POST", headers: { "Content-Type": "application/json" },
@@ -610,11 +623,11 @@ class Mundo {
   _verModelos(e) {
     if (this.cerrado) return;           // ya es otro partido
     const hechos = new Set(e.hechos || []), errores = e.errores || {};
-    this.p.jugadores.forEach((j, k) => { if (hechos.has(j.cara)) this._cargarModelo(j, this.figuras[k]); });
+    this.p.jugadores.forEach((j, k) => { if (hechos.has(modeloDe(j)) && this.figuras[k]) this._cargarModelo(j, this.figuras[k]); });
     const enCola = new Set([...(e.pendientes || []), e.actual].filter(Boolean));
     // se cuenta sobre los que juegan ahora: tras un cambio salia "23 de 24"
     // contando tambien al que se fue (O-305)
-    const ahora = [...new Set(this.p.jugadores.map(j => j.cara).filter(Boolean))];
+    const ahora = [...new Set(this.p.jugadores.map(j => modeloDe(j)).filter(Boolean))];
     const quedan = ahora.filter(c => enCola.has(c)).length;
     const listos = ahora.filter(c => hechos.has(c)).length;
     const fallan = ahora.filter(c => errores[c]).length;
@@ -648,10 +661,45 @@ class Mundo {
     const g = this._figura(j);
     this.figuras[k] = g;
     if (!j.cara) return;
+    this._pedirModelo(j, g);
+  }
+  // el modelo que toca a la cola del servidor (si este PC ya lo tiene, enseguida)
+  _pedirModelo(j, g) {
     fetch("/api/partido/modelos/preparar", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ codigos: [j.cara] }),
+      body: JSON.stringify({ codigos: [g.userData.cara] }),
     }).then(r => r.json()).then(e => this._verModelos(e)).catch(() => this._cargarModelo(j, g));
+  }
+  // el keshin o el alma detras del que lo tiene puesto (O-327): su modelo (k######, con su
+  // pose de VR en bucle), medio transparente; se pide una vez y se queda en la figura
+  _keshin(g, j, si) {
+    const u = g.userData, cod = j.keshinHiper;
+    if (!cod) return;
+    if (!u.keshin) {
+      if (!si) return;
+      const k = u.keshin = { cod, grupo: null, mezcla: null };
+      pedirModelo(cod).then(gltf => {
+        if (this.cerrado || !this.figuras.includes(g) || u.keshin !== k) return;
+        if (!gltf) {
+          // aun no esta en este PC: a la cola, y se vuelve a mirar en la proxima invocacion
+          u.keshin = null;
+          fetch("/api/partido/modelos/preparar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ codigos: [cod] }) }).catch(() => {});
+          return;
+        }
+        const cuerpo = clonarModelo(gltf.scene);
+        cuerpo.scale.setScalar(KESHIN.escala);
+        cuerpo.traverse(o => {
+          if (!o.isMesh) return;
+          const mats = (Array.isArray(o.material) ? o.material : [o.material]).map(m => { const c = m.clone(); c.transparent = true; c.opacity = KESHIN.opacidad; c.depthWrite = false; return c; });
+          o.material = mats.length === 1 ? mats[0] : mats;
+          o.renderOrder = -1;
+        });
+        k.grupo = new THREE.Group(); k.grupo.add(cuerpo); k.grupo.visible = false; g.add(k.grupo);
+        k.mezcla = new THREE.AnimationMixer(cuerpo);
+        if (gltf.animations[0]) k.mezcla.clipAction(gltf.animations[0]).play();
+      });
+    }
+    if (u.keshin.grupo) u.keshin.grupo.visible = !!si;
   }
   // lo de una figura que no es del gltf (que se queda en la cache): su ficha, su aura y la tarjetita
   _soltar(g) {
@@ -659,6 +707,11 @@ class Mundo {
     this.escenaCampo.remove(g);
     if (u.mezcla) u.mezcla.stopAllAction();
     for (const s of [u.ficha, u.aura, u.carta]) if (s) { if (s !== u.aura && s.material.map) s.material.map.dispose(); s.material.dispose(); }
+    // el keshin de detras: sus materiales son copias (O-327)
+    if (u.keshin && u.keshin.grupo) {
+      u.keshin.mezcla.stopAllAction();
+      u.keshin.grupo.traverse(o => { if (o.isMesh) for (const m of [].concat(o.material)) m.dispose(); });
+    }
   }
 
   // al acabar el partido (o empezar otro): suelta lo de este partido. El renderer, el
@@ -743,8 +796,17 @@ class Mundo {
 
   _jugadores(dt, ahora) {
     const p = this.p, h = this.abajo._sentido(), c = this.c, cam = this.camAbajo;
-    // los que han entrado del banquillo (O-297)
-    p.jugadores.forEach((j, k) => { if (this.figuras[k] && this.figuras[k].userData.cara !== j.cara) this._cambiarFigura(j, k); });
+    // los que han entrado del banquillo (O-297): otro jugador en ese sitio. Y el que se
+    // transforma o vuelve con su hiper (O-327): el mismo, con otro modelo
+    p.jugadores.forEach((j, k) => {
+      const g = this.figuras[k];
+      if (!g) return;
+      if (g.userData.j !== j) return this._cambiarFigura(j, k);
+      const cod = modeloDe(j);
+      if (g.userData.cara === cod) return;
+      g.userData.cara = cod;
+      if (cod) this._pedirModelo(j, g);
+    });
     // al sacar de centro (al empezar, tras un gol y en la 2a parte) todos miran un
     // momento al frente, como en el motor, aunque se recoloquen (O-305). Y al salir de
     // la espera de cada saque, al pulsar Jugar (O-308)
@@ -779,6 +841,13 @@ class Mundo {
       // (lo tapa su modelo) y latiendo
       const aura = p.conAura && p.conAura(j);
       u.aura.visible = !!aura;
+      // el keshin o el alma detras de el (O-327)
+      if (j.keshinHiper) this._keshin(g, j, aura);
+      if (u.keshin && u.keshin.grupo && aura) {
+        u.keshin.grupo.position.set(0, 0, KESHIN.detras * h);
+        u.keshin.grupo.rotation.y = Math.atan2(0, j.dir);
+        u.keshin.mezcla.update(dt);
+      }
       if (aura) {
         const col = (AURA_HIPER[j.hiperTipo] || AURA_HIPER.keshin)[1];
         u.aura.material.color.set(col); u.aura.material.opacity = this.quieto ? 0.7 : 0.6 + 0.2 * Math.sin(t * 4 + k);
@@ -812,8 +881,10 @@ class Mundo {
     const r = p.resultado;
     if (r && r !== this._resultadoVisto) {
       this._resultadoVisto = r;
-      // el penalti tambien (O-312)
-      if ((r.tipo === "tiro" || r.tipo === "penalti") && this.figuras[r.tirador]) this._anima(this.figuras[r.tirador], "tiro", true);
+      // el penalti tambien (O-312). En el tiro que viaja (O-325), solo al chutar y al
+      // encadenar (el que lo hace: `chuta`), no en el muro ni en el portero
+      const chuta = r.etapa ? (r.etapa === "chute" || r.etapa === "cadena" ? r.chuta : null) : r.tirador;
+      if ((r.tipo === "tiro" || r.tipo === "penalti") && chuta !== null && chuta !== undefined && this.figuras[chuta]) this._anima(this.figuras[chuta], "tiro", true);
     }
     if (p.balon.pase && p.balon.pase !== this._paseVisto) {
       this._paseVisto = p.balon.pase;
@@ -831,6 +902,8 @@ class Mundo {
       const queda = Math.hypot(pa.destino.x - b.x, pa.destino.y - b.y);
       alto += Math.sin(Math.PI * Math.max(0, Math.min(1, 1 - queda / pa.total))) * 5;
     }
+    // el tiro en vuelo, a su altura (la vaselina, alta) (O-325)
+    if (p.tiro && p.alturaTiro && !this.posiciones) alto = Math.max(alto, p.alturaTiro());
     const x = this.posiciones ? this.posiciones[44] : b.x, y = this.posiciones ? this.posiciones[45] : b.y;
     const dX = -x - c.balon.position.x, dZ = y - c.balon.position.z;
     c.balon.position.set(-x, alto, y);
@@ -863,9 +936,19 @@ class Mundo {
     if (actual) { c.cursor.position.set(-actual.x, 0.03, actual.y); c.cursor.rotation.y = this.quieto ? 0 : -(ahora % 1) * Math.PI * 2 * h; }
     // la zona de tiro (b28): cono a los dos palos; la linea, la X y el rombo, en el tuyo
     const tir = this.posiciones ? null : SueloAbajo.tirador(p, this.yo);
-    c.cono.visible = !!tir;
+    // el tiro en vuelo (O-325; guia 8.5: el balon vuela por el cono): el cono desde donde se
+    // chuto y la X donde va, para los dos
+    const T = this.posiciones ? null : p.tiro;
+    c.cono.visible = !!tir || !!T;
     const mio = !!tir && tir.lado === this.yo;
-    c.linea.visible = c.lineaBorde.visible = c.equis.visible = c.rombo.visible = mio;
+    c.linea.visible = c.lineaBorde.visible = c.rombo.visible = mio;
+    c.equis.visible = mio || !!T;
+    if (T && !tir) {
+      const gy = Math.sign(T.ty || 1) * REGLAS.LARGO / 2, m = REGLAS.PORTERIA / 2, a = c.cono.geometry.attributes.position;
+      a.setXYZ(0, -T.x0, 0, T.y0); a.setXYZ(1, m, 0, gy); a.setXYZ(2, -m, 0, gy); a.needsUpdate = true;
+      c.cono.geometry.computeBoundingSphere();
+      c.equis.position.set(-T.tx, 0.7, T.ty);
+    }
     if (tir) {
       const g = p.porteriaRival(tir), m = REGLAS.PORTERIA / 2, a = c.cono.geometry.attributes.position;
       a.setXYZ(0, -tir.x, 0, tir.y); a.setXYZ(1, m, 0, g.y); a.setXYZ(2, -m, 0, g.y); a.needsUpdate = true;

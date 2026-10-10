@@ -1,0 +1,448 @@
+# Que evento de VR (la invocacion o la transformacion) lleva cada espiritu (O-323).
+# id: como en espiritus.csv. asignado: el keshin/alma que pone el juego en el evento.
+# cara_a: el modelo en que se convierte (armadura, mixi max, modo; en el modo, de cara_de).
+# aura_campo: el aura del keshin en el campo (clips in/loop/out). rotulo: telop_waza/es.
+# Lo genera herramientas/construir_eventos.py; lo convierte ievr/g4evento.py en cada PC.
+id,modelo,familia,nombre,evento,segundos,asignado,cara_de,cara_a,aura_campo,rotulo
+FAE17879,wks00020,kenshin,Caballero Lancelot,ev80_00040,4.55,k000020,,,ega_k000020a,k000020
+BBD06360,wks00030,kenshin,Director Magister,ev80_00030,4.55,k000030,,,ega_k000030a,k000030
+7C46222F,wks00040,kenshin,"Apolo, dios del sol",ev80_00040,4.55,k000040,,,ega_k000040a,k000040
+3D773936,wks00050,kenshin,"Musashi, bravo samurái",ev80_00050,4.55,k000050,,,ega_k000050a,k000050
+70099783,wks00080,kenshin,"Chione, reina de la nieve",ev80_00020,4.55,k000080,,,ega_k000080a,k000080
+4FE98C4A,wks00100,kenshin,"Surtur, gigante de fuego",ev80_00040,4.55,k000100,,,ega_k000100a,k000100
+CD8BBA78,wks00120,kenshin,Sobrenatural halcón de trueno,ev80_00020,4.55,k000120,,,ega_k000120a,k000120
+8CBAA161,wks00130,kenshin,"Poseidón, rey de los mares",ev80_00020,4.55,k000130,,,ega_k000130a,k000130
+4B2CE02E,wks00140,kenshin,"Trickster, ilusionista",ev80_00030,4.55,k000140,,,ega_k000140a,k000140
+06524E9B,wks00190,kenshin,Caballo blanco,ev80_00050,4.55,k000190,,,ega_k000190a,k000190
+9435FC7A,wks00220,kenshin,"Reina blanca, encantadora real",ev80_00030,4.55,k000220,,,ega_k000220a,k000220
+1292A62C,wks00240,kenshin,"Arturo, paladín de la espada sagrada",ev80_00060,4.55,k000240,,,ega_k000240a,k000240
+1EDD1380,wks00280,kenshin,"Azote negro, señor oscuro",ev80_00030,4.55,k000280,,,ega_k000280a,k000280
+5FEC0899,wks00290,kenshin,"Guiverno blanco, drágon heráldico",ev80_00020,4.55,k000290,,,ega_k000290a,k000290
+213D0849,wks00300,kenshin,"Grifo, señor de las bestias",ev80_00040,4.55,k000300,,,ega_k000300a,k000300
+600C1350,wks00310,kenshin,Cuervo alas negras,ev80_00050,4.55,k000310,,,ega_k000310a,k000310
+E26E2562,wks00330,kenshin,Archipegaso alado,ev80_00010,3.98,k000330,,,ega_k000330a,k000330
+A42B474C,wks00400,kenshin,"Plumas ardientes, ave de fuego",ev80_00040,4.55,k000400,,,,k000400
+E51A5C55,wks00410,kenshin,"Roc, ave mitológica",ev80_00020,4.55,k000410,,,,k000410
+E1DF3031,wks00450,kenshin,"Neptuno, señor de los mares",ev80_00020,4.55,k000450,,,,k000450
+5012A866,wks00530,kenshin,"Oneiros, señor de los sueños",ev80_00030,4.55,k000530,,,,k000530
+9784E929,wks00540,kenshin,"Pendragón, caballero misterioso",ev80_00060,4.55,k000540,,,ega_k000540a,k000540
+8BCED856,wks00610,kenshin,"Fénix, señor de los cielos",ev80_00040,4.55,k000610,,,ega_k000610a,k000610
+09ACEE64,wks00630,kenshin,"Atenea, dueña del aire",ev80_00020,4.55,k000630,,,ega_k000630a,k000630
+8344019E,wks00690,kenshin,"Zodíaco, príncipe del plano astral",ev80_00050,4.55,k000690,,,ega_k000690a,k000690
+7FF7377C,wks00720,kenshin,"Sombra de plasma TI, guerrero artificial",ev80_00040,4.55,,,,,
+7B325B18,wks00760,kenshin,"Robin, caballero ultraveloz",ev80_00030,4.55,k000760,,,ega_k000760a,k000760
+F51FD886,wks00780,kenshin,"Los enamorados ♀, a. encadenadas",ev80_00020,4.55,k000780,,,ega_k000780a,k000780
+C0D25D45,wks00800,kenshin,"Evera, gran señor de los demonios",ev80_00050,4.55,k000800,,,ega_k000800a,k000800
+46750713,wks00860,kenshin,"Asura, cazador de gloria",ev80_00050,4.55,k000860,,,ega_k000860a,k000860
+07441C0A,wks00870,kenshin,"Metis, señora del ingenio",ev80_00040,4.55,k000870,,,ega_k000870a,k000870
+C858848D,wks00880,kenshin,"Argentia, reina plateada",ev80_00030,4.55,k000880,,,ega_k000880a,k000880
+302EDE0B,wks00970,kenshin,"Astaroth, príncipe del caos",ev80_00040,4.55,k000970,,,ega_k000970a,k000970
+FF32468C,wks00980,kenshin,"Los enamorados ♂, a. encadenadas",ev80_00050,4.55,k000980,,,ega_k000980a,k000980
+BE035D95,wks00990,kenshin,Archipegaso rojo alado,ev80_00010,3.98,k000990,,,,k000990
+D9704126,wko00010,kenshin,Pegaso alado,ev80_00010,3.98,k000010,,,ega_k000010a,k000010
+5FD71B70,wko00070,kenshin,"León, rey de la selva",ev80_00050,4.55,k000070,,,ega_k000070a,k000070
+D1FA98EE,wko00090,kenshin,"Barius, supersónico",ev80_00020,4.55,k000090,,,ega_k000090a,k000090
+EADFEF43,wko00150,kenshin,"Garas, maestra de ilusiones",ev80_00030,4.55,k000150,,,ega_k000150a,k000150
+A7A141F6,wko00180,kenshin,Peón blanco,ev80_00040,4.55,k000180,,,ega_k000180a,k000180
+C53A7059,wko00340,kenshin,Peón negro,ev80_00040,4.55,k000340,,,,k000340
+837F1277,wko00470,kenshin,"Sirena, la hechicera",ev80_00040,4.55,k000470,,,,k000470
+4C638AF0,wko00480,kenshin,"Tachión, hipervelocista",ev80_00040,4.55,k000480,,,,k000480
+2EF8BB5F,wko00640,kenshin,"Comadreja, garras de hoz",ev80_00020,4.55,k000640,,,ega_k000640a,k000640
+22B70EF3,wko00680,kenshin,"Licaón, lobo maldito",ev80_00030,4.55,k000680,,,ega_k000680a,k000680
+0905247F,wko00721,kenshin,"Sombra de plasma RE, guerrero artificial",ev80_00050,4.55,k000720,,,ega_k000720a,k000720
+61215228,wko00810,kenshin,"Huargo, can infernal",ev80_00040,4.55,k000810,,,ega_k000810a,k000810
+A2727F03,wko00820,kenshin,"Glenr, portador del sol nocturno",ev80_00050,4.55,k000820,,,ega_k000820a,k000820
+177A8B30,wko00900,kenshin,"Qinglong, guerrero del este",ev80_00030,4.55,k000900,,,ega_k000900a,k000900
+564B9029,wko00910,kenshin,"Baihu, guerrero del oeste",ev80_00020,4.55,k000910,,,ega_k000910a,k000910
+D429A61B,wko00930,kenshin,"Jmet, adalid leonino",ev80_00050,4.55,k000930,,,ega_k000930a,k000930
+DD16C703,wkd00060,kenshin,Juez supremo,ev80_00030,4.55,k000060,,,ega_k000060a,k000060
+35651956,wkd00200,kenshin,"Alfil blanco, mensajero divino",ev80_00030,4.55,k000200,,,ega_k000200a,k000200
+7454024F,wkd00210,kenshin,"Torre blanca, centinela vigía",ev80_00050,4.55,k000210,,,ega_k000210a,k000210
+806DED65,wkd00320,kenshin,"Drake, caballero dragón",ev80_00020,4.55,k000320,,,ega_k000320a,k000320
+C5999A18,wkd00370,kenshin,"Torre negra, centinela vigía",ev80_00050,4.55,k000370,,,,k000370
+057BA260,wkd00420,kenshin,Berserker,ev80_00030,4.55,k000420,,,,k000420
+AC39672C,wkd00650,kenshin,"Brunilda, valquiria abanderada",ev80_00030,4.55,k000650,,,ega_k000650a,k000650
+2E5B511E,wkd00670,kenshin,"Xuan-Wu, guerrero del norte",ev80_00050,4.55,k000670,,,ega_k000670a,k000670
+DEA7D250,wkd00700,kenshin,"Amaterasu, guerrera del amanecer",ev80_00040,4.55,k000700,,,ega_k000700a,k000700
+9F96C949,wkd00710,kenshin,"Jaguar, guerrero prehistórico",ev80_00020,4.55,k000710,,,ega_k000710a,k000710
+70A4EA8C,wkd00722,kenshin,"Sombra de plasma DF, guerrero artificial",ev80_00020,4.55,,,,,
+20B3A370,wkd00830,kenshin,"Kukulkán, serpiente emplumada",ev80_00020,4.55,k000830,,,ega_k000830a,k000830
+E725E23F,wkd00840,kenshin,"Eris, bruja de la discordia",ev80_00020,4.55,k000840,,,ega_k000840a,k000840
+AA5B4C8A,wkd00890,kenshin,"Zhuque, guerrera del sur",ev80_00040,4.55,k000890,,,ega_k000890a,k000890
+F85812BC,wkk00110,kenshin,Titán gigante,ev80_00050,4.55,k000110,,,ega_k000110a,k000110
+3FCE53F3,wkk00160,kenshin,"Goliat, titán",ev80_00020,4.55,k000160,,,ega_k000160a,k000160
+7EFF48EA,wkk00170,kenshin,"Lot, gran jugador",ev80_00050,4.55,k000170,,,ega_k000170a,k000170
+2384628C,wkk00230,kenshin,"Rey blanco, sabio monarca",ev80_00040,4.55,k000230,,,ega_k000230a,k000230
+A52338DA,wkk00250,kenshin,"Atlas, protector de la Tierra",ev80_00050,4.55,k000250,,,ega_k000250a,k000250
+667015F1,wkk00260,kenshin,"Demogorgo, duque destructor",ev80_00030,4.55,k000260,,,ega_k000260a,k000260
+91F8EF88,wkk00430,kenshin,"Barron, coloso metálico",ev80_00050,4.55,k000430,,,,k000430
+D40C98F5,wkk00460,kenshin,"Gargantúa, gigante metálico",ev80_00050,4.55,k000460,,,,k000460
+1B100072,wkk00490,kenshin,"Vega, suerte encarnada",ev80_00020,4.55,k000490,,,,k000490
+65C100A2,wkk00500,kenshin,"Kraon, guerrero dragón",ev80_00040,4.55,k000500,,,ega_k000500a,k000500
+24F01BBB,wkk00510,kenshin,"Grandius, mágico gigante",ev80_00050,4.55,k000510,,,ega_k000510a,k000510
+E7A33690,wkk00520,kenshin,"Serendipity, maestro de las trampas",ev80_00040,4.55,k000520,,,,k000520
+BAD81CF6,wkk00660,kenshin,"Cychr, dragón enjoyado",ev80_00030,4.55,k000660,,,ega_k000660a,k000660
+3326BB0A,wkk00723,kenshin,"Sombra de plasma PA, guerrero artificial",ev80_00030,4.55,,,,,
+CC83C5EE,wkk00770,kenshin,"Atlanticus, bestia abisal",ev80_00020,4.55,k000770,,,ega_k000770a,k000770
+42AE4670,wkk00790,kenshin,"Amorosa, colablanca explosiva",ev80_00030,4.55,k000790,,,ega_k000790a,k000790
+73A6AFD7,wkk00850,kenshin,"Papelín, rey de los empollones",ev80_00030,4.55,k000850,,,ega_k000850a,k000850
+05FD76CF,wkk00940,kenshin,"Arges, cíclope colosal",ev80_00020,4.55,k000940,,,ega_k000940a,k000940
+44CC6DD6,wkk00950,kenshin,"Daji, doncella ladina",ev80_00020,4.55,k000950,,,ega_k000950a,k000950
+B27A5CF8,wks02010,kenshin,"Victoria, diosa del triunfo",ev80_00020,4.55,k002010,,,ega_k002010a,k002010
+712971D3,wks02020,kenshin,"Conejo de cristal, lanza sagrada",ev80_00040,4.55,k002020,,,ega_k002020a,k002020
+54126D0C,wks02020_st0701,kenshin,"Conejo de cristal, lanza sagrada",ev80_00040,4.55,k002020,,,ega_k002020a,k002020
+D0DA7EBE,wko02030,kenshin,Animador,ev80_00030,4.55,k002030,,,ega_k002030a,k002030
+3619AB35,wko02030_st0701,kenshin,Animador,ev80_00030,4.55,k002030,,,ega_k002030a,k002030
+D4BCF89B,wkd02040,kenshin,"Warborg, muralla titánica",ev80_00050,4.55,k002040,,,ega_k002040a,k002040
+5CCB03B6,wkd02040_st0701,kenshin,"Warborg, muralla titánica",ev80_00050,4.55,k002040,,,ega_k002040a,k002040
+B6BF309C,wks02050,kenshin,"Robin, paladín ultraveloz",ev80_00030,4.55,k002050,,,ega_k002050a,k002050
+75EC1DB7,wks02060,kenshin,"Niké, mágico gigante",ev80_00040,4.55,k002060,,,ega_k002060a,k002060
+526E1F5B,wks02060_st0901,kenshin,"Niké, mágico gigante",ev80_00040,4.55,k002060,,,ega_k002060a,k002060
+A0EE2B28,wks00440,kenshin,"Bufón, artista del engaño",ev80_00050,4.55,k000440,,,,k000440
+64C97F34,wks00350,kenshin,Caballo negro,ev80_00050,4.55,k000350,,,,k000350
+29B7D181,wks00380,kenshin,"Reina negra, encantadora real",ev80_00030,4.55,k000380,,,,k000380
+F2F35819,wkd00270,kenshin,Tirador sombrío,ev80_00040,4.55,k000270,,,ega_k000270a,k000270
+84A88101,wkd00360,kenshin,"Alfil negro, mensajero divino",ev80_00030,4.55,k000360,,,,k000360
+9E064F77,wkk00390,kenshin,"Rey negro, sabio monarca",ev80_00040,4.55,k000390,,,,k000390
+56E87A68,wkd00920,kenshin,"Raiden, señor de las tormentas",ev80_00050,4.55,k000920,,,ega_k000920a,k000920
+879F40FD,wkk00960,kenshin,"Vritrá, Escualodragón despiadado",ev80_00040,4.55,k000960,,,ega_k000960a,k000960
+B4BE08DD,was00020,armadura,Caballero Lancelot,ev81_00040,4.02,k000020,,c04000100_5000,ega_k000020a,aura_armed01
+228E0FAA,was00021,armadura,Caballero Lancelot,ev81_00040,4.02,k000020,,c06030140_5000,ega_k000020a,aura_armed01
+F58F13C4,was00030,armadura,Director Magister,ev81_00030,4.02,k000030,,c04000090_5000,ega_k000030a,k000030
+3219528B,was00040,armadura,"Apolo, dios del sol",ev81_00040,4.02,k000040,,c04002900_5000,ega_k000040a,aura_armed01
+A42955FC,was00041,armadura,"Apolo, dios del sol",ev81_00040,4.02,k000040,,c05029850_5000,ega_k000040a,aura_armed01
+73284992,was00050,armadura,"Musashi, bravo samurái",ev81_00050,4.02,k000050,,c04000160_5000,ega_k000050a,aura_armed01
+E5184EE5,was00051,armadura,"Musashi, bravo samurái",ev81_00050,4.02,k000050,,c01000110_5000,ega_k000050a,aura_armed01
+11B3783D,was00290,armadura,"Guiverno blanco, drágon heráldico",ev81_00020,4.02,k000290,,c04003500_5100,ega_k000290a,aura_armed01
+87837F4A,was00291,armadura,"Guiverno blanco, drágon heráldico",ev81_00020,4.02,k000290,,c05029810_5000,ega_k000290a,aura_armed01
+059C89E8,was00290_h1,armadura,"Guiverno blanco, drágon heráldico",ev81_00020,4.02,k000290,,c04003500_5100,ega_k000290a,aura_armed01
+BFCD8071,was00290_h2,armadura,"Guiverno blanco, drágon heráldico",ev81_00020,4.02,k000290,,c04003500_5100,ega_k000290a,aura_armed01
+8F746612,was00290_b1,armadura,"Guiverno blanco, drágon heráldico",ev81_00020,4.02,k000290,,c04003500_5100,ega_k000290a,aura_armed01
+AC3155C6,was00330,armadura,Archipegaso alado,ev81_00010,4.02,k000330,,c04000080_5200,ega_k000330a,aura_armed01
+D9DB998D,was00540,armadura,"Pendragón, caballero misterioso",ev81_00060,4.02,k000540,,c05020120_5000,ega_k000540a,aura_armed01
+C591A8F2,was00610,armadura,"Fénix, señor de los cielos",ev81_00040,4.02,k000610,,c05020500_5000,ega_k000610a,aura_armed01
+47F39EC0,was00630,armadura,"Atenea, dueña del aire",ev81_00020,4.02,k000630,,c05020700_5000,ega_k000630a,aura_armed01
+B2C6A839,was00630_h1,armadura,"Atenea, dueña del aire",ev81_00020,4.02,k000630,,c05020700_5000,ega_k000630a,aura_armed01
+0897A1A0,was00630_h2,armadura,"Atenea, dueña del aire",ev81_00020,4.02,k000630,,c05020700_5000,ega_k000630a,aura_armed01
+382E47C3,was00630_b1,armadura,"Atenea, dueña del aire",ev81_00020,4.02,k000630,,c05020700_5000,ega_k000630a,aura_armed01
+D1C399B7,was00631,armadura,"Atenea, dueña del aire",ev81_00020,4.02,k000630,,c05020700_5000,ega_k000630a,aura_armed01
+6B92902E,was00632,armadura,"Atenea, dueña del aire",ev81_00020,4.02,k000630,,c05020700_5000,ega_k000630a,aura_armed01
+FDA29759,was00633,armadura,"Atenea, dueña del aire",ev81_00020,4.02,k000630,,c05020700_5000,ega_k000630a,aura_armed01
+CD1B713A,was00690,armadura,"Zodíaco, príncipe del plano astral",ev81_00050,4.02,k000690,,c05021500_5000,ega_k000690a,aura_armed01
+31A847D8,was00720,armadura,"Sombra de plasma TI, guerrero artificial",ev81_00040,4.02,,,c05021900_5000,,aura_armed01
+71A77433,was00720_1,armadura,"Sombra de plasma TI, guerrero artificial",ev81_00040,4.02,,,c05028500_5000,,aura_armed01
+A79840AF,was00721,armadura,"Sombra de plasma TI, guerrero artificial",ev81_00040,4.02,,,c05021910_5000,,aura_armed01
+46CDB632,was00721_1,armadura,"Sombra de plasma TI, guerrero artificial",ev81_00040,4.02,,,c05028510_5000,,aura_armed01
+1DC94936,was00722,armadura,"Sombra de plasma TI, guerrero artificial",ev81_00040,4.02,,,c05021950_5000,,aura_armed01
+1F73F030,was00722_1,armadura,"Sombra de plasma TI, guerrero artificial",ev81_00040,4.02,,,c05028550_5000,,aura_armed01
+8BF94E41,was00723,armadura,"Sombra de plasma TI, guerrero artificial",ev81_00040,4.02,,,c05021960_5000,,aura_armed01
+356D2BBC,was00760,armadura,"Robin, caballero ultraveloz",ev81_00030,4.02,k000760,,c05020110_5000,ega_k000760a,k000760
+8E8D2DE1,was00800,armadura,"Evera, gran señor de los demonios",ev81_00050,4.02,k000800,,c05023300_5000,ega_k000800a,aura_armed01
+D16A53AC,wao00720,armadura,"Sombra de plasma RE, guerrero artificial",ev81_00050,4.02,k000720,,c05021850_5000,ega_k000720a,aura_armed01
+15836018,wao00720_1,armadura,"Sombra de plasma RE, guerrero artificial",ev81_00050,4.02,k000720,,c05028450_5000,ega_k000720a,aura_armed01
+475A54DB,wao00721,armadura,"Sombra de plasma RE, guerrero artificial",ev81_00050,4.02,k000720,,c05021860_5000,ega_k000720a,aura_armed01
+22E9A219,wao00721_1,armadura,"Sombra de plasma RE, guerrero artificial",ev81_00050,4.02,k000720,,c05028460_5000,ega_k000720a,aura_armed01
+FD0B5D42,wao00722,armadura,"Sombra de plasma RE, guerrero artificial",ev81_00050,4.02,k000720,,c05021880_5000,ega_k000720a,aura_armed01
+7B57E41B,wao00722_1,armadura,"Sombra de plasma RE, guerrero artificial",ev81_00050,4.02,k000720,,c05028480_5000,ega_k000720a,aura_armed01
+6B3B5A35,wao00723,armadura,"Sombra de plasma RE, guerrero artificial",ev81_00050,4.02,k000720,,c05021890_5000,ega_k000720a,aura_armed01
+4C3D261A,wao00723_1,armadura,"Sombra de plasma RE, guerrero artificial",ev81_00050,4.02,k000720,,c05028490_5000,ega_k000720a,aura_armed01
+C8AE3EAB,wao00724,armadura,"Sombra de plasma RE, guerrero artificial",ev81_00050,4.02,k000720,,c05021940_5000,ega_k000720a,aura_armed01
+C92B691F,wao00724_1,armadura,"Sombra de plasma RE, guerrero artificial",ev81_00050,4.02,k000720,,c05028540_5000,ega_k000720a,aura_armed01
+5E9E39DC,wao00725,armadura,"Sombra de plasma RE, guerrero artificial",ev81_00050,4.02,k000720,,c05021870_5000,ega_k000720a,aura_armed01
+FE41AB1E,wao00725_1,armadura,"Sombra de plasma RE, guerrero artificial",ev81_00050,4.02,k000720,,c05028470_5000,ega_k000720a,aura_armed01
+E2661788,wad00650,armadura,"Brunilda, valquiria abanderada",ev81_00030,4.02,k000650,,c04000030_5000,ega_k000650a,k000650
+745610FF,wad00651,armadura,"Brunilda, valquiria abanderada",ev81_00030,4.02,k000650,,c05029830_5000,ega_k000650a,k000650
+AA1C497E,wad00650_h1,armadura,"Brunilda, valquiria abanderada",ev81_00030,4.02,k000650,,c04000030_5000,ega_k000650a,k000650
+104D40E7,wad00650_h2,armadura,"Brunilda, valquiria abanderada",ev81_00030,4.02,k000650,,c04000030_5000,ega_k000650a,k000650
+20F4A684,wad00650_b1,armadura,"Brunilda, valquiria abanderada",ev81_00030,4.02,k000650,,c04000030_5000,ega_k000650a,k000650
+90F8A2F4,wad00700,armadura,"Amaterasu, guerrera del amanecer",ev81_00040,4.02,k000700,,c05020140_5000,ega_k000700a,aura_armed01
+D1C9B9ED,wad00710,armadura,"Jaguar, guerrero prehistórico",ev81_00020,4.02,k000710,,c05020150_5000,ega_k000710a,aura_armed01
+129A94C6,wad00720,armadura,"Sombra de plasma DF, guerrero artificial",ev81_00020,4.02,,,c05021820_5000,,aura_armed01
+439F0A45,wad00720_1,armadura,"Sombra de plasma DF, guerrero artificial",ev81_00020,4.02,,,c05028420_5000,,aura_armed01
+84AA93B1,wad00721,armadura,"Sombra de plasma DF, guerrero artificial",ev81_00020,4.02,,,c05021830_5000,,aura_armed01
+74F5C844,wad00721_1,armadura,"Sombra de plasma DF, guerrero artificial",ev81_00020,4.02,,,c05028430_5000,,aura_armed01
+3EFB9A28,wad00722,armadura,"Sombra de plasma DF, guerrero artificial",ev81_00020,4.02,,,c05021840_5000,,aura_armed01
+2D4B8E46,wad00722_1,armadura,"Sombra de plasma DF, guerrero artificial",ev81_00020,4.02,,,c05028440_5000,,aura_armed01
+A8CB9D5F,wad00723,armadura,"Sombra de plasma DF, guerrero artificial",ev81_00020,4.02,,,c05021930_5000,,aura_armed01
+1A214C47,wad00723_1,armadura,"Sombra de plasma DF, guerrero artificial",ev81_00020,4.02,,,c05028530_5000,,aura_armed01
+A97A929B,wad00840,armadura,"Eris, bruja de la discordia",ev81_00020,4.02,k000840,,c05024920_5000,ega_k000840a,aura_armed01
+EB7C487E,wak00250,armadura,"Atlas, protector de la Tierra",ev81_00050,4.02,k000250,,c04000050_5000,ega_k000250a,aura_armed01
+C728C237,wak00720,armadura,"Sombra de plasma PA, guerrero artificial",ev81_00030,4.02,,,c05021810_5000,,
+EF8D2A9C,wak00720_1,armadura,"Sombra de plasma PA, guerrero artificial",ev81_00030,4.02,,,c05028410_5000,,
+5118C540,wak00721,armadura,"Sombra de plasma PA, guerrero artificial",ev81_00030,4.02,,,c05021920_5000,,
+D8E7E89D,wak00721_1,armadura,"Sombra de plasma PA, guerrero artificial",ev81_00030,4.02,,,c05028520_5000,,
+972F3182,wao00010,armadura,Pegaso alado,ev81_00010,4.02,k000010,,c04000080_5000,ega_k000010a,aura_armed01
+F05C2D31,was00990,armadura,Archipegaso rojo alado,ev81_00010,4.02,k000990,,c04000080_5300,,aura_armed01
+6F6278ED,was00300,armadura,"Grifo, señor de las bestias",ev81_00040,4.02,k000300,,c04000080_5100,ega_k000300a,aura_armed01
+F9527F9A,was00301,armadura,"Grifo, señor de las bestias",ev81_00040,4.02,k000300,,c04000090_5100,ega_k000300a,aura_armed01
+43037603,was00302,armadura,"Grifo, señor de las bestias",ev81_00040,4.02,k000300,,c04000100_5100,ega_k000300a,aura_armed01
+D12DC52E,was00300_h1,armadura,"Grifo, señor de las bestias",ev81_00040,4.02,k000300,,c04000080_5100,ega_k000300a,aura_armed01
+6B7CCCB7,was00300_h2,armadura,"Grifo, señor de las bestias",ev81_00040,4.02,k000300,,c04000080_5100,ega_k000300a,aura_armed01
+5BC52AD4,was00300_b1,armadura,"Grifo, señor de las bestias",ev81_00040,4.02,k000300,,c04000080_5100,ega_k000300a,aura_armed01
+B44A7996,was00301_h1,armadura,"Grifo, señor de las bestias",ev81_00040,4.02,k000300,,c04000090_5100,ega_k000300a,aura_armed01
+E0B4C51D,was00302_h2,armadura,"Grifo, señor de las bestias",ev81_00040,4.02,k000300,,c04000090_5100,ega_k000300a,aura_armed01
+D00D237E,was00302_b1,armadura,"Grifo, señor de las bestias",ev81_00040,4.02,k000300,,c04000090_5100,ega_k000300a,aura_armed01
+3F82703C,was00303_h1,armadura,"Grifo, señor de las bestias",ev81_00040,4.02,k000300,,c04000100_5100,ega_k000300a,aura_armed01
+85D379A5,was00303_h2,armadura,"Grifo, señor de las bestias",ev81_00040,4.02,k000300,,c04000100_5100,ega_k000300a,aura_armed01
+B56A9FC6,was00303_b1,armadura,"Grifo, señor de las bestias",ev81_00040,4.02,k000300,,c04000100_5100,ega_k000300a,aura_armed01
+60A7CBFB,wao00640,armadura,"Comadreja, garras de hoz",ev81_00020,4.02,k000640,,c05021100_5000,ega_k000640a,aura_armed01
+83D4CADC,was00120,armadura,Sobrenatural halcón de trueno,ev81_00020,4.02,k000120,,c04000860_5000,ega_k000120a,aura_armed01
+71912357,wak00160,armadura,"Goliat, titán",ev81_00020,4.02,k000160,,c04001010_5000,ega_k000160a,aura_armed01
+0573908A,was00140,armadura,"Trickster, ilusionista",ev81_00030,4.02,k000140,,c04001100_5000,ega_k000140a,k000140
+934397FD,was00141,armadura,"Trickster, ilusionista",ev81_00030,4.02,k000140,,c01002110_5000,ega_k000140a,k000140
+CE329DC1,wad00320,armadura,"Drake, caballero dragón",ev81_00020,4.02,k000320,,c05023430_5000,ega_k000320a,aura_armed01
+58029AB6,wad00321,armadura,"Drake, caballero dragón",ev81_00020,4.02,k000320,,c04001220_5000,ega_k000320a,aura_armed01
+2E5363F4,was00310,armadura,Cuervo alas negras,ev81_00050,4.02,k000310,,c05022710_5000,ega_k000310a,aura_armed01
+B8636483,was00311,armadura,Cuervo alas negras,ev81_00050,4.02,k000310,,c04001310_5000,ega_k000310a,aura_armed01
+A7040E13,wao00342,armadura,Peón negro,ev81_00040,4.02,k000340,,c04003470_5000,,aura_armed01
+E9FE3152,wao00180,armadura,Peón blanco,ev81_00040,4.02,k000180,,c04001420_5100,ega_k000180a,aura_armed01
+7FCE3625,wao00181,armadura,Peón blanco,ev81_00040,4.02,k000180,,c04002060_5100,ega_k000180a,aura_armed01
+C59F3FBC,wao00182,armadura,Peón blanco,ev81_00040,4.02,k000180,,c04003300_5100,ega_k000180a,aura_armed01
+53AF38CB,wao00183,armadura,Peón blanco,ev81_00040,4.02,k000180,,c04003280_5100,ega_k000180a,aura_armed01
+F03A5C55,wao00184,armadura,Peón blanco,ev81_00040,4.02,k000180,,c04003310_5100,ega_k000180a,aura_armed01
+660A5B22,wao00185,armadura,Peón blanco,ev81_00040,4.02,k000180,,c04003270_5100,ega_k000180a,aura_armed01
+9FA5E84A,wao00090,armadura,"Barius, supersónico",ev81_00020,4.02,k000090,,c05020460_5000,ega_k000090a,aura_armed01
+0995EF3D,wao00091,armadura,"Barius, supersónico",ev81_00020,4.02,k000090,,c04001490_5000,ega_k000090a,aura_armed01
+C2E5D1C5,was00130,armadura,"Poseidón, rey de los mares",ev81_00020,4.02,k000130,,c05022680_5000,ega_k000130a,aura_armed01
+54D5D6B2,was00131,armadura,"Poseidón, rey de los mares",ev81_00020,4.02,k000130,,c04001500_5000,ega_k000130a,aura_armed01
+B6076218,wak00110,armadura,Titán gigante,ev81_00050,4.02,k000110,,c05021410_5000,ega_k000110a,aura_armed01
+2037656F,wak00111,armadura,Titán gigante,ev81_00050,4.02,k000110,,c04001610_5000,ega_k000110a,aura_armed01
+4B24D2C4,wad00420,armadura,Berserker,ev81_00030,4.02,k000420,,c05023050_5000,,k000420
+DD14D5B3,wad00421,armadura,Berserker,ev81_00030,4.02,k000420,,c04002050_5000,,k000420
+3E56E727,was00080,armadura,"Chione, reina de la nieve",ev81_00020,4.02,k000080,,c05023110_5000,ega_k000080a,aura_armed01
+A866E050,was00081,armadura,"Chione, reina de la nieve",ev81_00020,4.02,k000080,,c04002100_5000,ega_k000080a,aura_armed01
+DFA79F2C,wak00430,armadura,"Barron, coloso metálico",ev81_00050,4.02,k000430,,c05020410_5000,,aura_armed01
+4997985B,wak00431,armadura,"Barron, coloso metálico",ev81_00050,4.02,k000430,,c04002210_5000,,aura_armed01
+11886BD4,wao00070,armadura,"León, rey de la selva",ev81_00050,4.02,k000070,,c05022860_5000,ega_k000070a,aura_armed01
+87B86CA3,wao00071,armadura,"León, rey de la selva",ev81_00050,4.02,k000070,,c04002290_5000,ega_k000070a,aura_armed01
+480D3E3F,was00190,armadura,Caballo blanco,ev81_00050,4.02,k000190,,c04002300_5100,ega_k000190a,aura_armed01
+DE3D3948,was00191,armadura,Caballo blanco,ev81_00050,4.02,k000190,,c04003260_5100,ega_k000190a,aura_armed01
+646C30D1,was00192,armadura,Caballo blanco,ev81_00050,4.02,k000190,,c04003290_5100,ega_k000190a,aura_armed01
+BCA608E7,was00351,armadura,Caballo negro,ev81_00050,4.02,k000350,,c04003660_5000,,aura_armed01
+30A0384E,wak00170,armadura,"Lot, gran jugador",ev81_00050,4.02,k000170,,c05021010_5000,ega_k000170a,aura_armed01
+A6903F39,wak00171,armadura,"Lot, gran jugador",ev81_00050,4.02,k000170,,c04002410_5000,ega_k000170a,aura_armed01
+A4809FE7,wao00150,armadura,"Garas, maestra de ilusiones",ev81_00030,4.02,k000150,,c05023490_5000,ega_k000150a,k000150
+32B09890,wao00151,armadura,"Garas, maestra de ilusiones",ev81_00030,4.02,k000150,,c04002490_5000,ega_k000150a,k000150
+78815CFB,was00441,armadura,"Bufón, artista del engaño",ev81_00050,4.02,k000440,,c04002510_5000,,aura_armed01
+1E4DD8C2,was00530,armadura,"Oneiros, señor de los sueños",ev81_00030,4.02,k000530,,c05023700_5000,,k000530
+887DDFB5,was00531,armadura,"Oneiros, señor de los sueños",ev81_00030,4.02,k000530,,c04002500_5100,,k000530
+9A53E851,wak00460,armadura,"Gargantúa, gigante metálico",ev81_00050,4.02,k000460,,c05022810_5000,,aura_armed01
+0C63EF26,wak00461,armadura,"Gargantúa, gigante metálico",ev81_00050,4.02,k000460,,c04002810_5000,,aura_armed01
+AF804095,was00450,armadura,"Neptuno, señor de los mares",ev81_00020,4.02,k000450,,c04002910_5000,,aura_armed01
+CD2062D3,wao00470,armadura,"Sirena, la hechicera",ev81_00040,4.02,k000470,,c05023260_5000,,aura_armed01
+5B1065A4,wao00471,armadura,"Sirena, la hechicera",ev81_00040,4.02,k000470,,c04003060_5000,,aura_armed01
+023CFA54,wao00480,armadura,"Tachión, hipervelocista",ev81_00040,4.02,k000480,,c05023660_5000,,aura_armed01
+940CFD23,wao00481,armadura,"Tachión, hipervelocista",ev81_00040,4.02,k000480,,c04003070_5000,,aura_armed01
+01B6FCEE,was00100,armadura,"Surtur, gigante de fuego",ev81_00040,4.02,k000100,,c05022910_5000,ega_k000100a,aura_armed01
+9786FB99,was00101,armadura,"Surtur, gigante de fuego",ev81_00040,4.02,k000100,,c04003080_5000,ega_k000100a,aura_armed01
+2DD7F200,was00102,armadura,"Surtur, gigante de fuego",ev81_00040,4.02,k000100,,c01000100_5000,ega_k000100a,aura_armed01
+6DDB1228,wak00230,armadura,"Rey blanco, sabio monarca",ev81_00040,4.02,k000230,,c04003210_5000,ega_k000230a,aura_armed01
+DA6A8CDE,was00220,armadura,"Reina blanca, encantadora real",ev81_00030,4.02,k000220,,c05024910_5100,ega_k000220a,k000220
+4C5A8BA9,was00221,armadura,"Reina blanca, encantadora real",ev81_00030,4.02,k000220,,c04003220_5100,ega_k000220a,k000220
+3A0B72EB,wad00210,armadura,"Torre blanca, centinela vigía",ev81_00050,4.02,k000210,,c04003230_5100,ega_k000210a,aura_armed01
+7B3A69F2,wad00200,armadura,"Alfil blanco, mensajero divino",ev81_00030,4.02,k000200,,c04003240_5100,ega_k000200a,k000200
+ED0A6E85,wad00201,armadura,"Alfil blanco, mensajero divino",ev81_00030,4.02,k000200,,c04003250_5100,ega_k000200a,k000200
+CAF7F1A5,wad00360,armadura,"Alfil negro, mensajero divino",ev81_00030,4.02,k000360,,c04003690_5000,,k000360
+50826324,was00280,armadura,"Azote negro, señor oscuro",ev81_00030,4.02,k000280,,c04003700_5000,ega_k000280a,k000280
+5CCDD688,was00240,armadura,"Arturo, paladín de la espada sagrada",ev81_00060,4.02,k000240,,c04003700_5100,ega_k000240a,aura_armed01
+CAFDD1FF,was00241,armadura,"Arturo, paladín de la espada sagrada",ev81_00060,4.02,k000240,,c04003500_5000,ega_k000240a,aura_armed01
+B4581910,was00240_h1,armadura,"Arturo, paladín de la espada sagrada",ev81_00060,4.02,k000240,,c04003700_5100,ega_k000240a,aura_armed01
+0E091089,was00240_h2,armadura,"Arturo, paladín de la espada sagrada",ev81_00060,4.02,k000240,,c04003700_5100,ega_k000240a,aura_armed01
+3EB0F6EA,was00240_b1,armadura,"Arturo, paladín de la espada sagrada",ev81_00060,4.02,k000240,,c04003700_5100,ega_k000240a,aura_armed01
+D13FA5A8,was00241_h1,armadura,"Arturo, paladín de la espada sagrada",ev81_00060,4.02,k000240,,c04003500_5000,ega_k000240a,aura_armed01
+6B6EAC31,was00241_h2,armadura,"Arturo, paladín de la espada sagrada",ev81_00060,4.02,k000240,,c04003500_5000,ega_k000240a,aura_armed01
+5BD74A52,was00241_b1,armadura,"Arturo, paladín de la espada sagrada",ev81_00060,4.02,k000240,,c04003500_5000,ega_k000240a,aura_armed01
+8BC6EABC,wad00370,armadura,"Torre negra, centinela vigía",ev81_00050,4.02,k000370,,c04003710_5000,,aura_armed01
+6AAF6B1F,wak00510,armadura,"Grandius, mágico gigante",ev81_00050,4.02,k000510,,c05029820_5000,ega_k000510a,aura_armed01
+FC9F6C68,wak00511,armadura,"Grandius, mágico gigante",ev81_00050,4.02,k000510,,c01000010_5000,ega_k000510a,aura_armed01
+554F70D6,wak00490,armadura,"Vega, suerte encarnada",ev81_00020,4.02,k000490,,c05020710_5000,,aura_armed01
+C37F77A1,wak00491,armadura,"Vega, suerte encarnada",ev81_00020,4.02,k000490,,c01000120_5000,,aura_armed01
+E2C5FDC9,wao00660,armadura,"Cychr, dragón enjoyado",ev81_00030,4.02,k000660,,c05020350_5000,ega_k000660a,k000660
+6CE87E57,wao00680,armadura,"Licaón, lobo maldito",ev81_00030,4.02,k000680,,c05020800_5000,ega_k000680a,k000680
+AB452CF1,was00410,armadura,"Roc, ave mitológica",ev81_00020,4.02,k000410,,c05021490_5000,,aura_armed01
+3D752B86,was00411,armadura,"Roc, ave mitológica",ev81_00020,4.02,k000410,,c04001700_5000,,aura_armed01
+600421BA,wad00670,armadura,"Xuan-Wu, guerrero del norte",ev81_00050,4.02,k000670,,c05021500_5100,ega_k000670a,aura_armed01
+F63426CD,wad00671,armadura,"Xuan-Wu, guerrero del norte",ev81_00050,4.02,k000670,,c05020360_5000,ega_k000670a,aura_armed01
+4C652F54,wad00672,armadura,"Xuan-Wu, guerrero del norte",ev81_00050,4.02,k000670,,c05029840_5000,ega_k000670a,aura_armed01
+CA4F8904,wad00670_h1,armadura,"Xuan-Wu, guerrero del norte",ev81_00050,4.02,k000670,,c05021500_5100,ega_k000670a,aura_armed01
+701E809D,wad00670_h2,armadura,"Xuan-Wu, guerrero del norte",ev81_00050,4.02,k000670,,c05021500_5100,ega_k000670a,aura_armed01
+40A766FE,wad00670_b1,armadura,"Xuan-Wu, guerrero del norte",ev81_00050,4.02,k000670,,c05021500_5100,ega_k000670a,aura_armed01
+EA7437E8,was00400,armadura,"Plumas ardientes, ave de fuego",ev81_00040,4.02,k000400,,c05021510_5000,,aura_armed01
+7C44309F,was00401,armadura,"Plumas ardientes, ave de fuego",ev81_00040,4.02,k000400,,c04001710_5000,,aura_armed01
+82DCB54A,wak00770,armadura,"Atlanticus, bestia abisal",ev81_00020,4.02,k000770,,c05022610_5000,ega_k000770a,aura_armed01
+E4043C2E,wad00890,armadura,"Zhuque, guerrera del sur",ev81_00040,4.02,k000890,,c05022620_5000,ega_k000890a,aura_armed01
+BB40A822,was00780,armadura,"Los enamorados ♀, a. encadenadas",ev81_00020,4.02,k000780,,c05022880_5000,ega_k000780a,aura_armed01
+B16D3628,was00980,armadura,"Los enamorados ♂, a. encadenadas",ev81_00050,4.02,k000980,,c05022890_5000,ega_k000980a,aura_armed01
+1814E08D,wao00910,armadura,"Baihu, guerrero del oeste",ev81_00020,4.02,k000910,,c05022900_5000,ega_k000910a,aura_armed01
+0CF136D4,wak00790,armadura,"Amorosa, colablanca explosiva",ev81_00030,4.02,k000790,,c05023010_5000,ega_k000790a,k000790
+5925FB94,wao00900,armadura,"Qinglong, guerrero del este",ev81_00030,4.02,k000900,,c05023100_5000,ega_k000900a,k000900
+4BA2066B,wak00940,armadura,"Arges, cíclope colosal",ev81_00020,4.02,k000940,,c05023210_5000,ega_k000940a,aura_armed01
+BCAC28BD,wad00270,armadura,Tirador sombrío,ev81_00040,4.02,k000270,,c05023230_5000,ega_k000270a,aura_armed01
+9A76D6BF,wao00930,armadura,"Jmet, adalid leonino",ev81_00050,4.02,k000930,,c05023310_5000,ega_k000930a,aura_armed01
+2B9E7006,wak00500,armadura,"Kraon, guerrero dragón",ev81_00040,4.02,k000500,,c05023410_5000,ega_k000500a,aura_armed01
+6EECD3D4,wad00830,armadura,"Kukulkán, serpiente emplumada",ev81_00020,4.02,k000830,,c05023420_5000,ega_k000830a,aura_armed01
+2F7E228C,wao00810,armadura,"Huargo, can infernal",ev81_00040,4.02,k000810,,c05023500_5000,ega_k000810a,aura_armed01
+082A77B7,was00860,armadura,"Asura, cazador de gloria",ev81_00050,4.02,k000860,,c05023510_5000,ega_k000860a,aura_armed01
+282F6555,wak00260,armadura,"Demogorgo, duque destructor",ev81_00030,4.02,k000260,,c05023610_5000,ega_k000260a,k000260
+18B70ACC,wad00920,armadura,"Raiden, señor de las tormentas",ev81_00050,4.02,k000920,,c05023620_5000,ega_k000920a,aura_armed01
+EC2D0FA7,wao00820,armadura,"Glenr, portador del sol nocturno",ev81_00050,4.02,k000820,,c05023690_5000,ega_k000820a,aura_armed01
+8607F429,was00880,armadura,"Argentia, reina plateada",ev81_00030,4.02,k000880,,c05023710_5000,ega_k000880a,k000880
+C9C03059,wak00960,armadura,"Vritrá, Escualodragón despiadado",ev81_00040,4.02,k000960,,c05024810_5000,ega_k000960a,aura_armed01
+9349B7A7,wad00060,armadura,Juez supremo,ev81_00030,4.02,k000060,,c05024830_5000,ega_k000060a,k000060
+7E71AEAF,was00970,armadura,"Astaroth, príncipe del caos",ev81_00040,4.02,k000970,,c05024900_5000,ega_k000970a,aura_armed01
+3DF9DF73,wak00850,armadura,"Papelín, rey de los empollones",ev81_00030,4.02,k000850,,c05029620_5000,ega_k000850a,k000850
+A9FC4634,wak00520,armadura,"Serendipity, maestro de las trampas",ev81_00040,4.02,k000520,,c06037380_5000,,aura_armed01
+491B6CAE,was00870,armadura,"Metis, señora del ingenio",ev81_00040,4.02,k000870,,c06037410_5100,ega_k000870a,aura_armed01
+0A931D72,wak00950,armadura,"Daji, doncella ladina",ev81_00020,4.02,k000950,,c02024410_5000,ega_k000950a,aura_armed01
+00AF952C,was00290_1,armadura,"Guiverno blanco, drágon heráldico",ev81_00020,4.02,k000290,,c04003500_5100,ega_k000290a,aura_armed01
+E8E45908,wmm00010,mixi,Miximax Trans: Tiranosaurio,ev82_00010,5.02,,,c05028010,,aura_mixi_c05028010
+2BB77423,wmm00020,mixi,Miximax Trans: <FLC:TSURUGI>,ev82_00010,5.02,,,c05028020,,aura_mixi_c05028020
+BD877354,wmm00021,mixi,Miximax Trans: <FLC:TSURUGI>,ev82_00010,5.02,,,c05028020,,aura_mixi_c05028020
+6A866F3A,wmm00030,mixi,Miximax Trans: <FUL:SYU>,ev82_00010,5.02,,,c05028030,,aura_mixi_c05028030
+C25CCF91,wmm00030_h1,mixi,Miximax Trans: <FUL:SYU>,ev82_00010,5.02,,,c05028030,,aura_mixi_c05028030
+780DC608,wmm00030_h2,mixi,Miximax Trans: <FUL:SYU>,ev82_00010,5.02,,,c05028030,,aura_mixi_c05028030
+48B4206B,wmm00030_b1,mixi,Miximax Trans: <FUL:SYU>,ev82_00010,5.02,,,c05028030,,aura_mixi_c05028030
+AD102E75,wmm00040,mixi,Miximax Trans: Nobunaga,ev82_00010,5.02,,,c05028040,,aura_mixi_c05028040
+EC21356C,wmm00050,mixi,Miximax Trans: Zhuge Liang,ev82_00010,5.02,,,c05028060,,aura_mixi_c05028060
+63D55F1C,wmm00055,mixi,Miximax Trans: Zhuge Liang,ev82_00010,5.02,,,c05028140,,aura_mixi_c05028140
+50595129,wmm00055_h1,mixi,Miximax Trans: Zhuge Liang,ev82_00010,5.02,,,c05028140,,aura_mixi_c05028140
+EA0858B0,wmm00055_h2,mixi,Miximax Trans: Zhuge Liang,ev82_00010,5.02,,,c05028140,,aura_mixi_c05028140
+DAB1BED3,wmm00055_b1,mixi,Miximax Trans: Zhuge Liang,ev82_00010,5.02,,,c05028140,,aura_mixi_c05028140
+2F721847,wmm00060,mixi,Miximax Trans: <FLC:OKITA>,ev82_00010,5.02,,,c05028110,,aura_mixi_c05028110
+6E43035E,wmm00070,mixi,Miximax Trans: Big,ev82_00010,5.02,,,c05028090,,aura_mixi_c05028090
+A15F9BD9,wmm00080,mixi,Miximax Trans: Zeta,ev82_00010,5.02,,,c05028160,,aura_mixi_c05028160
+E06E80C0,wmm00090,mixi,Miximax Trans: <FLC:SAKAMOTO>,ev82_00010,5.02,,,c05028100,,aura_mixi_c05028100
+9EBF8010,wmm00100,mixi,Miximax Trans: Rey Arturo,ev82_00010,5.02,,,c05028130,,aura_mixi_c05028130
+DF8E9B09,wmm00110,mixi,Miximax Trans: Juana,ev82_00010,5.02,,,c05028050,,aura_mixi_c05028050
+1CDDB622,wmm00120,mixi,Miximax Trans: R. dragones,ev82_00010,5.02,,,c05028120,,aura_mixi_c05028120
+5DECAD3B,wmm00130,mixi,Miximax Trans: Cao Cao,ev82_00010,5.02,,,c05028150,,aura_mixi_c05028150
+9A7AEC74,wmm00140,mixi,Miximax Trans: Papá,ev82_00010,5.02,,,c05028080,,aura_mixi_c05028080
+DB4BF76D,wmm00150,mixi,Miximax Trans: Liu Bei,ev82_00020,5.02,,,c05028070,,aura_mixi_c05028070
+963559D8,wmm00180,mixi,Miximax Trans: Gen S,ev82_00010,5.02,,,c05028620,,aura_mixi_c05028620
+F2E895EF,wmm11010230,mixi,Miximax Trans: Raika,ev82_00010,5.02,,,c11010230,,aura_mixi_c11010230
+114ED203,wmm11010230_st0801,mixi,Miximax Trans: Raika,ev82_00010,5.02,,,c11010230,,aura_mixi_c11010230
+8EBA04C3,wmm00290,mixi,Miximax Trans: <FUL:G GENE>,ev82_00010,5.02,,,c05028630,,aura_mixi_c05028630
+F06B0413,wmm00300,mixi,Miximax Trans: <FUL:V GENE>,ev82_00010,5.02,,,c05028640,,aura_mixi_c05028640
+B15A1F0A,wmm00310,mixi,Miximax Trans: Rosa negra,ev82_00010,5.02,,,c05028610,,aura_mixi_c05028610
+8630DD0B,wmm00210,mixi,Miximax Trans: <FST:TENMA>,ev82_00010,5.02,,,c05029410,,aura_mixi_c05029410
+A9AEC7A6,wmm00210_h1,mixi,Miximax Trans: <FST:TENMA>,ev82_00010,5.02,,,c05029410,,aura_mixi_c05029410
+13FFCE3F,wmm00210_h2,mixi,Miximax Trans: <FST:TENMA>,ev82_00010,5.02,,,c05029410,,aura_mixi_c05029410
+2346285C,wmm00210_b1,mixi,Miximax Trans: <FST:TENMA>,ev82_00010,5.02,,,c05029410,,aura_mixi_c05029410
+1000DA7C,wmm00211,mixi,Miximax Trans: <FLC:TSURUGI>,ev82_00010,5.02,,,c11908140,,
+CCC97B1E,wmm00211_h1,mixi,Miximax Trans: <FLC:TSURUGI>,ev82_00010,5.02,,,c11908140,,
+76987287,wmm00211_h2,mixi,Miximax Trans: <FLC:TSURUGI>,ev82_00010,5.02,,,c11908140,,
+462194E4,wmm00211_b1,mixi,Miximax Trans: <FLC:TSURUGI>,ev82_00010,5.02,,,c11908140,,
+4563F020,wmm00220,mixi,Miximax Trans: <FST:TENMA>,ev82_00010,5.02,,,c05029460,,
+79D467E1,wmm00220_h1,mixi,Miximax Trans: <FST:TENMA>,ev82_00010,5.02,,,c05029460,,
+C3856E78,wmm00220_h2,mixi,Miximax Trans: <FST:TENMA>,ev82_00010,5.02,,,c05029460,,
+F33C881B,wmm00220_b1,mixi,Miximax Trans: <FST:TENMA>,ev82_00010,5.02,,,c05029460,,
+D353F757,wmm00221,mixi,Miximax Trans: <FLC:ENDO>,ev82_00020,5.02,,,c11908190,,aura_mixi_c11908190
+0452EB39,wmm00230,mixi,Miximax Trans: <FUL:HAKURYU>,ev82_00010,5.02,,,c05029440,,aura_mixi_c05029440
+C9FD07DC,wmm00230_h1,mixi,Miximax Trans: <FUL:HAKURYU>,ev82_00010,5.02,,,c05029440,,aura_mixi_c05029440
+73AC0E45,wmm00230_h2,mixi,Miximax Trans: <FUL:HAKURYU>,ev82_00010,5.02,,,c05029440,,aura_mixi_c05029440
+4315E826,wmm00230_b1,mixi,Miximax Trans: <FUL:HAKURYU>,ev82_00010,5.02,,,c05029440,,aura_mixi_c05029440
+9262EC4E,wmm00231,mixi,Miximax Trans: <FLC:TSURUGI>,ev82_00010,5.02,,,c11908170,,
+AC9ABB64,wmm00231_h1,mixi,Miximax Trans: <FLC:TSURUGI>,ev82_00010,5.02,,,c11908170,,
+16CBB2FD,wmm00231_h2,mixi,Miximax Trans: <FLC:TSURUGI>,ev82_00010,5.02,,,c11908170,,
+2672549E,wmm00231_b1,mixi,Miximax Trans: <FLC:TSURUGI>,ev82_00010,5.02,,,c11908170,,
+C3C4AA76,wmm00240,mixi,Miximax Trans: <FLC:SHINDO>,ev82_00010,5.02,,,c05029420,,aura_mixi_c05029420
+55F4AD01,wmm00241,mixi,Miximax Trans: <FLC:KIRINO>,ev82_00010,5.02,,,c11908150,,aura_mixi_c11908150
+BC469BD6,wmm00241_h1,mixi,Miximax Trans: <FLC:KIRINO>,ev82_00010,5.02,,,c11908150,,aura_mixi_c11908150
+0617924F,wmm00241_h2,mixi,Miximax Trans: <FLC:KIRINO>,ev82_00010,5.02,,,c11908150,,aura_mixi_c11908150
+36AE742C,wmm00241_b1,mixi,Miximax Trans: <FLC:KIRINO>,ev82_00010,5.02,,,c11908150,,aura_mixi_c11908150
+82F5B16F,wmm00250,mixi,Miximax Trans: <FLC:KARIYA>,ev82_00010,5.02,,,c05029430,,aura_mixi_c05029430
+14C5B618,wmm00251,mixi,Miximax Trans: <FLC:KIRINO>,ev82_00010,5.02,,,c11908160,,
+41A69C44,wmm00260,mixi,Miximax Trans: <FUL:SYU>,ev82_00010,5.02,,,c05029450,,
+B972E714,wmm00260_h1,mixi,Miximax Trans: <FUL:SYU>,ev82_00010,5.02,,,c05029450,,
+0323EE8D,wmm00260_h2,mixi,Miximax Trans: <FUL:SYU>,ev82_00010,5.02,,,c05029450,,
+339A08EE,wmm00260_b1,mixi,Miximax Trans: <FUL:SYU>,ev82_00010,5.02,,,c05029450,,
+D7969B33,wmm00261,mixi,Miximax Trans: <FUL:HAKURYU>,ev82_00010,5.02,,,c11908180,,
+DC155BAC,wmm00261_h1,mixi,Miximax Trans: <FUL:HAKURYU>,ev82_00010,5.02,,,c11908180,,
+66445235,wmm00261_h2,mixi,Miximax Trans: <FUL:HAKURYU>,ev82_00010,5.02,,,c11908180,,
+56FDB456,wmm00261_b1,mixi,Miximax Trans: <FUL:HAKURYU>,ev82_00010,5.02,,,c11908180,,
+0097875D,wmm00270,mixi,Miximax Trans: <FLC:FUBUKI>,ev82_00010,5.02,,,c05029470,,aura_mixi_c05029470
+96A7802A,wmm00271,mixi,Miximax Trans: <FLC:GOENJI>,ev82_00010,5.02,,,c11908200,,aura_mixi_c11908200
+CF8B1FDA,wmm00280,mixi,Miximax Trans: <FLC:YUTO>,ev82_00010,5.02,,,c05029480,,aura_mixi_c05029480
+59BB18AD,wmm00281,mixi,Miximax Trans: <FLC:FUDO>,ev82_00010,5.02,,,c11908210,,aura_mixi_c11908210
+B0202637,wss000020,alma,Tótem lobo,ev83_00010_1,4.48,a000020,,,,a000020
+F1113D2E,wss000030,alma,Tótem halcón,ev83_00010_1,4.48,a000030,,,,a000030
+77B66778,wss000050,alma,Tótem león,ev83_00010_1,4.48,a000050,,,,a000050
+F5D4514A,wss000070,alma,Tótem Guma,ev83_00010_1,4.48,a000070,,,,a000070
+1DA78F1F,wss000210,alma,Tótem Doruga,ev83_00010_1,4.48,a000210,,,,a000210
+5853F862,wss000240,alma,Tótem Belion,ev83_00010_1,4.48,a000240,,,,a000240
+DA31CE50,wss000260,alma,Tótem Ixaal,ev83_00010_1,4.48,a000260,,,,a000260
+9B00D549,wss000270,alma,Tótem Begiran,ev83_00010_1,4.48,a000270,,,,a000270
+2E08217A,wss000350,alma,Tótem Dragunova,ev83_00010_1,4.48,a000350,,,,a000350
+ED5B0C51,wss000360,alma,Tótem Goliger,ev83_00010_1,4.48,a000360,,,,a000360
+224794D6,wss000390,alma,Tótem lobo plateado,ev83_00010_1,4.48,a000390,,,,a000390
+EEEA1902,wss000400,alma,Tótem águila calva,ev83_00010_1,4.48,a000400,,,,a000400
+AFDB021B,wss000410,alma,Tótem Pelion,ev83_00010_1,4.48,a000410,,,,a000410
+6C882F30,wss000420,alma,Tótem Vairaas,ev83_00010_1,4.48,a000420,,,,a000420
+C98575BC,wso000010,alma,Tótem caballo,ev83_00010_1,4.48,a000010,,,,a000010
+0E1334F3,wso000060,alma,Tótem Dohma,ev83_00010_1,4.48,a000060,,,,a000060
+3DBC9A96,wso000120,alma,Tótem pavo real,ev83_00010_1,4.48,a000120,,,,a000120
+BB1BC0C0,wso000140,alma,Tótem antílope,ev83_00010_1,4.48,a000140,,,,a000140
+FA2ADBD9,wso000150,alma,Tótem oso pardo,ev83_00010_1,4.48,a000150,,,,a000150
+B754756C,wso000180,alma,Tótem Fenikias,ev83_00010_1,4.48,a000180,,,,a000180
+6402DC94,wso000220,alma,Tótem Gusfi,ev83_00010_1,4.48,a000220,,,,a000220
+EEEA336E,wso000280,alma,Tótem antílope oscuro,ev83_00010_1,4.48,a000280,,,,a000280
+903B33BE,wso000310,alma,Tótem grifo,ev83_00010_1,4.48,a000310,,,,a000310
+53681E95,wso000320,alma,Tótem Univolt,ev83_00010_1,4.48,a000320,,,,a000320
+974F4A89,wso000430,alma,Tótem Pamerio,ev83_00010_1,4.48,a000430,,,,a000430
+50D90BC6,wso000440,alma,Tótem Brakias,ev83_00010_1,4.48,a000440,,,,a000440
+11E810DF,wso000450,alma,Tótem oso lunar,ev83_00010_1,4.48,a000450,,,,a000450
+D2BB3DF4,wso000460,alma,Tótem Zooma,ev83_00010_1,4.48,a000460,,,,a000460
+2682D2DE,wso000550,alma,Tótem pegaso rojo,ev83_00010_1,4.48,a000550,,,,a000550
+E5D1FFF5,wso000560,alma,Tótem pegaso,ev83_00010_1,4.48,a000560,,,,a000560
+762505C3,wsd000040,alma,Tótem zorro,ev83_00010_1,4.48,a000040,,,,a000040
+7A6AB06F,wsd000080,alma,Tótem búho cornudo,ev83_00010_1,4.48,a000470,,,,a000470
+3B5BAB76,wsd000090,alma,Tótem Dolfinus,ev83_00010_1,4.48,a000090,,,,a000090
+04BBB0BF,wsd000110,alma,Tótem búfalo,ev83_00010_1,4.48,a000110,,,,a000110
+C32DF1F0,wsd000160,alma,Tótem tejón,ev83_00010_1,4.48,a000160,,,,a000160
+821CEAE9,wsd000170,alma,Tótem Gandran,ev83_00010_1,4.48,a000170,,,,a000170
+0C316977,wsd000190,alma,Tótem Garius,ev83_00010_1,4.48,a000190,,,,a000190
+558F2F75,wsd000290,alma,Tótem salamandra oscura,ev83_00010_1,4.48,a000290,,,,a000290
+E80D028E,wsd000330,alma,Tótem Flami,ev83_00010_1,4.48,a000330,,,,a000330
+ECC86EEA,wsd000370,alma,Tótem Dandor,ev83_00010_1,4.48,a000370,,,,a000370
+69DE21EF,wsd000470,alma,Tótem búho,ev83_00010_1,4.48,a000080,,,,a000080
+A6C2B968,wsd000480,alma,Tótem Giorom,ev83_00010_1,4.48,a000480,,,,a000480
+E7F3A271,wsd000490,alma,Tótem Guirius,ev83_00010_1,4.48,a000490,,,,a000490
+ACFAE350,wsk000100,alma,Tótem Delfinus,ev83_00010_1,4.48,a000100,,,,a000100
+6FA9CE7B,wsk000130,alma,Tótem mamut,ev83_00010_2,4.47,a000130,,,,a000130
+F544A552,wsk000200,alma,Tótem Gorius,ev83_00010_2,4.47,a000200,,,,a000200
+36178879,wsk000230,alma,Tótem Mosfi,ev83_00010_2,4.47,a000230,,,,a000230
+B0B0D22F,wsk000250,alma,Tótem Angidra,ev83_00010_2,4.47,a000250,,,,a000250
+C22E6753,wsk000300,alma,Tótem Gigiras,ev83_00010_2,4.47,a000300,,,,a000300
+C6EB0B37,wsk000340,alma,Tótem Magnatas,ev83_00010_2,4.47,a000340,,,,a000340
+CAA4BE9B,wsk000380,alma,Tótem Saranarja,ev83_00010_2,4.47,a000380,,,,a000380
+7052EA57,wsk000500,alma,Tótem Dolmega,ev83_00010_2,4.47,a000500,,,,a000500
+3163F14E,wsk000510,alma,Tótem Dalfonus,ev83_00010_2,4.47,a000510,,,,a000510
+F230DC65,wsk000520,alma,Tótem Kosfi,ev83_00010_2,4.47,a000520,,,,a000520
+B301C77C,wsk000530,alma,Tótem Grimron,ev83_00010_2,4.47,a000530,,,,a000530
+74978633,wsk000540,alma,Tótem Cerbegira,ev83_00010_2,4.47,a000540,,,,a000540
+75732EDD,test_kizuna_trans,lazo,Transformación de vínculo,ev84_00010,5.02,,,,,
+A844F719,pv8_kizuna_trans_GK,lazo,Transformación de vínculo,ev84_00020,5.02,,,,,
+8182504F,wkt00010,lazo,Transformación de vínculo,ev84_00010,5.02,,,,,
+CACAB252,test_awakening_power,despertar,Despertar,ev85_00010,3.98,,,,,
+6BF911A6,wap01001,despertar,Sobrecarga ardiente,ev85_00010,3.98,,,,,aura_power_wap01001
+D1A8183F,wap01002,despertar,Determinación de portero,ev85_00010,3.98,,,,,aura_power_wap01002
+47981F48,wap01003,despertar,Guardián férreo,ev85_00010,3.98,,,,,aura_power_wap01003
+E40D7BD6,wap01004,despertar,Catalizador elemental,ev85_00010,3.98,,,,,aura_power_wap01004
+723D7CA1,wap01005,despertar,Impulso temporal,ev85_00010,3.98,,,,,aura_power_wap01005
+CD571A8D,awakening_power_st0301,despertar,Despertar,ev85_00010,3.98,,,,,
+84D1A563,wap09001,despertar,Limitadores desactivados,ev85_00010,3.98,,,,,aura_power_wap09001
+3E80ACFA,wap09002,despertar,Espíritu Miximax,ev85_00010,3.98,,,,,aura_power_wap09002
+A8B0AB8D,wap09003,despertar,Mejora de cápsula,ev85_00010,3.98,,,,,aura_power_wap09003
+4DFC1203,mode_change_c11801040,modo,Modo Brutal,ev85_01010,5.02,,c11801040,c11801050,,mode_change_c11801040
+EB55E074,mode_change_c02023290,modo,Modo Atacante,ev85_01010,5.02,,c02023290,c02023370,,mode_change_c02023290
+A59A5B92,mode_change_c02023520,modo,Modo Serio,ev85_01010,5.02,,c02023520,c11902330,,mode_change_c02023520
+073F662B,mode_change_c06030060,modo,Modo Furia,ev85_01010,5.02,,c06030060,c06038010,,mode_change_c06030060
+394C2003,mode_change_c03030430,modo,Modo León Salvaje,ev85_01010,5.02,,c03030430,c11903050,,mode_change_c03030430
+0A6DB6D1,mode_change_c04000150,modo,Modo Dos Caras,ev85_01010,5.02,,c04000150,c11904010,,mode_change_c04000150
+29BDFB74,mode_change_c05020700,modo,Modo Reina,ev85_01010,5.02,,c05020700,c11905050,,mode_change_c05020700
+33D120E8,mode_change_c08030032,modo,Modo Santurrón,ev85_01010,5.02,,c08030032,c08030030,,mode_change_c08030032
+2188D903,mode_change_c11150120,modo,Modo Aphrody,ev85_01010,5.02,,c11150120,c01001900,,mode_change_c11150120
+D2CB3804,mode_change_c11150120_exst,modo,Modo Aphrody,ev85_01010,5.02,,c11150120,c01001900,,mode_change_c11150120
+7E422032,mode_change_c11150120_legend,modo,Modo Aphrody,ev85_01010,5.02,,c11150120,c01001900,,mode_change_c11150120
+B362BAAD,mode_change_c08030032_legend,modo,Modo Santurrón,ev85_01010,5.02,,c08030032,c08030030,,mode_change_c08030032
+823501EB,awakening_change,despertar,Cambio de despertar,ev85_00010,3.98,,,,,

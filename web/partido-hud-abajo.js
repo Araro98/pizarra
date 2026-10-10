@@ -66,6 +66,7 @@ const HudAbajo = {
     this._fueraDeJuego(s);
     this._rutas(s, js);
     this._pases(s);
+    this._previaT(s);
     this._estela(s);
     this._presion(s, js);
     if (vista.colocando && p.fase === "saque") this._fantasma(s, vista.colocando);
@@ -185,6 +186,23 @@ const HudAbajo = {
         }
       } else if (!rival) this._raso(s, b, dest);
     }
+  },
+  // con el raton encima de la T (O-326), adonde iria, a rayas: el tiro largo a la porteria
+  // (amarillo), el pase al companero o al hueco (cian), con un aro donde acaba
+  _previaT(s) {
+    const p = s.p, d = p.dueno();
+    if (p.fase !== "juego" || !d || d.lado !== s.yo || !p.botonT || typeof Abajo === "undefined" || !Abajo.encimaT || !Abajo.encimaT()) return;
+    const b = p.botonT(d), a = b.que === "pase" ? p.jugadores[b.a] : b.que === "hueco" ? { x: b.x, y: b.y } : b.que === "tiro" ? p.porteriaRival(d) : null;
+    if (!a) return;
+    const ctx = s.ctx, A = this._P(s, d.x, d.y, 0, s.q[0]), B = this._P(s, a.x, a.y, b.que === "tiro" ? 1.2 : 0, s.q[1]);
+    if (A.detras && B.detras) return;
+    const color = b.que === "tiro" ? "#F8D040" : "#8FE0FF";
+    ctx.save(); ctx.lineCap = "round"; ctx.setLineDash([6, 5]); ctx.lineDashOffset = -s.ahora * 20;
+    ctx.strokeStyle = "rgba(10,30,90,.6)"; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.stroke();
+    ctx.strokeStyle = color; ctx.lineWidth = 2.2; ctx.stroke();
+    ctx.setLineDash([]); ctx.translate(B.x, B.y); ctx.scale(1, 0.6);
+    ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 0, 9, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
   },
   _raso(s, de, a) {
     const ctx = s.ctx, A = this._P(s, de.x, de.y, 0, s.q[0]), B = this._P(s, a.x, a.y, 0, s.q[1]);
@@ -414,7 +432,7 @@ const HudAbajo = {
       const x = s.piesX[j.id];
       let y = s.techo[j.id] - 2 - (tir === j && j.lado === s.yo ? 14 : 0);
       const barras = [];
-      if (j.esPortero && j.kpMax) barras.push(["KP", GX.barraKp, Math.max(0, Math.min(1, j.kp / j.kpMax))]);
+      if (j.esPortero && j.kpMax) barras.push(["PP", GX.barraKp, Math.max(0, Math.min(1, j.kp / j.kpMax))]);     // el PP de VR (O-328)
       if (p.conAura && p.conAura(j)) {
         const T = REGLAS.HIPER_TIPOS && REGLAS.HIPER_TIPOS[j.hiperTipo], dura = (T && T.dura) || 45;
         barras.push(["AURA", GX.barraHip, Math.max(0, Math.min(1, (j.aura - ahora) / dura))]);
@@ -500,10 +518,11 @@ const HudAbajo = {
       const g = r.tipo === "foco" || r.tipo === "disputa" ? p.jugadores[r.ganador] : null;
       if (g && g.lado === s.yo && (p.fase === "resultado" || s.revela)) bo[g.id] = { texto: "¡Bien!", t0: ahora, dura: 1.3, bien: true };
     }
-    // las rutas que sueltas en la pausa: "¡A por ellos!" (En force !). Por lo que tiene
-    // cada ruta, no por el objeto: al invitado le llegan nuevas en cada foto
+    // las rutas que sueltas en la pausa (y tras pulsar Jugar, hasta que se saca, O-324):
+    // "¡A por ellos!" (En force !). Por lo que tiene cada ruta, no por el objeto: al
+    // invitado le llegan nuevas en cada foto
     if (p.fase !== s.faseAntes) { s.faseAntes = p.fase; s.rutas = {}; for (const j of p.jugadores) s.rutas[j.id] = this._firma(j); }
-    else if (p.fase === "pausa") {
+    else if (p.fase === "pausa" || p.porSacar) {
       for (const j of p.jugadores) {
         if (j.lado !== s.yo || j.expulsado) continue;
         const f = this._firma(j);

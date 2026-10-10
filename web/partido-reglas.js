@@ -22,8 +22,18 @@ const REGLAS = {
   // los cambios como en VR (la foto lleva j[k][12], el refuerzo, y `dc`, el
   // descuento) (O-315). 9: las animaciones de Galaxy (O-319): con ellas las esperas de
   // cada resultado duran lo que su animacion (el resultado lleva `anim`) y `equipos`
-  // lleva `animaciones`; un Pizarra de antes no sabria ensenarlas
-  VERSION: 9,
+  // lleva `animaciones`; un Pizarra de antes no sabria ensenarlas. 10: los saques en dos
+  // tiempos (O-324): en la espera solo se coloca (sin rutas, presion ni pase marcado) y
+  // tras Jugar nadie se mueve hasta que se saca (la foto lleva `ps`). 11: el tiro que
+  // viaja (O-325): cada etapa del tiro es un duelo de un solo lado (`etapa` y los roles
+  // "muro" y "cadena"), su resultado lleva `etapa` y la foto lleva `tv`, el tiro en vuelo.
+  // 12: el tiempo de invocacion (O-327): la fase "invocacion", la orden "tiempoInvocar", la
+  // foto lleva `iv`, 3 hipers puestas por equipo y el modo convierte al jugador en su forma
+  // 13: los calculos de VR (O-328): el PP de VR que se gasta con cada parada (la foto lleva
+  // la fatiga del portero en j[k][13]), la carga de configuracion, la afinidad y el combo
+  // (la foto lleva `cf`, `af` y `co`) y las pasivas del entrenador y los gerentes (`equipos`
+  // lleva `personal` y `configuracion`); un Pizarra de antes sacaria otros numeros
+  VERSION: 13,
   // el reloj de 3DS (O-308): partes de 15 o 30 minutos de reloj, a 12 s de reloj
   // por segundo real (videos: 11-12; VR: 12 lento / 14,1 normal). Una parte de
   // 15 son 75 s de juego corriendo
@@ -65,7 +75,9 @@ const REGLAS = {
   // juego a favor. Ganar con supertecnica no da (fandom)
   TENSION_MAX: 300, TENSION_INICIO: 105, TENSION_GANA: 60, TENSION_PIERDE: 30,
   TENSION_POR_SEGUNDO: 0, TENSION_DESCANSO: 0, TENSION_DISPUTA_PIERDE: 0, TENSION_FUERA_JUEGO: 10,
-  KP_POR_SEGUNDO: 0.02,         // el portero recupera un 2 % de su KP por segundo
+  // el PP del portero no se recupera con el tiempo (VR; antes un 2 % por segundo). Solo la
+  // hiper de un portero le suma un % de su maximo al invocar, y el descanso lo llena (O-328)
+  KP_POR_SEGUNDO: 0,
   // la pausa de 3DS (icono de la mano): para el partido y dibujas rutas a
   // varios jugadores y marcas el pase. Sin limite de veces ni de tiempo (Aaron,
   // O-307): sigue cuando pulsan Seguir los dos (O-308). 0 = sin limite; con un
@@ -98,9 +110,18 @@ const REGLAS = {
   // como en la vida real: muchos de esos se van fuera (saque de puerta) o los para el
   // portero. Tira mas (antes 22, 13, 0,30, 0,12, 0,02) porque ahora despeja, centra y
   // el balon sale: con lo de antes salian 2,5 goles y 0,6 saques de puerta por partido
-  IA_TIRO: { lejos: 26, cerca: 14, pCerca: 0.6, pLibre: 0.3, pTapado: 0.06, lejano: 34, pLejano: 0.3 },
+  // O-328: con el PP de VR (que se gasta con cada parada) y el muro que resta entero, chuta
+  // algo mas y mejor (antes 26, 14, 0,6, 0,3, 0,06, 34, 0,3): si su mejor tiro llega a
+  // `debil` x lo que le queda al portero rival, chuta con `pDebil` (con la linea libre o
+  // cerca, hasta `lejano` m); al chutar usa su mejor supertecnica (si la paga) con
+  // `tecnica` (en los focos, la de siempre); y si un muro le quitaria mas que la vaselina,
+  // vaselina. Medido (prueba/medir-o328.js, 96 partidos de 2 x 15 con las opciones de la
+  // pagina y los 11 equipos de la partida de pruebas): 3,1 goles por partido (el Partido de
+  // antes de O-328, 2,45; con estos calculos y la maquina de antes, 2,8)
+  IA_TIRO: { lejos: 28, cerca: 16, pCerca: 0.8, pLibre: 0.5, pTapado: 0.04, lejano: 38, pLejano: 0.3, debil: 0.6, pDebil: 0.9, tecnica: 0.95 },
   DUELO_MAX: 0,            // online: segundos para elegir en un duelo; 0 = sin limite, como en 3DS (Aaron, O-299)
-  // apoyos en un duelo (DS/3DS): cada companero cerca suma, mas si es de su elemento
+  // apoyos en un duelo (DS/3DS): cada companero cerca suma, mas si es de su elemento. No
+  // son de VR: se quedan hasta que Aaron diga (O-328)
   APOYO_RADIO: 7, APOYO: 0.05, APOYO_ELEMENTO: 0.05, APOYOS_MAX: 3,
   // faltas (3DS: el comando de la derecha arriesga falta): si el defensor gana
   // con "Entrada" o "Cargar", puede ser falta; en el area, penalti
@@ -115,8 +136,14 @@ const REGLAS = {
   COLOCAR_LEJOS: { banda: 2, falta: 9.15, corner: 9.15, centro: 9.15, penalti: 9.15 },
   colocarLejos(tipo) { return this.COLOCAR_LEJOS[tipo] || this.COLOCAR_LEJOS.falta; },
   // al volver el juego, los colocados se quedan en su sitio hasta que alguien coge
-  // el balon, como mucho estos segundos (si no, se iban a su zona al sacar) (O-313)
+  // el balon, como mucho estos segundos (si no, se iban a su zona al sacar) (O-313;
+  // desde O-324, contados desde que se saca)
   COLOCADO_SEGUNDOS: 3,
+  // tras pulsar Jugar nadie se mueve hasta que se saca (Aaron, O-322 punto 2): la
+  // maquina saca a estos s (el reloj esta parado), para que le de tiempo a la persona
+  // a dibujar las flechas de los suyos (en el de centro, tras el rotulo "¡Saque!" de
+  // 1,6 s) (O-324)
+  SAQUE_MAQUINA: 3.5,
   // las tarjetas (Aaron, O-307 punto 12: como en VR, pero raras) (O-311). En cada
   // falta, una tirada: roja directa, amarilla o nada. Las fuertes (con Entrada o en
   // el area) tienen mas. Dos amarillas son roja, y no se expulsa a nadie de un
@@ -131,16 +158,22 @@ const REGLAS = {
   // Tiro con efecto...: las de nombre interno rh*) no llenan nada. VR game_param
   HIPER_MAX: 200, HIPER_INICIO: 40, HIPER_COSTE: 100,
   HIPER_LLENA: { Tiro: 0.4, Regate: 0.6, Defensa: 0.8, Parada: 1.0 },
-  // como mucho 2 del mismo equipo con la hiper puesta a la vez, y 15 s sin que
-  // nadie mas del equipo invoque tras una invocacion (comunidad de VR, desde la
+  // como mucho 3 del mismo equipo con la hiper puesta a la vez (Aaron, O-322 punto 5:
+  // "que solo puedan haber 3 en campo"; Galaxy: "Activos N/3"; en VR son 2) (O-327), y 15
+  // s sin que nadie mas del equipo invoque tras una invocacion (comunidad de VR, desde la
   // 5.0.0). Con la hiper puesta corre un 10 % mas (VR no da el numero)
-  HIPER_ACTIVAS_MAX: 2, HIPER_BLOQUEO: 15, HIPER_VELOCIDAD: 10,
+  HIPER_ACTIVAS_MAX: 3, HIPER_BLOQUEO: 15, HIPER_VELOCIDAD: 10,
+  // el tiempo de invocacion (O-327; Aaron, O-322 punto 5): el boton de los espiritus para
+  // el juego para invocar y vuelve a los `recarga` s de juego (para los dos: los dos han
+  // tenido su parada). Online la parada dura como mucho `limite` s (luego sigue sin mas)
+  TIEMPO_INVOCAR: { recarga: 20, limite: 20 },
   // cada familia de hipertecnica (VR: AURA_CMD_INFO_LIST y AURA_CMD_EFFECT_LIST):
   // cuanto dura y cuanto tarda en volver tras acabar (s de juego, sin escalar), el
   // % que suma a AT y DF de los duelos, el % al poder de sus supertecnicas y el %
-  // de su KP maximo que suma a la parada si es portero. El totem crece +20 % por
+  // de su PP maximo que le SUMA al PP si es portero, al invocar, y se queda (VR: la unica
+  // recuperacion; antes solo mientras duraba, O-328). El totem crece +20 % por
   // foco ganado (35, 55, 75 %) y lo guarda para la siguiente vez. El vinculo no se
-  // convierte en el companero ni el modo cambia de forma: solo sus % (O-310)
+  // convierte en el companero: solo sus % (O-310). El modo SI cambia de forma (O-327)
   HIPER_TIPOS: {
     keshin:    { nombre: "Keshin",    rotulo: "invoca",    dura: 45, recarga: 60, atdf: 50, poder: 0,  pp: 15 },
     armadura:  { nombre: "Armadura",  rotulo: "armadura",  dura: 45, recarga: 60, atdf: 30, poder: 50, pp: 15 },
@@ -163,7 +196,38 @@ const REGLAS = {
   },
   // pase bombeado (mantener y soltar): mas lento y no se corta hasta que baja
   VEL_PASE_ALTO: 14, PASE_ALTO_BAJA: 4,
-  PASIVAS_TOPE: 60,             // lo mas que suman las pasivas a un valor (%)
+  // (ya no hay tope general de las pasivas: VR solo tiene el de cada tipo, que ya estaba;
+  // antes PASIVAS_TOPE 60 cortaba, p. ej., el AT de tiro de Gafas) (O-328)
+
+  // la CARGA DE CONFIGURACION de VR (O-328; comunidad japonesa, NOTAS O-204): cada equipo
+  // tiene la configuracion que mas se repite en sus pasivas (la manda partido.py) y un rango
+  // de 1 a 5 que empieza en 1. Las pasivas "Por cada rango de Conf. X, ... +N %" valen N x
+  // rango (con su tope por rango), solo las de la configuracion del equipo. Lo que sube y
+  // baja el rango de cada una: `cada` s de juego +`sube` (Justicia, sin falta propia),
+  // `baja` cada `cadaBaja` s (Contraataque), al robar el balon en campo propio / rival, por
+  // falta pitada al equipo, por jugada brusca que sale bien (Entrada o Cargar sin falta),
+  // por cada `gasto` de tension gastada (Tension) y por cada 15 % de afinidad gastada
+  // (Vinculo). Justicia ademas: PP del equipo +5 % por rango desde el rango 2 (tope 20)
+  CARGA_RANGO_MAX: 5,
+  CARGA: {
+    justicia:     { nombre: "Justicia", cada: 25, sube: 1, falta: -3, ppPorRango: 5, ppDesde: 2, ppTope: 20 },
+    contraataque: { nombre: "Contraataque", roboPropio: 4, roboRival: 2, cadaBaja: 15, baja: -1 },
+    juego_sucio:  { nombre: "Juego sucio", brusca: 1, falta: -1 },
+    tension:      { nombre: "Tensión", gasto: 150, sube: 1, sinGastar: 45, baja: -1 },
+    vinculo:      { nombre: "Vínculo", afinidad: 15, sube: 1, perdidas: 2, baja: -1 },
+    brecha:       { nombre: "Brecha", cada: 15, sube: 1, critico: -4 },
+  },
+  // el PODER DE AFINIDAD de VR (O-328; game_param maxKizunaPower 30, addKizunaPowerPass 1,
+  // subtractKizunaPowerPerSecond 2): +1 % por pase completado (mas lo de las pasivas "Al
+  // hacer un pase, poder de afinidad +N %"), hasta 30 %; sin el balon baja 2 % por segundo y
+  // se gasta entero al chutar a puerta (la cadena no lo gasta). El tiro final x(1 + afinidad)
+  AFINIDAD: { pase: 1, max: 30, baja: 2 },
+  // el COMBO DE TECNICAS de VR (O-328; game_param SoccerTechnicalComboBuffParam): ganar un
+  // foco con supertecnica +1 (hasta 3); el siguiente tiro +10/15/20 % (se suma a la
+  // afinidad) y las supertecnicas cuestan x0,5/0,25/0,25 de tension
+  // (consumeUseSkillTensionPowerRate 50/75/75). Se pierde si el rival coge el balon y se
+  // gasta al chutar
+  COMBO: { max: 3, tiro: [0, 10, 15, 20], coste: [1, 0.5, 0.25, 0.25] },
 
   // quien gana un duelo (Aaron, O-307: "90-10"): el numero mayor, salvo un
   // CRITICO. Con numeros parecidos (hasta 1,5 veces) el 10 %; luego baja en linea
@@ -186,9 +250,26 @@ const REGLAS = {
   DESPEJAR: 1.25,               // despejar para mas facil (x1,25), pero el balon rebota...
   DESPEJE_ANGULO: 100,          // ...hasta estos grados a cada lado de "hacia el campo"...
   DESPEJE_VEL: [10, 18],        // ...a estos m/s
-  // el muro que pierde no se queda en nada: le resta al tiro la mitad de su numero
-  // (VR: el bloqueo resta al tiro)
-  MURO_RESTA: 0.5,
+  // el muro que pierde le resta al tiro su numero ENTERO, como en VR (ayuda del juego: "su
+  // AT se reduce en una cantidad equivalente al valor de la DF de muro"; antes la mitad,
+  // O-309) (O-328)
+  MURO_RESTA: 1,
+  // el tiro que viaja (O-325; Aaron, O-322 punto 3: como en Galaxy): el balon va hacia la
+  // porteria a `vel` m/s (a 20 m, 1,3 s: da tiempo a dibujar una flecha); el rival al que
+  // le pasa a menos de `radio` m lo puede bloquear y el companero con tiro de cadena,
+  // encadenarlo (si esta a mas de `cadenaDesde` m de donde se chuto); de los defensas sin
+  // flecha, los `cortan` que antes llegan a su camino van a el solos (como iban a por el
+  // balon); el portero elige al llegarle el balon (a `portero` m de el o a su altura).
+  // `alto`: lo que sube el balon (para pintarlo) con el tiro raso, la vaselina y el remate
+  // de un balon alto. Numeros inventados con sentido (Galaxy no da ninguno) y medidos
+  // (medir-vuelo.js): con 2 m y 2 que cortan se bloqueaban 4,5 tiros por partido
+  VUELO: { vel: 15, radio: 1.6, cortan: 1, portero: 1.6, cadenaDesde: 4, alto: { normal: 0.9, vaselina: 3.4, cabeza: 1.4 } },
+  // la T de la tactil sin tiro largo: el pase hacia delante (O-326; Aaron, O-322 punto 4).
+  // Al companero que este al menos `avance` m por delante, entre `cerca` y `lejos` m (como
+  // los pases de la maquina), sin un rival a menos de `linea` m del camino y sin fuera de
+  // juego; el mejor: el que mas avanza y mas libre esta (hasta `libre` m cuenta). Si no hay,
+  // al hueco: `hueco` m por delante (va el companero que antes llega)
+  BOTON_T: { avance: 4, cerca: 5, lejos: 38, linea: 1.6, libre: 10, hueco: 14 },
 
   // los balones que salen del campo (O-315; Aaron, O-307: "las reglas como en la vida
   // real"). Antes casi nunca salia (0,16 fueras por partido) y apenas habia saques de
@@ -235,11 +316,20 @@ const REGLAS = {
   // velocidad de carrera en m/s segun la Agilidad (stats a nivel 99 de 150 a 700)
   velocidad(j) { return 6.2 + Math.min(700, j.stats[5]) / 260 - (j.conBalon ? 0.6 : 0); },
 
-  // lo que suma una supertecnica a su nivel (Pizarra O-156): poder x (nivel+15)/112, tope 1
-  factorTecnica(nivel) { return Math.min(1, ((nivel || 99) + 15) / 112); },
+  // lo que suma una supertecnica a su nivel (VR; O-328): floor(poder minimo + (poder -
+  // poder minimo) x (nivel - 1) / 98), con el poder minimo de tecnicas.csv (`poderMin`, lo
+  // manda partido.py). Cuadra exacto con los 5 numeros medidos en VR (O-156: Nv. 22, 200 ->
+  // 66 y 640 -> 215; Nv. 40, 440 -> 217, 540 -> 266 y 640 -> 314); el poder x (nivel+15)/112
+  // de antes fallaba 3 de 5. A Nv. 99, el poder entero. Sin `poderMin` (un equipo de antes),
+  // la cuenta de antes
+  poderNivel(t, nivel) {
+    const n = Math.max(1, Math.min(99, nivel || 99));
+    if (!(t.poderMin > 0)) return t.poder * Math.min(1, (n + 15) / 112);
+    return Math.floor(t.poderMin + (t.poder - t.poderMin) * (n - 1) / 98);
+  },
   poderTecnica(j, t) {
     if (!t) return 0;
-    let p = t.poder * this.factorTecnica(j.nivel);
+    let p = this.poderNivel(t, j.nivel);
     if (t.elemento && t.elemento === j.elemento) p *= 1.15;     // de su elemento: +15 %
     return p;
   },
@@ -247,12 +337,28 @@ const REGLAS = {
   // los cuatro elementos de VR: viento > montana > fuego > bosque > viento
   GANA_A: { Viento: "Montana", Montana: "Fuego", Fuego: "Bosque", Bosque: "Viento" },
   gana(e1, e2) { return !!e1 && this.GANA_A[e1] === e2; },
-  // ventaja de elemento: +20 % por el del jugador y +20 % por el de la tecnica
-  efectoElemental(j, t, rival) {
+  // ventaja de elemento de VR (O-328; ayuda del juego "Efectos elementales +20 %" y la
+  // comunidad): +20 % si el elemento del JUGADOR gana al del rival y +20 % si el de su
+  // TECNICA gana al de la TECNICA del rival (solo si los dos usan supertecnica; antes la
+  // tecnica contra el elemento del jugador rival). Se suman y van al final, sobre todo el
+  // valor. La desventaja no resta. tRival: la supertecnica del rival (o null); sin saberla
+  // aun (el panel antes de que elija el otro), solo la del jugador
+  ELEMENTO: 0.2,
+  efectoElemental(j, t, rival, tRival) {
     let f = 1;
-    if (this.gana(j.elemento, rival.elemento)) f += 0.2;
-    if (t && this.gana(t.elemento, rival.elemento)) f += 0.2;
+    if (rival && this.gana(j.elemento, rival.elemento)) f += this.ELEMENTO;
+    if (t && tRival && this.gana(t.elemento, tRival.elemento)) f += this.ELEMENTO;
     return f;
+  },
+  // en la disputa (Cargar) el elemento del jugador vale x1,05 al que gana y x0,95 al que
+  // pierde (game_param scrambleCharaMultiplierAdvantage 1.05 / Disadvantage 0.95; antes
+  // +20 %). Por confirmar en VR (O-328)
+  ELEMENTO_DISPUTA: [1.05, 0.95],
+  efectoDisputa(j, rival) {
+    if (!rival) return 1;
+    if (this.gana(j.elemento, rival.elemento)) return this.ELEMENTO_DISPUTA[0];
+    if (this.gana(rival.elemento, j.elemento)) return this.ELEMENTO_DISPUTA[1];
+    return 1;
   },
 
   // stats: [Potencia, Control, Tecnica, Presion, Fisico, Agilidad, Inteligencia]
@@ -265,21 +371,25 @@ const REGLAS = {
   atDisputa(j) { const s = j.stats; return s[6] + s[4]; },
   dfDisputa(j) { const s = j.stats; return s[6] + s[3]; },
   dfMuro(j)    { const s = j.stats; return s[4] + s[3]; },
-  // KP del portero (VR): Agi x4 + Fis x3 + Pres x2; escalado para que una buena
-  // supertecnica de tiro supere su parada y un tiro normal no (ajustable)
-  // O-302: antes 0.62; con el tiro a la quinta, la supertecnica cuenta mas. O-309:
-  // 0.30 (antes 0.42): con el 90-10 el tiro tiene que pasar de la parada y asi un
-  // tercio de los tiros la pasa (3-4 goles por partido de 2 x 15)
-  KP_ESCALA: 0.30,
-  DESGASTE: 0.4,                // lo que pierde el portero al parar, segun el golpe (VR: todo)
-  kpBase(j)    { const s = j.stats; return (s[5] * 4 + s[4] * 3 + s[3] * 2) * this.KP_ESCALA; },
+  // el PP (KP) del portero, el de VR ENTERO (O-328): Agi x4 + Fis x3 + Pres x2 (game_param
+  // calcKP_AGMultiply 4, calcKP_PSMultiply 3, calcKP_PRMultiply 2; O-157: Mark Evans 1427,
+  // exacto). Antes x0,30 (KP_ESCALA, O-309): el portero sacaba un tercio de lo de VR. Como
+  // en VR es una barra que se GASTA: el tiro solo es gol si pasa de lo que le queda (mas su
+  // tecnica); si no, el portero para y el PP baja lo que el tiro pasa de su tecnica
+  // (_pararPP). Y se cansa: cada parada, -5 % a la DF de su tecnica de parada, hasta 5
+  // veces (game_param gkTiredAttenuation 0.05, gkTiredCountMax 5)
+  kpBase(j)    { const s = j.stats; return s[5] * 4 + s[4] * 3 + s[3] * 2; },
+  FATIGA: { porParada: 0.05, max: 5 },
 
-  // perdida de potencia del tiro con la distancia (VR la tiene; ley exacta sin
-  // conocer): hasta 16 m nada; luego baja hasta la mitad a 45 m. Un tiro de
-  // larga distancia pierde la mitad de eso.
+  // perdida de potencia del tiro con la distancia (VR la tiene, "Atenuacion de distancia";
+  // ley exacta sin conocer: en VR se han visto 14 y 53 de AT en tiros de ~600, un 2-9 %)
+  // (O-328): hasta 16 m nada; luego baja hasta un 10 % a 35 m. Los tiros largos no pierden.
+  // Antes hasta la mitad a 45 m (a 30 m, -24 %)
+  DISTANCIA_PERDIDA: { desde: 16, hasta: 35, max: 0.10 },
   porDistancia(d, larga) {
-    const perdida = Math.max(0, Math.min(1, (d - 16) / 29)) * 0.5 * (larga ? 0.5 : 1);
-    return 1 - perdida;
+    const D = this.DISTANCIA_PERDIDA;
+    if (larga) return 1;
+    return 1 - Math.max(0, Math.min(1, (d - D.desde) / (D.hasta - D.desde))) * D.max;
   },
 
   // tipos de tecnica de VR (tecnicas.csv) que sirven en cada momento
@@ -299,8 +409,12 @@ const REGLAS = {
   // quinta (O-302): gana el numero mayor salvo un critico, probCritico, O-309)
   esLarga(t) { return !!t && (t.subtipo_valor === 4 || /larg|distancia/i.test(t.subtipo || "")); },
   esContra(t) { return !!t && t.tipo === "Tiro" && t.subtipo_valor === 16; },
-  // tiro directo (VR): rematar un pase suma el 50 % del AT de tiro del que pasa
+  // tiro directo (VR): rematar un pase suma el 50 % del AT de tiro del que pasa, solo sin
+  // supertecnica (con una deja de ser directo; antes sumaba siempre) (O-328)
   DIRECTO: 0.5,
+  // la cadena con una "habilidad real" (rh*: Vaselina, Tiro con efecto...) deja el total
+  // del tiro en la mitad (VR desde la 6.0.1) (O-328)
+  CADENA_RH: 0.5,
 
   // --- el tiempo de las animaciones de Galaxy (NOTAS O-319; diseno 6.3; guia 8) ----------
   // Lo que dura cada tramo (s) con las animaciones "completas" (como Galaxy) o "cortas"
@@ -316,6 +430,12 @@ const REGLAS = {
       vuelo: 0.5, bloqueo: 0.9, porEncima: 0.4, fueraTiro: 1.0, destello: 0.3, gol: 4.4, entraPenalti: 0.8,
       tandaRotulo: 1.0, falta: 1.2, tarjeta: 1.2, penaltiRotulo: 1.4, fueraJuego: 1.6, chico: 0.8, penaltis: 2.0 },
   },
+  // con las completas, una supertecnica (y la ★) dura lo de su animacion REAL de VR: `seg`
+  // de cada paso del tiro o `segs` del foco, que el motor apunta en el resultado desde
+  // partido.py (eventos-tecnicas.csv). Aaron: "animaciones completas" (O-322; O-307 p17).
+  // Como mucho SEG_MAX s; sin `seg` (sin animacion de VR, un equipo de antes), lo de ANIM
+  // (O-323)
+  SEG_MAX: 12,
   // la opcion del partido: "completas", "cortas" o false (sin animaciones: como antes)
   modoAnim(m) { return m === "completas" || m === "cortas" ? m : false; },
   // los comandos de un foco (sin supertecnica): en la falta el resultado no trae los
@@ -339,6 +459,8 @@ const REGLAS = {
     // una supertecnica de espiritu (✦) o la hiper (★) duran lo de la hiper
     const durTec = nombre => /[★✦]/.test(nombre || "") ? A.hiper : A.tecnica;
     const queTec = nombre => /[★✦]/.test(nombre || "") ? "hiper" : "tecnica";
+    // con las completas, lo de su animacion de VR si se sabe (O-323)
+    const deVR = seg => A === this.ANIM.completas && seg > 0 ? Math.min(this.SEG_MAX, Math.round(seg * 1000) / 1000) : 0;
     pon("entrada", Math.max(0, Math.min(A.entrada, entrada || 0)));
     if (!r) return { total: t, tramos };
     if (r.tipo === "fuera") { pon("fueraJuego", A.fueraJuego, { jugador: r.quien }); return { total: t, tramos }; }
@@ -355,8 +477,9 @@ const REGLAS = {
       const ua = usa(r.atacante), ud = usa(r.defensor);
       if (ua || ud) {
         pon("transicion", A.transicion);
-        if (ua) pon(ua, ua === "hiper" ? A.hiper : A.tecnica, { jugador: r.atacante });
-        if (ud) pon(ud, ud === "hiper" ? A.hiper : A.tecnica, { jugador: r.defensor });
+        const sg = id => deVR(r.segs ? r.segs[lado(id)] : 0);
+        if (ua) pon(ua, sg(r.atacante) || (ua === "hiper" ? A.hiper : A.tecnica), { jugador: r.atacante });
+        if (ud) pon(ud, sg(r.defensor) || (ud === "hiper" ? A.hiper : A.tecnica), { jugador: r.defensor });
         pon("fijar", A.fijar);
       } else pon("sinTecnica", A.sinTecnica.foco, { sub: "foco" });
       pon("vuelta", A.vuelta);
@@ -372,7 +495,7 @@ const REGLAS = {
     const tecnica = (k, sub, mas) => {
       const s = pasos[k];
       if (!s) return;
-      if (s.tecnica) pon(queTec(s.que), durTec(s.que), Object.assign({ jugador: s.quien, paso: k }, mas || {}));
+      if (s.tecnica) pon(queTec(s.que), deVR(s.seg) || durTec(s.que), Object.assign({ jugador: s.quien, paso: k }, mas || {}));
       else pon("sinTecnica", A.sinTecnica[sub], Object.assign({ sub, jugador: s.quien, paso: k }, mas || {}));
     };
     if (r.tipo === "penalti") {
@@ -388,6 +511,39 @@ const REGLAS = {
       if (r.tanda) pon("tandaRotulo", A.tandaRotulo, { gol: r.final === "gol" });
       else if (r.final === "gol") { pon("destello", A.destello); pon("gol", A.gol); }
       else pon("vuelta", A.vuelta);
+      return { total: t, tramos };
+    }
+    // el tiro que viaja (O-325): una etapa por resultado; el vuelo es el de verdad, en el
+    // campo, entre una y otra. El chute (prepara, su tecnica y el negro), la cadena (su
+    // tecnica y el negro), el muro (el rotulo, su tecnica y quien gana; si lo desvia, fuera),
+    // el portero (su tecnica, la parada o el gol) y el tiro que llega fuera (la llegada)
+    if (r.etapa) {
+      if (r.etapa === "chute") {
+        pon("prepara", A.prepara, { jugador: r.tirador });
+        pon("transicion", A.transicion);
+        tecnica(0, "tiro");
+        pon("negroTiro", A.negroTiro);
+      } else if (r.etapa === "cadena") {
+        pon("transicion", A.transicion);
+        tecnica(n - 1, "tiro", { cadena: true });
+        pon("negroTiro", A.negroTiro);
+      } else if (r.etapa === "muro") {
+        pon("bloqueo", A.bloqueo, { jugador: (pasos[n - 1] || {}).quien, paso: n - 1 });
+        pon("transicion", A.transicion);
+        tecnica(n - 1, "muro", { muro: true });
+        pon("fijar", A.fijar, { paso: n - 1 });
+        if (r.final === "fuera") pon("fueraTiro", A.fueraTiro, { desviado: true });
+        pon("vuelta", A.vuelta);
+      } else if (r.etapa === "portero") {
+        pon("transicion", A.transicion);
+        tecnica(n - 1, "portero", { portero: true });
+        pon("fijar", A.fijar, { paso: n - 1 });
+        if (r.final === "gol") { pon("destello", A.destello); pon("gol", A.gol); }
+        else pon("vuelta", A.vuelta);
+      } else {
+        pon("fueraTiro", A.fueraTiro, { desviado: false });
+        pon("vuelta", A.vuelta);
+      }
       return { total: t, tramos };
     }
     // el tiro (diseno 6.3): prepara, la tecnica (y la de la cadena), el negro y el vuelo;

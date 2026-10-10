@@ -11,7 +11,7 @@ las que el juego NO hace lo que hace G4_Blender, medidas con sus datos:
 - la escala de cada hueso es la suya propia, no relativa al padre (se ve en
   los dedos al cerrar el puno), y glTF la hereda: se divide por la del padre.
 
-G4MT (G4MA y G4CM usan la misma estructura). Cabecera 0x40:
+G4MT (G4MA, G4CM, G4TP y G4VS usan la misma estructura). Cabecera 0x40:
   0x20 u16 n clips | 0x22 u16 n objetivos (huesos)
   0x24 u16 info-objetivo | 0x26 u16 canales          (palabras desde 0x40, << desplaz)
   0x28 escalas | 0x2A crc32 de clips | 0x2C crc32 de objetivos | 0x2E nombres (palabras desde 0x40)
@@ -51,7 +51,9 @@ def _nombres_de_clips(b, o_nom, n_clips):
 def leer_g4mt(b):
     """Directorio de un G4MT: clips, info por objetivo, canales y escalas (ver el docstring del modulo)."""
     mag = bytes(b[:4])
-    if mag not in (b"G4MT", b"G4MA", b"G4CM"):
+    # G4TP (desplazamiento de UV por textura) y G4VS (mallas que se ven) de los efectos de los
+    # eventos tienen la misma estructura con otra firma (O-323)
+    if mag not in (b"G4MT", b"G4MA", b"G4CM", b"G4TP", b"G4VS"):
         raise ValueError("no es un banco G4MT")
     cab, pal = u16(b, 0x04), u16(b, 0x0A)
     if cab != 0x40 or pal * 4 != cab:
@@ -132,7 +134,8 @@ def muestrear(k, v, fotogramas, interp, cuaternio=False):
     if cuaternio:
         c = np.where((a * c).sum(1, keepdims=True) < 0, -c, c)
         q = a + (c - a) * t
-        return q / np.linalg.norm(q, axis=1, keepdims=True)
+        n = np.linalg.norm(q, axis=1, keepdims=True)
+        return np.where(n > 1e-12, q / np.where(n > 1e-12, n, 1), q)
     return a + (c - a) * t
 
 
@@ -171,7 +174,9 @@ def pistas_de_clip(mt, clip, sk, reposo):
             k, v = claves_y_valores(mt, c)
             s = muestrear(k, v, fot, c["interp"], cuaternio=m[0] == "rotation")
             if m[1] is None:
-                val[m[0]] = s / np.linalg.norm(s, axis=1, keepdims=True)
+                # algun efecto de los eventos trae cuaternios a cero: ahi, el del reposo (O-323)
+                n = np.linalg.norm(s, axis=1, keepdims=True)
+                val[m[0]] = np.where(n > 1e-9, s / np.where(n > 1e-9, n, 1), np.asarray(q0, np.float64)[None, :])
             else:
                 val[m[0]][:, m[1]] = s[:, 0]
         q = val["rotation"]                        # mismo hemisferio fotograma a fotograma
@@ -228,9 +233,10 @@ def anadir_animacion(g, sk, reposo, nodo_base, nombre_banco, mts, quien, informe
                 if acc_t2 is None:
                     acc_t2 = g.accesor(np.array([[0.0], [t[-1]]], np.float32), "SCALAR", minmax=True)
                 entrada, salida = acc_t2, v[[0, -1]]
-            tipo = "VEC4" if prop == "rotation" else "VEC3"
-            samplers.append({"input": entrada, "output": g.accesor(salida.astype(np.float32), tipo),
-                             "interpolation": "LINEAR"})
+            # las rotaciones en int16 normalizado: con los clips de VR (O-323) el modelo pesa la
+            # mitad de lo que pesaria en float
+            salida_acc = g.rotaciones(salida) if prop == "rotation" else g.accesor(salida.astype(np.float32), "VEC3")
+            samplers.append({"input": entrada, "output": salida_acc, "interpolation": "LINEAR"})
             canales.append({"sampler": len(samplers) - 1, "target": {"node": nodo_base + i, "path": prop}})
     g.j.setdefault("animations", []).append({
         "name": clip["nombre"], "samplers": samplers, "channels": canales,

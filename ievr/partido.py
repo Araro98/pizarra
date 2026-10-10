@@ -91,11 +91,57 @@ def _tipos_y_topes():
     return O._indice("partido_topes", construir)
 
 
+# las configuraciones de VR (EQ.NOMBRE_CONFIGURACION) con el nombre que usa el partido
+_CONF = {"brecha": "brecha", "contraataque": "contraataque", "vinculo": "vinculo", "tension": "tension",
+         "juego sucio": "juego_sucio", "justicia": "justicia"}
+
+
+def _sin_tildes(s):
+    import unicodedata
+    return "".join(c for c in unicodedata.normalize("NFD", s or "") if not unicodedata.combining(c))
+
+
+def _pct(texto):
+    m = re.search(r"([+-])\s*(\d+(?:[.,]\d+)?)\s*[%％]", texto or "")
+    return float(m.group(2).replace(",", ".")) * (-1 if m.group(1) == "-" else 1) if m else None
+
+
+def _efecto_de_rango(texto):
+    """"Por cada rango de Conf. X, ... +N %" (O-328): N x el rango de la carga de
+    configuracion X del equipo (solo si es la suya), con su tope por rango. None si lo de
+    detras aun no hace nada en el partido (perforacion, ataque duro, perdida de afinidad...)."""
+    m = re.match(r"\s*Por cada rango de Conf\. ([^,]+), (.*)$", texto)
+    conf = _CONF.get(_sin_tildes(m.group(1)).strip().lower()) if m else None
+    if not conf:
+        return None
+    resto = m.group(2)
+    if re.search(r"Ataque duro|ataque duro|perforaci|Parada|afinidad|tensi", resto):
+        return None
+    pct = _pct(resto)
+    que = next((q for p, q in _QUE if re.search(p, resto)), None)
+    if pct is None or not que:
+        return None
+    tipo, tope = _tipos_y_topes().get(_clave_plantilla(texto), ("", None))
+    return {"que": que, "pct": pct, "alcance": "equipo", "condicion": "rango", "conf": conf, "n": None,
+            "tipo": tipo or _clave_plantilla(texto), "tope": tope}
+
+
 def efecto_de_pasiva(texto):
     """{que:[...], pct, alcance, condicion, n} de una pasiva, o None si en el
     partido aun no hace nada. Las de un stat fijo ("Potencia +3"):
     {que:["stat"], stat, valor}."""
-    if not texto or re.search(_SIN_EFECTO, texto):
+    if not texto:
+        return None
+    # las de la carga de configuracion y las del poder de afinidad, que el partido ya
+    # tiene (O-328)
+    if re.match(r"\s*Por cada rango de Conf\.", texto):
+        return _efecto_de_rango(texto)
+    m = re.match(r"\s*(Al hacer un pase|Cuando el rival comete una falta), poder de afinidad", texto)
+    if m and _pct(texto) is not None:
+        tipo, tope = _tipos_y_topes().get(_clave_plantilla(texto), ("", None))
+        return {"que": ["afinidad_pase" if m.group(1).startswith("Al hacer") else "afinidad_falta"], "pct": _pct(texto),
+                "alcance": "equipo", "condicion": None, "n": None, "tipo": tipo or _clave_plantilla(texto), "tope": tope}
+    if re.search(_SIN_EFECTO, texto):
         return None
     m = re.match(r"\s*(" + "|".join(_STATS) + r")\s*\+\s*(\d+)\s*$", texto)
     if m:
@@ -240,6 +286,133 @@ def tipo_hiper(familia, modelo):
     return "despertar"          # wap01*, wap09*, awakening* (y lo que no se sepa)
 
 
+# --- en lo que se convierte con la hiper puesta (O-327) ---------------------------
+# Aaron (O-322 punto 6): "Thaddeus no se convertia en Byron ni cambiaba sus tecnicas".
+# Como en VR: con un MODO el jugador es otro personaje entero mientras dura (la forma de
+# modos.csv, O-225: su modelo, su nombre, su elemento, sus stats y sus tecnicas); la
+# armadura y el mixi max cambian el modelo (cara_a de eventos-espiritus.csv, O-323); el
+# keshin y el alma salen detras (asignado y su aura en el campo). Las pasivas son las del
+# jugador (las del espiritu ya iban marcadas, O-310).
+
+def _filas_evento_espiritu():
+    from ievr import opciones as O
+
+    def construir():
+        d = {}
+        for f in reglas._tabla("eventos-espiritus.csv"):
+            d.setdefault((f.get("id") or "").upper(), []).append(f)
+        return d
+    return O._indice("partido_eventos_espiritus", construir)
+
+
+def _evento_espiritu(idh, cara):
+    """La fila de eventos-espiritus.csv del espiritu idh para ese jugador: la de su cara
+    (los modos van por cara_de) o la general; como g4evento.pedidos_de."""
+    filas = _filas_evento_espiritu().get((idh or "").upper(), [])
+    return next((f for f in filas if f.get("cara_de") == cara), None) or \
+        next((f for f in filas if not f.get("cara_de")), None)
+
+
+def _seg_evento(interno):
+    """Lo que dura (s) la animacion de VR de la supertecnica `interno` (eventos-tecnicas.csv,
+    O-323); 0 si no tiene. Con las animaciones completas su tramo dura eso (REGLAS.planAnim):
+    va en el equipo, asi los dos PCs de un partido online sacan el mismo plan."""
+    from ievr import opciones as O
+
+    def construir():
+        d = {}
+        for f in reglas._tabla("eventos-tecnicas.csv"):
+            try:
+                d[f.get("interno") or ""] = round(float(f.get("segundos") or 0), 2)
+            except ValueError:
+                pass
+        return d
+    return O._indice("partido_eventos_tecnicas", construir).get(interno or "", 0)
+
+
+def _tecnica_de_forma(idh, ranura, portec):
+    """Una supertecnica del arbol de la forma, como las del jugador (sin las hipertecnicas)."""
+    from ievr import opciones as O
+    st = portec.get((idh or "").upper())
+    if not st or not st.get("categoria"):
+        return None
+    return {"ranura": ranura, "id": st["id"].upper(), "nombre": O._limpio(st["nombre"]),
+            "interno": st.get("nombre_interno") or "", "tipo": st["categoria"],
+            "subtipo": st.get("subtipo") or "", "subtipo_valor": int(st.get("subtipo_valor") or 0),
+            "elemento": st.get("elemento") or "", "poder": int(st.get("poder") or 0),
+            "poderMin": _poder_min(st),
+            "tp": _coste(st, st.get("tp")), "jugadores": O.jugadores_de_tecnica(st)[0],
+            "seg": _seg_evento(st.get("nombre_interno"))}
+
+
+def _forma_de_modo(plain, fila, idh, d, stats):
+    """La forma del cambio de modo (modos.csv: de -> a) de ese jugador, lista para el
+    partido, o None. Stats: los de la forma a su nivel y rareza mas lo que el jugador
+    suma encima de los suyos (judias, equipacion, arbol): VR no lo dice, se supone que lo
+    entrenado se queda. Tecnicas: las del arbol de la forma en las ranuras que el jugador
+    tiene abiertas (el tronco y su rama; "te cambia el set", O-225)."""
+    from ievr import opciones as O, stats as ST
+    ident = "%08X" % J.array(plain, J.ARRAY_IDENTIDAD)[fila]
+    filas = [f for f in reglas._tabla("modos.csv") if (f.get("modo") or "").upper() == idh]
+    f = next((x for x in filas if x["de"].upper() == ident), None) or \
+        next((x for x in reglas._tabla("modos.csv") if x["de"].upper() == ident), None) or \
+        (filas[0] if filas else None)
+    if not f:
+        return None
+    a = f["a"].upper()
+    per = reglas.personajes().get(a) or {}
+    jug = O._por_identidad().get(a) or {}
+    nivel = J.array(plain, J.ARRAY_NIVEL)[fila]
+    rareza = J.array(plain, J.ARRAY_RAREZA)[fila]
+    bf = ST.base(int(a, 16), nivel, rareza)
+    bo = ST.base(int(ident, 16), nivel, rareza)
+    st_forma = None
+    if bf:
+        extra = [s - b for s, b in zip(stats, bo["valores"])] if bo and stats else [0] * 7
+        st_forma = [int(v) + int(e) for v, e in zip(bf["valores"], extra)]
+    portec = _tecnicas_por_id()
+    abiertas = sorted({t["ranura"] for t in d.get("tecnicas") or [] if t.get("abierta")}) or list(range(1, 10))
+    tecnicas, vistas = [], set()
+    for k in abiertas:
+        t = _tecnica_de_forma(per.get("tec%d" % k), k, portec)
+        if t and t["id"] not in vistas:
+            vistas.add(t["id"])
+            tecnicas.append(t)
+    cara = O._cara_por_identidad().get(a) or jug.get("string_id") or ""
+    return {"identidad": a, "nombre": O._limpio(jug.get("nombre") or per.get("nombre_es") or per.get("nombre_en") or ""),
+            "cara": cara, "elemento": jug.get("elemento") or "", "posicion": jug.get("posicion") or "",
+            "arquetipo": jug.get("arquetipo") or "", "stats": st_forma, "tecnicas": tecnicas,
+            "modo": f.get("modo_nombre") or ""}
+
+
+def _aspecto_hiper(plain, fila, espiritu, cara, d, stats):
+    """Lo que cambia a la vista (y en un modo, el jugador entero) con la hiper puesta:
+    {modelo (armadura, mixi max), keshin (el keshin o alma que sale detras), aura (la del
+    keshin en el campo), forma (modo)}. Solo lo que haya."""
+    fe = _evento_espiritu(espiritu["id"], cara) or {}
+    tipo = espiritu.get("tipo")
+    fuera = {}
+    if tipo in ("armadura", "miximax") and fe.get("cara_a"):
+        fuera["modelo"] = fe["cara_a"]
+    if tipo in ("keshin", "totem") and fe.get("asignado"):
+        fuera["keshin"] = fe["asignado"]
+    if fe.get("aura_campo"):
+        fuera["aura"] = fe["aura_campo"]
+    # lo que dura su animacion de VR al invocar (la de arriba, O-323)
+    try:
+        if float(fe.get("segundos") or 0) > 0:
+            fuera["seg"] = round(float(fe["segundos"]), 2)
+    except ValueError:
+        pass
+    if tipo == "modo":
+        forma = _forma_de_modo(plain, fila, espiritu["id"], d, stats)
+        if forma:
+            # el modelo de la forma: el de la tabla de eventos si lo trae (el de VR)
+            forma["modelo"] = fe.get("cara_a") or forma["cara"]
+            fuera["forma"] = forma
+    return fuera
+
+
 def _coste(fila, antes):
     """La tension que cuesta una supertecnica en VR (columna `coste` de
     tecnicas.csv, el consumeTp del juego); si la tabla no la trae, el `tp` de
@@ -250,6 +423,16 @@ def _coste(fila, antes):
     except ValueError:
         c = 0
     return c if c > 0 else int(antes or 0)
+
+
+def _poder_min(fila):
+    """El poder de la supertecnica a nivel 1 (power_min: la columna `tp` de tecnicas.csv),
+    para su poder por nivel en el partido (O-328: floor(min + (poder - min) x (nivel - 1) / 98));
+    0 si no se sabe."""
+    try:
+        return int((fila or {}).get("tp") or 0)
+    except ValueError:
+        return 0
 
 
 def _tecnicas_por_id():
@@ -311,8 +494,9 @@ def _ficha(plain, fila):
                                  "interno": st.get("nombre_interno") or "", "tipo": st["categoria"],
                                  "subtipo": st.get("subtipo") or "", "subtipo_valor": int(st.get("subtipo_valor") or 0),
                                  "elemento": st.get("elemento") or "", "poder": int(st.get("poder") or 0),
+                                 "poderMin": _poder_min(st),
                                  "tp": _coste(st, st.get("tp")), "jugadores": O.jugadores_de_tecnica(st)[0],
-                                 "espiritu": espiritu})
+                                 "seg": _seg_evento(st.get("nombre_interno")), "espiritu": espiritu})
             texto = O.pasiva_de_espiritu(idh)
             if texto:
                 # marcada: en VR solo cuenta con la hipertecnica puesta (O-310)
@@ -323,9 +507,11 @@ def _ficha(plain, fila):
                          "interno": (portec.get(idh) or {}).get("nombre_interno") or "",
                          "tipo": t["tipo"], "subtipo": (portec.get(idh) or {}).get("subtipo") or "",
                          "subtipo_valor": int((portec.get(idh) or {}).get("subtipo_valor") or 0),
-                         "elemento": t["elemento"], "poder": t["poder"],
+                         "elemento": t["elemento"], "poder": t["poder"], "poderMin": _poder_min(portec.get(idh)),
                          # lo que cuesta de verdad en VR, no el "TP" del editor (O-310)
-                         "tp": _coste(portec.get(idh), t["tp"]), "jugadores": t.get("jugadores") or 1})
+                         "tp": _coste(portec.get(idh), t["tp"]), "jugadores": t.get("jugadores") or 1,
+                         # lo que dura su animacion de VR (O-323)
+                         "seg": _seg_evento((portec.get(idh) or {}).get("nombre_interno"))})
     # las pasivas: en cada ranura manda la heredada si la hay (tapa a la de la
     # ficha) y solo cuentan las abiertas en el arbol (O-288)
     # La marca de abierta sale de la tabla del juego: el detalle no la trae para
@@ -351,10 +537,51 @@ def _ficha(plain, fila):
         e = p["efecto"]
         if e and e["que"] == ["stat"]:
             stats[e["stat"]] += e["valor"]
+    # en lo que se convierte con la hiper puesta: modelo, keshin, forma del modo (O-327).
+    # La forma lleva los stats con lo mismo de las pasivas de stat fijo que el jugador
+    if espiritu:
+        try:
+            espiritu.update(_aspecto_hiper(plain, fila, espiritu, d.get("cara") or "", d,
+                                           (d.get("stats") or {}).get("total")))
+        except Exception as ex:          # sin la forma se juega igual (solo sus %)
+            espiritu["error_forma"] = str(ex)
+        fo = espiritu.get("forma")
+        if fo and fo.get("stats"):
+            for p in pasivas:
+                e = p["efecto"]
+                if e and e["que"] == ["stat"]:
+                    fo["stats"][e["stat"]] += e["valor"]
     return {"fila": fila, "nombre": d["nombre"], "cara": d.get("cara") or "",
             "posicion": d.get("posicion") or "", "elemento": d.get("elemento") or "",
             "nivel": d.get("nivel"), "rareza": d.get("rareza"), "arquetipo": d.get("arquetipo"),
             "stats": list(stats), "tecnicas": tecnicas, "pasivas": pasivas, "espiritu": espiritu}
+
+
+# el arquetipo de la configuracion (EQ.NOMBRE_CONFIGURACION) con el nombre del partido (O-328)
+_CONF_ARQUETIPO = {0: "brecha", 1: "contraataque", 2: "vinculo", 3: "tension", 4: "juego_sucio", 5: "justicia"}
+
+
+def _pasivas_de_personal(plain, fila):
+    """Las pasivas que suma al equipo un entrenador o un gerente (O-328), con la regla de
+    las Pasivas de equipo de Pizarra (servidor.pasivas_de_equipo, O-193): solo su tabla de
+    personal con numero (O-185); un convertido que aun no tiene ninguna no aporta nada
+    (O-228). [{texto, efecto}]."""
+    from ievr import servidor as SV
+    tabla = J.tabla_pasivas(plain, fila)
+    if not any(x["id"] != "00000000" for x in tabla):
+        return []
+    if J.array(plain, J.ARRAY_RAREZA)[fila] >= 5 and SV._tablero_guardado(plain, fila):
+        return []
+    from ievr import opciones as O
+    valores = O._indice("partido_pasivas_valor", lambda: {f["id"].upper(): f for f in reglas._tabla("pasivas-valor.csv")})
+    fuera = []
+    for x in tabla:
+        f = valores.get(x["id"])
+        if not f or not f.get("texto"):
+            continue
+        texto = f["texto"].replace("<VALUE>", "%g" % round(x["valor"], 2))
+        fuera.append({"texto": texto, "efecto": efecto_de_pasiva(texto)})
+    return fuera
 
 
 def equipo(plain, hueco):
@@ -370,11 +597,20 @@ def equipo(plain, hueco):
             if f["tipo"] == "formacion" and f["valor_equipo"].upper() in (valor, al_reves):
                 nombre_formacion = f.get("nombre") or ""
                 break
-    jugadores, banquillo = [], []
+    jugadores, banquillo, personal = [], [], []
     for m in e["miembros"]:
         if not m["jugador"]:
             continue
         fila = m["jugador"] >> 16
+        # el entrenador y los gerentes: sus pasivas cuentan para el equipo (O-328)
+        if m["puesto"] >= EQ.PUESTO_STAFF:
+            try:
+                d = _ficha(plain, fila)
+                personal.append({"nombre": d["nombre"], "puesto": m["puesto"], "elemento": d.get("elemento") or "",
+                                 "posicion": d.get("posicion") or "", "pasivas": _pasivas_de_personal(plain, fila)})
+            except Exception:          # sin el, se juega igual
+                pass
+            continue
         try:
             ficha = _ficha(plain, fila)
         except Exception as ex:          # un hueco roto no tumba el partido
@@ -387,4 +623,16 @@ def equipo(plain, hueco):
             "formacion": {"valor": "%08X" % e["formacion"], "nombre": nombre_formacion, "puestos": puestos},
             "capitan": e["capitan"], "jugadores": jugadores,
             "tacticas": _tacticas_del_equipo(e),
-            "banquillo": [b for b in banquillo if b["puesto"] < 16]}
+            "banquillo": [b for b in banquillo if b["puesto"] < 16],
+            # O-328: el entrenador y los gerentes, y la configuracion del equipo (la carga)
+            "personal": personal, "configuracion": _configuracion(plain, e)}
+
+
+def _configuracion(plain, e):
+    """La configuracion del equipo (EQ.configuracion_de_equipo, O-204) para la carga de
+    configuracion del partido (O-328): {tipo, nombre}; tipo None con Libertad."""
+    try:
+        c = EQ.configuracion_de_equipo(plain, e)
+    except Exception:
+        return {"tipo": None, "nombre": ""}
+    return {"tipo": _CONF_ARQUETIPO.get(c.get("arquetipo")), "nombre": c.get("nombre") or ""}

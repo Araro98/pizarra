@@ -20,6 +20,8 @@ class Maquina {
   pensar() {
     const p = this.p;
     if (p.fase === "duelo") return this._elegir();
+    // el tiempo de invocacion (O-327): decide una vez si invoca a alguien y sigue
+    if (p.fase === "invocacion") return this._enInvocacion();
     if (p.fase === "descanso") {
       // sus cambios y enseguida lista para la segunda parte: el descanso espera
       // a que pulsen los dos (O-305)
@@ -38,6 +40,10 @@ class Maquina {
     if (this._corner && (!d || d.id !== this._corner.id)) this._corner = null;
     this._tactica(d);
     this._invocar(d);
+    // tras pulsar Jugar nadie se mueve hasta que se saca: la maquina saca tras un
+    // momento, para que la persona dibuje sus flechas (O-324)
+    const ps = p.porSacar;
+    if (ps && ps.lado === this.lado && ps.t < REGLAS.SAQUE_MAQUINA) return;
     if (d && d.lado === this.lado) this._conBalon(d);
   }
 
@@ -65,17 +71,17 @@ class Maquina {
   // sentido, como una persona arrastrandolos. Defendiendo: barrera en las faltas
   // cerca de su area y marcas a los que esperan en su area (faltas y corners) o cerca
   // del balon (banda), y uno al palo en el corner. Atacando un corner o una falta
-  // cerca del area: a los suyos al area (en la falta, sin fuera de juego). Sin azar:
-  // sale lo mismo cada vez, asi que se repite mientras dure la espera (sigue a los que
-  // mueve el rival) y lo que ya esta en su sitio no se toca. Quien va a cada sitio se
-  // elige por donde estaba al empezar la espera, no por donde ya lo ha puesto
+  // cerca del area: a los suyos al area (en la falta, sin fuera de juego). Sin azar
+  // (sale lo mismo cada vez) y UNA vez, al empezar la espera: antes se repetia toda la
+  // espera y seguia a los que mueve el rival, y al colocar a uno se movia con el su
+  // marca, como si fueran juntos (Aaron, O-322 punto 1; O-324). Lo que ya esta en su
+  // sitio no se toca. Quien va a cada sitio se elige por donde estaba al empezar la espera
   _colocar() {
     const p = this.p, sq = p.esperaSaque;
     if (!sq || !p.colocable) return;
-    if (!this._casa || this._casa.n !== p.nEspera) {
-      this._casa = { n: p.nEspera, sitio: {} };
-      for (const j of p.equipo(this.lado)) this._casa.sitio[j.id] = { x: j.x, y: j.y };
-    }
+    if (this._casa && this._casa.n === p.nEspera) return;
+    this._casa = { n: p.nEspera, sitio: {} };
+    for (const j of p.equipo(this.lado)) this._casa.sitio[j.id] = { x: j.x, y: j.y };
     const sitios = sq.lado === this.lado ? this._sitiosAtaque(sq) : this._sitiosDefensa(sq);
     for (const [id, s] of sitios) {
       const j = p.jugadores[id];
@@ -213,6 +219,13 @@ class Maquina {
     // chutar: cerca de la porteria, mas cuanto mas cerca
     const libre = !p.equipo(1 - this.lado).some(r => !r.esPortero && p._distanciaALinea(r, d, g).delante && p._distanciaALinea(r, d, g).d < 2.5);
     const T = REGLAS.IA_TIRO;
+    // el portero rival tocado (O-328): con el PP de VR, que se gasta con cada parada, cuando
+    // su mejor tiro ya llega a lo que le queda chuta casi siempre, tambien desde mas lejos
+    // (hasta `lejano`) y con la linea libre
+    if (aPuerta < (T.lejano || T.lejos) && (libre || aPuerta < T.cerca) && this.azar() < (T.pDebil || 0) && this._porteroTocado(d, aPuerta)) {
+      p.ordenar({ tipo: "tiro", de: d.id });
+      return;
+    }
     if (aPuerta < T.lejos && this.azar() < (aPuerta < T.cerca ? T.pCerca : libre ? T.pLibre : T.pTapado)) {
       p.ordenar({ tipo: "tiro", de: d.id });
       return;
@@ -295,15 +308,42 @@ class Maquina {
   _invocar(d) {
     const p = this.p;
     if (this.sinHiper || !d || this.azar() > 0.3) return;
+    const quien = this._quienInvoca(d);
+    if (!quien) return;
+    // con el tiempo de invocacion (O-327) primero para el juego (si su boton esta listo)
+    // y en la parada invoca a ese; sin el, invoca sin parar, como antes
+    if (p.conTiempoInvocar) {
+      if (p.ordenar({ tipo: "tiempoInvocar", lado: this.lado })) this._enInvocacion(quien);
+      return;
+    }
+    p.ordenar({ tipo: "invocar", jugador: quien.id });
+  }
+  // a quien invocaria ahora (o null): el del balon cerca del area, o el que defiende cerca
+  // del balon. Si tiene la supertecnica de su espiritu, cuando le llega la tension para
+  // usarla; si no, solo con la barra llena
+  _quienInvoca(d) {
+    const p = this.p;
+    if (!d) return null;
     const g = p.porteriaRival(d);
     const puede = j => p.puedeHiper(j).si;
     let quien = null;
     if (d.lado === this.lado && puede(d) && Math.hypot(g.x - d.x, g.y - d.y) < 30) quien = d;
     if (d.lado !== this.lado) quien = p.equipo(this.lado).find(j => puede(j) && Math.hypot(j.x - d.x, j.y - d.y) < 8) || null;
-    if (!quien) return;
+    if (!quien) return null;
     const te = this._tecEspiritu(quien);
-    if (te ? p.tension[this.lado] < te.tp : p.hiper[this.lado] < REGLAS.HIPER_MAX) return;
-    p.ordenar({ tipo: "invocar", jugador: quien.id });
+    if (te ? p.tension[this.lado] < p.coste(quien, te) : p.hiper[this.lado] < REGLAS.HIPER_MAX) return null;     // (con el combo, menos, O-328)
+    return quien;
+  }
+  // en el tiempo de invocacion (O-327), una vez por parada: invoca a `quien` (el suyo, si
+  // la pidio ella) o al que invocaria ahora y, si no, sigue sin invocar. El AYUDANTE no
+  // decide por la persona (la hiperbarra la gasta ella)
+  _enInvocacion(quien) {
+    const p = this.p;
+    if (this.sinHiper || p.fase !== "invocacion" || p.listos[this.lado] || this._invocoEn === p.nEspera) return;
+    this._invocoEn = p.nEspera;
+    const j = quien || this._quienInvoca(p.dueno());
+    if (j && p.ordenar({ tipo: "invocar", jugador: j.id })) return;
+    p.ordenar({ tipo: "seguir", lado: this.lado, espera: p.nEspera });
   }
 
   // la supertecnica del espiritu de j que sirve en su puesto (la de parar, solo
@@ -335,6 +375,31 @@ class Maquina {
     return mejor;
   }
 
+  // lo que le quitaria al tiro de tir el muro m: su DF del muro con su mejor supertecnica
+  // de bloqueo que pague su equipo (sin ella, la de sin tecnica) (O-328)
+  _muroEstimado(m, tir) {
+    const p = this.p;
+    if (!m || !p._valorMuro) return 0;
+    let v = p._valorMuro(m, null, tir, null);
+    for (const t of m.tecnicas) if (REGLAS.sirve(t, "muro") && !(t.espiritu && !p.conAura(m)) && p.coste(m, t) <= p.tension[m.lado]) v = Math.max(v, p._valorMuro(m, t, tir, null));
+    return v;
+  }
+  // si el mejor tiro que d puede hacer ahora desde `dist` m (su mejor supertecnica que
+  // pague, o Tirar) llega a IA_TIRO.debil x lo que le queda al portero rival (su PP con las
+  // pasivas, sin tecnica) (O-328)
+  _porteroTocado(d, dist) {
+    const p = this.p, por = p.portero(1 - this.lado);
+    if (!por || !por.kpMax || !p._valorParada) return false;
+    const du = { distancia: dist, directo: null, alto: false, penalti: false };
+    let mejor = p._valorTiro(d, null, du, "normal");
+    for (const t of d.tecnicas) {
+      if (!REGLAS.sirve(t, "tiro") || (t.espiritu && !p.conAura(d)) || p.coste(d, t) > p.tension[this.lado]) continue;
+      if (Math.max(1, Number(t.jugadores) || 1) > 1) continue;
+      mejor = Math.max(mejor, p._valorTiro(d, t, du, "normal"));
+    }
+    return mejor * REGLAS.efectoElemental(d, null, por) >= p._valorParada(por, null, d) * (REGLAS.IA_TIRO.debil || 1);
+  }
+
   _mejorPase(d, rivales) {
     let mejor = null, nota = -1e9;
     for (const c of this.p.equipo(this.lado)) {
@@ -362,12 +427,13 @@ class Maquina {
     // su espiritu, y si sale la del espiritu (la de la estrella, tambien en
     // "... (contra-tiro)") se usa: si no, gastaba la tension en otras y no
     // llegaba a usarla (O-305)
-    const reserva = Math.max(0, ...p.equipo(this.lado).filter(c => p.conAura(c)).map(c => { const t = this._tecEspiritu(c); return t ? t.tp : 0; }));
-    const escoge = (ops) => {
+    const reserva = Math.max(0, ...p.equipo(this.lado).filter(c => p.conAura(c)).map(c => { const t = this._tecEspiritu(c); return t ? p.coste(c, t) : 0; }));
+    // uso: lo que usa sus tecnicas (en el tiro, mas: IA_TIRO.tecnica, O-328)
+    const escoge = (ops, uso = this.gana) => {
       const esp = ops.find(o => o.clave[0] === "t" && o.puede && / \u2726/.test(o.nombre));
       if (esp) return esp.clave;
       const tecs = ops.filter(o => o.clave[0] === "t" && o.puede && p.tension[this.lado] - o.tp >= reserva).sort((a, b) => b.poder - a.poder);
-      if (tecs.length && this.azar() < this.gana) return tecs[0].clave;
+      if (tecs.length && this.azar() < uso) return tecs[0].clave;
       // en defensa, cargar si tiene mas fisico que tecnica
       if (ops.some(o => o.clave === "cargar") && j.stats[4] + j.stats[3] > j.stats[2] + j.stats[5]) return "cargar";
       // el defensa con amarilla entra fuerte la mitad de veces: otra falta seria
@@ -398,10 +464,10 @@ class Maquina {
           const importa = pend.rol === "ataque" ? Math.hypot(g.x - j.x, g.y - j.y) < 30 : Math.abs(j.y + g.y) < REGLAS.LARGO / 3;
           if (importa && mejor(pend.opciones) < rival * 1.05 && this.azar() < (p.hiper[this.lado] >= REGLAS.HIPER_MAX ? 0.8 : 0.6)) return p.elegir(this.lado, "hiper");
         }
-      } else if (p.puedeHiper(j).si) {
+      } else if (pend.rol !== "muro" && pend.rol !== "cadena" && p.puedeHiper(j).si) {     // (el muro y la cadena del tiro que viaja, no: O-325)
         // (el portero de un penalti, igual que el de un tiro, O-312)
         const quiere = pend.rol === "porteria" || pend.rol === "penalti_parada" ? rival !== undefined && rival > mejor(pend.opciones)
-          : j.tecnicas.some(t => t.espiritu && REGLAS.sirve(t, "tiro") && t.tp <= p.tension[this.lado]);
+          : j.tecnicas.some(t => t.espiritu && REGLAS.sirve(t, "tiro") && p.coste(j, t) <= p.tension[this.lado]);
         if (quiere && p.ordenar({ tipo: "invocar", jugador: j.id })) return;
       }
     }
@@ -415,13 +481,29 @@ class Maquina {
       const c = escoge(pend.opciones);
       return p.elegir(this.lado, { zona, tecnica: c[0] === "t" ? c : null });
     }
+    // el tiro que viaja (O-325): al muro le llega el balon y bloquea con su mejor
+    // supertecnica (o sin ella); al companero con tiro de cadena, encadena con la mejor que
+    // pague si se la juega (como antes con el tiro), si no lo deja pasar
+    if (pend.rol === "muro") return p.elegir(this.lado, { muro: escoge(pend.opciones.filter(o => o.clave !== "nada")) });
+    if (pend.rol === "cadena") {
+      const c = pend.opciones.filter(o => o.clave[0] === "t" && o.puede && p.tension[this.lado] - o.tp >= reserva).sort((a, b) => b.poder - a.poder)[0];
+      return p.elegir(this.lado, { cadena: c && this.azar() < this.gana ? c.clave : "nada" });
+    }
     if (pend.rol === "tiro") {
-      const e = { tiro: escoge(pend.opciones) };
+      const e = { tiro: escoge(pend.opciones, Math.max(this.gana, REGLAS.IA_TIRO.tecnica || 0)) };
       // sin supertecnica (O-309): con un defensa en la linea que no esta pegado, la
       // vaselina le pasa por encima (a veces); con el balon alto, la volea a veces
       if (e.tiro === "normal") {
-        if (du.muro !== null && du.muro !== undefined && !du.muroPegado && this.azar() < 0.6) e.tiro = "vaselina";
+        // (y siempre que el muro de VR le quitaria mas que la vaselina, O-328)
+        const vas = pend.opciones.find(o => o.clave === "vaselina"), nor = pend.opciones.find(o => o.clave === "normal");
+        const mejorVas = () => vas && nor && typeof vas.total === "number" && vas.total > nor.total - this._muroEstimado(p.jugadores[du.muro], j);
+        if (du.muro !== null && du.muro !== undefined && !du.muroPegado && (this.azar() < 0.6 || mejorVas())) e.tiro = "vaselina";
         else if (du.alto && this.azar() < 0.4) e.tiro = "volea";
+      } else if (du.muro !== null && du.muro !== undefined && !du.muroPegado && !pend.cadena) {
+        // con supertecnica y un defensa en la linea (no pegado): el muro de VR le quita su
+        // numero entero (O-328); si la vaselina llega con mas, la vaselina
+        const vas = pend.opciones.find(o => o.clave === "vaselina"), tec = pend.opciones.find(o => o.clave === e.tiro);
+        if (vas && tec && typeof vas.total === "number" && vas.total > tec.total - this._muroEstimado(p.jugadores[du.muro], j)) e.tiro = "vaselina";
       }
       // tras una vaselina no se encadena
       if (pend.cadena && e.tiro !== "vaselina") {

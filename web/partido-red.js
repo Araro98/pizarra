@@ -170,6 +170,11 @@ function equipoParaRed(d) {
     jugadores: d.jugadores.map(jugadorParaRed),
     // el banquillo, para los cambios (O-297)
     banquillo: (d.banquillo || []).slice(0, 5).map(jugadorParaRed),
+    // el entrenador y los gerentes (sus pasivas cuentan) y la configuracion del equipo (la
+    // carga) (O-328)
+    personal: (d.personal || []).map(s => ({ nombre: s.nombre, elemento: s.elemento, posicion: s.posicion,
+      pasivas: (s.pasivas || []).map(q => ({ texto: q.texto, efecto: q.efecto })) })),
+    configuracion: d.configuracion || null,
   };
 }
 function jugadorParaRed(j) {
@@ -177,8 +182,9 @@ function jugadorParaRed(j) {
       nombre: j.nombre, cara: j.cara, posicion: j.posicion, elemento: j.elemento, nivel: j.nivel,
       stats: j.stats, puesto: j.puesto, dorsal: j.dorsal,
       tecnicas: (j.tecnicas || []).map(t => ({ ranura: t.ranura, nombre: t.nombre, tipo: t.tipo, subtipo: t.subtipo,
-        elemento: t.elemento, poder: t.poder, tp: t.tp, interno: t.interno, subtipo_valor: t.subtipo_valor, espiritu: t.espiritu,
-        jugadores: t.jugadores })),
+        elemento: t.elemento, poder: t.poder, poderMin: t.poderMin, tp: t.tp, interno: t.interno, subtipo_valor: t.subtipo_valor, espiritu: t.espiritu,
+        // lo que dura su animacion de VR: el plan de las completas, igual en los dos (O-323)
+        jugadores: t.jugadores, seg: t.seg })),
       // las pasivas viajan con su efecto (O-288) y la del espiritu con su marca: solo
       // cuenta con la hiper puesta (O-310)
       pasivas: (j.pasivas || []).map(q => ({ texto: q.texto, abierta: q.abierta, efecto: q.efecto, espiritu: !!(q.espiritu || q.ranura === "espiritu") })),

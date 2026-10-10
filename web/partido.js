@@ -20,9 +20,6 @@ const RED_ABANDONO = 60;
 let menuAbierto = false, menuDespliega = null;   // el Menu de las esperas (los cambios) y a quien se le ven los suplentes
 let miSeguir = null;          // el Seguir/Jugar que he pulsado: {n: numero de la espera, t} (O-308)
 let esperandoDesde = 0;       // desde cuando espero a que el rival pulse (O-308)
-// en la espera de un saque, arrastrar a uno de los tuyos lo coloca; mantenerlo
-// pulsado estos ms antes de arrastrar dibuja su carrera (la ruta) (O-313)
-const MANTENER = 450;
 
 // --- la consola (O-316): la pagina como una 3DS, con las dos pantallas a escala -----
 Consola.montar();
@@ -258,9 +255,11 @@ function empezar(a, b, online) {
   const empate = online ? online.empate || "nada" : empateElegido();
   // las animaciones (O-319): online, las del que invita (sin ellas, false: como antes)
   const animaciones = online ? REGLAS.modoAnim(online.animaciones) : animacionesElegidas();
-  // esperas: [Jugar] antes de cada saque (O-308)
+  // esperas: [Jugar] antes de cada saque (O-308). vuelo: el tiro viaja y el muro, la
+  // cadena y el portero eligen al llegarles, como en Galaxy (O-325). tiempoInvocar: el
+  // aura para el juego y en la parada invocan los dos (O-327)
   PARTIDO = new Partido(a, b, { semilla, manual: MODO === "maquina" ? [!DEMO, false] : [true, true], minutos, fueraDeJuego, empate,
-                                limiteDuelo: online ? REGLAS.DUELO_MAX : 0, esperas: true, animaciones });
+                                limiteDuelo: online ? REGLAS.DUELO_MAX : 0, esperas: true, animaciones, vuelo: true, tiempoInvocar: true });
   menuAbierto = false; menuDespliega = null; miSeguir = null; esperandoDesde = 0;
   // abajo se juega en el campo 3D (O-317); la vista se crea al final (prepararVista)
   if (MUNDO) { MUNDO.cerrar(); MUNDO = null; }
@@ -433,13 +432,27 @@ function textoEspera(p) {
     + ": los cambios, en el Menú · «" + botonDescanso(p) + "» cuando estés";
   const s = p.esperaSaque || {}, mio = s.lado === YO;
   const que = { centro: "Saque de centro", banda: "Saque de banda", corner: "Córner", puerta: "Saque de puerta", falta: "Tiro libre", penalti: "Penalti" }[s.tipo] || "Saque";
-  // colocar a los tuyos arrastrandolos, salvo muy cerca del balon (O-313)
+  // colocar a los tuyos arrastrandolos, salvo muy cerca del balon (O-313). Las flechas y
+  // el saque, tras pulsar Jugar (antes se marcaba aqui el pase) (O-324)
   const como = s.tipo === "penalti" ? "arrástralos fuera del área" + (mio ? "; al pulsar Jugar se tira" : "")
-    : s.tipo === "centro" ? (mio ? "arrástralos, en tu campo; marca antes el pase" : "arrástralos, en tu campo y fuera del círculo")
-    : mio ? "arrástralos; marca antes el pase" + (s.tipo === "falta" ? " o el tiro" : "")
+    : s.tipo === "centro" ? (mio ? "arrástralos, en tu campo; luego sacas" : "arrástralos, en tu campo y fuera del círculo")
+    : mio ? "arrástralos; luego, las carreras y sacas"
     // en el saque de puerta, los rivales fuera del area (O-315)
     : s.tipo === "puerta" ? "arrástralos, fuera de su área" : "arrástralos, no muy cerca del balón";
   return que + " para " + (p.nombres[s.lado] || "") + ". Coloca a tus jugadores y pulsa Jugar (" + como + ")";
+}
+// tras pulsar Jugar, hasta que se saca (Aaron, O-322 punto 2; O-324): nadie se mueve y
+// solo se dibujan las flechas. Lo que se dice arriba
+function textoSacar(p) {
+  const s = p.porSacar, que = { centro: "Saque de centro", banda: "Saque de banda", corner: "Córner", puerta: "Saque de puerta", falta: "Tiro libre" }[s.tipo] || "Saque";
+  if (s.lado !== YO) return que + " de " + (p.nombres[s.lado] || "") + ": dibuja las carreras de los tuyos. Nadie se mueve hasta que saque";
+  return que + ": dibuja las carreras de los tuyos y saca: pulsa a un compañero o un sitio" + (s.tipo === "falta" ? " (o la portería)" : "") + ". Nadie se mueve hasta que saques";
+}
+// con el tiro en vuelo (Aaron, O-322 punto 3; O-325): lo que se puede hacer mientras va
+function textoVuelo(p) {
+  const T = p.tiro, j = p.jugadores[T.ultimo] || {};
+  if (T.lado === YO) return "¡Tiro de " + j.nombre + "! Si llevas a un compañero con tiro de cadena a su camino (con una flecha), puede encadenarlo";
+  return "¡Te chuta " + j.nombre + "! Lleva a tus defensas a su camino con flechas para bloquearlo; luego elige tu portero";
 }
 
 // la pausa de 3DS (O-294) con la barra espaciadora: pulsa el boton que toca en la tactil
@@ -491,14 +504,17 @@ function vigilar() {
   // siga en esa espera sin el listo (con su numero, el anfitrion no lo cuenta en
   // otra) (O-308)
   const ms = miSeguir;
-  if (MODO === "invitado" && ms && ms.n === p.nEspera && (p.parado() || p.fase === "descanso") && !(p.listos && p.listos[YO])
+  if (MODO === "invitado" && ms && ms.n === p.nEspera && (p.parado() || p.fase === "descanso" || p.fase === "invocacion") && !(p.listos && p.listos[YO])
       && Date.now() - ms.t > 1500 && RED && !RED.rivalFuera) {
     ms.t = Date.now();
     RED.orden({ tipo: "seguir", lado: YO, espera: ms.n });
   }
   // online, desde cuando espero a que el rival pulse (para "Dejar el partido", O-308)
-  const espera = p.parado() || p.fase === "descanso";
-  if (espera && yaListo(p) && !(p.listos && p.listos[1 - YO])) { if (!esperandoDesde) esperandoDesde = Date.now(); }
+  // (y a que elija en el tiempo de invocacion, O-327)
+  const espera = p.parado() || p.fase === "descanso" || p.fase === "invocacion";
+  // (y a que saque, tras pulsar Jugar: nadie se mueve hasta entonces, O-324)
+  const noSaca = p.fase === "juego" && !!p.porSacar && p.porSacar.lado !== YO;
+  if ((espera && yaListo(p) && !(p.listos && p.listos[1 - YO])) || noSaca) { if (!esperandoDesde) esperandoDesde = Date.now(); }
   else esperandoDesde = 0;
   // lo que no se hace por algo tuyo ("demasiado lejos para chutar") y el cambio que
   // preparas se dicen en la franja oscura de abajo (b47; O-305, O-308)
@@ -522,9 +538,13 @@ function vigilar() {
 function contexto() {
   const p = PARTIDO;
   return {
-    demo: DEMO, modo: MODO, listo: !!p && (p.parado() || p.fase === "descanso") && yaListo(p),
+    demo: DEMO, modo: MODO, listo: !!p && (p.parado() || p.fase === "descanso" || p.fase === "invocacion") && yaListo(p),
     elegidos: duelosElegidos, ayudante: !!AYUDANTE, elegido: PANTALLA ? PANTALLA.elegido : null,
     espera: p && (p.parado() || p.fase === "descanso") ? textoEspera(p) : "", boton: p ? botonDescanso(p) : "",
+    // tras pulsar Jugar, hasta que se saca (O-324)
+    sacar: p && p.fase === "juego" && p.porSacar ? textoSacar(p) : "",
+    // con el tiro en vuelo (O-325)
+    vuelo: p && p.fase === "juego" && p.tiro ? textoVuelo(p) : "",
     libres: p ? suplentesLibres(p, YO) : [], rival: nombreRival(), red: estadoRed(),
   };
 }
@@ -546,9 +566,18 @@ Abajo.acc = {
   // no cuenta en la siguiente y no se salta un saque (O-308)
   seguir: () => {
     const p = PARTIDO;
-    if (!p || !(p.parado() || p.fase === "descanso") || yaListo(p)) return;
+    // (tambien Seguir sin invocar en el tiempo de invocacion, O-327)
+    if (!p || !(p.parado() || p.fase === "descanso" || p.fase === "invocacion") || yaListo(p)) return;
     miSeguir = { n: p.nEspera, t: Date.now() };
     p.ordenar({ tipo: "seguir", lado: YO, espera: p.nEspera });
+  },
+  // Invocar en el tiempo de invocacion ya es elegir (O-327): el invitado lo sabe antes de
+  // que llegue la foto (y si la orden se pierde, su Seguir repetido sigue sin invocar)
+  invocarEnParada: id => {
+    const p = PARTIDO;
+    if (!p || p.fase !== "invocacion" || yaListo(p)) return;
+    if (MODO === "invitado") miSeguir = { n: p.nEspera, t: Date.now() };
+    p.ordenar({ tipo: "invocar", jugador: id });
   },
   // online: dejar el partido si el rival no responde o no pulsa (O-308). Manda "adios",
   // como Inicio: al otro le sale que has salido
@@ -573,9 +602,10 @@ function raton() {
   let empezado = null;
   // tambien en la espera de un saque, como en la pausa (O-308)
   const sePuede = () => PARTIDO && (PARTIDO.fase === "juego" || PARTIDO.parado() || PARTIDO.fase === "duelo");
-  // con el juego parado (pausa, espera del saque, duelo eligiendo, descanso), arrastrar en
-  // vacio mueve la camara, como el lapiz en Galaxy (diseno 5.3); con el balon en juego no
-  const parado = () => PARTIDO && (PARTIDO.parado() || PARTIDO.fase === "duelo" || PARTIDO.fase === "descanso");
+  // con el juego parado (pausa, espera del saque, duelo eligiendo, descanso, y tras pulsar
+  // Jugar hasta que se saca, O-324), arrastrar en vacio mueve la camara, como el lapiz en
+  // Galaxy (diseno 5.3); con el balon en juego no
+  const parado = () => PARTIDO && (PARTIDO.parado() || PARTIDO.fase === "duelo" || PARTIDO.fase === "descanso" || !!PARTIDO.porSacar);
   c.onpointerdown = ev => {
     // un control de la tactil (botones, listas) no es un gesto del campo
     if (!PANTALLA || (ev.target.closest && ev.target.closest(".gx-control, .gx-elegir"))) return;
@@ -594,9 +624,11 @@ function raton() {
     // la onda cian donde pulsas, como la mirilla de IE3 (O-306)
     PANTALLA.pulsar(PANTALLA.aCampo(q.px, q.py));
     const j = PANTALLA.jugadorEn(q.px, q.py, YO);
-    // en la espera de un saque, arrastrar a uno de los tuyos lo coloca (O-313)
-    empezado = { q, j, puntos: [], campo: PANTALLA.aCampo(q.px, q.py), t0: performance.now(), lejos: 0, px: 0,
-                 colocar: !!(j && PARTIDO.colocable && PARTIDO.colocable(j)) };
+    // en la espera de un saque, arrastrar a uno de los tuyos lo coloca (O-313), y nada
+    // mas: las flechas, tras pulsar Jugar (O-324)
+    const enEspera = PARTIDO.fase === "saque";
+    empezado = { q, j, puntos: [], campo: PANTALLA.aCampo(q.px, q.py), t0: performance.now(), lejos: 0, px: 0, enEspera,
+                 colocar: !!(j && enEspera && PARTIDO.colocable && PARTIDO.colocable(j)) };
     // el punto del campo que se agarra para mover la camara
     if (!j && parado()) empezado.ancla = empezado.campo;
     if (j) {
@@ -624,10 +656,12 @@ function raton() {
     empezado.lejos = Math.max(empezado.lejos, Math.hypot(cp.x - empezado.campo.x, cp.y - empezado.campo.y));
     if (!empezado.j) return;
     // en la espera de un saque, arrastrar a uno de los tuyos lo coloca: no es una
-    // ruta, se pone ahi (Aaron, O-307 punto 14). Si antes de arrastrar lo mantienes
-    // pulsado, se dibuja su carrera, como en la pausa. Se decide al empezar a moverlo;
-    // mientras, el jugador sale donde lo soltarias (en rojo si ahi no puede) (O-313)
-    if (empezado.modo === undefined && empezado.lejos > 1) empezado.modo = empezado.colocar && performance.now() - empezado.t0 < MANTENER ? "colocar" : "ruta";
+    // ruta, se pone ahi (Aaron, O-307 punto 14); mientras, el jugador sale donde lo
+    // soltarias (en rojo si ahi no puede) (O-313). Alli no se dibujan carreras (antes,
+    // manteniendolo pulsado): se dibujan tras pulsar Jugar, cuando ya no se coloca
+    // (Aaron, O-322 punto 2; O-324). Al que no se mueve (el que saca), nada
+    if (empezado.modo === undefined && empezado.lejos > 1) empezado.modo = !empezado.enEspera ? "ruta" : empezado.colocar ? "colocar" : "nada";
+    if (empezado.modo === "nada") { PANTALLA.trazo = null; return; }
     if (empezado.modo === "colocar") {
       const x = cp.x + empezado.agarre.x, y = cp.y + empezado.agarre.y, r = PARTIDO.puedeColocar(empezado.j, x, y);
       PANTALLA.trazo = null;
@@ -659,6 +693,15 @@ function raton() {
       const r = PARTIDO.puedeColocar(e.j, fin.x, fin.y);
       if (!r.si) { if (r.porque) Abajo.aviso(r.porque); return; }
       PARTIDO.ordenar({ tipo: "colocar", lado: YO, jugador: e.j.id, x: r.x, y: r.y });
+      return;
+    }
+    // en la espera de un saque solo se coloca y se elige (O-324): arrastrar al que no se
+    // mueve dice por que; pulsar un sitio o la porteria con el balon, que se saca tras
+    // pulsar Jugar (antes se marcaba el pase)
+    if (e.enEspera) {
+      if (e.j && e.modo === "nada") { const r = PARTIDO.puedeColocar(e.j, fin.x, fin.y); if (r.porque) Abajo.aviso(r.porque); }
+      else if (!e.j && tengo && Math.max(mov, e.lejos) <= 2.5 && PARTIDO.esperaSaque && PARTIDO.esperaSaque.tipo !== "penalti")
+        Abajo.aviso("Primero pulsa Jugar; luego sacas: pulsa a un compañero, un sitio o la portería");
       return;
     }
     if (e.j && mov > 2.5 && e.puntos.length > 1) {
@@ -878,6 +921,8 @@ async function alSala(m) {
     // seguir lleva el numero de su espera; quitarCambio, el de un pendiente (O-308)
     if (o.tipo === "pausa" || o.tipo === "seguir" || o.tipo === "presionar" || o.tipo === "cambio" || o.tipo === "quitarCambio") { if (o.lado === 1) PARTIDO.ordenar(o); return; }
     if (o.tipo === "invocar") { const jj = PARTIDO.jugadores[o.jugador]; if (jj && jj.lado === 1) PARTIDO.ordenar(o); return; }
+    // el aura del invitado: para el juego para invocar (O-327)
+    if (o.tipo === "tiempoInvocar") { if (o.lado === 1) PARTIDO.ordenar(o); return; }
     // colocar en la espera de un saque, solo a los suyos (O-313): se ve en la foto
     if (o.tipo === "colocar") { const jj = PARTIDO.jugadores[o.jugador]; if (o.lado === 1 && jj && jj.lado === 1) PARTIDO.ordenar(o); return; }
     const j = PARTIDO.jugadores[o.jugador !== undefined ? o.jugador : o.de];

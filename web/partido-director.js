@@ -14,6 +14,8 @@
      repeticion del gol, y despues del gol Repetir / Reanudar (local).
    - Los rotulos de Galaxy (guia 8.7) que no son del plan: el saque, las invocaciones,
      la supertactica, los cambios (el panel CAMBIOS), el descanso y el final.
+   - El tiro que viaja (O-325): cada etapa (chute, muro, cadena, portero) tiene su plan y,
+     entre una y otra, el balon de verdad vuela por el campo con su estela y su placa.
    Su reloj es Director.ahora (sustituible: las capturas y las pruebas lo paran). */
 "use strict";
 
@@ -23,8 +25,10 @@ const DIRECTOR = {
              tiro: { corte: 0.60, fichas: 0.67, base: 0.67, botones: 0.67, anillos: 0.70 } },
   sincronia: 0.25,                // s que se deja separar el reloj propio de la espera del motor
   rancio: 4,                      // s: un suceso de hace mas (llega tarde por la red) ya no sale
-  grabar: { cada: 1 / 15, n: 60, antes: 2.5, vuelo: 0.8 },   // la repeticion (6.5 n)
-  invoca: 4.3,                    // la invocacion sobre el mapa (6.5 p)
+  // la repeticion (6.5 n); paron: un hueco mayor entre dos cuadros grabados es un paron del
+  // juego (no cuenta, O-323)
+  grabar: { cada: 1 / 15, n: 60, antes: 2.5, vuelo: 0.8, paron: 0.4 },
+  invoca: 4.3,                    // la invocacion sobre el mapa (6.5 p); con su animacion de VR, lo que dure (O-323)
   // el descanso (t20): el rotulo, fundido a negro, negro y la pantalla verde con fundido
   descanso: { rotulo: 0.9, largo: 1.8, fundido: 0.15, negro: 1.05 },
   // el final (t21): "Fin del partido" 3,2 s; 1,6 s despues el de tu lado; negro; resultado
@@ -47,7 +51,7 @@ const Director = {
     if (o.yo === 0 || o.yo === 1) this.yo = o.yo;
     const G = DIRECTOR.grabar, N = 24 * 2;
     this.estado = {
-      arriba: { modo: "mapa", fundido: 0, blanco: 0, tramo: null, invoca: null, escena: null },
+      arriba: { modo: "mapa", fundido: 0, blanco: 0, tramo: null, invoca: null, escena: null, plan: null },
       abajo: { modo: "campo", fundido: 0, oscuro: 0, botones: true, anillos: null, balonAnim: null, ocultarBalon: false, placa: null,
                posiciones: null, camara: null, tactil: true, trasGol: false, video: false, esconde: false, repetir: false, estela: null },
       rotulos: [], programa: [], goles: [0, 0],
@@ -114,20 +118,34 @@ const Director = {
     g.t[g.i] = t;
     g.i = (g.i + 1) % G.n; g.n = Math.min(G.n, g.n + 1);
   },
-  // al empezar un tiro: lo grabado de los ultimos 2,5 s pasa a la repeticion (en orden)
+  // al empezar un tiro: lo grabado de los ultimos 2,5 s DE JUEGO pasa a la repeticion (en
+  // orden). Los parones (la animacion del chute del tiro que viaja, que con las de VR dura 5-9 s,
+  // un duelo) no cuentan: se quitan y la jugada sale seguida; antes, al llegar al portero solo
+  // quedaba el vuelo (o nada) y la repeticion duraba menos de 1 s o no salia Repetir (O-323)
   _guardarRepeticion(p, du, t) {
     const S = this._s, g = S.grab, r = S.repe, G = DIRECTOR.grabar;
     r.n = 0; r.ok = false; r.duelo = du.id; r.tirador = du.tirador;
-    for (let m = g.n; m >= 1; m--) {
-      const i = (g.i - m + G.n * 2) % G.n;
-      if (t - g.t[i] > G.antes) continue;
-      r.buf.set(g.buf.subarray(i * 48, i * 48 + 48), r.n * 48);
-      r.t[r.n] = g.t[i]; r.n++;
+    // hacia atras desde lo ultimo grabado, sumando el tiempo de juego (un hueco de mas de
+    // `paron` s cuenta como un cuadro)
+    let juego = 0, m = 1;
+    for (; m < g.n; m++) {
+      const i = (g.i - m + G.n * 2) % G.n, j = (g.i - m - 1 + G.n * 2) % G.n, dt = g.t[i] - g.t[j];
+      juego += dt > G.paron ? G.cada : dt;
+      if (juego > G.antes) break;
     }
-    for (let m = r.n - 1; m >= 0; m--) r.t[m] -= r.t[0];
-    const tir = p.jugadores[du.tirador], gol = tir ? p.porteriaRival(tir) : { x: 0, y: 52.5 };
-    // adonde va el balon: en el penalti a su zona; si no, cerca del centro de la porteria
-    r.x = ((du.id * 37) % 9 - 4) * 0.6; r.y = gol.y + Math.sign(gol.y || 1) * 0.9;
+    // m: cuantos cuadros (los ultimos). Sus tiempos, seguidos
+    let tt = 0;
+    for (let k = m; k >= 1; k--) {
+      const i = (g.i - k + G.n * 2) % G.n;
+      if (k < m) { const j = (g.i - k - 1 + G.n * 2) % G.n, dt = g.t[i] - g.t[j]; tt += dt > G.paron ? G.cada : dt; }
+      r.buf.set(g.buf.subarray(i * 48, i * 48 + 48), r.n * 48);
+      r.t[r.n] = tt; r.n++;
+    }
+    if (!g.n) r.n = 0;
+    const tir = p.jugadores[du.tirador], gol = du.gy !== undefined ? { x: 0, y: du.gy } : tir ? p.porteriaRival(tir) : { x: 0, y: 52.5 };
+    // adonde va el balon: en el penalti a su zona; si no, cerca del centro de la porteria (en
+    // el tiro que viaja, adonde iba de verdad, O-325)
+    r.x = du.gx !== undefined ? du.gx : ((du.id * 37) % 9 - 4) * 0.6; r.y = gol.y + Math.sign(gol.y || 1) * 0.9;
     r.ok = r.n >= 2;
   },
   // la repeticion en el momento tr (s) de una que dura `dura`: las posiciones grabadas
@@ -170,10 +188,16 @@ const Director = {
     if (!du) return;
     if (!S.duelo || S.duelo.id !== du.id) {
       const tiro = du.tipo !== "foco";
-      S.duelo = { id: du.id, t0: t, tiro, tipo: du.tipo, quien: tiro ? du.tirador : du.atacante, obj: du };
+      // en el tiro que viaja (O-325), quien elige en esta etapa: el muro, el que encadena o
+      // el portero (los anillos, en el)
+      const quien = !tiro ? du.atacante : du.etapa === "muro" ? du.muro : du.etapa === "cadena" ? du.cadena : du.etapa === "portero" ? du.portero : du.tirador;
+      S.duelo = { id: du.id, t0: t, tiro, tipo: du.tipo, etapa: du.etapa || null, quien, obj: du };
       // un duelo corta la invocacion de arriba (6.5 p) y Repetir / Reanudar
       S.invoca = null; S.trasGol = null;
-      if (tiro) this._guardarRepeticion(p, du, t);
+      // la repeticion: al empezar el tiro; en el que viaja, al llegar al portero (lo grabado
+      // lleva el vuelo de verdad y acaba desde donde esta el balon)
+      if (tiro && !du.etapa) this._guardarRepeticion(p, du, t);
+      else if (du.etapa === "portero" && p.tiro) this._guardarRepeticion(p, { id: du.id, tirador: null, gx: p.tiro.tx, gy: p.tiro.ty }, t);
       // el duelo nuevo: la animacion de antes ya no se ensena
       if (S.res && !S.res.motor) S.res = null;
     }
@@ -215,12 +239,16 @@ const Director = {
       if (que === "banda" || que === "corner" || que === "puerta" || que === "penaltis") { S.chico = { que, ro, n: S.evVistos }; continue; }
       if (que === "prorroga") { S.cola.push(this._rotulo("prorroga", ro)); continue; }
       if (que === "tactica") { S.sueltos.push(Object.assign(this._rotulo("tactica", ro), { de: t })); continue; }
+      // la vaselina que pasa por encima de un rival con el tiro en vuelo (O-325): sobre el
+      if (que === "porEncima") { S.sueltos.push(Object.assign(this._rotulo("porEncima", ro), { de: t, x: ro.x, y: ro.y })); continue; }
       if (DIRECTOR.invocaciones.includes(que)) {
         // la invocacion: el rotulo encima del juego y, arriba, el espiritu sobre el mapa
         S.sueltos.push(Object.assign(this._rotulo(que, ro), { de: t }));
         const nombre = String(ro.sub || "").split(" · ")[0];
-        const j = p.jugadores.find(x => x.lado === ro.lado && x.nombre === nombre);
-        if (j && p.fase !== "duelo") S.invoca = { jugador: j.id, t0: t, familia: que };
+        // por su id (O-327: con un modo, al llegar aqui ya se llama como su forma)
+        const j = (typeof ro.jugador === "number" && p.jugadores[ro.jugador]) || p.jugadores.find(x => x.lado === ro.lado && x.nombre === nombre);
+        // lo que dura: lo de su animacion de VR (partido.py, O-323) o la de Galaxy
+        if (j && p.fase !== "duelo") S.invoca = { jugador: j.id, t0: t, familia: que, dura: (j.espiritu && j.espiritu.seg > 0 ? Math.min(REGLAS.SEG_MAX || 12, j.espiritu.seg) : DIRECTOR.invoca) };
       }
       // los demas (bloqueo, critico, falta, tarjetas, penalti, fuera, la tanda, la ★) los
       // pone el plan de su resultado en su tramo
@@ -326,7 +354,7 @@ const Director = {
   _componer(p, t) {
     const S = this._s, e = this.estado, A = e.arriba, B = e.abajo;
     A.modo = p.fase === "descanso" ? "descanso" : p.fase === "final" ? "final" : this.fichaGrande ? "ficha" : "mapa";
-    A.fundido = 0; A.blanco = 0; A.tramo = null; A.invoca = null; A.escena = null;
+    A.fundido = 0; A.blanco = 0; A.tramo = null; A.invoca = null; A.escena = null; A.plan = null;
     B.modo = "campo"; B.fundido = 0; B.oscuro = 0; B.botones = true; B.anillos = null; B.balonAnim = null; B.ocultarBalon = false;
     B.placa = null; B.posiciones = null; B.camara = null; B.tactil = true; B.trasGol = false; B.video = false; B.esconde = false; B.repetir = false; B.estela = null;
     e.goles[0] = p.goles[0]; e.goles[1] = p.goles[1];
@@ -352,17 +380,37 @@ const Director = {
         S.res = R = null;
       } else this._plan(p, t, R, Math.max(0, Math.min(tp, R.fin - 0.001)));
     }
+    // el plan entero: arriba se cargan antes las animaciones de VR de sus tecnicas (O-323)
+    A.plan = R;
+    // el tiro en vuelo de verdad (O-325; guia 8.5): la patada al salir (y al encadenar), la
+    // estela por su camino y la placa "Poder total" con lo que lleva (baja si un muro le
+    // quita). La pelota es la del motor (con su altura) y la camara la sigue
+    const T = p.tiro;
+    if (T && p.fase === "juego") {
+      if (T.id !== S.vueloVisto) { S.vueloVisto = T.id; this._sonar("patada", true); }
+      if (!R) {
+        const es = S.estela, tot = T.total || 1, el = T.paso && T.paso.tecnica ? T.paso.elemento : "";
+        es.x0 = T.x0; es.y0 = T.y0; es.x1 = T.tx; es.y1 = T.ty; es.h = T.h || 0;
+        es.k = Math.max(0, Math.min(1, Math.hypot(p.balon.x - T.x0, p.balon.y - T.y0) / tot));
+        es.color = el && typeof GX !== "undefined" && GX.elementoTexto[el] ? GX.elementoTexto[el] : "#35E8F5";
+        B.estela = es;
+        const pl = S.placa || (S.placa = { valor: 0, lado: 0 });
+        pl.valor = Math.round(T.at); pl.lado = T.lado;
+        B.placa = pl;
+      }
+    }
     // el descanso y el final
     if (S.seq) this._secuencia(p, t, S.seq);
     // la invocacion sobre el mapa, sin parar el juego (6.5 p)
     if (S.invoca) {
-      const ti = t - S.invoca.t0;
-      if (ti >= DIRECTOR.invoca || p.fase === "duelo" || S.seq || p.fase === "final") S.invoca = null;
+      const ti = t - S.invoca.t0, dura = S.invoca.dura || DIRECTOR.invoca;
+      if (ti >= dura || p.fase === "duelo" || S.seq || p.fase === "final") S.invoca = null;
       else if (!R && A.modo === "mapa") {
         A.invoca = S.invoca;
         A.modo = "anim";
         const tr = S.trInvoca || (S.trInvoca = { que: "invoca", t: 0, dura: DIRECTOR.invoca, res: null, q: null, k: -1 });
-        tr.t = ti; tr.jugador = S.invoca.jugador; tr.familia = S.invoca.familia;
+        // t0: cual es (arriba, su animacion de VR se decide una vez por invocacion, O-323)
+        tr.t = ti; tr.dura = dura; tr.t0 = S.invoca.t0; tr.jugador = S.invoca.jugador; tr.familia = S.invoca.familia;
         A.tramo = tr;
       }
     }
@@ -491,6 +539,8 @@ const Director = {
         break;
       }
       case "fueraTiro": {
+        // en el tiro que viaja el balon ya esta donde se va: solo el rotulo (O-325)
+        if (R.r && R.r.etapa) { sale(this._rotuloPlan(p, R, q)); break; }
         const v = this._vuelo(p, R, q, Math.min(1, tt / (dura * 0.5)));
         this._estela(R, q, Math.min(1, tt / (dura * 0.5)));
         B.ocultarBalon = true; S.cam.x = v.x; S.cam.y = v.y; B.camara = S.cam;

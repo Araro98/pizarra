@@ -121,6 +121,12 @@ const HudDuelo = {
     ctx.beginPath(); ctx.moveTo(ax, 36 - 4 * s); ctx.lineTo(ax + 3.5, 36); ctx.lineTo(ax + 1.2, 36); ctx.lineTo(ax + 1.2, 36 + 3.5 * s); ctx.lineTo(ax - 1.2, 36 + 3.5 * s); ctx.lineTo(ax - 1.2, 36); ctx.lineTo(ax - 3.5, 36); ctx.closePath(); ctx.fill();
     ctx.restore();
   },
+  // "Elemento +20 %" bajo el Talento del que gana en elemento con su supertecnica a la del
+  // otro (los "Efectos elementales" de VR, O-328)
+  _ventaja(ctx, der, pct) {
+    if (!pct) return;
+    this._t(ctx, "Elemento +" + pct + " %", der ? 386 : 14, 46, { tam: 7, peso: 800, alinea: der ? "right" : "left", color: "#FFF2A0", contornos: [["#3A2A00", 0.8]] });
+  },
   // el cuadro de los 4 elementos (a11) con la flecha amarilla hacia el que pierde la ventaja
   _elementos(ctx, izq, der) {
     const im = GX.icono("cuadro_elementos");
@@ -217,7 +223,10 @@ const HudDuelo = {
   _eligiendo(ctx, p, yo, tr) {
     const du = tr.duelo && tr.duelo.obj;
     if (!du) { ctx.fillStyle = "#000"; ctx.fillRect(0, 0, 400, 240); return; }
-    const [a, b] = this._dos(p, du.tipo === "foco" ? du.atacante : du.tirador, du.tipo === "foco" ? du.defensor : du.portero);
+    // en el tiro que viaja (O-325): el tiro contra el muro, el que encadena contra el portero
+    const [a, b] = du.tipo === "foco" ? this._dos(p, du.atacante, du.defensor)
+      : du.etapa === "muro" ? this._dos(p, du.tirador, du.muro) : du.etapa === "cadena" ? this._dos(p, du.cadena, du.portero)
+      : this._dos(p, du.tirador, du.portero);
     const izq = a && a.lado === yo ? a : b, der = izq === a ? b : a;
     this._fondoDuelo(ctx, p, yo, izq, der, tr.t);
     if (!tr.fichas) return;
@@ -235,8 +244,8 @@ const HudDuelo = {
   // lo que suman las pasivas a j en este duelo, en %, para "Talento" (la misma cuenta del motor)
   _pasivas(p, du, j) {
     if (!p.bonusPasivas || !j) return 0;
-    const que = du.tipo === "foco" ? "foco" : j.esPortero && du.portero === j.id ? "kp" : "tiro";
-    const ataca = du.tipo === "foco" ? j.id === du.atacante : j.id === du.tirador;
+    const que = du.tipo === "foco" ? "foco" : j.esPortero && du.portero === j.id ? "kp" : du.muro === j.id && du.etapa === "muro" ? "muro" : "tiro";
+    const ataca = du.tipo === "foco" ? j.id === du.atacante : j.id === du.tirador || j.id === du.cadena;
     try { return Math.round((p.bonusPasivas(j, que, ataca) - 1) * 100); } catch (e) { return 0; }
   },
   // el fondo de dos: tu lado a la izquierda, el rival a la derecha, con sus retratos
@@ -306,6 +315,7 @@ const HudDuelo = {
       else if (r.critico === k.lado && r.antes !== null && r.antes !== undefined) { critico = tf >= 0.25; if (!critico) v = r.antes; }
       this._valor(ctx, d, col, "Poder total", fija ? v : (v === "★" ? "★" : this._rueda(v)), fija ? (gana ? "gana" : "pierde") : "rueda");
       if (fija) this._talento(ctx, d, r.pasivas ? Math.round(r.pasivas[k.lado] || 0) : 0);
+      if (fija && r.ventaja) this._ventaja(ctx, d, r.ventaja[k.lado] || 0);     // O-328
       if (fija && critico && gana) this._marca(ctx, d, "¡Crítico!");
       if (fija && r.hiper === k.lado) this._marca(ctx, d, "¡Hipertécnica!");
     }
@@ -349,7 +359,8 @@ const HudDuelo = {
     const sPaso = ps[etapa] || ps[0] || {};
     const j = p.jugadores[sPaso.quien] || tir;
     if (!j) { ctx.fillStyle = "#000"; ctx.fillRect(0, 0, 400, 240); return; }
-    const muro = !!(pm && etapa === kM), portero = etapa === ps.length - 1 && etapa > 0 && !pf.fuera && !(pm && etapa === kM);
+    // (la cadena del tiro que viaja va la ultima y no es el portero, O-325)
+    const muro = !!(pm && etapa === kM), portero = etapa === ps.length - 1 && etapa > 0 && !pf.fuera && !(pm && etapa === kM) && !/ \(cadena\)$/.test(sPaso.que || "");
     // el fondo: el color del elemento de la tecnica o del lado
     // al fijar, la escena de la tecnica sigue (su color y su nombre ya en su sitio)
     const fijando = que === "fijar";
@@ -425,6 +436,7 @@ const HudDuelo = {
     this._valor(ctx, dT, colT, "Poder total", vT, fija ? (gol ? "gana" : "pierde") : "gana");
     this._valor(ctx, dO, colO, "Poder total", vP, fija ? (gol ? "pierde" : "gana") : "rueda");
     if (fija) { this._talento(ctx, dT, Math.round((ps[0] || {}).pasivas || 0)); this._talento(ctx, dO, Math.round(pf.pasivas || 0)); }
+    if (fija) { this._ventaja(ctx, dT, (ps[0] || {}).ventaja || 0); this._ventaja(ctx, dO, pf.ventaja || 0); }     // O-328
     if (vP !== null && typeof vP === "number") this._rayoMano(ctx, vT, vP, !dT);
     this._nombre(ctx, tec ? pf.que : "", pf.elemento, tn, false, hip);
     if (!tec && pf.que) this._t(ctx, pf.que, 200, 213, { letra: "rotulo", tam: 22, peso: 400, alinea: "center", color: "#FFFFFF", contornos: [["#0A1E3A", 1.6]], sesgo: -8 });
@@ -629,7 +641,8 @@ const HudDuelo = {
   // --- la invocacion sobre el mapa (6.5 p; t17): negro, el jugador se carga con un aura
   // en espiral del color de su familia, sale el espiritu y su nombre con zoom ---------------
   _invoca(ctx, p, yo, tr) {
-    const t = tr.t, j = p.jugadores[tr.jugador];
+    // fin: lo que dura (con la animacion de VR, la suya: el nombre y el fundido van al final, O-323)
+    const t = tr.t, j = p.jugadores[tr.jugador], fin = tr.dura || 4.3;
     if (!this._3d) { ctx.fillStyle = "#000"; ctx.fillRect(0, 0, 400, 240); }
     if (!j || t < 0.6) return;
     const col = (typeof AURA_HIPER !== "undefined" && AURA_HIPER[j.hiperTipo]) ? AURA_HIPER[j.hiperTipo][1] : "#C9A2FF";
@@ -651,14 +664,14 @@ const HudDuelo = {
     this._retrato(ctx, j, 200, 236 + sube, 170, j.lado !== yo, yo);
     // el nombre del espiritu en dos lineas, abajo, con zoom (130 % -> 100 % en 200 ms) y su
     // familia en dorado (en Galaxy "Ω")
-    if (t >= 2.7 && j.espiritu) {
-      const z = Math.max(1, 1.3 - 0.3 * (t - 2.7) / 0.2);
+    if (t >= fin - 1.6 && j.espiritu) {
+      const z = Math.max(1, 1.3 - 0.3 * (t - (fin - 1.6)) / 0.2);
       ctx.save(); ctx.translate(200, 200); ctx.scale(z, z);
       this._t(ctx, j.espiritu.nombre, 0, 0, { letra: "nombre", tam: 24, peso: 400, alinea: "center", degradado: ["#E8FFFF", "#35C8F5"], contornos: [["#000000", 2.4]], sesgo: -8, ancho: 360 });
       const fam = REGLAS.HIPER_TIPOS[j.hiperTipo] ? REGLAS.HIPER_TIPOS[j.hiperTipo].nombre : "";
       this._t(ctx, fam.toUpperCase(), 0, 22, { letra: "rotulo", tam: 11, peso: 400, alinea: "center", degradado: ["#FFF0A0", "#E0A020"], contornos: [["#3A2400", 1]] });
       ctx.restore();
     }
-    if (t > 4.2) { ctx.fillStyle = "rgba(0,0,0," + Math.min(1, (t - 4.2) / 0.1) + ")"; ctx.fillRect(0, 0, 400, 240); }
+    if (t > fin - 0.1) { ctx.fillStyle = "rgba(0,0,0," + Math.min(1, (t - (fin - 0.1)) / 0.1) + ")"; ctx.fillRect(0, 0, 400, 240); }
   },
 };

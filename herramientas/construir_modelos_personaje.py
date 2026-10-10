@@ -35,6 +35,10 @@ integracion):
   uniforme `..01/02` = c000101, `03/04` = c000201, `05/08` = c000301,
   `06/07` = c000401, y eso es justo col 6 + 1; botas y guantes tienen 4
   tallas, una por esqueleto (col 5 mod 4 + 1).
+- armadura/armadura_tex: si el crc32 de col 5 es un modelo de `_armd/` (las
+  armaduras de keshin: `c04003500_5100` lleva `ka002901`), el cuerpo es esa
+  armadura y no el uniforme (O-323); el uniforme de su version normal se queda
+  en su columna, pero ievr/g4.py usa la armadura.
 """
 import csv
 import os
@@ -55,6 +59,8 @@ SALIDA = os.path.join(RAIZ, "datos", "reglas-extraidas", "modelos-personaje.csv"
 CFG = "data/common/gamedata/character/"
 UNIFORMES = "data/common/chr/_uniform/"
 TEXTURAS = "data/dx11/chr/_uniform/"
+ARMADURAS = "data/common/chr/_armd/"
+TEX_ARMADURAS = "data/dx11/chr/_armd/"
 
 INDICE = {}            # el indice del juego, para rutas_de
 
@@ -113,6 +119,24 @@ def piezas_de_uniforme(indice):
             carpeta, nombre = r[len(TEXTURAS):-5].split("/", 1)
             texturas.setdefault(zlib.crc32(nombre.encode()), (carpeta, nombre))
     return modelos, texturas, {c: sorted(v) for c, v in por_carpeta.items()}
+
+
+def armaduras(indice):
+    """{crc32 del nombre: (carpeta/modelo, textura)} de los modelos de `_armd/` (O-323). La
+    textura: la `<carpeta>_10` de dx11/chr/_armd/<carpeta>/ (o la primera que haya)."""
+    texs = {}
+    for r in indice:
+        if r.startswith(TEX_ARMADURAS) and r.endswith(".g4tx") and r.count("/") == 5:
+            carpeta, nombre = r[len(TEX_ARMADURAS):-5].split("/", 1)
+            texs.setdefault(carpeta, []).append(nombre)
+    out = {}
+    for r in indice:
+        if r.startswith(ARMADURAS) and r.endswith(".g4md"):
+            carpeta, nombre = r[len(ARMADURAS):-5].split("/", 1)
+            t = sorted(texs.get(carpeta, []))
+            tex = carpeta + "_10" if carpeta + "_10" in t else (t[0] if t else "")
+            out.setdefault(zlib.crc32(nombre.encode()), (carpeta + "/" + nombre, tex))
+    return out
 
 
 def talla(carpeta, modelos, numero, ocho_tallas):
@@ -241,6 +265,7 @@ def main():
         cuerpo = {ent(c[0]): c for c in volcar(model_cfg, "CHARA_BODY_INFO_LIST") if len(c) > 6}
 
     mds, txs, por_carpeta = piezas_de_uniforme(indice)
+    armds = armaduras(indice)
     cuenta, filas, crcs, vistos = Counter(), {}, {}, {}
     for p in param:
         b = base.get(ent(p[1])) if len(p) > 1 else None
@@ -280,6 +305,10 @@ def main():
             fila[clave], fila[clave + "_tex"], propio = pieza(crcs[codigo][clave], numero, ocho, mds, txs,
                                                               por_carpeta, indice, cuenta)
             fila["_propio"] = fila["_propio"] or (propio and clave == "uniforme")
+        # con armadura de keshin el cuerpo es el modelo de _armd (O-323)
+        fila["armadura"], fila["armadura_tex"] = armds.get(crcs[codigo]["uniforme"] & 0xFFFFFFFF, ("", ""))
+        if fila["armadura"]:
+            cuenta["armadura de _armd como cuerpo"] += 1
         filas[codigo] = fila
     completar(filas, crcs, mds, txs, por_carpeta, indice, cuenta)
     for f in filas.values():
@@ -296,6 +325,7 @@ def main():
                  "# esqueleto y cara: relativos a common/chr/ (la textura de la cara en dx11/chr/).\n"
                  "# uniforme/botas/guantes: carpeta/modelo de common/chr/_uniform/ y su textura (misma carpeta\n"
                  "# de dx11/chr/_uniform/). anim: cuerpo cuyo banco de animaciones se usa. piel: RRGGBB.\n"
+                 "# armadura: carpeta/modelo de common/chr/_armd/ y su textura (el cuerpo con armadura, O-323).\n"
                  "# Lo genera herramientas/construir_modelos_personaje.py (O-293).\n")
         w = csv.DictWriter(fh, fieldnames=list(filas[0]))
         w.writeheader()
@@ -315,6 +345,8 @@ def rutas_de(fila):
     out = ["common/chr/" + fila["esqueleto"], md, "common/chr/%s.g4mg" % fila["cara"]]
     if fila["anim"]:
         out.append("common/chr/{0}/{0}_p020.g4pk".format(fila["anim"]))
+    if fila.get("armadura"):
+        return out + ["common/chr/_armd/%s.g4md" % fila["armadura"], "common/chr/_armd/%s.g4mg" % fila["armadura"]]
     for k in ("uniforme", "botas", "guantes"):
         if fila[k]:
             out += ["common/chr/_uniform/%s.g4md" % fila[k], "common/chr/_uniform/%s.g4mg" % fila[k]]

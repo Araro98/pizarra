@@ -44,7 +44,9 @@ body.partido .cabecera { display: none; }
 /* O-320: arriba, en los duelos y las animaciones, el 3D del Estudio (el WebGL de detras)
    bajo el HUD; lo demas de arriba (el mapa, la pantalla verde) lo tapa entero */
 #arriba.con-3d { background: transparent; }
-#abajo.con-campo { cursor: crosshair; touch-action: none; }
+/* (O-324: sin seleccionar texto: al arrastrar a un jugador se pintaban de azul la caja de
+   ayuda y los botones) */
+#abajo.con-campo { cursor: crosshair; touch-action: none; user-select: none; -webkit-user-select: none; }
 .gx-dom { position: absolute; left: 0; top: 0; width: 400px; height: 240px; pointer-events: none; overflow: hidden; }
 #abajo-dom { width: 320px; }
 .gx-dom .gx-control, .gx-dom .gx-elegir { pointer-events: auto; }
