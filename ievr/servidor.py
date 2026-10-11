@@ -1801,6 +1801,13 @@ class Manejador(BaseHTTPRequestHandler):
                 return self._responder(200, M3.estado())
             if u.path == "/api/figuras/tecnicas":
                 return self._responder(200, FI.tecnicas(uno("codigo")))
+            if u.path == "/api/figuras/fondos":
+                return self._responder(200, {"fondos": FI.fondos()})
+            if u.path.startswith("/api/figuras/fondo/"):
+                nombre = os.path.basename(unquote(u.path[len("/api/figuras/fondo/"):]))
+                mini = nombre.endswith("_mini.jpg")
+                ident = nombre[:-len("_mini.jpg")] if mini else nombre[:-len(".jpg")] if nombre.endswith(".jpg") else ""
+                return self._fichero(FI.fondo(ident, mini), "image/jpeg")
             if u.path == "/api/figuras/espiritus":
                 return self._responder(200, FI.espiritus(uno("codigo")))
             if u.path.startswith("/api/figuras/evento/"):

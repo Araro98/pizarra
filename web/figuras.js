@@ -25,7 +25,7 @@ const E = Object.assign({
   codigo: "c01000010", equipacion: "propia", diseno: "0", portero: false, dorsal: 10, conDorsal: true,
   capitan: false, pose: null, momento: 0.5, altura: 100, peana: true, grosor: true, suavizar: true, girar: false, gris: false,
   forma: "", formaDe: "", keshin: "", kesTam: 1.5, kesAltura: 0.8, kesDist: 0, kesAura: true,
-  efectos: true, balon: false, efectosDescarga: false, tecOtros: {}, ojos: null, boca: null,
+  efectos: true, balon: false, efectosDescarga: false, tecOtros: {}, ojos: null, boca: null, fondo: "pizarra", verPeana: true,
 }, leerGuardado());
 function leerGuardado() { try { return JSON.parse(localStorage.getItem(CLAVE) || "{}") || {}; } catch (e) { return {}; } }
 function guardar() { try { localStorage.setItem(CLAVE, JSON.stringify(E)); } catch (e) { /* sin almacen: da igual */ } }
@@ -117,12 +117,12 @@ function ajustarTamano() {
   render.setSize(r.width, r.height, false);
   camara.aspect = r.width / r.height;
   camara.updateProjectionMatrix();
-  pintarFondo(Math.min(2048, Math.round(r.width)), Math.min(2048, Math.round(r.height)));
+  ponerFondo();
 }
 // el fondo del escenario dentro del 3D (el mismo que el de la pagina: azul marino con la trama de
 // hexagonos y un foco): los efectos de VR que suman luz escriben la transparencia del lienzo y con
 // el fondo de la pagina detras salia negro. Asi tambien sale en la foto
-function pintarFondo(w, h) {
+function fondoPizarra(w, h) {
   const c = document.createElement("canvas"); c.width = w; c.height = h;
   const k = c.getContext("2d");
   const lin = k.createLinearGradient(0, 0, 0, h);
@@ -139,10 +139,84 @@ function pintarFondo(w, h) {
       k.lineTo(x - 38, y + 66); k.lineTo(x - 38, y + 22); k.closePath(); k.stroke();
     }
   }
-  if (escena.background && escena.background.dispose) escena.background.dispose();
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
-  escena.background = t;
+  return t;
+}
+// El fondo (Aaron: "que puedas cambiar el fondo o dejarlo sin fondo y que se guarde como png sin
+// fondo; fondos como escenarios del juego, campos..."): E.fondo = "pizarra", "transparente",
+// "color:#rrggbb" o "img:<id>" (los estadios, escenas y la ciudad del juego, ievr/figuras.py). Las
+// imagenes cubren el lienzo sin deformarse (como background-size: cover)
+let FONDO_PIZARRA = null, FONDO_IMG = new Map();
+function ponerFondo() {
+  const r = lienzo.getBoundingClientRect(), w = Math.max(1, Math.round(r.width)), h = Math.max(1, Math.round(r.height));
+  const f = E.fondo || "pizarra";
+  $("#escenario").classList.toggle("sin-fondo", f === "transparente");
+  render.setClearColor(0x000000, 0);
+  if (f === "transparente") { escena.background = null; return; }
+  if (f.startsWith("color:")) { escena.background = new THREE.Color(f.slice(6)); return; }
+  if (f.startsWith("img:")) {
+    const id = f.slice(4);
+    if (!FONDO_IMG.has(id)) FONDO_IMG.set(id, new Promise(ok => new THREE.TextureLoader().load("/api/figuras/fondo/" + encodeURIComponent(id) + ".jpg",
+      t => { t.colorSpace = THREE.SRGBColorSpace; ok(t); }, undefined, () => { FONDO_IMG.delete(id); ok(null); })));
+    FONDO_IMG.get(id).then(t => {
+      if ((E.fondo || "") !== f) return;
+      if (!t) { avisa("No se ha podido sacar ese fondo de tu juego.", "mal"); return; }
+      const ai = t.image.width / t.image.height, ac = w / h;
+      if (ac > ai) { t.repeat.set(1, ai / ac); t.offset.set(0, (1 - ai / ac) / 2); }
+      else { t.repeat.set(ac / ai, 1); t.offset.set((1 - ac / ai) / 2, 0); }
+      escena.background = t;
+    });
+    return;
+  }
+  if (FONDO_PIZARRA) FONDO_PIZARRA.dispose();
+  FONDO_PIZARRA = fondoPizarra(Math.min(2048, w), Math.min(2048, h));
+  escena.background = FONDO_PIZARRA;
+}
+// la ventana de los fondos: Pizarra, sin fondo, colores y los del juego (con su miniatura)
+let FONDOS = null;
+async function ventanaFondos() {
+  const ul = el("div", { class: "rejilla-fondos" });
+  const caja = el("div", { class: "modal fondos" }, [
+    el("div", { class: "cab" }, [el("h3", { text: "Fondo" }), el("p", { text: "Sin fondo, la foto se guarda como PNG transparente. Los del juego salen de tu instalación." })]),
+    ul,
+    el("div", { class: "pie" }, [
+      el("label", { class: "interruptor" }, [(() => { const c = el("input", { type: "checkbox" }); c.checked = E.verPeana !== false;
+        c.onchange = () => { E.verPeana = c.checked; guardar(); peana.visible = sombra.visible = c.checked; }; return c; })(),
+        el("span", { text: "Peana y sombra en la vista y la foto" })]),
+      el("button", { class: "btn", type: "button", text: "Cerrar", onclick: () => cerrar() })])]);
+  const fondo = el("div", { class: "fondo-modal", onclick: e => { if (e.target === fondo) cerrar(); } }, [caja]);
+  const antes = document.onkeydown;
+  function cerrar() { fondo.remove(); document.onkeydown = antes; }
+  document.onkeydown = e => { if (e.key === "Escape") cerrar(); };
+  const elegir = v => { E.fondo = v; guardar(); ponerFondo(); ul.querySelectorAll("[aria-pressed]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === v))); };
+  const ficha = (v, nombre, dentro) => el("button", { type: "button", class: "ficha-fondo", "data-v": v, "aria-pressed": String((E.fondo || "pizarra") === v),
+    onclick: () => elegir(v) }, [dentro, el("span", { text: nombre })]);
+  const seccion = t => ul.append(el("div", { class: "seccion-nav" }, [el("h4", { text: t })]));
+  seccion("Básicos");
+  const miniPizarra = fondoPizarra(320, 180).image;
+  ul.append(ficha("pizarra", "Pizarra", miniPizarra));
+  ul.append(ficha("transparente", "Sin fondo (PNG transparente)", el("div", { class: "cuadros" })));
+  for (const [c, n] of [["#ffffff", "Blanco"], ["#0f1d3d", "Azul noche"], ["#3fe0d0", "Cian"], ["#f08a1c", "Naranja"], ["#2a9a48", "Verde césped"], ["#111111", "Negro"]]) {
+    const m = el("div", { class: "color" }); m.style.background = c;
+    ul.append(ficha("color:" + c, n, m));
+  }
+  const elige = el("input", { type: "color", value: (E.fondo || "").startsWith("color:") ? E.fondo.slice(6) : "#8a5cff" });
+  elige.oninput = () => elegir("color:" + elige.value);
+  ul.append(el("label", { class: "ficha-fondo libre" }, [elige, el("span", { text: "Otro color..." })]));
+  document.body.append(fondo);
+  if (!FONDOS) {
+    const espera = el("div", { class: "vacio", text: "Buscando los fondos del juego..." });
+    ul.append(espera);
+    FONDOS = await pedir("/api/figuras/fondos").then(r => r.fondos).catch(() => []);
+    espera.remove();
+  }
+  let grupo = null;
+  for (const f of FONDOS) {
+    if (f.grupo !== grupo) { grupo = f.grupo; seccion(grupo); }
+    ul.append(ficha("img:" + f.id, f.nombre, el("img", { src: "/api/figuras/fondo/" + encodeURIComponent(f.id) + "_mini.jpg", alt: "", loading: "lazy" })));
+  }
+  if (!FONDOS.length) ul.append(el("div", { class: "vacio", text: "No se han encontrado fondos en tu juego." }));
 }
 new ResizeObserver(ajustarTamano).observe($("#escenario"));
 
@@ -1713,7 +1787,16 @@ $("#c-efectos-descarga").onchange = e => { E.efectosDescarga = e.target.checked;
 $("#b-girar").onclick = () => cambiar({ girar: !E.girar }, true);
 $("#b-gris").onclick = () => { E.gris = !E.gris; guardar(); aplicarGris(); };
 $("#b-centrar").onclick = encuadrar;
-$("#b-foto").onclick = () => { render.render(escena, camara); lienzo.toBlob(b => bajar(b, nombreFichero("png"), "Foto."), "image/png"); };
+// la foto: al doble de resolucion (sin fondo, con transparencia)
+$("#b-foto").onclick = () => {
+  const pr = render.getPixelRatio(), r = lienzo.getBoundingClientRect();
+  render.setPixelRatio(Math.min(4, pr * 2, 4096 / Math.max(1, r.width)));
+  render.setSize(r.width, r.height, false);
+  if (EVENTO) { camara.updateMatrixWorld(); ponerCamara(camara); }
+  render.render(escena, camara);
+  lienzo.toBlob(b => { render.setPixelRatio(pr); render.setSize(r.width, r.height, false); bajar(b, nombreFichero("png"), "Foto."); }, "image/png");
+};
+$("#b-fondo").onclick = ventanaFondos;
 $("#b-stl").onclick = e => conAviso(e.currentTarget, "Preparando la figura...", descargarSTL);
 $("#b-obj").onclick = e => conAviso(e.currentTarget, "Preparando...", descargarOBJ);
 $("#b-glb").onclick = e => conAviso(e.currentTarget, "Preparando...", descargarGLB);
@@ -1721,6 +1804,7 @@ $("#b-glb").onclick = e => conAviso(e.currentTarget, "Preparando...", descargarG
 // --------------------------------------------------------------------------- arranque
 (async function () {
   ajustarTamano();
+  peana.visible = sombra.visible = E.verPeana !== false;
   requestAnimationFrame(bucle);
   estado("Preparando el visor...", "");
   try {

@@ -686,3 +686,109 @@ def filas_extra():
 
 def sin_fila():
     return sorted(filas_extra())
+
+
+# --------------------------------------------------------------------------- los fondos
+# Aaron: "que puedas cambiar el fondo o dejarlo sin fondo (PNG sin fondo) ... fondos como escenarios
+# del juego, campos y cosas asi". Imagenes del juego (dx11/menu/220_img): los estadios (img_room_*:
+# dos vistas en una, desde arriba y a ras de campo), los fondos de las escenas de la historia
+# (ev_pic/back_ev*) y la ciudad (town_base_img). Se convierten la primera vez que se piden a
+# datos/modelos3d/fondos/ (JPEG, y una miniatura); no se reparten.
+_juego_menu = None
+_cerrojo_fondos = threading.Lock()
+GRUPOS_FONDO = [("stadium/img_room_", "Estadios"), ("ev_pic/back_ev", "Escenas de la historia"),
+                ("town_base_img/town_base_", "Ciudad")]
+
+
+def _menu():
+    global _juego_menu
+    if _juego_menu is None:
+        from ievr import g4, rutas
+        from ievr import modelos3d as M3
+        _juego_menu = g4.Juego(rutas.carpeta_del_juego(), os.path.join(M3.carpeta(), "indice_menu.json"),
+                               filtro=lambda r: r.startswith("data/dx11/menu/220_img/"), version=1)
+    return _juego_menu
+
+
+def fondos():
+    """[{id, grupo, nombre}] de los fondos del juego que trae este PC (los estadios, dos por imagen:
+    "_campo" a ras de campo y "_arriba" desde arriba)."""
+    def construir():
+        j = _menu()
+        fuera, n = [], {}
+        for ruta in sorted(j.ficheros):
+            for pref, grupo in GRUPOS_FONDO:
+                m = re.fullmatch(r"dx11/menu/220_img/%s([A-Za-z0-9_]+)\.g4tx" % re.escape(pref), ruta)
+                if not m or m.group(1).endswith("_roma"):
+                    continue
+                base = os.path.basename(ruta)[:-5]
+                n[grupo] = n.get(grupo, 0) + 1
+                if grupo == "Estadios":
+                    fuera.append({"id": base + "_campo", "grupo": "Estadios: a ras de campo", "nombre": "Estadio %d" % n[grupo]})
+                    fuera.append({"id": base + "_arriba", "grupo": "Estadios: desde arriba", "nombre": "Estadio %d" % n[grupo]})
+                else:
+                    fuera.append({"id": base, "grupo": grupo, "nombre": "%s %d" % (grupo, n[grupo])})
+        orden = ["Estadios: a ras de campo", "Estadios: desde arriba", "Escenas de la historia", "Ciudad"]
+        fuera.sort(key=lambda x: orden.index(x["grupo"]))
+        return fuera
+    from ievr import opciones as O
+    lista = O._indice("figuras_fondos", construir)
+    _miniaturas(lista)
+    return lista
+
+
+_hilo_minis = None
+
+
+def _miniaturas(lista):
+    """Las miniaturas de todos los fondos, en segundo plano y una vez (la ventana las pide segun
+    se ven; asi la segunda vez ya estan)."""
+    global _hilo_minis
+    if _hilo_minis is not None:
+        return
+
+    def trabajar():
+        for f in lista:
+            try:
+                fondo(f["id"], True)
+            except Exception:
+                pass
+    _hilo_minis = threading.Thread(target=trabajar, name="fondos", daemon=True)
+    _hilo_minis.start()
+
+
+def fondo(ident, mini=False):
+    """La ruta del JPEG de un fondo (o de su miniatura), convirtiendolo si hace falta."""
+    from ievr import g4
+    from PIL import Image
+    if not re.fullmatch(r"[A-Za-z0-9_]{1,60}", ident or "") or not any(f["id"] == ident for f in fondos()):
+        raise LookupError("no conozco ese fondo")
+    dest = os.path.join(_carpeta(), "..", "fondos")
+    ruta = os.path.abspath(os.path.join(dest, ident + ("_mini" if mini else "") + ".jpg"))
+    if os.path.isfile(ruta):
+        return ruta
+    with _cerrojo_fondos:
+        if os.path.isfile(ruta):
+            return ruta
+        base, parte = ident, None
+        m = re.fullmatch(r"(img_room_\w+?)_(campo|arriba)", ident)
+        if m:
+            base, parte = m.groups()
+        j = _menu()
+        fichero = next(r for r in j.ficheros if r.endswith("/" + base + ".g4tx"))
+        _nombre, dds = g4.leer_g4tx(j.leer(fichero))[0]
+        im = g4.dds_a_imagen(dds).convert("RGB")
+        if parte and im.height > im.width:       # las dos vistas, una encima de otra (1920 x 2164)
+            mitad = im.height // 2
+            im = im.crop((0, 0, im.width, mitad)) if parte == "arriba" else im.crop((0, im.height - mitad, im.width, im.height))
+        os.makedirs(os.path.abspath(dest), exist_ok=True)
+        if im.width > 2560:
+            im = im.resize((2560, round(im.height * 2560 / im.width)), Image.LANCZOS)
+        grande = os.path.abspath(os.path.join(dest, ident + ".jpg"))
+        im.save(grande + ".tmp", "JPEG", quality=90)
+        os.replace(grande + ".tmp", grande)
+        p = im.resize((320, round(im.height * 320 / im.width)), Image.LANCZOS)
+        chico = os.path.abspath(os.path.join(dest, ident + "_mini.jpg"))
+        p.save(chico + ".tmp", "JPEG", quality=82)
+        os.replace(chico + ".tmp", chico)
+    return ruta

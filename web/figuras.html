@@ -120,6 +120,21 @@
   .descargas .dos-btn { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
   .descargas .dos-btn .btn { font-size:var(--t-md); padding:7px 8px; }
 
+  /* sin fondo: cuadros detras, para ver lo transparente */
+  .escenario.sin-fondo { background:repeating-conic-gradient(#d9e2ee 0 25%, #f4f7fb 0 50%) 0 0 / 24px 24px; }
+  /* la ventana de los fondos */
+  .modal.fondos { width:min(860px,100%); max-height:min(86vh,860px); }
+  .rejilla-fondos { overflow:auto; flex:1 1 auto; min-height:0; padding:10px 14px; display:grid; gap:10px;
+    grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); align-content:start; }
+  .rejilla-fondos .seccion-nav { grid-column:1 / -1; margin:6px 0 0; }
+  .ficha-fondo { display:flex; flex-direction:column; gap:4px; padding:4px; border:2px solid var(--linea); border-radius:8px;
+    background:#fff; cursor:pointer; font:inherit; font-size:var(--t-xs); font-weight:700; color:var(--tinta); text-align:center; }
+  .ficha-fondo:hover { border-color:var(--cian); }
+  .ficha-fondo[aria-pressed="true"] { border-color:var(--naranja); box-shadow:0 0 0 2px rgba(240,138,28,.35); }
+  .ficha-fondo > img, .ficha-fondo > canvas, .ficha-fondo > div { width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:5px;
+    background:#dfe9f5; display:block; }
+  .ficha-fondo .cuadros { background:repeating-conic-gradient(#d9e2ee 0 25%, #f4f7fb 0 50%) 0 0 / 16px 16px; }
+  .ficha-fondo.libre input { width:100%; aspect-ratio:16/9; height:auto; border:none; padding:0; background:none; cursor:pointer; }
   /* las caras (ojos y boca) de la hoja del modelo */
   .caras { flex:1; display:grid; grid-template-columns:repeat(4,1fr); gap:4px; }
   .caras button { padding:0; border:2px solid var(--linea); border-radius:6px; background:#f1c39b; cursor:pointer; overflow:hidden; line-height:0; }
@@ -195,6 +210,7 @@
         <button class="btn chico" id="b-girar" title="La figura gira sola">Girar sola</button>
         <button class="btn chico" id="b-gris" title="Verla sin colores, como saldrá de la impresora">Como impresa</button>
         <button class="btn chico" id="b-centrar" title="Volver a la vista de frente">De frente</button>
+        <button class="btn chico" id="b-fondo" title="Cambiar el fondo o dejarlo sin fondo">Fondo</button>
         <button class="btn chico" id="b-foto" title="Guardar una imagen de lo que se ve">Foto</button>
         <span class="ayuda">Arrastra para girar · rueda para acercar · botón derecho para mover</span>
       </div>

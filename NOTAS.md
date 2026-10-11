@@ -11213,6 +11213,18 @@ depende de partido-pruebas.txt) y sin tocar la partida. En el codigo los cambios
   fuego (4). El STL de Mark chutando: 111.856 triangulos, 54 x 99 x 106 mm, mirado de frente y de
   lado (construccion/ver_stl.py); el GLB vuelto a abrir con three.js sale con sus colores.
 - Sin hacer: el nombre de la espalda (O-334: "de momento sin el nombre").
+- Vuelta 3 (2026-10-11): el fondo. Aaron: "que puedas cambiar el fondo o dejarlo sin fondo y que se
+  guarde como png sin fondo... fondos como escenarios del juego, campos". Boton "Fondo": Pizarra (el
+  de siempre), sin fondo (cuadros detras; la foto sale en PNG con transparencia), colores (y uno
+  libre) y los del juego, de dx11/menu/220_img: los 95 estadios (img_room_*: dos vistas de 1920x1082
+  una encima de otra, a ras de campo y desde arriba: 190 fondos), 43 fondos de escenas de la historia
+  (ev_pic/back_ev*) y 12 de la ciudad (town_base_img). Se convierten la primera vez a
+  datos/modelos3d/fondos/ (JPEG de hasta 2560 y miniatura de 320, que se preparan solas en segundo
+  plano); /api/figuras/fondos y /api/figuras/fondo/<id>[_mini].jpg. Sin nombre: no se encontro la
+  tabla que dice como se llama cada estadio (map_text tiene los nombres pero no con que codigo
+  s22g001 van; map_data es de Yo-kai Watch 4), asi que se eligen por su miniatura. La imagen cubre el
+  escenario sin deformarse. La foto sale al doble de resolucion. Interruptor para quitar la peana y la
+  sombra de la vista y la foto (la descarga para imprimir la sigue llevando si esta marcada).
 - Vuelta 2 (2026-10-11, lo que pidio Aaron tras publicar la 2026.10.11):
   1. "No va la ropa base de Destin Billows". Las ropas unicas de un personaje (u11010010...) no
      traen piel aparte ni dorsal y sobre el esqueleto comun les faltan huesos suyos: con la de
