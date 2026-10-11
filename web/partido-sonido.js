@@ -37,6 +37,8 @@ const Sonido = {
   // un pitido de silbato: tono alto con un temblor rapido
   silbato(veces = 1, largo = 0.32) {
     if (!this._listo()) return;
+    // los de VR si estan (O-343)
+    if (typeof SonidosVR !== "undefined" && SonidosVR.silbato && SonidosVR.silbato(veces, largo)) return;
     const c = this.ctx;
     for (let k = 0; k < veces; k++) {
       const t0 = c.currentTime + k * (largo + 0.12);
@@ -56,6 +58,7 @@ const Sonido = {
   // la patada: un golpe sordo y un chasquido; fuerte para los tiros
   patada(fuerte) {
     if (!this._listo()) return;
+    if (typeof SonidosVR !== "undefined" && SonidosVR.patada && SonidosVR.patada(fuerte)) return;
     const c = this.ctx, t0 = c.currentTime;
     const o = c.createOscillator(), g = c.createGain();
     o.type = "sine"; o.frequency.setValueAtTime(fuerte ? 150 : 190, t0);
@@ -80,9 +83,61 @@ const Sonido = {
     });
   },
 
+  // el choque de los nombres de las dos tecnicas (O-336): el chisporroteo de los rayos y un golpe
+  // seco al chocar, a `impacto` s
+  choque(impacto = 0.9) {
+    if (!this._listo()) return;
+    const c = this.ctx, t0 = c.currentTime, ti = t0 + Math.max(0.1, impacto);
+    const r = this._ruido(Math.max(0.1, impacto) + 0.2), f = c.createBiquadFilter(), g = c.createGain();
+    f.type = "bandpass"; f.frequency.value = 3200; f.Q.value = 0.8;
+    g.gain.setValueAtTime(0.001, t0); g.gain.linearRampToValueAtTime(0.08, t0 + 0.08);
+    g.gain.setValueAtTime(0.08, ti - 0.05); g.gain.exponentialRampToValueAtTime(0.001, ti + 0.15);
+    r.connect(f); f.connect(g); g.connect(c.destination); r.start(t0);
+    const o = c.createOscillator(), go = c.createGain();
+    o.type = "sawtooth"; o.frequency.setValueAtTime(220, ti); o.frequency.exponentialRampToValueAtTime(60, ti + 0.25);
+    go.gain.setValueAtTime(0.001, t0); go.gain.setValueAtTime(0.22, ti); go.gain.exponentialRampToValueAtTime(0.001, ti + 0.3);
+    o.connect(go); go.connect(c.destination); o.start(ti); o.stop(ti + 0.32);
+  },
+
+  // el pase ya va a salir bombeado (O-341: al mantener pulsado lo justo): un "tin" que sube
+  bombeado() {
+    if (!this._listo()) return;
+    const c = this.ctx, t0 = c.currentTime, o = c.createOscillator(), g = c.createGain();
+    o.type = "triangle"; o.frequency.setValueAtTime(880, t0); o.frequency.exponentialRampToValueAtTime(1760, t0 + 0.09);
+    g.gain.setValueAtTime(0.001, t0); g.gain.linearRampToValueAtTime(0.07, t0 + 0.015); g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.16);
+    o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0 + 0.17);
+  },
+
+  // el Doble (n 2) o el Triple (n 3) de los apoyos de un duelo (O-342): n notas que suben
+  apoyo(n = 2) {
+    if (!this._listo()) return;
+    const c = this.ctx;
+    [660, 880, 1320].slice(0, Math.max(2, Math.min(3, n))).forEach((fr, k) => {
+      const t0 = c.currentTime + k * 0.08, o = c.createOscillator(), g = c.createGain();
+      o.type = "triangle"; o.frequency.value = fr;
+      g.gain.setValueAtTime(0.001, t0); g.gain.linearRampToValueAtTime(0.08, t0 + 0.012); g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.22);
+      o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0 + 0.23);
+    });
+  },
+
+  // la disputa aerea (O-341): los dos que chocan en el aire, un golpe sordo y el roce
+  disputa() {
+    if (!this._listo()) return;
+    const c = this.ctx, t0 = c.currentTime + 0.25;
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = "sine"; o.frequency.setValueAtTime(120, t0); o.frequency.exponentialRampToValueAtTime(48, t0 + 0.18);
+    g.gain.setValueAtTime(0.001, c.currentTime); g.gain.setValueAtTime(0.32, t0); g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.2);
+    o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0 + 0.22);
+    const r = this._ruido(0.12), f = c.createBiquadFilter(), gr = c.createGain();
+    f.type = "bandpass"; f.frequency.value = 1300; f.Q.value = 0.7;
+    gr.gain.setValueAtTime(0.001, c.currentTime); gr.gain.setValueAtTime(0.07, t0); gr.gain.exponentialRampToValueAtTime(0.001, t0 + 0.12);
+    r.connect(f); f.connect(gr); gr.connect(c.destination); r.start(t0);
+  },
+
   // el publico: un rugido que sube y se apaga
   gol(mio) {
     if (!this._listo()) return;
+    if (typeof SonidosVR !== "undefined" && SonidosVR.gol && SonidosVR.gol(mio)) return;
     const c = this.ctx, t0 = c.currentTime, largo = mio ? 2.6 : 1.6;
     const r = this._ruido(largo), f = c.createBiquadFilter(), g = c.createGain();
     f.type = "bandpass"; f.frequency.value = 900; f.Q.value = 0.6;
@@ -95,6 +150,10 @@ const Sonido = {
   // lo que ha cambiado desde el cuadro anterior
   mirar(p, yo) {
     if (!p) return;
+    // las voces de VR (O-339): las de las animaciones y las jugadas, en su momento
+    if (typeof Voces !== "undefined" && Voces.mirar) Voces.mirar(p);
+    // y los efectos de sonido de VR (O-343): los de las animaciones y los del partido
+    if (typeof SonidosVR !== "undefined" && SonidosVR.mirar) SonidosVR.mirar(p);
     const b = p.balon, pase = b.pase ? b.pase.a + ":" + b.pase.destino.x + ":" + b.pase.destino.y : "";
     const ahora = { fase: p.fase, mitad: p.mitad, goles: p.goles[0] + p.goles[1], pase,
                     duelo: p.duelo ? p.duelo.id + ":" + p.duelo.tipo : "", resultado: p.resultado, tanda: !!p.tanda };
@@ -126,7 +185,8 @@ const Sonido = {
       else if (ahora.fase === "final") this.silbato(3, 0.3);
       // el silbato del saque: al salir de su espera (Jugar) y al empezar la 2.ª
       // parte. Tras el gol ya no: de ahi se va a la espera del saque (O-308)
-      else if (a.fase === "descanso" || a.fase === "saque") setTimeout(() => this.silbato(1), 150);
+      // (no al pararse para ver una invocacion en la espera del saque, O-337)
+      else if ((a.fase === "descanso" || a.fase === "saque") && ahora.fase !== "invocando") setTimeout(() => this.silbato(1), 150);
     }
   },
 };

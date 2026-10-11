@@ -16,6 +16,18 @@
      la supertactica, los cambios (el panel CAMBIOS), el descanso y el final.
    - El tiro que viaja (O-325): cada etapa (chute, muro, cadena, portero) tiene su plan y,
      entre una y otra, el balon de verdad vuela por el campo con su estela y su placa.
+   - El duelo (O-336): el plan solo trae la animacion del que gana (antes, a veces la del que
+     perdia antes del resultado); con tecnica los dos, antes el choque de los nombres arriba.
+   - La espera de la animacion de VR (O-329): si la del tramo existe pero aun no esta lista en
+     este PC (Escenas pone esperaVR), el plan y la invocacion de arriba se quedan donde estan
+     (con `retenerVR`; el invitado no, que su plan lo marca la foto) y partido.js para el motor.
+   - La invocacion con el juego parado (O-337): con el motor en "invocando", su plan como el de un
+     resultado (REGLAS.planAnim): arriba la animacion de cada una (la de VR de su espiritu), una
+     detras de otra, y abajo negro con su rotulo, como una supertecnica. Sin animaciones, sobre el
+     mapa con el juego andando, como antes.
+   - Abajo no se sabe quien gana antes de tiempo (O-344): hasta que sale lo del que gana, el balon
+     y quien lo lleva como antes del duelo (estado.abajo.lleva; el motor ya lo ha resuelto), y el
+     clip del defensa que se queda el tiro, al volver el juego (estado.abajo.bloquea).
    Su reloj es Director.ahora (sustituible: las capturas y las pruebas lo paran). */
 "use strict";
 
@@ -37,6 +49,11 @@ const DIRECTOR = {
   // las familias de hipertecnica con su rotulo al invocar (REGLAS.HIPER_TIPOS[].rotulo)
   invocaciones: ["invoca", "armadura", "miximax", "totem", "despertar", "modo", "vinculo"],
   trasGol: 0.45,                  // lo que se oscurece el campo con Repetir / Reanudar (b48)
+  // la disputa aerea en el campo de abajo (O-341), en partes del tramo: el balon entre sus
+  // cabezas (de alto[0] a alto[1], del suelo, en la escala de las figuras) hasta `cabezas` (el
+  // salto de VR y la pelea: 1,13 de 2,3 s) y en `cae` mas a los pies del que gana (o adonde lo
+  // despeja de cabeza), `delante` m delante del sitio (el clip de VR lo deja ahi y luego se va con el)
+  aerea: { cabezas: 0.49, cae: 0.22, alto: [4.8, 4.0], delante: 1.3 },
 };
 
 const Director = {
@@ -45,6 +62,13 @@ const Director = {
   yo: 0,
   ahora: () => (typeof performance !== "undefined" ? performance.now() : Date.now()),
   sonidos: [],                // los ultimos que ha mandado sonar (para las pruebas)
+  // O-329: la animacion de VR de este cuadro aun no esta (lo dice Escenas); con retenerVR el
+  // plan se para mientras (partido.js lo quita en el invitado). esperaPlan: es la de un
+  // resultado (partido.js para tambien el motor; la de una invocacion sobre el mapa no, que el
+  // juego sigue debajo)
+  esperaVR: false,
+  esperaPlan: false,
+  retenerVR: true,
   _s: null,
 
   reiniciar(o = {}) {
@@ -53,7 +77,10 @@ const Director = {
     this.estado = {
       arriba: { modo: "mapa", fundido: 0, blanco: 0, tramo: null, invoca: null, escena: null, plan: null },
       abajo: { modo: "campo", fundido: 0, oscuro: 0, botones: true, anillos: null, balonAnim: null, ocultarBalon: false, placa: null,
-               posiciones: null, camara: null, tactil: true, trasGol: false, video: false, esconde: false, repetir: false, estela: null },
+               posiciones: null, camara: null, tactil: true, trasGol: false, video: false, esconde: false, repetir: false, estela: null, aerea: null,
+               // O-344: quien se ve con el balon (undefined: el del motor; null: nadie; o su id) y el
+               // defensa que hace el clip de quedarse el tiro ({id, k})
+               lleva: undefined, bloquea: null },
       rotulos: [], programa: [], goles: [0, 0],
     };
     this._s = {
@@ -67,6 +94,7 @@ const Director = {
     };
     this.fichaGrande = false;
     this.sonidos = [];
+    this.esperaVR = false; this.esperaPlan = false;
     return this.estado;
   },
 
@@ -74,6 +102,12 @@ const Director = {
   tick(p) {
     if (!this._s) this.reiniciar();
     const S = this._s, e = this.estado, t = this.ahora() / 1000;
+    // esperando a la animacion de VR (O-329): el plan y la invocacion no corren
+    if (this.esperaVR && this.retenerVR && S.t !== null && t > S.t) {
+      const dt = t - S.t;
+      if (S.res) S.res.t0 += dt;
+      if (S.invoca) S.invoca.pausa = (S.invoca.pausa || 0) + dt;
+    }
     S.t = t;
     if (!p) return e;
     if (S.p !== p) this._nuevo(p);
@@ -180,6 +214,27 @@ const Director = {
     this.estado.abajo.balonAnim = b;
     return b;
   },
+  // el balon de la disputa aerea abajo (O-341; k 0..1 del tramo): entre sus cabezas, bajando
+  // poco a poco, y luego al balon del motor (a los pies del que gana o adonde lo despeja)
+  _balonAerea(p, ae, k) {
+    const b = this._s.bAnim, A = DIRECTOR.aerea;
+    if (k < A.cabezas) { b.x = ae.x; b.y = ae.y; b.h = A.alto[0] + (A.alto[1] - A.alto[0]) * k / A.cabezas; }
+    else if (ae.cabeza) {
+      // de cabeza, por arriba adonde lo despeja
+      const u = Math.min(1, (k - A.cabezas) / A.cae);
+      b.x = ae.x + (p.balon.x - ae.x) * u; b.y = ae.y + (p.balon.y - ae.y) * u;
+      b.h = A.alto[1] + (0.35 - A.alto[1]) * u * u + Math.sin(Math.PI * u) * 2;
+    } else {
+      // cae delante de el (como el hueso del balon del clip de VR) y se va con el cuando corre
+      // (la segunda mitad, como su figura): al final, a sus pies (el balon del motor)
+      const u = Math.min(1, (k - A.cabezas) / A.cae), kg = (k - A.cabezas) / (1 - A.cabezas);
+      const f = Math.max(0, Math.min(1, (kg - 0.5) / 0.5)), sf = f * f * (3 - 2 * f), x1 = ae.x, y1 = ae.y + (ae.dir || 1) * A.delante;
+      b.x = ae.x + (x1 - ae.x) * u + (p.balon.x - x1) * sf; b.y = ae.y + (y1 - ae.y) * u + (p.balon.y - y1) * sf;
+      b.h = A.alto[1] + (0.35 - A.alto[1]) * u * u;
+    }
+    this.estado.abajo.balonAnim = b;
+    return b;
+  },
 
   // --- lo que mira en el motor --------------------------------------------------------
   // un duelo nuevo: desde ahora su entrada (los anillos, el corte de arriba, la barra)
@@ -242,7 +297,9 @@ const Director = {
       // la vaselina que pasa por encima de un rival con el tiro en vuelo (O-325): sobre el
       if (que === "porEncima") { S.sueltos.push(Object.assign(this._rotulo("porEncima", ro), { de: t, x: ro.x, y: ro.y })); continue; }
       if (DIRECTOR.invocaciones.includes(que)) {
-        // la invocacion: el rotulo encima del juego y, arriba, el espiritu sobre el mapa
+        // la invocacion: el rotulo encima del juego y, arriba, el espiritu sobre el mapa. Con el
+        // juego parado (vi) la ensena su plan, con su rotulo (O-337)
+        if (ro.vi) continue;
         S.sueltos.push(Object.assign(this._rotulo(que, ro), { de: t }));
         const nombre = String(ro.sub || "").split(" · ")[0];
         // por su id (O-327: con un modo, al llegar aqui ya se llama como su forma)
@@ -280,7 +337,7 @@ const Director = {
   // un resultado nuevo: su plan; sin resultado nuevo en una espera (banda, corner,
   // puerta, la tanda), el plan chico. Y la sincronia con la espera del motor
   _mirarResultado(p, t) {
-    const S = this._s, enRes = p.fase === "resultado" || p.fase === "gol";
+    const S = this._s, enRes = p.fase === "resultado" || p.fase === "gol" || p.fase === "invocando";
     if (!enRes) {
       if (S.res && S.res.motor) {
         // el motor ya ha salido: lo que queda se acaba enseguida (online llega a saltos)
@@ -290,18 +347,25 @@ const Director = {
       S.faseRes = false; S.chico = null;
       return;
     }
-    const r = p.resultado, k = r ? (r.k !== undefined ? r.k : p.nResultado) : null;
-    if (r && k !== S.kVisto) {
-      S.kVisto = k; S.chico = null;
+    // (la invocacion que se ve con el juego parado: su plan, con su propia k, O-337; la del
+    // resultado no cambia: una espera chica despues no repite el resultado de antes)
+    const vi = p.fase === "invocando" && p.invocando ? p.invocando : null;
+    const r = vi || p.resultado, k = vi ? "i" + vi.k : r ? (r.k !== undefined ? r.k : p.nResultado) : null;
+    if (r && k !== (vi ? S.kInvVisto : S.kVisto)) {
+      if (vi) S.kInvVisto = k; else S.kVisto = k;
+      S.chico = null;
       this._empezarPlan(p, t, r, k);
     } else if (S.chico && (!S.res || S.res.chicoN !== S.chico.n)) {
       this._empezarChico(p, t, S.chico);
     }
     S.faseRes = true;
     const R = S.res;
-    if (R && R.motor) {
+    if (R && R.motor && !(this.esperaVR && this.retenerVR)) {
       const esperado = R.total - p.espera, local = t - R.t0;
-      if (Math.abs(local - esperado) > DIRECTOR.sincronia) R.t0 = t - esperado;
+      // (por delante del motor, se queda a `sincronia` s: el anfitrion puede estar esperando a una
+      // animacion de VR con el motor parado y el invitado repetia el mismo trozo, O-329)
+      if (local > esperado + DIRECTOR.sincronia) R.t0 = t - esperado - DIRECTOR.sincronia;
+      else if (Math.abs(local - esperado) > DIRECTOR.sincronia) R.t0 = t - esperado;
     }
   },
 
@@ -356,7 +420,8 @@ const Director = {
     A.modo = p.fase === "descanso" ? "descanso" : p.fase === "final" ? "final" : this.fichaGrande ? "ficha" : "mapa";
     A.fundido = 0; A.blanco = 0; A.tramo = null; A.invoca = null; A.escena = null; A.plan = null;
     B.modo = "campo"; B.fundido = 0; B.oscuro = 0; B.botones = true; B.anillos = null; B.balonAnim = null; B.ocultarBalon = false;
-    B.placa = null; B.posiciones = null; B.camara = null; B.tactil = true; B.trasGol = false; B.video = false; B.esconde = false; B.repetir = false; B.estela = null;
+    B.placa = null; B.posiciones = null; B.camara = null; B.tactil = true; B.trasGol = false; B.video = false; B.esconde = false; B.repetir = false; B.estela = null; B.aerea = null;
+    B.lleva = undefined; B.bloquea = null;
     e.goles[0] = p.goles[0]; e.goles[1] = p.goles[1];
     e.rotulos.length = 0; e.programa.length = 0;
     // la entrada del duelo: los anillos (desde el duelo, aunque ya se haya elegido)
@@ -365,6 +430,15 @@ const Director = {
     if (p.fase === "duelo" && du && p.duelo && p.duelo.id === du.id) {
       B.botones = tDu >= E.botones;
       if (tDu >= E.corte) { A.modo = "duelo"; A.tramo = this._tramoDuelo(du, tDu); }
+    }
+    // el Doble o el Triple de los apoyos (O-342): suena una vez, cuando sale arriba su rotulo
+    // (HUD_DUELO.apoyos.doble s despues de las fichas; la entrada dura mas con el, REGLAS.APOYO_ENTRADA)
+    const HA = typeof HUD_DUELO !== "undefined" ? HUD_DUELO.apoyos : null;
+    const seVe = p.fase === "duelo" || !!(S.res && S.res.tramo && S.res.tramo.que === "entrada");
+    if (du && !du.tiro && HA && seVe && !du.doble && tDu >= E.fichas + HA.doble && tDu < E.fichas + HA.doble + 0.5) {
+      const ap = du.obj && du.obj.base && du.obj.base.apoyos;
+      du.doble = ap ? Math.max(0, ...Object.values(ap).map(x => (x && x.doble) || 0)) || -1 : -1;
+      if (du.doble > 0) this._sonar("apoyo", du.doble);
     }
     // el plan del resultado
     let R = S.res;
@@ -403,7 +477,7 @@ const Director = {
     if (S.seq) this._secuencia(p, t, S.seq);
     // la invocacion sobre el mapa, sin parar el juego (6.5 p)
     if (S.invoca) {
-      const ti = t - S.invoca.t0, dura = S.invoca.dura || DIRECTOR.invoca;
+      const ti = t - S.invoca.t0 - (S.invoca.pausa || 0), dura = S.invoca.dura || DIRECTOR.invoca;
       if (ti >= dura || p.fase === "duelo" || S.seq || p.fase === "final") S.invoca = null;
       else if (!R && A.modo === "mapa") {
         A.invoca = S.invoca;
@@ -436,6 +510,8 @@ const Director = {
       const v = Es.componer(p, A, this.yo);
       if (v && v.hay) A.escena = v;
     }
+    this.esperaVR = !!(A.escena && A.escena.esperaVR);
+    this.esperaPlan = this.esperaVR && !!R && A.tramo === R.tramo;
     this._cola(p, t, !!R || !!S.seq);
   },
   // Escenas (partido-escenas.js, un modulo que llega despues), si hay un Mundo con su Estudio
@@ -477,7 +553,7 @@ const Director = {
     const tr = R.tramo;
     tr.que = q.que; tr.t = tt; tr.dura = dura; tr.q = q; tr.k = k; tr.tp = tp;
     const ant = k > 0 ? ts[k - 1] : null;
-    const negroAbajo = x => x && (x.que === "tecnica" || x.que === "hiper" || (x.que === "sinTecnica" && x.sub !== "foco") || x.que === "transicion" || x.que === "negroTiro" || x.que === "destello");
+    const negroAbajo = x => x && (x.que === "tecnica" || x.que === "hiper" || x.que === "invoca" || ((x.que === "sinTecnica" || x.que === "fallo") && x.sub !== "foco") || x.que === "transicion" || x.que === "negroTiro" || x.que === "destello" || x.que === "pasa");
     // los rotulos del plan, para las pruebas y para quien quiera ver lo que viene
     for (const x of ts) { const r = this._rotuloPlan(p, R, x); if (r) e.programa.push(r); }
     const sale = r => { if (r) { r.t = tt; e.rotulos.push(r); } };
@@ -493,7 +569,8 @@ const Director = {
       case "transicion": {
         // desde el campo (tras el vuelo, el bloqueo, por encima) arriba se funde el mapa; si
         // no, la escena de antes (t04, t09)
-        const delCampo = ant && (ant.que === "vuelo" || ant.que === "bloqueo" || ant.que === "porEncima" || ant.que === "fueraTiro");
+        // (y antes de la invocacion con el juego parado, el mapa: O-337)
+        const delCampo = (ant && (ant.que === "vuelo" || ant.que === "bloqueo" || ant.que === "porEncima" || ant.que === "fueraTiro")) || (R.r && R.r.tipo === "invocacion");
         if (!delCampo) { A.modo = "anim"; A.tramo = tr; }
         const f = Math.min(1, tt / 0.067);
         A.fundido = f; B.fundido = f;
@@ -501,15 +578,50 @@ const Director = {
         break;
       }
       case "tecnica": case "hiper": A.modo = "anim"; A.tramo = tr; B.modo = "negro"; break;
+      // O-337: la invocacion con el juego parado: arriba su animacion (la de VR de su espiritu) y
+      // abajo negro con su rotulo, como una supertecnica. El tramo lleva quien y cual (Escenas,
+      // HudDuelo y las voces la miran como la de sobre el mapa); con las cortas, su final
+      case "invoca":
+        A.modo = "anim"; A.tramo = tr; B.modo = "negro";
+        tr.jugador = q.jugador; tr.familia = q.familia; tr.t0 = "v" + q.id;
+        tr.cortas = !!(R.corto || (R.r && R.r.anim && R.r.anim.modo === "cortas"));
+        sale(this._rotuloPlan(p, R, q));
+        break;
       case "sinTecnica": A.modo = "anim"; A.tramo = tr; if (q.sub !== "foco") B.modo = "negro"; break;
+      // O-336: el choque de los nombres arriba (abajo el campo, como en CS) y la accion normal del
+      // que gana con "Fallo" (como sin tecnica)
+      case "nombres": A.modo = "anim"; A.tramo = tr; if (negroAbajo(ant)) B.modo = "negro"; break;
+      case "fallo": A.modo = "anim"; A.tramo = tr; if (q.sub !== "foco") B.modo = "negro"; break;
+      // O-344: el balon que pasa al muro que no lo para (arriba; abajo negro, como su tecnica)
+      case "pasa": A.modo = "anim"; A.tramo = tr; B.modo = "negro"; break;
       case "fijar": A.modo = "anim"; A.tramo = tr; if (negroAbajo(ant)) B.modo = "negro"; break;
       case "vuelta": {
         const m = dura / 2;
-        if (tt < m) { A.modo = "anim"; A.tramo = tr; A.fundido = B.fundido = tt / m; if (negroAbajo(ant)) B.modo = "negro"; }
+        // (tras la invocacion con el juego parado, negro: su animacion ya acaba en negro, O-337)
+        if (tt < m) { A.modo = R.r && R.r.tipo === "invocacion" ? "negro" : "anim"; A.tramo = tr; A.fundido = B.fundido = tt / m; if (negroAbajo(ant)) B.modo = "negro"; }
         else { A.fundido = B.fundido = Math.max(0, 1 - (tt - m) / m); }
+        // el defensa que para el tiro del todo hace su clip de quedarse el balon al volver el juego
+        // (O-344; antes, con el "¡Bloqueo!", ya se sabia que ganaba)
+        if (R.r && R.r.tipo === "tiro" && R.r.final === "bloqueado") {
+          const pm = (R.r.pasos || []).find(s => s.contra !== undefined && s.contra !== null);
+          if (pm) B.bloquea = { id: pm.quien, k: R.k };
+        }
         break;
       }
       case "negroTiro": A.modo = "negro"; B.modo = "negro"; break;
+      // la disputa aerea (O-341): arriba los dos que saltan y pelean (Escenas) y abajo lo mismo en
+      // el campo (partido-3d.js mira estado.abajo.aerea), con el balon entre sus cabezas hasta
+      // que cae al que gana, y la camara en ellos
+      case "aerea": {
+        A.modo = "anim"; A.tramo = tr;
+        const r = R.r || {}, ae = S.aerea || (S.aerea = {});
+        ae.gana = q.jugador; ae.pierde = q.pierde; ae.der = r.der; ae.dir = r.dir || 1; ae.cabeza = !!r.cabeza; ae.t = tt; ae.dura = dura;
+        ae.x = typeof r.x === "number" ? r.x : p.balon.x; ae.y = typeof r.y === "number" ? r.y : p.balon.y;
+        B.aerea = ae;
+        this._balonAerea(p, ae, Math.min(1, tt / dura));
+        B.ocultarBalon = true; S.cam.x = ae.x; S.cam.y = ae.y; B.camara = S.cam;
+        break;
+      }
       case "vuelo": {
         A.fundido = B.fundido = Math.max(0, 1 - tt / 0.1);
         const v = this._vuelo(p, R, q, Math.min(1, tt / dura));
@@ -523,8 +635,9 @@ const Director = {
         // t07: a +270 ms el campo se oscurece (2 f) y a +1700 se aclara
         const f = tt / dura;
         B.oscuro = f < 0.16 ? 0 : f < 0.2 ? (f - 0.16) / 0.04 * 0.5 : f < 0.98 ? 0.5 : 0.5 * (1 - (f - 0.98) / 0.02);
-        const m = p.jugadores[q.jugador];
-        if (m) { this._balonEn(m.x, m.y, m.x, m.y, 0, 0); B.ocultarBalon = true; S.cam.x = m.x; S.cam.y = m.y; B.camara = S.cam; }
+        // (el balon donde le llega, si el motor lo dice: O-344)
+        const m = p.jugadores[q.jugador], bq = R.r && R.r.bloqueo, bx = bq ? bq.x : m && m.x, by = bq ? bq.y : m && m.y;
+        if (m) { this._balonEn(bx, by, bx, by, 0, 0); B.ocultarBalon = true; S.cam.x = bx; S.cam.y = by; B.camara = S.cam; }
         sale(this._rotuloPlan(p, R, q));
         break;
       }
@@ -571,6 +684,61 @@ const Director = {
         break;
       }
     }
+    this._antesDelDuelo(p, R, q, tt, dura);
+  },
+
+  // O-344 (Aaron, O-336: "que antes haya como un choque de los nombres de las tecnicas y se quede solo
+  // con la que gana"): el motor resuelve el duelo al elegir y el que gana ya lleva el balon; hasta que
+  // sale lo suyo, abajo el balon y quien lo lleva (su nombre, su aro, la ficha de arriba) como antes
+  // del duelo: en un foco, el que ataca (en la entrada, el choque y los nombres); en el muro y el
+  // portero, nadie (el balon donde llega); en la disputa aerea, nadie hasta que cae al que gana
+  _antesDelDuelo(p, R, q, tt, dura) {
+    const r = R.r, B = this.estado.abajo;
+    if (!r || !q) return;
+    // el penalti (O-344, vuelta 1): el motor lo resuelve al elegir (el portero ya tiene el balon o el
+    // balon ya esta en la red); hasta lo del portero (la carrera, la tecnica del que chuta y sus
+    // transiciones), el balon en el punto de penalti y nadie con el
+    if (r.tipo === "penalti") {
+      const ts = R.plan.tramos, k = ts.indexOf(q), kP = ts.findIndex(x => x.paso === 1 || x.que === "entraPenalti"), tir = p.jugadores[r.tirador];
+      if (tir && k >= 0 && kP >= 0 && k < kP) {
+        const g = p.porteriaRival ? p.porteriaRival(tir) : { y: REGLAS.LARGO / 2 * (tir.dir || 1) }, y = g.y - (tir.dir || 1) * 11;
+        B.lleva = null; this._balonEn(0, y, 0, y, 0, 0); B.ocultarBalon = true;
+      }
+      return;
+    }
+    // en los primeros cuadros de la transicion, con el campo aun abajo, lo mismo que en el tramo de antes
+    // (O-344, vuelta 1: tras "¡Bloqueo!", los nombres o la entrada se veia ya al que gana con el balon,
+    // su aro y su ficha arriba); tras "¡Bloqueo!", la camara aun en el balon
+    if (q.que === "transicion") {
+      const ts = R.plan.tramos, k = ts.indexOf(q), ant = k > 0 ? ts[k - 1] : null;
+      if (!ant || ant.que === "transicion") return;
+      if (ant.que === "bloqueo") B.camara = this._s.cam;
+      return this._antesDelDuelo(p, R, ant, ant.a - ant.de, ant.a - ant.de);
+    }
+    const foco = r.tipo === "foco" || r.tipo === "disputa" || r.tipo === "falta";
+    if (foco && (q.que === "entrada" || q.que === "choque" || q.que === "nombres")) {
+      const a = p.jugadores[r.atacante];
+      if (!a) return;
+      const y = a.y + (a.dir || 1) * 0.7;
+      B.lleva = a.id; this._balonEn(a.x, y, a.x, y, 0, 0); B.ocultarBalon = true;
+    } else if (q.que === "bloqueo") {
+      B.lleva = null;
+      // (el balon donde le llega, como en su tramo: tambien en la transicion de despues, O-344 vuelta 1)
+      const m = p.jugadores[q.jugador], bq = r.bloqueo;
+      if (m) { const x = bq ? bq.x : m.x, y = bq ? bq.y : m.y; this._balonEn(x, y, x, y, 0, 0); B.ocultarBalon = true; }
+    } else if (q.que === "aerea" && tt < dura * DIRECTOR.aerea.cabezas) B.lleva = null;
+    else if (q.que === "entrada" && r.tipo === "tiro" && (r.etapa === "muro" || r.etapa === "portero")) {
+      const ps = r.pasos || [], d = p.jugadores[(ps[ps.length - 1] || {}).quien], bq = r.bloqueo;
+      if (!d) return;
+      const x = bq ? bq.x : d.x, y = bq ? bq.y : d.y + (d.dir || 1) * 1.2;
+      B.lleva = null; this._balonEn(x, y, x, y, 0, 0); B.ocultarBalon = true;
+    }
+  },
+  // quien se ve con el balon (O-344): el del motor o, hasta que sale lo del que gana, el de antes
+  lleva(p) {
+    const ll = this.estado && this.estado.abajo ? this.estado.abajo.lleva : undefined;
+    if (ll === undefined) return p && p.dueno ? p.dueno() : null;
+    return ll === null || !p ? null : p.jugadores[ll] || null;
   },
 
   // al empezar un tramo: los sonidos que van con el (6.7). El del tiro, al salir el balon
@@ -582,6 +750,9 @@ const Director = {
     else if (r && r.tipo === "penalti" && i > 0 && ts[i - 1].que === "prepara") this._sonar("patada", true);
     else if (q.que === "falta") this._sonar("silbato", 1, 0.4);
     else if (q.que === "fueraJuego") this._sonar("silbato", 1, 0.22);
+    else if (q.que === "aerea") this._sonar("disputa");     // O-341
+    // el choque de los nombres: los rayos y el golpe al chocar (O-336)
+    else if (q.que === "nombres") { const N = typeof HUD_DUELO !== "undefined" ? HUD_DUELO.nombres : null; this._sonar("choque", N ? N.choque * (q.a - q.de) / N.nominal : 0.9); }
     else if (q.que === "gol" && r) { const tir = p.jugadores[r.tirador]; this._sonar("gol", !tir || tir.lado === this.yo); }
     else if (q.que === "tandaRotulo" && r && r.final === "gol") { const tir = p.jugadores[r.tirador]; this._sonar("gol", !tir || tir.lado === this.yo); }
   },
@@ -746,6 +917,11 @@ const Director = {
     else if (q.que === "penaltiRotulo") ro = Object.assign(this._rotulo("penalti"), { sub: "Para " + (p.nombres[J(r.atacante).lado] || "") });
     else if (q.que === "fueraJuego") ro = Object.assign(this._rotulo("fuera"), { sub: J(r.quien).nombre || "" });
     else if (q.que === "chico") ro = this._rotulo(q.rotulo, q.ro);
+    else if (q.que === "invoca") {
+      // (O-337: con su nombre de siempre, aunque ya este en su forma)
+      const j = J(q.jugador), n = (j.propio && j.propio.nombre) || j.nombre || "";
+      ro = Object.assign(this._rotulo(q.familia), { lado: j.lado === 0 || j.lado === 1 ? j.lado : null, sub: n + (j.espiritu ? " · " + j.espiritu.nombre : "") });
+    }
     if (ro) { ro.de = q.de; ro.a = q.a; ro.dura = q.a - q.de; }
     R.rot[i] = ro;
     return ro;

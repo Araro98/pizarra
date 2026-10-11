@@ -20,12 +20,17 @@
    O-323); sin ellos (un modelo de antes) se usan los 4 de siempre movidos a mano.
    - Las animaciones REALES de VR (O-323): cada supertecnica, la ★ y cada invocacion con su
      evento de VR (partido-eventosvr.js: sus cortes, su camara, sus efectos y sus modelos), si
-     este PC ya lo ha convertido; si no (o si no llega a tiempo), la plantilla de siempre.
+     este PC lo ha convertido; si no, la plantilla de siempre. O-329: todo se convierte y se
+     prepara en la pantalla de carga (partido-carga.js; aqui avancePrecarga), las de cada duelo
+     se leen al empezar el duelo y una que existe nunca cambia por la plantilla: si al empezar
+     su tramo aun no esta, el plan espera (esperaVR: negro y el indicador) hasta que este.
    Este modulo no toca window ni document al cargarse. */
 import * as THREE from "./partido-three.module.js";
 import { clone as clonarModelo } from "./partido-SkeletonUtils.js";
-import { ANIM, ANIM_VR, modeloDe } from "./partido-3d.js";
+import { ANIM, ANIM_VR, modeloDe, vestidoDe, ficherosDe, accionesAerea } from "./partido-3d.js";
 import { EventoVR } from "./partido-eventosvr.js";
+import { EVENTO_VR } from "./partido-eventosvr.js";
+import { BrilloVR } from "./partido-sombrasvr.js";
 
 // los actores a x1,45 (los planos de la guia 7.2 se estimaron asi; abajo van a x2,2,
 // diseno 5.2). Todo se mide en H, el alto de cada actor hasta lo alto de la cabeza sin
@@ -35,15 +40,131 @@ import { EventoVR } from "./partido-eventosvr.js";
 // actores (uno por id). El que chuta, arriba nunca a menos de `tiroLejos` m de la porteria
 // (salvo en el penalti): si no, la camara de delante y el balon en vuelo atraviesan la red
 export const ESTUDIO = { escala: 1.45, alto: 2.45, cabeza: 0.82, max: 22, particulas: 512, estela: 24, balon: 0.62, separacion: 1.15, aspecto: 400 / 240, tiroLejos: 18 };
-// las animaciones REALES de VR (O-323). gracia: los s del tramo que se espera a que este
-// cargada (mientras, el primer plano de la plantilla: la cara o el negro); luego ya no se
-// cambia en ese tramo. guardar: cuantas se quedan cargadas (la que se ve y las siguientes).
-// rapido: con las cortas se ven sus ultimos cortes (el golpe, la parada) a como mucho esa
-// velocidad. Donde va: en el sitio del que la hace, mirando a la porteria que ataca; el que
-// chuta a `lejos` m de la porteria como poco (como la plantilla) y los de campo a `margen`
-// m de las bandas y del fondo (si no, la camara de VR acaba dentro de las gradas).
-// consulta: cada cuantos ms se pregunta al servidor como va su cola
-export const VR_EV = { gracia: 0.6, guardar: 3, rapido: 1.6, lejos: 18, margen: { banda: 9, fondo: 6 }, consulta: 3000 };
+// la disputa aerea (O-341): los dos hombro con hombro, a `aerea` altos uno del otro
+ESTUDIO.aerea = 0.34;
+// las animaciones REALES de VR (O-323). guardar: cuantas se quedan cargadas ademas de las
+// fijas (la que se ve, las del plan y las candidatas del duelo; O-329). rapido: con las
+// cortas (o si se ha esperado y queda poco tramo) se ven sus ultimos cortes (el golpe, la
+// parada) a como mucho esa velocidad. Donde va: en el sitio del que la hace, mirando a la
+// porteria que ataca; el que chuta a `lejos` m de la porteria como poco (como la plantilla) y
+// los de campo a `margen` m de las bandas y del fondo (si no, la camara de VR acaba dentro de
+// las gradas). consulta: cada cuantos ms se pregunta al servidor como va su cola.
+// O-329: una que existe nunca cambia por la plantilla: si no esta lista al empezar su tramo,
+// el plan espera (y el motor, partido.js) hasta `esperaMax` s (luego se da por mala). Se leen
+// `aLaVez` a la vez. Las fijas (las que en el partido no tendrian tiempo de leerse: la
+// invocacion, la parada y la cadena; y todas las de un solo actor, que ya se sabe con quien
+// salen) se quedan cargadas desde la pantalla de carga, hasta `fijasMB` MB (memoriaDe: casi lo
+// que crece el heap). Medido en O-329 (Gorodos contra Marineros): con los 99 modelos, 560 MB de
+// heap y 300 de grafica; con las 156 fijas, 1.775 y 713; con TODO, 2.425 y 900. Con 450, unas 60
+// (los espiritus, los porteros y tiros de los 22): ~1.050 y ~470
+export const VR_EV = { guardar: 12, rapido: 1.6, lejos: 18, margen: { banda: 9, fondo: 6 }, consulta: 3000, esperaMax: 12, aLaVez: 2, fijasMB: 450 };
+// O-336, vuelta 1: en VR el que hace la tecnica no siempre es s00. En estos bloqueos (de 2
+// jugadores; el evento sin _1/_2) s00 es el que llega con el balon y s01 el que la hace (El muro:
+// s00 conduce hacia s01, que levanta la roca; antes se veia hacer la roca al que chutaba). Sale de
+// los eventos del juego: en los cortes que solo tiene el de fallo (_2: el tiro rompe el bloqueo)
+// sale solo el que bloquea, y en estos es s01 (scratchpad juego/arreglar1/fallo_quien.py; de los 38
+// bloqueos con fallo, 10). Mirado cuadro a cuadro en los 6 de la partida de pruebas (El muro y Corte
+// giratorio, s01; Embestida, Superpeonza, Coleccionista de cartas y Gravedad grave, s00) y en 7
+// defensas de los focos (todas s00). En las demas, s00 como siempre
+// O-332: el rotulo de VR con el nombre (telop_waza: el de cada tecnica y espiritu, convertido en
+// eventos/_rotulos/<nombre>.png) dentro de su animacion de VR, como en VR (common/menu/00_soccer/
+// soccer10/soccer10_01: una lamina de 1728x352 en una pantalla de 1920x1080, centrada y con su
+// centro a 780 de arriba; aqui de lo mismo de alto de la pantalla de arriba). Sale cuando lo dice el
+// guion (escena.json rotulos: ini y fin en fotogramas del evento) con su entrada (10 fotogramas a 30
+// por segundo: de 2,5 veces a su tamano y de transparente a entero) y se va con su salida (10 a 60
+// por segundo: a la mitad y transparente). Medido contra el video de Tornado de fuego de VR: sale a
+// 1,27 s (fotograma 76), a 1,49 s aun 1,09 veces, a 1,54 s 1,02, quieto hasta 2,95 s (fotograma
+// 177), a 3,01 s 0,94 y a 3,12 s ya no esta (scratchpad juego/rotulo-aura/medir_telop.py)
+export const ROTULO_VR = {
+  ancho: 1728 / 1080, alto: 352 / 1080, y: 780 / 1080, raiz: "/api/partido/evento/_rotulos/",
+  entra: { fps: 30, escala: [2.5, 2.218, 1.915, 1.623, 1.374, 1.2, 1.099, 1.04, 1.01, 1.001, 1], alfa: [0, 0.027, 0.106, 0.216, 0.353, 0.5, 0.647, 0.784, 0.894, 0.973, 1] },
+  sale: { fps: 60, escala: [1, 0.996, 0.983, 0.957, 0.914, 0.85, 0.777, 0.7075, 0.638, 0.569, 0.5], alfa: [1, 0.973, 0.894, 0.784, 0.647, 0.5, 0.353, 0.216, 0.106, 0.027, 0] },
+};
+// el rotulo en el instante t (s del evento): {escala, alfa} o null. ini/fin en s; desde: donde
+// empezo a verse la animacion (con las cortas, si empieza despues de que salga, sale ahi); si fin
+// es el final del evento, no se va
+export function estadoRotuloVR(t, ini, fin, desde = 0) {
+  const R = ROTULO_VR, a = Math.max(ini, desde || 0);
+  const curva = (c, k) => { const x = Math.max(0, Math.min(c.length - 1, k)), i = Math.min(c.length - 2, Math.floor(x)); return c[i] + (c[i + 1] - c[i]) * (x - i); };
+  if (t < a) return null;
+  if (t >= fin && fin > a) {
+    const k = (t - fin) * R.sale.fps;
+    return k >= R.sale.escala.length - 1 ? null : { escala: curva(R.sale.escala, k), alfa: curva(R.sale.alfa, k) };
+  }
+  const k = (t - a) * R.entra.fps;
+  return { escala: curva(R.entra.escala, k), alfa: curva(R.entra.alfa, k) };
+}
+// el fichero de un rotulo del guion (escena.json rotulos[].rotulo): tal cual; <CHARA_ID> solo, el
+// keshin o alma que pone el juego (en la armadura su nombre); en las tecnicas de alma
+// (whd01400_<CHARA_ID>) con el codigo del alma; los del mixi max, el modo y el despertar, el de su
+// espiritu (eventos-espiritus.csv rotulo); info: la de la animacion (rotulo, asignado, espiritu)
+export function nombreRotuloVR(r, info) {
+  if (!r) return "";
+  if (!r.includes("<")) return r;
+  const a = (info && info.asignado) || "";
+  if (r === "<CHARA_ID>") return a || (info && info.rotulo) || "";
+  if (!(info && info.espiritu) && a && !r.replace("<CHARA_ID>", "").includes("<")) return r.replace("<CHARA_ID>", a);
+  return (info && info.rotulo) || "";
+}
+export const VR_HACE_S01 = new Set([
+  "ev62_00010", "ev62_00130", "ev62_00280", "ev62_00500", "ev62_00640", "ev62_01040",
+  "ev62_01060", "ev62_01100", "ev62_01130", "ev62_01140"
+]);
+// el actor que hace la tecnica del evento `evento` de VR (s00 o s01)
+export function vrHace(evento) { return VR_HACE_S01.has(String(evento || "").replace(/_[12]$/, "")) ? "s01" : "s00"; }
+// O-345: quien es cada jugador de un evento de VR (eventos-tecnicas.csv roles, "s00=h0 s01=r0": h0
+// el que la hace, h1.. sus companeros, r0 el rival, r1.. los otros rivales; el mismo dos veces, una
+// copia del jugador) -> [[clave, rol]...] por clave, o null si la tabla no lo trae (VR_HACE_S01 era
+// lo mismo para 10 bloqueos: El muro "s00=r0 s01=h0")
+// O-345 (Aaron: "las animaciones que no son sacadas del juego, se ven raras, habria que intentar
+// pulirlas o buscar si pueden salir del juego"): las jugadas sin supertecnica salen con las de VR, los
+// eventos ev71 del partido de VR (ievr/g4evento.EVENTOS_JUGADAS; mirados uno a uno en la carpeta de
+// trabajo, juego/animjuego), donde los usa VR (sus voces van en su guion, O-339):
+// - tiro: el chute sin tecnica por lo que eligio (Tirar 20010 y 20020, Vaselina 21010, Volea 22010,
+//   Testarazo 23010); s00 el que chuta. Tambien el chute normal que gana a un portero o muro con tecnica
+// - portero: la parada sin tecnica (Parar 30010 de frente, 30030 y 30050 tirandose a un lado y al otro;
+//   Despejar 30020, 30040 y 30060; cual, por el valor del resultado) y, contra una supertecnica, las de VR del portero que para un tiro
+//   con poder (Parar 31010..31090, Despejar 31110: el poder sale del color del elemento del tiro); s00
+//   el portero
+// - muro: el que bloquea el tiro con el cuerpo (33050); s00 el que bloquea
+// - foco: el duelo sin tecnica, s00 el que lleva el balon y s01 el que defiende; _1 gana el del balon
+//   (Regatear), _2 el que defiende, por lo que hace el que defiende (Tapar 32010: se le tira delante;
+//   Entrada 32020; Cargar 32060; sin saberse, 32030); el que rompe (Romper) y gana, 40010
+// - el gol: el balon que entra en la red (00010..00040; con supertecnica, el de su elemento
+//   00050..00054: el morado sin elemento) y la celebracion del que marca (las 16 de
+//   soccer_performance_config, la misma siempre para cada jugador)
+export const JUGADAS_VR = {
+  tiro: { Tirar: ["ev71_20010", "ev71_20020"], Vaselina: ["ev71_21010"], Volea: ["ev71_22010"], Testarazo: ["ev71_23010"] },
+  portero: { Parar: ["ev71_30010", "ev71_30030", "ev71_30050"], Despejar: ["ev71_30020", "ev71_30040", "ev71_30060"] },
+  // (O-345, vuelta 1: el que encaja sin tecnica, la suya en la que se tira a un lado, cortada antes de
+  // que le llegue el balon: REGLAS.CORTE_ENCAJA)
+  encaja: { Parar: ["ev71_30030", "ev71_30050"], Despejar: ["ev71_30040", "ev71_30060"] },
+  poder: { Parar: ["ev71_31010", "ev71_31030", "ev71_31050", "ev71_31070", "ev71_31090"], Despejar: ["ev71_31110"] },
+  muro: "ev71_33050",
+  foco: { Tapar: "ev71_32010", Entrada: "ev71_32020", Cargar: "ev71_32060", "": "ev71_32030" }, rompe: "ev71_40010",
+  red: ["ev71_00010", "ev71_00020", "ev71_00030", "ev71_00040"],
+  redElemento: { Viento: "ev71_00050", Bosque: "ev71_00051", Fuego: "ev71_00052", Montana: "ev71_00053", "": "ev71_00054" },
+  fiestas: ["ev71_10010", "ev71_10020", "ev71_10030", "ev71_10040", "ev71_10050", "ev71_10060", "ev71_10080", "ev71_10090",
+    "ev71_10100", "ev71_10110", "ev71_10120", "ev71_10130", "ev71_10140", "ev71_10150", "ev71_10160", "ev71_10170"],
+  // O-343: la que solo es de su tipo (el 14: Harper Evans), sin el no sale
+  fiestasSuyas: ["ev71_10070"],
+  // el gol (s del tramo con las completas, como HudDuelo._gol): el balon en la red (de 0,1 a 2,4) y la
+  // escena con la celebracion (de 3,73 a 6,6)
+  // O-345, vuelta 1: la de VR entera (duran de 3,3 a 4,7 s y se cortaban a los 2,87), como mucho
+  // hasta `fiestaMax` (a los 7,8 s sale la repeticion en el mapa: HudDuelo y el Director)
+  gol: { red: [0.1, 2.4], fiesta: [3.73, 6.6], fiestaMax: 7.75 },
+  // (las que acaban con el jugador fuera de su camara: hasta ahi, s. Mirado en las 17 con sus huesos
+  // dentro de la camara, scratchpad juego/aa1/contacto.mjs: solo 10110, que se va corriendo a los 2,8)
+  finFiesta: { ev71_10110: 2.85 },
+};
+// uno de una lista por un numero (el mismo en los dos PCs)
+const deLista = (l, n) => l[((Math.round(n || 0) % l.length) + l.length) % l.length];
+// el numero de una cara (para que cada uno celebre siempre igual)
+const numeroDe = s => { let h = 0; for (const c of String(s || "")) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
+export function rolesVR(txt) {
+  const out = String(txt || "").split(/\s+/).map(x => x.split("=")).filter(x => x.length === 2 && /^s\d\d$/.test(x[0]) && /^[hr]\d+$/.test(x[1]));
+  return out.length ? out.sort((a, b) => (a[0] < b[0] ? -1 : 1)) : null;
+}
 
 // --- las plantillas (diseno 6.6; guia 10) ------------------------------------------------
 // Un plano: de-a en s de la duracion nominal de su plantilla (dura). cam: en el marco de
@@ -125,20 +246,81 @@ function conEspiritu(base, dura = 5.0) {
     de: r(SILUETA.a + (q.de - d0) * k), a: r(SILUETA.a + (q.a - d0) * k), blanco: q.blanco ? q.blanco * k : 0, silueta: [0.55, 0.55] }))) };
 }
 
+// la accion normal del que gana (O-336): se acercan corriendo y luego lo suyo, en el lateral
+function normal(yo, otro, balon) {
+  const cam = { en: "medio", d: [1.75, 0.5, 0.3], h: [0, 0.45, 0], fov: 40 };
+  // (O-345: 2,0 s, lo del "fallo" con la jugada de VR, REGLAS.ANIM)
+  return { dura: 2.0, planos: [
+    { de: 0, a: 0.45, nombre: "acerca", cam, yo: { clip: "correr", avance: [-0.25, 0] }, otro: { clip: "correr", avance: [-0.2, 0] }, balon: balon === "roba" ? "otro" : "pie", fondo: "estadio" },
+    { de: 0.45, a: 2.0, nombre: "gana", cam: Object.assign({}, cam, { d2: [1.95, 0.55, 0.45] }), yo, otro, balon, fondo: "estadio", rayas: 0.3 },
+  ] };
+}
+
+// la disputa aerea (O-341; Aaron: "hacen como una pequena animacion peleando por el balon"): los
+// dos hombro con hombro mirando hacia donde ataca el que gana (yo), con los clips de VR de cada
+// lado de la pareja (ANIM_AEREA; sin ellos, el salto a mano): saltan a por el balon (入, 0,33 s),
+// pelean (L) con el balon entre sus cabezas y el que gana se va con el (保持, 1,17 s) o lo despeja
+// de cabeza (ヘディングパス) y el otro cae (失敗). g: el lado del que gana ("Der" o "Izq"). La
+// camara, delante de los dos y algo de lado; los clips a su tiempo (nominal: el del plano)
+function aerea(g, cabeza) {
+  const o = g === "Der" ? "Izq" : "Der", s = g === "Der" ? 1 : -1;
+  // la camara, delante de la pareja (en: "par") y del lado del que gana (el otro no lo tapa); al
+  // ganar sigue al que se va con el balon. El que gana se va hacia delante y el que pierde se aparta
+  // a su lado y atras: lo que en VR hace la raiz de sus clips (保持 1,77 m; 失敗 0,65 m y 0,4 m),
+  // que el conversor no trae (sin avance), en altos
+  const cam = { en: "par", d: [s * 0.42, 0.62, 2.25], h: [0, 0.78, 0.15], fov: 40 };
+  return { dura: 2.3, planos: [
+    { de: 0, a: 0.33, nombre: "salta", cam, yo: { clip: "parado", vr: "aereaEntra" + g, salto: [0, 0.3], nominal: 0.33 },
+      otro: { clip: "parado", vr: "aereaEntra" + o, salto: [0, 0.28], nominal: 0.33 }, balon: "aerea0", fondo: "estadio" },
+    { de: 0.33, a: 1.13, nombre: "pelea", cam: Object.assign({}, cam, { d2: [s * 0.36, 0.66, 2.05] }), yo: { clip: "parado", vr: "aereaLucha" + g, salto: [0.3, 0.32], nominal: 0.8 },
+      otro: { clip: "parado", vr: "aereaLucha" + o, salto: [0.28, 0.3], nominal: 0.8 }, balon: "aerea1", fondo: "estadio", rayas: 0.35 },
+    { de: 1.13, a: 2.3, nombre: cabeza ? "cabeza" : "gana", cam: { en: "par", d: [s * 0.36, 0.66, 2.05], h: [0, 0.78, 0.15], fov: 40, d2: [s * 0.6, 0.78, 3.0], h2: [0, 0.66, cabeza ? 0.4 : 0.75] },
+      yo: { clip: cabeza ? "parado" : "correr", vr: (cabeza ? "aereaCabeza" : "aereaGana") + g, salto: [0.32, 0], nominal: 1.17, avance: cabeza ? null : [0, 1.05, 0.5] },
+      otro: { clip: "parado", vr: "aereaPierde" + o, salto: [0.3, 0], pierde: [0.1, 0.6], nominal: 1.17, aparta: [-s * 0.38, -0.24] }, balon: "aerea2", fondo: "estadio" },
+  ] };
+}
+
 export const PLANTILLAS = {
+  "aerea.Der": aerea("Der"), "aerea.Izq": aerea("Izq"), "aerea.Der.cabeza": aerea("Der", true), "aerea.Izq.cabeza": aerea("Izq", true),
   tiro: BASE.tiro, regate: BASE.regate, defensa: BASE.defensa, bloqueo: BASE.bloqueo, parada: BASE.parada,
   "espiritu.tiro": conEspiritu(BASE.tiro), "espiritu.regate": conEspiritu(BASE.regate), "espiritu.defensa": conEspiritu(BASE.defensa),
   "espiritu.bloqueo": conEspiritu(BASE.bloqueo), "espiritu.parada": conEspiritu(BASE.parada),
   // sin supertecnica (diseno 6.5 g y l): el choque de los dos en el plano lateral y las
   // cifras rodando; la patada del tirador; el muro que salta; el portero que la para
-  "sin.foco": { dura: 1.4, planos: [{ de: 0, a: 1.4, nombre: "choque", cam: { en: "medio", d: [1.65, 0.48, 0.3], h: [0, 0.45, -0.05], fov: 38 },
+  // (O-345: si este PC no tiene la jugada de VR; duran lo de VR, REGLAS.ANIM sinTecnica)
+  "sin.foco": { dura: 2.0, planos: [{ de: 0, a: 2.0, nombre: "choque", cam: { en: "medio", d: [1.65, 0.48, 0.3], h: [0, 0.45, -0.05], fov: 38 },
     yo: { clip: "correr", avance: [0, 0.42], pierde: [0.43, 0.9] }, otro: { clip: "correr", avance: [0, 0.42], pierde: [0.43, 0.9] }, balon: "pie", rayas: 0.4, fondo: "estadio" }] },
-  "sin.tiro": { dura: 1.2, planos: [{ de: 0, a: 1.2, nombre: "patada", cam: { en: "yo", d: [0.62, 0.28, 1.45], h: [0, 0.48, 0.2], fov: 42 },
+  "sin.tiro": { dura: 2.0, planos: [{ de: 0, a: 2.0, nombre: "patada", cam: { en: "yo", d: [0.62, 0.28, 1.45], h: [0, 0.48, 0.2], fov: 42 },
     yo: { clips: [["parado", 0], ["tiro", 0.25]] }, balon: "golpe", estela: true, fondo: "estadio" }] },
-  "sin.muro": { dura: 1.2, planos: [{ de: 0, a: 1.2, nombre: "salta", cam: { en: "yo", d: [0.9, 0.38, 1.6], h: [0, 0.5, 0.3], fov: 44 },
+  "sin.muro": { dura: 1.1, planos: [{ de: 0, a: 1.1, nombre: "salta", cam: { en: "yo", d: [0.9, 0.38, 1.6], h: [0, 0.5, 0.3], fov: 44 },
     yo: { clip: "parado", vr: "salto", salto: [0, 0.3] }, balon: "cuerpo", estela: true, fondo: "estadio" }] },
-  "sin.portero": { dura: 1.4, planos: [{ de: 0, a: 1.4, nombre: "para", cam: { en: "yo", d: [0.72, 0.45, 2.2], h: [0, 0.55, 0.5], fov: 44 },
+  // O-345, vuelta 1: el portero que encaja (sin la de VR en este PC, o tras su tecnica que no para): con
+  // el clip de VR del que no llega (戦1GKキャッチミス前1, ANIM_VR encaja) y el balon que le pasa (antes,
+  // de pie con la pose de parar mientras entraba)
+  "encaja.portero": { dura: 1.0, planos: [{ de: 0, a: 1.0, nombre: "encaja", cam: { en: "yo", d: [0.72, 0.45, 2.2], h: [0, 0.55, 0.5], fov: 44 },
+    yo: { clip: "parado", vr: "encaja" }, balon: "manos", estela: true, fondo: "estadio" }] },
+  "sin.portero": { dura: 1.7, planos: [{ de: 0, a: 1.7, nombre: "para", cam: { en: "yo", d: [0.72, 0.45, 2.2], h: [0, 0.55, 0.5], fov: 44 },
     yo: { clip: "parado", vr: "parar" }, balon: "manos", estela: true, fondo: "estadio" }] },
+  // O-344: el balon que pasa al muro que no lo para (Aaron: "que se vea que el tiro sigue"): de lado,
+  // llega por delante y le pasa junto a el a media altura con su estela y su elemento, y sigue
+  "pasa.muro": { dura: 1.0, planos: [{ de: 0, a: 1.0, nombre: "pasa", cam: { en: "yo", d: [-2.1, 0.55, 0.45], h: [0, 0.45, 0.1], fov: 46, d2: [-2.0, 0.5, 0.05], h2: [0, 0.42, -0.4] },
+    yo: { clip: "parado", vr: "aturdido" }, balon: "pasa", estela: true, particulas: "balon", fondo: "estadio", rayas: 0.6 }] },
+  // O-336: el choque de los nombres (los nombres los pinta HudDuelo): los dos quietos frente a
+  // frente en el lateral del duelo (Chrono Stones 29:48), o el que defiende (el muro, el portero)
+  // ante el tiro
+  nombres: { dura: 2.2, planos: [{ de: 0, a: 2.2, nombre: "nombres", cam: { en: "medio", d: [1.65, 0.48, 0.3], h: [0, 0.45, -0.05], fov: 38, d2: [1.55, 0.46, 0.3] },
+    yo: { clip: "parado" }, otro: { clip: "parado" }, balon: "duelo", fondo: "estadio", rayas: 0.2 }] },
+  "nombres.tiro": { dura: 2.2, planos: [{ de: 0, a: 2.2, nombre: "nombres", cam: { en: "yo", d: [0.6, 0.5, 2.5], h: [0, 0.45, 0], fov: 40, d2: [0.55, 0.48, 2.3] },
+    yo: { clip: "parado" }, fondo: "estadio", rayas: 0.2 }] },
+  // O-336: la accion normal del que gana a una tecnica (Aaron: "que se vea como le roba el balon
+  // o le regatea mientras ponga fallo"), por lo que eligio (yo, el que gana; otro, el que pierde):
+  // se acercan y le regatea (rodea) o se lanza a por el balon y se lo quita (roba), con los clips
+  // de VR de los duelos si su modelo los trae (ANIM_VR; van sin su avance: el avance, a mano)
+  "normal.Regatear": normal({ clip: "correr", vr: "regateGana", rodea: true }, { clip: "parado", vr: "robarPierde", avance: [0, -0.15] }, "pie"),
+  "normal.Romper": normal({ clip: "correr", vr: "romperGana", rodea: true }, { clip: "parado", vr: "robarPierde", avance: [0, -0.15] }, "pie"),
+  "normal.Tapar": normal({ clip: "correr", vr: "robarGana", avance: [0, 0.45] }, { clip: "correr", vr: "regatePierde", avance: [0, 0.05], pierde: [0.35, 0.8] }, "roba"),
+  "normal.Entrada": normal({ clips: [["correr", 0], ["patada", 0.3]], vr: "entrada", avance: [0, 0.55] }, { clip: "correr", vr: "regatePierde", avance: [0, 0], pierde: [0.35, 0.75] }, "roba"),
+  "normal.Cargar": normal({ clip: "correr", vr: "cargarGana", avance: [0, 0.5] }, { clip: "correr", vr: "cargarPierde", avance: [0, -0.25], pierde: [0.35, 0.8] }, "roba"),
   // el choque de un foco (8.4, t06): en el plano lateral corren el uno hacia el otro
   choque: { dura: 1.4, planos: [{ de: 0, a: 1.4, nombre: "choque", cam: { en: "medio", d: [1.65, 0.48, 0.3], h: [0, 0.45, -0.05], fov: 38 },
     yo: { clip: "correr", avance: [0, 0.42] }, otro: { clip: "correr", avance: [0, 0.42] }, balon: "pie", fondo: "estadio" }] },
@@ -206,7 +388,7 @@ const PARTICULAS = { Fuego: 0, Viento: 1, Bosque: 2, Montana: 3 };
 // lo que deja ver la escena de antes (el fundido, la vuelta, el destello) o sigue detras
 // (las cifras que se fijan: t05 +4700)
 const VER_ANTES = new Set(["transicion", "vuelta", "destello", "fijar"]);
-const ESCENAS = new Set(["choque", "prepara", "tecnica", "hiper", "sinTecnica", "entraPenalti"]);
+const ESCENAS = new Set(["choque", "prepara", "tecnica", "hiper", "sinTecnica", "entraPenalti", "nombres", "fallo", "aerea", "pasa"]);
 
 // --- cuentas pequenas, sin crear nada ----------------------------------------------------
 const lerp = (a, b, k) => a + (b - a) * k;
@@ -242,12 +424,40 @@ function nuevaVista() {
     espiral: { ver: false, x: 0, y: 0, z: 0, radio: 1, alto: 2, alfa: 1, color: "#35DBF5" },
     // la animacion de VR de este cuadro (O-323), o null: cual (clave), en que s del evento y
     // donde va (el sitio y hacia donde mira el que la hace)
-    vr: null, _vr: { clave: "", evento: "", t: 0, x: 0, z: 0, giro: 0 },
+    vr: null, _vr: { clave: "", evento: "", t: 0, x: 0, z: 0, giro: 0, rotulo: "", asignado: "", elemento: "", espiritu: false, ini: 0 },
+    // O-332: en este tramo sale el rotulo de VR (HudDuelo no pinta el nombre de Galaxy)
+    rotuloVR: false,
   };
 }
 // un actor del montaje: su base (x, z de three), hacia donde mira (fx, fz), su alto y
 // donde esta ahora (cx, cy, cz) con lo que hace en el plano
 function nuevoSitio() { return { id: -1, bx: 0, bz: 0, fx: 0, fz: 1, H: ESTUDIO.alto, cx: 0, cy: 0, cz: 0, giro: 0 }; }
+// la clave de una animacion de VR cargada: el evento, los modelos de sus actores y su keshin o
+// alma (la misma en el partido y en las fijas de la pantalla de carga, O-329)
+export function claveVR(evento, actores, asignado) {
+  return evento + "|" + Object.keys(actores).sort().map(k => actores[k]).join(",") + "|" + (asignado || "");
+}
+// lo que ocupa una animacion de VR cargada (MB, aproximado; O-329): las texturas y las mallas
+// de sus efectos (en la grafica y su copia en memoria) y las pistas de su escena y de sus
+// actores; lo de los modelos no cuenta (es de la cache)
+export function memoriaDe(ev) {
+  let b = 0;
+  try {
+    const vistas = new Set(), raiz = ev.escena && ev.escena.scene ? ev.escena.scene : null;
+    if (raiz) raiz.traverse(o => {
+      const g = o.geometry;
+      if (g && !vistas.has(g)) { vistas.add(g); for (const a of Object.values(g.attributes)) b += 2 * a.array.byteLength; if (g.index) b += 2 * g.index.array.byteLength; }
+      for (const mt of o.material ? [].concat(o.material) : []) for (const tx of [mt.map, mt.alphaMap, mt.emissiveMap, mt.userData && mt.userData.rampa && mt.userData.rampa.tex]) {
+        const im = tx && tx.image;
+        if (tx && !vistas.has(tx)) { vistas.add(tx); if (im && im.width) b += 2 * im.width * im.height * 4 * (4 / 3); }
+      }
+    });
+    const pistas = clips => { for (const c of Object.values(clips || {})) for (const t of (c && c.tracks) || []) b += t.times.byteLength + t.values.byteLength; };
+    pistas(ev.clips);
+    for (const a of Object.values(ev.actores || {})) if (a) pistas(a.clips);
+  } catch (e) { /* sin medir: cuenta 0 */ }
+  return b / 1048576;
+}
 
 export const Escenas = {
   ESTUDIO, PLANTILLAS, DUELO,
@@ -306,7 +516,9 @@ export const Escenas = {
   // A: estado.arriba del Director (su modo y su tramo). Si no hay nada 3D que ensenar (un
   // plano negro, sin jugadores), out.hay es false y HudDuelo pinta lo suyo
   componer(p, A, yo, out = this.vista) {
-    out.hay = false; out.n = 0; out.plantilla = ""; out.plano = ""; out.tipo = ""; out.elemento = ""; out.hiper = false; out.vr = null;
+    out.hay = false; out.n = 0; out.plantilla = ""; out.plano = ""; out.tipo = ""; out.elemento = ""; out.hiper = false; out.vr = null; out.esperaVR = false; out.rotuloVR = false;
+    // (O-345, vuelta 1: negro sin esperar nada, y donde acaba la celebracion de VR del gol)
+    out.negroVR = false; out.finGol = 0;
     if (!p || !A || !A.tramo) return out;
     const tr = A.tramo;
     if (tr.que === "duelo") this._duelo(p, tr, yo, out);
@@ -367,11 +579,15 @@ export const Escenas = {
     if (this.vr) {
       const info = this._vrInfoInvoca(p, tr, j);
       const d = info && this._vrDecide("i" + tr.jugador + "@" + tr.t0, 0, info, tr.t);
-      if (d && this._vrPon(info, d, tr.t, tr.dura || 4.3, false, out)) return out;
+      // (con el juego parado y las cortas, sus ultimos cortes: tr.cortas, O-337)
+      if (d && this._vrPon(info, d, tr.t, tr.dura || 4.3, !!tr.cortas, out)) return out;
+      // existe y aun no esta: se espera, nunca la plantilla (O-329)
+      if (info && this._vrEsperando("i" + tr.jugador + "@" + tr.t0, 0)) return this._esperaVR(out);
     }
     const arm = tr.familia === "armadura" || j.hiperTipo === "armadura", base = PLANTILLAS[arm ? "armadura" : "invoca"];
     this._montarSolo(p, j);
-    const P = this.planoEn(base, tr.t, base.dura, this._pe);
+    // (con el juego parado, lo que dura su tramo: O-337)
+    const P = this.planoEn(base, tr.t, tr.res ? tr.dura || base.dura : base.dura, this._pe);
     out.claro = out.oscuro = colorFamilia(j.hiperTipo);
     this._plano(p, P.plano, P.u, P.tp, arm ? "armadura" : "invoca", out, { familia: j.hiperTipo });
   },
@@ -392,6 +608,26 @@ export const Escenas = {
       t = 3.73 + Math.max(0, ts - 0.2) * 1.1;
     }
     this._tGol = t;
+    // O-345: con las de VR, el balon que entra en la red y la celebracion del que marca, a su
+    // velocidad (la red hasta su final y quieta; la celebracion desde su principio, con su voz)
+    if (this.vr && R && R.plan) {
+      // (O-345, vuelta 1: la celebracion entera, hasta fiestaMax)
+      const G = this._vrInfosGol(p, r), JG = JUGADAS_VR.gol, enRed = t >= JG.red[0] && t < JG.red[1], enFiesta = t >= JG.fiesta[0] && t < (JG.fiestaMax || JG.fiesta[1]);
+      const info = enRed ? G.red : enFiesta ? G.fiesta : null, t0 = enRed ? JG.red[0] : JG.fiesta[0];
+      const d = info && this._vrYa(R, (enRed ? "red" : "fiesta") + tr.k, info), e = d && this._vrEv.get(info.clave);
+      if (d && e && e.ev) {
+        // (la red con supertecnica, su final: lo que cabe hasta 2,4 s)
+        const D = e.ev.duracion, ini = enRed ? Math.max(0, D - (JG.red[1] - JG.red[0])) : 0;
+        // O-345, vuelta 1: la que dura menos (la sin tecnica, 1,37 s), a su velocidad y luego negro, como
+        // en VR (antes se quedaba quieta y sin el balon hasta los 2,4 s); la celebracion, hasta que acaba
+        // (finGol: hasta ahi no se funde a negro HudDuelo)
+        if (t - t0 + ini >= (enRed ? D : Math.min(D, (JUGADAS_VR.finFiesta || {})[info.evento] || D))) { out.hay = true; out.negroVR = true; out.plantilla = "negro"; out.plano = "negro"; return out; }
+        else {
+          if (!enRed) out.finGol = JG.fiesta[0] + Math.min(D, (JUGADAS_VR.finFiesta || {})[info.evento] || D, (JG.fiestaMax || JG.fiesta[1]) - JG.fiesta[0]);
+          if (this._vrPon(info, d, t - t0 + ini, D, false, out)) return out;
+        }
+      }
+    }
     this._montarPorteria(p, tir, k, r);
     const base = PLANTILLAS.gol, P = this.planoEn(base, t, base.dura, this._pe);
     const g = paleta(), c = (typeof HUD_DUELO !== "undefined" && HUD_DUELO.gol) || ["#FFD27A", "#B8340A"];
@@ -405,6 +641,7 @@ export const Escenas = {
     const R = tr.res, r = R.r, ts = R.plan.tramos;
     let q = tr.q, t = tr.t, extra = 0, kq = tr.k;
     if (!q) return;
+    const tras = q.que === "fijar" || q.que === "vuelta";
     if (VER_ANTES.has(q.que)) {
       let i = tr.k - 1;
       while (i >= 0 && !ESCENAS.has(ts[i].que)) i--;
@@ -413,29 +650,98 @@ export const Escenas = {
       q = ts[i]; t = q.a - q.de; kq = i;
     }
     const dura = Math.max(0.001, q.a - q.de), foco = r.tipo === "foco" || r.tipo === "disputa" || r.tipo === "falta";
+    // la disputa aerea (O-341): los dos donde cae el balon, con su plantilla por el lado del que gana
+    if (q.que === "aerea") {
+      if (!this._montarAerea(p, r)) return;
+      const clave = "aerea." + (r.der === r.ganador ? "Der" : "Izq") + (r.cabeza ? ".cabeza" : ""), base = PLANTILLAS[clave];
+      const P = this.planoEn(base, t + extra, dura, this._pe), c = coloresElemento("");
+      out.claro = c.claro; out.oscuro = c.oscuro;
+      this._plano(p, P.plano, P.u, P.tp, clave, out, { gana: r.ganador });
+      return;
+    }
     // la supertecnica (o la ★) con su animacion de VR, si esta (O-323); al fijar se queda en
     // su ultimo cuadro
+    let finMuro = false, resto = null;
     if ((q.que === "tecnica" || q.que === "hiper") && this.vr) {
       const info = this._vrInfosPlan(p, R)[kq];
       const d = info && this._vrDecide(R, kq, info, t + extra);
       // con las cortas (o el plan corto de un anfitrion sin animaciones), solo el final
-      const cortas = !!(R.corto || (r.anim && r.anim.modo === "cortas"));
-      if (d && this._vrPon(info, d, t + extra, dura, cortas, out)) return;
+      // (y el final del tiro que gana al muro o al portero, O-336)
+      const cortas = !!(R.corto || (r.anim && r.anim.modo === "cortas") || q.golpe);
+      // el muro que para el tiro del todo se queda el balon (O-335): la de VR acaba con el balon
+      // rebotando en el aire (o la camara en el cielo), asi que al fijar y en la vuelta, el final de
+      // la plantilla sin tecnica: el defensa con el balon a los pies (O-335, vuelta 1)
+      const ev = d && info && this._vrEv.get(info.clave);
+      if (tras && q.muro && r.final === "bloqueado" && ev && ev.ev) finMuro = true;
+      // O-344: el muro o el portero que no para el tiro: la de VR a su velocidad hasta su final (la
+      // de fallo) o hasta el contacto (la de acierto cortada: sin la parte en que se ve parado) y, en
+      // lo que queda del tramo, el balon que pasa (resto: la plantilla)
+      else if (d && q.falla && ev && ev.ev && this._restoFalla(p, R, kq) > 0) {
+        const fin = info.corta ? this._corteVR(ev.ev) : ev.ev.duracion;
+        if (t + extra - d.desde < fin) { if (this._vrPon(info, d, t + extra, d.desde + fin, false, out, fin)) return; }
+        else resto = { t: t + extra - d.desde - fin, dura: dura - d.desde - fin };
+      }
+      else if (d && this._vrPon(info, d, t + extra, dura, cortas, out, q.falla && info.corta ? this._corteVR(ev && ev.ev) : 0)) return;
+      // existe y aun no esta: se espera (el Director para el plan), nunca la plantilla (O-329)
+      if (!resto && info && this._vrEsperando(R, kq)) { this._esperaVR(out); return; }
+    }
+    // O-345: la jugada sin tecnica (o la accion normal que gana a una tecnica) con su animacion de VR
+    // (JUGADAS_VR) si este PC la tiene; si existe y aun no esta, se espera, como las tecnicas
+    if ((q.que === "sinTecnica" || q.que === "fallo") && this.vr && !resto) {
+      const info = this._vrInfosPlan(p, R)[kq], d = info && this._vrDecide(R, kq, info, t + extra);
+      // (el muro que para el tiro del todo se queda el balon (O-335): su bloqueo con el cuerpo de VR acaba
+      // con el en el aire y sin el balon, asi que al fijar y en la vuelta, el final de la plantilla sin
+      // tecnica (el balon a sus pies), como tras su tecnica. O-344, vuelta 1: antes el cielo o el salto)
+      const finJ = tras && q.muro && r.final === "bloqueado";
+      // (el que encaja, hasta su corte: info.fin, O-345 vuelta 1)
+      if (d && !finJ && this._vrPon(info, d, t + extra, dura, !!(R.corto || (r.anim && r.anim.modo === "cortas")), out, info.fin || 0)) return;
+      if (info && !finJ && this._vrEsperando(R, kq)) { this._esperaVR(out); return; }
     }
     const ps = r.pasos || [], tir = foco ? null : p.jugadores[(ps[0] || {}).quien !== undefined ? ps[0].quien : r.tirador];
     const portero = foco ? null : r.portero !== undefined ? p.jugadores[r.portero] : this._porteroDe(p, r, tir);
     this._M.finalGol = r.final === "gol";
-    let base, clave, pl = null, elem = "";
+    // el muro que para el tiro del todo se queda el balon (O-335)
+    this._M.finalBloqueo = r.final === "bloqueado";
+    let base, clave, pl = null, elem = "", tq = t + extra, dq = dura;
     if (foco) {
       const a = p.jugadores[r.atacante], d = p.jugadores[r.defensor];
       if (!a || !d) return;
       this._M.lleva = a.id;
-      if (q.que === "tecnica" || q.que === "hiper") {
+      // (la accion normal del que gana, O-336: el que gana es "yo")
+      if (q.que === "tecnica" || q.que === "hiper" || q.que === "fallo") {
         const j = p.jugadores[q.jugador] || a;
         this._montarFoco(p, a, d, j);
       } else this._montarFoco(p, a, d, a.lado === yo ? a : d);
     } else if (!tir) return;
-    if (q.que === "choque") { base = PLANTILLAS.choque; clave = "choque"; }
+    // O-344: lo que queda del tramo de la tecnica que no para, tras su animacion de VR: el balon que
+    // pasa al muro (sigue en el tramo "pasa") o que entra (el portero)
+    const sig = ts[kq + 1], kTiro = sig && sig.que === "pasa" ? sig.tiro : 0;
+    if (resto) {
+      // (el portero, el que no llega: O-345 vuelta 1)
+      clave = q.muro ? "pasa.muro" : q.portero ? "encaja.portero" : "sin.muro"; base = PLANTILLAS[clave];
+      this._montarDeTiro(p, r, q, tir, portero);
+      if (q.muro) { elem = this.elementoDe(p, r, { paso: kTiro }); pl = this.plantilla("tiro", elem, false); }
+      tq = resto.t; dq = resto.dura + (sig && sig.que === "pasa" ? sig.a - sig.de : 0);
+    } else if (q.que === "pasa") {
+      // el balon que pasa al muro (O-344), seguido de lo que quedo del tramo de su tecnica
+      clave = "pasa.muro"; base = PLANTILLAS[clave];
+      this._montarDeTiro(p, r, { jugador: q.jugador, muro: true }, tir, portero);
+      elem = this.elementoDe(p, r, { paso: q.tiro }); pl = this.plantilla("tiro", elem, false);
+      const r0 = this._restoFalla(p, R, kq - 1);
+      if (r0 > 0) { tq = r0 + t + extra; dq = r0 + dura; }
+    } else if (q.que === "choque") { base = PLANTILLAS.choque; clave = "choque"; }
+    else if (q.que === "nombres") {
+      // el choque de los nombres (O-336): en el foco los dos en el lateral; en el tiro, el que defiende
+      clave = foco ? "nombres" : "nombres.tiro"; base = PLANTILLAS[clave];
+      if (!foco) this._montarDeTiro(p, r, { jugador: q.defiende, muro: q.muro, portero: q.portero }, tir, portero);
+    } else if (q.que === "fallo") {
+      // la accion normal del que gana a una tecnica (O-336): en el foco por lo que eligio; en el
+      // tiro, la patada, el bloqueo o la parada normales
+      const g = p.jugadores[q.jugador], n = foco && g && r.tecnicas ? r.tecnicas[g.lado] : "";
+      clave = foco ? (PLANTILLAS["normal." + n] ? "normal." + n : "sin.foco") : "sin." + (q.sub || "tiro");
+      base = PLANTILLAS[clave] || PLANTILLAS["sin.foco"];
+      if (!foco) this._montarDeTiro(p, r, q, tir, portero);
+    }
     else if (q.que === "prepara") {
       const pen = r.tipo === "penalti";
       base = PLANTILLAS[pen ? "prepara.penalti" : "prepara"]; clave = pen ? "prepara.penalti" : "prepara";
@@ -444,8 +750,15 @@ export const Escenas = {
       base = PLANTILLAS["entra.penalti"]; clave = "entra.penalti";
       this._montarTiro(p, tir, portero, tir, r);
     } else if (q.que === "sinTecnica") {
-      clave = "sin." + (q.sub || "foco"); base = PLANTILLAS[clave] || PLANTILLAS["sin.foco"];
+      clave = "sin." + (q.sub || "foco");
+      // (O-345, vuelta 1: el portero que encaja, el que no llega; el muro que no lo para, el balon que pasa)
+      if (q.sub === "portero" && r.final === "gol") clave = "encaja.portero";
+      else if (q.sub === "muro" && r.final !== "bloqueado") clave = "pasa.muro";
+      base = PLANTILLAS[clave] || PLANTILLAS["sin.foco"];
       if (!foco) this._montarDeTiro(p, r, q, tir, portero);
+    } else if (finMuro) {
+      base = PLANTILLAS["sin.muro"]; clave = "sin.muro";
+      this._montarDeTiro(p, r, q, tir, portero);
     } else if (q.que === "tecnica" || q.que === "hiper") {
       const tipo = this.tipoDe(r, q);
       elem = this.elementoDe(p, r, q);
@@ -453,12 +766,52 @@ export const Escenas = {
       base = pl.base; clave = pl.clave;
       if (!foco) this._montarDeTiro(p, r, q, tir, portero);
     } else return;
-    const P = this.planoEn(base, t + extra, dura, this._pe);
+    // el final del tiro que gana al muro o al portero (O-336): la plantilla desde su golpe
+    if (q.golpe) { const g = base.planos.find(x => x.nombre === "golpe"), s0 = g ? g.de : 0; tq = (s0 + Math.min(1, tq / dura) * (base.dura - s0)) * dura / base.dura; }
+    const P = this.planoEn(base, tq, dq, this._pe);
     const c = coloresElemento(elem);
     out.claro = c.claro; out.oscuro = c.oscuro;
     const j = p.jugadores[q.jugador] || tir;
-    this._plano(p, P.plano, P.u, P.tp, clave, out, { pl, familia: j ? j.hiperTipo : null, gana: foco ? r.ganador : null });
+    // (en la falta gana el numero el defensa, O-344: el que la recibe es el que cae)
+    this._plano(p, P.plano, P.u, P.tp, clave, out, { pl, familia: j ? j.hiperTipo : null, gana: foco ? (r.tipo === "falta" ? r.defensor : r.ganador) : null });
     out.tipo = pl ? pl.tipo : ""; out.elemento = elem; out.hiper = !!(pl && pl.hiper);
+  },
+  // lo que queda del tramo k (la tecnica del muro o del portero que no para el tiro, O-344) cuando
+  // su animacion de VR ya ha acabado a su velocidad (s; 0 si no queda o no es de VR): ahi sale el
+  // balon que pasa. Con las cortas, su final cabe en el tramo (como siempre)
+  _restoFalla(p, R, k) {
+    const q = R && R.plan.tramos[k], r = R && R.r;
+    if (!q || !q.falla || !r || !this.vr || R.corto || (r.anim && r.anim.modo === "cortas")) return 0;
+    const info = this._vrInfosPlan(p, R)[k], dec = this._vrDec && this._vrDec.R === R ? this._vrDec.k[k] : null;
+    const e = info && this._vrEv && this._vrEv.get(info.clave);
+    if (!dec || dec.desde < 0 || !e || !e.ev) return 0;
+    const fin = info.corta ? this._corteVR(e.ev) : e.ev.duracion, cabe = (q.a - q.de) - dec.desde;
+    return fin < cabe ? cabe - fin : 0;
+  },
+  // donde se corta la de acierto de un muro o un portero que no para (O-344; s del evento): donde
+  // empieza la parte en que se ve parado. En VR la de acierto (_1) y la de fallo (_2) comparten los
+  // cortes del principio y se separan en el contacto: el primer corte que acaba en 1 tras uno que
+  // acaba en 0 (El muro c0011, c0020 | c0031; las paradas c0010..c0030 | c0041). Sin eso (los
+  // contra-tiros, los bloqueos sin _2), donde empieza el ultimo corte (de mediana a 0,76 de lo que
+  // dura; scratchpad juego/db3/cortes_fallo.py)
+  _corteVR(ev) {
+    const cs = (ev && ev.cortes) || [];
+    if (!cs.length) return ev && ev.duracion > 0 ? ev.duracion : 0;
+    let cero = false;
+    for (const c of cs) { if (/0$/.test(c.nombre)) cero = true; else if (cero && /1$/.test(c.nombre) && c.ini > 0) return c.ini / EVENTO_VR.fps; }
+    return cs.length > 1 ? cs[cs.length - 1].ini / EVENTO_VR.fps : ev.duracion;
+  },
+  // el muro va contra el balon (O-344; Aaron: "la animacion de bloqueo deberia ir contra la pelota,
+  // no el jugador"): donde le llega (r.bloqueo, del motor) mirando hacia de donde viene; sin eso (un
+  // Pizarra de antes), en su sitio mirando al que chuto. Lejos de las bandas y del fondo, como las
+  // demas de VR. o: {x, z, giro} (los de three), que se cambian
+  _contraBalon(p, r, j, o) {
+    const b = r && r.bloqueo, tir = r ? p.jugadores[r.tirador] : null;
+    let x = b ? b.x : j.x, y = b ? b.y : j.y, fx = b ? b.fx : tir ? tir.x - j.x : 0, fy = b ? b.fy : tir ? tir.y - j.y : 0;
+    if (!(Math.hypot(fx, fy) > 1e-6)) { fx = 0; fy = -(j.dir || 1); }
+    const M = VR_EV.margen, bx = (typeof REGLAS !== "undefined" ? REGLAS.ANCHO : 68) / 2 - M.banda, bz = (typeof REGLAS !== "undefined" ? REGLAS.LARGO : 105) / 2 - M.fondo;
+    o.x = corta(-x, -bx, bx); o.z = corta(y, -bz, bz); o.giro = Math.atan2(-fx, fy);
+    return o;
   },
   // el nombre de la tecnica de un tramo (para la ✦ de las de espiritu)
   _nombreDe(r, q, p) {
@@ -481,7 +834,14 @@ export const Escenas = {
   _vrInfosPlan(p, R) {
     const c = this._vrPC;
     if (c && c.R === R) return c.infos;
-    const infos = R.plan.tramos.map(q => (q.que === "tecnica" || q.que === "hiper") && R.r ? this._vrInfoTramo(p, R.r, q) : null);
+    // (y la de cada invocacion con el juego parado, O-337: la misma clave que _vrInfoInvoca)
+    // (y las jugadas sin tecnica de VR y el gol, O-345)
+    const infos = R.plan.tramos.map(q => (q.que === "tecnica" || q.que === "hiper") && R.r ? this._vrInfoTramo(p, R.r, q)
+      : q.que === "invoca" && p.jugadores[q.jugador] ? this._vrInfoEspiritu(p, p.jugadores[q.jugador])
+      : (q.que === "sinTecnica" || q.que === "fallo") && R.r ? this._vrInfoJugada(p, R.r, q)
+      : q.que === "gol" && R.r ? this._vrInfosGol(p, R.r).red : null);
+    // (la celebracion del gol, detras de las de los tramos: se carga con ellas)
+    if (R.r && R.plan.tramos.some(q => q.que === "gol")) infos.push(this._vrInfosGol(p, R.r).fiesta);
     this._vrPC = { R, infos };
     return infos;
   },
@@ -495,31 +855,66 @@ export const Escenas = {
     const t = busca(j.tecnicas) || (j.propio && busca(j.propio.tecnicas));
     const e = t && t.interno ? V.tecnicas[t.interno] : null;
     if (!e || !e.evento) return null;
-    // la parada que acaba en gol y el muro que no para el tiro: el evento de fallo (_2)
-    const falla = q.portero ? r.final === "gol" : q.muro ? !(r.final === "bloqueado" || (r.final === "fuera" && r.desvia !== undefined && r.desvia !== r.tirador)) : false;
-    const evento = falla && e.evento_fallo ? e.evento_fallo : e.evento;
-    // los personajes del evento: el que la hace, sus companeros (las de 2 o 3) y el rival
+    // la parada que acaba en gol y el muro que no para el tiro (O-344: tampoco el que lo desvia a
+    // corner): el evento de fallo (_2) si este PC lo tiene; si no, el de acierto cortado en el
+    // contacto (corta: _corteVR), sin la parte en que se ve parado
+    const falla = q.portero ? r.final === "gol" : q.muro ? r.final !== "bloqueado" : false;
+    const conFallo = falla && !!e.evento_fallo && !!(V.hechos && V.hechos.has(e.evento_fallo));
+    const evento = conFallo ? e.evento_fallo : e.evento;
+    // los personajes del evento: el que la hace, sus companeros (las de 2 o 3) y el rival. El muro
+    // va contra el balon (O-344): el sitio del rival se queda vacio ("": no sale el que chuto)
     const actores = { s00: modeloDe(j) }, n0 = Math.max(1, +e.jugadores || 1);
-    if (n0 > 1) {
+    // O-345: quien es cada uno lo dice el guion de VR (eventos-tecnicas.csv roles; Aaron: "la
+    // tecnica sombra de orion, el jugador que la hace, la hace con una copia de el mismo"): h0 el
+    // que la hace (y sus copias: el clon de Sombra de Orion, los de Regate multiple), h1.. sus
+    // companeros mas cerca, r0 el rival (el del duelo, el portero o el que chuta) y r1.. los otros
+    // rivales mas cerca. Sin roles (una tabla de antes), como antes
+    const roles = rolesVR(e.roles);
+    let hace = "s00";
+    if (roles) {
+      delete actores.s00;
+      const nH = Math.max(0, ...roles.map(x => x[1][0] === "h" ? +x[1].slice(1) : 0)), nR = Math.max(0, ...roles.map(x => x[1][0] === "r" ? +x[1].slice(1) : 0));
+      const comp = this._vrCerca(p, j, j.lado, nH, []), rival = roles.some(x => x[1][0] === "r") ? this._vrRival(p, r, q, j) : null;
+      const otros = nR > 0 ? this._vrCerca(p, j, 1 - j.lado, nR, rival ? [rival] : []).filter(x => x !== rival) : [];
+      for (const [cl, rol] of roles) {
+        const k = +rol.slice(1), x = rol[0] === "h" ? (k ? comp[k - 1] : j) : q.muro ? null : (k ? otros[k - 1] : rival);
+        actores[cl] = x ? modeloDe(x) : "";
+      }
+      hace = (roles.find(x => x[1] === "h0") || ["s00"])[0];
+    } else if (n0 > 1) {
       const lista = this._vrCerca(p, j, j.lado, Math.min(n0, Math.max(1, +t.jugadores || 1)) - 1, []);
+      if (q.muro) while (lista.length < n0 - 1) lista.push(null);
       const rival = this._vrRival(p, r, q, j);
       if (rival && lista.length < n0 - 1) lista.push(rival);
       this._vrCerca(p, j, 1 - j.lado, n0 - 1 - lista.length, lista);
-      lista.forEach((x, i) => { actores["s" + String(i + 1).padStart(2, "0")] = modeloDe(x); });
+      lista.forEach((x, i) => { actores["s" + String(i + 1).padStart(2, "0")] = x ? modeloDe(x) : ""; });
+      // (en las que la hace s01, el que la hace en s01 y el rival en s00: VR_HACE_S01, O-336)
+      hace = n0 === 2 && actores.s01 !== undefined ? vrHace(evento) : "s00";
+      if (hace === "s01") [actores.s00, actores.s01] = [actores.s01, actores.s00];
     }
     const esp = j.espiritu && V.espiritus[j.espiritu.id];
     const asignado = e.asignado ? (esp && esp.asignado) || j.keshinHiper || null : null;
     // el que chuta, lejos de la porteria (no el muro ni el portero)
-    return this._vrInfo(p, j, evento, actores, asignado, !foco && !q.muro && !q.portero);
+    const info = this._vrInfo(p, j, evento, actores, asignado, !foco && !q.muro && !q.portero);
+    if (hace !== "s00") info.hace = hace;
+    // el muro, donde le llega el balon y de cara a el; la que no para, cortada (O-344)
+    if (q.muro) this._contraBalon(p, r, j, info);
+    if (falla && !conFallo) info.corta = true;
+    // (su rotulo de VR y su elemento: el color del aura del balon en los eventos que comparten
+    // tecnicas de varios elementos, los de keshin y alma; O-332)
+    info.rotulo = e.rotulo || ""; info.elemento = this.elementoDe(p, r, q) || "";
+    return info;
   },
   // la invocacion (o la ★): s00 el jugador como era y s01 en lo que se convierte (armadura,
   // mixi max, modo); asignado, su keshin o alma
   _vrInfoEspiritu(p, j) {
     const V = this.vr, e = V && j.espiritu ? V.espiritus[j.espiritu.id] : null;
     if (!e || !e.evento) return null;
-    const actores = { s00: (j.propio && j.propio.cara) || j.cara }, forma = e.cara_a || j.modelo || "";
-    if (forma) actores.s01 = forma;
-    return this._vrInfo(p, j, e.evento, actores, e.asignado || j.keshinHiper || null, false);
+    // (vestidos con la equipacion del equipo, O-334)
+    const actores = { s00: vestidoDe(j, (j.propio && j.propio.cara) || j.cara) }, forma = e.cara_a || j.modelo || "";
+    if (forma) actores.s01 = vestidoDe(j, forma);
+    // (con su rotulo de VR, O-332)
+    return Object.assign(this._vrInfo(p, j, e.evento, actores, e.asignado || j.keshinHiper || null, false), { rotulo: e.rotulo || "", espiritu: true });
   },
   _vrInfoInvoca(p, tr, j) {
     const c = this._vrIC;
@@ -527,6 +922,74 @@ export const Escenas = {
     const info = this._vrInfoEspiritu(p, j);
     this._vrIC = { t0: tr.t0, id: tr.jugador, info };
     return info;
+  },
+  // O-345: la jugada sin tecnica de VR de un tramo sinTecnica o fallo (JUGADAS_VR), o null
+  _vrInfoJugada(p, r, q) {
+    const V = this.vr, JV = JUGADAS_VR, J = id => (id !== undefined && id !== null ? p.jugadores[id] : null);
+    if (!V || !q) return null;
+    const ps = r.pasos || [];
+    let evento = "", j = null, actores = null, tiro = false, elemento = "";
+    if (r.tipo === "foco" || r.tipo === "disputa" || r.tipo === "falta") {
+      const a = J(r.atacante), d = J(r.defensor), g = J(r.tipo === "falta" ? r.defensor : r.ganador);
+      if (!a || !d || !g) return null;
+      const ta = r.tecnicas ? r.tecnicas[a.lado] || "" : "", td = r.tecnicas ? r.tecnicas[d.lado] || "" : "";
+      evento = g === a && ta === "Romper" ? JV.rompe : (JV.foco[td] || JV.foco[""]) + (g === a ? "_1" : "_2");
+      j = a; actores = { s00: modeloDe(a), s01: modeloDe(d) };
+    } else {
+      const s = ps[q.paso !== undefined ? q.paso : 0] || {}, que = String(s.que || "").replace(/ de primeras$/, "");
+      j = J(q.jugador) || J(s.quien);
+      if (!j) return null;
+      actores = { s00: modeloDe(j) };
+      const n = Math.abs(Math.round(+s.valor || 0)) + j.id;
+      if (q.sub === "tiro") { evento = deLista(JV.tiro[que] || JV.tiro.Tirar, n); tiro = true; }
+      // (O-345, vuelta 1: el muro sin tecnica que no para el tiro no tiene: su bloqueo de VR sale como si
+      // lo parara; Aaron: "si en la animacion sale que ha bloqueado el tiro pero en realidad no, queda raro")
+      else if (q.sub === "muro") { if (q.que !== "fallo" && r.final !== "bloqueado") return null; evento = JV.muro; }
+      else if (q.sub === "portero") {
+        const tec = ps.find(x => x && x.tecnica && J(x.quien) && J(x.quien).lado !== j.lado), par = /despej/i.test(que) ? "Despejar" : "Parar";
+        // (el que encaja sin tecnica: la suya en la que se tira a un lado, hasta antes de que le llegue el
+        // balon; el balon que entra sale en el gol. O-345, vuelta 1: antes, de pie con la plantilla)
+        if (r.final === "gol") { if (q.que === "fallo") return null; evento = deLista(JV.encaja[par], n); }
+        else if (q.que === "fallo" && tec) { evento = deLista(JV.poder[par], n); elemento = tec.elemento || ""; }
+        else evento = deLista(JV.portero[par], n);
+      } else return null;
+    }
+    // (cual, la de REGLAS.jugadaVR: con ella sabe el plan lo que dura; O-345 vuelta 1)
+    const RG = typeof REGLAS !== "undefined" && REGLAS.jugadaVR ? REGLAS : null;
+    if (RG) { evento = RG.jugadaVR(r, q, id => (p.jugadores[id] || {}).lado); if (!evento) return null; }
+    const info = this._vrInfo(p, j, evento, actores, null, tiro);
+    info.jugada = true; info.elemento = elemento;
+    // (el que encaja: hasta su corte)
+    if (r.final === "gol" && q.sub === "portero") info.fin = (RG && RG.CORTE_ENCAJA && RG.CORTE_ENCAJA[evento]) || 0;
+    return info;
+  },
+  // O-345: el gol de VR: {red: el balon que entra en la red, fiesta: la celebracion del que marca}
+  _vrInfosGol(p, r) {
+    const JV = JUGADAS_VR, ps = r.pasos || [], tir = p.jugadores[r.tirador !== undefined ? r.tirador : (ps[0] || {}).quien];
+    if (!this.vr || !tir) return { red: null, fiesta: null };
+    // con supertecnica (la del que chuta o la de su cadena), el de su elemento
+    const tec = ps.find(x => x && x.tecnica && p.jugadores[x.quien] && p.jugadores[x.quien].lado === tir.lado);
+    const evRed = tec ? JV.redElemento[tec.elemento || ""] || JV.redElemento[""] : deLista(JV.red, Math.abs(Math.round(+(ps[0] || {}).valor || 0)));
+    const g = p.porteriaRival ? p.porteriaRival(tir) : { x: 0, y: 52.5 * (tir.dir || 1) }, gx = -g.x, gz = g.y, f = -Math.sign(gz || 1);
+    // (en su evento la porteria esta a 47 m del origen, de cara a -Z: el origen en el campo, a 47 m)
+    const red = { clave: claveVR(evRed, {}, null), evento: evRed, actores: {}, asignado: null, x: gx, z: gz + 47 * f, giro: f < 0 ? 0 : Math.PI, jugada: true, elemento: "" };
+    // la celebracion (O-343): una de las de su tipo en VR (celebraciones.csv: chara_base col 14; las
+    // manda el servidor), cual segun el tiro (la misma en los dos PCs); sin tipo, la misma siempre
+    // para cada uno. Su voz (glNNN) va en su guion. (Antes, la de su linea de gol: solo la 1.a)
+    const cara = (tir.propio && tir.propio.cara) || tir.cara, C = this.vr.celebraciones || {};
+    const suyas = (C[cara] || C[String(cara).replace(/_.*$/, "")] || []).filter(e => JV.fiestas.includes(e) || JV.fiestasSuyas.includes(e));
+    const evF = suyas.length ? deLista(suyas, numeroDe(cara) + Math.abs(Math.round(+(ps[0] || {}).valor || 0))) : deLista(JV.fiestas, numeroDe(cara));
+    const de = ev => Object.assign(this._vrInfo(p, tir, ev, { s00: modeloDe(tir) }, null, false), { jugada: true, elemento: "" });
+    const fiesta = de(evF);
+    // (y todas las suyas, para leerlas antes: _vrJugadasDuelo)
+    return { red, fiesta, fiestas: suyas.length ? suyas.map(ev => (ev === evF ? fiesta : de(ev))) : [fiesta] };
+  },
+  // O-345: las del gol no se esperan (salen si ya estan; si no, la plantilla): {desde: 0} o null
+  _vrYa(R, k, info) {
+    let dec = this._vrDecG;
+    if (!dec || dec.R !== R) dec = this._vrDecG = { R, k: {} };
+    if (dec.k[k] === undefined) { const e = this._vrEv ? this._vrEv.get(info.clave) : null; dec.k[k] = !!(e && e.ev); }
+    return dec.k[k] ? { desde: 0 } : null;
   },
   // donde va: en el sitio del que la hace, mirando a la porteria que ataca (VR_EV)
   _vrInfo(p, j, evento, actores, asignado, tiro) {
@@ -539,8 +1002,7 @@ export const Escenas = {
       const d = Math.hypot(x - gx, z - gz);
       if (tiro && d < VR_EV.lejos && d > 0.01) { x = gx + (x - gx) / d * VR_EV.lejos; z = gz + (z - gz) / d * VR_EV.lejos; }
     }
-    const caras = Object.keys(actores).sort().map(k => actores[k]).join(",");
-    return { clave: evento + "|" + caras + "|" + (asignado || ""), evento, actores, asignado, x, z, giro: Math.atan2(gx - x, gz - z) };
+    return { clave: claveVR(evento, actores, asignado), evento, actores, asignado, x, z, giro: Math.atan2(gx - x, gz - z) };
   },
   // los n mas cerca de j de ese lado (sin el portero si hay otros), anadidos a `lista`
   _vrCerca(p, j, lado, n, lista) {
@@ -558,55 +1020,75 @@ export const Escenas = {
     return J(r.portero) || (p.portero ? p.portero(1 - j.lado) : null);
   },
   // la animacion de VR del tramo `k` del plan R (o de una invocacion): se decide una vez por
-  // tramo. Si ya esta cargada al empezar (o en los VR_EV.gracia s primeros), la de VR desde
-  // ahi; si no, la plantilla todo el tramo. -> {desde} o null
+  // tramo. Si ya esta cargada, la de VR desde ahi; si no esta convertida en este PC (o no se
+  // ha podido leer), la plantilla todo el tramo; si existe y aun se esta leyendo, se espera
+  // (O-329: antes, a los 0,6 s salia la plantilla): el Director para el plan y, al estar, sale
+  // desde su principio. Si tarda mas de VR_EV.esperaMax s, se da por mala. -> {desde} o null
   _vrDecide(R, k, info, t) {
     let dec = this._vrDec;
     if (!dec || dec.R !== R) dec = this._vrDec = { R, k: [] };
     let x = dec.k[k];
     const e = this._vrEv ? this._vrEv.get(info.clave) : null, lista = !!(e && e.ev);
-    if (!x) x = dec.k[k] = { desde: -1, no: false };
+    if (!x) x = dec.k[k] = { desde: -1, no: false, espera: false, t0: 0 };
     if (x.desde < 0 && !x.no) {
       // (cuantas salen de VR y cuantas no, y por que: para las pruebas y "Ver FPS")
-      const C = this._vrCuenta || (this._vrCuenta = { vr: 0, tarde: 0, sinConvertir: 0 });
+      const C = this._vrCuenta || (this._vrCuenta = { vr: 0, tarde: 0, sinConvertir: 0, esperas: 0 });
       // (si ya estaba al verse el tramo, desde su principio aunque se vea tarde: un cuadro
-      // lento, al fijar; si se ha esperado, desde ahora)
-      if (lista) { x.desde = x.espera && t >= 0.05 ? t : 0; C.vr++; }
-      else if (!this._vrPuede(info)) { x.no = true; C.sinConvertir++; }
-      else if (t > VR_EV.gracia) { x.no = true; C.tarde++; }
-      else x.espera = true;
+      // lento, al fijar; si se ha esperado con el plan parado, tambien; si el plan no se ha
+      // podido parar (el invitado), desde ahora)
+      if (lista) { x.desde = x.espera && t >= 0.05 ? t : 0; x.espera = false; C.vr++; }
+      else if (!this._vrPuede(info)) { x.no = true; x.espera = false; C.sinConvertir++; }
+      else if (!x.espera) { x.espera = true; x.t0 = this._ahora(); C.esperas = (C.esperas || 0) + 1; }
+      else if (this._ahora() - x.t0 > VR_EV.esperaMax * 1000) { x.no = true; x.espera = false; C.tarde++; }
     }
     return x.desde >= 0 && lista ? x : null;
   },
+  // la de ese tramo existe y aun no esta: se espera (O-329)
+  _vrEsperando(R, k) { const d = this._vrDec, x = d && d.R === R ? d.k[k] : null; return !!(x && x.espera); },
+  // el cuadro de la espera: negro (el HUD encima) y, en partido.js, el indicador pequeno
+  _esperaVR(out) { out.hay = true; out.esperaVR = true; out.plantilla = "espera"; out.plano = "espera"; return out; },
   // si se puede tener: este PC lo ha convertido y no ha fallado al cargarlo (hace menos de 30 s)
   _vrPuede(info) {
     const V = this.vr, e = this._vrEv ? this._vrEv.get(info.clave) : null;
+    // (la ya leida con todas sus pistas vale aunque el servidor la rehaga para otro: O-334, vuelta 2)
+    if (e && e.ev && e.estado === "listo" && !(e.ev.faltan && e.ev.faltan.length)) return true;
     return !!(V && V.hechos && V.hechos.has(info.evento) && (!e || e.estado !== "mal" || (this._ahora && this._ahora() > e.hasta)));
   },
   // el cuadro de VR: en que s del evento va (lo que queda del tramo, entero; con las cortas,
   // sus ultimos cortes) y donde
-  _vrPon(info, d, t, dura, cortas, out) {
+  // (fin: donde acaba, si no es su final: la de acierto cortada en el contacto, O-344)
+  _vrPon(info, d, t, dura, cortas, out, fin) {
     const e = this._vrEv.get(info.clave), ev = e && e.ev;
     if (!ev) return false;
-    const D = ev.duracion, resto = Math.max(0.001, dura - d.desde);
+    const D = fin > 0 ? Math.min(fin, ev.duracion) : ev.duracion, resto = Math.max(0.001, dura - d.desde);
     let ini = 0;
-    if (cortas) {
+    // (tras una espera que no ha parado el plan, si queda poco tramo, igual: O-329)
+    if (cortas || (d.desde > 0 && D / resto > VR_EV.rapido)) {
       // el ultimo corte (o los ultimos) que cabe a como mucho VR_EV.rapido
       ini = Math.max(0, D - resto * VR_EV.rapido);
-      for (let i = ev.cortes.length - 1; i >= 0; i--) { const c0 = ev.cortes[i].ini / 60; if (c0 >= ini) { ini = c0; if (D - c0 >= resto * 0.7) break; } }
+      for (let i = ev.cortes.length - 1; i >= 0; i--) { const c0 = ev.cortes[i].ini / 60; if (c0 >= D) continue; if (c0 >= ini) { ini = c0; if (D - c0 >= resto * 0.7) break; } }
     }
     const v = out._vr;
-    v.clave = info.clave; v.evento = info.evento; v.x = info.x; v.z = info.z; v.giro = info.giro;
-    v.t = corta(ini + Math.max(0, t - d.desde) * (D - ini) / resto, 0, D);
+    v.clave = info.clave; v.evento = info.evento; v.x = info.x; v.z = info.z; v.giro = info.giro; v.hace = info.hace || "s00";
+    // (sin su ultimo fotograma: en el guion de VR es el que esconde a todos al acabar (VISIBLE 0); al
+    // fijar salia la porteria vacia o el cielo. O-345, vuelta 1)
+    v.t = corta(ini + Math.max(0, t - d.desde) * (D - ini) / resto, 0, Math.max(0, D - 1 / EVENTO_VR.fps));
+    // (su rotulo de VR y su elemento, O-332)
+    v.rotulo = info.rotulo || ""; v.asignado = info.asignado || ""; v.elemento = info.elemento || ""; v.espiritu = !!info.espiritu; v.ini = ini;
+    // (las jugadas sin tecnica de VR se colocan por la pose del que la hace, O-345)
+    v.jugada = !!info.jugada;
     e.usado = this._ahora ? this._ahora() : 0;
     out.vr = v; out.hay = true; out.plantilla = "vr"; out.plano = info.evento; out.t = t; out.u = corta(t / Math.max(0.001, dura));
+    out.rotuloVR = this._hayRotuloVR(ev, v);
     return true;
   },
 
   // en un tiro, quien hace el tramo: el que chuta (o encadena), el muro o el portero
   _montarDeTiro(p, r, q, tir, portero) {
     const j = p.jugadores[q.jugador] || tir;
-    if (q.muro) this._montarTiro(p, tir, j, j, r);
+    // (el muro, donde le llega el balon y de cara a el, como su animacion de VR: O-344)
+    if (q.muro && r && r.bloqueo) { this._montarTiro(p, tir, j, j, r); const o = this._contraBalon(p, r, j, this._cb || (this._cb = {})); this._pon(this._M.yo, j, o.x, o.z, Math.sin(o.giro), Math.cos(o.giro)); }
+    else if (q.muro) this._montarTiro(p, tir, j, j, r);
     else if (q.portero || (j && portero && j.id === portero.id)) this._montarTiro(p, tir, portero || j, portero || j, r);
     else this._montarTiro(p, j, portero, j, r);
   },
@@ -657,6 +1139,24 @@ export const Escenas = {
     this._pon(M.yo, j, -j.x, j.y, 0, j.dir || 1);
     M.hayOtro = false; this._porteriaDe(p, j);
   },
+  // la disputa aerea (O-341): los dos hombro con hombro donde cae el balon (r.x, r.y), a
+  // ESTUDIO.aerea altos, mirando hacia donde ataca el que gana (r.dir); yo = el que gana, en su
+  // lado de la pareja (r.der: el de la derecha). -> si estan los dos
+  _montarAerea(p, r) {
+    const M = this._M, g = p.jugadores[r.ganador], o = p.jugadores[r.ganador === r.atacante ? r.defensor : r.atacante];
+    if (!g || !o) return false;
+    const fz = r.dir || g.dir || 1, cx = -(typeof r.x === "number" ? r.x : (g.x + o.x) / 2), cz = typeof r.y === "number" ? r.y : (g.y + o.y) / 2;
+    // con los clips de VR los dos saltan desde el mismo sitio (cada clip lo lleva a su lado, como
+    // en VR); sin ellos, ya hombro con hombro
+    const vr = !!(this._tiene && this._tiene(g.id, "aereaEntraDer") && this._tiene(o.id, "aereaEntraDer"));
+    const h = vr ? 0 : ESTUDIO.aerea * (this.altoDe(g.id) + this.altoDe(o.id)) / 4, s = r.der === g.id ? 1 : -1;
+    // a la derecha de quien mira hacia (0, fz): (-fz, 0)
+    this._pon(M.yo, g, cx - fz * s * h, cz, 0, fz);
+    this._pon(M.otro, o, cx + fz * s * h, cz, 0, fz);
+    M.hayOtro = true; M.cabeza = !!r.cabeza; M.aereaLado = s;
+    this._porteriaDe(p, g);
+    return true;
+  },
   // el gol: el portero que lo encaja delante de su porteria (yo) y el que marca
   _montarPorteria(p, tir, por, r) {
     const M = this._M;
@@ -665,8 +1165,9 @@ export const Escenas = {
     else this._pon(M.yo, tir, M.gx + M.gfx * 0.45 * ESTUDIO.alto, M.gz + M.gfz * 0.45 * ESTUDIO.alto, M.gfx, M.gfz);
     this._pon(M.otro, tir, -tir.x, tir.y, M.gx + tir.x, M.gz - tir.y);
     M.hayOtro = false;
-    // por donde entra (el mismo azar de pantalla que la repeticion del Director)
-    M.tiroX = ((((r && r.k) || 3) * 37) % 9 - 4) * 0.5;
+    // por donde entra: adonde se apunto (el tiro que viaja lo dice, O-335); si no, el mismo azar
+    // de pantalla que la repeticion del Director
+    M.tiroX = r && typeof r.tx === "number" ? r.tx * M.gfz : ((((r && r.k) || 3) * 37) % 9 - 4) * 0.5;
     // el portero se tira al otro lado del balon
     M.zona = M.tiroX >= 0 ? 0 : 2; M.zonaP = 1;
   },
@@ -703,9 +1204,11 @@ export const Escenas = {
     // el balon
     const b = out.balon;
     b.ver = !!q.balon; b.estela = !!q.estela;
-    b.llamas = !!(o.fuego && q.particulas === "balon") || !!(o.pl && o.pl.elemento === "Fuego" && (q.balon === "vuelo" || q.balon === "golpe" || q.balon === "mano" || q.balon === "cupula"));
+    b.llamas = !!(o.fuego && q.particulas === "balon") || !!(o.pl && o.pl.elemento === "Fuego" && (q.balon === "vuelo" || q.balon === "golpe" || q.balon === "mano" || q.balon === "cupula" || q.balon === "pasa"));
     b.beh = q.balon || ""; b.u = u; M.bota = q.bota || null;
     if (b.ver) { this.balonEn(q.balon, u, tp, this._b); b.x = this._b.x; b.y = this._b.y; b.z = this._b.z; b.giro = tp * 14; }
+    // la disputa aerea al ganar con el clip de VR: el balon en el hueso del balon (c_ball_1_0) de "yo" (O-341)
+    b.hueso = q.balon === "aerea2" && q.yo && q.yo.vr && this._tiene && this._tiene(M.yo.id, q.yo.vr) ? M.yo.id : -1;
     // la camara, en su marco
     this._camara(q.cam, ue, out);
     // los efectos
@@ -775,7 +1278,10 @@ export const Escenas = {
     // con el clip de VR que lo hace (si el modelo lo trae), sin lo de a mano
     const vr = !!(spec.vr && this._tiene && this._tiene(S.id, spec.vr));
     let f = 0, r = 0, y = 0, giro = S.giro, tumbado = 0, ladeado = 0;
-    if (spec.avance) f += lerp(spec.avance[0], spec.avance[1], ue) * H;
+    // (desde la parte avance[2] del plano, si la lleva: el que gana la disputa aerea se va al final, O-341)
+    if (spec.avance) f += lerp(spec.avance[0], spec.avance[1], spec.avance[2] ? suave(corta((u - spec.avance[2]) / (1 - spec.avance[2]))) : ue) * H;
+    // el que pierde la disputa aerea se aparta a su lado y atras (lo de la raiz de su clip de VR, O-341)
+    if (spec.aparta && vr) { const k = suave(corta(u / 0.65)); r += spec.aparta[0] * k * H; f += spec.aparta[1] * k * H; }
     if (spec.salto && !vr) y += lerp(spec.salto[0], spec.salto[1], sale(u)) * H;
     if ((spec.rodea || spec.sale) && otro) {
       const d = Math.hypot(otro.bx - S.bx, otro.bz - S.bz);
@@ -788,7 +1294,7 @@ export const Escenas = {
     if (spec.cae && !vr) tumbado = -lerp(spec.cae[0], spec.cae[1], sale(u));
     if (spec.gira) giro += u * Math.PI * 3;
     if (spec.tumbado && !vr) { tumbado = Math.PI / 2; y = 0.05 * H; ladeado = 0.25; }
-    if (spec.pierde && o.gana !== undefined && o.gana !== null && S.id !== o.gana && u > spec.pierde[0]) tumbado = -0.55 * sale(corta((u - spec.pierde[0]) / (spec.pierde[1] - spec.pierde[0])));
+    if (spec.pierde && !vr && o.gana !== undefined && o.gana !== null && S.id !== o.gana && u > spec.pierde[0]) tumbado = -0.55 * sale(corta((u - spec.pierde[0]) / (spec.pierde[1] - spec.pierde[0])));
     if (spec.tirada) {
       // el portero se tira: en el penalti a su zona; en el gol, al otro lado del balon
       const M = this._M, z = esYo ? (M.zona === 1 ? 2 : 2 - M.zona) : M.zonaP, lado = z === 1 ? 0 : z === 0 ? 1 : -1;
@@ -802,6 +1308,9 @@ export const Escenas = {
     if (vr) { clip = spec.vr; desde = 0; }
     a.clip = clip; a.bucle = clip === "parado" || clip === "correr";
     a.tiempo = a.bucle ? tp : Math.max(0, tp - (u > 0 ? desde / u * tp : 0));
+    // el clip de VR a su tiempo de verdad aunque el tramo dure otra cosa (la disputa aerea con
+    // las cortas: se ve entero, mas deprisa; O-341)
+    if (vr && spec.nominal) a.tiempo = u * spec.nominal;
   },
   // un punto en el marco de un actor (r a su derecha, y arriba, f adelante, en H)
   _punto(S, r, y, f, o) {
@@ -817,6 +1326,9 @@ export const Escenas = {
     else if (c.en === "medio" && M.hayOtro) {
       const a = M.yo, b = M.otro; ox = (a.cx + b.cx) / 2; oz = (a.cz + b.cz) / 2;
       fx = b.bx - a.bx; fz = b.bz - a.bz; const l = Math.hypot(fx, fz) || 1; fx /= l; fz /= l; H = (a.H + b.H) / 2; C.mira = -2;
+    } else if (c.en === "par" && M.hayOtro) {
+      // la pareja de la disputa aerea (O-341): entre los dos, mirando hacia donde mira "yo"
+      const a = M.yo, b = M.otro; ox = (a.bx + b.bx) / 2; oz = (a.bz + b.bz) / 2; fx = a.fx; fz = a.fz; H = (a.H + b.H) / 2; C.mira = -2;
     } else if (c.en === "balon") { const b = out.balon; ox = b.x; oy = b.y; oz = b.z; fx = M.yo.fx; fz = M.yo.fz; H = M.yo.H; C.mira = -3; }
     else if (c.en === "porteria") { ox = M.gx; oz = M.gz; fx = M.gfx; fz = M.gfz; H = M.H; C.mira = -4; }
     else { const S = M.yo; ox = S.cx; oz = S.cz; fx = S.fx; fz = S.fz; H = S.H; C.mira = S.id; }
@@ -856,6 +1368,8 @@ export const Escenas = {
         const k = corta(u / 0.45);
         this._punto(Y, 0, 0, lerp(3.6, 0.35 + 1.3 * 0.9, sale(k)), o); o.y = 0.42 * H;
         if (k >= 1) { o.x += Math.sin(tp * 50) * 0.03; o.y += Math.cos(tp * 47) * 0.03; }
+        // si lo para del todo, al final le cae a los pies: se lo queda (O-335)
+        if (M.finalBloqueo && u > 0.75) { const c = corta((u - 0.75) / 0.2); this._punto(Y, 0.05 * c, 0, lerp(1.52, 0.3, c), o); o.y = lerp(0.42 * H, Y.cy + rb, sale(c)); }
         break;
       }
       case "mano": {
@@ -864,13 +1378,52 @@ export const Escenas = {
         if (k >= 1) o.x += Math.sin(tp * 50) * 0.03;
         break;
       }
-      case "cuerpo": { const k = corta(u / 0.6); this._punto(Y, 0, lerp(0.35, 0.5, k), lerp(4, 0.3, k), o); break; }
+      case "cuerpo": {
+        const k = corta(u / 0.6); this._punto(Y, 0, lerp(0.35, 0.5, k), lerp(4, 0.3, k), o);
+        // si lo para del todo, el balon le cae a los pies: se lo queda (O-335)
+        if (M.finalBloqueo && u > 0.6) { const c = corta((u - 0.6) / 0.3); this._punto(Y, 0.05 * c, 0, 0.3, o); o.y = Y.cy + rb + lerp(0.5 * H - rb, 0, sale(c)); }
+        break;
+      }
+      // O-344: el que pasa al muro: llega por delante y le pasa por su izquierda a media altura
+      case "pasa": this._punto(Y, -0.42, lerp(0.62, 0.42, u), lerp(5.5, -7, u), o); break;
       case "manos": {
         const k = corta(u / 0.6), gol = M.finalGol;
         this._punto(Y, gol ? lerp(0, 0.7, k) : 0, lerp(0.45, 0.5, k), lerp(5, gol ? -0.6 : 0.28, k), o);
         break;
       }
+      // la disputa aerea (O-341): entre sus cabezas, bajando poco a poco (aerea0 al saltar, aerea1
+      // al pelear), y luego (aerea2) a los pies del que gana o, si lo despeja, de cabeza hacia delante
+      // (alto sobre los dos, como en VR, donde empieza el hueso del balon del clip de ganar: al
+      // ganar con los clips de VR el balon va en ese hueso, b.hueso)
+      case "aerea0": case "aerea1": {
+        const O = M.otro, k = beh === "aerea0" ? u * 0.3 : 0.3 + u * 0.7, lat = -(M.aereaLado || 1) * lerp(0, 0.22, k) * H, f = 0.38 * H;
+        const cx = (Y.bx + O.bx) / 2, cz = (Y.bz + O.bz) / 2;
+        o.x = cx + Y.fx * f - Y.fz * lat; o.z = cz + Y.fz * f + Y.fx * lat;
+        o.y = lerp(2.0, 1.6, k) * H + (beh === "aerea1" ? Math.sin(tp * 9) * 0.02 * H : 0);
+        break;
+      }
+      case "aerea2": {
+        const O = M.otro, lat = -(M.aereaLado || 1) * 0.22 * H, f = 0.38 * H, cx = (Y.bx + O.bx) / 2, cz = (Y.bz + O.bz) / 2;
+        const x0 = cx + Y.fx * f - Y.fz * lat, z0 = cz + Y.fz * f + Y.fx * lat, y0 = 1.6 * H;
+        if (M.cabeza) {
+          const k = corta(u / 0.3), s2 = sale(corta((u - 0.3) / 0.5));
+          o.x = lerp(x0, Y.cx, k) + Y.fx * s2 * 3 * H; o.z = lerp(z0, Y.cz, k) + Y.fz * s2 * 3 * H; o.y = lerp(y0, 0.95 * H, k) + s2 * 0.3 * H;
+          break;
+        }
+        const k = sale(corta(u / 0.4));
+        pie(Y);
+        o.x = lerp(x0, o.x, k); o.z = lerp(z0, o.z, k); o.y = lerp(y0, Y.cy + rb, k * k);
+        break;
+      }
       case "punto": o.x = Y.bx + Y.fx * 0.3 * H; o.z = Y.bz + Y.fz * 0.3 * H; o.y = rb; break;
+      // se lo quitan (O-336): de los pies del otro a los suyos entre u 0,35 y 0,6
+      case "roba": {
+        const k = sale(corta((u - 0.35) / 0.25)), a = this._punto(M.otro, 0.05, 0, 0.3, this._v3);
+        const ax = a.x, az = a.z, ay = M.otro.cy;
+        pie(Y);
+        o.x = lerp(ax, o.x, k); o.z = lerp(az, o.z, k); o.y = lerp(ay, Y.cy, k) + rb + Math.sin(Math.PI * k) * 0.25 * H;
+        break;
+      }
       case "penalti": {
         // del punto a su zona de la porteria (las zonas del campo, como las mira el motor)
         const k = corta((u - 0.15) / 0.55), x0 = Y.bx + Y.fx * 0.3 * H, z0 = Y.bz + Y.fz * 0.3 * H;
@@ -1100,6 +1653,10 @@ function construirEstudio(m) {
   E.blanco = new THREE.Mesh(quad, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, depthTest: false, depthWrite: false }));
   E.blanco.frustumCulled = false; E.blanco.renderOrder = 2;
   E.encimaEsc = new THREE.Scene(); E.encimaEsc.add(E.rayas, E.blanco);
+  // el rotulo de VR (O-332): una lamina encima de todo
+  E.rotulo = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, depthTest: false, depthWrite: false }));
+  E.rotulo.frustumCulled = false; E.rotulo.visible = false;
+  E.rotuloEsc = new THREE.Scene(); E.rotuloEsc.add(E.rotulo);
   // las particulas: 512 puntos con su semilla (atributo fijo); dos sistemas que comparten
   // la geometria: el del efecto y las llamas del balon
   const N = ESTUDIO.particulas, sem = new Float32Array(N * 4), pos = new Float32Array(N * 3);
@@ -1186,24 +1743,26 @@ Object.assign(Escenas, {
     // la pantalla de arriba deja ver el WebGL de detras (lo 2D de arriba la tapa entera)
     const ar = typeof document !== "undefined" && document.querySelector("#arriba");
     if (ar) ar.classList.add("con-3d");
-    // las animaciones de VR de este partido: las de antes se sueltan y se piden las de los 22
-    // (detras de sus modelos en la cola del servidor) (O-323)
+    // las animaciones de VR de este partido: las de antes se sueltan. Las pide la pantalla de
+    // carga (partido-carga.js), que comparte su `vr`; sin ella, aqui (O-323, O-329)
     this._vrSoltarTodo();
-    this.vr = { tecnicas: {}, espiritus: {}, hechos: new Set(), pend: 0, t: 0, visto: 0, caras: new Set(), pidiendo: false };
-    this._vrPedirPartido(m);
+    const C = typeof Carga !== "undefined" && Carga.vrDe ? Carga.vrDe(m.p) : null;
+    this.vr = C || { tecnicas: {}, espiritus: {}, hechos: new Set(), pend: 0, t: 0, visto: 0, caras: new Set(), pidiendo: false, mapa: false };
+    if (!C) this._vrPedirPartido(m);
   },
 
   // --- las animaciones de VR (O-323): pedirlas, cargarlas y pintarlas --------------------
-  // al servidor: los 22 (como son, con sus tecnicas y su espiritu), luego las formas de los
-  // modos (sus tecnicas, con su cuerpo) y el banquillo, en otra peticion (como mucho 40)
+  // al servidor (sin la pantalla de carga): los 22 (como son, con sus tecnicas y su espiritu),
+  // el banquillo y las formas de los modos (sus tecnicas, con su cuerpo), todo en una peticion
+  // (O-329: antes como mucho 40 jugadores y 16 tecnicas, y las formas y el banquillo aparte)
   _vrPedirPartido(m) {
-    const p = m.p, de = (cara, tecnicas, esp) => ({ cara: cara || "", tecnicas: (tecnicas || []).map(t => t.interno || t.id).filter(Boolean).slice(0, 16), espiritu: esp || "" });
+    const p = m.p, de = (cara, tecnicas, esp) => ({ cara: cara || "", tecnicas: (tecnicas || []).map(t => t.interno || t.id).filter(Boolean), espiritu: esp || "" });
     const espDe = d => { const t = (d.tecnicas || []).find(x => x.espiritu), e = d.espiritu || (t && t.espiritu); return e && e.id ? String(e.id) : ""; };
-    const uno = [], dos = [];
-    for (const j of p.jugadores) { const pr = j.propio || j; uno.push(de(pr.cara, pr.tecnicas, j.espiritu && j.espiritu.id)); this.vr.caras.add(pr.cara); }
-    for (const j of p.jugadores) if (j.formaHiper && j.formaHiper.tecnicas) dos.push(de(j.formaHiper.modelo || j.formaHiper.cara, j.formaHiper.tecnicas, ""));
-    for (const b of p.banquillos || []) for (const d of b || []) if (d && d.cara) { dos.push(de(d.cara, d.tecnicas, espDe(d))); this.vr.caras.add(d.cara); }
-    this._vrPedir(m, uno.slice(0, 40)).then(() => { if (dos.length && this._mundo === m) this._vrPedir(m, dos.slice(0, 40)); });
+    const lista = [];
+    for (const j of p.jugadores) { const pr = j.propio || j; lista.push(de(pr.cara, pr.tecnicas, j.espiritu && j.espiritu.id)); this.vr.caras.add(pr.cara); }
+    for (const b of p.banquillos || []) for (const d of b || []) if (d && d.cara) { lista.push(de(d.cara, d.tecnicas, espDe(d))); this.vr.caras.add(d.cara); }
+    for (const j of p.jugadores) if (j.formaHiper && j.formaHiper.tecnicas) lista.push(de(j.formaHiper.modelo || j.formaHiper.cara, j.formaHiper.tecnicas, ""));
+    this._vrPedir(m, lista);
   },
   _vrPedir(m, jugadores) {
     if (typeof fetch === "undefined" || !jugadores.length) return Promise.resolve();
@@ -1212,6 +1771,9 @@ Object.assign(Escenas, {
         const V = this.vr;
         if (!V || this._mundo !== m) return;
         Object.assign(V.tecnicas, e.tecnicas || {}); Object.assign(V.espiritus, e.espiritus || {});
+        V.mapa = true;
+        // (la de fallo de los bloqueos y las paradas, que el servidor convierte: O-344)
+        if (e.fallos) V.fallos = new Set([...(V.fallos || []), ...e.fallos]);
         this._vrEstado(e);
       }).catch(() => {});
   },
@@ -1220,7 +1782,10 @@ Object.assign(Escenas, {
     const V = this.vr, ev = e && e.eventos;
     if (!V || !ev) return;
     for (const x of ev.hechos || []) V.hechos.add(x);
-    V.pend = (ev.pendientes || []).length + (ev.actual ? 1 : 0);
+    // lo que ha vuelto a la cola (otro tipo de cuerpo o keshin) ya no esta hecho (O-334, vuelta 2)
+    const pend = [...(ev.pendientes || []), ev.actual].filter(Boolean);
+    for (const x of pend) V.hechos.delete(x);
+    V.pend = pend.length;
   },
   // cada cuadro: los que entran de un cambio, como va la cola (cada VR_EV.consulta ms
   // mientras queden) y lo que va a hacer falta (las tecnicas del plan, la invocacion)
@@ -1238,20 +1803,164 @@ Object.assign(Escenas, {
       V.pidiendo = true; V.t = ahora;
       fetch("/api/partido/modelos/estado").then(r => r.json()).then(e => this._vrEstado(e)).catch(() => {}).finally(() => { V.pidiendo = false; });
     }
+    // las candidatas del duelo que empieza (O-329) y lo del plan, que hace falta ya (O-345, vuelta 1: lo
+    // del plan primero: si el resultado sale al empezar el duelo (los dos eligen al momento), antes se
+    // ponian a leer dos candidatas y lo del plan esperaba a que acabaran)
     const R = A && A.plan;
-    if (R && R.r && R.plan) for (const info of this._vrInfosPlan(m.p, R)) if (info) this._vrCargar(info);
+    if (R && R.r && R.plan) for (const info of this._vrInfosPlan(m.p, R)) if (info) this._vrCargar(info, 0);
+    this._vrCandidatas(m);
+    this._vrRevisar();
     const tr = A && A.tramo;
-    if (tr && tr.que === "invoca") { const j = m.p.jugadores[tr.jugador], info = j && this._vrInfoInvoca(m.p, tr, j); if (info) this._vrCargar(info); }
+    if (tr && tr.que === "invoca") { const j = m.p.jugadores[tr.jugador], info = j && this._vrInfoInvoca(m.p, tr, j); if (info) this._vrCargar(info, 0); }
   },
-  // carga una (si este PC la tiene y aun no esta): sus modelos de la cache de abajo, y la sube
-  // a la grafica antes de verse
-  _vrCargar(info) {
+  // las candidatas de un duelo (O-329): al empezar cada duelo (o cada etapa del tiro), las
+  // supertecnicas que puede elegir cada uno, con los actores que tendran (mientras se elige
+  // nadie se mueve: los mismos companeros cerca y el mismo rival), y en la parada y el muro las
+  // dos (si para y si no). Se leen mientras se elige: al saberse el resultado ya estan
+  _vrCandidatas(m) {
+    const p = m.p, du = p.duelo, V = this.vr;
+    if (!V || !V.mapa || !du || p.fase !== "duelo") return;
+    const id = du.id + "|" + (du.etapa || "");
+    if (this._vrCand && this._vrCand.id === id) { this._vrDelante(p, du); return; }
+    const claves = new Set();
+    this._vrCand = { id, claves };
+    for (const info of this._vrInfosDuelo(p, du)) { claves.add(info.clave); this._vrCargar(info, 1); }
+    this._vrDelante(p, du);
+  },
+  // O-345, vuelta 1: en un foco, en cuanto elige uno (la maquina elige al momento), las jugadas sin
+  // tecnica de VR que aun pueden salir pasan delante de las demas candidatas (antes se leian por orden y
+  // Cargar y Romper, las ultimas, eran las que se esperaban en negro). Por lo que eligio el que defiende
+  // (su Tapar, Entrada o Cargar; con supertecnica, la de "sin saberse") y el que ataca (Romper: la suya o
+  // las que gana el que defiende; con supertecnica, las que gana el que defiende)
+  _vrDelante(p, du) {
+    const C = this._vrCand, el = du.elecciones || {}, n = Object.keys(el).length;
+    if (du.tipo !== "foco" || !C || !n || C.elegidas === n) return;
+    C.elegidas = n;
+    const a = p.jugadores[du.atacante], d = p.jugadores[du.defensor], JV = JUGADAS_VR;
+    if (!a || !d) return;
+    const ea = el[a.lado], ed = el[d.lado], DEF = { normal: "Tapar", potente: "Entrada", cargar: "Cargar" };
+    let fam = Object.values(JV.foco), gana = ["_1", "_2"], rompe = true;
+    if (typeof ed === "string") fam = [JV.foco[DEF[ed] || ""]];
+    if (typeof ea === "string") { if (ea !== "potente") rompe = false; if (ea[0] === "t") gana = ["_2"]; }
+    const quiero = new Set(fam.flatMap(f => gana.map(g => f + g)));
+    if (rompe) quiero.add(JV.rompe);
+    for (const info of this._vrJugadasDuelo(p, du)) if (info && quiero.has(info.evento)) this._vrCargar(info, 0.5);
+  },
+  _vrInfosDuelo(p, du) {
+    const out = [], J = id => (id !== undefined && id !== null ? p.jugadores[id] : null);
+    // (en un foco, antes las jugadas sin tecnica de VR: salen nada mas acabar el choque, O-345)
+    if (du.tipo === "foco") for (const info of this._vrJugadasDuelo(p, du)) if (info) out.push(info);
+    for (const L of Object.values(du.lados || {})) {
+      if (!L) continue;
+      const quien = [[J(L.jugador), L.opciones, L.rol]];
+      if (L.cadena) quien.push([J(L.cadena.jugador), L.cadena.opciones, "cadena"]);
+      if (L.muro) quien.push([J(L.muro.jugador), L.muro.opciones, "muro"]);
+      for (const [j, ops, rol] of quien) {
+        if (!j) continue;
+        for (const o of ops || []) {
+          if (!o || !o.clave || o.clave[0] !== "t" || o.puede === false) continue;
+          const t = (j.tecnicas || []).find(x => "t" + x.ranura === o.clave);
+          if (!t) continue;
+          for (const [r, q] of this._vrResultadosDe(du, j, t, rol)) {
+            const info = this._vrInfoTramo(p, r, q);
+            if (info && !out.some(x => x.clave === info.clave)) out.push(info);
+          }
+        }
+      }
+    }
+    // el tiro que llega al muro o al portero: si gana, el final de su tecnica (O-336), con quien
+    // salga ahora (los companeros que tenga cerca)
+    const T = p.tiro;
+    if ((du.etapa === "muro" || du.etapa === "portero") && T && T.paso && T.paso.tecnica && J(T.ultimo)) {
+      const r = { tipo: "tiro", tirador: T.ultimo, portero: du.portero, pasos: [Object.assign({}, T.paso, { quien: T.ultimo })] };
+      const info = this._vrInfoTramo(p, r, { que: "tecnica", jugador: T.ultimo, paso: 0, golpe: true });
+      if (info && !out.some(x => x.clave === info.clave)) out.push(info);
+    }
+    // las jugadas sin tecnica de VR que puede dar (O-345)
+    for (const info of this._vrJugadasDuelo(p, du)) if (info && !out.some(x => x.clave === info.clave)) out.push(info);
+    return out;
+  },
+  // O-345: las jugadas sin tecnica de VR que puede dar el duelo du, con todas sus variantes (cual sale
+  // depende del resultado): el duelo de campo, el chute, el muro, el portero y, al llegar al portero,
+  // el gol (la red y la celebracion del que chuta)
+  _vrJugadasDuelo(p, du) {
+    const out = [], JV = JUGADAS_VR, J = id => (id !== undefined && id !== null ? p.jugadores[id] : null);
+    if (!this.vr || !this.vr.mapa) return out;
+    const de = (j, evento, actores, tiro) => Object.assign(this._vrInfo(p, j, evento, actores, null, tiro), { jugada: true, elemento: "" });
+    if (du.tipo === "foco") {
+      const a = J(du.atacante), d = J(du.defensor);
+      if (!a || !d) return out;
+      const ac = { s00: modeloDe(a), s01: modeloDe(d) };
+      // (la de "sin saberse" solo gana el del balon: el que defiende con su tecnica sale con ella)
+      for (const [td, ev] of Object.entries(JV.foco)) for (const s of td ? ["_1", "_2"] : ["_1"]) out.push(de(a, ev + s, ac, false));
+      out.push(de(a, JV.rompe, ac, false));
+      return out;
+    }
+    const tiro = j => { for (const l of Object.values(JV.tiro)) for (const ev of l) out.push(de(j, ev, { s00: modeloDe(j) }, true)); };
+    const T = p.tiro, conTec = !!(T && T.paso && T.paso.tecnica);
+    for (const L of Object.values(du.lados || {})) {
+      if (!L) continue;
+      const j = J(L.jugador);
+      // (en el tiro que viaja, el rol es la etapa: cadena o muro; en el de antes, van dentro del lado)
+      if (j && (L.rol === "tiro" || L.rol === "penalti_tiro" || L.rol === "cadena")) tiro(j);
+      if (L.cadena && J(L.cadena.jugador)) tiro(J(L.cadena.jugador));
+      const mu = L.rol === "muro" ? j : L.muro ? J(L.muro.jugador) : null;
+      if (mu) out.push(de(mu, JV.muro, { s00: modeloDe(mu) }, false));
+      if (j && (L.rol === "porteria" || L.rol === "penalti_parada")) {
+        for (const l of Object.values(conTec ? JV.poder : JV.portero)) for (const ev of l) out.push(de(j, ev, { s00: modeloDe(j) }, false));
+        // el gol del que chuta: la red (todas o la de su elemento) y su celebracion
+        const tir = J(T && T.ultimo !== undefined ? T.ultimo : du.tirador);
+        if (tir) {
+          const G = this._vrInfosGol(p, { tirador: tir.id, pasos: [Object.assign({}, (T && T.paso) || {}, { quien: tir.id })] });
+          for (const fi of G.fiestas || [G.fiesta]) if (fi) out.push(fi);
+          if (conTec) { if (G.red) out.push(G.red); }
+          else for (const ev of JV.red) out.push(Object.assign({}, G.red, { clave: claveVR(ev, {}, null), evento: ev }));
+        }
+      }
+    }
+    return out.filter(Boolean);
+  },
+  // los resultados que puede dar elegir t en el duelo du (lo que mira _vrInfoTramo)
+  _vrResultadosDe(du, j, t, rol) {
+    if (du.tipo === "foco") return [[{ tipo: "foco", atacante: du.atacante, defensor: du.defensor, tecnicas: { [j.lado]: t.nombre }, hipers: {} }, { que: "tecnica", jugador: j.id }]];
+    const tir = du.tirador, paso = (que, quien) => ({ quien, que, tecnica: true });
+    if (rol === "tiro" || rol === "penalti_tiro" || rol === "chute") return [[{ tipo: "tiro", tirador: j.id, portero: du.portero, pasos: [paso(t.nombre, j.id)] }, { que: "tecnica", jugador: j.id, paso: 0 }]];
+    if (rol === "cadena") return [[{ tipo: "tiro", tirador: tir, portero: du.portero, pasos: [paso("", tir), paso(t.nombre, j.id)] }, { que: "tecnica", jugador: j.id, paso: 1 }]];
+    const muro = rol === "muro", q = { que: "tecnica", jugador: j.id, paso: 1, muro, portero: !muro };
+    const r = fin => ({ tipo: "tiro", tirador: tir, portero: du.portero, final: fin, pasos: [paso("", tir), paso(t.nombre, j.id)] });
+    // (O-344: y la del que no para: la de fallo si este PC la tiene; si no, la de acierto, que se corta)
+    return muro ? [[r("bloqueado"), q], [r("vuela"), q]] : [[r("parada"), q], [r("gol"), q]];
+  },
+  // la pone a leer (si este PC la tiene y aun no esta): sus modelos de la cache de abajo, y la
+  // sube a la grafica antes de verse. O-329: en cola, por prioridad (0 lo del plan, que hace
+  // falta ya; 1 las candidatas del duelo; 2 las fijas de la pantalla de carga), VR_EV.aLaVez a
+  // la vez; las fijas no se sueltan
+  _vrCargar(info, prio = 0, fija = false) {
     const m = this._mundo;
     if (!m || !this._E || !this._vrPuede(info)) return;
     let e = this._vrEv.get(info.clave);
-    if (e) { if (e.estado !== "mal") return; this._vrEv.delete(info.clave); }
-    e = { clave: info.clave, estado: "cargando", ev: null, usado: this._ahora(), hasta: 0 };
+    if (e) {
+      // (la que pasa delante y aun esta en cola, a leerse si hay sitio: O-345, vuelta 1)
+      if (e.estado !== "mal") { if (fija) e.fija = true; if (prio < e.prio) { e.prio = prio; if (e.estado === "cola") this._vrSiguiente(); } return; }
+      this._vrEv.delete(info.clave);
+    }
+    e = { clave: info.clave, estado: "cola", ev: null, usado: this._ahora(), hasta: 0, prio, fija, info, mb: 0 };
     this._vrEv.set(info.clave, e);
+    this._vrSiguiente();
+  },
+  _vrSiguiente() {
+    for (;;) {
+      let sig = null;
+      for (const e of this._vrEv.values()) if (e.estado === "cola" && (!sig || e.prio < sig.prio)) sig = e;
+      // (lo del plan, que hace falta ya, con una mas a la vez: no espera a que acaben dos candidatas que
+      // a lo mejor no salen; O-345, vuelta 1)
+      if (!sig || this._vrCargando >= VR_EV.aLaVez + (sig.prio === 0 ? 1 : 0)) return;
+      this._vrLeer(sig);
+    }
+  },
+  _vrLeer(e) {
+    const m = this._mundo, info = e.info;
+    e.estado = "cargando";
     this._vrCargando++;
     const t0 = this._ahora();
     EventoVR.cargar(info.evento, { modelo: c => m.modelo(c), actores: info.actores, asignado: info.asignado })
@@ -1259,7 +1968,11 @@ Object.assign(Escenas, {
         if (this._vrEv.get(info.clave) !== e || m.cerrado || this._mundo !== m) { ev.soltar(); return; }
         ev.camara.aspect = ESTUDIO.aspecto; ev.camara.updateProjectionMatrix();
         ev.preparar(m.render, this._E.escena);
-        e.ev = ev; e.estado = "listo"; e.usado = this._ahora();
+        e.ev = ev; e.estado = "listo"; e.usado = this._ahora(); e.mb = memoriaDe(ev);
+        // sus rotulos de VR, para que esten cuando salgan (O-332)
+        for (const r of (ev.j && ev.j.rotulos) || []) this._rotuloTex(nombreRotuloVR(r.rotulo, info));
+        // sin alguna de sus pistas: se mira si el servidor aun las hace (_vrRevisar, O-334, vuelta 2)
+        if (ev.faltan && ev.faltan.length) (this._vrIncompletas || (this._vrIncompletas = new Set())).add(e);
         // lo que tardan en cargarse (las ultimas 20, en ms)
         (this._vrTiempos || (this._vrTiempos = [])).push(Math.round(this._ahora() - t0));
         if (this._vrTiempos.length > 20) this._vrTiempos.shift();
@@ -1268,15 +1981,16 @@ Object.assign(Escenas, {
         this._vrRecortar();
       })
       .catch(err => { e.estado = "mal"; e.hasta = this._ahora() + 30000; console.warn("animación de VR " + info.evento + ":", err && err.message); })
-      .finally(() => { this._vrCargando--; });
+      .finally(() => { this._vrCargando--; this._vrSiguiente(); });
   },
-  // como mucho VR_EV.guardar cargadas: fuera las que hace mas que no se ven (ni la de ahora
-  // ni las del plan de ahora)
+  // como mucho VR_EV.guardar cargadas ademas de las fijas: fuera las que hace mas que no se
+  // ven (ni la de ahora, ni las del plan de ahora, ni las candidatas del duelo)
   _vrRecortar() {
-    const vivos = [...this._vrEv.values()].filter(e => e.ev);
+    const vivos = [...this._vrEv.values()].filter(e => e.ev && !e.fija);
     let n = vivos.length;
     if (n <= VR_EV.guardar) return;
     const quiero = new Set((this._vrPC ? this._vrPC.infos : []).filter(Boolean).map(i => i.clave));
+    for (const c of this._vrCand ? this._vrCand.claves : []) quiero.add(c);
     vivos.sort((a, b) => a.usado - b.usado);
     for (const e of vivos) {
       if (n <= VR_EV.guardar) break;
@@ -1284,9 +1998,153 @@ Object.assign(Escenas, {
       e.ev.soltar(); this._vrEv.delete(e.clave); n--;
     }
   },
+  // las leidas sin alguna de sus pistas (O-334, vuelta 2: el servidor la estaba rehaciendo para
+  // el keshin o el tipo de cuerpo de este partido y la pagina la creia hecha; el actor se quedaba
+  // quieto todo el partido). Si el servidor la tiene en su cola, se suelta y se lee otra vez
+  // cuando acabe (las fijas, en la pantalla de carga, que la espera); si la da por hecha, se le
+  // pide una vez que la mire (sin pedir nada nuevo: si le falta algo de lo ya pedido, la rehace);
+  // si tampoco, se queda asi (lo que el juego no trae). La de ahora, la del plan y las
+  // candidatas del duelo, cuando dejen de hacer falta
+  _vrRevisar() {
+    const S = this._vrIncompletas, V = this.vr;
+    if (!S || !S.size || !V) return;
+    const quiero = new Set((this._vrPC ? this._vrPC.infos : []).filter(Boolean).map(i => i.clave));
+    for (const c of this._vrCand ? this._vrCand.claves : []) quiero.add(c);
+    for (const e of [...S]) {
+      const ev = e.info.evento;
+      if (this._vrEv.get(e.info.clave) !== e || !e.ev) { S.delete(e); continue; }
+      if (!V.hechos.has(ev)) {
+        if (e === this._vrActivo || quiero.has(e.info.clave)) continue;
+        S.delete(e); e.ev.soltar(); this._vrEv.delete(e.info.clave);
+        continue;
+      }
+      if (e.pidiendo) continue;
+      // (un tipo de cuerpo con las del c000101 en su lugar, o ya mirada: se queda como esta)
+      const mirados = V.mirados || (V.mirados = new Set());
+      if (!e.ev.sinPistas.length || mirados.has(ev)) { S.delete(e); continue; }
+      if (typeof fetch === "undefined") continue;
+      mirados.add(ev); e.pidiendo = true;
+      fetch("/api/partido/eventos/preparar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ eventos: { [ev]: { tipos: [], asignados: [] } } }) })
+        .then(r => r.json()).then(r => { if (this.vr === V) this._vrEstado(r); }).catch(() => {}).finally(() => { e.pidiendo = false; });
+    }
+  },
   _vrSoltarTodo() {
     for (const e of this._vrEv.values()) if (e.ev) e.ev.soltar();
-    this._vrEv.clear(); this._vrActivo = null; this._vrPC = null; this._vrDec = null; this._vrIC = null;
+    if (this._vrIncompletas) this._vrIncompletas.clear();
+    this._vrEv.clear(); this._vrActivo = null; this._vrPC = null; this._vrDec = null; this._vrIC = null; this._vrCand = null; this._pc = null;
+  },
+
+  // --- la precarga (O-329): lo que hace en la pagina la pantalla de carga (partido-carga.js) --
+  // modelos: los codigos que hacen falta (los 22, el banquillo, sus formas, keshin y almas, el
+  // balon y los de las tecnicas): se bajan a la cache de partido-3d en cuanto el servidor los
+  // tiene (vr.modelosHechos). Con todos, las fijas (_vrFijas) se leen, se suben a la grafica y se
+  // compilan en cuanto estan convertidas, hasta VR_EV.fijasMB; las demas se leen en el partido.
+  // Se puede llamar otra vez con mas modelos (se suman)
+  precargar(m, modelos) {
+    if (m !== this._mundo) return;
+    const P = this._pc && this._pc.m === m ? this._pc : (this._pc = { m, modelos: new Map(), fijas: null, mb: 0, llenas: false });
+    for (const c of modelos) if (c && !P.modelos.has(c)) P.modelos.set(c, 0);
+  },
+  // como va (lo llama la pantalla de carga cada cuadro): {modelos: [listos, de], fijas: [hechas,
+  // de], fijasPend (los eventos con fijas por hacer), mb, listo}
+  avancePrecarga() {
+    const P = this._pc, m = this._mundo, V = this.vr;
+    if (!P || !m || P.m !== m || m.cerrado || !V) return null;
+    const MH = V.modelosHechos || new Set(), MM = V.modelosMal || new Set();
+    let mOk = 0;
+    for (const [c, st] of P.modelos) {
+      if (st === 0 && (MH.has(c) || MM.has(c) || V.sinCola)) {
+        P.modelos.set(c, 1);
+        m.modelo(c).then(g => { if (this._pc === P) P.modelos.set(c, g ? 2 : 3); if (g) this._gltf.set(c, g); }, () => { if (this._pc === P) P.modelos.set(c, 3); });
+      } else if (st >= 2) mOk++;
+    }
+    // los actores del Estudio y su pasada por la grafica (lo de pintar(), que aun no se llama)
+    this._mirarActores(m);
+    // las leidas a medias que el servidor esta rehaciendo: fuera, y se leen cuando esten (O-334, vuelta 2)
+    this._vrRevisar();
+    const todos = mOk === P.modelos.size;
+    if (!P.fijas && V.mapa) P.fijas = this._vrFijas(m.p);
+    const fijas = P.fijas || [], pend = new Set(), noVendra = x => (V.eventosMal && V.eventosMal.has(x)) || V.sinCola;
+    // la memoria de las ya leidas (hasta VR_EV.fijasMB; luego las demas se leen en el partido) y
+    // las que se estan leyendo: de VR_EV.aLaVez en VR_EV.aLaVez, para que el tope se mire con lo
+    // ya leido
+    let fOk = 0, mb = 0, enCurso = 0;
+    for (const e of this._vrEv.values()) if (e.fija) { if (e.ev) mb += e.mb; else if (e.estado === "cola" || e.estado === "cargando") enCurso++; }
+    P.mb = mb;
+    if (mb > VR_EV.fijasMB) P.llenas = true;
+    for (const f of fijas) {
+      let e = this._vrEv.get(f.clave);
+      // (con todos los modelos en la cache: si no, cargar las dejaria sin el balon o el keshin)
+      // (las invocaciones, siempre: paran el juego y salen al momento, O-337; aunque su evento se
+      // convierta tarde y las demas ya llenen el tope: si no, una se quedaba sin leer)
+      if (!e && todos && (!P.llenas || f.siempre) && enCurso < VR_EV.aLaVez && V.hechos.has(f.evento)) { this._vrCargar(f, 2, true); e = this._vrEv.get(f.clave); if (e) enCurso++; }
+      const hecha = noVendra(f.evento) || (e && (e.estado === "listo" || e.estado === "mal")) || (P.llenas && !f.siempre && V.hechos.has(f.evento) && !(e && e.fija));
+      if (hecha) fOk++; else pend.add(f.evento);
+    }
+    // y las figuras de abajo con su modelo (las que lo tienen)
+    // (las vestidas, por sus ficheros: el cuerpo y la ropa, O-334)
+    const figuras = (m.figuras || []).every(g => {
+      const u = g.userData || {}, fs = ficherosDe(u.cara);
+      return !u.cara || !!u.cuerpo || fs.some(x => P.modelos.get(x) === 3) || !fs.every(x => P.modelos.has(x));
+    });
+    return { modelos: [mOk, P.modelos.size], fijas: [fOk, fijas.length], fijasPend: pend, mb: Math.round(mb),
+             listo: todos && fOk === fijas.length && figuras && this._calentado };
+  },
+  // las fijas (O-329): las que en el partido no tendrian tiempo de leerse y las que ya se sabe con
+  // quien salen (la misma clave que tendran en el partido): la invocacion de cada espiritu (sale
+  // al momento; tambien la ★), las paradas de los porteros (a 0,2 s del resultado; si para: la de
+  // gol ya no sale, O-336), las de un solo actor de los 22 (los tiros; las cadenas salen a 0,2 s), las de sus
+  // formas y las del banquillo. Por ese orden, hasta VR_EV.fijasMB
+  _vrFijas(p) {
+    const V = this.vr, out = [], vistas = new Set();
+    const pon = (evento, actores, asignado, siempre, mas) => {
+      if (!evento) return;
+      const clave = claveVR(evento, actores, asignado);
+      if (vistas.has(clave)) return;
+      vistas.add(clave);
+      // (mas: el rotulo de VR de su espiritu, para tenerlo ya, O-332)
+      out.push(Object.assign({ clave, evento, actores, asignado: asignado || null, x: 0, z: 0, giro: 0, siempre: !!siempre }, mas || {}));
+    };
+    const espDe = d => { const t = (d.tecnicas || []).find(x => x.espiritu), e = d.espiritu || (t && t.espiritu); return e && e.id ? e : null; };
+    // los del banquillo como saldrian (O-334): el diseno de su equipo y sus formas con su ropa
+    const banco = [].concat(...(p.banquillos || []).map((b, lado) => (b || []).filter(d => d && d.cara).map(d => {
+      const esp = espDe(d), fo = esp && esp.forma;
+      return Object.assign({}, d, { diseno: (p.disenos || [0, 0])[lado] || 0, modeloHiper: (esp && esp.modelo) || null, ropaHiper: (esp && esp.ropa_modelo) || null,
+        formaHiper: fo ? { modelo: fo.modelo || fo.cara, cara: fo.cara, ropa: fo.ropa || null } : null });
+    })));
+    const formaDe = (j, esp) => (j.formaHiper && j.formaHiper.modelo) || j.modeloHiper || (esp && esp.forma && (esp.forma.modelo || esp.forma.cara)) || (esp && esp.modelo) || "";
+    // la invocacion (como _vrInfoEspiritu con la forma ya puesta)
+    for (const j of p.jugadores.map(x => x.propio ? Object.assign({}, x, x.propio) : x).concat(banco)) {
+      const esp = espDe(j), e = esp ? V.espiritus[esp.id] : null;
+      if (!e || !e.evento) continue;
+      const actores = { s00: vestidoDe(j, j.cara) }, forma = e.cara_a || formaDe(j, esp);
+      if (forma) actores.s01 = vestidoDe(j, forma);
+      pon(e.evento, actores, e.asignado || j.keshinHiper || (esp && esp.keshin) || null, true, { rotulo: e.rotulo || "", espiritu: true });     // (siempre, O-337)
+    }
+    // las de un solo actor de cada uno: s00 el que la hace (o su forma)
+    const deUno = (j, cara, tecnicas, filtro) => {
+      const esp = espDe(j), e0 = esp ? V.espiritus[esp.id] : null;
+      for (const t of tecnicas || []) {
+        if (filtro && !filtro(t)) continue;
+        const e = t.interno ? V.tecnicas[t.interno] : null;
+        // (y las que solo llevan copias del que la hace, como Sombra de Orion: ya se sabe con
+        // quien salen, O-345)
+        const rs = e ? rolesVR(e.roles) : null, copias = !!rs && rs.every(x => x[1] === "h0");
+        if (!e || !e.evento || (Math.max(1, +e.jugadores || 1) > 1 && !copias)) continue;
+        const asg = e.asignado ? (e0 && e0.asignado) || j.keshinHiper || null : null;
+        pon(e.evento, copias ? Object.fromEntries(rs.map(x => [x[0], cara])) : { s00: cara }, asg);
+        // (y la de fallo: la parada que encaja tambien sale a 0,2 s del resultado; O-344)
+        if (e.evento_fallo && ((V.fallos && V.fallos.has(e.evento_fallo)) || V.hechos.has(e.evento_fallo))) pon(e.evento_fallo, copias ? Object.fromEntries(rs.map(x => [x[0], cara])) : { s00: cara }, asg);
+      }
+    };
+    const campo = p.jugadores, sirve = q => t => typeof REGLAS !== "undefined" && REGLAS.sirve ? REGLAS.sirve(t, q) : true;
+    for (const j of campo) if (j.esPortero) deUno(j, modeloDe(j), j.tecnicas, sirve("parada"));
+    for (const j of campo) deUno(j, modeloDe(j), j.tecnicas, sirve("cadena"));
+    for (const j of campo) deUno(j, modeloDe(j), j.tecnicas);
+    for (const j of campo) if (j.formaHiper && j.formaHiper.tecnicas) deUno(j, vestidoDe(j, j.formaHiper.modelo || j.formaHiper.cara), j.formaHiper.tecnicas);
+    for (const j of campo) if (j.modeloHiper) deUno(j, vestidoDe(j, j.modeloHiper), j.tecnicas);
+    for (const d of banco) deUno(d, vestidoDe(d, d.cara), d.tecnicas);
+    return out;
   },
   // el cuadro de VR: su raiz en la escena del Estudio, en su sitio del campo, y lo de las
   // plantillas escondido
@@ -1296,11 +2154,15 @@ Object.assign(Escenas, {
       if (this._vrActivo && this._vrActivo.ev) this._vrActivo.ev.raiz.removeFromParent();
       this._vrActivo = e; E.escena.add(ev.raiz);
     }
-    // el que la hace (s00 al empezar) en su sitio, mirando adonde toca
-    const an = ev.ancla() || { x: 0, z: 0, giro: 0 }, a = v.vr.giro - an.giro, c = Math.cos(a), s = Math.sin(a);
+    // el que la hace (s00 al empezar; s01 en VR_HACE_S01, O-336) en su sitio, mirando adonde toca
+    // (las jugadas sin tecnica de VR, por la pose del que la hace al empezar: su raiz no lo lleva, O-345)
+    const an = (v.vr.jugada && ev.anclaPuesta ? ev.anclaPuesta(v.vr.hace || "s00") : null) || ev.ancla(v.vr.hace || "s00") || { x: 0, z: 0, giro: 0 }, a = v.vr.giro - an.giro, c = Math.cos(a), s = Math.sin(a);
     ev.raiz.rotation.set(0, a, 0);
     ev.raiz.position.set(v.vr.x - (c * an.x + s * an.z), 0, v.vr.z - (-s * an.x + c * an.z));
+    // el elemento de la tecnica (el color del aura del balon en los eventos compartidos, O-332)
+    if (v.vr.elemento && ev.elemento) ev.elemento(v.vr.elemento);
     ev.poner(v.vr.t);
+    this._ponRotuloVR(ev, v.vr);
     E.actores.visible = false;
     for (const o of [E.balon, E.estela, E.part, E.partBalon, E.aura, E.cupula, E.mano, E.espiral]) o.visible = false;
   },
@@ -1310,10 +2172,64 @@ Object.assign(Escenas, {
     R.setClearColor(0x000000, 1); R.clear(true, true, false);
     E.estadio.visible = true;
     R.render(E.escena, ev.camara);
+    // el destello blanco de pantalla entera de VR (whiteout, O-337 vuelta 1): encima, como el de las plantillas
+    if (ev.blanco > 0.01) {
+      E.rayas.visible = false; E.blanco.visible = true; E.blanco.material.opacity = ev.blanco;
+      R.render(E.encimaEsc, E.orto);
+    }
+    // el brillo alrededor de lo claro, como en VR (O-332)
+    (this._brillo || (this._brillo = new BrilloVR())).aplicar(R);
+    // el rotulo de VR, encima de todo (como el menu de VR, O-332)
+    if (E.rotulo && E.rotulo.visible) R.render(E.rotuloEsc, E.orto);
     R.autoClear = ac;
+  },
+  // --- el rotulo de VR (O-332) ------------------------------------------------------------
+  // la textura de un rotulo (eventos/_rotulos/<nombre>.png): se pide una vez; {tex, estado}
+  _rotuloTex(nombre) {
+    if (!nombre) return null;
+    const M = this._rotulos || (this._rotulos = new Map());
+    let x = M.get(nombre);
+    if (!x) {
+      if (typeof document === "undefined") return null;
+      x = { tex: null, estado: "cargando" };
+      M.set(nombre, x);
+      new THREE.TextureLoader().load(ROTULO_VR.raiz + nombre + ".png", t => {
+        t.colorSpace = THREE.SRGBColorSpace; t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter;
+        x.tex = t; x.estado = "listo";
+      }, undefined, () => { x.estado = "mal"; });
+    }
+    return x;
+  },
+  // los rotulos del guion de una animacion ya cargada con su fichero ([rotulo, nombre])
+  _rotulosDe(ev, v) {
+    return (ev && ev.j && ev.j.rotulos || []).map(r => [r, nombreRotuloVR(r.rotulo, v)]).filter(x => x[1]);
+  },
+  // si en este tramo sale el rotulo de VR (el que se ha podido cargar o se esta cargando): asi no
+  // sale tambien el nombre de Galaxy (puro: sin la textura, como antes)
+  _hayRotuloVR(ev, v) {
+    const M = this._rotulos;
+    if (!M || !ev) return false;
+    return this._rotulosDe(ev, v).some(([, n]) => { const x = M.get(n); return !!x && x.estado !== "mal"; });
+  },
+  // el de este cuadro, encima de la animacion: su textura, su tamano y su transparencia
+  _ponRotuloVR(ev, v) {
+    const E = this._E, q = E && E.rotulo;
+    if (!q) return;
+    q.visible = false;
+    const t = v.t, fps = EVENTO_VR.fps;
+    for (const [r, n] of this._rotulosDe(ev, v)) {
+      const x = this._rotuloTex(n), st = estadoRotuloVR(t, r.ini / fps, r.fin / fps, v.ini || 0);
+      if (!st || !x || !x.tex) continue;
+      const R = ROTULO_VR, h = 2 * R.alto * st.escala;
+      q.material.map = x.tex; q.material.opacity = st.alfa; q.material.needsUpdate = q.userData.tex !== x.tex; q.userData.tex = x.tex;
+      q.scale.set(2 * R.ancho * st.escala / ESTUDIO.aspecto, h, 1);
+      q.position.set(0, 1 - 2 * R.y, 0);
+      q.visible = st.alfa > 0.002;
+    }
   },
   // fuera la de VR de la escena (vuelve una plantilla)
   _vrQuitar() {
+    if (this._E && this._E.rotulo) this._E.rotulo.visible = false;
     if (this._vrActivo && this._vrActivo.ev) this._vrActivo.ev.raiz.removeFromParent();
     this._vrActivo = null;
     if (this._E) this._E.actores.visible = true;
@@ -1375,6 +2291,8 @@ Object.assign(Escenas, {
       const clip = gltf.animations.find(x => x.name === nombre);
       if (clip) acciones[clave] = mezcla.clipAction(clip);
     }
+    // y los de la disputa aerea de VR, aparte por su tipo de cuerpo (O-341)
+    accionesAerea(gltf, cuerpo, mezcla, acciones);
     // el alto del modelo (una vez por gltf): por su cabeza (el hueso c_head en reposo); sin
     // el, lo de arriba de su caja
     if (gltf._alto === undefined) {
@@ -1440,10 +2358,20 @@ Object.assign(Escenas, {
   pintar(m, A) {
     const t0 = performance.now();
     if (!this._E || m.cerrado) return 0;
+    // (el rotulo de VR lo vuelve a poner _aplicarVR si este cuadro es de VR, O-332)
+    if (this._E.rotulo) this._E.rotulo.visible = false;
     this._mirarActores(m);
     this._vrMirar(m, A);
     const v = A && A.escena;
     if (!v || !v.hay) return performance.now() - t0;
+    // esperando a la de VR (O-329): negro (y el negro de tras la red de VR, O-345 vuelta 1)
+    if (v.esperaVR || v.negroVR) {
+      if (this._vrActivo) this._vrQuitar();
+      const R = m.render;
+      R.setClearColor(0x000000, 1); R.clear(true, true, false);
+      this.ms = performance.now() - t0;
+      return this.ms;
+    }
     // la animacion de VR (O-323)
     if (v.vr) {
       const e = this._vrEv.get(v.vr.clave);
@@ -1487,6 +2415,13 @@ Object.assign(Escenas, {
     const b = v.balon;
     E.balon.visible = b.ver;
     if (b.ver) { E.balon.position.set(b.x, b.y, b.z); E.balon.rotation.set(b.giro, b.giro * 0.6, 0); }
+    // en el hueso del balon del clip de VR del que gana la disputa aerea (O-341): sube a su cabeza,
+    // cae y se queda a sus pies, como en VR
+    const ah = b.ver && b.hueso >= 0 ? this._porId[b.hueso] : null;
+    if (ah && ah.cuerpo) {
+      if (ah.cBall === undefined) ah.cBall = ah.cuerpo.getObjectByName("c_ball_1_0") || null;
+      if (ah.cBall) { ah.grupo.updateMatrixWorld(true); ah.cBall.getWorldPosition(E.balon.position); }
+    }
     this._estela(m, v);
     const bajo = m.nivel === "baja";
     const pb = E.partBalon;
@@ -1587,6 +2522,8 @@ Object.assign(Escenas, {
     for (const a of this._actores.values()) { actores++; if (a.sil) siluetas++; }
     // las animaciones de VR (O-323): cargadas, la que se ve, las que este PC tiene
     const vr = { cargadas: [...this._vrEv.values()].filter(e => e.ev).map(e => e.clave), activa: this._vrActivo ? this._vrActivo.clave : null,
+                 fijas: [...this._vrEv.values()].filter(e => e.ev && e.fija).length, cola: [...this._vrEv.values()].filter(e => e.estado === "cola").length,
+                 mbFijas: this._pc ? Math.round(this._pc.mb) : 0,
                  cargando: this._vrCargando, hechos: this.vr ? this.vr.hechos.size : 0, pendientes: this.vr ? this.vr.pend : 0,
                  cuenta: Object.assign({}, this._vrCuenta || {}), ms: (this._vrTiempos || []).slice() };
     return { actores, siluetas, calentado: this._calentado, ms: this.ms, vr };

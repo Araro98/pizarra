@@ -150,13 +150,16 @@ const SueloAbajo = {
     // en el saque de centro, no (desde el centro casi todos llegan con un tiro largo)
     if (p.fase === "saque" && p.esperaSaque && p.esperaSaque.tipo === "centro" && !(pm && pm.tipo === "tiro")) return null;
     if (pm && pm.tipo === "tiro") return d;
-    const g = p.porteriaRival(d);
-    return p._alcanceTiro && Math.hypot(g.x - d.x, g.y - d.y) <= p._alcanceTiro(d) ? d : null;
+    // (el rango del motor: el area y un poco mas; con un tiro largo, mas lejos; O-335)
+    return p.enRangoTiro && p.enRangoTiro(d) ? d : null;
   },
-  // la X del tiro: donde pulsaste (si es de esta porteria y de hace poco) o en medio
+  // la X del tiro: donde pulsaste (si es de esta porteria y de hace poco) o en medio. Donde
+  // ira de verdad (REGLAS.apunteTiro, O-335): pegada al palo por dentro si pulsaste un poco
+  // fuera; `fuera` si apuntaste muy fuera (se ve fuera de la porteria y en rojo)
   equis(p, j, t) {
     const g = p.porteriaRival(j), vale = t && Math.abs(t.y - g.y) < 0.5 && performance.now() / 1000 - t.t < 30;
-    return { x: vale ? t.x : 0, y: g.y };
+    const a = vale && REGLAS.apunteTiro ? REGLAS.apunteTiro(t.x) : null;
+    return { x: a ? a.x : vale ? t.x : 0, y: g.y, fuera: !!(a && a.fuera) };
   },
   // el destino del pase en el aire o del marcado (un jugador o un punto), o null
   destino(p, yo) {
@@ -327,7 +330,8 @@ class Pantalla {
   }
   // donde pulsaste en la porteria al chutar: ahi va la X del cono (solo se ve aqui)
   apuntar(x, y) {
-    const m = REGLAS.PORTERIA / 2 - 0.6;
+    // tal cual (hasta lo que se toma por la porteria): la X dice adonde va (O-335)
+    const m = REGLAS.APUNTAR ? REGLAS.APUNTAR.max : REGLAS.PORTERIA / 2 - 0.6;
     this.puntoTiro = { x: Math.max(-m, Math.min(m, x)), y, t: performance.now() / 1000 };
   }
   // --- en el suelo (O-317) ----------------------------------------------------------------
@@ -342,7 +346,7 @@ class Pantalla {
       ctx.save();
       ctx.beginPath(); ctx.moveTo(A.px, A.py); ctx.lineTo(B.px, B.py); ctx.lineTo(C.px, C.py); ctx.closePath();
       ctx.globalAlpha = 0.45; ctx.fillStyle = GX.cono; ctx.fill(); ctx.globalAlpha = 1;
-      this._equis(E.px, E.py);
+      this._equis(E.px, E.py, Math.abs(T.tx) > m);
       ctx.restore();
       return;
     }
@@ -359,7 +363,7 @@ class Pantalla {
         ctx.strokeStyle = col; ctx.lineWidth = w * ppp;
         ctx.beginPath(); ctx.moveTo(A.px, A.py); ctx.lineTo(E.px, E.py); ctx.stroke();
       }
-      this._equis(E.px, E.py);
+      this._equis(E.px, E.py, X.fuera);
       // el rombo, encima de su cabeza (como en b04 y b28)
       const R = this._dp(j.x, j.y, this.alturaFigura * 1.25), w = 6 * ppp, h = 8 * ppp;
       ctx.beginPath(); ctx.moveTo(R.px, R.py - h); ctx.lineTo(R.px + w, R.py); ctx.lineTo(R.px, R.py + h); ctx.lineTo(R.px - w, R.py); ctx.closePath();
@@ -367,11 +371,11 @@ class Pantalla {
     }
     ctx.restore();
   }
-  // la X amarilla del tiro (marca_x de los iconos)
-  _equis(x, y) {
+  // la X amarilla del tiro (marca_x de los iconos); roja si apuntas muy fuera (O-335)
+  _equis(x, y, fuera) {
     const ctx = this.ctx, t = 6 * this.ppp;
     ctx.save(); ctx.lineCap = "round";
-    for (const [col, g] of [["#6A4A00", 4.4], [GX.lineaTiro[1], 2.6]]) {
+    for (const [col, g] of [["#6A4A00", 4.4], [fuera ? "#FF5A48" : GX.lineaTiro[1], 2.6]]) {
       ctx.strokeStyle = col; ctx.lineWidth = g * this.ppp;
       ctx.beginPath(); ctx.moveTo(x - t, y - t * 0.8); ctx.lineTo(x + t, y + t * 0.8); ctx.moveTo(x + t, y - t * 0.8); ctx.lineTo(x - t, y + t * 0.8); ctx.stroke();
     }

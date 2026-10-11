@@ -12,7 +12,10 @@ Escribe en `datos/reglas-extraidas/`:
   `jugadores` (cuantos actores jugador: en regates y defensas el segundo es el rival; en las
   de 2-3, los companeros), `asignado` (si sale el keshin o el alma del que la hace),
   `modelos` (los modelos fijos: el balon, los de la tecnica en _waza...), `tipos_cuerpo` (los
-  que tienen animacion) y `rotulo` (el rotulo de VR con el nombre, telop_waza/es).
+  que tienen animacion), `rotulo` (el rotulo de VR con el nombre, telop_waza/es) y `roles`
+  (quien es cada jugador del guion, O-345: "s00=h0 s01=r0"; h0 el que la hace, h1.. sus
+  companeros, r0 el rival, r1.. los otros rivales; el mismo dos veces es una copia del jugador,
+  como el clon de Sombra de Orion).
 - `eventos-espiritus.csv`: por espiritu (`id` como en espiritus.csv), su evento de invocacion
   (AURA_CMD_INFO_LIST col 12), `asignado` (el keshin kNNNNNN o el alma aNNNNNN que pone el
   juego, col 7), `cara_a` (el modelo en el que se convierte: armadura y mixi max por la
@@ -109,7 +112,9 @@ def analizar(fuente, nombre, cache):
                "jugadores": len(personajes),
                "asignado": "si" if any(EV.tipo_de_actor(a) == "asignado" for a in ev["actores"]) else "",
                "modelos": " ".join(modelos), "tipos_cuerpo": " ".join(tipos), "efectos": len(efectos),
-               "particulas": particulas, "rotulo_guion": ev["rotulo"] or ""}
+               "particulas": particulas, "rotulo_guion": ev["rotulo"] or "",
+               # quien es cada jugador (O-345: CARGAR_PERSONAJE dice de que equipo y cual)
+               "roles": " ".join("%s=%s" % (cl, r[0]) for cl, r in sorted(EV.roles(ev).items()))}
     cache[nombre] = out
     return out
 
@@ -145,7 +150,7 @@ def main():
                       "evento_fallo": fallo, "cortes": a["cortes"], "segundos": a["segundos"],
                       "jugadores": a["jugadores"], "asignado": a["asignado"], "modelos": a["modelos"],
                       "tipos_cuerpo": a["tipos_cuerpo"], "efectos": a["efectos"], "particulas": a["particulas"],
-                      "rotulo": rot if rot in telops else ""})
+                      "rotulo": rot if rot in telops else "", "roles": a["roles"]})
     filas.sort(key=lambda f: f["interno"])
     ruta = os.path.join(SALIDA, "eventos-tecnicas.csv")
     with open(ruta, "w", newline="", encoding="utf-8") as fh:
@@ -154,6 +159,8 @@ def main():
                  "# failEventIDName (paradas y bloqueos: el del gol). jugadores: actores jugador del guion (s00 el\n"
                  "# que la hace; s01.. el rival o los companeros). asignado: sale su keshin/alma. modelos: modelos\n"
                  "# fijos (balon, _waza...). tipos_cuerpo: 01..04 con animacion. rotulo: telop_waza/es.\n"
+                 "# roles: quien es cada jugador (O-345): h0 el que la hace, h1.. companeros, r0 el rival, r1..\n"
+                 "# otros rivales; el mismo dos veces es una copia del jugador (Sombra de Orion).\n"
                  "# Lo genera herramientas/construir_eventos.py; lo convierte ievr/g4evento.py en cada PC.\n")
         w = csv.DictWriter(fh, fieldnames=list(filas[0]))
         w.writeheader()

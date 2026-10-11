@@ -175,12 +175,16 @@ function equipoParaRed(d) {
     personal: (d.personal || []).map(s => ({ nombre: s.nombre, elemento: s.elemento, posicion: s.posicion,
       pasivas: (s.pasivas || []).map(q => ({ texto: q.texto, efecto: q.efecto })) })),
     configuracion: d.configuracion || null,
+    // la equipacion del equipo para los modelos 3D (O-334)
+    equipacion: d.equipacion || null,
   };
 }
 function jugadorParaRed(j) {
   return {
       nombre: j.nombre, cara: j.cara, posicion: j.posicion, elemento: j.elemento, nivel: j.nivel,
       stats: j.stats, puesto: j.puesto, dorsal: j.dorsal,
+      // su velocidad (O-340): con ella corre; la de su forma va en el espiritu
+      velocidad: j.velocidad || 0,
       tecnicas: (j.tecnicas || []).map(t => ({ ranura: t.ranura, nombre: t.nombre, tipo: t.tipo, subtipo: t.subtipo,
         elemento: t.elemento, poder: t.poder, poderMin: t.poderMin, tp: t.tp, interno: t.interno, subtipo_valor: t.subtipo_valor, espiritu: t.espiritu,
         // lo que dura su animacion de VR: el plan de las completas, igual en los dos (O-323)
@@ -190,5 +194,7 @@ function jugadorParaRed(j) {
       pasivas: (j.pasivas || []).map(q => ({ texto: q.texto, abierta: q.abierta, efecto: q.efecto, espiritu: !!(q.espiritu || q.ranura === "espiritu") })),
       // entero: con su id y su tipo de hipertecnica (keshin, totem, despertar...) (O-310)
       espiritu: j.espiritu || null,
+      // su ropa con la equipacion del equipo y el brazalete (O-334)
+      ropa: j.ropa || null, capitan: !!j.capitan,
   };
 }

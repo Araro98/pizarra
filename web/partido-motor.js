@@ -59,6 +59,12 @@ class Partido {
     this.conTiempoInvocar = !!opciones.tiempoInvocar;
     this.tiempoInvocar = null;
     this.invocarLista = [0, 0];
+    // la INVOCACION CON EL JUEGO PARADO (O-337; Aaron: "mientras sale esa animacion se para el
+    // juego para verla hasta que termina"): con las animaciones, la que se esta viendo (fase
+    // "invocando"): {tipo "invocacion", k, cola [{j, que, seg}], anim {modo, total}, vuelve}
+    this.invocando = null;
+    this.nInvocando = 0;
+    this._porVer = null;          // lo invocado que se vera al empezar el paso siguiente
     this.mitad = 1; this.reloj = 0; this.pasos = 0;
     this.goles = [0, 0];
     this.tension = [REGLAS.TENSION_INICIO, REGLAS.TENSION_INICIO];
@@ -91,6 +97,9 @@ class Partido {
     // los elegidos en la pausa, que entran al pararse el balon: {sale, entra} (O-308)
     this.cambiosPendientes = [[], []];
     this.jugadores = [];
+    // la equipacion de cada uno en los modelos 3D (O-334): el diseno de casa; el de fuera, el
+    // otro si llevan la misma
+    this.disenos = REGLAS.disenos ? REGLAS.disenos(equipoA, equipoB) : [0, 0];
     [equipoA, equipoB].forEach((eq, lado) => this._crearEquipo(eq, lado));
     this.balon = { x: 0, y: 0, vx: 0, vy: 0, dueno: null, ultimo: 0, pase: null };
     this.fase = "juego"; this.espera = 0;
@@ -140,7 +149,12 @@ class Partido {
     const j = {
       id, lado, dir, puesto: d.puesto, dorsal: d.dorsal,
       nombre: d.nombre, cara: d.cara, elemento: d.elemento, posicion: d.posicion,
+      // su ropa con la equipacion del equipo, el diseno que lleva y si es el capitan (lo pinta
+      // la pagina, O-334)
+      ropa: d.ropa || null, diseno: (this.disenos || [0, 0])[lado] || 0, capitan: !!d.capitan,
       nivel: d.nivel || 99, stats: (d.stats || [0, 0, 0, 0, 0, 0, 0]).map(Number),
+      // su velocidad (100-600, O-340): con ella corre (REGLAS.velocidad). 0: un equipo de antes
+      velocidad: Number(d.velocidad) || 0,
       // las de un espiritu (kenshin, mixi max, alma) van marcadas con una estrella (O-291)
       tecnicas: (d.tecnicas || []).filter(t => t.tipo && t.tipo !== "Hipertecnica" && t.poder > 0)
         .map(t => t.espiritu ? Object.assign({}, t, { nombre: t.nombre + " ✦" }) : t),
@@ -460,11 +474,13 @@ class Partido {
       if (this.fase === "saque") return false;
       // un pase al mismo que lo da quita lo marcado: pulsar al del balon (O-305)
       if (o.tipo === "pase" && o.a === o.de) { this.paseMarcado[j.lado] = null; return true; }
+      // y tocar otra vez al companero o el sitio del pase marcado (Aaron, O-335)
+      if (this._quitaPase(j, o)) return true;
       if (o.tipo === "tiro") {
         if (j !== dl) return false;
-        // si no llega se dice ya, no al seguir
-        const g = this.porteriaRival(j);
-        if (Math.hypot(g.x - j.x, g.y - j.y) > this._alcanceTiro(j)) {
+        // si no llega se dice ya, no al seguir (el rango de O-335). Pulsar otra vez la porteria
+        // no lo quita: lo marca con el nuevo sitio al que apunta (`x`, O-335)
+        if (!this.enRangoTiro(j)) {
           this.apunta(j.nombre + " está demasiado lejos para chutar", "aviso", j.lado);
           return false;
         }
@@ -488,12 +504,14 @@ class Partido {
       if (!this.balon.pase || this.jugadores[this.balon.pase.de].lado !== j.lado) return false;
       // si desde donde llega el pase no se alcanza la porteria, no se anuncia un
       // remate que luego no pasa (O-305)
-      const rec = this.jugadores[this.balon.pase.a], gr = this.porteriaRival(rec), dest = this.balon.pase.destino;
-      if (Math.hypot(gr.x - dest.x, gr.y - dest.y) > this._alcanceTiro(rec)) {
+      const rec = this.jugadores[this.balon.pase.a], dest = this.balon.pase.destino;
+      if (!this.enRangoTiro(rec, dest.x, dest.y)) {
         this.apunta(rec.nombre + " está demasiado lejos para rematar de primeras", "aviso", rec.lado);
         return false;
       }
       this.balon.pase.directo = true;
+      // adonde apunta el remate (O-335): se chuta ahi al llegarle
+      if (typeof o.x === "number") this.balon.pase.apunta = o.x;
       this.apunta("¡" + this.jugadores[this.balon.pase.a].nombre + " va a rematar de primeras!");
       return true;
     }
@@ -526,30 +544,64 @@ class Partido {
       if (!j.conBalon) return false;
       const g = this.porteriaRival(j);
       const d = Math.hypot(g.x - j.x, g.y - j.y);
-      if (d > this._alcanceTiro(j)) {
+      if (!this.enRangoTiro(j)) {
         this.apunta(j.nombre + " está demasiado lejos para chutar", "aviso", j.lado);
         return false;
       }
       this._sacar(j);     // el tiro de la falta (O-324)
       // `largo`: el de la T de la tactil, con su tiro largo (O-326); un Pizarra anterior lo
-      // ignora y es un tiro como los demas
-      this._empezarTiro(j, d, null, false, false, !!o.largo);
+      // ignora y es un tiro como los demas. `x`: adonde apunta en la porteria (O-335)
+      this._empezarTiro(j, d, null, false, false, !!o.largo, o.x);
       return true;
     }
     return false;
   }
 
-  // hasta donde puede chutar j: mas lejos si tiene a punto un tiro largo. La
-  // misma regla para el tiro y para el remate de primeras (O-305)
-  _alcanceTiro(j) {
-    const larga = j.tecnicas.some(t => REGLAS.esLarga(t) && this.coste(j, t) <= j.pt && (!t.espiritu || this.conAura(j)));
-    return REGLAS.DISTANCIA_TIRO * (larga ? 1.6 : 1);
+  // si j puede chutar desde (x, y) (sin ellos, desde donde esta): un tiro que no es largo,
+  // desde el area grande rival y un poco mas, en todas las direcciones (Aaron, O-335; antes
+  // _alcanceTiro, 38 m en redondo); con un tiro largo a punto, mas lejos (REGLAS.enRangoTiro).
+  // La misma regla para el tiro, el remate de primeras, la maquina y la zona de tiro de la
+  // pantalla (O-305)
+  enRangoTiro(j, x, y) {
+    if (typeof x !== "number" || typeof y !== "number") { x = j.x; y = j.y; }
+    return REGLAS.enRangoTiro(x, y, this.porteriaRival(j).y, this._largoAPunto(j));
+  }
+  // si j esta fuera del rango de un tiro que no es largo (el area y `fuera` m): desde ahi solo
+  // puede chutar su tiro largo, como con la T (Aaron, O-335: "hay tiros que no son tiros largos
+  // que chutan desde demasiado lejos"; antes, con un tiro largo a punto valia cualquier tiro)
+  _soloLargo(j, x, y) {
+    if (typeof x !== "number" || typeof y !== "number") { x = j.x; y = j.y; }
+    return !REGLAS.enRangoTiro(x, y, this.porteriaRival(j).y, false);
+  }
+  // si j tiene a punto un tiro largo: lo paga y, el del espiritu, con el aura puesta
+  _largoAPunto(j) {
+    return j.tecnicas.some(t => REGLAS.esLarga(t) && this.coste(j, t) <= j.pt && (!t.espiritu || this.conAura(j)));
+  }
+  // si la orden o (un pase de j, con el juego parado o en un foco) va adonde va el pase marcado
+  // de su lado, lo quita (Aaron, O-335: "deberias poder cancelar el pase dandole otra vez donde
+  // le diste a pasar"): el mismo companero, o el sitio (o el companero que esta en el) a menos
+  // de PASE_MARCADO.quitar m. Otro companero cambia el pase, como antes. Se dice en la franja
+  _quitaPase(j, o) {
+    const pm = this.paseMarcado[j.lado];
+    if (!pm || (pm.tipo !== "pase" && pm.tipo !== "pasePunto") || (o.tipo !== "pase" && o.tipo !== "pasePunto")) return false;
+    let mismo;
+    if (pm.tipo === "pase" && o.tipo === "pase") mismo = pm.a === o.a;
+    else {
+      const sitio = q => q.tipo === "pase" ? this.jugadores[q.a] : { x: q.x, y: q.y };
+      const a = sitio(pm), b = sitio(o);
+      mismo = !!a && !!b && Math.hypot(a.x - b.x, a.y - b.y) <= REGLAS.PASE_MARCADO.quitar;
+    }
+    if (!mismo) return false;
+    this.paseMarcado[j.lado] = null;
+    const a = pm.tipo === "pase" ? this.jugadores[pm.a] : null;
+    this.apunta(a ? "Pase a " + a.nombre + " quitado" : "Pase al hueco quitado", "aviso", j.lado);
+    return true;
   }
 
   // --- la T de la tactil (O-326; Aaron, O-322 punto 4) ---------------------------------
   // La T es el tiro largo: si j (el que lleva el balon) tiene una supertecnica de tiro
   // largo que puede usar ya (la paga; la del espiritu, con el aura; la de varios, con
-  // companeros) y llega a la porteria (_alcanceTiro), chuta con ella y va como un tiro
+  // companeros) y llega a la porteria (TIRO_RANGO.largo, O-335), chuta con ella y va como un tiro
   // normal (elige su tiro largo, el balon viaja, los muros, el portero). Si no, la T es un
   // pase hacia delante: al companero mejor colocado por delante o, si no hay, al hueco. En
   // el saque de banda no se chuta (es con las manos): pase. Sin azar: lo que dice la
@@ -561,8 +613,9 @@ class Partido {
     const g = this.porteriaRival(j), d = Math.hypot(g.x - j.x, g.y - j.y);
     const banda = !!this.porSacar && this.porSacar.tipo === "banda";
     const largos = this._opcionesLargas(j), vale = largos.filter(o => o.puede);
-    if (!banda && vale.length && d <= this._alcanceTiro(j))
-      return { que: "tiro", tecnicas: largos, distancia: Math.round(d), orden: { tipo: "tiro", de: j.id, largo: true } };
+    // (hasta TIRO_RANGO.largo m, O-335; al centro de la porteria, donde la tactil pone la X)
+    if (!banda && vale.length && d <= REGLAS.TIRO_RANGO.largo)
+      return { que: "tiro", tecnicas: largos, distancia: Math.round(d), orden: { tipo: "tiro", de: j.id, largo: true, x: 0 } };
     const faltan = largos.find(o => o.nota && /faltan/.test(o.nota));
     const sinTiro = banda ? "en el saque de banda no se chuta" : !largos.length ? j.nombre + " no tiene tiro largo"
       : !vale.length ? (faltan && largos.every(o => o.tp <= j.pt) ? "a su tiro largo le faltan compañeros" : "no le llega la tensión para su tiro largo (TEN " + Math.min(...largos.map(o => o.tp)) + ")")
@@ -577,10 +630,12 @@ class Partido {
     return this._opciones(j, "tiro").filter(o => o.clave[0] === "t" && REGLAS.esLarga(this._tecnica(j, o.clave)));
   }
   // las opciones del que chuta; con la T (`largo`), solo sus tiros largos (O-326). Si ya no
-  // puede usar ninguno (online, la tension ha cambiado al llegar la orden), las de siempre
+  // puede usar ninguno (online, la tension ha cambiado al llegar la orden), las de siempre.
+  // Fuera del rango normal (_soloLargo) tambien `largo`, y rematando un balon alto igual: el
+  // Testarazo y la Volea no son largos (O-335)
   _opcionesChute(j, alto, largo) {
     const ops = this._opciones(j, "tiro", alto);
-    if (!largo || alto) return { ops, largo: false };
+    if (!largo) return { ops, largo: false };
     const l = ops.filter(o => o.clave[0] === "t" && REGLAS.esLarga(this._tecnica(j, o.clave)));
     return l.some(o => o.puede) ? { ops: l, largo: true } : { ops, largo: false };
   }
@@ -776,10 +831,10 @@ class Partido {
   }
 
   // alto: remata de primeras un pase bombeado (Testarazo y Volea, O-309). largo: el de la
-  // T, que solo elige entre sus tiros largos (O-326)
-  _empezarTiro(tirador, distancia, pasador, penalti, alto, largo) {
+  // T, que solo elige entre sus tiros largos (O-326). apunta: adonde apunta (O-335)
+  _empezarTiro(tirador, distancia, pasador, penalti, alto, largo, apunta) {
     // el tiro que viaja (O-325): primero solo elige el que chuta
-    if (this.vuelo && !penalti) return this._empezarChute(tirador, distancia, pasador, alto, largo);
+    if (this.vuelo && !penalti) return this._empezarChute(tirador, distancia, pasador, alto, largo, apunta);
     const rivales = this.equipo(1 - tirador.lado);
     const portero = this.portero(1 - tirador.lado);
     const g = this.porteriaRival(tirador);
@@ -799,8 +854,8 @@ class Partido {
       if (e.delante && e.d < mc) { mc = e.d; cadena = c; }
     }
     this.fase = "duelo";
-    // con la T, solo sus tiros largos (O-326)
-    const oc = this._opcionesChute(tirador, !!alto, largo && !penalti);
+    // con la T, solo sus tiros largos (O-326); y desde fuera del rango normal tambien (O-335)
+    const oc = this._opcionesChute(tirador, !!alto, (largo || this._soloLargo(tirador)) && !penalti);
     this.duelo = {
       id: ++this.nDuelos, tipo: "tiro", tirador: tirador.id, portero: portero.id, muro: muro ? muro.id : null, distancia,
       cadena: cadena ? cadena.id : null, directo: pasador ? pasador.id : null, penalti: !!penalti,
@@ -868,10 +923,10 @@ class Partido {
   // (`etapa`: chute, muro, cadena, portero) con su resultado (con la misma `etapa`) y su
   // animacion. Las cuentas son las de siempre (_valorTiro, _valorMuro, _valorCadena,
   // _valorParada y _decidir)
-  _empezarChute(tir, distancia, pasador, alto, largo) {
+  _empezarChute(tir, distancia, pasador, alto, largo, apunta) {
     const por = this.portero(1 - tir.lado), g = this.porteriaRival(tir);
-    // con la T, solo sus tiros largos (O-326)
-    const oc = this._opcionesChute(tir, !!alto, largo);
+    // con la T, solo sus tiros largos (O-326); y desde fuera del rango normal tambien (O-335)
+    const oc = this._opcionesChute(tir, !!alto, largo || this._soloLargo(tir));
     // el defensa en la linea de tiro (el muro de antes): solo para la ayuda y la maquina
     // (la vaselina le pasa por encima si no esta pegado al que chuta, O-309)
     let muro = null, mejor = 3.2;
@@ -887,6 +942,8 @@ class Partido {
       alto: !!alto, muroPegado: !!muro && Math.hypot(muro.x - tir.x, muro.y - tir.y) <= REGLAS.PEGADO,
       lados: { [tir.lado]: { rol: "tiro", jugador: tir.id, opciones: oc.ops } },
       elecciones: {},
+      // adonde apunta en la porteria (O-335): lo de la orden; al elegir puede llegar otro
+      apunta: typeof apunta === "number" && isFinite(apunta) ? Math.round(Math.max(-REGLAS.APUNTAR.max, Math.min(REGLAS.APUNTAR.max, apunta)) * 10) / 10 : null,
     };
     if (oc.largo) this.duelo.largo = this.duelo.lados[tir.lado].largo = true;
     this._previo(this.duelo);          // los numeros antes de elegir (O-306)
@@ -953,12 +1010,16 @@ class Partido {
     const T = this.tiro;
     return Object.assign({ quien: T.ultimo, valor: Math.round(T.at) }, T.paso);
   }
-  // adonde va el tiro desde donde esta el balon: a un punto de la porteria (el azar del
-  // partido) o, si se va fuera, junto a un palo pasada la linea de fondo
+  // adonde va el tiro desde donde esta el balon: al punto de la porteria al que se apunto
+  // (T.ax; Aaron, O-335) o, si se apunto muy fuera, por ahi pasada la linea de fondo. Sin
+  // apuntar (la orden de un Pizarra de antes), a un punto de la porteria al azar, como antes.
+  // La cadena va siempre a puerta (T.fuera false): al palo de dentro
   _apuntarTiro() {
     const T = this.tiro, b = this.balon, g = this.porteriaRival(this.jugadores[T.ultimo]), s = Math.sign(g.y) || 1;
-    if (T.fuera) { const palo = this.azar() < 0.5 ? -1 : 1; T.tx = palo * (REGLAS.PORTERIA / 2 + 0.6 + this.azar() * 4.5); T.ty = g.y + s * 0.8; }
-    else { T.tx = (this.azar() * 2 - 1) * (REGLAS.PORTERIA / 2 - 0.7); T.ty = g.y; }
+    const dentro = REGLAS.PORTERIA / 2 - REGLAS.APUNTAR.margen;
+    if (typeof T.ax !== "number") T.ax = Math.round((this.azar() * 2 - 1) * dentro * 10) / 10;
+    if (T.fuera) { T.tx = T.ax; T.ty = g.y + s * 0.8; }
+    else { T.tx = Math.max(-dentro, Math.min(dentro, T.ax)); T.ty = g.y; }
     T.gy = g.y; T.x0 = b.x; T.y0 = b.y; T.recorrido = 0;
     T.total = Math.max(0.5, Math.hypot(T.tx - b.x, T.ty - b.y));
     b.vx = (T.tx - b.x) / T.total * T.vel; b.vy = (T.ty - b.y) / T.total * T.vel;
@@ -1082,14 +1143,17 @@ class Partido {
     if (boton === "volea") at = this._potente(at);
     const directo = du.directo !== null && du.directo !== undefined;
     const que = tt ? tt.nombre : du.alto ? (boton === "volea" ? "Volea" : "Testarazo") : (boton === "vaselina" ? "Vaselina" : "Tirar") + (directo ? " de primeras" : "");
-    const pf = tt ? 0 : this._probFuera(tir, du, boton, null);
+    // adonde va (Aaron, O-335: "que siempre vayan donde apuntas"): lo ultimo que pulso en la
+    // porteria (va con la eleccion) o lo de la orden; solo se va fuera si apunto muy fuera
+    // (REGLAS.apunteTiro). Ya no se va fuera al azar (O-315 _probFuera)
+    const ap = REGLAS.apunteTiro(typeof et === "object" && typeof et.x === "number" ? et.x : du.apunta);
     // la afinidad y el combo ya van en su AT (_valorTiro): se gastan al chutar y la cadena
     // suma con el mismo x (O-328)
     const kiz = this._multTiro(tir.lado), paso = this._pasoTiro(tir, tt, que);
     this._gastarAfinidad(tir.lado);
     this.tiro = {
       id: du.id, lado: tir.lado, tirador: tir.id, ultimo: tir.id, at, tec: tt ? { quien: tir.id, clave } : null, paso, kiz,
-      vaselina: boton === "vaselina", alto: !!du.alto, fuera: pf > 0 && this.azar() < pf, distancia: du.distancia, vel: V.vel,
+      vaselina: boton === "vaselina", alto: !!du.alto, fuera: !!(ap && ap.fuera), ax: ap ? ap.x : null, distancia: du.distancia, vel: V.vel,
       h: boton === "vaselina" ? V.alto.vaselina : du.alto ? V.alto.cabeza : V.alto.normal, hechos: [tir.id],
     };
     this.soltar();
@@ -1101,7 +1165,7 @@ class Partido {
     this._acabarDuelo(0.4);
   }
   // el bloqueo (O-309) con el balon en vuelo: gana el numero mayor salvo un critico. Si
-  // gana el muro, lo para (rebota hacia el campo o se va a corner); si pierde, le quita al
+  // gana el muro, lo para y se lo queda (O-335); si pierde, le quita al
   // tiro su numero entero (VR, O-328; antes la mitad) y el balon sigue, salvo que lo desvie
   // a corner (O-315). "Dejar pasar": el balon sigue
   _resolverMuroVuelo(du) {
@@ -1124,18 +1188,14 @@ class Partido {
     const pm = { quien: muro.id, que: tm ? tm.nombre : "Bloqueo", valor: rm.a, contra: rm.d, tecnica: !!tm, elemento: tm ? tm.elemento || "" : "" };
     if (rm.critico) { pm.critico = rm.ganaA ? muro.lado : T.lado; pm.antes = rm.antes; this.estadisticas.criticos[pm.critico]++; }
     const pasos = [pt, pm];
+    // donde le llega el balon y de donde viene (O-344): arriba su tecnica va contra el balon
+    const bloqueo = this._puntoMuro(T.x0, T.y0, T.tx, T.ty, this.balon.x, this.balon.y);
     this.nResultado = (this.nResultado || 0) + 1;
     if (rm.ganaA) {
       this.tiro = null;
-      this.resultado = { tipo: "tiro", etapa: "muro", final: "bloqueado", pasos, tirador: T.tirador, critico: rm.critico ? muro.lado : null, antes: rm.critico ? rm.antes : null };
+      this.resultado = { tipo: "tiro", etapa: "muro", final: "bloqueado", pasos, tirador: T.tirador, critico: rm.critico ? muro.lado : null, antes: rm.critico ? rm.antes : null, bloqueo };
       this.apunta("¡" + muro.nombre + " bloquea el tiro!" + (rm.critico ? " (¡crítico!)" : ""), "mal").ro = { que: "bloqueo", lado: muro.lado, sub: muro.nombre };
-      if (this.azar() < REGLAS.A_CORNER.bloqueo) this._alFondo(muro, muro.lado);
-      else {
-        this.soltar();
-        this.balon.x = muro.x; this.balon.y = muro.y;
-        this.balon.vx = (this.azar() - 0.5) * 8; this.balon.vy = -ult.dir * 6;
-        this.balon.ultimo = muro.lado;
-      }
+      this._quedaMuro(muro);
       return this._acabarDuelo(2.0);
     }
     const resta = this._restaMuro(dm, T.at, rm.critico);
@@ -1143,14 +1203,21 @@ class Partido {
     pm.resta = Math.round(resta);          // lo que le quito al tiro, para el panel
     if (this.azar() < REGLAS.TIRO_FUERA.muro) {
       this.tiro = null;
-      this.resultado = { tipo: "tiro", etapa: "muro", final: "fuera", pasos, tirador: T.tirador, critico: null, antes: null, desvia: muro.id };
+      this.resultado = { tipo: "tiro", etapa: "muro", final: "fuera", pasos, tirador: T.tirador, critico: null, antes: null, desvia: muro.id, bloqueo };
       this.apunta("¡" + muro.nombre + " desvía el tiro de " + ult.nombre + " a córner!", "mal");
       this._alFondo(muro, muro.lado);
       return this._acabarDuelo(2.0);
     }
-    this.resultado = { tipo: "tiro", etapa: "muro", final: "vuela", pasos, tirador: T.tirador, critico: null, antes: null };
+    this.resultado = { tipo: "tiro", etapa: "muro", final: "vuela", pasos, tirador: T.tirador, critico: null, antes: null, bloqueo };
     this.apunta("¡" + muro.nombre + " frena el tiro! (" + pt.valor + " → " + Math.round(T.at) + ")", "mal");
     this._acabarDuelo(1.2);
+  }
+  // donde le llega el balon al muro (bx, by) en el tiro de (x0, y0) a (x1, y1) y hacia donde
+  // mira para ir contra el (fx, fy: hacia de donde viene), en la foto con el resultado (O-344;
+  // Aaron: "la animacion de bloqueo deberia ir contra la pelota, no el jugador")
+  _puntoMuro(x0, y0, x1, y1, bx, by) {
+    const dx = x1 - x0, dy = y1 - y0, l = Math.hypot(dx, dy) || 1, r1 = v => Math.round(v * 10) / 10, r2 = v => Math.round(v * 100) / 100;
+    return { x: r1(bx), y: r1(by), fx: r2(-dx / l), fy: r2(-dy / l) };
   }
   // la cadena (VR): el companero remata el tiro que le llega y los AT se suman; el balon
   // sale de el hacia la porteria (con supertecnica, a puerta) y el gol seria suyo. "No
@@ -1207,7 +1274,8 @@ class Partido {
       this.goles[ult.lado]++;
       // el gol con su minuto de dentro de la parte y quien lo marca (O-306, O-308)
       this.estadisticas.goles.push([ult.lado, this.mitad, this.minuto(), ult.nombre]);
-      this.resultado = { tipo: "tiro", etapa: "portero", final: "gol", pasos, tirador: ult.id, critico, antes };
+      // tx: por donde entra, adonde se apunto (la escena del gol de arriba, O-335)
+      this.resultado = { tipo: "tiro", etapa: "portero", final: "gol", pasos, tirador: ult.id, critico, antes, tx: Math.round(tx * 10) / 10 };
       this.apunta("¡¡GOL de " + ult.nombre + "!!" + cifras, "gol");
       // el balon, dentro de la porteria
       this.soltar();
@@ -1289,6 +1357,8 @@ class Partido {
       const t = e && typeof e === "object" ? e.tiro : e, fuera = { tiro: hay(pend.opciones, t) ? t : segura.tiro };
       // tras una vaselina no se encadena
       if (pend.cadena) fuera.cadena = fuera.tiro !== "vaselina" && e && hay(pend.cadena.opciones, e.cadena) ? e.cadena : "nada";
+      // adonde ha vuelto a apuntar (O-335): un numero, como mucho APUNTAR.max m del centro
+      if (e && typeof e === "object" && typeof e.x === "number" && isFinite(e.x)) fuera.x = Math.round(Math.max(-REGLAS.APUNTAR.max, Math.min(REGLAS.APUNTAR.max, e.x)) * 10) / 10;
       return fuera;
     }
     if (pend.rol === "porteria") {
@@ -1437,7 +1507,12 @@ class Partido {
   _salirEspera() {
     if (this.fase === "descanso") this._siguienteParte();
     // tras el tiempo de invocacion, el juego sigue donde estaba (O-327)
-    else if (this.fase === "invocacion") { this.tiempoInvocar = null; this.listos = [false, false]; this.fase = "juego"; }
+    else if (this.fase === "invocacion") {
+      // (y lo invocado en la parada se ve con el juego parado, una detras de otra, O-337)
+      const ti = this.tiempoInvocar, orden = ti ? ti.orden || ti.hechos.filter(x => x >= 0) : [];
+      this.tiempoInvocar = null; this.listos = [false, false]; this.fase = "juego";
+      this._verInvocacion(orden);
+    }
     else this._reanudar();
   }
 
@@ -1639,6 +1714,7 @@ class Partido {
       if (!ti || ti.hechos[j.lado] >= 0 || this.listos[j.lado]) return false;
       this._activarHiper(j);
       ti.hechos[j.lado] = j.id;
+      (ti.orden || (ti.orden = [])).push(j.id);     // (en este orden se ven al cerrarse, O-337)
       this.listos[j.lado] = true;
       if (this.listos[0] && this.listos[1]) this._salirEspera();
       return true;
@@ -1648,6 +1724,7 @@ class Partido {
       if (!du || (du.tipo !== "tiro" && du.tipo !== "penalti") || !yo || yo.jugador !== j.id || du.elecciones[j.lado] !== undefined) return false;
       this._activarHiper(j);
       this._rehacerTiro(du, j.lado);
+      this._verInvocacion([j.id]);      // (se ve con el duelo parado y luego se elige, O-337)
       return true;
     }
     if (this.fase !== "juego" && !this.parado()) return false;
@@ -1656,6 +1733,7 @@ class Partido {
     // alli si, como antes (uno por equipo y parada: el bloqueo de 15 s no corre parado)
     if (this.fase === "juego" && this.conTiempoInvocar) return false;
     this._activarHiper(j);
+    this._verInvocacion([j.id]);        // O-337
     return true;
   }
 
@@ -1695,7 +1773,7 @@ class Partido {
   // hiper puesta). `modelo`: el modelo 3D que se ve (null: el de su cara)
   _prepararForma(j, esp) {
     j.modelo = null; j.transformado = false; j.propio = null;
-    j.formaHiper = null; j.modeloHiper = null; j.keshinHiper = null; j.auraHiper = null;
+    j.formaHiper = null; j.modeloHiper = null; j.keshinHiper = null; j.auraHiper = null; j.ropaHiper = null;
     if (!esp) return;
     const f = esp.forma;
     if (f && (f.nombre || f.cara)) {
@@ -1703,9 +1781,14 @@ class Partido {
       // sus tecnicas como las del jugador, y las ✦ del espiritu (si las hay) se quedan
       const tecs = (f.tecnicas || []).filter(t => t.tipo && t.tipo !== "Hipertecnica" && t.poder > 0);
       j.formaHiper = { nombre: f.nombre || j.nombre, cara: f.cara || j.cara, elemento: f.elemento || j.elemento, stats: st,
-        tecnicas: tecs.length ? tecs.concat(j.tecnicas.filter(t => t.espiritu)) : null, modelo: f.modelo || f.cara || null };
+        // la velocidad de la forma (O-340): sin ella, la suya
+        velocidad: Number(f.velocidad) || 0,
+        tecnicas: tecs.length ? tecs.concat(j.tecnicas.filter(t => t.espiritu)) : null, modelo: f.modelo || f.cara || null,
+        ropa: f.ropa || null };
     }
     if (esp.modelo) j.modeloHiper = String(esp.modelo);
+    // la ropa de equipo del modelo de la armadura o el mixi max (O-334; la armadura, ninguna)
+    j.ropaHiper = esp.ropa_modelo || null;
     if (esp.keshin) j.keshinHiper = String(esp.keshin);
     if (esp.aura) j.auraHiper = String(esp.aura);
   }
@@ -1717,10 +1800,11 @@ class Partido {
     // el portero que cambia de stats conserva la parte de su KP que le queda
     const parte = j.esPortero && j.kpMax > 0 ? j.kp / j.kpMax : null;
     if (si) {
-      j.propio = { nombre: j.nombre, cara: j.cara, elemento: j.elemento, stats: j.stats, tecnicas: j.tecnicas };
+      j.propio = { nombre: j.nombre, cara: j.cara, elemento: j.elemento, stats: j.stats, tecnicas: j.tecnicas, velocidad: j.velocidad };
       if (h) {
         j.nombre = h.nombre; j.cara = h.cara; j.elemento = h.elemento;
         if (h.stats) j.stats = h.stats.slice();
+        if (h.velocidad) j.velocidad = h.velocidad;           // O-340
         if (h.tecnicas) j.tecnicas = h.tecnicas;
       }
       j.modelo = h ? h.modelo : j.modeloHiper;
@@ -1760,9 +1844,57 @@ class Partido {
     const e = this.apunta("¡" + j.nombre + " invoca a " + j.espiritu.nombre + "! (hiperbarra " + Math.round(antes) + " → " + Math.round(this.hiper[l]) + ")"
       + (pp > 0 ? " PP +" + Math.round(pp) : ""), "tactica");
     if (!enFoco) e.ro = { que: T.rotulo, lado: l, sub: j.nombre + " · " + j.espiritu.nombre, jugador: j.id };
+    // (con las animaciones se ve con el juego parado, no sobre el mapa: vi, O-337)
+    if (!enFoco && this.animaciones) e.ro.vi = 1;
     // y se convierte en lo que toque (el modo, otro personaje entero) (O-327)
     this._transformar(j, true);
     return e;
+  }
+  // --- la invocacion con el juego parado (O-337) -----------------------------------
+  // Aaron: "cuando invocas algo, salga la animacion de como invoca el espiritu... que no
+  // aparezcan simplemente y ya" y "mientras se esta invocando no se para el partido, deberia
+  // ser como una supertecnica". Con las animaciones, al invocar el juego se para (fase
+  // "invocando": nada se mueve, no corre el reloj, no se elige ni se ordena) lo que dura la
+  // animacion de cada una (la de VR de su espiritu entera, `seg` de partido.py; el plan de
+  // REGLAS.planAnim), una detras de otra, y luego sigue donde estaba: el juego, la pausa, la
+  // espera del saque o el duelo del tiro. En el tiempo de invocacion, al cerrarse (los dos han
+  // elegido), las de los dos por orden. La ★ de un foco ya va en el plan de su resultado. Sin
+  // animaciones (las pruebas viejas y las medidas) como antes, sin parar. Online va en la foto
+  // (`vi`) y el invitado saca el mismo plan.
+  // Lo invocado se apunta (_porVer) y el juego se para al empezar el paso siguiente, antes de
+  // que se mueva nada; al acabar, ese paso sigue como si nada: la maquina piensa y ordena al
+  // mismo ritmo que sin animaciones (el partido es el mismo, solo se espera mas, como O-319)
+  _verInvocacion(ids) {
+    if (!this.animaciones) return false;
+    const q = (ids || []).filter(id => this.jugadores[id] && this.jugadores[id].espiritu);
+    if (!q.length) return false;
+    this._porVer = (this._porVer || []).concat(q);
+    return true;
+  }
+  _empezarInvocando() {
+    const js = (this._porVer || []).map(id => this.jugadores[id]).filter(Boolean);
+    this._porVer = null;
+    if (!js.length || this.fase === "final" || this.fase === "descanso") return false;
+    const m = this.animaciones;
+    const cola = js.map(j => ({ j: j.id, que: (REGLAS.HIPER_TIPOS[j.hiperTipo] || REGLAS.HIPER_TIPOS.keshin).rotulo,
+      seg: j.espiritu.seg > 0 ? Math.round(j.espiritu.seg * 1000) / 1000 : 0 }));
+    this.nInvocando++;
+    const r = { tipo: "invocacion", k: this.nInvocando, cola };
+    const plan = REGLAS.planAnim(r, m, 0);
+    r.anim = { modo: m, entrada: 0, total: plan.total };
+    // (la fase y la espera de antes: al acabar se sigue con ellas)
+    r.vuelve = this.fase; r.esperaAntes = this.espera;
+    this.invocando = r;
+    this.fase = "invocando";
+    this.espera = plan.total;
+    return true;
+  }
+  // acabada la animacion, el juego sigue donde estaba
+  _finInvocando() {
+    const v = this.invocando;
+    this.invocando = null;
+    this.fase = v && v.vuelve && v.vuelve !== "invocando" ? v.vuelve : "juego";
+    this.espera = v && typeof v.esperaAntes === "number" ? v.esperaAntes : 0;
   }
   // tras invocar dentro de un tiro: las opciones de los dos lados (el tiro, la
   // cadena, la parada y el muro) y sus numeros, otra vez. `v` cuenta las veces y
@@ -2021,16 +2153,20 @@ class Partido {
     return base * (1 + pct / 100);
   }
 
-  // los apoyos de un duelo (DS/3DS): companeros cerca del que pelea
+  // los apoyos de un duelo (DS/3DS): companeros cerca del que pelea (los APOYOS_MAX mas cerca).
+  // Cada uno suma y, si son de su elemento, Doble o Triple (REGLAS.factorApoyos; Aaron, O-342)
   apoyos(j) {
     const cerca = this.equipo(j.lado).filter(o => o !== j && !o.esPortero && o.aturdido <= 0 &&
       Math.hypot(o.x - j.x, o.y - j.y) < REGLAS.APOYO_RADIO)
       .sort((a, b) => Math.hypot(a.x - j.x, a.y - j.y) - Math.hypot(b.x - j.x, b.y - j.y)).slice(0, REGLAS.APOYOS_MAX);
-    let f = 1;
-    for (const o of cerca) f += REGLAS.APOYO + (o.elemento && o.elemento === j.elemento ? REGLAS.APOYO_ELEMENTO : 0);
-    // ids: quienes son, para ensenar sus caras en el panel del duelo (O-306)
-    return { n: cerca.length, mismos: cerca.filter(o => o.elemento === j.elemento).length, factor: f, ids: cerca.map(o => o.id) };
+    // (sin elemento no hay de su elemento: antes contaban los que tampoco lo tenian)
+    const mismos = j.elemento ? cerca.filter(o => o.elemento === j.elemento).length : 0, f = REGLAS.factorApoyos(cerca.length, mismos);
+    // ids: quienes son, para ensenar sus caras en el panel del duelo (O-306); doble: 2 (Doble), 3
+    // (Triple) o 0 (O-342)
+    return { n: cerca.length, mismos, factor: f.factor, ids: cerca.map(o => o.id), doble: f.doble };
   }
+  // " (¡Doble! de X)" en Lo que pasa (O-342)
+  _textoApoyos(j, ap) { return ap && ap.doble ? " (¡" + (ap.doble === 3 ? "Triple" : "Doble") + "! de " + j.nombre + ")" : ""; }
 
   // --- lo que se ensena antes de elegir (O-306) ----------------------------------
   // Las mismas cuentas que el duelo, en un sitio: asi el numero del panel es el
@@ -2250,7 +2386,8 @@ class Partido {
         [att.lado]: R(this._valorFoco(att, def, null, true, false)), [def.lado]: R(this._valorFoco(def, att, null, false, false)),
         // si el defensa carga se juega la disputa, con otros numeros
         disputa: { [att.lado]: R(this._valorFoco(att, def, null, true, true)), [def.lado]: R(this._valorFoco(def, att, null, false, true)) },
-        apoyos: { [att.lado]: { ids: apA.ids, pct: R((apA.factor - 1) * 100) }, [def.lado]: { ids: apD.ids, pct: R((apD.factor - 1) * 100) } },
+        // (doble: el Doble o el Triple de los apoyos, O-342)
+        apoyos: { [att.lado]: { ids: apA.ids, pct: R((apA.factor - 1) * 100), doble: apA.doble }, [def.lado]: { ids: apD.ids, pct: R((apD.factor - 1) * 100), doble: apD.doble } },
       };
       for (const [j, rival, ataca] of [[att, def, true], [def, att, false]]) {
         for (const o of du.lados[j.lado].opciones) {
@@ -2338,12 +2475,18 @@ class Partido {
     return ganaA ? { ganaA, critico, a: Math.max(d + 1, Math.round(d * k)), d, antes: a }
                  : { ganaA, critico, a, d: Math.max(a + 1, Math.round(a * k)), antes: d };
   }
+  // gana el numero mayor, sin critico (la disputa aerea, O-341); el empate a suertes, como _decidir
+  _decidirMayor(a, d) {
+    a = Math.round(a); d = Math.round(d);
+    return { ganaA: a === d ? this.azar() < 0.5 : a > d, critico: false, a, d };
+  }
   // la probabilidad de que el tiro de tir con el boton `clave` se vaya fuera (O-315):
   // sin supertecnica (t), desde lejos o con un rival encima (REGLAS.TIRO_FUERA; la
   // volea, mas). Sin azar: la misma en el panel y al resolver (en el duelo nadie se
   // mueve). El penalti va siempre a puerta
   _probFuera(tir, du, clave, t) {
-    if (t || du.tipo === "penalti" || du.penalti) return 0;
+    // con el tiro que viaja va adonde se apunta (O-335): ni al azar ni lo dice el boton
+    if (t || du.tipo === "penalti" || du.penalti || this.vuelo) return 0;
     const F = REGLAS.TIRO_FUERA;
     const cerca = Math.min(99, ...this.equipo(1 - tir.lado).filter(r => !r.esPortero).map(r => Math.hypot(r.x - tir.x, r.y - tir.y)));
     const p = (Math.max(0, (du.distancia || 0) - F.desde) * F.porMetro + F.presion * Math.max(0, 1 - cerca / F.cerca)) * (clave === "volea" ? F.volea : 1);
@@ -2424,7 +2567,7 @@ class Partido {
     const gA = this.porteriaRival(att);
     if (Math.abs(att.y - gA.y) < REGLAS.AREA_Y && Math.abs(att.x) < REGLAS.AREA_X) riesgo *= 0.4;
     // en la falta salen los numeros de verdad: la falta manda sobre el critico
-    if (riesgo && this.azar() < riesgo) return this._falta(att, def, ra, rd, ta, td, ca, cd);
+    if (riesgo && this.azar() < riesgo) return this._falta(att, def, ra, rd, ta, td, ca, cd, { [att.lado]: apA, [def.lado]: apD });
     if (dec.critico) this.estadisticas.criticos[gana.lado]++;
     // el balon disputado que se escapa (O-315): el defensa que gana sin supertecnica
     // ni hiper a veces no se lo queda (REGLAS.ESCAPA, por lo que eligio)
@@ -2476,7 +2619,7 @@ class Partido {
     const nom = (h, j, t) => h ? "★ " + j.espiritu.nombre + ": " : t ? t.nombre + ": " : "";
     const ev = this.apunta(nom(hA, att, ta) + att.nombre + " " + dec.a + " contra " + nom(hD, def, td) + def.nombre + " " + dec.d +
       " → " + (gana === att ? "¡se va!" : escapa ? "¡" + def.nombre + " se la quita, pero el balón se escapa!" : "¡roba " + def.nombre + "!")
-      + (dec.critico ? " (¡crítico!)" : ""), gana === att ? "bien" : "mal");
+      + (dec.critico ? " (¡crítico!)" : "") + this._textoApoyos(att, apA) + this._textoApoyos(def, apD), gana === att ? "bien" : "mal");
     // el rotulo pequeno "¡Crítico!" en el campo, del color del que gana (O-309); si
     // gano con su hiper, "¡Hipertécnica!" (O-310)
     if (hGana) ev.ro = { que: "hiper", lado: gana.lado, sub: gana.nombre + " · " + gana.espiritu.nombre };
@@ -2516,6 +2659,103 @@ class Partido {
     this.balon.x = j.x + ux * 1.5; this.balon.y = j.y + uy * 1.5;
     this.balon.vx = ux * vel; this.balon.vy = uy * vel;
     this.balon.pase = null; this.balon.fueraDe = null; this.balon.ultimo = j.lado;
+  }
+
+  // --- la disputa aerea (O-341) --------------------------------------------------------
+  // quienes se disputan el balon bombeado que baja: del equipo que lo mando, el que lo recibe
+  // (si llega) o el mas cerca; del otro, el mas cerca. Los dos de campo, libres y a menos de
+  // AEREA.alcance m del balon. Si un portero ya lo coge (a su radio de siempre) o el rival lo
+  // tiene a su alcance en su area (sale por alto: lo coge con las manos) no hay disputa; con la
+  // tactica sin intercepcion del que lo mando, tampoco
+  _disputantes() {
+    const b = this.balon, de = this.jugadores[b.pase.de], A = REGLAS.AEREA;
+    if (!de || this._especial(de.lado, "sin_intercepcion")) return null;
+    let att = null, def = null, da = Infinity, dd = Infinity;
+    for (const j of this.enCampo()) {
+      if (j.aturdido > 0 || j.id === de.id) continue;
+      const d = Math.hypot(j.x - b.x, j.y - b.y);
+      if (j.esPortero) {
+        const enArea = Math.abs(j.y + j.dir * REGLAS.LARGO / 2) < REGLAS.AREA_Y && Math.abs(j.x) < REGLAS.AREA_X;
+        if (d < (j.lado === de.lado ? 1.25 : 1.0) || (j.lado !== de.lado && enArea && d <= A.alcance)) return null;
+        continue;
+      }
+      if (d > A.alcance) continue;
+      if (j.lado === de.lado) { const k = j.id === b.pase.a ? d - A.alcance : d; if (k < da) { da = k; att = j; } }
+      else if (d < dd) { dd = d; def = j; }
+    }
+    return att && def ? { att, def } : null;
+  }
+  // el valor de disputa de j contra rival: AT (Int + Fis) el del equipo que lo mando, DF (Int +
+  // Pre) el otro, con sus pasivas de disputa, el elemento (x1,05 / x0,95), la hiper y el cambio;
+  // sin apoyos (VR no los tiene)
+  _valorAerea(j, rival, ataca) {
+    const stat = ataca ? REGLAS.atDisputa(j) : REGLAS.dfDisputa(j);
+    return stat * REGLAS.efectoDisputa(j, rival) * this.bonusPasivas(j, "disputa", ataca)
+      * this._factorHiper(j, "disputa", !ataca) * this._factorCambio(j);
+  }
+  // la disputa (Aaron: "hacen como una pequena animacion peleando por el balon y se la lleva el
+  // que mas valor de disputa tiene"): att con su AT contra def con su DF; gana el numero mayor
+  // sin critico (_decidirMayor; O-341, vuelta 1). Se ponen hombro con hombro donde cae, mirando hacia donde
+  // ataca el que gana (asi sale con el balon hacia delante, como en el clip de VR), y el juego se
+  // para lo que dura su animacion (REGLAS.planAnim). Se lo queda el que gana: el que lo recibe (si
+  // era un remate de primeras, remata al volver el juego) o el rival, que lo corta (cerca de su
+  // porteria lo despeja de cabeza, O-315)
+  _disputaAerea(att, def) {
+    const b = this.balon, pase = b.pase, de = this.jugadores[pase.de];
+    // el que lo recibe en fuera de juego: se pita al tocarlo, como siempre (O-305)
+    if (b.fueraDe === att.id) return this._pitarFueraDeJuego(att);
+    const directo = pase.directo ? de : null, apunta = pase.apunta;
+    const pa = this.bonusPasivas(att, "disputa", true), pd = this.bonusPasivas(def, "disputa", false);
+    // gana el que mas valor de disputa tiene, sin critico (Aaron, O-341: "se la lleva el que mas
+    // valor de disputa tiene"; antes el 90-10 de los focos, O-307: ~1 de cada 14 la ganaba el otro)
+    const dec = this._decidirMayor(this._valorAerea(att, def, true), this._valorAerea(def, att, false));
+    const gana = dec.ganaA ? att : def, pierde = gana === att ? def : att;
+    // el rival que gana cerca de su porteria no se lo queda: lo despeja de cabeza (O-315)
+    const cabeza = gana === def && this._cercaDeSuPorteria(def, REGLAS.CABEZA.zona);
+    // a la derecha (los clips de VR van por lados) el que ya estaba mas a la derecha. En VR los
+    // dos saltan desde el mismo sitio (r.x, r.y) y acaban donde los lleva su clip (AEREA.fin): el
+    // que gana, delante (o ahi si lo despeja de cabeza); el que pierde, a su lado y atras
+    const c = this._dentro(b.x, b.y), dir = gana.dir || 1, F = REGLAS.AEREA.fin;
+    const ganaDer = (gana.x - pierde.x) * dir >= 0, s = ganaDer ? 1 : -1;
+    gana.x = c.x; gana.y = c.y + (cabeza ? 0 : dir * F.gana);
+    pierde.x = c.x - s * dir * F.lado; pierde.y = c.y - dir * F.atras;
+    for (const j of [gana, pierde]) { const q = this._dentro(j.x, j.y); j.x = q.x; j.y = q.y; j.ruta = []; j.mx = 0; j.my = dir; }
+    b.x = c.x; b.y = c.y;
+    pierde.aturdido = REGLAS.ATURDIDO;
+    gana.respiro = REGLAS.RESPIRO_DUELO; pierde.respiro = REGLAS.RESPIRO_DUELO;
+    if (dec.critico) this.estadisticas.criticos[gana.lado]++;
+    // la tension de VR: +60 al que gana y nada al que pierde
+    this._tension(gana.lado, this._gananciaTension(gana.lado, REGLAS.TENSION_GANA));
+    this._tension(pierde.lado, REGLAS.TENSION_DISPUTA_PIERDE);
+    const cifras = " (" + dec.a + " contra " + dec.d + (dec.critico ? ", ¡crítico!" : "") + ")";
+    let ev;
+    if (gana === att) {
+      this._pase(att.lado);       // el pase completado: poder de afinidad (O-328)
+      this.coger(att);
+      ev = this.apunta("¡" + att.nombre + " gana la disputa a " + def.nombre + "!" + cifras, "bien");
+    } else {
+      this.paseMarcado[att.lado] = null;
+      if (cabeza) {
+        ev = this.apunta("¡" + def.nombre + " gana la disputa y despeja de cabeza!" + cifras, "mal");
+        this._despejeCabeza(def);
+      } else {
+        this.coger(def); this._robo(def);
+        ev = this.apunta("¡" + def.nombre + " gana la disputa a " + att.nombre + " y se queda el balón!" + cifras, "mal");
+      }
+      ev.pierde = de.id;
+    }
+    // el que se lo queda, ya a sus pies (donde lo deja la animacion)
+    if (gana.conBalon) { b.x = gana.x; b.y = gana.y + dir * 0.7; }
+    if (dec.critico) ev.ro = { que: "critico", lado: gana.lado, sub: gana.nombre };
+    const r1 = v => Math.round(v * 10) / 10;
+    this.nResultado = (this.nResultado || 0) + 1;
+    this.resultado = { tipo: "aerea", ganador: gana.id, atacante: att.id, defensor: def.id,
+      valores: { [att.lado]: dec.a, [def.lado]: dec.d }, critico: dec.critico ? gana.lado : null, antes: dec.critico ? dec.antes : null,
+      pasivas: { [att.lado]: Math.round((pa - 1) * 1000) / 10, [def.lado]: Math.round((pd - 1) * 1000) / 10 },
+      der: ganaDer ? gana.id : pierde.id, x: r1(c.x), y: r1(c.y), dir, cabeza };
+    // el remate de primeras, al volver el juego (paso)
+    this._remateAereo = gana === att && directo ? { id: att.id, de: directo.id, apunta, k: this.nResultado } : null;
+    this.fase = "resultado"; this._retener(REGLAS.AEREA.espera, "aerea");
   }
 
   // el foco que gana una hipertecnica, sin numeros (O-310): el que la saca la activa
@@ -2597,7 +2837,7 @@ class Partido {
     // ni paga su tecnica
     // desvia: quien manda el tiro fuera (O-315), el muro que lo toca (corner) o el que
     // chuta (saque de puerta)
-    let desvia = null;
+    let desvia = null, bloqueoAntes = null;
     if (muro && ed.muro && ed.muro !== "nada") {
       if (boton === "vaselina" && !du.muroPegado) {
         pasos.push({ quien: muro.id, que: "¡Por encima!", valor: null, tecnica: false, elemento: "", encima: true });
@@ -2614,19 +2854,16 @@ class Partido {
         // critico: el lado que gano este paso por critico (el muro o el tiro) y antes, su numero
         if (rm.critico) { pm.critico = rm.ganaA ? muro.lado : tir.lado; pm.antes = rm.antes; this.estadisticas.criticos[pm.critico]++; }
         pasos.push(pm);
+        // (O-344) donde le llega: el sitio del muro llevado a la raya del que chuta al centro de la porteria
+        const gT = this.porteriaRival(tir), lT = Math.hypot(gT.x - tir.x, gT.y - tir.y) || 1, kT = Math.max(0, ((muro.x - tir.x) * (gT.x - tir.x) + (muro.y - tir.y) * (gT.y - tir.y)) / (lT * lT));
+        bloqueoAntes = this._puntoMuro(tir.x, tir.y, gT.x, gT.y, tir.x + (gT.x - tir.x) * kT, tir.y + (gT.y - tir.y) * kT);
         if (rm.ganaA) {
           this.nResultado = (this.nResultado || 0) + 1;
           this.resultado = { tipo: "tiro", final: "bloqueado", pasos, tirador: tir.id,
-            critico: rm.critico ? muro.lado : null, antes: rm.critico ? rm.antes : null };
+            critico: rm.critico ? muro.lado : null, antes: rm.critico ? rm.antes : null, bloqueo: bloqueoAntes };
           this.apunta("¡" + muro.nombre + " bloquea el tiro!" + (rm.critico ? " (¡crítico!)" : ""), "mal").ro = { que: "bloqueo", lado: muro.lado, sub: muro.nombre };   // O-306
-          // a veces se va directo a corner (O-315); si no, rebota hacia el campo
-          if (this.azar() < REGLAS.A_CORNER.bloqueo) this._alFondo(muro, muro.lado);
-          else {
-            this.soltar();
-            this.balon.x = muro.x; this.balon.y = muro.y;
-            this.balon.vx = (this.azar() - 0.5) * 8; this.balon.vy = -tir.dir * 6;
-            this.balon.ultimo = muro.lado;
-          }
+          // se lo queda el (O-335; antes a corner o rebotaba, O-315)
+          this._quedaMuro(muro);
           return this._acabarDuelo(2.0);
         }
         const resta = this._restaMuro(dm, at, rm.critico);     // (entero, O-328)
@@ -2650,6 +2887,7 @@ class Partido {
       pasos.push({ quien: por.id, que: desvia === tir ? "Se va fuera" : "Desviado a córner", valor: null, tecnica: false, elemento: "", fuera: true });
       this.nResultado = (this.nResultado || 0) + 1;
       this.resultado = { tipo: "tiro", final: "fuera", pasos, tirador: tir.id, critico: null, antes: null, desvia: desvia.id };
+      if (bloqueoAntes) this.resultado.bloqueo = bloqueoAntes;
       this.apunta(desvia === tir ? "¡El tiro de " + tir.nombre + " se va fuera!" : "¡" + desvia.nombre + " desvía el tiro de " + tir.nombre + " a córner!", "mal");
       this._alFondo(por, desvia.lado);
       return this._acabarDuelo(2.0);
@@ -2682,6 +2920,7 @@ class Partido {
       this.estadisticas.goles.push([tir.lado, this.mitad, this.minuto(), ultimo.nombre]);
       this.nResultado = (this.nResultado || 0) + 1;
       this.resultado = { tipo: "tiro", final: "gol", pasos, tirador: ultimo.id, critico, antes };
+      if (bloqueoAntes) this.resultado.bloqueo = bloqueoAntes;
       this.apunta("¡¡GOL de " + ultimo.nombre + "!!" + cifras, "gol");
       this.fase = "gol"; this.duelo = null; this._retener(3.0, "duelo");     // O-319
       this._sacaDespues = 1 - tir.lado;
@@ -2695,6 +2934,7 @@ class Partido {
     const despeje = despejar || (!!tp && /despej|pu.o/i.test(tp.subtipo || ""));
     this.nResultado = (this.nResultado || 0) + 1;
     this.resultado = { tipo: "tiro", final: despeje ? "despeje" : "parada", pasos, tirador: tir.id, critico, antes };
+    if (bloqueoAntes) this.resultado.bloqueo = bloqueoAntes;
     const ev = this.apunta((despeje ? "¡Despeja " : "¡Para ") + por.nombre + "!" + cifras, "mal");
     // el rotulo pequeno "¡Crítico!" en el campo; en el gol no (ya esta el suyo) (O-309)
     if (rp.critico) ev.ro = { que: "critico", lado: por.lado, sub: por.nombre };
@@ -2706,6 +2946,13 @@ class Partido {
     this._acabarDuelo(2.0);
   }
 
+  // el defensa que para el tiro del todo se queda el balon (Aaron, O-335: "que no rebote, la
+  // pelota se la queda el defensa que ha bloqueado"; antes rebotaba hacia el campo o se iba a
+  // corner, O-315): con el respiro del que gana un duelo, como en un foco
+  _quedaMuro(muro) {
+    this.coger(muro);
+    muro.respiro = REGLAS.RESPIRO_DUELO;
+  }
   // el despeje (Despejar o una supertecnica de despeje o de puno): el balon sale
   // rebotado hacia el campo con un angulo al azar de hasta DESPEJE_ANGULO grados a
   // cada lado y DESPEJE_VEL m/s. Sale desde 1,5 m del portero en esa direccion
@@ -2807,7 +3054,7 @@ class Partido {
   }
 
   // la falta: tiro libre con la barrera a 9 m, o penalti si fue en el area
-  _falta(att, def, ra, rd, ta, td, ca, cd) {
+  _falta(att, def, ra, rd, ta, td, ca, cd, apoyos) {
     const g = this.porteriaRival(att);
     const enArea = Math.abs(att.y - g.y) < REGLAS.AREA_Y && Math.abs(att.x) < REGLAS.AREA_X;
     att.aturdido = 0; def.aturdido = REGLAS.ATURDIDO;
@@ -2823,6 +3070,7 @@ class Partido {
                   [def.lado]: td ? td.nombre : ({ cargar: "Cargar", potente: "Entrada" }[cd] || "Tapar") },
       elementos: { [att.lado]: null, [def.lado]: null }, pasivas: {},
     };
+    if (apoyos) this.resultado.apoyos = apoyos;     // O-342
     this.apunta("¡Falta de " + def.nombre + " sobre " + att.nombre + "!" + (enArea ? " ¡PENALTI!" : " Tiro libre."), "mal").ro =
       { que: enArea ? "penalti" : "falta", lado: att.lado, sub: (enArea ? "Para " : "Tiro libre para ") + this.nombres[att.lado] };   // O-306
     // la tarjeta, si la hay, detras de la falta (su rotulo sale despues). Las
@@ -2933,14 +3181,17 @@ class Partido {
   // un duelo; lleva lo que le falta a la entrada al duelo, del contador de paso(), que
   // no se borra con this.duelo), "fuera" (el fuera de juego) o "banda" | "corner" |
   // "puerta" | "penaltis" (sin resultado nuevo: REGLAS.esperaAnim). "vuelo": un resultado
-  // del tiro en vuelo que no cierra un duelo (el que llega fuera, O-325): sin entrada
+  // del tiro en vuelo que no cierra un duelo (el que llega fuera, O-325): sin entrada. "aerea":
+  // la disputa aerea (O-341), tampoco
   _retener(segundos, que) {
     const m = this.animaciones;
     if (!m) { this.espera = segundos; return; }
-    if (que !== "duelo" && que !== "fuera" && que !== "vuelo") { this.espera = Math.max(segundos, REGLAS.esperaAnim(que, m)); return; }
+    if (que !== "duelo" && que !== "fuera" && que !== "vuelo" && que !== "aerea") { this.espera = Math.max(segundos, REGLAS.esperaAnim(que, m)); return; }
     const A = REGLAS.ANIM[m];
     // (en ms enteros: el invitado saca el plan con la misma que viaja en `anim`)
-    const entrada = que === "duelo" ? Math.round(Math.max(0, A.entrada - (this._edadId === this.nDuelos ? this._edadDuelo : 0)) * 1000) / 1000 : 0;
+    // (con el Doble o el Triple de los apoyos, APOYO_ENTRADA s mas: O-342)
+    const ap = this.resultado && this.resultado.apoyos, doble = !!ap && Object.values(ap).some(x => x && x.doble);
+    const entrada = que === "duelo" ? Math.round(Math.max(0, A.entrada + (doble ? REGLAS.APOYO_ENTRADA || 0 : 0) - (this._edadId === this.nDuelos ? this._edadDuelo : 0)) * 1000) / 1000 : 0;
     this._segAnim(this.resultado);
     const plan = REGLAS.planAnim(this.resultado, m, entrada, id => (this.jugadores[id] || {}).lado);
     this.espera = Math.max(segundos, plan.total);
@@ -2977,6 +3228,14 @@ class Partido {
     this.pasos++;
     // al acabarse la hiper, cada uno vuelve a su forma (O-327)
     this._formas();
+    // la invocacion que se esta viendo (O-337): todo parado hasta que acaba su animacion; luego
+    // este paso sigue como si nada. Y lo invocado por ver, antes de que se mueva nada
+    if (this.fase === "invocando") {
+      this.espera -= P;
+      if (this.espera > 0) return;
+      this._finInvocando();
+    }
+    if (this._porVer && this._empezarInvocando()) return;
     // el tiempo de invocacion (O-327): parado hasta que los dos invocan o siguen. Los
     // lados sin persona ya han decidido (la maquina piensa antes del paso); online, como
     // mucho TIEMPO_INVOCAR.limite s (como el duelo, para que nadie lo cuelgue)
@@ -3051,6 +3310,16 @@ class Partido {
         const o = this.paseMarcado[l], j = o && this.jugadores[o.de];
         this.paseMarcado[l] = null;
         if (j && j.conBalon) this.ordenar(o);
+      }
+      // el remate de primeras del que gana la disputa aerea (O-341): de cabeza o de volea, al
+      // volver el juego (antes de coger el balon, como un pase bombeado)
+      const ra = this._remateAereo;
+      this._remateAereo = null;
+      const jr = ra && ra.k === this.nResultado && this.fase === "juego" ? this.jugadores[ra.id] : null;
+      if (jr && jr.conBalon) {
+        const g = this.porteriaRival(jr);
+        if (this.enRangoTiro(jr)) this._empezarTiro(jr, Math.hypot(g.x - jr.x, g.y - jr.y), this.jugadores[ra.de], false, true, false, ra.apunta);
+        else this.apunta(jr.nombre + " está demasiado lejos para rematar", "aviso", jr.lado);
       }
       return;
     }
@@ -3278,9 +3547,11 @@ class Partido {
       const c = this._cortes && this._cortes[j.id];
       if (c) return c;
     }
-    // balon suelto o rival con balon: los dos mas cerca de cada equipo van a por el
+    // balon suelto o rival con balon: los dos mas cerca de cada equipo van a por el. El balon
+    // bombeado, adonde cae: asi saltan a por el uno de cada equipo (la disputa aerea, O-341)
+    const pa = b.pase, bo = pa && pa.alto && pa.destino ? this._dentro(pa.destino.x, pa.destino.y) : b;
     const cerca = this.equipo(j.lado).filter(o => !o.esPortero && o.aturdido <= 0)
-      .sort((p, q) => Math.hypot(p.x - b.x, p.y - b.y) - Math.hypot(q.x - b.x, q.y - b.y));
+      .sort((p, q) => Math.hypot(p.x - bo.x, p.y - bo.y) - Math.hypot(q.x - bo.x, q.y - bo.y));
     if (j.esPortero) {
       const g = { x: 0, y: -REGLAS.LARGO / 2 * j.dir };
       const enArea = Math.abs(b.y - g.y) < REGLAS.AREA_Y && Math.abs(b.x) < REGLAS.AREA_X / 2;
@@ -3289,7 +3560,7 @@ class Partido {
     }
     // nadie se tira encima del portero con el balon en las manos: lo empujaba
     // por detras de su linea (O-305)
-    if (!T && !tenemos && (cerca[0] === j || (!d && cerca[1] === j)) && !this._enManos(d)) return { x: b.x, y: b.y, apreton: true };
+    if (!T && !tenemos && (cerca[0] === j || (!d && cerca[1] === j)) && !this._enManos(d)) return { x: bo.x, y: bo.y, apreton: true };
     // los demas, a su zona, movida con el balon (como en DS)
     const bv = (b.y / (REGLAS.LARGO / 2)) * j.dir, bu = (b.x / (REGLAS.ANCHO / 2)) * j.dir;
     let v = j.v + Math.max(-0.35, Math.min(0.35, bv * 0.45)) + (tenemos ? 0.12 : -0.08);
@@ -3360,6 +3631,11 @@ class Partido {
     // fuera del campo: banda, fondo o porteria
     const ax = REGLAS.ANCHO / 2, ay = REGLAS.LARGO / 2;
     if (Math.abs(b.x) > ax || Math.abs(b.y) > ay) return this._fuera();
+    // la disputa aerea (O-341): el balon bombeado que baja con uno de cada equipo a su alcance
+    if (b.pase && b.pase.alto && b.pase.queda <= REGLAS.PASE_ALTO_BAJA && REGLAS.AEREA) {
+      const da = this._disputantes();
+      if (da) return this._disputaAerea(da.att, da.def);
+    }
     // alguien la coge: el mas cercano que este libre (el pase va al que se le da)
     let mejor = null, md = 1.25;
     for (const j of this.enCampo()) {      // el expulsado no la coge (O-311)
@@ -3379,6 +3655,8 @@ class Partido {
       // si el pase venia bombeado, el remate es de cabeza o de volea: se mira antes
       // de coger(), que borra el pase (O-309)
       const alto = !!(b.pase && b.pase.alto);
+      // y adonde apunta el remate (O-335)
+      const apunta = b.pase ? b.pase.apunta : undefined;
       // el balon bombeado (un centro, un despeje) que corta un defensa de campo cerca
       // de su porteria no se lo queda: lo despeja de cabeza, como en la vida real, y a
       // veces se va a corner (O-315)
@@ -3397,7 +3675,7 @@ class Partido {
       this.coger(j);
       if (directo) {
         const g = this.porteriaRival(j), dg = Math.hypot(g.x - j.x, g.y - j.y);
-        if (dg <= this._alcanceTiro(j)) this._empezarTiro(j, dg, directo, false, alto);
+        if (this.enRangoTiro(j)) this._empezarTiro(j, dg, directo, false, alto, false, apunta);
         // el remate anunciado no se queda en nada sin decirlo (O-305)
         else this.apunta(j.nombre + " está demasiado lejos para rematar", "aviso", j.lado);
       }
@@ -3501,6 +3779,8 @@ class Partido {
       // afinidad y el combo de tecnicas
       cf: this.carga.map(c => [c.rango, r1(c.t), r1(c.n), c.p || 0]),
       af: this.afinidad.map(r1), co: this.combo.slice(),
+      // O-337: la invocacion que se ve con el juego parado (el invitado saca el mismo plan)
+      vi: this.invocando ? JSON.parse(JSON.stringify(this.invocando)) : null,
     };
   }
   _fotoTiro(r1) {
@@ -3607,6 +3887,9 @@ class Partido {
     if (Array.isArray(f.cf) && f.cf.length === 2) f.cf.forEach((q, l) => { if (Array.isArray(q)) Object.assign(this.carga[l], { rango: Number(q[0]) || 0, t: Number(q[1]) || 0, n: Number(q[2]) || 0, p: Number(q[3]) || 0 }); });
     if (Array.isArray(f.af) && f.af.length === 2) this.afinidad = f.af.map(v => Number(v) || 0);
     if (Array.isArray(f.co) && f.co.length === 2) this.combo = f.co.map(v => Number(v) || 0);
+    // O-337: la invocacion que se esta viendo (un anfitrion anterior no la manda: ninguna)
+    const vi = f.vi;
+    this.invocando = vi && vi.tipo === "invocacion" && Array.isArray(vi.cola) && vi.anim ? vi : null;
     this._formas(true);
     return true;
   }

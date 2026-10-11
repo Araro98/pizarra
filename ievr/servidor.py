@@ -1430,6 +1430,10 @@ class Manejador(BaseHTTPRequestHandler):
                 return self._fichero(os.path.join(WEB, "tierlist.html"), "text/html; charset=utf-8")
             if u.path == "/api/tier-list":
                 return self._responder(200, TL.tier_list())
+            # las figuras 3D (O-347): los modelos del juego con la equipacion, el dorsal y la
+            # pose que se quiera, para descargarlos e imprimirlos. No toca la partida.
+            if u.path.startswith("/figuras") or u.path.startswith("/api/figuras/"):
+                return self._figuras_get(u, q)
             # el juego de partidos (O-286), aparte de todo lo demas y en pruebas (O-296)
             if _es_del_partido(u.path) and not _partido_activo():
                 return self._responder(404, {"error": "no existe"})
@@ -1452,7 +1456,8 @@ class Manejador(BaseHTTPRequestHandler):
                 from ievr import modelos3d as M3
                 partes = unquote(u.path[len("/api/partido/evento/"):]).split("/")
                 tipos = {".json": "application/json", ".glb": "model/gltf-binary", ".png": "image/png"}
-                if (len(partes) == 2 and re.fullmatch(r"(ev\d\d_\d{5}(_\d{1,2})?|_rotulos)", partes[0])
+                # (y el aura del keshin en el campo, ega_kNNNNNNa: O-332)
+                if (len(partes) == 2 and re.fullmatch(r"(ev\d\d_\d{5}(_\d{1,2})?|_rotulos|ega_k\d{6}a)", partes[0])
                         and re.fullmatch(r"[A-Za-z0-9_]{1,60}\.(json|glb|png)", partes[1])):
                     ruta = os.path.join(M3.carpeta(), "eventos", partes[0], partes[1])
                     if os.path.isfile(ruta):
@@ -1462,6 +1467,37 @@ class Manejador(BaseHTTPRequestHandler):
                 # como va la cola de conversion (ievr/modelos3d.py)
                 from ievr import modelos3d as M3
                 return self._responder(200, M3.estado())
+            if u.path == "/api/partido/voces/estado":
+                # como va la cola de las voces de VR (ievr/voces.py, O-339)
+                from ievr import voces as VO
+                return self._responder(200, VO.estado())
+            if u.path.startswith("/api/partido/voz/"):
+                # las voces de VR convertidas en este PC desde su juego: <idioma>/<banco>.wav y
+                # .json, y eventos.json (datos/modelos3d/voces, no se reparte; O-339)
+                import re
+                from ievr import voces as VO
+                resto = unquote(u.path[len("/api/partido/voz/"):])
+                tipos = {".json": "application/json", ".wav": "audio/wav"}
+                if re.fullmatch(r"(ja|en)/c\d{8}\.(json|wav)|eventos\.json", resto):
+                    ruta = os.path.join(VO.carpeta(), *resto.split("/"))
+                    if os.path.isfile(ruta):
+                        return self._fichero(ruta, tipos[os.path.splitext(ruta)[1]])
+                return self._responder(404, {"error": "esa voz no esta convertida"})
+            if u.path == "/api/partido/sonidos/estado":
+                # como va la cola de los efectos de sonido de VR (ievr/sonidos.py, O-343)
+                from ievr import sonidos as SO
+                return self._responder(200, SO.estado())
+            if u.path.startswith("/api/partido/sonido/"):
+                # los efectos de sonido de VR convertidos en este PC desde su juego: <cue>.wav y
+                # eventos.json (datos/modelos3d/sonidos, no se reparte; O-343)
+                import re
+                from ievr import sonidos as SO
+                nombre = unquote(u.path[len("/api/partido/sonido/"):])
+                if re.fullmatch(r"[A-Za-z0-9_]{2,60}\.wav|eventos\.json", nombre):
+                    ruta = os.path.join(SO.carpeta(), nombre)
+                    if os.path.isfile(ruta):
+                        return self._fichero(ruta, "audio/wav" if nombre.endswith(".wav") else "application/json")
+                return self._responder(404, {"error": "ese sonido no esta convertido"})
             if u.path == "/api/partido/equipos":
                 from ievr import partido as PA
                 with self.ses.lock:
@@ -1706,6 +1742,55 @@ class Manejador(BaseHTTPRequestHandler):
         except Exception as e:      # que un fallo no tire el servidor entero
             return self._responder(500, {"error": "%s: %s" % (type(e).__name__, e)})
 
+    def _figuras_get(self, u, q):
+        """Las figuras 3D (O-347, ievr/figuras.py): la pagina, las listas, las poses y los modelos
+        convertidos en este PC (datos/modelos3d, no se reparten)."""
+        import re
+        from ievr import figuras as FI
+        from ievr import modelos3d as M3
+
+        def uno(k):
+            return (q.get(k) or [""])[0]
+        try:
+            if u.path in ("/figuras", "/figuras.html"):
+                return self._fichero(os.path.join(WEB, "figuras.html"), "text/html; charset=utf-8")
+            if u.path == "/api/figuras/personajes":
+                return self._responder(200, {"personajes": FI.personajes()})
+            if u.path == "/api/figuras/equipaciones":
+                return self._responder(200, {"equipaciones": FI.equipaciones()})
+            if u.path == "/api/figuras/ropa":
+                return self._responder(200, {"ropa": FI.ropa(uno("codigo"), uno("equipacion"), uno("diseno"),
+                                                             uno("portero") == "1")})
+            if u.path == "/api/figuras/poses":
+                return self._responder(200, FI.poses(uno("codigo")))
+            if u.path == "/api/figuras/pose":
+                return self._fichero(FI.pose_glb(uno("codigo"), uno("banco"), uno("clip")), "model/gltf-binary")
+            if u.path == "/api/figuras/estado":
+                return self._responder(200, M3.estado())
+            if u.path == "/api/figuras/tecnicas":
+                return self._responder(200, FI.tecnicas(uno("codigo")))
+            if u.path.startswith("/api/figuras/evento/"):
+                # la animacion de VR de una supertecnica, convertida en este PC (O-323): su guion y
+                # las pistas de los jugadores de un tipo de cuerpo
+                partes = unquote(u.path[len("/api/figuras/evento/"):]).split("/")
+                if (len(partes) == 2 and M3.evento_valido(partes[0])
+                        and re.fullmatch(r"(escena\.json|pistas_c000\d01\.glb)", partes[1])):
+                    ruta = os.path.join(M3.carpeta(), "eventos", partes[0], partes[1])
+                    if os.path.isfile(ruta):
+                        return self._fichero(ruta, "application/json" if ruta.endswith(".json") else "model/gltf-binary")
+                return self._responder(404, {"error": "esa supertecnica no esta convertida"})
+            if u.path.startswith("/api/figuras/modelo/"):
+                nombre = os.path.basename(unquote(u.path[len("/api/figuras/modelo/"):]))
+                ruta = os.path.join(M3.carpeta(), nombre)
+                if re.fullmatch(r"[A-Za-z0-9_]{1,64}\.glb", nombre) and os.path.isfile(ruta):
+                    return self._fichero(ruta, "model/gltf-binary")
+                return self._responder(404, {"error": "ese modelo no esta convertido"})
+            return self._responder(404, {"error": "no existe esa direccion"})
+        except LookupError as e:
+            return self._responder(404, {"error": str(e)})
+        except FileNotFoundError as e:
+            return self._responder(404, {"error": "No encuentro el juego en este ordenador (%s)" % e})
+
     def do_POST(self):
         u = urlparse(self.path)
         largo = int(self.headers.get("Content-Length") or 0)
@@ -1724,6 +1809,20 @@ class Manejador(BaseHTTPRequestHandler):
             if u.path == "/api/caras/bajar":
                 from ievr import caras as CA
                 return self._responder(200, CA.bajar(RAIZ))
+            if u.path == "/api/figuras/preparar":
+                # convierte en segundo plano el personaje y su ropa (la cola del partido, O-347)
+                from ievr import modelos3d as M3
+                codigos = cuerpo.get("codigos")
+                if not isinstance(codigos, list):
+                    raise E.Ilegal("faltan los codigos de los modelos")
+                return self._responder(200, M3.preparar(codigos[:8]))
+            if u.path == "/api/figuras/evento":
+                # la animacion de VR de una supertecnica para un tipo de cuerpo, en segundo plano
+                from ievr import modelos3d as M3
+                ev, tipo = str(cuerpo.get("evento") or ""), str(cuerpo.get("tipo") or "")
+                if not M3.evento_valido(ev) or tipo not in ("01", "02", "03", "04"):
+                    raise E.Ilegal("esa supertecnica no existe")
+                return self._responder(200, M3.preparar_eventos({ev: {"tipos": [tipo], "asignados": []}}))
             if _es_del_partido(u.path) and not _partido_activo():
                 return self._responder(404, {"error": "no existe"})
             if u.path == "/api/partido/modelos/preparar":
@@ -1733,7 +1832,8 @@ class Manejador(BaseHTTPRequestHandler):
                 codigos = cuerpo.get("codigos")
                 if not isinstance(codigos, list):
                     raise E.Ilegal("faltan los codigos de los modelos")
-                return self._responder(200, M3.preparar(codigos[:64]))
+                # O-329: los de un partido entero (solo: lo pendiente de otros partidos se quita)
+                return self._responder(200, M3.preparar(codigos[:160], solo=bool(cuerpo.get("solo"))))
             if u.path == "/api/partido/eventos/preparar":
                 # las animaciones reales de VR de los jugadores del partido (sus supertecnicas,
                 # su espiritu y en lo que se transforman), en segundo plano detras de los
@@ -1741,10 +1841,49 @@ class Manejador(BaseHTTPRequestHandler):
                 from ievr import modelos3d as M3
                 jugadores = cuerpo.get("jugadores")
                 if isinstance(jugadores, list):
+                    # O-329: el partido entero en una peticion (los 32 con el banquillo y las
+                    # formas); antes 40 jugadores y 16 tecnicas
                     limpios = [{"cara": str(j.get("cara") or ""), "espiritu": str(j.get("espiritu") or ""),
-                                "tecnicas": [str(t) for t in (j.get("tecnicas") or [])[:16]]}
-                               for j in jugadores[:40] if isinstance(j, dict)]
-                    return self._responder(200, M3.preparar_partido(limpios))
+                                "tecnicas": [str(t) for t in (j.get("tecnicas") or [])[:40]]}
+                               for j in jugadores[:80] if isinstance(j, dict)]
+                    r = M3.preparar_partido(limpios, solo=bool(cuerpo.get("solo")))
+                    # O-344: y la de fallo (_2) de sus bloqueos y paradas (el muro que no para el tiro,
+                    # la parada que encaja), con los tipos de cuerpo y el keshin de la de acierto: la
+                    # pagina la ensena si esta (si no, corta la de acierto en el contacto). En "fallos"
+                    # (la pantalla de carga tambien la espera); el estado, con ellas en la cola
+                    try:
+                        from ievr import g4evento as GE
+                        pedidos = GE.pedidos_de(limpios)[1]
+                        fallos = {}
+                        for t in (r.get("tecnicas") or {}).values():
+                            ev, ef = t.get("evento"), t.get("evento_fallo")
+                            if ev and ef and ev in pedidos:
+                                fallos[ef] = {"tipos": sorted(pedidos[ev]["tipos"]), "asignados": sorted(pedidos[ev]["asignados"])}
+                        if fallos:
+                            M3.preparar_eventos(fallos)
+                            r.update(M3.estado())
+                        r["fallos"] = sorted(fallos)
+                    except Exception:
+                        r["fallos"] = []
+                    # y las voces de VR de esos jugadores (O-339): si fallan, el partido va sin ellas
+                    try:
+                        from ievr import voces as VO
+                        r["voces"] = VO.preparar(limpios, solo=bool(cuerpo.get("solo")))
+                    except Exception as ex:
+                        r["voces"] = {"error": "no se han podido preparar las voces (%s)" % ex}
+                    # y los efectos de sonido de VR de sus animaciones (O-343): si fallan, sin ellos
+                    try:
+                        from ievr import sonidos as SO
+                        r["sonidos"] = SO.preparar(limpios, solo=bool(cuerpo.get("solo")))
+                    except Exception as ex:
+                        r["sonidos"] = {"error": "no se han podido preparar los efectos de sonido (%s)" % ex}
+                    # y que celebraciones de gol de VR lleva cada uno (O-343)
+                    try:
+                        from ievr import sonidos as SO
+                        r["celebraciones"] = SO.celebraciones(limpios)
+                    except Exception:
+                        r["celebraciones"] = {}
+                    return self._responder(200, r)
                 eventos = cuerpo.get("eventos")
                 if isinstance(eventos, dict):
                     return self._responder(200, M3.preparar_eventos(

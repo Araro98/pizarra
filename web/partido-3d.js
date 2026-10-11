@@ -12,6 +12,9 @@ import * as THREE from "./partido-three.module.js";
 import { GLTFLoader } from "./partido-GLTFLoader.js";
 import { clone as clonarModelo } from "./partido-SkeletonUtils.js";
 import { mergeGeometries } from "./partido-BufferGeometryUtils.js";
+import { prepararRopa, vestir, partesVestido } from "./partido-vestir.js";
+import { AuraVR } from "./partido-eventosvr.js";
+import { ponerCamara as camaraVR } from "./partido-sombrasvr.js";
 
 // la camara de abajo (guia 7.1; diseno 5.3): 48 grados bajo la horizontal, FOV vertical
 // de 25 (casi teleobjetivo: las bandas apenas convergen), 4:3 y a 53 m del punto
@@ -39,12 +42,80 @@ export const ANIM_VR = {
   caido: "戦1うつ伏せダウン1", celebra: "戦1ゴール後走り喜び1入", lamenta: "戦1ゴール後その場がっかり1入", aturdido: "戦1スタン1", salto: "ジャンプ上1",
 };
 // el modelo 3D que se ve de un jugador: el de su forma con la hiper puesta (la armadura, el
-// mixi max o el personaje del modo, O-327) o el de su cara
-export function modeloDe(j) { return (j && (j.modelo || j.cara)) || ""; }
+// mixi max o el personaje del modo, O-327) o el de su cara, vestido con la equipacion de su
+// equipo (O-334)
+export function modeloDe(j) { return vestidoDe(j, (j && (j.modelo || j.cara)) || ""); }
+// el modelo `cod` de un jugador (su cara de siempre, la de la forma de su modo o el de su
+// armadura o mixi max) con la ropa que le toca con la equipacion de su equipo, en el diseno
+// de su equipo y de portero si lo es (O-334): "<cod>_cuerpo+<ropa>+<dorsal>[c]"
+// (partido-vestir.js). Sin ropa (los que llevan lo suyo, o un equipo de un Pizarra de antes),
+// el modelo tal cual. j puede ser un jugador del partido o los datos de uno del banquillo
+export function vestidoDe(j, cod) {
+  if (!j || !cod || typeof REGLAS === "undefined" || !REGLAS.vestido) return cod || "";
+  const f = j.formaHiper, base = (j.propio && j.propio.cara) || j.cara;
+  const r = cod === base ? j.ropa : f && cod === (f.modelo || f.cara) ? f.ropa : cod === j.modeloHiper ? j.ropaHiper : null;
+  const portero = j.esPortero !== undefined ? !!j.esPortero : j.posicion === "POR";
+  return REGLAS.vestido(cod, REGLAS.ropaDe(r, j.diseno || 0, portero), j.dorsal, j.capitan);
+}
+// los ficheros que convierte el servidor de un modelo (vestido: el cuerpo y la ropa)
+export function ficherosDe(cod) { return typeof REGLAS !== "undefined" && REGLAS.ficheros ? REGLAS.ficheros(cod) : (cod ? [cod] : []); }
+// si estan ya en el servidor (hechos: Set) los ficheros de un modelo
+function hechoEn(cod, hechos) { const f = ficherosDe(cod); return f.length > 0 && f.every(x => hechos.has(x)); }
+// la disputa aerea de VR (O-341): sus clips del banco p030 del cuerpo van aparte, uno por tipo de
+// cuerpo (disputa_c000X01.glb, ievr/g4evento.convertir_disputa; asi los modelos no se rehacen).
+// Cada jugador coge los de su cuerpo (piezas.anim de su glb). Por el lado de la pareja en el que
+// esta: Der (右) o Izq (左). Entra (saltar a por el, 0,33 s), Lucha (pelear, en bucle), Gana (se va
+// con el, 1,17 s), Pierde y Cabeza (el despeje de cabeza)
+export const ANIM_AEREA = {};
+for (const [l, k] of [["右", "Der"], ["左", "Izq"]]) {
+  Object.assign(ANIM_AEREA, { ["aereaEntra" + k]: "戦1スクランブルハイボール競合" + l + "1入", ["aereaLucha" + k]: "戦1スクランブルハイボール競合" + l + "1L",
+    ["aereaGana" + k]: "戦1スクランブルハイボール保持" + l + "1前走り", ["aereaPierde" + k]: "戦1スクランブルハイボール失敗" + l + "1前走り",
+    ["aereaCabeza" + k]: "戦1スクランブルハイボールヘディングパス" + l + "1前" });
+}
+export const CUERPOS_AEREA = ["c000101", "c000201", "c000301", "c000401"];
+// los codigos que se piden al servidor (los cuatro: 0,9 MB y 1,4 s cada uno, una vez por PC)
+export function codigosAerea() { return CUERPOS_AEREA.map(c => "disputa_" + c); }
+// la fase de la disputa a la parte k (0..1) del tramo y la clave de su clip para j (ae: el de
+// estado.abajo.aerea del Director): saltar (lo de VR, 0,33 de 2,3 s), pelear hasta
+// DIRECTOR.aerea.cabezas y ganar (o despejar de cabeza) o perder
+export function claveAerea(ae, id, k) {
+  const c = typeof DIRECTOR !== "undefined" && DIRECTOR.aerea ? DIRECTOR.aerea.cabezas : 0.49;
+  const f = k < 0.143 ? "Entra" : k < c ? "Lucha" : id === ae.gana ? (ae.cabeza ? "Cabeza" : "Gana") : "Pierde";
+  return "aerea" + f + (id === ae.der ? "Der" : "Izq");
+}
+// los clips de la disputa para el modelo ya clonado de un jugador (su gltf y su cuerpo), en sus
+// acciones; solo con las pistas de los huesos que tiene (el esqueleto comun trae alguno que el
+// suyo no: three avisaria en la consola). -> promesa de si estan (no: este PC aun no los tiene)
+export function accionesAerea(gltf, cuerpo, mezcla, acciones) {
+  let c = "";
+  try { c = ((gltf.parser.json.asset.extras || {}).piezas || {}).anim || ""; } catch (e) {}
+  if (!CUERPOS_AEREA.includes(c)) c = CUERPOS_AEREA[0];
+  return pedirModelo("disputa_" + c).then(g => {
+    if (!g) return false;
+    const hay = new Set();
+    cuerpo.traverse(o => hay.add(o.name));
+    for (const [clave, nombre] of Object.entries(ANIM_AEREA)) {
+      const clip = g.animations.find(a => a.name === nombre);
+      if (!clip) continue;
+      const pistas = clip.tracks.filter(t => hay.has(THREE.PropertyBinding.parseTrackName(t.name).nodeName));
+      if (pistas.length) acciones[clave] = mezcla.clipAction(new THREE.AnimationClip(clip.name, clip.duration, pistas));
+    }
+    return true;
+  }).catch(() => false);
+}
 // el keshin (o el alma) detras del que lo tiene puesto (O-327): a esta escala (los de VR miden
 // 6-8 m: con la de las figuras taparian medio campo), algo detras y medio transparente, como
 // la silueta de Galaxy
 export const KESHIN = { escala: 1.0, detras: 1.6, opacidad: 0.55 };
+// O-332: el aura de VR del keshin en el campo (battle/common/ega_kNNNNNNa, convertida como una
+// animacion de VR: ievr/g4evento.convertir_aura), como en VR: las llamas del color del keshin
+// alrededor del jugador y el keshin de luz de medio cuerpo donde va el keshin (el sitio de O-327,
+// detras en la pantalla), con sus sombreadores, sus texturas que corren y sus particulas de VR. Si
+// esta, en vez del aura de Galaxy y del keshin medio transparente de O-327. Medido en videos de VR
+// (scratchpad juego/rotulo-aura/vid_keshin2, 210-250 s): el keshin de luz, de alto como 1,1 veces
+// el jugador, con su base a la altura de su pecho y como 1,5 veces su alto por delante (detras en la
+// pantalla, como el keshin de O-327)
+export const AURA_CAMPO = { activa: true, busto: 1.1, alto: 0.8, delante: 1.5 };
 // la calidad (diseno 7.4): el pixelRatio del 3D, las texturas de los modelos (7.3 bis)
 // y los mezcladores a 30 por segundo en Baja
 const CALIDAD = {
@@ -185,7 +256,8 @@ export class CampoAbajo3D {
   }
   // donde pulsaste en la porteria al chutar: ahi va la X del tiro (solo se ve aqui)
   apuntar(x, y) {
-    const m = REGLAS.PORTERIA / 2 - 0.6;
+    // tal cual (hasta lo que se toma por la porteria): la X dice adonde va (O-335)
+    const m = REGLAS.APUNTAR ? REGLAS.APUNTAR.max : REGLAS.PORTERIA / 2 - 0.6;
     this.puntoTiro = { x: Math.max(-m, Math.min(m, x)), y, t: performance.now() / 1000 };
   }
   pintar(estado) { if (this.mundo) this.mundo.pintar(estado || {}); }
@@ -430,8 +502,21 @@ function construirCampo(render) {
 
 // los modelos: como mucho 2 cargandose a la vez; cache por URL (el mismo gltf para
 // todos los partidos de la pagina). Si no esta (404) o no se puede leer, la promesa se
-// olvida: asi se vuelve a pedir cuando la cola del servidor lo haya convertido
+// olvida: asi se vuelve a pedir cuando la cola del servidor lo haya convertido.
+// Uno vestido (O-334): el cuerpo y la ropa por separado (en la cache, compartidos) y,
+// con los dos, el jugador vestido (otra cache, por su codigo con el dorsal)
+const VESTIDOS = {};
 function pedirModelo(cara) {
+  const v = partesVestido(cara);
+  if (v) {
+    if (!VESTIDOS[cara]) {
+      VESTIDOS[cara] = Promise.all([pedirModelo(v.cuerpo), pedirModelo(v.ropa).then(g => (g ? prepararRopa(g) : null))])
+        .then(([c, r]) => (c && r ? vestir(c, r, v) : null))
+        .catch(e => { console.warn(e); return null; })
+        .then(g => { if (!g) delete VESTIDOS[cara]; return g; });
+    }
+    return VESTIDOS[cara];
+  }
   const url = "/api/partido/modelo/" + encodeURIComponent(cara) + ".glb";
   if (!CACHE[url]) {
     CACHE[url] = new Promise(ok => { COLA.esperan.push({ url, ok }); siguienteModelo(); })
@@ -445,8 +530,24 @@ function siguienteModelo() {
     COLA.activos++;
     if (!CARGADOR) CARGADOR = new GLTFLoader();
     const fin = g => { COLA.activos--; t.ok(g); siguienteModelo(); };
-    CARGADOR.load(t.url, g => { try { reducirTexturas(g, NIVEL_TEX); } catch (e) { console.warn(e); } fin(g); }, undefined, () => fin(null));
+    CARGADOR.load(t.url, g => { try { reducirTexturas(g, NIVEL_TEX); caraNormal(g); } catch (e) { console.warn(e); } fin(g); }, undefined, () => fin(null));
   }
+}
+// O-332: los ojos y la boca en su cara normal de VR (extras.cara de su material: la celda de la hoja
+// de 4x2 caras; casi todos con la boca 4). La textura se copia (comparte la imagen): la cara y el
+// pelo que la usan no se mueven. Como CarasVR (partido-sombrasvr.js)
+export function caraNormal(gltf) {
+  gltf.scene.traverse(o => {
+    if (!o.isMesh) return;
+    for (const m of [].concat(o.material)) {
+      const n = m && m.userData ? m.userData.cara : undefined;
+      if (!n || !m.map || m.userData._cara) continue;
+      m.userData._cara = true;
+      m.map = m.map.clone(); m.map.matrixAutoUpdate = true;
+      const im = m.map.image || {}, ancho = im.width || 2048, alto = im.height || 1024;
+      m.map.offset.set((n % 4) / 4, Math.floor(n / 4) / 4 * ancho / alto);
+    }
+  });
 }
 // las texturas de los modelos, a 512 (Alta) o 256 (Media y Baja) antes de subirlas: los
 // 22 con las de 1024 eran ~410 MB en la grafica, que en un portatil es RAM (7.3 bis)
@@ -591,10 +692,15 @@ class Mundo {
       u.cuerpo = cuerpo; u.codCuerpo = cod;
       const mezcla = new THREE.AnimationMixer(cuerpo);
       u.mezcla = mezcla; u.acciones = {}; u.ahora = null;
-      for (const [clave, nombre] of Object.entries(ANIM)) {
+      // (y el de VR de ganar el balon: el defensa que para el tiro del todo, O-335; el salto de
+      // VR dura 0,03 s, una pose)
+      for (const [clave, nombre] of Object.entries(Object.assign({ bloquea: ANIM_VR.robarGana }, ANIM))) {
         const clip = gltf.animations.find(a => a.name === nombre);
         if (clip) u.acciones[clave] = mezcla.clipAction(clip);
       }
+      // y los de la disputa aerea de VR, aparte por su tipo de cuerpo (O-341)
+      u.aereaGltf = gltf; u.aereaPedida = performance.now();
+      accionesAerea(gltf, cuerpo, mezcla, u.acciones);
       this._anima(g, "parado");
       // cuando estan todos, se compilan los shaders: el primer duelo no se atasca
       if (!this._compilado && this.figuras.every(f => f.userData.cuerpo || !f.userData.cara)) {
@@ -611,8 +717,10 @@ class Mundo {
   _prepararModelos() {
     // detras de los 22, lo que se ve al invocar: la armadura, el mixi max, la forma del modo
     // y el keshin o el alma (O-327), para que esten cuando hagan falta
-    const formas = this.p.jugadores.map(j => [j.modeloHiper, j.formaHiper && j.formaHiper.modelo, j.keshinHiper]).flat();
-    const codigos = [...new Set(this.p.jugadores.map(j => j.cara).concat(formas).filter(Boolean))];
+    // (vestidos con la equipacion: el cuerpo y la ropa de cada uno, O-334)
+    const formas = this.p.jugadores.map(j => [j.modeloHiper && vestidoDe(j, j.modeloHiper), j.formaHiper && j.formaHiper.modelo && vestidoDe(j, j.formaHiper.modelo), j.keshinHiper]).flat();
+    // (y los clips de la disputa aerea, O-341)
+    const codigos = [...new Set(this.p.jugadores.map(j => vestidoDe(j, j.cara)).concat(formas).filter(Boolean).flatMap(ficherosDe).concat(codigosAerea()))];
     if (!codigos.length) return;
     fetch("/api/partido/modelos/preparar", {
       method: "POST", headers: { "Content-Type": "application/json" },
@@ -623,14 +731,14 @@ class Mundo {
   _verModelos(e) {
     if (this.cerrado) return;           // ya es otro partido
     const hechos = new Set(e.hechos || []), errores = e.errores || {};
-    this.p.jugadores.forEach((j, k) => { if (hechos.has(modeloDe(j)) && this.figuras[k]) this._cargarModelo(j, this.figuras[k]); });
+    this.p.jugadores.forEach((j, k) => { if (hechoEn(modeloDe(j), hechos) && this.figuras[k]) this._cargarModelo(j, this.figuras[k]); });
     const enCola = new Set([...(e.pendientes || []), e.actual].filter(Boolean));
     // se cuenta sobre los que juegan ahora: tras un cambio salia "23 de 24"
     // contando tambien al que se fue (O-305)
     const ahora = [...new Set(this.p.jugadores.map(j => modeloDe(j)).filter(Boolean))];
-    const quedan = ahora.filter(c => enCola.has(c)).length;
-    const listos = ahora.filter(c => hechos.has(c)).length;
-    const fallan = ahora.filter(c => errores[c]).length;
+    const quedan = ahora.filter(c => ficherosDe(c).some(x => enCola.has(x))).length;
+    const listos = ahora.filter(c => hechoEn(c, hechos)).length;
+    const fallan = ahora.filter(c => ficherosDe(c).some(x => errores[x])).length;
     // sin juego no se convierte nada, pero los que ya estaban hechos se ven: solo se avisa si falta alguno
     if (e.error) return this._avisar(listos < ahora.length ? e.error : "", 9000);
     this._convirtiendo = quedan > 0;
@@ -667,7 +775,7 @@ class Mundo {
   _pedirModelo(j, g) {
     fetch("/api/partido/modelos/preparar", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ codigos: [g.userData.cara] }),
+      body: JSON.stringify({ codigos: ficherosDe(g.userData.cara) }),
     }).then(r => r.json()).then(e => this._verModelos(e)).catch(() => this._cargarModelo(j, g));
   }
   // el keshin o el alma detras del que lo tiene puesto (O-327): su modelo (k######, con su
@@ -701,9 +809,49 @@ class Mundo {
     }
     if (u.keshin.grupo) u.keshin.grupo.visible = !!si;
   }
+  // el aura de VR del keshin (O-332): se lee la primera vez que la hace falta (una por jugador),
+  // sale con su "in", dura en bucle y se va con su "out". -> si se ve (mientras se lee, no: el aura
+  // de antes)
+  _auraVR(g, j, si, t, h) {
+    const u = g.userData, cod = j.auraHiper;
+    if (!cod || !AURA_CAMPO.activa) return false;
+    let a = u.auraVR;
+    if (a && a.cod !== cod) { this._soltarAuraVR(u); a = null; }
+    if (!a) {
+      if (!si) return false;
+      a = u.auraVR = { cod, aura: null, grupo: null, estado: "cargando" };
+      AuraVR.cargar(cod).then(x => {
+        if (this.cerrado || u.auraVR !== a) { x.soltar(); return; }
+        a.aura = x; a.grupo = new THREE.Group(); a.grupo.scale.setScalar(FIGURA.escala); a.grupo.add(x.raiz); g.add(a.grupo);
+        // (lo suyo a la grafica antes de verse)
+        try { x.ev.preparar(this.render, this.escenaCampo); } catch (e) {}
+        a.estado = "listo";
+      }).catch(() => { if (u.auraVR === a) a.estado = "mal"; });
+    }
+    if (a.estado !== "listo") return false;
+    const x = a.aura;
+    if (si && (x.t0 === null || x.tSale !== null)) x.empezar(t);
+    else if (!si && x.t0 !== null) x.salir(t);
+    const ve = si || (x.t0 !== null && !x.acabada);
+    a.grupo.visible = ve;
+    if (!ve) { x.t0 = null; return false; }
+    // el keshin de luz por delante (detras en la pantalla, como el keshin de O-327), mirando a la
+    // camara (en VR se le ve la cara); H: lo que mide el jugador en las medidas del aura (las de VR)
+    const H = FIGURA.alto / FIGURA.escala;
+    x.ponerBusto(0, AURA_CAMPO.alto * H, AURA_CAMPO.delante * H * h, Math.atan2(0, -h), AURA_CAMPO.busto * H);
+    x.poner(t);
+    this._hayAuraVR = true;
+    return true;
+  }
+  _soltarAuraVR(u) {
+    const a = u.auraVR;
+    u.auraVR = null;
+    if (a && a.aura) { if (a.grupo) a.grupo.removeFromParent(); a.aura.soltar(); }
+  }
   // lo de una figura que no es del gltf (que se queda en la cache): su ficha, su aura y la tarjetita
   _soltar(g) {
     const u = g.userData;
+    this._soltarAuraVR(u);
     this.escenaCampo.remove(g);
     if (u.mezcla) u.mezcla.stopAllAction();
     for (const s of [u.ficha, u.aura, u.carta]) if (s) { if (s !== u.aura && s.material.map) s.material.map.dispose(); s.material.dispose(); }
@@ -735,6 +883,33 @@ class Mundo {
     u.ahora = cual;
     if (unaVez) setTimeout(() => { if (u.ahora === cual) { u.ahora = null; this._anima(g, "parado"); } }, a.getClip().duration * 1000);
   }
+  // uno de los dos de la disputa aerea (O-341; ae: estado.abajo.aerea del Director): mira hacia
+  // donde ataca el que gana y, con los clips de VR de su lado, el de la fase (claveAerea); sin
+  // ellos, de pie y un salto a mano (y se vuelven a pedir, cada 5 s como mucho)
+  _figuraAerea(g, j, ae) {
+    const u = g.userData, k = ae.t / Math.max(0.001, ae.dura), clave = claveAerea(ae, j.id, k);
+    const c = typeof DIRECTOR !== "undefined" && DIRECTOR.aerea ? DIRECTOR.aerea.cabezas : 0.49;
+    if (u.cuerpo) u.cuerpo.rotation.y = Math.atan2(0, ae.dir || 1);
+    if (u.acciones && u.acciones[clave]) {
+      // los dos saltan desde el sitio donde cae (r.x, r.y): cada clip lo lleva a su lado, como en VR;
+      // al acabar van adonde los deja el motor (lo que hace la raiz de sus clips, REGLAS.AEREA.fin):
+      // el que gana se va hacia delante al final y el que pierde se aparta enseguida
+      const kg = k < c ? 0 : (k - c) / (1 - c), suave = x => x * x * (3 - 2 * x);
+      const f = suave(Math.max(0, Math.min(1, j.id === ae.gana ? (kg - 0.5) / 0.5 : kg / 0.65)));
+      g.position.x = -(ae.x + (j.x - ae.x) * f); g.position.z = ae.y + (j.y - ae.y) * f;
+      this._anima(g, clave, !/Lucha/.test(clave));
+      return;
+    }
+    if (u.aereaGltf && u.cuerpo && performance.now() - (u.aereaPedida || 0) > 5000) {
+      u.aereaPedida = performance.now();
+      accionesAerea(u.aereaGltf, u.cuerpo, u.mezcla, u.acciones);
+    }
+    // sin ellos: hombro con hombro donde cae, saltando, y al final a su sitio
+    const lado = (j.id === ae.der ? 1 : -1) * (ae.dir || 1) * 0.72, f = k < c ? 0 : Math.min(1, (k - c) / (1 - c));
+    g.position.x = -((ae.x + lado) * (1 - f) + j.x * f); g.position.z = ae.y * (1 - f) + j.y * f;
+    g.position.y = k < c ? 1.6 * Math.sin(Math.PI * k / c) : 0;
+    if (u.cuerpo) this._anima(g, "parado");
+  }
 
   // --- cada cuadro (el paso 5 del bucle, diseno 1.8) -----------------------------------------
   pintar(estado = {}) {
@@ -745,6 +920,9 @@ class Mundo {
     R.info.reset();
     const ab = estado.abajo || {};
     this.abajo.actualizar(dt);
+    this._aerea = ab.aerea || null;      // la disputa aerea que se ve (O-341)
+    // quien se ve con el balon hasta que sale lo del que gana y el defensa que se queda el tiro (O-344)
+    this._lleva = ab.lleva; this._bloquea = ab.bloquea || null;
     this._jugadores(dt, ahora);
     this._balon(ab);
     this._suelo(ahora);
@@ -761,6 +939,8 @@ class Mundo {
       const r = m.abajo, y = m.alto - r.y - r.h;
       R.setViewport(r.x, y, r.w, r.h); R.setScissor(r.x, y, r.w, r.h);
       const r0 = performance.now();
+      // la proyeccion de esta camara para los sombreadores de VR del aura del keshin (O-332)
+      if (this._hayAuraVR) camaraVR(this.camAbajo);
       R.render(this.escenaCampo, this.camAbajo);
       this.msRender += performance.now() - r0;
     }
@@ -840,15 +1020,18 @@ class Mundo {
       // el aura de la hiper puesta (O-310): del color de su familia, un poco detras de el
       // (lo tapa su modelo) y latiendo
       const aura = p.conAura && p.conAura(j);
-      u.aura.visible = !!aura;
+      // la de VR (O-332): si esta, sin la de Galaxy ni el keshin de O-327
+      const vr = this._auraVR(g, j, !!aura, t, h);
+      u.aura.visible = !!aura && !vr;
       // el keshin o el alma detras de el (O-327)
-      if (j.keshinHiper) this._keshin(g, j, aura);
+      if (j.keshinHiper && !vr) this._keshin(g, j, aura);
+      else if (vr && u.keshin && u.keshin.grupo) u.keshin.grupo.visible = false;
       if (u.keshin && u.keshin.grupo && aura) {
         u.keshin.grupo.position.set(0, 0, KESHIN.detras * h);
         u.keshin.grupo.rotation.y = Math.atan2(0, j.dir);
         u.keshin.mezcla.update(dt);
       }
-      if (aura) {
+      if (aura && !vr) {
         const col = (AURA_HIPER[j.hiperTipo] || AURA_HIPER.keshin)[1];
         u.aura.material.color.set(col); u.aura.material.opacity = this.quieto ? 0.7 : 0.6 + 0.2 * Math.sin(t * 4 + k);
         u.aura.position.z = 0.9 * h;
@@ -864,9 +1047,19 @@ class Mundo {
         u.vel += (paso / dt - u.vel) * Math.min(1, dt * 8);
         if (paso > 0.005 && u.vel > 1.2) u.mira = Math.atan2(dx, dz);
       }
-      if (u.cuerpo) {
+      // los dos de la disputa aerea (O-341): mirando hacia donde ataca el que gana, con los clips de
+      // VR de su lado (o, sin ellos en este PC, un salto a mano)
+      const ae = this._aerea && (j.id === this._aerea.gana || j.id === this._aerea.pierde) ? this._aerea : null;
+      if (ae) this._figuraAerea(g, j, ae);
+      else if (u.cuerpo) {
         u.cuerpo.rotation.y = u.mira !== undefined ? u.mira : Math.atan2(0, j.dir);
-        if (!(u.ahora === "tiro" || u.ahora === "patada")) this._anima(g, u.vel > 1.2 ? "correr" : "parado");
+        if (!(u.ahora === "tiro" || u.ahora === "patada" || u.ahora === "bloquea")) this._anima(g, u.vel > 1.2 ? "correr" : "parado");
+      }
+      if (u.cuerpo) {
+        // la zancada va con lo que corre (O-340): a la velocidad de la mitad de la tabla como
+        // antes; los rapidos mueven las piernas mas deprisa (y no parece que patinen)
+        const ac = u.acciones.correr;
+        if (ac) ac.timeScale = u.ahora === "correr" ? Math.max(0.8, Math.min(1.25, u.vel / ((typeof REGLAS !== "undefined" && REGLAS.VELOCIDAD && REGLAS.VELOCIDAD.media) || 7))) : 1;
         // solo los que se ven (y en Baja, 30 veces por segundo): los demas se quedan en
         // su pose hasta que entran (diseno 7.4). Con 4 ms de margen: a 30 FPS los cuadros
         // llegan a 33,2 o 33,4 ms y sin el se saltaba uno de cada tres (O-321)
@@ -886,6 +1079,11 @@ class Mundo {
       const chuta = r.etapa ? (r.etapa === "chute" || r.etapa === "cadena" ? r.chuta : null) : r.tirador;
       if ((r.tipo === "tiro" || r.tipo === "penalti") && chuta !== null && chuta !== undefined && this.figuras[chuta]) this._anima(this.figuras[chuta], "tiro", true);
     }
+    // el defensa que para el tiro del todo se queda el balon (Aaron, O-335): su clip de VR de ganar
+    // el balon, al volver el juego tras su animacion (O-344: antes, con el "¡Bloqueo!" sobre el
+    // campo, y asi se sabia quien ganaba antes de verlo)
+    const bq = this._bloquea;
+    if (bq && bq.k !== this._bloqueaVisto && this.figuras[bq.id]) { this._bloqueaVisto = bq.k; this._anima(this.figuras[bq.id], "bloquea", true); }
     if (p.balon.pase && p.balon.pase !== this._paseVisto) {
       this._paseVisto = p.balon.pase;
       const de = this.figuras[p.balon.pase.de];
@@ -929,7 +1127,8 @@ class Mundo {
   _suelo(ahora) {
     const p = this.p, ab = this.abajo, c = this.c, h = ab._sentido();
     // el cursor del elegido o del tuyo con balon
-    const e = ab.elegido, d0 = p.dueno();
+    // (el que se ve con el balon: hasta que sale lo del que gana, el de antes del duelo, O-344)
+    const e = ab.elegido, d0 = this._lleva === undefined ? p.dueno() : this._lleva === null ? null : p.jugadores[this._lleva];
     const actual = e !== null && e !== undefined && p.jugadores[e] && !p.jugadores[e].expulsado ? p.jugadores[e] : d0 && d0.lado === this.yo ? d0 : null;
     // en la repeticion del gol (posiciones grabadas) no se marca nada del motor (O-319)
     c.cursor.visible = !!actual && !this.posiciones;
@@ -948,6 +1147,8 @@ class Mundo {
       a.setXYZ(0, -T.x0, 0, T.y0); a.setXYZ(1, m, 0, gy); a.setXYZ(2, -m, 0, gy); a.needsUpdate = true;
       c.cono.geometry.computeBoundingSphere();
       c.equis.position.set(-T.tx, 0.7, T.ty);
+      // (roja si va fuera, O-335)
+      c.equis.material.color.setHex(Math.abs(T.tx) > REGLAS.PORTERIA / 2 ? 0xff5a48 : 0xffffff);
     }
     if (tir) {
       const g = p.porteriaRival(tir), m = REGLAS.PORTERIA / 2, a = c.cono.geometry.attributes.position;
@@ -957,6 +1158,8 @@ class Mundo {
         const X = SueloAbajo.equis(p, tir, ab.puntoTiro), dx = -X.x - -tir.x, dz = X.y - tir.y, l = Math.hypot(dx, dz) || 1, giro = Math.atan2(dx, dz);
         for (const [ms, ancho] of [[c.lineaBorde, 0.6], [c.linea, 0.36]]) { ms.position.x = -tir.x; ms.position.z = tir.y; ms.rotation.y = giro; ms.scale.set(ancho, 1, l); }
         c.equis.position.set(-X.x, 0.7, X.y);
+        // roja si apuntas muy fuera: el tiro se ira por ahi (O-335)
+        c.equis.material.color.setHex(X.fuera ? 0xff5a48 : 0xffffff);
         c.rombo.position.set(-tir.x, FIGURA.alto + 1.9 + (this.quieto ? 0 : Math.sin(ahora * 4) * 0.15), tir.y);
         c.rombo.rotation.y = this.quieto ? 0 : ahora * 1.5;
       }

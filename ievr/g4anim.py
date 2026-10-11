@@ -22,6 +22,9 @@ info-objetivo, u16 n info, u8 flags (bit 0 = aditiva), u8 fps, u8 inicio info (b
 Canal (20 B): tipo (1..3 escala, 9 rotacion xyzw, 10..12 traslacion), codec (1 sin cuantizar,
 2 sin signo, 3 con signo), interpolacion, bytes por componente, n componentes, bytes por clave,
 indice de escala, ranura, u32 primera clave, u32 offset de datos, u32 n claves.
+En G4MA la ranura dice que vector del material anima el tipo (16..19 = x, y, z, w de la ranura
+0 color difuso o 1 ambiente; 32..35 = x, y, z, w del parametro N del sombreador: la cara de los
+ojos y la boca es la 4); en G4TP los tipos 1/2 escala, 8 giro y 10/11 desplazamiento (O-331).
 """
 import struct
 
@@ -82,10 +85,10 @@ def leer_g4mt(b):
     n_can = max((x["can_ini"] + x["can_n"] for x in infos), default=0)
     canales = []
     for i in range(n_can):
-        tipo, codec, interp, var, ncomp, bpk, esc, _x7, k_ini, dat, k_n = struct.unpack_from(
+        tipo, codec, interp, var, ncomp, bpk, esc, ranura, k_ini, dat, k_n = struct.unpack_from(
             "<8B3I", b, o_can + i * 20)
         canales.append({"tipo": tipo, "codec": codec, "interp": interp, "var": var, "ncomp": ncomp,
-                        "bpk": bpk, "esc": esc, "k_ini": k_ini, "dat": dat, "k_n": k_n})
+                        "bpk": bpk, "esc": esc, "ranura": ranura, "k_ini": k_ini, "dat": dat, "k_n": k_n})
     return {"magia": mag.decode(), "b": b, "clips": clips, "infos": infos, "canales": canales,
             "escalas": escalas, "objetivos": h_obj, "o_claves": o_claves, "o_datos": o_datos}
 
@@ -99,8 +102,15 @@ def bancos_de(b):
 
 def claves_y_valores(mt, c):
     """(fotogramas[k], valores[k, ncomp]) de un canal, ya decodificados a float."""
+    return _claves(mt, c), _valores(mt, c)
+
+
+def _claves(mt, c):
+    return np.frombuffer(mt["b"], "<u2", c["k_n"], mt["o_claves"] + 2 * c["k_ini"]).astype(np.float64)
+
+
+def _valores(mt, c):
     b = mt["b"]
-    k = np.frombuffer(b, "<u2", c["k_n"], mt["o_claves"] + 2 * c["k_ini"]).astype(np.float64)
     n, nc, bpk = c["k_n"], c["ncomp"], c["bpk"]
     tam = bpk // nc if nc else bpk
     crudo = np.frombuffer(b, np.uint8, n * bpk, mt["o_datos"] + c["dat"]).reshape(n, bpk)[:, :tam * nc].copy()
@@ -114,7 +124,7 @@ def claves_y_valores(mt, c):
         v = crudo.view({1: "<i1", 2: "<i2"}[var]).astype(np.float64) * s / (127.0 if var == 1 else 32767.0)
     else:
         raise ValueError("codec %d/%d desconocido" % (codec, var))
-    return k, v.reshape(n, nc)
+    return v.reshape(n, nc)
 
 
 def muestrear(k, v, fotogramas, interp, cuaternio=False):
@@ -139,6 +149,50 @@ def muestrear(k, v, fotogramas, interp, cuaternio=False):
     return a + (c - a) * t
 
 
+def _indices(k, f):
+    """Lo de muestrear que solo depende de las claves y los fotogramas: (j, j2, t) (O-332: muchos
+    canales de un clip comparten claves; asi se calcula una vez)."""
+    j = np.clip(np.searchsorted(k, f, side="right") - 1, 0, len(k) - 1)
+    j2 = np.minimum(j + 1, len(k) - 1)
+    span = k[j2] - k[j]
+    t = np.where(span > 0, (f - k[j]) / np.where(span > 0, span, 1), 0.0)
+    return j, j2, np.clip(t, 0, 1)[:, None]
+
+
+def _muestrear_con(ind, v, nf, interp, cuaternio):
+    """Como muestrear, con los indices ya hechos (los mismos numeros)."""
+    if ind is None:
+        return np.repeat(v[:1], nf, 0)
+    j, j2, t = ind
+    if interp == 0:
+        return v[j]
+    a, c = v[j], v[j2]
+    if cuaternio:
+        c = np.where((a * c).sum(1, keepdims=True) < 0, -c, c)
+        q = a + (c - a) * t
+        n = np.linalg.norm(q, axis=1, keepdims=True)
+        return np.where(n > 1e-12, q / np.where(n > 1e-12, n, 1), q)
+    return a + (c - a) * t
+
+
+def _mismo_hemisferio(q):
+    """Da la vuelta a q[f] (en su sitio) si su producto con el anterior, ya girado, es negativo:
+    el signo de cada fotograma es el producto de los signos de los productos de antes (O-332, sin
+    el bucle por fotograma). Si algun producto sale casi cero (el signo podria salir distinto por
+    redondeo), el bucle de siempre."""
+    if len(q) < 2:
+        return
+    d = np.einsum("ij,ij->i", q[1:], q[:-1])
+    if np.any(np.abs(d) < 1e-12):
+        for f in range(1, len(q)):
+            if np.dot(q[f - 1], q[f]) < 0:
+                q[f] = -q[f]
+        return
+    s = np.cumprod(np.where(d < 0, -1.0, 1.0))
+    if np.any(s < 0):
+        q[1:] *= s[:, None]
+
+
 def elegir_clip(mts, quien):
     """(G4MT, clip) por nombre exacto o por indice (texto de digitos) en el primer banco."""
     for mt in mts:
@@ -150,41 +204,54 @@ def elegir_clip(mts, quien):
     raise KeyError("no hay clip %r" % (quien,))
 
 
-def pistas_de_clip(mt, clip, sk, reposo):
+def pistas_de_clip(mt, clip, sk, reposo, escala_propia=True):
     """Muestrea un clip fotograma a fotograma. reposo[i] = (tras, cuat xyzw, escala) LOCAL del hueso i
     (lo que llevan los nodos del .glb). Las componentes sin canal se quedan en reposo.
+    escala_propia: la escala de cada hueso es la suya, no relativa al padre (los personajes, O-293); en
+    los efectos de los eventos es relativa al padre, como en glTF (O-332: en el G4SK de los efectos la
+    escala de mundo es la del padre por la local, y las claves del G4MT valen lo mismo que la local:
+    ball_pos_scale 0,01 y su hijo 1000 en Mano celestial; dividiendo, la estela del balon salia a
+    escala 1000 y la mano gigante aplastada de canto).
     -> (fotogramas, {hueso: {"translation": (F,3), "rotation": (F,4), "scale": (F,3)}}, n sin hueso)"""
     idx = {h: i for i, h in enumerate(sk["hashes"])}
     fot = np.arange(clip["ini"], clip["fin"] + 1, dtype=np.float64)
     nf = len(fot)
     pistas, sin_hueso = {}, 0
+    # (los indices de cada juego de claves, una vez por clip: O-332)
+    indices = {}
     for inf in mt["infos"][clip["info_ini"]: clip["info_ini"] + clip["info_n"]]:
         i = idx.get(mt["objetivos"][inf["obj"]])
         if i is None:
             sin_hueso += 1
             continue
         t0, q0, s0 = reposo[i]
-        val = {"translation": np.tile(np.asarray(t0, np.float64), (nf, 1)),
-               "rotation": np.tile(np.asarray(q0, np.float64), (nf, 1)),
-               "scale": np.tile(np.asarray(s0, np.float64), (nf, 1))}
+        # (el reposo en un solo array y tres vistas: un np.tile por hueso en vez de tres, O-332)
+        todo = np.empty((nf, 10))
+        todo[:] = np.concatenate((np.asarray(t0, np.float64), np.asarray(q0, np.float64), np.asarray(s0, np.float64)))
+        val = {"translation": todo[:, 0:3], "rotation": todo[:, 3:7], "scale": todo[:, 7:10]}
+        gira = False
         for c in mt["canales"][inf["can_ini"]: inf["can_ini"] + inf["can_n"]]:
             m = TIPO_CANAL.get(c["tipo"])
             if not m or not c["k_n"]:
                 continue
-            k, v = claves_y_valores(mt, c)
-            s = muestrear(k, v, fot, c["interp"], cuaternio=m[0] == "rotation")
+            gira = gira or m[0] == "rotation"
+            clave = (c["k_ini"], c["k_n"])
+            if clave not in indices:
+                k = _claves(mt, c)
+                indices[clave] = _indices(k, fot) if len(k) > 1 else None
+            s = _muestrear_con(indices[clave], _valores(mt, c), nf, c["interp"], m[0] == "rotation")
             if m[1] is None:
                 # algun efecto de los eventos trae cuaternios a cero: ahi, el del reposo (O-323)
                 n = np.linalg.norm(s, axis=1, keepdims=True)
                 val[m[0]] = np.where(n > 1e-9, s / np.where(n > 1e-9, n, 1), np.asarray(q0, np.float64)[None, :])
             else:
                 val[m[0]][:, m[1]] = s[:, 0]
-        q = val["rotation"]                        # mismo hemisferio fotograma a fotograma
-        for f in range(1, nf):
-            if np.dot(q[f - 1], q[f]) < 0:
-                q[f] = -q[f]
+        if gira:                                   # mismo hemisferio fotograma a fotograma
+            _mismo_hemisferio(val["rotation"])
         pistas[i] = val
     # escala no heredada (como "segment scale compensate" de Maya) -> la local de glTF
+    if not escala_propia:
+        return fot, pistas, sin_hueso
     propia = {i: v["scale"].copy() for i, v in pistas.items()}
     for i, v in pistas.items():
         p = sk["padres"][i]

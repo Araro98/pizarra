@@ -27,6 +27,8 @@ const AQUI = { libre: 5, linea: 2, cerca: 5, lejos: 38, atras: 2, max: 2, dura: 
 const ANILLOS = { r0: [8, 16], r1: [100, 200], foco: { crece: 0.47, apaga: 0.53, fuera: 0.16 }, tiro: { crece: 0.57, apaga: 0.6, fuera: 0.1 } };
 // la estela del pase del rival (b10, b53): los ultimos puntos del balon, que se apagan
 const ESTELA = { puntos: 12, cada: 0.04, dura: 0.6 };
+// el pase marcado que se quita (O-335): la raya roja a trozos y la X (de `x` u) que se apagan
+const QUITADO = { dura: 0.9, x: 7, color: "#FF5A48" };
 
 const HudAbajo = {
   // lo que recuerda cada vista (un partido nuevo, una vista nueva: de cero)
@@ -78,6 +80,7 @@ const HudAbajo = {
     this._mirarBocadillos(s);
     this._bocadillos(s);
     this._ondas(s);
+    this._mantener(s);
     if (!s.esconde) this._mirarSucesos(s);
     s.revela = false;
   },
@@ -102,9 +105,12 @@ const HudAbajo = {
   _actual(s) {
     const e = s.vista.elegido;
     if (e !== null && e !== undefined) return e;
-    const d = s.p.dueno();
+    const d = this._lleva(s.p);
     return d && d.lado === s.yo ? d.id : null;
   },
+  // el que se ve con el balon: hasta que sale lo del que gana un duelo, el de antes (el Director,
+  // O-344: el motor ya lo ha resuelto)
+  _lleva(p) { return typeof Director !== "undefined" && Director.lleva ? Director.lleva(p) : p.dueno(); },
 
   // --- las marcas (diseno 5.5) ------------------------------------------------------
   // la linea del fuera de juego con el balon (O-296), amarilla a trozos
@@ -169,6 +175,7 @@ const HudAbajo = {
   // sombra en el suelo (b11). El destino, un circulo cian en el suelo de la vista
   _pases(s) {
     const p = s.p, pm = (p.paseMarcado || [])[s.yo], d0 = p.dueno(), b = p.balon;
+    this._quitado(s, pm, d0);
     if (pm && d0 && pm.tipo !== "tiro") {
       const dest = pm.a !== undefined ? p.jugadores[pm.a] : { x: pm.x, y: pm.y };
       if (dest) { if (pm.alto) this._arco(s, d0, dest, 0); else this._raso(s, d0, dest); }
@@ -186,6 +193,36 @@ const HudAbajo = {
         }
       } else if (!rival) this._raso(s, b, dest);
     }
+  },
+  // el pase marcado que se quita con el juego parado (tocando otra vez su destino o al que
+  // pasa, Aaron, O-335) se ve: su raya se pone roja y se apaga en QUITADO.dura s con una X
+  // donde iba. Si sale (vuelve el juego y el balon va), nada. Vale tambien online: se mira lo
+  // marcado de la foto
+  _quitado(s, pm, d0) {
+    const p = s.p, du = p.duelo;
+    const parado = (p.parado && p.parado()) || p.fase === "invocacion" || (p.fase === "duelo" && du && du.tipo === "foco");
+    if (pm && d0 && pm.tipo !== "tiro") {
+      const a = pm.a !== undefined ? p.jugadores[pm.a] : { x: pm.x, y: pm.y };
+      s.pmAntes = a ? { x0: d0.x, y0: d0.y, x1: a.x, y1: a.y } : null;
+    } else {
+      if (s.pmAntes && !pm && parado) s.quitado = Object.assign({ t0: s.ahora }, s.pmAntes);
+      s.pmAntes = null;
+    }
+    const q = s.quitado;
+    if (!q) return;
+    const k = (s.ahora - q.t0) / QUITADO.dura;
+    if (k >= 1 || k < 0) { s.quitado = null; return; }
+    const ctx = s.ctx, A = this._P(s, q.x0, q.y0, 0, s.q[0]), B = this._P(s, q.x1, q.y1, 0, s.q[1]);
+    if (A.detras && B.detras) return;
+    const t = QUITADO.x * (1 + 0.3 * k);
+    ctx.save(); ctx.globalAlpha = 1 - k * k; ctx.lineCap = "round";
+    ctx.strokeStyle = "rgba(60,10,10,.55)"; ctx.lineWidth = 4.2; ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.stroke();
+    ctx.strokeStyle = QUITADO.color; ctx.lineWidth = 2.6; ctx.setLineDash([5, 4]); ctx.stroke(); ctx.setLineDash([]);
+    for (const [col, g] of [["rgba(60,10,10,.8)", 5], [QUITADO.color, 3]]) {
+      ctx.strokeStyle = col; ctx.lineWidth = g; ctx.beginPath();
+      ctx.moveTo(B.x - t, B.y - t * 0.8); ctx.lineTo(B.x + t, B.y + t * 0.8); ctx.moveTo(B.x + t, B.y - t * 0.8); ctx.lineTo(B.x - t, B.y + t * 0.8); ctx.stroke();
+    }
+    ctx.restore();
   },
   // con el raton encima de la T (O-326), adonde iria, a rayas: el tiro largo a la porteria
   // (amarillo), el pase al companero o al hueco (cian), con un aro donde acaba
@@ -422,7 +459,7 @@ const HudAbajo = {
   // lo que le queda), de 22x2 u con su etiqueta de 5 u (b49), y el nombre del elegido y
   // del que lleva el balon (8 u, blanco con contorno, sin caja)
   _encima(s, js) {
-    const p = s.p, ctx = s.ctx, actual = this._actual(s), ahora = p.segundosDeJuego ? p.segundosDeJuego() : 0;
+    const p = s.p, ctx = s.ctx, actual = this._actual(s), ahora = p.segundosDeJuego ? p.segundosDeJuego() : 0, lleva = this._lleva(p);
     // tu tirador lleva encima el rombo azul de la zona de tiro (b28): sin su nombre (lo
     // tapaba; el rombo ya dice quien es) y sus barras, mas arriba
     const tir = typeof SueloAbajo !== "undefined" ? SueloAbajo.tirador(p, s.yo) : null;
@@ -444,7 +481,7 @@ const HudAbajo = {
         GX.texto(ctx, et, bx - 1.5, by + 1, { tam: 5, alinea: "right", color: col, contornos: [["#1A1A1A", 0.9]] });
         y -= 5;
       }
-      if ((j.id === actual || j.conBalon) && !(tir === j && j.lado === s.yo)) {
+      if ((j.id === actual || j === lleva) && !(tir === j && j.lado === s.yo)) {
         GX.texto(ctx, j.nombre, x, y - 4, { tam: 8, alinea: "center", color: "#FFFFFF", contornos: [["#0A1E3A", 1.3]], ancho: 90 });
         s.nombres.push({ x: x - 30, y: y - 9, w: 60, h: 10 });
         y -= 10;
@@ -515,7 +552,8 @@ const HudAbajo = {
     const r = p.resultado;
     if (r && r !== s.resVisto && !s.esconde) {
       s.resVisto = r;
-      const g = r.tipo === "foco" || r.tipo === "disputa" ? p.jugadores[r.ganador] : null;
+      // (y la disputa aerea, O-341)
+      const g = r.tipo === "foco" || r.tipo === "disputa" || r.tipo === "aerea" ? p.jugadores[r.ganador] : null;
       if (g && g.lado === s.yo && (p.fase === "resultado" || s.revela)) bo[g.id] = { texto: "¡Bien!", t0: ahora, dura: 1.3, bien: true };
     }
     // las rutas que sueltas en la pausa (y tras pulsar Jugar, hasta que se saca, O-324):
@@ -644,6 +682,43 @@ const HudAbajo = {
       ctx.strokeStyle = GX.paseAlto; ctx.lineWidth = 2; ctx.stroke();
     }
     ctx.restore();
+  },
+  // mantener pulsado para el pase bombeado (Aaron, O-341: "ahora noto que es dificil hacerlos"):
+  // mientras pulsas, un aro cian se va llenando donde pulsas (con el pase raso a rayas); al llegar
+  // a REGLAS.PASE_ALTO_PULSAR s ya va a salir bombeado y se ve claro: el aro lleno y dorado, que
+  // late, "¡Bombeado!" encima y el arco del pase hasta donde cae (el del pase marcado). Suena una
+  // vez al llegar. vista.mantener lo pone partido.js al pulsar si soltar seria un pase
+  _mantener(s) {
+    const m = s.vista.mantener, p = s.p;
+    if (!m || !p || !p.jugadores) return;
+    const de = p.jugadores[m.de], a = m.a !== null && m.a !== undefined ? p.jugadores[m.a] : { x: m.x, y: m.y };
+    if (!de || !a) return;
+    const T = REGLAS.PASE_ALTO_PULSAR || 0.25, k = Math.max(0, Math.min(1, (performance.now() - m.t0) / 1000 / T)), listo = k >= 1;
+    if (listo && !m.sonado) { m.sonado = s.ahora; if (typeof Sonido !== "undefined" && Sonido.bombeado) Sonido.bombeado(); }
+    const ctx = s.ctx;
+    if (listo) this._arco(s, de, a, 0);
+    else {
+      const A = this._P(s, de.x, de.y, 0, s.q[0]), B = this._P(s, a.x, a.y, 0, s.q[1]);
+      if (!A.detras && !B.detras) {
+        ctx.save(); ctx.lineCap = "round"; ctx.setLineDash([4, 4]); ctx.globalAlpha = 0.75;
+        ctx.strokeStyle = "rgba(10,58,138,.55)"; ctx.lineWidth = 3.4; ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.stroke();
+        ctx.strokeStyle = GX.paseAlto; ctx.lineWidth = 1.8; ctx.stroke();
+        ctx.restore();
+      }
+    }
+    const P = this._P(s, a.x, a.y, 0, s.q[2]);
+    if (P.detras) return;
+    // el aro: lleno desde arriba como un reloj; al llegar, dorado y latiendo
+    const lat = listo ? 1 + 0.12 * Math.sin((s.ahora - m.sonado) * 14) : 1, r = 13 * lat;
+    ctx.save();
+    ctx.translate(P.x, P.y); ctx.scale(1, 0.74);
+    ctx.lineCap = "round";
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(13,26,51,.45)"; ctx.lineWidth = 5; ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * k);
+    ctx.strokeStyle = listo ? GX.triangulo[0] : GX.paseAlto; ctx.lineWidth = listo ? 3.4 : 2.6; ctx.stroke();
+    ctx.restore();
+    if (listo) GX.texto(ctx, "¡Bombeado!", P.x, P.y - r * 0.74 - 9, { tam: 10, peso: 900, alinea: "center", color: GX.triangulo[0], contornos: [["#3A2A00", 1.6]], ancho: 120 });
   },
 
   // --- los sucesos de encima del campo -------------------------------------------------

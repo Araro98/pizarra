@@ -40,13 +40,16 @@ ORDENES = {
     -29805182: "VARIANTE",         # [actor, TYPE, 01..04]: la siguiente orden vale solo para ese tipo
     -1950176284: "CAMARA_CERCA",   # [CCameraCtrlEvent, plano cercano]
     -1648841908: "CAMARA_LEJOS",   # [CCameraCtrlEvent, plano lejano]
-    -767897457: "ROTULO",          # [soccer10_01_whsNNNNN, ...] el rotulo con el nombre
+    -767897457: "ROTULO",          # [soccer10_01_whsNNNNN, ...] el rotulo con el nombre (lo prepara)
+    # [0 sale / 1 se va, el rotulo si hay mas de uno] (O-332: comparado con el video de Tornado de
+    # fuego de VR, sale en el fotograma 76 y se va en el 177)
+    -43113301: "ROTULO_VER",
     -1463526750: "LUCES",
     -1764963769: "EFECTO_CREAR",   # [ega0001] efecto comun
     666125966: "EFECTO_PEGAR",
     921024264: "EFECTO_PARAM",
     -976647469: "ACTIVO",
-    -1006936891: "AURA",           # c3fb5cc5 [actor, ball_aura_*/body_aura_*, 0/1, 1]: aura del balon o del cuerpo
+    -1006936891: "AURA",           # c3fb5cc5 [actor, ball_aura_*/body_aura_*, 0 sale / 1 se va, 1]: aura del balon o del cuerpo
 }
 
 TIPOS_CUERPO = ("01", "02", "03", "04")
@@ -110,7 +113,7 @@ def leer(nombre, leer_fichero):
     data/; devuelve bytes o None si no esta). None si el evento no tiene guion."""
     out = {"nombre": nombre, "cortes": [], "camara": None, "rotulo": None, "actores": {},
            "anim": {}, "reproducir": [], "visible": [], "pegados": [], "auras": [],
-           "efectos_comunes": [], "ordenes": []}
+           "efectos_comunes": [], "ordenes": [], "rotulos": [], "rotulos_ver": [], "auras_cuerpo": []}
     hay = False
     for sub, ruta in (("evt", "common/event_cfg/evt/%s.cfg.bin" % nombre),
                       ("eff", "common/event_cfg/eff/%s_eff.cfg.bin" % nombre)):
@@ -133,11 +136,23 @@ def leer(nombre, leer_fichero):
                 out["cortes"].append((v[0], int(v[1]), int(v[2])))
             elif o == "CAMARA" and v and not out["camara"]:
                 out["camara"] = v[0].replace("\\", "/")
-            elif o == "ROTULO" and v and not out["rotulo"]:
-                out["rotulo"] = v[0]
+            elif o == "ROTULO" and v:
+                if not out["rotulo"]:
+                    out["rotulo"] = v[0]
+                # todos (la armadura lleva dos: el keshin y "Armadura"); el ultimo argumento es el
+                # nombre con el que lo llama ROTULO_VER (O-332)
+                if isinstance(v[0], str):
+                    out["rotulos"].append((v[0], v[6] if len(v) > 6 and isinstance(v[6], str) else v[0]))
+            elif o == "ROTULO_VER" and v:
+                out["rotulos_ver"].append((fr, int(v[0]), v[1] if len(v) > 1 and isinstance(v[1], str) else ""))
             elif o in ("CARGAR_OBJ", "CARGAR_PERSONAJE") and v and isinstance(v[0], str):
                 ruta_obj = v[1] if len(v) > 1 and isinstance(v[1], str) else None
-                out["actores"].setdefault(v[0], {"carga": ruta_obj, "sub": sub, "orden": o})
+                d = out["actores"].setdefault(v[0], {"carga": ruta_obj, "sub": sub, "orden": o})
+                # O-345: de que equipo es (6 el del que la hace, 7 el rival) y cual de ellos (0 el
+                # que la hace o el rival del duelo; 1.. los companeros o los otros rivales). Dos
+                # actores con lo mismo son el mismo jugador: una copia (Sombra de Orion)
+                if o == "CARGAR_PERSONAJE" and len(v) > 4 and isinstance(v[2], int) and isinstance(v[4], int):
+                    d["lado"], d["n"] = v[2], v[4]
             elif o == "ANIM_DE_CORTE" and len(v) >= 4:
                 out["anim"][(v[0], v[3])] = v[1].replace("\\", "/")
             elif o == "REPRODUCIR" and len(v) >= 2:
@@ -151,6 +166,9 @@ def leer(nombre, leer_fichero):
                 out["pegados"].append((fr, v[0], v[1], v[2], variante.pop(v[0], None), sub))
             elif o == "AURA" and len(v) >= 2:
                 out["auras"].append((fr, v[0], v[1]))
+                # (con si sale o se va: el tinte del cuerpo de VR, O-345)
+                if len(v) >= 3 and isinstance(v[2], int):
+                    out["auras_cuerpo"].append((fr, v[0], v[1], v[2]))
             elif o == "EFECTO_CREAR" and v:
                 out["efectos_comunes"].append(v[0])
     if not hay or not out["cortes"]:
@@ -189,6 +207,47 @@ def pegados_de(ev, actor, tipo=None):
 def personajes(ev):
     """Las plantillas de los jugadores del evento por orden de hueco (s00, s01...)."""
     return sorted((a for a in ev["actores"] if tipo_de_actor(a) == "personaje"), key=clave)
+
+
+def roles(ev):
+    """{clave: (rol, copia)} de los jugadores del evento (O-345): rol "h0" el que hace la tecnica,
+    "h1".. sus companeros, "r0" el rival (el del duelo; en un tiro, el portero; ante el muro o el
+    portero, el que chuta), "r1".. los otros rivales; copia: la clave del actor del que es copia
+    (el mismo jugador otra vez: el clon de Sombra de Orion, los de Regate multiple) o "". Sin lo
+    del guion (un evento raro), "h0" el s00 y "r0" el s01, como antes."""
+    out, primero = {}, {}
+    for i, a in enumerate(personajes(ev)):
+        d = ev["actores"][a]
+        if "lado" in d:
+            rol = ("h" if d["lado"] == 6 else "r") + str(d["n"])
+        else:
+            rol = "h0" if i == 0 else "r%d" % (i - 1)
+        cl = clave(a)
+        out[cl] = (rol, primero.get(rol, ""))
+        primero.setdefault(rol, cl)
+    return out
+
+
+def rotulos_en_pantalla(ev):
+    """[{"rotulo": su nombre en telop_waza sin el soccer10_01_ (con <CHARA_ID>/<SKILL_ID> si lo
+    pone el juego), "ini": fotograma en que sale, "fin": en el que se va}] (O-332). El rotulo sale
+    con su animacion de entrada y se va con la de salida; si no se va, hasta el final."""
+    out = []
+    fin_ev = duracion(ev)
+    for fr, que, quien in sorted(ev.get("rotulos_ver") or [], key=lambda x: x[0]):
+        guion = next((r for r, alias in ev.get("rotulos") or [] if quien in (alias, r)), None) if quien else \
+            ((ev.get("rotulos") or [(None, None)])[0][0])
+        if not guion or not guion.startswith("soccer10_01_"):
+            continue
+        nombre = guion[len("soccer10_01_"):]
+        if que == 0:
+            out.append({"rotulo": nombre, "ini": int(fr), "fin": int(fin_ev)})
+        else:
+            for r in reversed(out):
+                if r["rotulo"] == nombre and r["fin"] == fin_ev and fr >= r["ini"]:
+                    r["fin"] = int(fr)
+                    break
+    return out
 
 
 def nombre_del_rotulo(rotulo, asignado=None, cara=None):

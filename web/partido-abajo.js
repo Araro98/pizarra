@@ -106,6 +106,16 @@ const Abajo = {
     return Object.assign({ id, texto, color: color || "verde", si: !!si, porque: si ? "" : porque || "", pos, accion }, mas || {});
   },
   _cap(t) { t = String(t || ""); return t ? t[0].toUpperCase() + t.slice(1) : t; },
+  // "Te apoyan X e Y: +12 % ¡Doble! · al rival, 1: +4 %" (O-342); "" sin apoyos
+  _textoApoyos(p, yo, ap) {
+    const mio = ap[yo] || {}, suyo = ap[1 - yo] || {}, partes = [];
+    const dob = x => x.doble === 3 ? " ¡Triple!" : x.doble === 2 ? " ¡Doble!" : "";
+    const n = (mio.ids || []).map(id => (p.jugadores[id] || {}).nombre).filter(Boolean);
+    if (n.length) partes.push((n.length > 1 ? "Te apoyan " + n.slice(0, -1).join(", ") + " y " + n[n.length - 1] : "Te apoya " + n[0]) + ": +" + mio.pct + " %" + dob(mio));
+    const k = (suyo.ids || []).length;
+    if (k) partes.push((partes.length ? "al rival, " : "Al rival le apoya" + (k > 1 ? "n " : " ")) + k + ": +" + suyo.pct + " %" + dob(suyo));
+    return partes.join(" · ");
+  },
 
   // online: el rival sin noticias (O-308); da igual lo que se este ensenando
   _red(v, ctx) {
@@ -385,7 +395,9 @@ const Abajo = {
     const suplentes = banco.map((d, k) => ({ k, nombre: d.nombre, cara: d.cara, posicion: d.posicion || "", elemento: d.elemento || "",
       usado: !!p.banquilloUsado[yo][k], pendiente: pend.some(c => c.entra === k), sel: u.eqBanco === k }));
     const quien = u.eqBanco !== null ? banco[u.eqBanco] : campo;
-    const ficha = quien ? { nombre: quien.nombre, cara: quien.cara, linea: [GX.posicionCorta(quien.posicion), quien.elemento === "Montana" ? "Montaña" : quien.elemento].filter(Boolean).join(" · "),
+    // (con su Velocidad, que solo sale en el Partido: O-340)
+    const ficha = quien ? { nombre: quien.nombre, cara: quien.cara, linea: [GX.posicionCorta(quien.posicion), quien.elemento === "Montana" ? "Montaña" : quien.elemento,
+      +quien.velocidad > 0 ? "Velocidad " + Math.round(quien.velocidad) : ""].filter(Boolean).join(" · "),
       notas: [] } : null;
     if (ficha && campo && quien === campo) {
       const rf = refuerzo(campo);
@@ -556,12 +568,16 @@ const Abajo = {
     const ayuda = [];
     if (u.vAviso) ayuda.push("El rival ha invocado: los números han cambiado.");
     if (paso === "ataque" && du.base) ayuda.push("Ya puedes marcar el pase o el tiro: sale si ganas.");
+    // los apoyos de los dos (O-342): ya van en el poder de base y en el total de cada boton
+    if (du.tipo === "foco" && du.base && du.base.apoyos) { const ta = this._textoApoyos(p, yo, du.base.apoyos); if (ta) ayuda.push(ta); }
     const mu = du.muro !== null && du.muro !== undefined ? p.jugadores[du.muro] : null;
     if (paso === "tiro") {
       // el poder de afinidad y el combo de tecnicas de VR (O-328): ya van en el total
       const af = p.afinidad ? Math.round(p.afinidad[yo]) : 0, co = p.combo ? p.combo[yo] : 0, cp = co ? (REGLAS.COMBO.tiro[co] || 0) : 0;
       if (af > 0 || co > 0) ayuda.push((af > 0 ? "Poder de afinidad +" + af + " %" : "") + (af > 0 && co > 0 ? " y " : "") + (co > 0 ? "combo ×" + co + " (+" + cp + " %)" : "") + ": ya van en el total y se gastan al chutar.");
       if (largos) ayuda.push("Tiro largo desde " + Math.round(du.distancia) + " m: va como un tiro normal (el balón viaja hacia la portería).");
+      // el tiro va adonde apuntas y se puede afinar (O-335)
+      if (du.etapa === "chute") ayuda.push("El tiro va a la X: pulsa dentro de la portería para afinar adónde va.");
       if (du.alto) ayuda.push("Balón alto: remata de cabeza (Testarazo) o al aire (Volea); cuenta el Físico.");
       if (mu) ayuda.push(du.muroPegado ? mu.nombre + " está pegado a ti: también para la vaselina." : mu.nombre + " está en la línea de tiro: la vaselina le pasa por encima.");
     }

@@ -24,6 +24,12 @@ OCULTOS = ["ievr.servidor", "ievr.basedatos",
            "ievr.cpk", "ievr.g4", "ievr.g4anim", "ievr.modelos3d",
            # las animaciones reales de VR del partido (O-323)
            "ievr.cfgbin", "ievr.evento", "ievr.g4evento",
+           # las voces de VR del partido (O-339)
+           "ievr.voces", "ievr.hca",
+           # y sus efectos de sonido (O-343)
+           "ievr.sonidos",
+           # las figuras 3D (O-347)
+           "ievr.figuras",
            "numpy", "PIL.Image", "PIL.DdsImagePlugin", "PIL.PngImagePlugin"]
 
 

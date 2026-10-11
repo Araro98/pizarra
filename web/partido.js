@@ -100,6 +100,14 @@ async function equipoDatos(hueco) {
 async function verOnce(hueco) {
   try { await equipoDatos(hueco); } catch (e) { $("#nota-elegir").textContent = e.message; }
   pintarArribaElegir();
+  anticiparCarga();
+}
+// O-329: en cuanto se saben los dos equipos, el servidor empieza a convertir en segundo plano
+// todo lo del partido (partido-carga.js). Online, el tuyo; el del rival, al empezar
+function anticiparCarga() {
+  if (PARTIDO || !$("#opcion-3d").checked || SIN_3D) return;
+  const online = !$("#online").hidden, a = DATOS[$("#equipo-a").value], b = online ? null : DATOS[$("#equipo-b").value];
+  if (a && (b || online)) Carga.anticipar(a, b);
 }
 
 // --- la pantalla de elegir como Galaxy (O-316; diseno 3) ------------------------------
@@ -212,7 +220,10 @@ function equipoElegido(sel) {
   const s = $(sel), o = s.selectedOptions[0];
   if (!o) return null;
   const js = DATOS[s.value] ? DATOS[s.value].jugadores.slice(0, 11) : [];
-  return { nombre: o.text, caras: js.map(j => j.cara), nivel: js.length ? Math.round(js.reduce((n, j) => n + (+j.nivel || 99), 0) / js.length) : 0 };
+  // y la velocidad media de los 11 (O-340: un stat que solo sale en el Partido)
+  const vs = js.map(j => +j.velocidad || 0).filter(v => v > 0);
+  return { nombre: o.text, caras: js.map(j => j.cara), nivel: js.length ? Math.round(js.reduce((n, j) => n + (+j.nivel || 99), 0) / js.length) : 0,
+           velocidad: vs.length ? Math.round(vs.reduce((n, v) => n + v, 0) / vs.length) : 0 };
 }
 // online: a la derecha el equipo del amigo cuando se sabe (al que invitas o el que te
 // invita); si no, "?"
@@ -277,7 +288,7 @@ function empezar(a, b, online) {
       return true;
     };
   }
-  duelosElegidos.clear(); ultimaEleccion = null;
+  duelosElegidos.clear(); ultimaEleccion = null; apunteDuelo = null;
   // focos automaticos: una maquina elige por mi en los regates y entradas. Sin
   // hipertecnicas: la hiperbarra la gasta la persona (O-310)
   AYUDANTE = $("#focos-auto").checked && !DEMO ? new Maquina(PARTIDO, YO, { semilla: (Math.random() * 1e9) | 0, sinHiper: true }) : null;
@@ -289,6 +300,11 @@ function empezar(a, b, online) {
   Director.reiniciar({ yo: YO }); Consola.reiniciarCuadros();
   Sonido.activo = $("#sonido").checked; Sonido._antes = null; Sonido.director = true; Sonido.despertar();
   raton();
+  // la pantalla de carga (O-329): antes del primer saque, hasta que este todo lo del partido (y
+  // online, lo del rival). El invitado no para su plan esperando a una animacion de VR: lo
+  // marca la foto del anfitrion
+  Director.retenerVR = MODO !== "invitado";
+  Carga.empezar({ p: PARTIDO, a, b, modo: MODO, rival: RED && RED.rival ? RED.rival.nombre : null, tresD: $("#opcion-3d").checked && !SIN_3D });
   prepararVista(() => requestAnimationFrame(bucle));
 }
 
@@ -333,10 +349,22 @@ function pintarAbajo() {
 // arriba (paso 7): el mapa, la ficha grande o la pantalla verde (Arriba), o el duelo, la
 // animacion y el gol (HudDuelo, O-319)
 const ARRIBA_2D = new Set(["mapa", "ficha", "descanso", "final"]);
+const ESPERA_VR = document.getElementById("espera-vr");
 function pintarArriba() {
   const e = Director.estado;
   if (ARRIBA_2D.has(e.arriba.modo)) Arriba.pintar(Consola.arriba.ctx, PARTIDO, YO, e, { elegido: PANTALLA.elegido, red: marcador() });
   else HudDuelo.pintar(Consola.arriba.ctx, PARTIDO, YO, e.arriba);
+  // esperando a la animacion de VR que toca (O-329): el indicador pequeno de abajo a la derecha
+  const espera = !!(e.arriba.escena && e.arriba.escena.esperaVR);
+  if (ESPERA_VR && ESPERA_VR.hidden === espera) ESPERA_VR.hidden = !espera;
+}
+// la pantalla de carga de arriba (O-329): los dos equipos y lo que va (Arriba.pintarCarga);
+// abajo la pinta partido-carga.js en su DOM
+let cargaPintada = -1e9;
+function pintarCarga(ahora) {
+  if (ahora - cargaPintada < CARGA.pinta || !Consola.arriba) return;
+  cargaPintada = ahora;
+  Arriba.pintarCarga(Consola.arriba.ctx, Carga.datosArriba());
 }
 // el campo sigue a la pantalla de abajo: la consola avisa al cambiar de tamano o de
 // modo (O-305, O-316), y de calidad (el pixelRatio del 3D, diseno 7.4)
@@ -353,6 +381,13 @@ function bucle(ahora) {
   // el siguiente cuadro se pide antes de nada: un error al pintar ya no para el
   // partido para siempre (asi se congelaba el invitado tras un corte) (O-305)
   requestAnimationFrame(bucle);
+  // la pantalla de carga (O-329): mientras, el motor no anda y del juego no se pinta nada
+  if (Carga.activa) {
+    Carga.tick(MUNDO, !!PANTALLA, MODO !== "maquina" ? RED : null);
+    if (!Carga.terminada()) { pintarCarga(ahora); antes = null; sobra = 0; return; }
+    Carga.acabar(MODO !== "maquina" ? RED : null);
+    antes = null;
+  }
   if (!PANTALLA) return;          // la vista de abajo aun no esta (prepararVista)
   // lo que tarda el cuadro entero, para el contador de FPS (O-321)
   const t0 = performance.now();
@@ -364,6 +399,8 @@ function bucle(ahora) {
     PARTIDO.suavizar(sobra); sobra = 0;
   } else if (MODO === "anfitrion" && RED && (RED.dejado || Date.now() - (RED.vistoRival || 0) > 8000)) {
     sobra = 0;                                  // sin noticias del rival (o has dejado el partido): se espera
+  } else if (Director.esperaPlan) {
+    sobra = 0;                                  // la animacion de VR del tramo aun no esta: se espera (O-329)
   } else {
     while (sobra >= REGLAS.PASO && n < 8) {
       if (MAQUINA) MAQUINA.pensar();
@@ -464,8 +501,9 @@ document.addEventListener("keydown", ev => {
   // mantener el espacio no alterna pausa y seguir: cada repeticion de la tecla
   // gastaba una pausa (O-305)
   if (ev.repeat) return;
-  const b = $("#boton-pausa");
-  if (b) b.click();
+  // en la pantalla de carga, su Seguir si lo hay (O-329)
+  const b = Carga.activa ? $("#carga-seguir") : $("#boton-pausa");
+  if (b && !b.hidden) b.click();
 });
 // las flechas del teclado mueven la camara de abajo, x2 con Mayusculas (O-307 punto 1;
 // O-317): con el partido en marcha y fuera de los cuadros de texto (el nombre del
@@ -637,6 +675,19 @@ function raton() {
       // encima de los pies; al colocarlo, sus pies van ahi y no bajo el raton (O-317)
       empezado.agarre = { x: j.x - empezado.campo.x, y: j.y - empezado.campo.y };
     }
+    // mantener pulsado = pase bombeado (O-341): si soltar este toque seria un pase, la tactil
+    // ensena como se va cargando y cuando ya va a salir bombeado (HudAbajo._mantener)
+    PANTALLA.mantener = paseQuePulsa(empezado);
+  };
+  // si soltar el toque e sin moverlo seria un pase tuyo (al companero pulsado o al hueco), como
+  // lo decide onpointerup: {t0, de, a (id o null), x, y} para HudAbajo; si no, null (O-341)
+  const paseQuePulsa = e => {
+    const p = PARTIDO, d = p && p.dueno();
+    if (!d || d.lado !== YO || e.enEspera) return null;
+    if (p.fase === "duelo" && !(p.duelo && p.duelo.tipo === "foco")) return null;
+    if (e.j && e.j.id === d.id) return null;
+    if (!e.j) { const g = p.porteriaRival(d); if (Math.abs(e.campo.y - g.y) < 7 && Math.abs(e.campo.x) < 9) return null; }
+    return { t0: e.t0, de: d.id, a: e.j ? e.j.id : null, x: e.campo.x, y: e.campo.y };
   };
   c.onpointermove = ev => {
     if (!empezado) return;
@@ -648,12 +699,14 @@ function raton() {
     if (empezado.ancla && empezado.px > 4 && parado()) {
       const cp = PANTALLA.aCampo(q.px, q.py), h = PANTALLA._sentido();
       PANTALLA.camara.mover((empezado.ancla.x - cp.x) * h, (empezado.ancla.y - cp.y) * h);
-      empezado.camara = true;
+      empezado.camara = true; PANTALLA.mantener = null;     // ya no es un pase (O-341)
       return;
     }
     const cp = PANTALLA.aCampo(q.px, q.py);
     // lo mas lejos que ha ido el raton, tambien si no empezo en un jugador (O-305)
     empezado.lejos = Math.max(empezado.lejos, Math.hypot(cp.x - empezado.campo.x, cp.y - empezado.campo.y));
+    // arrastrado: una ruta o nada, ya no un pase (O-341)
+    if (empezado.lejos > 2.5) PANTALLA.mantener = null;
     if (!empezado.j) return;
     // en la espera de un saque, arrastrar a uno de los tuyos lo coloca: no es una
     // ruta, se pone ahi (Aaron, O-307 punto 14); mientras, el jugador sale donde lo
@@ -673,7 +726,7 @@ function raton() {
   };
   c.onpointerup = ev => {
     if (!empezado) return;
-    const e = empezado; empezado = null; PANTALLA.trazo = null; PANTALLA.colocando = null;
+    const e = empezado; empezado = null; PANTALLA.trazo = null; PANTALLA.colocando = null; PANTALLA.mantener = null;
     // la camara arrastrada se queda donde la dejes (vuelve al seguir el juego)
     if (e.camara) { PANTALLA.camara.soltar(); return; }
     if (e.soloCamara || !sePuede()) return;
@@ -712,11 +765,19 @@ function raton() {
     // un arrastre que no empezo en un jugador no es "pulsar un punto": salia un
     // pase al hueco (o un tiro) que no se queria (O-305)
     if (!e.j && Math.max(mov, e.lejos) > 2.5) return;
+    // eligiendo tu tiro (el chute del tiro que viaja), pulsar dentro de la porteria afina
+    // adonde va: la X se mueve y va con lo que elijas (Aaron, O-335)
+    const duc = PARTIDO.fase === "duelo" && PARTIDO.duelo, tch = duc && duc.tipo === "tiro" && duc.etapa === "chute" ? PARTIDO.jugadores[duc.tirador] : null;
+    if (tch && tch.lado === YO && PARTIDO.pendientes()[YO]) {
+      const g = PARTIDO.porteriaRival(tch);
+      if (Math.abs(fin.y - g.y) < 7 && Math.abs(fin.x) < 9) { const ax = xTiro(g); PANTALLA.apuntar(ax, g.y); apunteDuelo = { id: duc.id, x: ax }; return; }
+    }
     // en un duelo, solo rutas; en un foco, el que lleva el balon deja marcado el
     // pase o el tiro, como en la pausa: sale si gana el duelo (O-306)
     const marca = PARTIDO.fase === "duelo" && tengo && PARTIDO.duelo && PARTIDO.duelo.tipo === "foco";
     if (PARTIDO.fase === "duelo" && !marca) return;
-    const alto = performance.now() - e.t0 > 450;   // mantener pulsado: pase bombeado
+    // mantener pulsado: pase bombeado (REGLAS.PASE_ALTO_PULSAR s; antes 0,45, O-341)
+    const alto = performance.now() - e.t0 >= REGLAS.PASE_ALTO_PULSAR * 1000;
     // pulsar al rival que lleva el balon: los tuyos van a presionarle
     if (d && d.lado !== YO) {
       const r = PANTALLA.jugadorEn(q.px, q.py, 1 - YO);
@@ -728,7 +789,8 @@ function raton() {
     if (!tengo && pd && pd.lado === YO) {
       const rec = PARTIDO.jugadores[PARTIDO.balon.pase.a], g = PARTIDO.porteriaRival(rec);
       // la X del cono del tiro, donde has pulsado (O-306)
-      if (Math.abs(fin.y - g.y) < 7 && Math.abs(fin.x) < 9) { PANTALLA.apuntar(xTiro(g), g.y); PARTIDO.ordenar({ tipo: "directo", de: PARTIDO.balon.pase.de }); return; }
+      // (y adonde apunta, que el tiro va ahi, O-335)
+      if (Math.abs(fin.y - g.y) < 7 && Math.abs(fin.x) < 9) { const ax = xTiro(g); PANTALLA.apuntar(ax, g.y); PARTIDO.ordenar({ tipo: "directo", de: PARTIDO.balon.pase.de, x: ax }); return; }
     }
     if (tengo) {
       // pulsar a un companero: pasarle (en la pausa queda marcado). Se mira antes
@@ -740,7 +802,8 @@ function raton() {
       // pulsar la porteria rival: chutar. En la pausa (y en el saque) el tiro queda
       // marcado y sale al seguir; antes acababa en un pase a la linea de gol (O-305)
       const g = PARTIDO.porteriaRival(d);
-      if (Math.abs(fin.y - g.y) < 7 && Math.abs(fin.x) < 9) { PANTALLA.apuntar(xTiro(g), g.y); PARTIDO.ordenar({ tipo: "tiro", de: d.id }); return; }
+      // (con adonde apunta: el tiro va ahi; en la pausa, pulsarla otra vez cambia el sitio, O-335)
+      if (Math.abs(fin.y - g.y) < 7 && Math.abs(fin.x) < 9) { const ax = xTiro(g); PANTALLA.apuntar(ax, g.y); PARTIDO.ordenar({ tipo: "tiro", de: d.id, x: ax }); return; }
       if (e.j) return;
       // pulsar un punto: pase al hueco
       PARTIDO.ordenar({ tipo: "pasePunto", de: d.id, x: fin.x, y: fin.y, alto });
@@ -757,8 +820,14 @@ function raton() {
 
 // --- el duelo: la eleccion de la persona (la manda la tactil, O-318) -------------------
 let ultimaEleccion = null;     // online, la ultima eleccion del invitado (O-305)
+// adonde has vuelto a apuntar en el chute (pulsando la porteria): {id del duelo, x} (O-335)
+let apunteDuelo = null;
 function elegido(eleccion) {
   if (PARTIDO.duelo) duelosElegidos.add(PARTIDO.duelo.id);
+  // tu tiro lleva adonde has vuelto a apuntar en este chute; si no, va adonde pulsaste al
+  // chutar (la orden). Online llega asi al anfitrion (O-335)
+  const du = PARTIDO.duelo;
+  if (du && apunteDuelo && apunteDuelo.id === du.id && du.etapa === "chute" && eleccion && typeof eleccion === "object") eleccion = Object.assign({}, eleccion, { x: apunteDuelo.x });
   PARTIDO.elegir(YO, eleccion);
 }
 
@@ -790,6 +859,7 @@ function nombreEquipoA() {
 // online, en la tactil en lugar de las pestanas, con [Atras] (O-316)
 $("#jugar-online").onclick = () => {
   verElegir($("#online").hidden ? "online" : "pestanas");
+  anticiparCarga();
   $("#online-equipo").textContent = nombreEquipoA();
   try { $("#nombre").value = $("#nombre").value || (JSON.parse(localStorage.getItem("draft-nombre") || "null") || {}).nombre || ""; } catch (e) {}
 };
@@ -908,6 +978,8 @@ async function alSala(m) {
     return;
   }
   if (m.tipo === "listo" && RED.rol === "anfitrion") { RED.para("equipos"); return; }
+  // como va la carga del rival (O-329): el partido no empieza hasta que estais los dos
+  if (m.tipo === "carga") { Carga.alRival(m); return; }
   if (m.tipo === "foto" && MODO === "invitado" && PARTIDO) { PARTIDO.aplicarFoto(m.foto); return; }
   if (m.tipo === "orden" && MODO === "anfitrion" && PARTIDO) {
     const o = m.o || {};

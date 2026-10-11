@@ -16,6 +16,15 @@ class Maquina {
     this.sinHiper = !!opciones.sinHiper;
   }
 
+  // adonde apunta al chutar j (O-335): al lado de la porteria en el que no esta su portero (si
+  // esta en medio, a suertes), de 1 m del centro hasta el margen del palo. Como la persona, el
+  // tiro va ahi y nunca fuera
+  _apunte(j) {
+    const p = this.p, g = p.porteriaRival(j), por = p.portero(1 - j.lado), dentro = REGLAS.PORTERIA / 2 - REGLAS.APUNTAR.margen;
+    const s = por && Math.abs(por.x - g.x) > 0.3 ? -Math.sign(por.x - g.x) : this.azar() < 0.5 ? -1 : 1;
+    return Math.round(s * (1 + this.azar() * (dentro - 1)) * 10) / 10;
+  }
+
   // la llama el bucle en cada paso
   pensar() {
     const p = this.p;
@@ -45,6 +54,44 @@ class Maquina {
     const ps = p.porSacar;
     if (ps && ps.lado === this.lado && ps.t < REGLAS.SAQUE_MAQUINA) return;
     if (d && d.lado === this.lado) this._conBalon(d);
+    this._apoyar();     // O-342
+  }
+
+  // los apoyos del duelo (Aaron, O-342; REGLAS.IA_APOYO): con un duelo a punto (el que lleva el
+  // balon y el que va a por el a menos de `cerca` m), hasta `max` de los suyos que estan a menos de
+  // `desde` m del que va a pelear se acercan a `dist` m de el (dentro del radio de los apoyos),
+  // primero los de su elemento (asi sale el Doble). Sin romper la formacion: atacando no se mueven
+  // los `atras` mas atrasados y defendiendo el mas adelantado (el contraataque); una carrera corta
+  // y luego cada uno vuelve solo a su zona. Atacando, a un lado y algo por detras del que lleva el
+  // balon (el pase atras, sin fuera de juego); defendiendo, entre el balon y su porteria (la
+  // cobertura del que sale al paso). Sin azar
+  _apoyar() {
+    const p = this.p, A = REGLAS.IA_APOYO, d = p.dueno();
+    if (!A || !d || d.esPortero || p.fase !== "juego" || p.porSacar || p.tiro) return;
+    const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+    const mios = p.equipo(this.lado).filter(c => !c.esPortero && c.aturdido <= 0);
+    const ataca = d.lado === this.lado;
+    // el que va a pelear: el que lleva el balon o el mio que va a por el (el mas cerca)
+    const j = ataca ? d : mios.slice().sort((a, b) => dist(a, d) - dist(b, d))[0];
+    const rival = ataca ? this._marcaDe(d, p.equipo(1 - this.lado)) : d;
+    if (!j || !rival || dist(j, rival) > A.cerca) return;
+    const dir = j.dir || 1, R = REGLAS.APOYO_RADIO - 1;
+    const orden = mios.filter(c => c !== j).sort((a, b) => (a.y - b.y) * dir || a.id - b.id);     // de atras a delante
+    const fijos = new Set((ataca ? orden.slice(0, A.atras) : orden.slice(-1)).map(c => c.id));
+    const ya = orden.filter(c => dist(c, j) < R).length;
+    const suyo = c => (c.elemento && c.elemento === j.elemento ? 1 : 0);
+    const van = orden.filter(c => !fijos.has(c.id) && dist(c, j) >= R && dist(c, j) < A.desde && !(p.balon.pase && p.balon.pase.a === c.id))
+      .sort((a, b) => suyo(b) - suyo(a) || dist(a, j) - dist(b, j) || a.id - b.id).slice(0, Math.max(0, A.max - ya));
+    let s0 = 0;
+    van.forEach((c, k) => {
+      let s = Math.sign(c.x - j.x) || (k ? -1 : 1);
+      if (k && s === s0) s = -s;       // el segundo, al otro lado
+      s0 = s;
+      const sitio = ataca ? { x: j.x + s * A.dist * 0.8, y: j.y - dir * A.dist * 0.6 } : { x: d.x + s * A.dist * 0.6, y: d.y - dir * A.dist * 0.8 };
+      const q = p._dentro ? p._dentro(sitio.x, sitio.y) : sitio, fin = c.ruta.length ? c.ruta[c.ruta.length - 1] : null;
+      if (dist(c, q) < 1 || (fin && dist(fin, q) < 1.5)) return;
+      p.ordenar({ tipo: "ruta", jugador: c.id, puntos: [q] });
+    });
   }
 
   // en el descanso (O-297): si en el banquillo hay uno mejor para el mismo
@@ -182,18 +229,19 @@ class Maquina {
       return;
     }
     // el corner: bombeado al que este mas libre de los que coloco en el area (si no,
-    // salia conduciendo desde el banderin) (O-313)
+    // salia conduciendo desde el banderin) (O-313), o al que gana la disputa aerea a su marca
+    // (O-341: _notaAerea)
     const cs = this._corner;
     if (cs && cs.id === d.id) {
       this._corner = null;
       const rivales = p.equipo(1 - this.lado);
-      const libre = c => Math.min(...rivales.map(r => Math.hypot(r.x - c.x, r.y - c.y)));
+      const nota = c => this._notaAerea(c, rivales);
       const a = cs.ids.map(id => p.jugadores[id]).filter(c => c && !c.expulsado && c.lado === this.lado && c.id !== d.id)
-        .sort((x, y) => libre(y) - libre(x) || x.id - y.id)[0];
+        .sort((x, y) => nota(y) - nota(x) || x.id - y.id)[0];
       if (a) {
         p.ordenar({ tipo: "pase", de: d.id, a: a.id, alto: true });
         // y a veces lo remata de primeras, como un centro (O-315)
-        if (REGLAS.IA_CENTRO && this.azar() < REGLAS.IA_CENTRO.remate) p.ordenar({ tipo: "directo", de: d.id });
+        if (REGLAS.IA_CENTRO && this.azar() < REGLAS.IA_CENTRO.remate) p.ordenar({ tipo: "directo", de: d.id, x: this._apunte(a) });
         return;
       }
     }
@@ -216,40 +264,44 @@ class Maquina {
       return;
     }
     const aPuerta = Math.hypot(g.x - d.x, g.y - d.y);
-    // chutar: cerca de la porteria, mas cuanto mas cerca
+    // chutar: cerca de la porteria, mas cuanto mas cerca. Solo desde donde se puede, como la
+    // persona (el area y un poco mas; con un tiro largo a punto, mas lejos; O-335), y adonde
+    // apunta (_apunte)
+    const llega = p.enRangoTiro ? p.enRangoTiro(d) : true;
     const libre = !p.equipo(1 - this.lado).some(r => !r.esPortero && p._distanciaALinea(r, d, g).delante && p._distanciaALinea(r, d, g).d < 2.5);
     const T = REGLAS.IA_TIRO;
     // el portero rival tocado (O-328): con el PP de VR, que se gasta con cada parada, cuando
     // su mejor tiro ya llega a lo que le queda chuta casi siempre, tambien desde mas lejos
     // (hasta `lejano`) y con la linea libre
-    if (aPuerta < (T.lejano || T.lejos) && (libre || aPuerta < T.cerca) && this.azar() < (T.pDebil || 0) && this._porteroTocado(d, aPuerta)) {
-      p.ordenar({ tipo: "tiro", de: d.id });
+    if (llega && aPuerta < (T.lejano || T.lejos) && (libre || aPuerta < T.cerca) && this.azar() < (T.pDebil || 0) && this._porteroTocado(d, aPuerta)) {
+      p.ordenar({ tipo: "tiro", de: d.id, x: this._apunte(d) });
       return;
     }
-    if (aPuerta < T.lejos && this.azar() < (aPuerta < T.cerca ? T.pCerca : libre ? T.pLibre : T.pTapado)) {
-      p.ordenar({ tipo: "tiro", de: d.id });
+    if (llega && aPuerta < T.lejos && this.azar() < (aPuerta < T.cerca ? T.pCerca : libre ? T.pLibre : T.pTapado)) {
+      p.ordenar({ tipo: "tiro", de: d.id, x: this._apunte(d) });
       return;
     }
     // el tiro lejano (O-315): con la linea tapada, un tercio
-    if (aPuerta >= T.lejos && aPuerta < (T.lejano || 0) && this.azar() < (T.pLejano || 0) * (libre ? 1 : 1 / 3)) {
-      p.ordenar({ tipo: "tiro", de: d.id });
+    if (llega && aPuerta >= T.lejos && aPuerta < (T.lejano || 0) && this.azar() < (T.pLejano || 0) * (libre ? 1 : 1 / 3)) {
+      p.ordenar({ tipo: "tiro", de: d.id, x: this._apunte(d) });
       return;
     }
     // el centro (O-315): por la banda cerca del area rival, bombeado al area, como en
     // la vida real (antes iba siempre por el medio): a una zona (primer palo, segundo
-    // palo o punto de penalti), la mas cerca del companero del area mas libre; va a por
-    // el el que este mas cerca y a veces lo remata de primeras (testarazo o volea).
+    // palo o punto de penalti), la mas cerca del companero del area mas libre (o del que gana
+    // la disputa aerea a su marca, O-341: _notaAerea); va a por el el que este mas cerca y a
+    // veces lo remata de primeras (testarazo o volea).
     // Puede irse de largo (saque de puerta) o cortarlo un defensa (REGLAS.IA_CENTRO)
     const CE = REGLAS.IA_CENTRO;
     if (CE && Math.abs(d.x) > CE.banda && (g.y - d.y) * d.dir < CE.fondo && this.azar() < CE.p) {
       const s = Math.sign(d.x), zonas = [[s * 2.5, 5], [-s * 3.5, 6], [-s * 1, 11]].map(([x, f]) => ({ x, y: g.y - d.dir * f }));
-      const libreDe = c => Math.min(...rivales.map(r => Math.hypot(r.x - c.x, r.y - c.y)));
+      const nota = c => this._notaAerea(c, rivales);
       const enArea = p.equipo(this.lado).filter(c => c !== d && !c.esPortero && c.aturdido <= 0 && Math.abs(c.x) < REGLAS.AREA_X
         && (g.y - c.y) * d.dir < REGLAS.AREA_Y + 2 && !p.fueraEnPase(c, d));
-      const a = enArea.sort((x, y) => libreDe(y) - libreDe(x) || x.id - y.id)[0];
+      const a = enArea.sort((x, y) => nota(y) - nota(x) || x.id - y.id)[0];
       const z = a ? zonas.sort((u, v) => Math.hypot(u.x - a.x, u.y - a.y) - Math.hypot(v.x - a.x, v.y - a.y))[0] : zonas[1];
       p.ordenar({ tipo: "pasePunto", de: d.id, x: z.x, y: z.y, alto: true });
-      if (a && this.azar() < CE.remate) p.ordenar({ tipo: "directo", de: d.id });
+      if (a && this.azar() < CE.remate) p.ordenar({ tipo: "directo", de: d.id, x: this._apunte(a) });
       return;
     }
     // presionado: pasar al companero mejor colocado
@@ -259,9 +311,13 @@ class Maquina {
         p.ordenar({ tipo: "pase", de: d.id, a: mejor.id });
         // si el companero queda cerca de la porteria, a veces remata de primeras
         const gm = p.porteriaRival(mejor);
-        if (Math.hypot(gm.x - mejor.x, gm.y - mejor.y) < 16 && this.azar() < 0.2) p.ordenar({ tipo: "directo", de: d.id });
+        if (Math.hypot(gm.x - mejor.x, gm.y - mejor.y) < 16 && this.azar() < 0.2) p.ordenar({ tipo: "directo", de: d.id, x: this._apunte(mejor) });
         return;
       }
+      // sin pase raso (todos tapados): bombeado por encima al que gana la disputa aerea a su
+      // marca o esta libre donde cae (O-341)
+      const alto = this._paseAlto(d, rivales);
+      if (alto) { p.ordenar({ tipo: "pase", de: d.id, a: alto.id, alto: true }); return; }
     }
     // el pase al hueco: a la espalda de la defensa, para el que esta en la linea
     const hueco = this._alHueco(d, rivales);
@@ -391,9 +447,11 @@ class Maquina {
     const p = this.p, por = p.portero(1 - this.lado);
     if (!por || !por.kpMax || !p._valorParada) return false;
     const du = { distancia: dist, directo: null, alto: false, penalti: false };
-    let mejor = p._valorTiro(d, null, du, "normal");
+    // fuera del rango normal solo chuta su tiro largo (O-335)
+    const soloLargo = !!(p._soloLargo && p._soloLargo(d));
+    let mejor = soloLargo ? 0 : p._valorTiro(d, null, du, "normal");
     for (const t of d.tecnicas) {
-      if (!REGLAS.sirve(t, "tiro") || (t.espiritu && !p.conAura(d)) || p.coste(d, t) > p.tension[this.lado]) continue;
+      if (!REGLAS.sirve(t, "tiro") || (soloLargo && !REGLAS.esLarga(t)) || (t.espiritu && !p.conAura(d)) || p.coste(d, t) > p.tension[this.lado]) continue;
       if (Math.max(1, Number(t.jugadores) || 1) > 1) continue;
       mejor = Math.max(mejor, p._valorTiro(d, t, du, "normal"));
     }
@@ -414,6 +472,47 @@ class Maquina {
       if (this.p.fueraEnPase(c, d) && this.azar() < 0.92) continue;   // en un saque no hay (O-305)
       const avance = (c.y - d.y) * d.dir;
       const n = libre * 1.2 + avance * 0.6 - dist * 0.1;
+      if (n > nota) { nota = n; mejor = c; }
+    }
+    return mejor;
+  }
+
+  // lo bueno que es mandarle a c un balon bombeado (O-341): lo libre que esta (hasta 6 m) y, si
+  // tiene un rival de campo cerca, si le gana la disputa aerea (su AT de disputa contra la DF de
+  // ese rival, la cuenta del motor: +4 por cada 100 % de ventaja)
+  _notaAerea(c, rivales) {
+    const p = this.p;
+    const libre = Math.min(6, ...rivales.map(r => Math.hypot(r.x - c.x, r.y - c.y)));
+    const r = this._marcaDe(c, rivales);
+    if (!r || !p._valorAerea) return libre;
+    return libre + 4 * (p._valorAerea(c, r, true) / Math.max(1, p._valorAerea(r, c, false)) - 1);
+  }
+  // el rival de campo mas cerca de c (o null)
+  _marcaDe(c, rivales) {
+    let r = null, dr = Infinity;
+    for (const x of rivales) {
+      if (x.esPortero || x.expulsado) continue;
+      const d = Math.hypot(x.x - c.x, x.y - c.y);
+      if (d < dr) { dr = d; r = x; }
+    }
+    return r;
+  }
+  // el pase bombeado de la maquina (O-341): por encima de los que tapan el raso, a un companero
+  // de 12 a 40 m (sin fuera de juego) al que le va bien el balon alto: libre donde esta (sin un
+  // rival de campo a menos de AEREA.alcance + 1,5 m) o que le gana la disputa aerea a su marca
+  // (x1,05 como poco). El que mejor nota (_notaAerea) y mas avanza; null si no hay
+  _paseAlto(d, rivales) {
+    const p = this.p, A = REGLAS.AEREA;
+    if (!A || !p._valorAerea) return null;
+    let mejor = null, nota = -1e9;
+    for (const c of p.equipo(this.lado)) {
+      if (c.id === d.id || c.esPortero || c.aturdido > 0 || c.expulsado) continue;
+      const dist = Math.hypot(c.x - d.x, c.y - d.y);
+      if (dist < 12 || dist > 40 || p.fueraEnPase(c, d)) continue;
+      const r = this._marcaDe(c, rivales);
+      const libre = !r || Math.hypot(r.x - c.x, r.y - c.y) > A.alcance + 1.5;
+      if (!libre && p._valorAerea(c, r, true) < 1.05 * p._valorAerea(r, c, false)) continue;
+      const n = this._notaAerea(c, rivales) + (c.y - d.y) * d.dir * 0.3;
       if (n > nota) { nota = n; mejor = c; }
     }
     return mejor;

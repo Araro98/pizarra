@@ -18,6 +18,7 @@ hace lo mismo pero en el navegador, en `http://127.0.0.1:8765/`.) Las opciones:
 | **Editor de partida** | Tus jugadores, tu mochila y tus equipos. Cada cambio pasa por las reglas del juego: si el juego no lo dejaria, aqui tampoco sale. |
 | **Base de datos** | Todos los personajes del juego con sus stats por nivel y rareza, su arbol, sus tecnicas y sus pasivas; y aparte supertecnicas, espiritus, pasivas y objetos. No toca tu partida. |
 | **Calculadora de poder** | Cuanto saca un jugador en cada jugada (tiro, foco, disputa, muro) con sus stats, su supertecnica y las bonificaciones. Con jugadores de tu partida, del juego o a mano; si eliges un equipo tuyo, sus pasivas se suman solas. |
+| **Figuras 3D** | Cualquier personaje del juego en 3D con la equipacion, el dorsal, el brazalete de capitan y la pose que quieras (las del juego y las de las supertecnicas), y el boton para descargarlo e imprimirlo (STL) o con colores (OBJ, GLB). Los modelos se sacan de tu juego instalado. |
 
 El editor trabaja sobre **una copia** de tu partida (`partidas/para-editar`, que
 hace el programa al arrancar: busca solo tu partida en el Steam de tu

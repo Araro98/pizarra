@@ -4,8 +4,9 @@
    velocidad y los retratos grandes de los que juegan: sin WebGL es lo que se ve siempre;
    E5 pondra la escena 3D detras del mismo HUD).
    - Eligiendo: las fichas de los dos (la tuya a la izquierda), el cuadro de los elementos
-     con la flecha del que tiene ventaja, los apoyos con su "+5 %", el "Poder de base" en
-     las esquinas y "Talento" con lo que suman las pasivas.
+     con la flecha del que tiene ventaja, los apoyos (O-342: su cara, su elemento y su nombre,
+     lo que suman y el Doble o el Triple), el "Poder de base" en las esquinas y "Talento" con
+     lo que suman las pasivas.
    - En la animacion: el "Poder total" que RUEDA (un numero al azar cada cuadro) y se FIJA
      (el que gana amarillo, el que pierde morado), "¡Crítico!", la ★ de la hipertecnica, la
      barra del centro (TEN con lo que gasta en rojo; HIP si es de espiritu; en la parada el
@@ -25,6 +26,25 @@ const HUD_DUELO = {
   // los colores del fondo 2D que no son de un elemento ni de un lado (la hiper, el gol)
   hiper: ["#F2A0FF", "#5A1080"], gol: ["#FFD27A", "#B8340A"], mano: "#F07020", porteria: "#E8EEF4",
   red: "rgba(255,255,255,.5)",
+  // el choque de los nombres (O-336; Chrono Stones de Aaron, 29:48,48, fotograma a fotograma):
+  // entran en 90 ms (la del rival arriba por la derecha, la tuya abajo por la izquierda), se
+  // acercan despacio entre rayos amarillos que cruzan la pantalla y a los 0,9 s la del que pierde
+  // se va y la del que gana sube al centro en 0,2 s; los rayos hasta 1,08 s; el negro a ~2,2 s.
+  // Los tiempos (menos la entrada y la subida) van con lo que dure el tramo (nominal); en u
+  nombres: { nominal: 2.2, entra: 0.09, choque: 0.9, centra: 0.2, rayos: 1.08, se: 0.1, tam: 30,
+             arriba: { x0: 239, x1: 203, y: 82 }, abajo: { x0: 162, x1: 197, y: 166 }, centro: { x: 200, y: 120 },
+             rayo: ["rgba(248,240,64,.22)", "rgba(250,236,70,.9)", "#FFFFF0"] },
+  // "¡Fallo!" (O-336) sobre la tecnica del que pierde, a esa parte del tramo (con las cifras que
+  // se fijan), con un rebote de 1,8 a 1 en `rebote` s; su nombre se apaga a gris
+  fallo: { sello: 0.42, rebote: 0.12, gris: ["#E4E4E4", "#9A9A9A"], raya: "#E01818" },
+  // "¡Tiro debilitado!" (y de donde se queda) cuando en la escena sale el rotulo de VR de la tecnica (O-332):
+  // ese ocupa de 134 a 212 (ROTULO_VR) y el nombre del bloqueo va en 132 (O-344, vuelta 1)
+  debilitadoVR: 100,
+  // los apoyos (O-342), en s desde que salen las fichas (DIRECTOR.entrada.foco.fichas): cada uno
+  // entra deslizandose en `entra` s, `escalon` s despues del de debajo; el Doble o el Triple a
+  // `doble` s, con un rebote de `rebote` s. Las placas, de ancho x alto u, la de abajo en y0 y
+  // las demas `paso` u mas arriba
+  apoyos: { escalon: 0.06, entra: 0.1, doble: 0.25, rebote: 0.16, ancho: 116, alto: 24, paso: 27, y0: 150 },
 };
 
 const HudDuelo = {
@@ -36,6 +56,10 @@ const HudDuelo = {
     this.visto = { modo: A ? A.modo : null, que: tr ? tr.que : null, textos: [] };
     if (!ctx || !p || !A) return;
     this._3d = !!(A.escena && A.escena.hay);
+    // en la animacion de VR con su rotulo de VR, el nombre de Galaxy no (que no se vea dos veces, O-332)
+    this._sinNombre = !!(A.escena && A.escena.rotuloVR);
+    // donde acaba la celebracion de VR del gol (O-345, vuelta 1: hasta ahi no se funde a negro)
+    this._finGol = (A.escena && A.escena.finGol) || 0;
     ctx.save();
     // el lienzo del HUD, transparente encima del 3D
     if (this._3d) ctx.clearRect(0, 0, 400, 240);
@@ -139,30 +163,50 @@ const HudDuelo = {
     ctx.beginPath(); ctx.moveTo(-9, -2); ctx.lineTo(3, -2); ctx.lineTo(3, -5); ctx.lineTo(9, 0); ctx.lineTo(3, 5); ctx.lineTo(3, 2); ctx.lineTo(-9, 2); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.restore();
   },
-  // los apoyos (a12): la cara del companero sobre una placa de su color, pegada a su borde,
-  // encima de la ficha; mas de uno, apilados. Y lo que suman
-  _apoyos(ctx, p, yo, j, ap) {
+  // los apoyos (a12; Aaron, O-342: "que salgan tambien arriba en el duelo para apoyar (hasta 3)",
+  // como en su captura de DS): cada uno en una placa del color de su lado pegada a su borde,
+  // encima de la ficha del que pelea, con su cara, su elemento y su nombre; el mas cerca abajo.
+  // Entran deslizandose desde el borde uno detras de otro (ta: s desde que salen las fichas; 99,
+  // ya puestos). El de su mismo elemento, con el icono encendido. Encima, lo que suman y, con el
+  // Doble o el Triple, su rotulo con un rebote
+  _apoyos(ctx, p, yo, j, ap, ta = 99) {
     if (!j || !ap || !ap.ids || !ap.ids.length) return;
-    const der = j.lado !== yo, col = GX.color(j.lado, yo);
-    ap.ids.slice(0, 3).forEach((id, k) => {
-      const c = p.jugadores[id];
-      if (!c) return;
-      const y = 102 - k * 40, x = der ? 336 : 0;
-      ctx.save();
-      ctx.beginPath();
-      if (der) { ctx.moveTo(400, y); ctx.lineTo(x + 6, y); ctx.lineTo(x, y + 6); ctx.lineTo(x, y + 38); ctx.lineTo(400, y + 38); }
-      else { ctx.moveTo(0, y); ctx.lineTo(58, y); ctx.lineTo(64, y + 6); ctx.lineTo(64, y + 38); ctx.lineTo(0, y + 38); }
-      ctx.closePath(); ctx.fillStyle = col.base; ctx.fill(); ctx.strokeStyle = col.oscuro; ctx.lineWidth = 1; ctx.stroke();
-      const el = { Fuego: "fuego", Viento: "viento", Bosque: "bosque", Montana: "montana" }[c.elemento];
-      const ie = el ? GX.icono("elemento_" + el) : null;
-      const im = GX.cara(c.cara);
-      if (GX.cargada(im)) ctx.drawImage(im, der ? 358 : 20, y - 4, 42, 42);
-      if (ie && GX.cargada(ie)) ctx.drawImage(ie, der ? 340 : 4, y + 4, 13, 13);
+    const A = HUD_DUELO.apoyos, der = j.lado !== yo, col = GX.color(j.lado, yo), ids = ap.ids.slice(0, 3);
+    const arriba = A.y0 - (ids.length - 1) * A.paso, x = der ? 400 - A.ancho : 0;
+    // de arriba a abajo: la cara de cada una sobresale por encima de la de arriba
+    for (let k = ids.length - 1; k >= 0; k--) {
+      const c = p.jugadores[ids[k]], t0 = k * A.escalon;
+      if (!c || ta < t0) continue;
+      const e = Math.min(1, (ta - t0) / A.entra), y = A.y0 - k * A.paso;
+      ctx.save(); ctx.translate((1 - e) * (1 - e) * (A.ancho + 30) * (der ? 1 : -1), 0);
+      GX.placa(ctx, x, y, A.ancho, A.alto, col.base, der ? "izq" : "der", col.claro);
+      ctx.fillStyle = "rgba(255,255,255,.1)"; ctx.fillRect(x + (der ? 8 : 0), y + 1, A.ancho - 8, A.alto * 0.4);
+      // la cara, que sobresale por arriba como la de la ficha
+      const im = GX.cara(c.cara), cx = der ? 400 - 33 : 1;
+      if (GX.cargada(im)) ctx.drawImage(im, cx, y - 8, 32, 32);
+      else { ctx.fillStyle = "rgba(255,255,255,.25)"; ctx.beginPath(); ctx.arc(cx + 16, y + 10, 10, 0, Math.PI * 2); ctx.fill(); }
+      // su elemento: encendido si es el del que pelea (el que cuenta para el Doble)
+      const el = GX.elemento[c.elemento] && c.elemento !== "ninguno" ? c.elemento : null, ix = der ? 400 - 50 : 36;
+      if (el && el === j.elemento) {
+        ctx.globalAlpha = 0.6 + 0.25 * Math.sin(ta * 9); ctx.fillStyle = GX.elementoTexto[el];
+        ctx.beginPath(); ctx.arc(ix + 6.5, y + 12, 9, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+      }
+      const ie = el ? GX.icono("elemento_" + el.toLowerCase()) : null;
+      if (ie && GX.cargada(ie)) ctx.drawImage(ie, ix, y + 5.5, 13, 13);
+      this._t(ctx, c.nombre, der ? 400 - 54 : 54, y + 12.5, { tam: 10, peso: 700, alinea: der ? "right" : "left", color: "#E4E8FF", contornos: [["rgba(10,20,40,.6)", 0.8]], ancho: A.ancho - 60 });
       ctx.restore();
-    });
+    }
+    if (ta < A.entra) return;
+    // lo que suman y, encima, el Doble o el Triple del color de su elemento
     const pct = ap.pct !== undefined ? ap.pct : Math.round(((ap.factor || 1) - 1) * 100);
-    // lo que suman, junto a la placa de abajo (encima no cabe con tres: la cifra de arriba)
-    if (pct) this._t(ctx, "+" + pct + " %", der ? 332 : 68, 136, { tam: 10, peso: 900, alinea: der ? "right" : "left", color: "#9FF0E6", contornos: [["#0A2A3A", 1]] });
+    if (pct) this._t(ctx, "apoyo +" + pct + " %", der ? 396 : 4, arriba - 15, { tam: 9, peso: 900, alinea: der ? "right" : "left", color: "#9FF0E6", contornos: [["#0A2A3A", 1]] });
+    if (ap.doble && ta >= A.doble) {
+      const k = Math.min(1, (ta - A.doble) / A.rebote), z = 2.2 - 1.2 * (1 - (1 - k) * (1 - k)), el = GX.elemento[j.elemento] ? j.elemento : null;
+      const color = el && el !== "ninguno" ? ["#FFFFFF", GX.elementoTexto[el], GX.elemento[el]] : ["#FFF6A0", "#F8C020"];
+      ctx.save(); ctx.globalAlpha = Math.min(1, k * 2.5); ctx.translate(der ? 342 : 58, arriba - 32); ctx.rotate(-0.08); ctx.scale(z, z);
+      this._t(ctx, ap.doble === 3 ? "¡TRIPLE!" : "¡DOBLE!", 0, 0, { letra: "rotulo", tam: 16, peso: 400, alinea: "center", degradado: color, contornos: [["#FFFFFF", 2], ["#1A0A00", 1.3]], sesgo: -8 });
+      ctx.restore();
+    }
   },
   // la barra del centro (a14): TEN (verde lo que queda, rojo lo que gasta esta tecnica) o
   // HIP (magenta) si es de espiritu
@@ -199,7 +243,7 @@ const HudDuelo = {
   // negro grueso; entra desde la derecha a +330 ms con un poco de rebote. En el bloqueo,
   // centrado a media altura con zoom de 130 % a 100 % en 270 ms
   _nombre(ctx, nombre, el, t, centrado, hiper) {
-    if (!nombre || t < HUD_DUELO.nombre.entra) return;
+    if (!nombre || t < HUD_DUELO.nombre.entra || this._sinNombre) return;
     const k = Math.min(1, (t - HUD_DUELO.nombre.entra) / HUD_DUELO.nombre.dura), rebote = k < 1 ? 0 : Math.max(0, 6 * (1 - (t - HUD_DUELO.nombre.entra - HUD_DUELO.nombre.dura) / 0.12));
     const color = hiper ? HUD_DUELO.hiper : GX.elemento[el] ? [GX.elementoTexto[el], GX.elementoTexto[el]] : ["#FFFFFF", "#DDE6F5"];
     const o = { letra: "nombre", tam: 32, peso: 400, degradado: [color[0], color[0], color[1]], contornos: [["#000000", 3]], sesgo: -8, ancho: 330 };
@@ -231,7 +275,9 @@ const HudDuelo = {
     this._fondoDuelo(ctx, p, yo, izq, der, tr.t);
     if (!tr.fichas) return;
     const ap = (du.base && du.base.apoyos) || {};
-    if (du.tipo === "foco") { this._apoyos(ctx, p, yo, izq, ap[izq.lado]); this._apoyos(ctx, p, yo, der, ap[der.lado]); }
+    // (entran a su tiempo desde que salen las fichas, O-342)
+    const ta = tr.t - (typeof DIRECTOR !== "undefined" ? DIRECTOR.entrada.foco.fichas : 0.67);
+    if (du.tipo === "foco") { this._apoyos(ctx, p, yo, izq, ap[izq.lado], ta); this._apoyos(ctx, p, yo, der, ap[der.lado], ta); }
     this._fichas(ctx, p, yo, izq, der);
     if (!tr.base || !du.base) return;
     for (const j of [izq, der]) {
@@ -270,7 +316,11 @@ const HudDuelo = {
   // --- la animacion de un resultado (6.5 e-m) -----------------------------------------
   _anim(ctx, p, yo, tr) {
     const R = tr.res, r = R.r || {}, q = tr.q || {}, t = tr.t;
-    if (r.tipo === "foco" || r.tipo === "disputa" || r.tipo === "falta") return this._animFoco(ctx, p, yo, tr, R, r, q, t);
+    // el choque de los nombres (O-336); en la transicion de despues, el del que gana hasta el negro
+    const qn = q.que === "nombres" ? q : tr.que === "transicion" ? this._escenaAntes(R, tr.k) : null;
+    if (qn && qn.que === "nombres") return this._nombres(ctx, p, yo, R, r, qn, q.que === "nombres" ? t : 99, qn.a - qn.de);
+    // (la disputa aerea, como un foco sin tecnicas: O-341)
+    if (r.tipo === "foco" || r.tipo === "disputa" || r.tipo === "falta" || r.tipo === "aerea") return this._animFoco(ctx, p, yo, tr, R, r, q, t);
     if (r.tipo === "tiro" || r.tipo === "penalti") return this._animTiro(ctx, p, yo, tr, R, r, q, t);
     ctx.fillStyle = "#000"; ctx.fillRect(0, 0, 400, 240);
   },
@@ -281,7 +331,13 @@ const HudDuelo = {
     const att = p.jugadores[r.atacante], def = p.jugadores[r.defensor];
     if (!att || !def) return;
     const izq = att.lado === yo ? att : def, der = izq === att ? def : att;
-    const que = tr.que === "transicion" || tr.que === "vuelta" ? this._antes(R, tr.k) : tr.que;
+    const que0 = tr.que === "transicion" || tr.que === "vuelta" ? this._antes(R, tr.k) : tr.que;
+    // el que gana sin tecnica a una tecnica (O-336): como sin tecnicas, con "Fallo" encima. La
+    // disputa aerea (O-341) tambien: los valores de disputa rodando mientras saltan y pelean y
+    // fijos cuando uno se lo lleva (DIRECTOR.aerea.cabezas)
+    const que = que0 === "fallo" || que0 === "aerea" ? "sinTecnica" : que0;
+    const kf = que0 === "aerea" && typeof DIRECTOR !== "undefined" && DIRECTOR.aerea ? DIRECTOR.aerea.cabezas : 0.43;
+    const etq = r.tipo === "aerea" ? "Disputa" : "Poder total";
     if (que === "choque" || que === "entrada" || que === "transicion") {
       this._fondoDuelo(ctx, p, yo, izq, der, t, Math.min(1, t / Math.max(0.3, tr.dura)));
       return;
@@ -306,25 +362,37 @@ const HudDuelo = {
       this._fondo(ctx, c[0], c[1], 5 + t);
       this._retrato(ctx, j, 200, 236, 190 + (qt.a - qt.de) * 6, j.lado !== yo, yo);
     } else this._fondoDuelo(ctx, p, yo, izq, der, t, 1);
-    const fija = que === "fijar" || que === "vuelta" || (que === "sinTecnica" && t >= tr.dura * 0.43);
-    const tf = que === "sinTecnica" ? t - tr.dura * 0.43 : que === "vuelta" ? 1 : t;
+    // (la aerea, fija tambien en la vuelta: O-341)
+    const fija = que === "fijar" || que === "vuelta" || (que === "sinTecnica" && t >= tr.dura * kf) || (que0 === "aerea" && tr.que === "vuelta");
+    const tf = que0 === "aerea" && tr.que === "vuelta" ? 1 : que === "sinTecnica" ? t - tr.dura * kf : que === "vuelta" ? 1 : t;
     for (const k of [izq, der]) {
-      const d = k.lado !== yo, col = GX.color(k.lado, yo), gana = r.ganador === k.id || (r.tipo === "falta" && k.id === r.atacante);
+      // (en la falta gana el numero el defensa, O-344: su entrada, "Fallo" en la tecnica del otro y la falta)
+      const d = k.lado !== yo, col = GX.color(k.lado, yo), gana = r.tipo === "falta" ? k.id === r.defensor : r.ganador === k.id;
       let v = r.valores ? r.valores[k.lado] : null, critico = false;
       if (r.hiper === k.lado) v = "★";
       else if (r.critico === k.lado && r.antes !== null && r.antes !== undefined) { critico = tf >= 0.25; if (!critico) v = r.antes; }
-      this._valor(ctx, d, col, "Poder total", fija ? v : (v === "★" ? "★" : this._rueda(v)), fija ? (gana ? "gana" : "pierde") : "rueda");
+      this._valor(ctx, d, col, etq, fija ? v : (v === "★" ? "★" : this._rueda(v)), fija ? (gana ? "gana" : "pierde") : "rueda");
       if (fija) this._talento(ctx, d, r.pasivas ? Math.round(r.pasivas[k.lado] || 0) : 0);
       if (fija && r.ventaja) this._ventaja(ctx, d, r.ventaja[k.lado] || 0);     // O-328
       if (fija && critico && gana) this._marca(ctx, d, "¡Crítico!");
       if (fija && r.hiper === k.lado) this._marca(ctx, d, "¡Hipertécnica!");
     }
     if (fija && r.apoyos) for (const k of [izq, der]) { const ap = r.apoyos[k.lado]; if (ap && ap.ids && ap.ids.length) this._apoyos(ctx, p, yo, k, ap); }
+    if (que0 === "fallo") {
+      const qf = tr.que === "fallo" ? q : this._escenaAntes(R, tr.k) || {}, l = (p.jugadores[qf.pierde] || {}).lado, n = r.tecnicas ? r.tecnicas[l] : "";
+      this._fallo(ctx, n, r.elementos ? r.elementos[l] : "", /^★/.test(n || "") || !!(r.hipers && r.hipers[l]), tr.que === "fallo" ? t : 99, qf.a - qf.de);
+    }
   },
   // la ultima tecnica (o hipertecnica) antes del tramo k
   _ultimaTec(R, k) {
     const ts = R.plan.tramos;
     for (let i = k - 1; i >= 0; i--) if (ts[i].que === "tecnica" || ts[i].que === "hiper") return ts[i];
+    return null;
+  },
+  // el ultimo tramo con escena antes del k (sin los fundidos, la vuelta, el destello ni fijar)
+  _escenaAntes(R, k) {
+    const ts = R.plan.tramos;
+    for (let i = k - 1; i >= 0; i--) if (!["transicion", "vuelta", "fijar", "destello"].includes(ts[i].que)) return ts[i];
     return null;
   },
   // el tramo de antes de una transicion o una vuelta (para pintar lo que se funde)
@@ -352,7 +420,17 @@ const HudDuelo = {
   // mano; al fijar, quien gana. En el penalti, adonde tira cada uno
   _animTiro(ctx, p, yo, tr, R, r, q, t) {
     const ps = r.pasos || [], tir = p.jugadores[r.tirador] || p.jugadores[(ps[0] || {}).quien], k0 = ps[0] ? p.jugadores[ps[0].quien] : tir;
-    const que = tr.que === "transicion" || tr.que === "vuelta" || tr.que === "destello" ? this._antes(R, tr.k) : tr.que;
+    // (en el tiro que viaja "¡Desviado a corner!" sale sobre el mapa: la vuelta de despues ensena lo de
+    // fijar, como sin desvio; antes volvia la cifra de antes del muro y se iba "¡Tiro debilitado!". O-344,
+    // vuelta 1)
+    const kF = r.etapa === "muro" && tr.que === "vuelta" ? R.plan.tramos.findIndex((x, i) => i < tr.k && x.que === "fueraTiro") : -1, kA = kF >= 0 ? kF : tr.k;
+    const que0 = tr.que === "transicion" || tr.que === "vuelta" || tr.que === "destello" ? this._antes(R, kA) : tr.que;
+    // O-336: el que gana sin tecnica a una tecnica, como sin tecnica y con "Fallo" encima; al fijar
+    // (y despues), lo de la escena de antes: la tecnica del que gana, el final del tiro (golpe) o
+    // "Fallo"
+    const que = que0 === "fallo" ? "sinTecnica" : que0;
+    const prev = tr.que === "fallo" ? q : ["fijar", "vuelta", "transicion", "destello"].includes(tr.que) ? this._escenaAntes(R, kA) : null;
+    const fallo = !!(prev && prev.que === "fallo"), golpe = !!(prev && prev.golpe && tr.que !== "transicion");
     const lt = (k0 || tir || { lado: 0 }).lado;
     const kM = ps.findIndex(s => s.contra !== undefined && s.contra !== null), pm = kM >= 0 ? ps[kM] : null, pf = ps[ps.length - 1] || {};
     const etapa = q.paso !== undefined ? q.paso : tr.que === "vuelta" || tr.que === "transicion" || tr.que === "destello" ? this._pasoAntes(R, tr.k) : 0;
@@ -364,8 +442,10 @@ const HudDuelo = {
     // el fondo: el color del elemento de la tecnica o del lado
     // al fijar, la escena de la tecnica sigue (su color y su nombre ya en su sitio)
     const fijando = que === "fijar";
-    const tec = que === "tecnica" || que === "hiper" || (fijando && !!sPaso.tecnica);
-    const hip = que === "hiper" || (fijando && /[★✦]/.test(sPaso.que || ""));
+    // (O-336) solo si la que se vio es la suya: tras el golpe o "Fallo", la del que defiende no
+    const vista = prev ? (prev.que === "tecnica" || prev.que === "hiper") && !prev.golpe && prev.paso === etapa : !!sPaso.tecnica;
+    const tec = que === "tecnica" || que === "hiper" || (fijando && vista);
+    const hip = que === "hiper" || (fijando && vista && /[★✦]/.test(sPaso.que || ""));
     const tn = fijando ? 9 : t;
     const c = hip ? HUD_DUELO.hiper : (tec && this._colorElemento(sPaso.elemento)) || [GX.color(j.lado, yo).claro, GX.color(j.lado, yo).oscuro];
     if (que === "prepara" || que === "entraPenalti" || que === "entrada" || que === "choque") {
@@ -375,6 +455,12 @@ const HudDuelo = {
       if (r.tipo === "penalti" && (que === "entraPenalti" || r.misma === false)) this._zonas(ctx, p, yo, r, que === "entraPenalti");
       return;
     }
+    // "Fallo" sobre la tecnica del que pierde (O-336), encima de lo demas
+    const conFallo = () => {
+      if (!fallo) return;
+      const sp = ps[prev.pasoPierde] || {};
+      this._fallo(ctx, String(sp.que || "").replace(/ \(cadena\)$/, ""), sp.elemento, /[★✦]/.test(sp.que || ""), tr.que === "fallo" ? t : 99, prev.a - prev.de);
+    };
     this._fondo(ctx, c[0], c[1], t);
     this._retrato(ctx, j, 200, 236 + Math.max(0, 0.3 - t) * 40, 190 + t * 5, j.lado !== yo, yo);
     const ladoT = lt, dT = ladoT !== yo, colT = GX.color(ladoT, yo);
@@ -383,10 +469,13 @@ const HudDuelo = {
     if (!muro && !portero) {
       // el que chuta (o el que encadena): solo su cifra, rodando
       const v = ps[etapa] ? ps[etapa].valor : vf;
-      this._valor(ctx, dT, colT, "Poder total", this._rueda(v), "rueda");
-      if (tec) this._barra(ctx, "TEN", p.tension[ladoT], this._coste(R, ladoT, sPaso.que), REGLAS.TENSION_MAX);
+      // el final del tiro que gana al muro (O-336): su cifra baja lo que le quita, con "¡Tiro debilitado!"
+      const deb = q.golpe && pm && pm.resta && r.final !== "bloqueado" ? this._debilitado(ctx, t, Math.max(0.4, tr.dura * 0.45), dT, pm.resta) : -1;
+      this._valor(ctx, dT, colT, "Poder total", deb >= 0 ? Math.round(v - pm.resta * deb) : this._rueda(v), deb >= 0 ? "gana" : "rueda");
+      if (tec && !q.golpe) this._barra(ctx, "TEN", p.tension[ladoT], this._coste(R, ladoT, sPaso.que), REGLAS.TENSION_MAX);
       this._nombre(ctx, tec ? String(sPaso.que || "").replace(/ \(cadena\)$/, "") : "", sPaso.elemento, tn, false, hip);
-      if (!tec && sPaso.que) this._t(ctx, sPaso.que, 200, 213, { letra: "rotulo", tam: 22, peso: 400, alinea: "center", color: "#FFFFFF", contornos: [["#0A1E3A", 1.6]], sesgo: -8 });
+      if (!tec && sPaso.que && !fallo) this._t(ctx, sPaso.que, 200, 213, { letra: "rotulo", tam: 22, peso: 400, alinea: "center", color: "#FFFFFF", contornos: [["#0A1E3A", 1.6]], sesgo: -8 });
+      conFallo();
       return;
     }
     const otro = p.jugadores[sPaso.quien] || j, dO = otro.lado !== yo, colO = GX.color(otro.lado, yo);
@@ -398,29 +487,35 @@ const HudDuelo = {
       const vM0 = pm.critico === otro.lado && pm.antes ? pm.antes : pm.valor;
       let vT = vT0, sT = "gana", vM = fija ? vM0 : this._rueda(pm.valor), sM = "rueda";
       // "¡Tiro debilitado!" (a20): entra grande por abajo a la derecha y encoge bajo el
-      // nombre mientras la cifra del tiro baja lo que le quita el muro (O-309)
-      const tDeb = Math.max(0.5, tr.dura * 0.62);
-      if (!gana && pm.resta && que !== "fijar" && t >= tDeb) {
-        const k = Math.min(1, (t - tDeb) / 0.5);
+      // nombre mientras la cifra del tiro baja lo que le quita el muro (O-309). O-344: cuando el
+      // balon le pasa (tras su tecnica cortada o su bloqueo normal), no mientras hace su tecnica
+      const qp = que === "pasa" ? q : prev && prev.que === "pasa" ? prev : null, tDeb = 0.15;
+      // (y al fijar, ya abajo y con la cifra bajada: tras el final del tiro que gana se ve aqui, O-336)
+      if (!gana && pm.resta && (fijando || (qp && t >= tDeb))) {
+        const k = this._debilitado(ctx, fijando ? 99 : t, tDeb, dT, pm.resta);
         vT = Math.round(vT0 - pm.resta * k);
-        // enorme medio segundo (t08 +3000..+3267) y encoge
-        const e = Math.min(1, Math.max(0, (t - tDeb - 0.3) / 0.35));
-        const z = 2.7 - 1.7 * e, x = 200 + 60 * (1 - e) * Math.max(0, 1 - (t - tDeb) / 0.12), y = 178 + 30 * (1 - e);
-        ctx.save(); ctx.translate(x, y); ctx.scale(z, z);
-        this._t(ctx, "¡Tiro debilitado!", 0, 0, { letra: "rotulo", tam: 20, peso: 400, alinea: "center", degradado: GX.rotulo.debilitado.relleno, contornos: GX.rotulo.debilitado.contornos, sesgo: -8 });
-        ctx.restore();
-        if (k > 0.2) this._t(ctx, "le quita " + pm.resta, dT ? 396 : 4, 36, { tam: 7, peso: 800, alinea: dT ? "right" : "left", color: "#BFE6FF", contornos: [["#0A1E5A", 0.8]] });
       }
       if (fija && gana) {
         sT = "pierde"; sM = "gana";
         if (pm.critico === otro.lado && pm.antes) { vM = t >= 0.2 ? pm.valor : pm.antes; if (t >= 0.2) this._marca(ctx, dO, "¡Crítico!"); }
-        this._t(ctx, "¡Tiro bloqueado!", 200, 178, { letra: "rotulo", tam: 22, peso: 400, alinea: "center", degradado: GX.rotulo.debilitado.relleno, contornos: GX.rotulo.debilitado.contornos, sesgo: -8 });
+        // el tiro parado del todo se queda a 0 (Aaron, O-335: "que el tiro se quede a 0"; O-344)
+        vT = Math.round(vT0 * (1 - (tr.que === "fijar" ? Math.min(1, t / 0.35) : 1)));
+        // (con "¡Fallo!" en la tecnica del tiro, en el centro: si no, se tapaban, O-344)
+        this._t(ctx, "¡Tiro bloqueado!", 200, fallo ? 132 : 178, { letra: "rotulo", tam: 22, peso: 400, alinea: "center", degradado: GX.rotulo.debilitado.relleno, contornos: GX.rotulo.debilitado.contornos, sesgo: -8 });
       }
       this._valor(ctx, dT, colT, "Poder total", vT, sT);
       if (fija && gana) this._valor(ctx, dO, colO, "Poder total", vM, sM);
       if (tec) this._barra(ctx, "TEN", p.tension[otro.lado], this._coste(R, otro.lado, pm.que), REGLAS.TENSION_MAX);
-      this._nombre(ctx, tec ? pm.que : "", pm.elemento, tn, true, hip);
-      if (!tec) this._t(ctx, pm.que || "Bloqueo", 200, 132, { letra: "rotulo", tam: 20, peso: 400, alinea: "center", color: "#FFFFFF", contornos: [["#0A1E3A", 1.6]], sesgo: -8 });
+      // el balon que le pasa (O-344): su tecnica, ya vista, sigue en el centro; si la gana un tiro
+      // sin tecnica, con "¡Fallo!" (O-336)
+      const vistaPasa = !!(qp && pm.tecnica && R.plan.tramos.some(x => x.falla && x.paso === kM));
+      if (vistaPasa && !(ps[qp.tiro] || {}).tecnica) this._fallo(ctx, pm.que, pm.elemento, hip || /[★✦]/.test(pm.que || ""), que === "pasa" ? t : 99, qp.a - qp.de, true);
+      else this._nombre(ctx, tec || vistaPasa ? pm.que : "", pm.elemento, vistaPasa ? 9 : tn, true, hip || (vistaPasa && /[★✦]/.test(pm.que || "")));
+      // (O-336) el nombre del bloqueo normal; el de una tecnica que no se ha visto, no
+      if (!tec && !vistaPasa && !(golpe && pm.tecnica) && !fallo && !(qp && pm.tecnica)) this._t(ctx, pm.que || "Bloqueo", 200, 132, { letra: "rotulo", tam: 20, peso: 400, alinea: "center", color: "#FFFFFF", contornos: [["#0A1E3A", 1.6]], sesgo: -8 });
+      // tras el final del tiro que gana, su nombre (O-336)
+      if (golpe && ps[prev.paso] && ps[prev.paso].tecnica) this._nombre(ctx, String(ps[prev.paso].que || "").replace(/ \(cadena\)$/, ""), ps[prev.paso].elemento, 9, false, /[★✦]/.test(ps[prev.paso].que || ""));
+      conFallo();
       return;
     }
     // el portero: su cifra rueda en su lado y la del tiro fija; en medio el rayo contra la
@@ -438,9 +533,109 @@ const HudDuelo = {
     if (fija) { this._talento(ctx, dT, Math.round((ps[0] || {}).pasivas || 0)); this._talento(ctx, dO, Math.round(pf.pasivas || 0)); }
     if (fija) { this._ventaja(ctx, dT, (ps[0] || {}).ventaja || 0); this._ventaja(ctx, dO, pf.ventaja || 0); }     // O-328
     if (vP !== null && typeof vP === "number") this._rayoMano(ctx, vT, vP, !dT);
-    this._nombre(ctx, tec ? pf.que : "", pf.elemento, tn, false, hip);
-    if (!tec && pf.que) this._t(ctx, pf.que, 200, 213, { letra: "rotulo", tam: 22, peso: 400, alinea: "center", color: "#FFFFFF", contornos: [["#0A1E3A", 1.6]], sesgo: -8 });
+    // (su tecnica que no para un tiro sin tecnica: "¡Fallo!" al fijar, O-344)
+    if (tec && fijando && gol && pf.tecnica && !(ps[0] || {}).tecnica) this._fallo(ctx, pf.que, pf.elemento, hip, tr.que === "fijar" ? t : 99, tr.que === "fijar" ? tr.dura : 1, false, true);
+    else this._nombre(ctx, tec ? pf.que : "", pf.elemento, tn, false, hip);
+    // (O-336) el nombre de la parada normal; el de una tecnica que no se ha visto, no; tras el
+    // final del tiro que gana, el suyo
+    if (!tec && pf.que && !(golpe && pf.tecnica) && !fallo) this._t(ctx, pf.que, 200, 213, { letra: "rotulo", tam: 22, peso: 400, alinea: "center", color: "#FFFFFF", contornos: [["#0A1E3A", 1.6]], sesgo: -8 });
+    if (golpe && ps[prev.paso] && ps[prev.paso].tecnica) this._nombre(ctx, String(ps[prev.paso].que || "").replace(/ \(cadena\)$/, ""), ps[prev.paso].elemento, 9, false, /[★✦]/.test(ps[prev.paso].que || ""));
+    conFallo();
     if (r.tipo === "penalti" && fija) this._zonas(ctx, p, yo, r, true);
+  },
+  // "¡Tiro debilitado!" (a20): entra grande por abajo a la derecha y encoge bajo el nombre
+  // mientras la cifra del tiro baja lo que le quita el muro (O-309); desde tDeb. Devuelve lo que
+  // ha bajado (0..1). Sale del muro y, si el tiro gana, de su final (O-336)
+  _debilitado(ctx, t, tDeb, dT, resta) {
+    if (t < tDeb) return 0;
+    const k = Math.min(1, (t - tDeb) / 0.5);
+    // enorme medio segundo (t08 +3000..+3267) y encoge
+    const e = Math.min(1, Math.max(0, (t - tDeb - 0.3) / 0.35));
+    // (con el rotulo de VR de la tecnica en la escena, por encima de el: en el golpe se tapaban. O-344, vuelta 1)
+    const y0 = this._sinNombre ? HUD_DUELO.debilitadoVR : 178;
+    const z = 2.7 - 1.7 * e, x = 200 + 60 * (1 - e) * Math.max(0, 1 - (t - tDeb) / 0.12), y = y0 + 30 * (1 - e);
+    ctx.save(); ctx.translate(x, y); ctx.scale(z, z);
+    this._t(ctx, "¡Tiro debilitado!", 0, 0, { letra: "rotulo", tam: 20, peso: 400, alinea: "center", degradado: GX.rotulo.debilitado.relleno, contornos: GX.rotulo.debilitado.contornos, sesgo: -8 });
+    ctx.restore();
+    if (k > 0.2) this._t(ctx, "le quita " + resta, dT ? 396 : 4, 36, { tam: 7, peso: 800, alinea: dT ? "right" : "left", color: "#BFE6FF", contornos: [["#0A1E5A", 0.8]] });
+    return k;
+  },
+
+  // --- el choque de los nombres (O-336; Aaron: "que antes haya como un choque de los nombres de
+  // las tecnicas y se quede solo con la que gana"; Chrono Stones 29:48 y GO Light 6:22) ----------
+  // Las dos entran a la vez (la del rival arriba desde la derecha, la tuya abajo desde la
+  // izquierda, del color de su elemento), se acercan despacio entre rayos amarillos que cruzan la
+  // pantalla y, al chocar, la del que pierde se va y la del que gana sube al centro y se queda
+  // hasta el negro. Sin cifras, como en CS. Detras, el 3D de los dos (Escenas) o su fondo 2D
+  _nombres(ctx, p, yo, R, r, q, t, dura) {
+    const N = HUD_DUELO.nombres, f = Math.max(0.3, dura) / N.nominal, foco = r.tipo === "foco" || r.tipo === "disputa" || r.tipo === "falta";
+    const de = (id, k) => {
+      const j = p.jugadores[id] || null, l = j ? j.lado : 0;
+      if (foco) { const n = r.tecnicas ? r.tecnicas[l] || "" : ""; return { j, l, nombre: n, el: r.elementos ? r.elementos[l] : "", hiper: /^★/.test(n) || !!(r.hipers && r.hipers[l]) }; }
+      const s = (r.pasos || [])[k] || {};
+      return { j, l, nombre: String(s.que || "").replace(/ \(cadena\)$/, ""), el: s.elemento, hiper: /[★✦]/.test(s.que || "") };
+    };
+    const g = de(q.jugador, q.paso), pe = de(q.pierde, q.pasoPierde);
+    const mio = g.l === yo ? g : pe, otro = mio === g ? pe : g;
+    if (!this._3d) this._fondoDuelo(ctx, p, yo, mio.j, otro.j, t, 1);
+    const tc = N.choque * f, tr = N.rayos * f, kIn = Math.min(1, Math.max(0, t / N.entra));
+    const deriva = Math.min(1, Math.max(0, (t - N.entra) / Math.max(0.05, tc - N.entra)));
+    const kC = Math.min(1, Math.max(0, (t - tc) / N.centra)), sube = kC * kC * (3 - 2 * kC);
+    // los rayos: entre los dos y, al chocar, mas gordos por toda la pantalla
+    if (t >= N.entra * 0.5 && t < tr) this._rayos(ctx, t, t >= tc ? 70 : 100, t >= tc ? 170 : 150, t >= tc ? 4 : 3, t >= tc ? 1.5 : 1);
+    for (const x of [otro, mio]) {
+      const P = x === otro ? N.arriba : N.abajo, s = x === otro ? 1 : -1;
+      let px = (1 - kIn) * (200 + s * 330) + kIn * (P.x0 + (P.x1 - P.x0) * deriva), py = P.y, alfa = kIn, z = 1;
+      if (x === g) { px += (N.centro.x - px) * sube; py += (N.centro.y - py) * sube; }
+      else if (t >= tc) { const k = Math.min(1, (t - tc) / N.se); alfa = 1 - k; z = 1 + 0.15 * k; }
+      if (alfa <= 0.01 || !x.nombre) continue;
+      const color = x.hiper ? HUD_DUELO.hiper : GX.elemento[x.el] ? [GX.elementoTexto[x.el], GX.elementoTexto[x.el]] : ["#FFFFFF", "#DDE6F5"];
+      ctx.save(); ctx.globalAlpha = alfa; ctx.translate(px, py); ctx.scale(z, z);
+      this._t(ctx, x.nombre, 0, 0, { letra: "nombre", tam: N.tam, peso: 400, alinea: "center", degradado: [color[0], color[0], color[1]], contornos: [["#000000", 3]], sesgo: -8, ancho: 300 });
+      ctx.restore();
+    }
+  },
+  // rayos amarillos en zigzag que cruzan la pantalla entre y0 e y1 (los de CS y GO Light): cambian
+  // cada 2 cuadros, con el mismo azar a la misma t (las capturas con el reloj parado salen iguales)
+  _rayos(ctx, t, y0, y1, n, gordo) {
+    const fr = Math.floor(t * 15), az = (a, b) => { const h = Math.sin(a * 12.9898 + b * 78.233 + fr * 37.719) * 43758.5453; return h - Math.floor(h); };
+    const C = HUD_DUELO.nombres.rayo;
+    ctx.save(); ctx.lineCap = "round"; ctx.lineJoin = "round";
+    for (let i = 0; i < n; i++) {
+      let y = y0 + az(i, 0.5) * (y1 - y0), x = -10, k = 0;
+      const pts = [[x, y]];
+      while (x < 410) { k++; x += 12 + az(i, k) * 18; y = Math.max(y0 - 25, Math.min(y1 + 25, y + (az(i + 7, k) - 0.5) * 30)); pts.push([x, y]); }
+      for (const [c, w] of [[C[0], 9 * gordo], [C[1], 3 * gordo], [C[2], 1.1 * gordo]]) {
+        ctx.strokeStyle = c; ctx.lineWidth = w; ctx.beginPath();
+        pts.forEach(([a, b], m) => m ? ctx.lineTo(a, b) : ctx.moveTo(a, b));
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  },
+  // "¡Fallo!" (O-336; Aaron: "si gana algo que no es una tecnica a una tecnica, que se vea como le
+  // roba el balon o le regatea mientras ponga fallo"): el nombre de la tecnica del que pierde abajo
+  // (entra como el de una tecnica) y, a `sello` del tramo, se apaga a gris y encima cae "¡Fallo!"
+  // con un rebote. t 99: ya puesto (al fijar y en la vuelta)
+  // O-344: centrado, el de la tecnica del muro (en medio, como su nombre; "¡Tiro debilitado!" va
+  // debajo); visto, su nombre ya estaba (no vuelve a entrar)
+  _fallo(ctx, nombre, el, hiper, t, dura, centrado, visto) {
+    if (!nombre) return;
+    const F = HUD_DUELO.fallo, ts = F.sello * Math.max(0.3, dura);
+    if (t < ts) { this._nombre(ctx, nombre, el, centrado || visto ? 9 : t, !!centrado, hiper); return; }
+    const o = { letra: "nombre", tam: 32, peso: 400, degradado: [F.gris[0], F.gris[0], F.gris[1]], contornos: [["#000000", 3]], sesgo: -8, ancho: 330, alinea: centrado ? "center" : "left" };
+    ctx.save(); ctx.globalAlpha = 0.8; this._t(ctx, nombre, centrado ? 200 : 8, centrado ? 132 : 213, o); ctx.restore();
+    // lo que mide el nombre (como mucho 330): la raya roja que lo tacha y "¡Fallo!" encima, a su
+    // derecha (el nombre se sigue leyendo)
+    ctx.save(); ctx.font = GX.fuente("nombre", 32, 400);
+    const m = ctx.measureText ? ctx.measureText(nombre) : null, w = Math.min(330, (m && m.width) || 160);
+    ctx.restore();
+    const k = Math.min(1, (t - ts) / F.rebote), z = 1.8 - 0.8 * k, x0 = centrado ? 200 - w / 2 - 5 : 4, y0 = centrado ? 143 : 224;
+    ctx.save(); ctx.strokeStyle = F.raya; ctx.lineWidth = 3.5; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + (w + 10) * k, y0 - 20 * k); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.translate(centrado ? Math.min(330, 200 + w * 0.3) : Math.max(64, Math.min(330, 8 + w * 0.8)), centrado ? 100 : 182); ctx.rotate(-0.12); ctx.scale(z, z);
+    this._t(ctx, "¡Fallo!", 0, 0, { letra: "rotulo", tam: 26, peso: 400, alinea: "center", degradado: ["#FFE8E8", "#FF5050", "#C00010"], contornos: [["#FFFFFF", 2.2], ["#4A0008", 1.4]], sesgo: -8 });
+    ctx.restore();
   },
   _pasoAntes(R, k) {
     const ts = R.plan.tramos;
@@ -522,7 +717,9 @@ const HudDuelo = {
       return;
     }
     this._escenaGol(ctx, p, yo, goles, t, tir);
-    if (t > 6.5) { ctx.fillStyle = "rgba(0,0,0," + Math.min(1, (t - 6.5) / 0.1) + ")"; ctx.fillRect(0, 0, 400, 240); }
+    // (con la celebracion de VR, cuando acaba: O-345, vuelta 1)
+    const f0 = (this._finGol || 6.6) - 0.1;
+    if (t > f0) { ctx.fillStyle = "rgba(0,0,0," + Math.min(1, (t - f0) / 0.1) + ")"; ctx.fillRect(0, 0, 400, 240); }
   },
   // la escena del gol (desde +3,73 s): el "0 - 1" enorme abajo, el balon en llamas que
   // cruza, la explosion blanca y "¡GOL!" que sale de ella, salta y se va
@@ -664,7 +861,7 @@ const HudDuelo = {
     this._retrato(ctx, j, 200, 236 + sube, 170, j.lado !== yo, yo);
     // el nombre del espiritu en dos lineas, abajo, con zoom (130 % -> 100 % en 200 ms) y su
     // familia en dorado (en Galaxy "Ω")
-    if (t >= fin - 1.6 && j.espiritu) {
+    if (t >= fin - 1.6 && j.espiritu && !this._sinNombre) {
       const z = Math.max(1, 1.3 - 0.3 * (t - (fin - 1.6)) / 0.2);
       ctx.save(); ctx.translate(200, 200); ctx.scale(z, z);
       this._t(ctx, j.espiritu.nombre, 0, 0, { letra: "nombre", tam: 24, peso: 400, alinea: "center", degradado: ["#E8FFFF", "#35C8F5"], contornos: [["#000000", 2.4]], sesgo: -8, ancho: 360 });
