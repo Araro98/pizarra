@@ -97,7 +97,7 @@
   .dorsal input { width:62px; text-align:center; font-weight:900; font-style:italic; font-size:var(--t-xl); padding:2px 4px; }
   .dorsal button { width:30px; height:30px; padding:0; font-weight:900; }
 
-  .lista-poses { list-style:none; margin:8px 0 0; padding:0; max-height:280px; overflow:auto; border:2px solid var(--linea);
+  .lista-poses { position:relative; list-style:none; margin:8px 0 0; padding:0; max-height:280px; overflow:auto; border:2px solid var(--linea);
     border-radius:8px; background:#fff; }
   .lista-poses li { border-bottom:1px solid #eef3f8; }
   .lista-poses .grupo-pose { position:sticky; top:0; z-index:1; font-size:var(--t-xs); font-weight:800; text-transform:uppercase;
@@ -119,6 +119,25 @@
   .descargas .btn { width:100%; padding:9px 14px; font-size:var(--t-base); }
   .descargas .dos-btn { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
   .descargas .dos-btn .btn { font-size:var(--t-md); padding:7px 8px; }
+
+  /* las caras (ojos y boca) de la hoja del modelo */
+  .caras { flex:1; display:grid; grid-template-columns:repeat(4,1fr); gap:4px; }
+  .caras button { padding:0; border:2px solid var(--linea); border-radius:6px; background:#f1c39b; cursor:pointer; overflow:hidden; line-height:0; }
+  .caras button:hover { border-color:var(--cian); }
+  .caras button[aria-pressed="true"] { border-color:var(--naranja); box-shadow:0 0 0 2px rgba(240,138,28,.35); }
+  .caras canvas { width:100%; height:auto; display:block; }
+  /* el otro jugador de una supertecnica */
+  .quien { display:inline-flex; align-items:center; gap:6px; flex:1; min-width:0; background:#f4f9ff; border:2px solid var(--linea);
+    border-radius:8px; padding:2px 8px 2px 2px; font:inherit; font-size:var(--t-md); font-weight:700; color:var(--tinta); cursor:pointer; }
+  span.quien { cursor:default; padding:4px 8px; color:var(--suave); }
+  button.quien:hover { border-color:var(--cian); }
+  .quien img { width:30px; height:30px; object-fit:contain; border-radius:6px; background:#dfeefc; }
+  .quien span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .quien small { margin-left:auto; font-size:var(--t-xxs); font-weight:800; text-transform:uppercase; color:var(--azul-osc); }
+  #tecnica-extras { border-top:2px solid var(--linea); margin-top:10px; padding-top:2px; }
+  .modal.otros { width:min(720px,100%); max-height:min(84vh,820px); }
+  .modal.otros .lista-otros { overflow:auto; padding:10px 14px; flex:1; grid-template-columns:repeat(auto-fill,minmax(82px,1fr)); }
+  input[type=range] { accent-color:var(--naranja); }
 
   /* la ventana de equipaciones, con su dibujo */
   .modal.equipaciones { width:min(620px,100%); max-height:min(80vh,760px); }
@@ -150,9 +169,9 @@
         <label class="filtro">Tipo
           <select id="f-grupo">
             <option value="">Todos</option>
-            <option value="personaje">Jugadores y personal</option>
+            <option value="jugable">Jugables (se pueden fichar)</option>
+            <option value="nojugable">No jugables (historia, NPC, sin usar)</option>
             <option value="armadura">Armaduras de keshin</option>
-            <option value="sin usar">Sin usar en el juego</option>
             <option value="avatar">Avatares</option>
           </select></label>
         <label class="filtro">Juego <select id="f-saga"><option value="">Todos</option></select></label>
@@ -201,6 +220,32 @@
     </div>
 
     <div class="marco bloque-conf">
+      <h2 class="titulo-seccion">Espíritu</h2>
+      <div class="fila-conf"><label class="et" for="forma">Forma</label>
+        <select id="forma" style="flex:1"></select></div>
+      <p class="nota" id="nota-forma"></p>
+      <div class="fila-conf"><label class="et" for="keshin">Detrás</label>
+        <select id="keshin" style="flex:1"></select></div>
+      <div id="ajustes-keshin" hidden>
+        <div class="fila-conf"><label class="et" for="r-kes-tam">Tamaño</label>
+          <input type="range" id="r-kes-tam" min="0.8" max="2.6" step="0.05" style="flex:1"></div>
+        <div class="fila-conf"><label class="et" for="r-kes-alto">Corte</label>
+          <input type="range" id="r-kes-alto" min="0.2" max="1.1" step="0.01" style="flex:1"></div>
+        <div class="fila-conf"><label class="et" for="r-kes-dist">Distancia</label>
+          <input type="range" id="r-kes-dist" min="-0.2" max="0.8" step="0.01" style="flex:1"></div>
+        <div class="fila-conf"><label class="et">Aura</label>
+          <label class="interruptor"><input type="checkbox" id="c-kes-aura"> <span>Unirlo a la espalda con su aura (para imprimir)</span></label></div>
+      </div>
+    </div>
+
+    <div class="marco bloque-conf">
+      <h2 class="titulo-seccion">Cara</h2>
+      <div class="fila-conf"><label class="et">Ojos</label><div class="caras" id="caras-ojos"></div></div>
+      <div class="fila-conf"><label class="et">Boca</label><div class="caras" id="caras-boca"></div></div>
+      <p class="nota" id="nota-cara"></p>
+    </div>
+
+    <div class="marco bloque-conf">
       <h2 class="titulo-seccion">Pose</h2>
       <div class="filtros" style="margin:0">
         <label class="filtro" style="flex:1">Grupo <select id="f-pose"></select></label>
@@ -211,6 +256,13 @@
         <button class="btn chico" type="button" id="b-play" title="Ver la animación entera">▶</button>
         <input type="range" id="r-momento" min="0" max="1000" value="500" aria-label="Momento de la animación">
         <output id="o-momento"></output>
+      </div>
+      <div id="tecnica-extras" hidden>
+        <div class="fila-conf"><label class="et">Efectos</label>
+          <label class="interruptor"><input type="checkbox" id="c-efectos"> <span>Los de la supertécnica (escudos, fuego, su keshin...)</span></label></div>
+        <div class="fila-conf"><label class="et">Balón</label>
+          <label class="interruptor"><input type="checkbox" id="c-balon"> <span>Con el balón</span></label></div>
+        <div id="otros-jugadores"></div>
       </div>
       <p class="nota" id="nota-pose">Las poses son las animaciones del juego. En las que se mueven, elige el momento con la barra.</p>
     </div>
@@ -227,6 +279,8 @@
         <label class="interruptor"><input type="checkbox" id="c-suavizar" checked> <span>Que no se noten los triángulos</span></label></div>
       <div class="fila-conf"><label class="et">Piezas finas</label>
         <label class="interruptor"><input type="checkbox" id="c-grosor" checked> <span>Darles grosor (pelo, pestañas...)</span></label></div>
+      <div class="fila-conf"><label class="et">Efectos</label>
+        <label class="interruptor"><input type="checkbox" id="c-efectos-descarga"> <span>Meter los efectos en la descarga</span></label></div>
       <div class="descargas">
         <button class="btn naranja" id="b-stl" type="button">Descargar para imprimir (STL)</button>
         <div class="dos-btn">

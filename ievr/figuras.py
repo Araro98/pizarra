@@ -83,7 +83,11 @@ def personajes():
                 # si se le puede poner la ropa de una equipacion (los de cuerpo de persona; los
                 # animales, monstruos y armaduras llevan lo suyo: columna vestir, O-334)
                 "viste": f.get("vestir") == "1" and bool(f.get("cuerpo", "")),
-                "portero": (p or {}).get("posicion") == "POR"})
+                "portero": (p or {}).get("posicion") == "POR",
+                # si se puede fichar en el juego (los de la historia, NPC, caras sin usar: no)
+                "jugable": bool(p) and p.get("fichable") == "si" and grupo == "personaje",
+                # su tipo de cuerpo (01..04: el de las animaciones de las supertecnicas)
+                "tc": "%02d" % int(f["anim"][4]) if re.fullmatch(r"c000\d01", f.get("anim") or "") else ""})
             vistos.add(codigo)
         for c, p in por_cara.items():
             pon(c, p["nombre"], p)
@@ -102,7 +106,21 @@ def personajes():
             if "edit_avatar" in codigo and codigo not in vistos:
                 pon(codigo, "Avatar %d" % (int(re.sub(r"\D", "", codigo.split("avatar")[1]) or 0) + 1),
                     None, "avatar", cara="")
-        fuera.sort(key=lambda x: (x["grupo"] != "personaje", x["nombre"].lower()))
+        # los modelos que no son de ningun jugador (Aaron: "los personajes que tienen modelo en los
+        # archivos del juego pero no corresponden a ningun personaje jugable"): los NPC, animales y
+        # demas filas que quedan, y las caras del juego sin fila (sin_fila())
+        for codigo, f in filas.items():
+            if codigo in vistos:
+                continue
+            nombre = ("NPC " + codigo[3:]) if codigo.startswith("npc") else ("Animal " + codigo[2:]) if codigo.startswith("an") \
+                else "Sin nombre (%s)" % codigo
+            pon(codigo, nombre, None, "no jugable", cara=codigo)
+        for codigo in sin_fila():
+            if codigo not in vistos and codigo in filas_extra():
+                filas[codigo] = filas_extra()[codigo]
+                pon(codigo, "Sin nombre (%s)" % codigo, None, "no jugable", cara=codigo)
+        orden = {"personaje": 0, "sin usar": 1, "no jugable": 2, "armadura": 3, "avatar": 4}
+        fuera.sort(key=lambda x: (orden.get(x["grupo"], 5), x["nombre"].lower()))
         g4  # (solo para que el import falle aqui si falta numpy, no a mitad)
         return fuera
     from ievr import opciones as O
@@ -182,6 +200,13 @@ def ropa_propia(codigo):
         return ""
     r, _e = g4._tablas_ropa()
     if f["ropa"] not in r.get("ropa", {}):
+        return ""
+    # las ropas unicas de un personaje (Destin Billows, u11010010...) no traen piel aparte ni dorsal:
+    # vestidas no ganan nada y sobre el esqueleto comun les faltan huesos suyos; mejor el .glb de
+    # siempre, con su esqueleto
+    forma = r["ropa"][f["ropa"]][0].get("modelo")
+    filas = r.get("forma", {}).get(forma, [])
+    if not any(x.get("piel") for x in filas):
         return ""
 
     def clave(tipo, tex):
@@ -470,6 +495,7 @@ def tecnicas(codigo):
     for f in _tabla("personajes.csv"):
         if f["identidad"].upper() in idents:
             suyas |= {f.get("tec%d" % i, "").upper() for i in range(1, 10)} - {""}
+    con = _tecnicas_por_cara()
     fuera, vistos = [], set()
     for f in _tabla("eventos-tecnicas.csv"):
         ev, idh = f.get("evento") or "", (f.get("id") or "").upper()
@@ -486,6 +512,177 @@ def tecnicas(codigo):
         vistos.add(ev)
         actor = next((r.split("=")[0] for r in (f.get("roles") or "").split() if r.endswith("=h0")), "s00")
         fuera.append({"evento": ev, "nombre": t["nombre"], "actor": actor, "segundos": float(f.get("segundos") or 0),
-                      "tipo": t.get("tipo") or "", "elemento": t.get("elemento") or "", "suya": suya})
+                      "tipo": t.get("tipo") or "", "elemento": t.get("elemento") or "", "suya": suya,
+                      # los demas jugadores del guion (combinadas, el rival de un regate...) y quien
+                      # mas la tiene en su arbol (el companero que sale de primeras), O-347
+                      "roles": roles_de(f), "asignado": bool(f.get("asignado")),
+                      "con": [c for c in con.get(idh, []) if c != cara][:40]})
     fuera.sort(key=lambda x: (not x["suya"], x["nombre"].lower()))
     return {"tipo": tipo, "tecnicas": fuera}
+
+
+def _tecnicas_por_cara():
+    """{id de tecnica: [caras de los que la tienen en su arbol]} (para el companero de una
+    combinada), una vez."""
+    def construir():
+        from ievr import basedatos as BD
+        cara = {p["identidad"]: p["cara"] for p in BD.personajes() if p.get("cara")}
+        d = {}
+        for f in _tabla("personajes.csv"):
+            c = cara.get(f["identidad"].upper())
+            if not c:
+                continue
+            for i in range(1, 10):
+                t = (f.get("tec%d" % i) or "").upper()
+                if t and c not in d.setdefault(t, []):
+                    d[t].append(c)
+        return d
+    from ievr import opciones as O
+    return O._indice("figuras_tec_cara", construir)
+
+
+def roles_de(fila):
+    """[{actor, rol}] de los jugadores del guion de una supertecnica (columna roles, O-345: h0 el
+    que la hace, h1.. companeros, r0.. rivales; el mismo rol dos veces, una copia). Sin roles:
+    s00 el que la hace y los demas companeros."""
+    r = [{"actor": x.split("=")[0], "rol": x.split("=")[1]} for x in (fila.get("roles") or "").split() if "=" in x]
+    if not r:
+        n = int(fila.get("jugadores") or 1)
+        r = [{"actor": "s%02d" % i, "rol": "h%d" % i} for i in range(n)]
+    return r
+
+
+def espiritus(codigo):
+    """Lo que se le puede poner detras o en lo que se transforma (O-347, punto 4 de Aaron):
+    {"keshins": [{codigo, nombre, familia, suyo}] (los keshin y las almas del juego; los suyos, los
+    de sus armaduras, primero), "formas": [{codigo, nombre, familia}] (sus armaduras, mixi max y
+    modos: el modelo en que se convierte)}."""
+    from ievr import basedatos as BD
+    from ievr import opciones as O
+    from ievr import g4
+    cara = codigo.split("_")[0] if re.search(r"_\d{4}$", codigo) else codigo
+    idents = {p["identidad"] for p in BD.personajes() if p.get("cara") == cara}
+    suyos_id = {f["id"].upper(): f for f in _tabla("espiritus-duenos.csv") if f["identidad"].upper() in idents}
+    keshins, vistos, suyos, formas, vf = [], set(), set(), [], set()
+    filas = _tabla("eventos-espiritus.csv")
+    for f in filas:
+        a = f.get("cara_a") or ""
+        # su armadura: el modelo <cara>_5000... (el keshin de la armadura es el suyo)
+        if f["familia"] == "armadura" and a.startswith(cara + "_"):
+            if f.get("asignado"):
+                suyos.add(f["asignado"])
+            if a not in vf and g4.piezas(a):
+                vf.add(a)
+                formas.append({"codigo": a, "nombre": "Armadura: " + O.sin_marcadores(f["nombre"]), "familia": "armadura"})
+        elif f["familia"] != "armadura" and f["id"].upper() in suyos_id and a and a not in vf and g4.piezas(a) and f.get("cara_de", "") in ("", cara):
+            vf.add(a)
+            pref = {"mixi": "Mixi max", "modo": "Modo"}.get(f["familia"], f["familia"].capitalize())
+            nombre = O.sin_marcadores(suyos_id[f["id"].upper()].get("nombre") or f["nombre"])
+            formas.append({"codigo": a, "nombre": "%s: %s" % (pref, re.sub(r"^Miximax Trans:\s*", "", nombre)),
+                           "familia": f["familia"]})
+    for f in filas:
+        k = f.get("asignado") or ""
+        if f["familia"] in ("kenshin", "alma") and k and k not in vistos:
+            vistos.add(k)
+            keshins.append({"codigo": k, "nombre": O.sin_marcadores(f["nombre"]), "familia": f["familia"],
+                            "suyo": k in suyos})
+    keshins.sort(key=lambda x: (not x["suyo"], x["familia"] != "kenshin", x["nombre"].lower()))
+    return {"keshins": keshins, "formas": formas}
+
+
+# --------------------------------------------------------------------------- caras del juego sin fila
+def _indice_del_juego():
+    """Las rutas de piezas de personaje del juego (el indice que guarda ievr/g4.py), o {}."""
+    from ievr import modelos3d as M3
+    try:
+        with open(os.path.join(M3.carpeta(), "indice.json"), encoding="utf-8") as fh:
+            return json.load(fh).get("ficheros") or {}
+    except (OSError, ValueError):
+        return {}
+
+
+# la altura del hueso de la cabeza de cada esqueleto comun y lo que queda de el al punto mas bajo
+# de la cara (el cuello), de media (medido en ~140 personajes con fila): con eso se sabe para que
+# cuerpo esta hecha una cara suelta
+CABEZAS = {"c000201/c000201.g4sk": (1.018, 0.091), "c000101/c000101.g4sk": (1.367, 0.156),
+           "c000301/c000301.g4sk": (1.652, 0.201), "c000401/c000401.g4sk": (1.85, 0.145)}
+
+
+def _suelo_de_cara(juego, cara):
+    """El punto mas bajo (y) de la malla de una cara, en el espacio del modelo."""
+    from ievr import g4
+    md = g4.leer_g4md(g4._leer_g4md(juego, "common/chr/%s.g4md" % cara))
+    mg = juego.leer("common/chr/%s.g4mg" % cara)
+    ys = [float(g4.leer_vertices(md, mg, m)["pos"][:, 1].min()) for m in md["mallas"] if "_LOD" not in m["nombre"]]
+    return min(ys) if ys else None
+
+
+def filas_extra():
+    """{codigo: fila como las de modelos-personaje.csv} de las caras de personaje (cNNNNNNNN) que el
+    juego trae en common/chr/_face y no estan en CHARA_MODEL_INFO (~200: personajes sin usar). No
+    traen cuerpo: se les pone el del esqueleto comun para el que esta hecha la cara (por la altura
+    de su cuello, CABEZAS) con la ropa de serie de uno de ese cuerpo; si otro con el mismo codigo
+    menos la ultima cifra (c01000101 -> c01000100) tiene ese mismo esqueleto, el suyo. Lo medido se
+    guarda en datos/modelos3d/poses/caras_sueltas.json. Se meten en la tabla de piezas de
+    ievr/g4.py para que se conviertan como los demas."""
+    from ievr import g4
+    from ievr import opciones as O
+
+    def construir():
+        filas = {f["codigo"]: f for f in _tabla("modelos-personaje.csv")}
+        por_prefijo, tipo = {}, {}
+        for c, f in filas.items():
+            if re.fullmatch(r"c\d{8}", c) and f.get("vestir") == "1":
+                por_prefijo.setdefault(c[:8], f)
+                if f.get("esqueleto") in CABEZAS and not f.get("armadura") and re.fullmatch(r"u0\d{5}_10", f.get("ropa") or ""):
+                    tipo.setdefault(f["esqueleto"], f)
+        sueltas = {}
+        for ruta in _indice_del_juego():
+            m = re.fullmatch(r"common/chr/(_face/[^/]+/(c\d{8})/\2)\.g4md", ruta)
+            if m and m.group(2) not in filas:
+                sueltas[m.group(2)] = m.group(1)
+        if not sueltas:
+            return {}
+        cache = os.path.join(_carpeta(), "caras_sueltas.json")
+        try:
+            with open(cache, encoding="utf-8") as fh:
+                suelos = json.load(fh)
+        except (OSError, ValueError):
+            suelos = {}
+        faltan = [c for c in sueltas if c not in suelos]
+        if faltan:
+            try:
+                j = _juego_abierto()
+                for c in faltan:
+                    try:
+                        suelos[c] = _suelo_de_cara(j, sueltas[c])
+                    except Exception:      # una cara que no se entiende se queda fuera
+                        suelos[c] = None
+                os.makedirs(os.path.dirname(cache), exist_ok=True)
+                with open(cache + ".tmp", "w", encoding="utf-8") as fh:
+                    json.dump(suelos, fh)
+                os.replace(cache + ".tmp", cache)
+            except Exception:              # sin el juego: sin caras sueltas
+                return {}
+        extra = {}
+        for c, cara in sueltas.items():
+            y = suelos.get(c)
+            if y is None:
+                continue
+            esq = min(CABEZAS, key=lambda k: abs(CABEZAS[k][0] - CABEZAS[k][1] - y))
+            hermano = por_prefijo.get(c[:8])
+            base = hermano if hermano and hermano.get("esqueleto") == esq else tipo.get(esq)
+            if not base:
+                continue
+            f = dict(base)
+            f.update({"codigo": c, "cara": cara, "piel": ""})
+            extra[c] = f
+        # en la tabla de piezas (g4.piezas), para convertirlas
+        g4.piezas("c01000010")
+        reglas._cache["modelos_personaje"].update({c: f for c, f in extra.items() if c not in reglas._cache["modelos_personaje"]})
+        return extra
+    return O._indice("figuras_filas_extra", construir)
+
+
+def sin_fila():
+    return sorted(filas_extra())

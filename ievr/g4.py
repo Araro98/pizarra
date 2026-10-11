@@ -680,7 +680,8 @@ def armar(esqueleto, modelos, texturas, piel=None, sombra=SOMBRA, sin_luz=True, 
         for m in md["mallas"]:
             if "_LOD" in m["nombre"] or m["nombre"] in omitir:   # niveles de detalle lejanos: solo el LOD0
                 continue
-            faltan = {h for h in m["huesos"] if h not in nodo_hueso}
+            # (en hexadecimal, como los apunta _piel_de_vertices: mezclados con numeros, sorted fallaba)
+            faltan = {"%08x" % h for h in m["huesos"] if h not in nodo_hueso}
             if len(faltan) * 2 > len(m["huesos"]):
                 # ropa de persona sobre un esqueleto de monstruo (c11500260...): saldria
                 # pegada a la cabeza; el modelo propio del personaje ya es el cuerpo entero

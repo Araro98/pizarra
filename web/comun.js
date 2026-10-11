@@ -326,7 +326,9 @@ function pideNumero(titulo, texto, valor, min, max) {
 }
 /* Elegir una carpeta del disco (la misma ventana que usa el editor): se navega,
    se ve que carpetas tienen partida dentro y hay atajos a los sitios de siempre. */
-async function elegirCarpeta(titulo, aceptar, textoBoton, soloConPartida) {
+/* para: "figuras" (guardar una figura 3D, O-347): empieza en la ultima carpeta usada o en las
+   descargas, y los atajos son el escritorio, las descargas y los documentos. */
+async function elegirCarpeta(titulo, aceptar, textoBoton, soloConPartida, para) {
   let ruta = "";
   const lista = el("ul");
   const camino = el("div", {class:"ruta-actual"});
@@ -346,7 +348,7 @@ async function elegirCarpeta(titulo, aceptar, textoBoton, soloConPartida) {
 
   async function ir(destino) {
     let d;
-    try { d = await pedir("/api/carpetas?ruta=" + encodeURIComponent(destino || "")); }
+    try { d = await pedir("/api/carpetas?ruta=" + encodeURIComponent(destino || "") + (para ? "&para=" + encodeURIComponent(para) : "")); }
     catch (e) { avisa(e.message, "mal"); return; }
     ruta = d.ruta;
     camino.textContent = d.ruta;
@@ -369,9 +371,12 @@ async function elegirCarpeta(titulo, aceptar, textoBoton, soloConPartida) {
       ? (d.partida_aqui ? "Aqui hay una partida" : "Aqui no hay ninguna partida")
       : "Se guardara en esta carpeta"}));
     pie.appendChild(el("button", {class:"btn verde", text:textoBoton, disabled:!vale,
-      onclick:() => { cerrar(); aceptar(ruta); }}));
+      onclick:() => { cerrar(); if (para) try { localStorage.setItem("pizarra-carpeta-" + para, ruta); } catch (e) {} aceptar(ruta); }}));
   }
-  ir("");
+  let inicio = "";
+  if (para) try { inicio = localStorage.getItem("pizarra-carpeta-" + para) || ""; } catch (e) { inicio = ""; }
+  // (si la ultima ya no existe, la de siempre)
+  ir(inicio).then(() => { if (inicio && !ruta) ir(""); });
 }
 
 /* El texto de una pasiva con el numero de la rareza que se este mirando. */

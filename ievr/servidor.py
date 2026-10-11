@@ -509,13 +509,45 @@ for _k in range(7):
     ORDENES["st%d" % _k] = (lambda k: lambda d: (-(d.get("stats") or [0] * 7)[k], d["nombre"].lower()))(_k)
 
 
-def listar_carpetas(ruta):
+def _carpetas_de_usuario():
+    """[(nombre, ruta)] del escritorio, las descargas y los documentos de este usuario (las que
+    existan): donde se guardan las figuras 3D (O-347)."""
+    casa = os.path.expanduser("~")
+    fuera = []
+    for nombre, sub in (("Escritorio", ("Desktop", "Escritorio")), ("Descargas", ("Downloads", "Descargas")),
+                        ("Documentos", ("Documents", "Documentos"))):
+        for x in sub:
+            r = os.path.join(casa, x)
+            if os.path.isdir(r):
+                fuera.append((nombre, r))
+                break
+    return fuera
+
+
+def listar_carpetas(ruta, para=""):
     """Que hay dentro de una carpeta, para poder elegir la partida a mano.
 
     Se ensenan solo carpetas y el fichero de partida, que es lo unico que se
     puede abrir. Y se dice de cada carpeta si tiene una partida dentro, para no
-    tener que entrar a mirar.
+    tener que entrar a mirar. Con para="figuras" (guardar una figura 3D, O-347) empieza en las
+    descargas y los atajos son el escritorio, las descargas y los documentos.
     """
+    if para == "figuras":
+        suyas = _carpetas_de_usuario()
+        ruta = os.path.abspath(ruta or (dict(suyas).get("Descargas") or (suyas[0][1] if suyas else RAIZ)))
+        if not os.path.isdir(ruta):
+            raise E.Ilegal("no existe la carpeta %s" % ruta)
+        carpetas = []
+        try:
+            for n in sorted(os.listdir(ruta)):
+                completa = os.path.join(ruta, n)
+                if os.path.isdir(completa) and not n.startswith((".", "$")):
+                    carpetas.append({"nombre": n, "ruta": completa, "partida": False})
+        except PermissionError:
+            raise E.Ilegal("no tengo permiso para mirar dentro de %s" % ruta)
+        padre = os.path.dirname(ruta)
+        return {"ruta": ruta, "padre": padre if padre and padre != ruta else None, "partida_aqui": False,
+                "carpetas": carpetas, "atajos": [{"nombre": n, "ruta": r} for n, r in suyas]}
     ruta = os.path.abspath(ruta or RAIZ)
     if not os.path.isdir(ruta):
         raise E.Ilegal("no existe la carpeta %s" % ruta)
@@ -1613,7 +1645,7 @@ class Manejador(BaseHTTPRequestHandler):
                 return self._fichero(os.path.join(RECORTES, "fondo", "trama.png"),
                                      "image/png")
             if u.path == "/api/carpetas":
-                return self._responder(200, listar_carpetas((q.get("ruta") or [""])[0]))
+                return self._responder(200, listar_carpetas((q.get("ruta") or [""])[0], (q.get("para") or [""])[0]))
             if u.path.startswith("/elemento/"):
                 n = os.path.basename(unquote(u.path[10:])).replace("ñ", "n")
                 return self._fichero(os.path.join(RECORTES, "elemento", n + ".png"),
@@ -1769,15 +1801,18 @@ class Manejador(BaseHTTPRequestHandler):
                 return self._responder(200, M3.estado())
             if u.path == "/api/figuras/tecnicas":
                 return self._responder(200, FI.tecnicas(uno("codigo")))
+            if u.path == "/api/figuras/espiritus":
+                return self._responder(200, FI.espiritus(uno("codigo")))
             if u.path.startswith("/api/figuras/evento/"):
                 # la animacion de VR de una supertecnica, convertida en este PC (O-323): su guion y
                 # las pistas de los jugadores de un tipo de cuerpo
                 partes = unquote(u.path[len("/api/figuras/evento/"):]).split("/")
                 if (len(partes) == 2 and M3.evento_valido(partes[0])
-                        and re.fullmatch(r"(escena\.json|pistas_c000\d01\.glb)", partes[1])):
+                        and re.fullmatch(r"[A-Za-z0-9_]{1,60}\.(json|glb|png)", partes[1])):
                     ruta = os.path.join(M3.carpeta(), "eventos", partes[0], partes[1])
+                    tipos = {".json": "application/json", ".glb": "model/gltf-binary", ".png": "image/png"}
                     if os.path.isfile(ruta):
-                        return self._fichero(ruta, "application/json" if ruta.endswith(".json") else "model/gltf-binary")
+                        return self._fichero(ruta, tipos[os.path.splitext(ruta)[1]])
                 return self._responder(404, {"error": "esa supertecnica no esta convertida"})
             if u.path.startswith("/api/figuras/modelo/"):
                 nombre = os.path.basename(unquote(u.path[len("/api/figuras/modelo/"):]))
@@ -1791,9 +1826,36 @@ class Manejador(BaseHTTPRequestHandler):
         except FileNotFoundError as e:
             return self._responder(404, {"error": "No encuentro el juego en este ordenador (%s)" % e})
 
+    def _guardar_figura(self, u, largo):
+        """Una descarga de las figuras 3D (STL, OBJ en .zip, GLB o la foto) en la carpeta que se
+        eligio, como al guardar la partida (O-347). El cuerpo son los bytes del fichero."""
+        import re
+        q = parse_qs(u.query)
+        carpeta = (q.get("carpeta") or [""])[0]
+        nombre = os.path.basename((q.get("nombre") or [""])[0])
+        datos = self.rfile.read(largo)
+        if not carpeta or not os.path.isdir(carpeta):
+            return self._responder(400, {"error": "no existe la carpeta %s" % carpeta})
+        base, ext = os.path.splitext(nombre)
+        if ext.lower() not in (".stl", ".zip", ".glb", ".png") or not re.fullmatch(r"[A-Za-z0-9 ._()-]{1,90}", base):
+            return self._responder(400, {"error": "ese nombre de fichero no vale"})
+        ruta = os.path.join(carpeta, nombre)
+        n = 2
+        while os.path.exists(ruta):             # no se pisa nada: "nombre (2).stl"
+            ruta = os.path.join(carpeta, "%s (%d)%s" % (base, n, ext))
+            n += 1
+        try:
+            with open(ruta, "wb") as fh:
+                fh.write(datos)
+        except OSError as e:
+            return self._responder(400, {"error": "no se ha podido guardar: %s" % e})
+        return self._responder(200, {"ruta": ruta})
+
     def do_POST(self):
         u = urlparse(self.path)
         largo = int(self.headers.get("Content-Length") or 0)
+        if u.path == "/api/figuras/guardar":
+            return self._guardar_figura(u, largo)
         try:
             cuerpo = json.loads(self.rfile.read(largo) or b"{}")
         except ValueError:
@@ -1819,10 +1881,13 @@ class Manejador(BaseHTTPRequestHandler):
             if u.path == "/api/figuras/evento":
                 # la animacion de VR de una supertecnica para un tipo de cuerpo, en segundo plano
                 from ievr import modelos3d as M3
-                ev, tipo = str(cuerpo.get("evento") or ""), str(cuerpo.get("tipo") or "")
-                if not M3.evento_valido(ev) or tipo not in ("01", "02", "03", "04"):
+                # (tipos: los tipos de cuerpo de los jugadores que salen; asignados: el keshin o alma)
+                ev = str(cuerpo.get("evento") or "")
+                tipos = [str(x) for x in (cuerpo.get("tipos") or [cuerpo.get("tipo")]) if str(x) in ("01", "02", "03", "04")]
+                asignados = [str(x) for x in (cuerpo.get("asignados") or []) if M3.codigo_valido(str(x))]
+                if not M3.evento_valido(ev) or not tipos:
                     raise E.Ilegal("esa supertecnica no existe")
-                return self._responder(200, M3.preparar_eventos({ev: {"tipos": [tipo], "asignados": []}}))
+                return self._responder(200, M3.preparar_eventos({ev: {"tipos": tipos, "asignados": asignados}}))
             if _es_del_partido(u.path) and not _partido_activo():
                 return self._responder(404, {"error": "no existe"})
             if u.path == "/api/partido/modelos/preparar":

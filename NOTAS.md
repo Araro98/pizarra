@@ -11212,7 +11212,48 @@ depende de partido-pruebas.txt) y sin tocar la partida. En el codigo los cambios
   un avatar y Layton; poses de ficha, tiro, tiro en la zona; Mano celestial (5 partes) y Tornado de
   fuego (4). El STL de Mark chutando: 111.856 triangulos, 54 x 99 x 106 mm, mirado de frente y de
   lado (construccion/ver_stl.py); el GLB vuelto a abrir con three.js sale con sus colores.
-- Sin hacer: el balon en las poses; el nombre de la espalda (O-334: "de momento sin el nombre").
+- Sin hacer: el nombre de la espalda (O-334: "de momento sin el nombre").
+- Vuelta 2 (2026-10-11, lo que pidio Aaron tras publicar la 2026.10.11):
+  1. "No va la ropa base de Destin Billows". Las ropas unicas de un personaje (u11010010...) no
+     traen piel aparte ni dorsal y sobre el esqueleto comun les faltan huesos suyos: con la de
+     c11010012 (el otro Destin) la conversion fallaba (g4.armar: "faltan" mezclaba numeros y textos
+     y sorted reventaba; arreglado, sale tambien en el partido). Ahora "Su ropa de siempre" de las
+     ropas sin piel (248 personajes) usa el .glb de siempre, con su esqueleto. Convertidos los 248:
+     todos bien menos El Segundo (c11130500, el formato de malla que no se entiende desde O-293).
+  2. Efectos de las supertecnicas (opcionales): el reproductor de VR del partido
+     (partido-eventosvr.js, EventoVR) en el mismo marco que la figura, con su camara de VR quitada
+     (los sombreadores usan la del visor, ponerCamara). Efectos, balon y el keshin de las tecnicas
+     de keshin (el de detras o el suyo). Fuera el fondo que pone la tecnica detras (_000_bg,
+     _050_c02_back_*: mallas de decenas de metros que en VR oscurecen la pantalla). Las particulas
+     se simulan desde 1,2 s antes del momento. El fondo del escenario va dentro del 3D (los efectos
+     que suman luz escribian la transparencia del lienzo y salia negro). "Meter los efectos en la
+     descarga", aparte (suelen ser planos).
+  3. Los demas jugadores del guion (columna roles: companeros h1.., rivales r0.., la copia del que
+     la hace): cada uno con su interruptor y quien es (ventana con los personajes; primero los que
+     la tienen en su arbol, del mismo juego). Los companeros con la equipacion de la figura y
+     dorsales seguidos; los rivales con su ropa. Se recuerda por tecnica. Salen en la descarga.
+  4. Espiritu: la forma (sus armaduras <cara>_5000.., mixi max y modos de espiritus-duenos.csv) cambia
+     el modelo; detras, un keshin o un alma (los 96 keshin y 56 almas; primero los de sus
+     armaduras), mas grande y cortado por la cintura como en el anime (plano de recorte en la vista;
+     en la descarga, los triangulos cortados). Tamano, altura del corte y distancia ajustables. Para
+     imprimirlo, su aura lo une con la espalda: un tubo cerrado que sale de la espalda y sube
+     curvandose hasta el corte (anillos perpendiculares a la curva). Con keshin, la peana llega
+     tambien debajo de el.
+  5. Expresiones: la hoja de 4x2 caras de los ojos y la boca (eye_10M y mouth_10M, O-331), con
+     miniaturas sacadas de la propia hoja; los materiales de la cara se copian para cada modelo.
+  6. Guardar donde se elija: la ventana de carpetas de Pizarra (elegirCarpeta, con para="figuras":
+     empieza en la ultima usada o en Descargas, atajos Escritorio/Descargas/Documentos) y
+     POST /api/figuras/guardar escribe el fichero (sin pisar: "nombre (2).stl"). Tambien la foto.
+  7. No jugables: el filtro Tipo tiene "Jugables" y "No jugables" (historia, NPC, sin usar). Se
+     anaden los NPC y animales de modelos-personaje.csv y las 198 caras de personaje que el juego
+     trae en common/chr/_face sin fila en CHARA_MODEL_INFO: el cuerpo se elige por la altura de su
+     cuello (CABEZAS: el hueso de la cabeza de cada esqueleto comun, medido en ~140 con fila; antes
+     la cabeza salia metida en el pecho), con la ropa de serie de uno de ese cuerpo o la de su
+     hermano de codigo (c01000101 -> c01000100). 5.901 modelos en total.
+  - Comprobado: Escudo barbaro (el escudo sale), La Tierra con sus dos companeros, Mark con
+    Grandius detras (STL de 186.564 triangulos, 18 x 21 x 22 cm a escala 10 cm: el keshin cortado y
+    el aura unidos), expresiones de cerca, la foto y las descargas guardadas en la carpeta elegida,
+    y una cara suelta (c01009360) con su cuerpo de nino.
 
 ## SUPUESTO
 
