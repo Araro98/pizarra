@@ -136,7 +136,10 @@
   .quien small { margin-left:auto; font-size:var(--t-xxs); font-weight:800; text-transform:uppercase; color:var(--azul-osc); }
   #tecnica-extras { border-top:2px solid var(--linea); margin-top:10px; padding-top:2px; }
   .modal.otros { width:min(720px,100%); max-height:min(84vh,820px); }
-  .modal.otros .lista-otros { overflow:auto; padding:10px 14px; flex:1; grid-template-columns:repeat(auto-fill,minmax(82px,1fr)); }
+  /* (filas de alto fijo: dentro de la ventana la rejilla encogia las filas y las fichas se montaban) */
+  .modal.otros .lista-otros { overflow:auto; padding:10px 14px; flex:1 1 auto; min-height:0;
+    grid-template-columns:repeat(auto-fill,88px); grid-auto-rows:88px; justify-content:center; align-content:start; }
+  .modal.otros .lista-otros .ficha-mini { width:88px; height:88px; }
   input[type=range] { accent-color:var(--naranja); }
 
   /* la ventana de equipaciones, con su dibujo */
