@@ -11225,6 +11225,12 @@ depende de partido-pruebas.txt) y sin tocar la partida. En el codigo los cambios
   s22g001 van; map_data es de Yo-kai Watch 4), asi que se eligen por su miniatura. La imagen cubre el
   escenario sin deformarse. La foto sale al doble de resolucion. Interruptor para quitar la peana y la
   sombra de la vista y la foto (la descarga para imprimir la sigue llevando si esta marcada).
+- Arreglo (2026-10-11, Aaron con Ataque Omega): activar y quitar un companero rapido dejaba en la
+  escena la animacion que aun se estaba cargando (con el jugador quitado) y al volver a ponerlo se
+  montaban dos. Ahora cada vez que se pone la pose sube un contador (GEN_POSE) y lo que llega de una
+  vez anterior se suelta; y antes de poner una animacion se quita cualquier otra que cuelgue de la
+  figura. Probado: cinco cambios en menos de un segundo, al final una sola animacion con solo el
+  activado.
 - Vuelta 2 (2026-10-11, lo que pidio Aaron tras publicar la 2026.10.11):
   1. "No va la ropa base de Destin Billows". Las ropas unicas de un personaje (u11010010...) no
      traen piel aparte ni dorsal y sobre el esqueleto comun les faltan huesos suyos: con la de

@@ -898,8 +898,13 @@ async function tramosDeTecnica(x, tok) {
   if (!tramos.length) throw new Error("en esta supertécnica no sale quien la hace");
   return tramos;
 }
+// cada vez que se pone una pose (o se cambia un jugador o los efectos) sube GEN_POSE: lo que aun se
+// estuviera cargando para una vez anterior se suelta al llegar. Antes, activar y quitar un jugador
+// rapido dejaba la animacion de antes en la escena (sin poder quitarla) y se montaban (Ataque omega)
+let GEN_POSE = 0;
 async function aplicarPose(tok) {
   if (!MODELO) return;
+  const gen = ++GEN_POSE, vale = () => tok === TOKEN && gen === GEN_POSE && E.pose === x && !!MODELO;
   const root = MODELO.children[0];
   if (MIXER) { MIXER.stopAllAction(); MIXER.uncacheRoot(root); }
   MIXER = null; ACCION = null; TRAMOS = []; TRAMO = -1;
@@ -912,19 +917,19 @@ async function aplicarPose(tok) {
     let tramos;
     if (x.tipo === "tecnica") {
       tramos = await tramosDeTecnica(x, tok);
-      if (!tramos) return;
+      if (!tramos || !vale()) return;
     } else {
       const g = await cargarGlb("/api/figuras/pose?" + new URLSearchParams({ codigo: codigoModelo(), banco: x.banco, clip: x.clip }));
       const clip = g.animations[0];
       if (!clip) throw new Error("la animación está vacía");
       tramos = [{ clip, dur: clip.duration }];
     }
-    if (tok !== TOKEN || E.pose !== x) return;
+    if (!vale()) return;
     MIXER = new THREE.AnimationMixer(root);
     TRAMOS = tramos;
     if (x.tipo === "tecnica") {
-      try { await cargarEvento(x, tok); } catch (e) { avisa("No se han podido poner los efectos: " + (e.message || e), "mal"); }
-      if (tok !== TOKEN || E.pose !== x) return;
+      try { await cargarEvento(x, vale); } catch (e) { if (vale()) avisa("No se han podido poner los efectos: " + (e.message || e), "mal"); }
+      if (!vale()) return;
     }
     ponerMomento(E.momento);
   } catch (e) {
@@ -999,7 +1004,8 @@ const nombreRol = (x, r) => r.rol === rolDe(x) ? "Su copia" : r.rol.startsWith("
 const quiereEvento = x => !!x && x.tipo === "tecnica" && (E.efectos || E.balon || otrosDe(x).some((r, i) => otroConf(x, r, i).on));
 // el keshin de una tecnica de keshin: el de detras, el suyo o uno cualquiera
 const keshinDeTecnica = () => E.keshin || (((ESPIRITUS || {}).keshins || []).find(k => k.suyo) || ((ESPIRITUS || {}).keshins || [])[0] || {}).codigo || null;
-async function cargarEvento(x, tok) {
+async function cargarEvento(x, vale) {
+  const tok = TOKEN;
   quitarEvento();
   if (!quiereEvento(x) || !MODELO) return;
   const actores = {}, tipos = new Set([x.tipoCuerpo]);
@@ -1029,7 +1035,9 @@ async function cargarEvento(x, tok) {
   };
   try {
     const ev = await EventoVR.cargar(x.evento, { modelo, actores, asignado, base: "/api/figuras/evento/", elemento: x.elemento || null });
-    if (tok !== TOKEN || E.pose !== x || !MODELO) { ev.soltar(); return; }
+    if (!vale()) { ev.soltar(); return; }
+    // (por si acaso: ninguna otra animacion de VR colgando de la figura)
+    for (const o of [...MODELO.children]) if (/^evento_/.test(o.name)) o.removeFromParent();
     ev.sinCamara = true;
     ev.camara.aspect = camara.aspect;
     EVENTO = { ev, x };
