@@ -6,29 +6,53 @@ ED0A6E85,Alfil blanco,armadura,17305E01,Federigo Cinco,change+modelo
 7B3A69F2,Alfil blanco,armadura,0E2B6F40,Pentra Chek,change+modelo
 CAF7F1A5,Alfil negro,armadura,BC8CB9D1,Tynan Crowe,modelo
 90F8A2F4,Amaterasu,armadura,4EFBC29E,Goldie Lemmon,modelo
+06C8A583,Amaterasu,armadura,4EFBC29E,Goldie Lemmon,modelo
+06C8A583,Amaterasu,armadura,5181A94A,Goldie Lemmon,change
 90F8A2F4,Amaterasu,armadura,551FA935,Goldie Lemmon,modelo
+06C8A583,Amaterasu,armadura,551FA935,Goldie Lemmon,modelo
 90F8A2F4,Amaterasu,armadura,7CD71DC7,Goldie Lemmon,modelo
+06C8A583,Amaterasu,armadura,7CD71DC7,Goldie Lemmon,modelo
 90F8A2F4,Amaterasu,armadura,B0DD6F1B,Goldie Lemmon,cp19+modelo
-90F8A2F4,Amaterasu,armadura,C26F2623,Goldie Lemmon,modelo
+06C8A583,Amaterasu,armadura,B0DD6F1B,Goldie Lemmon,modelo
+90F8A2F4,Amaterasu,armadura,C26F2623,Goldie Lemmon,change+modelo
+06C8A583,Amaterasu,armadura,C26F2623,Goldie Lemmon,modelo
 0CF136D4,Amorosa,armadura,AC6F17BF,Chitoh,modelo
 A42955FC,Apolo,armadura,A9AD6367,Redd Hazzard,change
 3219528B,Apolo,armadura,DEAE22C0,Sol Daystar,change+modelo
 AC3155C6,Archipegaso,armadura,02693477,Arion Sherwind,modelo
+3A0152B1,Archipegaso,armadura,02693477,Arion Sherwind,modelo
 AC3155C6,Archipegaso,armadura,0D176028,Arion Sherwind,modelo
+3A0152B1,Archipegaso,armadura,0D176028,Arion Sherwind,modelo
 AC3155C6,Archipegaso,armadura,1E15FC8A,Arion Sherwind,modelo
+3A0152B1,Archipegaso,armadura,1E15FC8A,Arion Sherwind,modelo
 AC3155C6,Archipegaso,armadura,24DFD4DA,Arion Sherwind,modelo
+3A0152B1,Archipegaso,armadura,24DFD4DA,Arion Sherwind,modelo
 AC3155C6,Archipegaso,armadura,3F3BBF71,Arion Sherwind,modelo
+3A0152B1,Archipegaso,armadura,3F3BBF71,Arion Sherwind,modelo
+3A0152B1,Archipegaso,armadura,489A980B,Arion Sherwind,change
 AC3155C6,Archipegaso,armadura,9B04579A,Arion Sherwind,modelo
-AC3155C6,Archipegaso,armadura,B3AF5BCC,Arion Sherwind,modelo
+3A0152B1,Archipegaso,armadura,9B04579A,Arion Sherwind,modelo
+AC3155C6,Archipegaso,armadura,B3AF5BCC,Arion Sherwind,change+modelo
+3A0152B1,Archipegaso,armadura,B3AF5BCC,Arion Sherwind,modelo
 AC3155C6,Archipegaso,armadura,BE64471E,Arion Sherwind,modelo
+3A0152B1,Archipegaso,armadura,BE64471E,Arion Sherwind,modelo
 F05C2D31,Archipegaso rojo,armadura,02693477,Arion Sherwind,modelo
+666C2A46,Archipegaso rojo,armadura,02693477,Arion Sherwind,modelo
 F05C2D31,Archipegaso rojo,armadura,0D176028,Arion Sherwind,modelo
+666C2A46,Archipegaso rojo,armadura,0D176028,Arion Sherwind,modelo
 F05C2D31,Archipegaso rojo,armadura,1E15FC8A,Arion Sherwind,modelo
+666C2A46,Archipegaso rojo,armadura,1E15FC8A,Arion Sherwind,modelo
 F05C2D31,Archipegaso rojo,armadura,24DFD4DA,Arion Sherwind,modelo
+666C2A46,Archipegaso rojo,armadura,24DFD4DA,Arion Sherwind,modelo
 F05C2D31,Archipegaso rojo,armadura,3F3BBF71,Arion Sherwind,modelo
+666C2A46,Archipegaso rojo,armadura,3F3BBF71,Arion Sherwind,modelo
+666C2A46,Archipegaso rojo,armadura,489A980B,Arion Sherwind,change
 F05C2D31,Archipegaso rojo,armadura,9B04579A,Arion Sherwind,modelo
-F05C2D31,Archipegaso rojo,armadura,B3AF5BCC,Arion Sherwind,modelo
+666C2A46,Archipegaso rojo,armadura,9B04579A,Arion Sherwind,modelo
+F05C2D31,Archipegaso rojo,armadura,B3AF5BCC,Arion Sherwind,change+modelo
+666C2A46,Archipegaso rojo,armadura,B3AF5BCC,Arion Sherwind,modelo
 F05C2D31,Archipegaso rojo,armadura,BE64471E,Arion Sherwind,modelo
+666C2A46,Archipegaso rojo,armadura,BE64471E,Arion Sherwind,modelo
 8607F429,Argentia,armadura,A920013A,Nora Flexion,modelo
 4BA2066B,Arges,armadura,AFEBC3D1,Hippos Kohlt,modelo
 CAFDD1FF,Arturo,armadura,6F08BCC1,Bai Long,change+modelo
@@ -142,7 +166,9 @@ E2C5FDC9,Cychr,armadura,D8F0C30C,Zhuge Liang,modelo
 282F6555,Demogorgo,armadura,A8E26B0D,Vince Sizor,modelo
 58029AB6,Drake,armadura,F278004D,Dracon Yale,change+modelo
 CE329DC1,Drake,armadura,9950DDE1,Kym Errer,change+modelo
-A97A929B,Eris,armadura,1544474A,Flora,modelo
+A97A929B,Eris,armadura,1544474A,Flora,change+modelo
+3F4A95EC,Eris,armadura,1544474A,Flora,modelo
+3F4A95EC,Eris,armadura,7FE3EC0C,Flora,change
 8E8D2DE1,Evera,armadura,098AA343,Simeon Ayp,modelo
 8E8D2DE1,Evera,armadura,204217B1,Simeon Ayp,modelo
 8E8D2DE1,Evera,armadura,3BA67C1A,Simeon Ayp,modelo
@@ -265,14 +291,19 @@ D1C9B9ED,Jaguar,armadura,DB741762,Sor,modelo
 2B9E7006,Kraon,armadura,AB66BF63,Lee Canthrup,modelo
 6EECD3D4,Kukulkán,armadura,804BECA0,Gerald Fuss,modelo
 228E0FAA,Lancelot,armadura,CEE7150E,Impostor de Victor,change
+98DF0633,Lancelot,armadura,7AACFA89,Victor Blade,change
 B4BE08DD,Lancelot,armadura,7AB4BBF3,Victor Blade,modelo
 228E0FAA,Lancelot,armadura,7AB4BBF3,Victor Blade,modelo
+98DF0633,Lancelot,armadura,7AB4BBF3,Victor Blade,modelo
 B4BE08DD,Lancelot,armadura,C40C8017,Victor Blade,change+modelo
 228E0FAA,Lancelot,armadura,C40C8017,Victor Blade,modelo
+98DF0633,Lancelot,armadura,C40C8017,Victor Blade,modelo
 B4BE08DD,Lancelot,armadura,EDC434E5,Victor Blade,change+modelo
 228E0FAA,Lancelot,armadura,EDC434E5,Victor Blade,modelo
+98DF0633,Lancelot,armadura,EDC434E5,Victor Blade,modelo
 B4BE08DD,Lancelot,armadura,F6205F4E,Victor Blade,change+modelo
 228E0FAA,Lancelot,armadura,F6205F4E,Victor Blade,modelo
+98DF0633,Lancelot,armadura,F6205F4E,Victor Blade,modelo
 87B86CA3,León,armadura,03397668,Bay Laurel,change+modelo
 11886BD4,León,armadura,5581B7A5,Tzeikh,change+modelo
 6CE87E57,Licaón,armadura,176AE34C,Gamma,modelo
@@ -283,10 +314,15 @@ BB40A822,Los enamorados ♀,armadura,CB029A2B,Mehr,modelo
 B16D3628,Los enamorados ♂,armadura,D219AB6A,Ghiris,modelo
 A6903F39,Lot,armadura,CF6D80D2,Abram Cadabra,change+modelo
 30A0384E,Lot,armadura,0666DF34,Norimaru Gazen,change+modelo
+63BF14B3,Magister,armadura,061964FB,Riccardo Di Rigo,change
 F58F13C4,Magister,armadura,140C5169,Riccardo Di Rigo,modelo
+63BF14B3,Magister,armadura,140C5169,Riccardo Di Rigo,modelo
 F58F13C4,Magister,armadura,26208E30,Riccardo Di Rigo,modelo
+63BF14B3,Magister,armadura,26208E30,Riccardo Di Rigo,modelo
 F58F13C4,Magister,armadura,3DC4E59B,Riccardo Di Rigo,modelo
-F58F13C4,Magister,armadura,AAB46A8D,Riccardo Di Rigo,modelo
+63BF14B3,Magister,armadura,3DC4E59B,Riccardo Di Rigo,modelo
+F58F13C4,Magister,armadura,AAB46A8D,Riccardo Di Rigo,change+modelo
+63BF14B3,Magister,armadura,AAB46A8D,Riccardo Di Rigo,modelo
 491B6CAE,Metis,armadura,288C1B19,Maddie Moonlight,modelo
 E5184EE5,Musashi,armadura,3197A515,Kevin Dragonfly,change+modelo
 E5184EE5,Musashi,armadura,4325EC2D,Kevin Dragonfly,modelo
@@ -301,9 +337,8 @@ AF804095,Neptuno,armadura,C7B51381,Triton Nettuno,modelo
 972F3182,Pegaso,armadura,24DFD4DA,Arion Sherwind,modelo
 972F3182,Pegaso,armadura,3F3BBF71,Arion Sherwind,modelo
 972F3182,Pegaso,armadura,9B04579A,Arion Sherwind,modelo
-972F3182,Pegaso,armadura,B3AF5BCC,Arion Sherwind,modelo
+972F3182,Pegaso,armadura,B3AF5BCC,Arion Sherwind,change+modelo
 972F3182,Pegaso,armadura,BE64471E,Arion Sherwind,modelo
-D9DB998D,Pendragón,armadura,5043C37D,Vladimir Blade,cp11
 D9DB998D,Pendragón,armadura,943581A5,Vladimir Blade,modelo
 7FCE3625,Peón blanco,armadura,8725BEC9,Bob Sled,change+modelo
 C59F3FBC,Peón blanco,armadura,6B85C073,David Quintola,change+modelo
@@ -323,10 +358,16 @@ DA6A8CDE,Reina blanca,armadura,3E691489,Gentian,change
 6DDB1228,Rey blanco,armadura,E42C1413,Quentin Cinquedea,modelo
 6DDB1228,Rey blanco,armadura,FFC87FB8,Quentin Cinquedea,modelo
 356D2BBC,Robin,armadura,01A0E982,Fei Rune,modelo
+A35D2CCB,Robin,armadura,01A0E982,Fei Rune,modelo
 356D2BBC,Robin,armadura,0EDEBDDD,Fei Rune,modelo
+A35D2CCB,Robin,armadura,0EDEBDDD,Fei Rune,modelo
 356D2BBC,Robin,armadura,28685D70,Fei Rune,modelo
+A35D2CCB,Robin,armadura,28685D70,Fei Rune,modelo
 356D2BBC,Robin,armadura,338C36DB,Fei Rune,modelo
-356D2BBC,Robin,armadura,BF18D266,Fei Rune,modelo
+A35D2CCB,Robin,armadura,338C36DB,Fei Rune,modelo
+A35D2CCB,Robin,armadura,B3B71AB6,Fei Rune,change
+356D2BBC,Robin,armadura,BF18D266,Fei Rune,change+modelo
+A35D2CCB,Robin,armadura,BF18D266,Fei Rune,modelo
 AB452CF1,Roc,armadura,C9B6FDE0,Navan,change+modelo
 3D752B86,Roc,armadura,C685A024,Robert Lee,change+modelo
 A9FC4634,Serendipity,armadura,FC01B6D5,Janison Veteran,modelo
@@ -491,7 +532,10 @@ BC469BD6,Miximax Trans: <FLC:KIRINO>,mixi,3DC4E59B,Riccardo Di Rigo,modelo
 BC469BD6,Miximax Trans: <FLC:KIRINO>,mixi,AAB46A8D,Riccardo Di Rigo,modelo
 0617924F,Miximax Trans: <FLC:KIRINO>,mixi,AAB46A8D,Riccardo Di Rigo,modelo
 36AE742C,Miximax Trans: <FLC:KIRINO>,mixi,AAB46A8D,Riccardo Di Rigo,modelo
-2F721847,Miximax Trans: <FLC:OKITA>,mixi,7AB4BBF3,Victor Blade,cp21+cp27
+2F721847,Miximax Trans: <FLC:OKITA>,mixi,7AB4BBF3,Victor Blade,cp21+cp27+modelo
+2F721847,Miximax Trans: <FLC:OKITA>,mixi,C40C8017,Victor Blade,modelo
+2F721847,Miximax Trans: <FLC:OKITA>,mixi,EDC434E5,Victor Blade,modelo
+2F721847,Miximax Trans: <FLC:OKITA>,mixi,F6205F4E,Victor Blade,modelo
 E06E80C0,Miximax Trans: <FLC:SAKAMOTO>,mixi,2CEE1C75,Ryoma Nishiki,cp21+cp27
 C3C4AA76,Miximax Trans: <FLC:SHINDO>,mixi,505B8207,Gabriel García,modelo
 C3C4AA76,Miximax Trans: <FLC:SHINDO>,mixi,5D909ED5,Gabriel García,modelo
@@ -547,7 +591,6 @@ AC9ABB64,Miximax Trans: <FLC:TSURUGI>,mixi,E39C587C,Bai Long,modelo
 AC9ABB64,Miximax Trans: <FLC:TSURUGI>,mixi,F87833D7,Bai Long,modelo
 16CBB2FD,Miximax Trans: <FLC:TSURUGI>,mixi,F87833D7,Bai Long,change+modelo
 2672549E,Miximax Trans: <FLC:TSURUGI>,mixi,F87833D7,Bai Long,modelo
-BD877354,Miximax Trans: <FLC:TSURUGI>,mixi,5043C37D,Vladimir Blade,cp15
 2BB77423,Miximax Trans: <FLC:TSURUGI>,mixi,943581A5,Vladimir Blade,change+cp21+cp27
 BD877354,Miximax Trans: <FLC:TSURUGI>,mixi,943581A5,Vladimir Blade,change
 CF8B1FDA,Miximax Trans: <FLC:YUTO>,mixi,08928562,Caleb Stonewall,modelo
@@ -668,10 +711,11 @@ B972E714,Miximax Trans: <FUL:SYU>,mixi,F87833D7,Bai Long,modelo
 0323EE8D,Miximax Trans: <FUL:SYU>,mixi,F87833D7,Bai Long,change+modelo
 339A08EE,Miximax Trans: <FUL:SYU>,mixi,F87833D7,Bai Long,modelo
 F06B0413,Miximax Trans: <FUL:V GENE>,mixi,603BE105,Desmodus Drakul,cp21+cp27
-6E43035E,Miximax Trans: Big,mixi,01A0E982,Fei Rune,cp21
-6E43035E,Miximax Trans: Big,mixi,28685D70,Fei Rune,cp21
-6E43035E,Miximax Trans: Big,mixi,338C36DB,Fei Rune,cp21+cp27
-6E43035E,Miximax Trans: Big,mixi,BF18D266,Fei Rune,cp21+cp27
+6E43035E,Miximax Trans: Big,mixi,01A0E982,Fei Rune,cp21+modelo
+6E43035E,Miximax Trans: Big,mixi,0EDEBDDD,Fei Rune,modelo
+6E43035E,Miximax Trans: Big,mixi,28685D70,Fei Rune,cp21+modelo
+6E43035E,Miximax Trans: Big,mixi,338C36DB,Fei Rune,cp21+cp27+modelo
+6E43035E,Miximax Trans: Big,mixi,BF18D266,Fei Rune,cp21+cp27+modelo
 5DECAD3B,Miximax Trans: Cao Cao,mixi,19B62C9E,Zanark Avalonic,aaron
 5DECAD3B,Miximax Trans: Cao Cao,mixi,79D7E1C7,Zanark Avalonic,aaron
 5DECAD3B,Miximax Trans: Cao Cao,mixi,8EC6A388,Zanark Avalonic,aaron
@@ -690,25 +734,35 @@ DB4BF76D,Miximax Trans: Liu Bei,mixi,06012581,Jean-Pierre Lapin,cp21+cp27
 DB4BF76D,Miximax Trans: Liu Bei,mixi,8A95C13C,Jean-Pierre Lapin,cp21+cp27
 DB4BF76D,Miximax Trans: Liu Bei,mixi,9171AA97,Jean-Pierre Lapin,cp21
 DB4BF76D,Miximax Trans: Liu Bei,mixi,B8B91E65,Jean-Pierre Lapin,cp21
-AD102E75,Miximax Trans: Nobunaga,mixi,AAB46A8D,Riccardo Di Rigo,cp21+cp27
+AD102E75,Miximax Trans: Nobunaga,mixi,140C5169,Riccardo Di Rigo,modelo
+AD102E75,Miximax Trans: Nobunaga,mixi,26208E30,Riccardo Di Rigo,modelo
+AD102E75,Miximax Trans: Nobunaga,mixi,3DC4E59B,Riccardo Di Rigo,modelo
+AD102E75,Miximax Trans: Nobunaga,mixi,AAB46A8D,Riccardo Di Rigo,cp21+cp27+modelo
 9A7AEC74,Miximax Trans: Papá,mixi,DB741762,Sor,cp21+cp27
-1CDDB622,Miximax Trans: R. dragones,mixi,4EFBC29E,Goldie Lemmon,cp21+cp27
-1CDDB622,Miximax Trans: R. dragones,mixi,551FA935,Goldie Lemmon,cp21
-1CDDB622,Miximax Trans: R. dragones,mixi,7CD71DC7,Goldie Lemmon,cp21
-1CDDB622,Miximax Trans: R. dragones,mixi,B0DD6F1B,Goldie Lemmon,cp15
-1CDDB622,Miximax Trans: R. dragones,mixi,C26F2623,Goldie Lemmon,cp21+cp27
-F2E895EF,Miximax Trans: Raika,mixi,00B5CE9C,Cade Shelby,cp21
+1CDDB622,Miximax Trans: R. dragones,mixi,4EFBC29E,Goldie Lemmon,cp21+cp27+modelo
+1CDDB622,Miximax Trans: R. dragones,mixi,551FA935,Goldie Lemmon,cp21+modelo
+1CDDB622,Miximax Trans: R. dragones,mixi,7CD71DC7,Goldie Lemmon,cp21+modelo
+1CDDB622,Miximax Trans: R. dragones,mixi,B0DD6F1B,Goldie Lemmon,cp15+modelo
+1CDDB622,Miximax Trans: R. dragones,mixi,C26F2623,Goldie Lemmon,cp21+cp27+modelo
+F2E895EF,Miximax Trans: Raika,mixi,00B5CE9C,Cade Shelby,aaron+cp21
 114ED203,Miximax Trans: Raika,mixi,00B5CE9C,Cade Shelby,aaron
-F2E895EF,Miximax Trans: Raika,mixi,1B51A537,Cade Shelby,cp15
+F2E895EF,Miximax Trans: Raika,mixi,1B51A537,Cade Shelby,aaron+cp15
 114ED203,Miximax Trans: Raika,mixi,1B51A537,Cade Shelby,aaron
-F2E895EF,Miximax Trans: Raika,mixi,97C5418A,Cade Shelby,cp15
+F2E895EF,Miximax Trans: Raika,mixi,97C5418A,Cade Shelby,aaron+cp15
 114ED203,Miximax Trans: Raika,mixi,97C5418A,Cade Shelby,aaron
-F2E895EF,Miximax Trans: Raika,mixi,AEDD5F0D,Cade Shelby,cp21
+F2E895EF,Miximax Trans: Raika,mixi,AEDD5F0D,Cade Shelby,aaron+cp21
 114ED203,Miximax Trans: Raika,mixi,AEDD5F0D,Cade Shelby,aaron
-9EBF8010,Miximax Trans: Rey Arturo,mixi,B3AF5BCC,Arion Sherwind,cp21+cp27
+9EBF8010,Miximax Trans: Rey Arturo,mixi,02693477,Arion Sherwind,modelo
+9EBF8010,Miximax Trans: Rey Arturo,mixi,0D176028,Arion Sherwind,modelo
+9EBF8010,Miximax Trans: Rey Arturo,mixi,1E15FC8A,Arion Sherwind,modelo
+9EBF8010,Miximax Trans: Rey Arturo,mixi,24DFD4DA,Arion Sherwind,modelo
+9EBF8010,Miximax Trans: Rey Arturo,mixi,3F3BBF71,Arion Sherwind,modelo
+9EBF8010,Miximax Trans: Rey Arturo,mixi,9B04579A,Arion Sherwind,modelo
+9EBF8010,Miximax Trans: Rey Arturo,mixi,B3AF5BCC,Arion Sherwind,cp21+cp27+modelo
+9EBF8010,Miximax Trans: Rey Arturo,mixi,BE64471E,Arion Sherwind,modelo
 B15A1F0A,Miximax Trans: Rosa negra,mixi,1544474A,Flora,cp21+cp27+modelo
 E8E45908,Miximax Trans: Tiranosaurio,mixi,01A0E982,Fei Rune,aaron
-E8E45908,Miximax Trans: Tiranosaurio,mixi,0EDEBDDD,Fei Rune,cp15
+E8E45908,Miximax Trans: Tiranosaurio,mixi,0EDEBDDD,Fei Rune,aaron+cp15
 E8E45908,Miximax Trans: Tiranosaurio,mixi,28685D70,Fei Rune,aaron
 E8E45908,Miximax Trans: Tiranosaurio,mixi,338C36DB,Fei Rune,aaron
 E8E45908,Miximax Trans: Tiranosaurio,mixi,BF18D266,Fei Rune,aaron

@@ -193,7 +193,7 @@ FF15D190,Coletazo de Begiran,kenshin,no
 45715CAE,Colmillo retorcido,personaje,si
 7DA25959,Colmillo retorcido,kenshin,no
 A25C4FE2,Colmillo salvaje,personaje,si
-E9E0A717,Combo cósmico,ninguna,no
+E9E0A717,Combo cósmico,tienda,si
 78F93074,Combo cósmico,override,no
 28847536,Combo cósmico,override,no
 8A455DEF,Combustión,personaje,si
@@ -612,7 +612,7 @@ ACBA9D03,Paisaje helado,personaje,si
 10A836C6,Parada ardiente,personaje,si
 BD2F9FEE,Parada celestial,personaje,si
 32DBF59E,Parada celestial TURBO,tienda,si
-1FDE6219,Parada de Asura,ninguna,no
+1FDE6219,Parada de Asura,tienda,si
 56DBB26F,Parada de Asura,override,no
 A5A0C2F5,Parada de capoeira,personaje,si
 9AC82D1C,Parada de codo,personaje,si
@@ -873,7 +873,7 @@ C9CD2C33,Tiro pirueta,personaje,si
 C112A44F,Tiro rotatorio,kenshin,no
 B425CD90,Tiro sobrenatural,personaje,si
 7E542B03,Tiro sombrío,kenshin,no
-593B6DD1,Tiro supermasivo,tienda,si
+593B6DD1,Tiro supermasivo,personaje,si
 A35F2D17,Tiro supermasivo,kenshin,no
 73B38CDF,Tiro sónico,personaje,si
 E8C04147,Tiro torre de Osaka,personaje,si

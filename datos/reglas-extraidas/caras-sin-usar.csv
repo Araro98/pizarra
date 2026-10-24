@@ -61,16 +61,11 @@ c05024671,sin_ficha,Jude Sharp,
 c05028010,no_fichable,Fei Rune,7B6E90BE
 c05028020,no_fichable,Vladimir Blade,5043C37D
 c05028030,no_fichable,Arion Sherwind,4958F23C
-c05028040,no_fichable,Riccardo Di Rigo,061964FB
 c05028050,no_fichable,Gabriel García,1F0255BA
 c05028060,no_fichable,Sol Daystar,342F0679
 c05028070,no_fichable,Jean-Pierre Lapin,2D343738
 c05028080,no_fichable,Sor,AAAC2BF7
-c05028090,no_fichable,Fei Rune,B3B71AB6
 c05028100,no_fichable,Ryoma Nishiki,63B7CBC8
-c05028110,no_fichable,Victor Blade,7AACFA89
-c05028120,no_fichable,Goldie Lemmon,5181A94A
-c05028130,no_fichable,Arion Sherwind,489A980B
 c05028140,no_fichable,Bai Long,07DB0ECC
 c05028160,no_fichable,Zanark Avalonic,35ED6C4E
 c05028410,no_fichable,Vee Wai,7C673862
@@ -89,7 +84,6 @@ c05028530,no_fichable,Faiv Ess,4F9330D7
 c05028540,no_fichable,Tu Eigh,00D2A610
 c05028550,no_fichable,Aye Nort,19C99751
 c05028560,no_fichable,Ji Tenn,32E4C492
-c05028610,no_fichable,Flora,7FE3EC0C
 c05028620,no_fichable,Simeon Ayp,54CEBFCF
 c05028630,no_fichable,Wolfram Vulpeen,4DD58E8E
 c05028640,no_fichable,Desmodus Drakul,02941849
@@ -268,6 +262,7 @@ c11907010,sin_ficha,Bob Carlton,
 c11907020,sin_ficha,Barry Potts,
 c11908010,sin_ficha,Martemeli Prestov,
 c11908020,sin_ficha,Mister Yi,
+c11908110,no_fichable,Maestro Li,1F86DCAC
 c11908140,no_fichable,Arion Sherwind,62F128E9
 c11908150,no_fichable,Riccardo Di Rigo,7BEA19A8
 c11908160,no_fichable,Aitor Cazador,50C74A6B

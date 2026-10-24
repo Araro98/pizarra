@@ -1,9 +1,9 @@
 # Personajes que el juego da por alguna via (NOTAS O-205). Lo genera herramientas/construir_fichables.py.
-# fuentes: universo | basara | tienda | unica | correo | cronica | archivo
+# fuentes: universo | basara | tienda | unica | correo | cronica | archivo | temporada
 identidad,nombre,fuentes
 000CCA62,Ignacio Gerhardt,cronica|archivo
 002513F9,Cliff Tomlinson,universo|cronica
-00491555,Lumina,universo
+00491555,Lumina,universo|temporada
 004A74D5,Kipp Sycamore,archivo
 005CEF5C,Drexel Kixley,universo|cronica
 006246A5,Mars Hung,universo|cronica
@@ -33,7 +33,7 @@ identidad,nombre,fuentes
 018B7F62,Fei Rune,universo
 0198C201,Andy Wallpole,universo
 019E856B,Elijah Singleton,universo|cronica
-01A02C92,Coryn Fong,universo|cronica
+01A02C92,Coryn Fong,universo|cronica|temporada
 01A0E982,Fei Rune,universo|tienda|unica
 01A45E73,Travis Borer,universo
 01ADE52B,Rio Sands,universo
@@ -53,13 +53,13 @@ identidad,nombre,fuentes
 0236F007,Bill Mumm,universo
 024A9476,Raika Shinohara,basara
 025029AD,Thierry Reyes,universo|tienda|unica
-0263ADA0,Jack Wallside,universo|cronica
-0268FABB,Eddy O'Ryan,universo|cronica
+0263ADA0,Jack Wallside,universo|cronica|temporada
+0268FABB,Eddy O'Ryan,universo|cronica|temporada
 0275D7BA,Mike Passing,universo|cronica
 028C5933,Socrat Eiss,universo|cronica
 028CD67E,Montaine Skalin,universo
 02C42995,Alton Oldhat,universo
-02E4DD1D,Erik Eagle,universo|cronica
+02E4DD1D,Erik Eagle,universo|cronica|temporada
 02F9F01C,Dos Lightning,universo
 0305066D,Ryker Strive,archivo
 030643A2,Paul Downs,universo
@@ -110,7 +110,7 @@ identidad,nombre,fuentes
 0522FA97,Cecil Crowley ,universo|cronica
 052922C1,Nate Checker,universo
 053FD796,Nyira Fezun,universo|cronica
-05627FB5,Lars Luceafăr,universo|cronica
+05627FB5,Lars Luceafăr,universo|cronica|temporada
 056A057C,Jason Jones,universo|cronica
 05857EA2,Roland Allardyce,universo
 0585F1EF,Sirius Starsky,universo|cronica
@@ -123,10 +123,11 @@ identidad,nombre,fuentes
 05F058C0,Carny Voris,universo
 05F11D3B,May Apple,universo
 05FC0170,Hurley Kane,basara
-06012581,Jean-Pierre Lapin,universo|cronica
+06012581,Jean-Pierre Lapin,universo|cronica|temporada
 0601AACC,Blazer Firefoot,universo
 06113DEF,Cognus Sention,universo
 06178BB7,Polkan Ismailov,universo|cronica
+061964FB,Riccardo Di Rigo,temporada
 061C0880,Creed Craving,universo
 0629224E,Berdy Caster,universo|cronica
 06338293,Sloan Hinge,universo
@@ -149,7 +150,7 @@ identidad,nombre,fuentes
 06ED94DD,Noelle Harmon,archivo
 06EED112,Wilson Fishman,universo|cronica
 06F6F352,Circe Roundella,archivo
-07033136,Jack Wallside,universo|cronica
+07033136,Jack Wallside,universo|cronica|temporada
 072CBB25,Philip Anders,universo|cronica
 07443F0B,Lucan Thorpe,universo|cronica
 075300EA,Rocky Rollans,universo
@@ -166,7 +167,7 @@ identidad,nombre,fuentes
 07B6E699,Emilia Odde,universo|cronica
 07B7A362,Sam Willing,universo
 07BF5DC1,Bountine,universo|cronica
-07C34FB6,Aitor Cazador,universo|cronica
+07C34FB6,Aitor Cazador,universo|cronica|temporada
 07C3C0FB,Joe Java,universo
 07D357D8,Talim Muskel,universo
 07DE62B7,Bobby Peel,universo
@@ -246,7 +247,7 @@ identidad,nombre,fuentes
 0B13B3E4,Tom Bulldown,universo|cronica
 0B186BB2,Rihm,universo|cronica
 0B2C0963,Scamp Shrimplin,universo
-0B2C862E,Thanakorn Jaa,universo|cronica
+0B2C862E,Thanakorn Jaa,universo|cronica|temporada
 0B31AB2F,Theodor Ulrich,universo|cronica
 0B64F688,Lephiel,universo|cronica
 0B6F2EDE,Roman Kandel,universo|cronica
@@ -267,7 +268,7 @@ identidad,nombre,fuentes
 0C33DBA5,Yve Dunbar,universo
 0C482AD0,Volbert Brackenbal,archivo
 0C534D5F,Ezekiel Gravendirge,archivo
-0C5F760B,Sterne,universo|cronica
+0C5F760B,Sterne,universo|cronica|temporada
 0C668602,Linda Shadey,universo|cronica
 0C6DD119,Themis Law,universo|cronica
 0C70FC18,Terry Stronger,universo|cronica
@@ -281,7 +282,7 @@ identidad,nombre,fuentes
 0CEAA1A4,Capitán Jokar,universo
 0CEAB098,Terry Archibald,universo|tienda|unica
 0CF78CA5,Tim Crochett,universo
-0CFCDBBE,Piers Thornton,universo|cronica
+0CFCDBBE,Piers Thornton,universo|cronica|temporada
 0D036800,Wiley Blinks,universo
 0D07B4F1,Darren Gouger,universo|cronica
 0D08B056,Sergio López,universo|cronica
@@ -318,7 +319,7 @@ identidad,nombre,fuentes
 0E7CDEA4,Maya O'Pier,universo
 0E87BC6E,Bill Fierce,universo
 0E8C6438,Rosso Granato,universo|cronica
-0E914939,Ozrock Boldar,universo|cronica
+0E914939,Ozrock Boldar,universo|cronica|temporada
 0EAEF3BE,Deimos Mars,universo|cronica
 0EB132FC,Solomon Osaka,universo
 0EBBE824,Gerard Carbonell,universo|cronica
@@ -420,7 +421,7 @@ identidad,nombre,fuentes
 13659204,Erik Strongarm,universo
 1376EEC9,Caleb Stonewall,universo|tienda|unica
 137D5C33,Giselle Roque,universo|cronica
-139227ED,Sandra Fischer,universo|cronica
+139227ED,Sandra Fischer,universo|cronica|temporada
 13B675A8,Max Fortune,universo|cronica
 13BD22B3,Chandler Blanc,universo|cronica
 13BE3226,Victorio Cryptix,universo|unica
@@ -434,7 +435,7 @@ identidad,nombre,fuentes
 14138117,Enrique Caroso,universo|cronica
 14185941,Olivia Twist,universo
 141C85B0,Jonathan Seller,universo|cronica
-142580C8,Heath Moore,universo|cronica
+142580C8,Heath Moore,universo|cronica|temporada
 142ED7D3,Will Bayeux,universo
 1433FAD2,Rith McCal,universo
 14435CBC,Carole Meine,cronica|archivo
@@ -488,7 +489,7 @@ identidad,nombre,fuentes
 1620192C,Jared Dapplegrey,universo|cronica
 162A8481,Serge Major,universo
 16324AB6,Roost Dubois,universo
-1648124F,Phobos Quasar,universo|cronica
+1648124F,Phobos Quasar,universo|cronica|temporada
 16553F4E,Avorio Opale,universo|cronica
 165BB62A,Galad Worden,universo|cronica
 165EE718,Odessa Ryder,universo
@@ -539,7 +540,7 @@ identidad,nombre,fuentes
 18904E23,Zanark Avalonic,universo|cronica
 18B4B764,Igor Ferreira,universo|cronica
 18B6D46A,Cynthia Electra,universo|cronica
-18BB1DD3,Michelle Luo,universo|cronica
+18BB1DD3,Michelle Luo,universo|cronica|temporada
 18BF6F32,Anton Donce,universo
 18EC946C,Nolan Ashby,archivo
 18FC488F,Peter Drent,universo|cronica
@@ -557,7 +558,7 @@ identidad,nombre,fuentes
 19A53AFF,Aquilina Schiller,universo|cronica
 19A69347,Art Tundra,universo|cronica
 19B152F0,Simen Thorne,universo|cronica
-19B62C9E,Zanark Avalonic,universo|cronica
+19B62C9E,Zanark Avalonic,universo|cronica|temporada
 19D15966,Shadi Mesmer,universo
 19D1D62B,Hal Byrd,universo|cronica
 19FBBF0E,Mykerinos Menkh,universo
@@ -586,7 +587,7 @@ identidad,nombre,fuentes
 1AF9D16B,Laura Quilter,universo
 1B024B55,Zetoh,universo|cronica
 1B07272E,Bud Dahman,universo
-1B074106,Mark Krueger,universo|cronica
+1B074106,Mark Krueger,universo|cronica|temporada
 1B0E7001,Trace Combe,archivo
 1B127BC1,Damon Sumner,universo
 1B2DC146,Luke O'Cyte,universo
@@ -598,7 +599,7 @@ identidad,nombre,fuentes
 1B51A537,Cade Shelby,basara
 1B6EE6FB,Alton Cotts,universo|cronica
 1B73CBFA,Óscar Pío,universo|cronica
-1B789CE1,Nathan Swift,universo|cronica
+1B789CE1,Nathan Swift,universo|cronica|temporada
 1B976872,Archie Medes,universo|cronica
 1B97E73F,Meowlinda Purrsival,universo
 1BDF18D4,Derek Terr,universo
@@ -613,7 +614,7 @@ identidad,nombre,fuentes
 1C39CBD6,Seth Hedges,universo|cronica
 1C3BA8D8,Griz Munkie,universo
 1C71343D,Russell Walk,universo|cronica
-1C794EF4,Baron Oxford,universo|cronica
+1C794EF4,Baron Oxford,universo|cronica|temporada
 1C8681D4,Quebec,universo|cronica
 1C8E4FDA,Ebiss Marlowe,universo
 1C9E4FE3,Lacy Cagney,universo
@@ -631,7 +632,7 @@ identidad,nombre,fuentes
 1D2903B6,Shah Lott,universo
 1D4C25ED,Trevin Seabourne,universo
 1D4D3F34,Kyo Seestar,universo|cronica
-1D5C25D4,Pacey Mack,universo
+1D5C25D4,Pacey Mack,universo|temporada
 1D5CAA99,Nogo Sarikid,universo|cronica
 1D728C14,Ruggiero Spinola,universo|cronica
 1DA99009,Nivea Etoile,archivo
@@ -671,7 +672,7 @@ identidad,nombre,fuentes
 1F0739C1,Phil Rosey,universo
 1F0A0CAE,Chayce Golana,universo
 1F0CBAF6,Hulan Nazarova,universo|cronica
-1F1A14C0,Wanli Changcheng,universo
+1F1A14C0,Wanli Changcheng,universo|temporada
 1F1A9B8D,Adam Montayne,universo
 1F248886,Liselotte Heartsway,archivo
 1F28B3D2,Winnie Hull,universo
@@ -755,7 +756,7 @@ identidad,nombre,fuentes
 22CFEADF,Wowah Zumu,universo
 22D4021D,Hillary Bush,universo|cronica
 22D724E8,Sonny Wukong,universo
-22E060CC,Jimmy Mach,universo
+22E060CC,Jimmy Mach,universo|temporada
 22E89E6F,Tim Bergoods,universo
 22FD4DCD,Robert Affett,universo|cronica
 230D80E8,Crester Lipp,universo
@@ -776,7 +777,7 @@ identidad,nombre,fuentes
 239DAC8E,Alyra Verselle,archivo
 23AA04DD,Mhadoor,universo|cronica
 23B85747,Wilfred Coggle,universo
-23C6A973,Maston Color,universo|cronica
+23C6A973,Maston Color,universo|cronica|temporada
 23CD7125,Malphas,universo|cronica
 23CF122B,Garreth Nett,universo|cronica
 23E26C2C,Robert Skipolson,universo|cronica
@@ -794,10 +795,10 @@ identidad,nombre,fuentes
 24635DCC,Marrone Corniola,universo|cronica
 2468859A,Gertrude Choker,universo
 246DD4A8,Plumian Whitlock,universo|cronica
-247E70CD,Meteo Garnet,universo|cronica
+247E70CD,Meteo Garnet,universo|cronica|temporada
 2484F568,Xavier Schiller,universo|tienda|unica
 248C2612,Sam Firman,universo
-248CA95F,Rondula Flehl,universo|cronica
+248CA95F,Rondula Flehl,universo|cronica|temporada
 24B1FF9B,Freddie Stayre,universo
 24C6BAF7,Keir Mudgeon,universo
 24CF01AF,Horace Onlign,universo
@@ -823,8 +824,8 @@ identidad,nombre,fuentes
 25DB3463,Andrés Alonso,universo|cronica
 25DDAAC1,Dora Delight,universo|cronica
 25DE8C34,Judge Jury,universo
-25E136B3,Jen Quibble,universo
-25E59D9A,Toyo Yamanouchi,universo|cronica
+25E136B3,Jen Quibble,universo|temporada
+25E59D9A,Toyo Yamanouchi,universo|cronica|temporada
 25E9C810,Marv Errick,universo
 25F46A5C,Joy Seeker,universo
 26059850,Baz Boyes,universo
@@ -863,7 +864,7 @@ identidad,nombre,fuentes
 27426E99,Robbie Tout,universo
 274BD5C1,Sid Safehouse,universo|cronica
 2755AF2E,Kendra Pierce,universo|cronica
-277225C8,Aster,universo|cronica
+277225C8,Aster,universo|cronica|temporada
 2772BDE3,Bestia Negra,universo|cronica
 277E1E9C,Regis Tunesmith,archivo
 2780FC5A,Senkuro Hajime,universo
@@ -889,7 +890,7 @@ identidad,nombre,fuentes
 2873EFB3,Conrado Pottinger,universo|cronica
 2887C34F,Mickey Way,universo|cronica
 288C1B19,Maddie Moonlight,universo|cronica
-288C9454,Axel Blaze,universo|cronica
+288C9454,Axel Blaze,universo|cronica|temporada
 2891B955,Hal Löwén,universo|cronica
 289AEE4E,Cannon Random,universo|cronica
 28B32ED3,Andy,universo
@@ -912,7 +913,7 @@ identidad,nombre,fuentes
 293429D7,Darehn,universo|cronica
 2934B1FC,Eliza Mannan,universo|cronica
 29381283,Aldus Ogden,archivo
-2945A978,Elliot Ember,universo|cronica
+2945A978,Elliot Ember,universo|cronica|temporada
 29588479,Knowle Bathers,universo|cronica
 29617470,Soldado de terracota 10,universo|cronica
 2967C7B5,Cedric Freud,basara
@@ -921,7 +922,7 @@ identidad,nombre,fuentes
 29A10AF0,Ian Stein,universo|cronica
 29A185BD,Onslow Mastick,universo
 29A3E6B3,Spark Volt,universo
-29C98EDE,Bobby Shearer,universo|cronica
+29C98EDE,Bobby Shearer,universo|cronica|temporada
 29D4A3DF,Charr Lightning,universo
 29E97A56,Cal Cooler,universo
 29EA3F99,Charlet Namora,archivo
@@ -944,12 +945,12 @@ identidad,nombre,fuentes
 2AB3D6A8,Alistar Montero,universo|cronica
 2AB47A29,Damon Gorgon,universo|cronica
 2AB591C2,Paul Chucker,universo
-2AC0F0D5,Bobby Shearer,universo|cronica
+2AC0F0D5,Bobby Shearer,universo|cronica|temporada
 2AC7D279,Gazelle,universo|tienda|unica
 2AD5EB4F,Raphael Allegro,universo
 2ADAF6EE,Hanah Keller,archivo
 2AFE48DC,Tip Bolster,universo
-2B08403A,Jude Sharp,universo|cronica
+2B08403A,Jude Sharp,universo|cronica|temporada
 2B178178,Una Lightning,universo
 2B189CD9,Benoni Espinoza,archivo
 2B37FABD,Dolph Hensen,universo|cronica
@@ -957,14 +958,14 @@ identidad,nombre,fuentes
 2B40BFD1,Carlos Arroyo,universo|cronica
 2B4B6787,Leon Hotair,universo
 2B4F1566,Stephen Chang,universo|cronica
-2B644696,Victorio Cryptix,universo
+2B644696,Victorio Cryptix,universo|temporada
 2B65CB55,Lorenzo Dellart,archivo
 2B672716,Clarissa Gimmich,archivo
 2B71BC9F,Volk Lorius,universo|cronica
 2B77FBF5,Colin Eager,universo
 2B804E1C,Sata,universo|cronica
 2B921D86,Blakey Itchifoot,universo
-2BAF4B42,Gandares Baran,universo|cronica
+2BAF4B42,Gandares Baran,universo|cronica|temporada
 2BAFC40F,Viv Grey,universo
 2BB26643,Monstro Ximenes,universo|cronica
 2BCDDD8C,Súphis Cheops,universo
@@ -995,8 +996,8 @@ identidad,nombre,fuentes
 2CCA249C,Arculus Orbes,universo|tienda|unica
 2CD08033,Brooke Reedman,archivo
 2CDCBB67,Endura Vigil,universo
-2CECF036,Selwyn Crawler,universo
-2CEE1C75,Ryoma Nishiki,universo|cronica
+2CECF036,Selwyn Crawler,universo|temporada
+2CEE1C75,Ryoma Nishiki,universo|cronica|temporada
 2CEE9338,Ameen Abel,universo
 2CF33174,Barry Straw,universo
 2CFE041B,Eugenio Provost,universo
@@ -1004,7 +1005,7 @@ identidad,nombre,fuentes
 2D1ED150,Fae Grimm,universo
 2D2C7642,Adé Kébé,universo
 2D2CF90F,Leighton Bolt,universo
-2D2E9A01,Jack Skipper,universo
+2D2E9A01,Jack Skipper,universo|temporada
 2D315B43,Billy Blanc,universo|cronica
 2D3AD874,Merengue Muratov,universo|cronica
 2D3C6E2C,Manila Brickit,universo
@@ -1037,7 +1038,7 @@ identidad,nombre,fuentes
 2E812820,Iskandar Tarusian,universo|cronica
 2E8684A1,Grandazzo Corsini,universo|cronica
 2E8FB5A6,Draven Savager,archivo
-2EA82D61,Raleigh Greenstreet,universo
+2EA82D61,Raleigh Greenstreet,universo|temporada
 2EA8A22C,Shunsuke Aoyama,universo|cronica
 2EAA4E6F,Nash Room,universo
 2EB0E356,Noviembre,universo|cronica
@@ -1072,7 +1073,7 @@ identidad,nombre,fuentes
 302F80BD,Lee Ji Seong,universo|cronica
 3038444D,Didar Valmont,archivo
 3055406F,Huracán Zeta,universo
-3055CF22,Mark Evans,universo|correo|cronica
+3055CF22,Mark Evans,universo|correo|cronica|temporada
 3061ADF3,Nev Puffer,universo
 30664B2F,Raika Shinohara,universo|tienda|unica
 30679D41,John Bloom,universo|cronica
@@ -1096,7 +1097,7 @@ identidad,nombre,fuentes
 3181DF0F,Ulric Richmen,universo|cronica
 318A8814,Skeeter Hawk,universo|cronica
 31972A58,Victoria Vanguard,universo|cronica
-3197A515,Kevin Dragonfly,universo|cronica
+3197A515,Kevin Dragonfly,universo|cronica|temporada
 319CF20E,Larry Lyre,universo|cronica
 31A3C7C4,Jay Asher,universo
 31A81F92,Camellia Travis,universo|cronica
@@ -1126,14 +1127,14 @@ identidad,nombre,fuentes
 32892CC7,Snapper Krabbie,universo
 329B7F5D,Sahasra,universo|cronica
 32A95702,Formiga Clemens,universo|cronica
-32B47A03,Ruger Baran,universo|cronica
+32B47A03,Ruger Baran,universo|cronica|temporada
 32B4F54E,Don Snow,universo
 32D48227,Yasmin Tausend,universo|cronica
 32D6ECCD,Sunil Rahman,universo
 32E9564A,Bill Yards,universo
 32FC0AA5,Preston Digitator,universo
 32FE69AB,Gwen Slinga,universo
-331486FA,Ram Horner,universo|cronica
+331486FA,Ram Horner,universo|cronica|temporada
 332B3C7D,Wes Abbey,universo
 333C039C,Howard Robin,universo
 333E6092,Genghis Cohen,universo
@@ -1153,17 +1154,17 @@ identidad,nombre,fuentes
 33BC9023,Hanz Boll,archivo
 33C1C7AF,Arin Fairey,archivo
 33CEDA0E,Azrael Andrews,universo
-33D11B4C,Joseph King,universo|cronica
+33D11B4C,Joseph King,universo|cronica|temporada
 33DBC194,Sam Kincaid,universo
 33E5799D,Mac Gabbon,universo
 3405E011,Neville Foodcake,universo
 3409DB45,Jaslyn Warbleton,archivo
 341F40CC,Edvan Trodden,universo|cronica
 3421E935,Chacha Goncharov,universo|cronica
-34275F6D,Nettie Neuralyn,universo
+34275F6D,Nettie Neuralyn,universo|temporada
 342A6A02,Dave Chaucer,universo
 3435AB40,Callum Rocke,universo
-34374703,Eugene Peabody,universo
+34374703,Eugene Peabody,universo|temporada
 3437C84E,Chauncey Slinka,universo
 3442EE2C,Indy Rockrolle,universo|cronica
 3443ABD7,Gary Primo,universo
@@ -1181,7 +1182,7 @@ identidad,nombre,fuentes
 34DBF65F,Eden Snowbell,archivo
 34E56A19,Bill Ingsgate,universo
 34ECD141,Darren Catt,universo
-34F73983,Axel Blaze,universo|cronica
+34F73983,Axel Blaze,universo|cronica|temporada
 351AD9A7,Adrian Speed,universo|cronica
 35256320,Enyong Kim,universo|cronica
 3527002E,Avery Rarecard,universo
@@ -1203,7 +1204,7 @@ identidad,nombre,fuentes
 35C78A26,Agnethe Presari,universo
 35CBB172,Claudette Clackenoff,archivo
 35DD2AFB,Drever Olflaire,universo|cronica
-35E5355A,Obert Deance,universo|cronica
+35E5355A,Obert Deance,universo|cronica|temporada
 35E80035,Stu Dent,universo
 35F52D34,Lucian Dark,universo|cronica
 35F5A279,Neville Boyle,universo
@@ -1233,10 +1234,10 @@ identidad,nombre,fuentes
 3723DC31,Joe Stick,universo
 372E4F37,Arculus Orbes,basara
 3731EC91,Alara Belmont,cronica|archivo
-37541D37,Venom Braggard,universo|cronica
+37541D37,Venom Braggard,universo|cronica|temporada
 375C67FE,Nathan Jones,universo|cronica
 3768052F,Skeet Blaston,universo|cronica
-379A1961,Sampa Eonius,universo|cronica
+379A1961,Sampa Eonius,universo|cronica|temporada
 379DB5E0,Medoro Gritti,universo|cronica
 37A31C19,Vashan Morell,universo|cronica
 37ABD217,Lima,universo|cronica
@@ -1255,7 +1256,7 @@ identidad,nombre,fuentes
 383CA25E,Paul Steed,universo
 38403F64,Miyabi Natsuyaki,universo
 3848C1C7,Raine Walker,universo
-384BE732,Aurelia Dingle,universo|cronica
+384BE732,Aurelia Dingle,universo|cronica|temporada
 38500FF0,Nirasane Nebuka,universo|cronica
 386044A1,Buzz Cutt,universo
 38777B40,Noel Vacancies,universo
@@ -1265,7 +1266,7 @@ identidad,nombre,fuentes
 38929D33,Johann Storm,universo|cronica
 389B266B,Ian Telektual,universo|cronica
 38B93EA0,Bert McClure,universo
-38BF742E,Maxime Dassier,universo|cronica
+38BF742E,Maxime Dassier,universo|cronica|temporada
 38C2CFD5,Wyatt Stockaway,archivo
 38C5A39A,Jens Hoffman,universo|cronica
 38CBFED2,Luís,universo|cronica
@@ -1295,7 +1296,7 @@ identidad,nombre,fuentes
 3A06813D,Siyabonga Mahlangu,universo|cronica
 3A0E7F9E,Noyss Kensler,universo
 3A2416BB,Cyber Dalekman,universo|cronica
-3A2F41A0,Heat,universo|cronica
+3A2F41A0,Heat,universo|cronica|temporada
 3A31C519,Nick Templeton,universo
 3A393BBA,Mark Sudor,universo
 3A43EC0E,Ayt Bee,universo|cronica
@@ -1387,7 +1388,7 @@ identidad,nombre,fuentes
 3E392555,Rory Circles,universo
 3E469E9A,Thomas Feldt,universo|cronica
 3E4E9E6F,Zora Selwick,universo|cronica
-3E55F38F,Seth Bael,universo|cronica
+3E55F38F,Seth Bael,universo|cronica|temporada
 3E595FD8,Silas Andice,universo
 3E5BB39B,Orion Hunter,universo|cronica
 3E652FDD,Vincent Melodin,archivo
@@ -1395,7 +1396,7 @@ identidad,nombre,fuentes
 3E779B17,Harper Evans,universo
 3E83032C,Lennon Trousers,universo|cronica
 3E899E81,Eins Whitely,universo
-3E8BFD8F,Bash Lancer,universo|cronica
+3E8BFD8F,Bash Lancer,universo|cronica|temporada
 3E9BCD1B,Kojuro Katsuragi,universo
 3EA257BE,Gamma,universo|tienda|unica
 3EB44708,Drew Crenshaw,universo|cronica
@@ -1409,14 +1410,14 @@ identidad,nombre,fuentes
 3EF760B5,Dale Riverhead,universo
 3EFCB8E3,Herman Samuel,universo|cronica
 3F038410,Les Tarrant,universo
-3F08D30B,Duske Grayling,universo|cronica
+3F08D30B,Duske Grayling,universo|cronica|temporada
 3F14143F,Lucas Star,basara
 3F1EA911,Rocky Zine,universo
 3F350A82,Ace Slider,universo
 3F3BBF71,Arion Sherwind,basara
 3F3ED2D4,Ramón Martínez,universo|cronica
 3F41691B,Orion Tearing,universo
-3F424FEE,Maxwell Carson,universo|cronica
+3F424FEE,Maxwell Carson,universo|cronica|temporada
 3F42F00E,Deor Rummond,universo
 3F4918F5,Warren Cool,universo|cronica
 3F4BF4B6,Theo Therr,universo|cronica
@@ -1425,12 +1426,12 @@ identidad,nombre,fuentes
 3F609EC3,Xavier Schiller,basara
 3F7568F0,Dasher Ballard,archivo
 3F762D3F,Jay Archer,universo
-3F7C59F7,Jade Beor,universo|cronica
+3F7C59F7,Jade Beor,universo|cronica|temporada
 3F7ED39C,Aston Isher,universo
 3F84F4AD,Neil Turner,universo|cronica
 3F928EB7,Marge Fielding,universo|cronica
 3F99D9AC,Rae Godmother,universo|cronica
-3F9B35EF,Scarlett Strands,universo
+3F9B35EF,Scarlett Strands,universo|temporada
 3FAB7EBE,Lotus,universo|cronica
 3FBB4E2A,Paul Appleton,universo|cronica
 3FC7D310,Jesse Spiller,universo
@@ -1439,7 +1440,7 @@ identidad,nombre,fuentes
 3FEC7083,Snap Breakwater,universo
 3FFB4F62,Connor Bation,universo
 4004409E,Kaya Haskell,universo
-400F98C8,Julio Acuto,universo|cronica
+400F98C8,Julio Acuto,universo|cronica|temporada
 4012B5C9,Tarvos Boson,universo|cronica
 402212EF,Harris Gridley,archivo
 4030224F,Gus Gamer,universo|cronica
@@ -1514,21 +1515,21 @@ identidad,nombre,fuentes
 43B61A62,Esau Fagus,universo
 43C3B34D,Phil Anthropic,universo
 43EC395E,Taiji Kinetsuki,universo
-43F4F769,BA Branssen,universo
+43F4F769,BA Branssen,universo|temporada
 43FE6AC4,Shilo Placidus,universo
 440AEA5C,Rolland Bowlby,correo
 4425604F,Nenel,universo|cronica
-442EB819,Scott Banyan,universo|cronica
+442EB819,Scott Banyan,universo|cronica|temporada
 44384D4E,Thorin Kards,universo
 4440C959,Amara Winslow,universo
 4450462D,Nieve Alba,universo|cronica
 44609557,Skinner Lankley,universo|cronica
 446D9FA4,Bill Tardy,universo
-44703DE8,Thorsten Welger,universo|cronica
+44703DE8,Thorsten Welger,universo|cronica|temporada
 447751A7,Candace Mardipanz,archivo
 447E60A0,Belém,universo|cronica
 447F7A79,Smokestack,universo|cronica
-4482E47A,Paolo Bianchi,universo|cronica
+4482E47A,Paolo Bianchi,universo|cronica|temporada
 44893C2C,Rose Bedd,universo
 448ECD0F,Niana Cooke,universo
 44A57CBD,Argion Boneback,archivo
@@ -1598,6 +1599,7 @@ identidad,nombre,fuentes
 47C48A2D,Anastasia Mingler,universo
 47D313A5,Archer Hawkins,basara
 47D49243,Rollo Twain,universo
+47E5CCFA,Duske Grayling,tienda
 47E94BCA,Dusty Rellicks,universo
 47EA0E05,Damian Stonewell,archivo
 47FC958C,Zackory Wart,universo|archivo
@@ -1615,6 +1617,7 @@ identidad,nombre,fuentes
 4882D971,Lars Dijkstra,universo
 4892C11F,Reubel Kauntless,universo|cronica
 48947747,Samba Sokolov,universo|cronica
+489A980B,Arion Sherwind,temporada
 489FF470,Buddy Goodman,universo
 48AADEBE,Breppo Terrey,universo|cronica
 48B07E63,Mmor Pegg,universo
@@ -1622,14 +1625,14 @@ identidad,nombre,fuentes
 48BC4537,Henrietta Kettingham,archivo
 48C3FEF8,Edton Prentt,archivo
 48CAA9D7,Ifan Tassy,universo
-48D8E21A,Ross Siddon,universo|cronica
+48D8E21A,Ross Siddon,universo|cronica|temporada
 48DCD3CD,Zach Putter,universo
 48E523C4,Kaburo Hayama,universo|cronica
 48F635A5,Finn Geld,universo
 48F7705E,Hardy Scrapper,universo
 4908C3E0,Parker Leaper,universo
 491B92F4,Nigel August,universo|cronica
-491EB9FA,Beata Pummel,universo
+491EB9FA,Beata Pummel,universo|temporada
 492749F3,Denbee Asama,universo|cronica
 49345F92,Lillie Quattro,universo
 49351A69,Slim Pointer,universo
@@ -1646,7 +1649,7 @@ identidad,nombre,fuentes
 49C7C3FB,Oswald Bones,universo
 49D0FC1A,Dylan Swan,universo
 49D88DF4,Mozun Yarne,universo
-49E7B83E,Hector Helio,universo|cronica
+49E7B83E,Hector Helio,universo|cronica|temporada
 49EC6068,Vick Pointer,universo
 4A23E972,Arakuné,universo|cronica
 4A2B93BB,Ken Furan,universo|cronica
@@ -1678,7 +1681,7 @@ identidad,nombre,fuentes
 4BA88D92,Daria Poplawska,universo|cronica
 4BAADE31,Gem Shorn,universo
 4BBC2B66,Etna Horx,universo|cronica
-4BE18345,Dvalin,universo|cronica
+4BE18345,Dvalin,universo|cronica|temporada
 4BE85000,Octavian Da Lua,archivo
 4BE9F98C,Uxley Allen,universo|cronica
 4BF3378F,Lisa Lovetluke,archivo
@@ -1703,10 +1706,10 @@ identidad,nombre,fuentes
 4CCFDB43,Soldado de terracota 4,universo|cronica
 4CD1D169,Dvalin,basara
 4CE0DE1D,William Glass,universo|cronica
-4CEB064B,Konrad Hardin,universo|cronica
+4CEB064B,Konrad Hardin,universo|cronica|temporada
 4CF62B4A,Drancis Fake,universo|cronica
 4CFD7C51,Filbert Chestnut,universo|cronica
-4D223B67,Jim Wraith,universo|cronica
+4D223B67,Jim Wraith,universo|cronica|temporada
 4D296C7C,Caesar Pike,universo|cronica
 4D300BC7,Bernadine Banquet,cronica|archivo
 4D34417D,Wiley Cracker,universo|cronica
@@ -1730,7 +1733,7 @@ identidad,nombre,fuentes
 4E01E471,Vespa Hornest,universo|cronica
 4E0C61CF,Hailey Cometti,universo|cronica
 4E1BA53F,Alanna Ordelyne,archivo
-4E1CC970,Mac Robingo,universo|cronica
+4E1CC970,Mac Robingo,universo|cronica|temporada
 4E2373F7,Jonas Demetrius,universo|cronica
 4E2EE12F,Sas,universo|cronica
 4E3CB2B5,Chrissy Urchin,universo
@@ -1738,7 +1741,7 @@ identidad,nombre,fuentes
 4E4994D7,Jeanie Tanner,universo
 4E6372BF,Jen Miniver,universo|cronica
 4EA6EF09,Alan Master,universo|cronica
-4ED12528,Tetrae Charlong,universo|cronica
+4ED12528,Tetrae Charlong,universo|cronica|temporada
 4ED954C6,Bramley Cox,universo
 4EDF13AC,Floramira Pagotta,universo|cronica
 4EE1BA55,David Liang,universo|cronica
@@ -1770,8 +1773,8 @@ identidad,nombre,fuentes
 503C78B2,Ginji Santetsu,universo|cronica
 5046AF06,Harry Redcastle,universo
 504D2C31,Bolero Salimov,universo|cronica
-505B0D4A,Gustav Weathervane,universo
-505B8207,Gabriel García,universo|cronica
+505B0D4A,Gustav Weathervane,universo|temporada
+505B8207,Gabriel García,universo|cronica|temporada
 50692515,Sylvain Elph,universo
 507385C8,Laymark Starwyn,universo|cronica
 5085F6AD,Bellatrix,basara
@@ -1791,6 +1794,7 @@ identidad,nombre,fuentes
 513EE348,Gareth Flare,universo|cronica
 515996B0,Nathan Swift,universo|cronica
 51761CA3,Matt Mouseman,universo|cronica
+5181A94A,Goldie Lemmon,temporada
 5184C531,Bill Moony,universo
 5189F05E,Synthian Volkel,universo
 518F4606,Tango Ahmedov,universo|cronica
@@ -1809,7 +1813,7 @@ identidad,nombre,fuentes
 520DB32A,Clementine Weston,universo
 521D3C5E,Ota Shape,universo
 521DB313,Eldritch Priest,universo
-52331AD3,Clorinda Luzzago,universo|cronica
+52331AD3,Clorinda Luzzago,universo|cronica|temporada
 52554CF8,Olef Tennant,universo
 52689571,Eric Byrne,universo
 527AAC47,Xene,universo|tienda|unica
@@ -1826,7 +1830,7 @@ identidad,nombre,fuentes
 532A6CF9,Wily Wimpinberg,archivo
 53302DB7,Zeke Valanche,universo|cronica
 5330A2FA,Jerry Fulton,universo|cronica
-5338D833,Gele,universo|cronica
+5338D833,Gele,universo|cronica|temporada
 534768DB,Eli Mantarey,universo|cronica
 534F1935,Ropert Chapp,universo
 53738547,Rod Sweeper,universo
@@ -1845,7 +1849,7 @@ identidad,nombre,fuentes
 542B3A86,Isolde Bourgeon,archivo
 542F703C,Mark Failing,universo|cronica
 54325D3D,Oliver Golightly,universo|cronica
-54390A26,Tod Ironside,universo|cronica
+54390A26,Tod Ironside,universo|cronica|temporada
 54417B40,Gusto Reitonly,universo
 544345B9,Mac Scryde,universo|cronica
 5443DD92,Veneth,universo|cronica
@@ -1868,7 +1872,7 @@ identidad,nombre,fuentes
 557C10AC,Chops Denton,universo
 5581B7A5,Tzeikh,universo|cronica
 5584BDF6,Alex Hawke,universo|cronica
-5584DBDE,Jack Tradesman,universo
+5584DBDE,Jack Tradesman,universo|temporada
 558C257D,Samantha Moonlight,universo|cronica
 558CAA30,Arenite Serka,universo
 55A3AF6E,Byron Love,universo|cronica
@@ -1877,7 +1881,7 @@ identidad,nombre,fuentes
 55BA140F,Brandy Ryehart,universo
 55BB6159,Scott Amundsen,universo
 55D4EA02,Soldado de terracota 5,universo|cronica
-55E64D10,Scott Banyan,universo|cronica
+55E64D10,Scott Banyan,universo|cronica|temporada
 55ED1A0B,Mick Mishap,universo|cronica
 55F0370A,Braveon Halvors,universo|cronica
 55FBEF5C,Archer Hawkins,universo|cronica
@@ -1910,11 +1914,11 @@ identidad,nombre,fuentes
 5752A596,Blagun White,universo
 577843FE,Norton Waters,universo|cronica
 578C5E71,Janus,basara
-57BDDE48,Gus Martin,universo|cronica
+57BDDE48,Gus Martin,universo|cronica|temporada
 57C26587,Herc Bigsby,universo
 57CA1469,Catro Corydoras,universo
 57FA8B14,Sammo Tong,universo|cronica
-57FD2795,Eleanor Estrella,universo|cronica
+57FD2795,Eleanor Estrella,universo|cronica|temporada
 57FEF9F5,Carrie O'Kea,universo
 580461E9,Grant Hoppa,universo
 5839372D,Sploosh Saroma,universo|cronica
@@ -2016,10 +2020,10 @@ identidad,nombre,fuentes
 5CB44B9F,Naowarat Rahman,universo|cronica
 5CB4C4D2,Saul Searcher,universo
 5CB9CE21,Des Pott,universo|cronica
-5CCBF050,Falco Flashman,universo|cronica
+5CCBF050,Falco Flashman,universo|cronica|temporada
 5CD3B12A,Adriano Donati,universo|cronica
 5CF7E36F,Bri Spark,universo|cronica
-5CFCB474,Candido Glow,universo|cronica
+5CFCB474,Candido Glow,universo|cronica|temporada
 5D237C0F,Hubert Iger,universo
 5D358958,Earnest Bookworm,universo|cronica
 5D3E510E,Genel,universo|cronica
@@ -2037,7 +2041,7 @@ identidad,nombre,fuentes
 5DA6E0F1,Maneuver Gibbs,universo|cronica
 5DBE4DFC,Bechet Ardevout,archivo
 5DD12AD0,Dan Carpenter,universo
-5DE66EF4,Joachim Zooner,universo
+5DE66EF4,Joachim Zooner,universo|temporada
 5DFEA0C3,Jetaime Horitara,universo
 5E00A319,Clay Modlin,universo
 5E112820,Hector Thareos,universo|cronica
@@ -2053,7 +2057,7 @@ identidad,nombre,fuentes
 5E62BA9A,Seth Paynter,universo
 5E7A74AD,Stan Proud,universo
 5E8E848B,Galina Chilvers,archivo
-5E959869,Shawn Froste,universo|cronica
+5E959869,Shawn Froste,universo|cronica|temporada
 5EB15D36,Zenn Wildhorse,universo|cronica
 5EBA8560,Agor,universo|cronica
 5ECFA302,Buddy Arnolds,universo|cronica
@@ -2063,13 +2067,14 @@ identidad,nombre,fuentes
 5EDFBB6C,Gael Vehemaint,universo
 5EF13F44,Corwin Lockhart,archivo
 5EF27A8B,Nick Knack,universo
+5EFEFDBB,Heath Moore,tienda
 5F0DC935,Icarus Damselfly,universo
 5F1B6703,Merlin Al-Yaman,universo|cronica
 5F1DD15B,Bayard Boreas,universo
 5F1F9AAF,Grigham,universo|cronica
 5F25CEFA,Godfrey Shahmann,universo|archivo
 5F3010BC,Rod Headstock,universo
-5F309FF1,Ruslan Kashimov,universo|cronica
+5F309FF1,Ruslan Kashimov,universo|cronica|temporada
 5F3D1A4F,Seth Nichols,universo|cronica
 5F4CEEBC,Cheery Allende,archivo
 5F57F25E,Spike Gleeson,universo|cronica
@@ -2091,7 +2096,7 @@ identidad,nombre,fuentes
 602B5EDC,Friedrich Schiller,universo|cronica
 602BD191,Titania Khamun,universo
 60331FA6,Gamma,universo|cronica
-603BE105,Desmodus Drakul,universo|cronica
+603BE105,Desmodus Drakul,universo|cronica|temporada
 605EF7F3,Charity Verchu,universo
 60632E7A,Horace Coop,universo
 6066A8B5,Olive Mapleton,universo|cronica
@@ -2133,13 +2138,13 @@ identidad,nombre,fuentes
 6252D54F,Sandy Hope,universo
 625F4797,Gezun Dight,universo
 626D6FC8,Bella Baker,universo
-626DE085,Samguk Han,universo
+626DE085,Samguk Han,universo|temporada
 6270CD84,Teddy Kodiak,universo
 627B4EB3,Rumba Mansurov,universo|cronica
 627DF8EB,Deacon Pewter,universo
 628151D9,Valentine Lovejoy,archivo
 62821416,Steve Eagle,universo|cronica
-62829B5B,Julia Blaze,universo|cronica
+62829B5B,Julia Blaze,universo|cronica|temporada
 62A929F4,Bellatrix,tienda|unica
 62BFCD9F,Abuelo Danger,correo
 62C133AB,Skip Docker,universo
@@ -2149,7 +2154,7 @@ identidad,nombre,fuentes
 6303599C,Al Itchen,universo
 630881CA,Keenan DiFortune,universo|cronica
 6328FA0F,Riff Ormd,universo
-633342DE,Ivan Allegrov,universo|cronica
+633342DE,Ivan Allegrov,universo|cronica|temporada
 633FC5EE,Chris Talise,universo
 634CF911,Tom Dark,universo
 636FF432,Jude Sharp,universo|cronica
@@ -2169,7 +2174,7 @@ identidad,nombre,fuentes
 63E7FA14,Spike Needle,universo
 63EEAD3B,Romain Romanze,cronica|archivo
 63F1800E,Jan Jared,universo
-63F5B1D9,Byron Love,universo|cronica
+63F5B1D9,Byron Love,universo|cronica|temporada
 64012916,Juan Espindola,universo|cronica
 640AF140,Ant Anomy,universo
 6426B1D1,Barcley Dover,cronica|archivo
@@ -2213,7 +2218,7 @@ identidad,nombre,fuentes
 661912BE,Joe Poker,universo|cronica
 66265172,Briar Bloomhurst,basara
 6647974F,Kevin Pinot,universo|cronica
-664C4F19,Claire Taker,universo
+664C4F19,Claire Taker,universo|temporada
 664E1CBA,Gibson Forte,universo
 665A3503,Walter Poseur,universo
 6670B543,Steve Woodmark,universo|cronica
@@ -2245,7 +2250,7 @@ identidad,nombre,fuentes
 67B7D527,Mohrir,universo|cronica
 67C65588,Aren Yarrow,universo|cronica
 67CD8DDE,Arion Sherwind,universo|cronica
-67DB7889,Darren LaChance,universo|cronica
+67DB7889,Darren LaChance,universo|cronica|temporada
 67E28880,Soldado de terracota 7,universo|cronica
 6801141D,Coeus Heavens,universo|cronica
 6802BDA5,Adrian Heartly,universo
@@ -2349,7 +2354,7 @@ identidad,nombre,fuentes
 6C639C3C,Tim Toppel,universo
 6C6FC9B6,Derrin Wilson,universo|cronica
 6C7EB13D,Starbuck Rogers,universo|cronica
-6C873FB4,David Samford,universo|cronica
+6C873FB4,David Samford,universo|cronica|temporada
 6C8C68AF,Tezcat,universo|cronica
 6C8CE7E2,Astaroth,universo|cronica
 6C8FC117,Jane Ledbelly,universo
@@ -2373,16 +2378,16 @@ identidad,nombre,fuentes
 6D3BABB7,Mariposa Papillon,universo
 6D455583,Joseph King,universo|cronica
 6D4DAB20,Haden Safe,universo
-6D4E8DD5,Destra,universo|cronica
+6D4E8DD5,Destra,universo|cronica|temporada
 6D5EBD41,Ryoma Sakamoto,universo|cronica
 6D608A05,Dan Bowsun,universo|cronica
-6D6190DC,Bunny Cottontail,universo|cronica
+6D6190DC,Bunny Cottontail,universo|cronica|temporada
 6D713752,Per Hockside,universo
 6D83618D,Tamir Nasr,universo|cronica
 6D8E7C18,Sayo Nakamise,universo
 6D96B22F,Harley Hogg,universo
 6DA1F60B,Den Hidden,universo
-6DB78C11,Torch,universo|cronica
+6DB78C11,Torch,universo|cronica|temporada
 6DBCDB0A,Jean-Luc Janeway,universo|cronica
 6DD45F24,Robin Sherwood,universo
 6DD71AEB,Cassia Bladecroft,archivo
@@ -2407,16 +2412,16 @@ identidad,nombre,fuentes
 6EC011E4,Jimmy Wongfu,basara
 6EC181ED,Crane Kik,universo|cronica
 6EC97F4E,Mary Hugland,universo
-6ECA59BB,Sael,universo|cronica
+6ECA59BB,Sael,universo|cronica|temporada
 6EDCD6D0,Barry Cade,universo|cronica
-6EE5D3A8,Sonny Wright,universo|cronica
+6EE5D3A8,Sonny Wright,universo|cronica|temporada
 6EF5E33C,Trey Hugger,universo
 6F03EBDA,Dirk Artz,universo|cronica
 6F08338C,Anorel,universo|cronica
-6F08BCC1,Bai Long,universo|cronica
+6F08BCC1,Bai Long,universo|cronica|temporada
 6F0B1579,Remy Diggun,universo
 6F151E8D,Haniwa Pawlo,universo
-6F27B99F,Nino Nango,universo|cronica
+6F27B99F,Nino Nango,universo|cronica|temporada
 6F37890B,Hank O'Chief,universo
 6F40CC67,Shemmy Ramis,universo
 6F533363,Gonçalo,universo|cronica
@@ -2446,7 +2451,7 @@ identidad,nombre,fuentes
 70502277,Zaydan Smythe,archivo
 705F3FD6,Beat Baxter,universo
 70749C45,Harry Keenan,universo
-707F4413,Thiago Torres,universo|cronica
+707F4413,Thiago Torres,universo|cronica|temporada
 708645D7,Flip Sliden,universo
 70903FCD,Ollie Twister,universo
 7090B080,R'adji,universo|cronica
@@ -2459,7 +2464,7 @@ identidad,nombre,fuentes
 70EAE879,Viol,universo|cronica
 7107085D,Tyron Rock,universo|cronica
 710A9A85,Julieta,universo|cronica
-71117247,Victoria Vanguard,universo|cronica
+71117247,Victoria Vanguard,universo|cronica|temporada
 71198CE4,Cary Fearless,universo
 711A255C,Tet Aqua,universo|cronica
 7124B91A,Renee Sirensong,cronica|archivo
@@ -2489,7 +2494,7 @@ identidad,nombre,fuentes
 7239FA4A,Grigio Quarzo,universo|cronica
 72464185,Curtis Carson,universo
 724CDC28,Damien Blackloch,universo|cronica
-72531D6A,Bully Thrower,universo
+72531D6A,Bully Thrower,universo|temporada
 725E8FB2,Kakui Ten,universo|cronica
 726BCBA2,Wendy Stitchilton,archivo
 726CA7ED,Buff Bagenal,universo
@@ -2505,7 +2510,7 @@ identidad,nombre,fuentes
 731464EE,Tinkel Urmia,universo|cronica
 7314EBA3,Cash Barganier,universo
 7329322A,Anne Tenney,universo
-735C9B05,Quentin Cinquedea,universo|cronica
+735C9B05,Quentin Cinquedea,universo|cronica|temporada
 735F32BD,Portia Maricle,universo
 7363AECF,Bos Horne,universo
 737B8C8F,Agil Surefall,archivo
@@ -2518,7 +2523,7 @@ identidad,nombre,fuentes
 73A9A195,Bellie Jerant,archivo
 73AECDDA,Stanza Verse,universo
 73B36F96,Rocky Shears,universo
-73BF3A1C,Jenny Okutba,universo|cronica
+73BF3A1C,Jenny Okutba,universo|cronica|temporada
 73C6C6B9,Dec Orum,universo
 73F0482B,Sherlock Sagers,universo
 73F51919,Garvin Cliffmarch,universo|cronica
@@ -2562,7 +2567,7 @@ identidad,nombre,fuentes
 7587E637,Juana de Arco,universo|cronica
 7594F056,Dory O'Bonn,universo
 759759EE,Yang,universo|cronica
-759C0EF5,Caleb Stonewall,universo|cronica
+759C0EF5,Caleb Stonewall,universo|cronica|temporada
 75A3D748,Rockin Sunshaide,archivo
 75A86C24,Handel Turnon,universo
 75B8CBAA,Aiden Froste,universo|cronica
@@ -2572,12 +2577,12 @@ identidad,nombre,fuentes
 75E2F0C1,Mirabel Tussel,universo|cronica
 75F0A35B,Kuhrach,universo|cronica
 75F2E8AF,Hail Homestead,universo
-75F45EF7,Condor Al-Kundur,universo|cronica
+75F45EF7,Condor Al-Kundur,universo|cronica|temporada
 75FFCCFC,Archer Hawkins,universo|tienda|unica
 76033259,Spikey,universo
 76102438,Bern Macmahon,universo
 76138D80,Filbert Weissman,universo|cronica
-7618DA9B,Tyke Wando,universo|cronica
+7618DA9B,Tyke Wando,universo|cronica|temporada
 762CB84A,Jess Uplement,universo
 763C88DE,Valentín Eisner,universo|cronica
 76413325,Willem Durrmore,archivo
@@ -2615,7 +2620,7 @@ identidad,nombre,fuentes
 77D24E0F,Lee Screener,universo
 77EED27D,Jack Mate,universo
 78037580,Betty Evenson,universo
-78158BF0,Cao Cao,universo|cronica
+78158BF0,Cao Cao,universo|cronica|temporada
 781DF139,Ray Mannings,universo|cronica
 783FE9F2,Ernie Riddell,universo
 78550ED2,Phil A. Minion,universo|cronica
@@ -2634,7 +2639,7 @@ identidad,nombre,fuentes
 78F28AE7,Gram Vineela,universo
 790F5A57,David Burnum,universo
 791E4910,Oliviero Albizzi,universo|cronica
-791F53C9,Nikolai Glisanderov,universo|cronica
+791F53C9,Nikolai Glisanderov,universo|cronica|temporada
 7920D044,Hugh Mumford,universo|cronica
 7920E0E9,Orfreya Newcomb,universo
 79282EE7,Mike,universo|cronica
@@ -2650,7 +2655,7 @@ identidad,nombre,fuentes
 79C11FB7,Colt Youngstein,universo
 79C5550D,Tendance Chausefutt,archivo
 79D291FD,Manny Artic,universo|cronica
-79D7E1C7,Zanark Avalonic,universo|cronica
+79D7E1C7,Zanark Avalonic,universo|cronica|temporada
 79DF9B0E,Mick Askley,universo|cronica
 79E24287,Everard Valiant,universo
 79FD83C5,Macky Valley,universo
@@ -2669,6 +2674,7 @@ identidad,nombre,fuentes
 7AA4042A,Sylvester Bullet,universo|cronica
 7AA4A39D,Zuzu Intel,universo
 7AA996F2,Vinny O'Gaines,universo
+7AACFA89,Victor Blade,temporada
 7AB434BE,Woody Prince,universo
 7AB4BBF3,Victor Blade,universo|cronica
 7AC05727,Tim Platton,universo
@@ -2698,7 +2704,7 @@ identidad,nombre,fuentes
 7BD1DABC,Walter Mountain,universo|cronica
 7BDA02EA,Becky Shuffle,universo
 7BE69E98,Sul Tarner,universo
-7BF1A179,Alfie Whitehurst,universo
+7BF1A179,Alfie Whitehurst,universo|temporada
 7C0AD037,Nitey Niht,universo
 7C1883AD,Catvari,universo|cronica
 7C2AABF2,Xavier Ribeiro,universo|cronica
@@ -2715,7 +2721,7 @@ identidad,nombre,fuentes
 7CD71DC7,Goldie Lemmon,universo|tienda|unica
 7CD7D8D7,Bolo Cheung,universo|cronica
 7CD87260,José López,universo|cronica
-7CE9712E,Govin Castlehoven,universo|cronica
+7CE9712E,Govin Castlehoven,universo|cronica|temporada
 7CEF3644,Mo Zarella,universo
 7D11C001,Laurie Nowlin,universo
 7D1A1857,Isaac César,universo|cronica
@@ -2758,7 +2764,7 @@ identidad,nombre,fuentes
 7F0223FF,Jonathan Luckyman,universo|cronica
 7F0974E4,Sibylle Equinox,universo|cronica
 7F1459E5,Steve Grim,universo|cronica
-7F1F0EFE,Acker Reese,universo|cronica
+7F1F0EFE,Acker Reese,universo|cronica|temporada
 7F3D6033,Alix La Fontaine,basara
 7F410442,Andy Roff,universo
 7F552DFB,Primavera Bluefield,universo
@@ -2773,6 +2779,7 @@ identidad,nombre,fuentes
 7FB3DDD0,Terry Orr,universo
 7FB65B1F,Alphonse Wreckenbach,archivo
 7FC498BC,Bob Lioteck,universo
+7FE3EC0C,Flora,temporada
 7FFB223B,Fanella Waftgood,universo
 800072CB,Grant Icewater,universo|cronica
 800559C5,Vince Tinct,universo
@@ -2786,7 +2793,7 @@ identidad,nombre,fuentes
 804BECA0,Gerald Fuss,universo|cronica
 8059BF3A,Doug Spoddy,universo
 806466B3,Rob Ottman,universo
-8064E9FE,Keenan Sharpe,universo|cronica
+8064E9FE,Keenan Sharpe,universo|cronica|temporada
 8080C53B,Doug Lapp,universo
 808B1D6D,Songwan Ko,universo|cronica
 80C36DCB,Silas Kaye,universo
@@ -2817,10 +2824,10 @@ identidad,nombre,fuentes
 8205AD84,Ozrock Boldar,basara
 820C788D,Arran Realis,universo|cronica
 821F0163,Ernest Etson,universo
-8222D8EA,Sim Pathy,universo
+8222D8EA,Sim Pathy,universo|temporada
 8232D174,Molev Misterioski,universo|cronica
-8233CBAD,Bellona Orsini,universo|cronica
-8234672C,Orisa Namir,universo|cronica
+8233CBAD,Bellona Orsini,universo|cronica|temporada
+8234672C,Orisa Namir,universo|cronica|temporada
 823AFAAA,Abbie Sentridge,archivo
 8247ABEB,Nikas Himmelstein,universo|tienda|unica
 825E26EA,Cleon Balogh,archivo
@@ -2865,7 +2872,7 @@ identidad,nombre,fuentes
 83E0B2DD,Teagen Brewer,universo
 83F0BB43,Yuri Dolchin,universo|cronica
 83F60D1B,Kenard Montemar,universo|cronica
-840661DF,Caleb Stonewall,universo|cronica
+840661DF,Caleb Stonewall,universo|cronica|temporada
 840DB989,Craig Placid,universo
 842BEBF8,Dashiell Fass,archivo
 8441AA3E,Normon Peeveton,universo
@@ -2916,11 +2923,11 @@ identidad,nombre,fuentes
 8635F9E4,Precious Cryan,universo
 86379AEA,Miguel Pereira,universo|cronica
 863C42BC,George Barros,universo
-863F9CDC,Harper Evans,universo|cronica
+863F9CDC,Harper Evans,universo|cronica|temporada
 8640DF86,Barack Daniels ,universo|cronica
 864B07D0,Alan Sumner,universo
 8660A443,Anthea Tussore,universo|cronica
-8675BFD9,Tim Saunders,universo
+8675BFD9,Tim Saunders,universo|temporada
 86802E4B,Bhabass,universo|cronica
 86854230,Tim Eisback,universo
 86927DD1,Sam Arritan,universo
@@ -2930,7 +2937,7 @@ identidad,nombre,fuentes
 86E538BD,Homer Cooken,universo
 86E7D4FE,Grisley Bear,universo
 86F01549,Zyphar Doar,universo|cronica
-86FAF9FF,Paul Siddon,universo|cronica
+86FAF9FF,Paul Siddon,universo|cronica|temporada
 8707294F,Coruja Cerezo,universo|cronica
 871F0DCC,Lilac Tausend,universo|cronica|archivo
 8725BEC9,Bob Sled,universo|cronica
@@ -2943,7 +2950,7 @@ identidad,nombre,fuentes
 876D4122,Jun-Ho Bae,universo|cronica
 876DCE6F,Cam Vass,universo
 8782B5B1,Ken Crackham ,universo|cronica
-87896DE7,Ian Watchen,universo
+87896DE7,Ian Watchen,universo|temporada
 87A2CE74,Seneca Herrmann,universo
 87C2B4F9,Matthew Pencil,universo
 87C90F95,Lita Vault,archivo
@@ -2951,7 +2958,7 @@ identidad,nombre,fuentes
 87D08459,Faris Creed,archivo
 87F793D3,Neil Yetty,universo
 87FD0E7E,Dirk Byker,universo
-87FDF6EB,Mami Sigdale,universo|cronica
+87FDF6EB,Mami Sigdale,universo|cronica|temporada
 87FE288B,Iain Igma,universo
 8804B097,Otto Legge,universo
 88065CD4,Jerry Onimo,universo|cronica
@@ -2960,7 +2967,7 @@ identidad,nombre,fuentes
 8842AB42,Beta,cronica
 884E2C72,Andrew Meikle,universo
 884EA33F,Hastar Savitar,universo|cronica
-8861A661,Kilo,universo|cronica
+8861A661,Kilo,universo|cronica|temporada
 8872B000,Shaun Bonnie,universo
 8873F5FB,Jack Alltrade,universo
 88842328,Berlinda Glitz,archivo
@@ -2986,11 +2993,11 @@ identidad,nombre,fuentes
 89577E17,Han Bull-dang,universo|cronica
 895D2E90,Gusmin Strelbard,archivo
 8963B2D6,Keane Gardner,universo|cronica
-8968E5CD,Hurley Kane,universo|cronica
+8968E5CD,Hurley Kane,universo|cronica|temporada
 8969D7EE,Erdem Barath,universo|cronica
 897E9FD7,Powers Squatts,universo
 898C4645,Anthony Coyne,universo
-898F038A,Mireille Modelle,archivo
+898F038A,Mireille Modelle,archivo|temporada
 89B0DA37,Virgil Amber,universo
 89B19FCC,Bill Sye,universo
 89C4B9AE,Debra Lee,universo
@@ -3078,7 +3085,7 @@ identidad,nombre,fuentes
 8D49C51C,Stu Potter,universo
 8D4BA612,Romulus Fulmen,universo
 8D5A33BF,Maris Hollowwood,universo
-8D622C1E,Beryl Granger,universo|cronica
+8D622C1E,Beryl Granger,universo|cronica|temporada
 8D649A46,Charmer,universo|cronica
 8D6920A8,Joseph King,tienda|unica
 8D77D617,Eviden Tracer,archivo
@@ -3112,7 +3119,7 @@ identidad,nombre,fuentes
 8EB972EB,Duke Scrubine,universo
 8EC6A388,Zanark Avalonic,universo|tienda|unica
 8ECD1172,Sue Accharin,universo
-8ECF727C,Ivor Kernel,universo
+8ECF727C,Ivor Kernel,universo|temporada
 8EDE70CB,Raika Shinohara,universo|cronica|archivo
 8EEDF4C6,Mark Evans,universo|tienda|unica
 8EF7491D,Jack Wallside,basara
@@ -3148,7 +3155,7 @@ identidad,nombre,fuentes
 904C4F56,Yeon Bull-say,universo|cronica
 904F48FE,Tyche Winham,universo
 9065AE96,Paisley Onepiece,universo
-9072E6AF,Ivan Mercer,universo|cronica
+9072E6AF,Ivan Mercer,universo|cronica|temporada
 9073D48C,Hector Redding,universo|cronica
 90788397,Martin Blando,universo|cronica
 90977704,Shawn Broker,universo
@@ -3233,7 +3240,7 @@ identidad,nombre,fuentes
 942697C4,Pat Lubow,universo
 9427D23F,Tortus Northe,universo|cronica
 94333E5A,Hefton Bulk,universo|cronica
-943581A5,Vladimir Blade,universo|cronica
+943581A5,Vladimir Blade,universo|cronica|temporada
 944102FE,Nathaniel Whitewood,universo
 94509753,Rayne Shawa,universo
 94527B10,Myriad Arcadia,universo|cronica
@@ -3296,11 +3303,11 @@ identidad,nombre,fuentes
 96B81667,Gayle Revel,universo|cronica
 96CF530B,Sadey Stewer,universo
 96FBBE97,Salicy Lic,universo|cronica
-9706E16A,Mark Krueger,universo|cronica
+9706E16A,Mark Krueger,universo|cronica|temporada
 970AC81F,Dariusius Henletos,universo|cronica
 970D393C,Ruth Karnes,universo
 972395EE,Finck Zaplan,archivo
-97395BED,Daniel Dawson,universo|cronica
+97395BED,Daniel Dawson,universo|cronica|temporada
 9739D4A0,Luka Aril,universo
 9746E022,Jig Charleston,universo
 976C8907,Shakir Zahir,universo|cronica
@@ -3312,7 +3319,7 @@ identidad,nombre,fuentes
 97A243AA,Marg Shuttle,universo
 97A30651,Sapp Hirell,universo
 97B155CB,Liu Bei,universo|cronica
-97C5418A,Cade Shelby,universo|cronica|archivo
+97C5418A,Cade Shelby,universo|cronica|archivo|temporada
 97D4433D,Saskia Fresh,universo
 97D62033,Venus Demila,universo
 97D6AF7E,Yorick York,universo|cronica
@@ -3329,17 +3336,17 @@ identidad,nombre,fuentes
 98276079,Cole Bludd,universo
 982EDB21,Nancy Polearm,universo
 9852461B,Jung-Hoon Yi,universo|cronica
-98599E4D,Chester Takes,universo
+98599E4D,Chester Takes,universo|temporada
 9875DEDC,Bridget Steepen,archivo
 9880E44C,Camille Aeon,universo
 9894A639,Limbo Zakharov,universo|cronica
-98ADA341,Philip Star,universo|cronica
+98ADA341,Philip Star,universo|cronica|temporada
 98B16475,Heath Moore,basara
 98BD3DC5,Tiny Forester,universo
 98BDB288,Zack Avalon,universo
 98C20947,Cerise Blossom,universo|cronica
 98CFFE66,Axel Blaze,universo
-98D929BD,Hunter Foster,universo|cronica
+98D929BD,Hunter Foster,universo|cronica|temporada
 98DC02B3,Ian Fantile,universo
 98F7A120,Tom-Tom Thrasher,universo
 99006370,Victor Blade,universo|cronica
@@ -3352,7 +3359,7 @@ identidad,nombre,fuentes
 99428E7B,Don Prima,universo
 9950DDE1,Kym Errer,universo|cronica
 997F57F2,Cam O'Miles,universo
-997FD8BF,Trina Verdure,universo
+997FD8BF,Trina Verdure,universo|temporada
 99902C2C,Minho Cho ,universo|cronica
 999BF47A,Belle Allure,universo
 99C21DC4,Kellan Beatley,archivo
@@ -3365,7 +3372,7 @@ identidad,nombre,fuentes
 99ECB116,Mary Cramer,universo
 99EF6F76,Addison Norris,universo
 9A095A0E,Dash Dotter,universo
-9A14F842,Jamila Wali,universo|cronica
+9A14F842,Jamila Wali,universo|cronica|temporada
 9A1F2014,Sonny Cinders,universo
 9A264836,Stephen Black,universo|cronica
 9A318CC6,Liam Tossarawn,archivo
@@ -3425,7 +3432,7 @@ identidad,nombre,fuentes
 9C8D0B41,Raymond Galak,archivo
 9C97C542,Eddie Prentice,universo|cronica
 9C9F3BE1,Reagan Boneman,universo
-9CA08166,Gruff Dorman,universo
+9CA08166,Gruff Dorman,universo|temporada
 9CA1F430,Mirina Mackrell,universo
 9CA3A793,Arnan Wheelie,universo
 9CA87FC5,Stéphane Hinault,universo|cronica
@@ -3458,7 +3465,7 @@ identidad,nombre,fuentes
 9DF2A40D,Owe Noyster,universo|cronica
 9E043C8D,Wagner Waltz,universo|archivo
 9E1C180E,Leonardo Almeida,universo|cronica
-9E23A289,Byron Love,universo|cronica
+9E23A289,Byron Love,universo|cronica|temporada
 9E294E3F,Grenadier Deton,universo|cronica
 9E3C63CB,Hippolytus Horseriver,universo
 9E3E8F88,Blain Chills,universo|cronica
@@ -3478,7 +3485,7 @@ identidad,nombre,fuentes
 9ED985B8,Ivor Parrot,universo
 9EE519CA,Conn Fuchus,universo
 9EE63F3F,Charles LeMans,universo
-9EE6C7AA,Maddock Jackson,universo|cronica
+9EE6C7AA,Maddock Jackson,universo|cronica|temporada
 9EECA292,Dan Bannerman,universo
 9EFEF108,Gammon Checker,universo
 9F09DF2F,Smiles Thrussell,archivo
@@ -3494,7 +3501,7 @@ identidad,nombre,fuentes
 9F503691,Callum Biddy,universo
 9F5BEEC7,Derek Rabson,universo|cronica
 9F6E8E98,Tod Ironside,universo|cronica
-9F7B9502,Sylvia Lagus,universo
+9F7B9502,Sylvia Lagus,universo|temporada
 9F894C90,Ken Dough,universo
 9F9B1F0A,Sheenai,universo|cronica
 9F9E7371,Sam Aritan,universo
@@ -3540,7 +3547,7 @@ A18245DD,John Reynolds,universo|cronica
 A182CA90,Dotmar Tricks,universo
 A192993E,Stratos Merrill,archivo
 A1B2FBFD,Philip Marvel,universo|cronica
-A1C16260,Tim Saunders,universo|cronica
+A1C16260,Tim Saunders,universo|cronica|temporada
 A1C1DD80,Anson Barker,universo
 A1C8D938,Adam Orable,universo|cronica
 A1CA357B,Ricky Shea,universo|cronica
@@ -3559,8 +3566,8 @@ A2707D53,Kara Okenridge,archivo
 A2792A7C,Barry Lugh,universo
 A27A2DD4,Seok Tel-bull,universo|cronica
 A27D8155,Judie Cassios,universo|cronica
-A28E9F95,Beta,universo|cronica
-A2957757,Shawn Froste,universo|cronica
+A28E9F95,Beta,universo|cronica|temporada
+A2957757,Shawn Froste,universo|cronica|temporada
 A29CCC0F,Patrick Childs,universo
 A29D89F4,Truman Verdy,universo
 A29E204C,Jacques Cinquini,universo|cronica
@@ -3621,14 +3628,14 @@ A59564D3,Turk Quoisey,universo
 A5978890,Duff Dooley,universo|cronica
 A59CDF8B,Riley Jamm,universo|cronica
 A5A8BD5A,Alec Smart,universo
-A5B9000D,Billy Miller,universo|cronica
+A5B9000D,Billy Miller,universo|cronica|temporada
 A5C0A705,Nathan Swift,universo|tienda|unica
 A5C4F515,Ruger Baran,universo|tienda|unica
 A5D14DC5,Elliot Ember,basara
 A5D2F2C5,Alessio Ganonti,universo|cronica
 A5E042B1,Shep Woolacombe,universo|cronica
 A5E0CDFC,Stuart St. John,universo|cronica
-A5F32308,Cedric Freud,universo|cronica|archivo
+A5F32308,Cedric Freud,universo|cronica|archivo|temporada
 A5F48F89,Robin Al-Ahmar,universo|cronica
 A603E327,Creepy,universo
 A6055CD8,Rocky Hardcastle,universo|cronica
@@ -3638,7 +3645,7 @@ A6135CFE,Brighton Spark,universo|cronica
 A6180BE5,Marshall Artz,universo|cronica
 A62C6934,Bryce Bergman,universo
 A63A132E,Terry Pinn,universo
-A63C59A0,Cliff Parker,universo|cronica
+A63C59A0,Cliff Parker,universo|cronica|temporada
 A641E25B,Edmund Boon,archivo
 A648D35C,Maceió,universo|cronica
 A649C985,Wizard,universo|cronica
@@ -3696,13 +3703,13 @@ A870AB28,Rockson Grohl,cronica|archivo
 A8917DDD,Hilary Prentice,universo|cronica
 A8B2D59C,Seraph Sharpe,universo|cronica
 A8CDE11E,Rich Eden,universo
-A8DDE880,Alexander Allegrov,universo|cronica
+A8DDE880,Alexander Allegrov,universo|cronica|temporada
 A8E26B0D,Vince Sizor,universo|cronica
 A8E34179,Kaien Spiradawn,universo|cronica
 A8F03897,Des Eving,universo
 A8F25B99,Stan Tistischen,universo
 A90F8B29,Char Shumaker,universo
-A91934EF,Garrick Loventhal,universo|cronica
+A91934EF,Garrick Loventhal,universo|cronica|temporada
 A91F82B7,Gregory Fortin,universo|cronica
 A920013A,Nora Flexion,universo|cronica
 A9212B4E,Leticia Legatus,universo|cronica
@@ -3710,7 +3717,7 @@ A928FF99,Sierra,universo|cronica
 A93031AE,Melody Toontune,universo
 A930BEE3,Hugues Baudet,universo|cronica
 A93252A0,Turner Tabel,universo
-A95317EA,Thomas Murdock,universo|cronica
+A95317EA,Thomas Murdock,universo|cronica|temporada
 A9737529,Credence Throwe,archivo
 A995D695,Bonnie Sytree,universo|cronica
 A9A80F1C,Theakston Plank,universo|cronica
@@ -3753,7 +3760,7 @@ AB2D2108,Ronny Metcalf,universo|cronica
 AB3601F2,Saber Sabel,universo|cronica
 AB3BF6D3,Rico Falsettis,archivo
 AB493570,Clerk Welcome,universo
-AB593CEE,Serge Riktov,universo|cronica
+AB593CEE,Serge Riktov,universo|cronica|temporada
 AB66BF63,Lee Canthrup,universo|cronica
 AB74ECF9,Faulk Dansa,universo
 AB768FF7,Bombasta Flamboyanzi,universo
@@ -3790,7 +3797,7 @@ ACE796D4,Kiroh Beira,universo
 ACFDD79A,Bartholomew Blitzer,archivo
 ACFF3BD9,Nasser Pryce,archivo
 AD0AF9BD,Faythe Heeler,universo
-AD12CF1F,Darian Moonward,universo|cronica
+AD12CF1F,Darian Moonward,universo|cronica|temporada
 AD18AA27,Patty Sierra,universo
 AD2573AE,Marshall Heart,universo|cronica
 AD25FCE3,Jari Baras,universo
@@ -3833,7 +3840,7 @@ AEBC058C,Devlin Ogor,universo
 AEC4D20C,Eldon Compayne ,archivo
 AEDD5F0D,Cade Shelby,universo|tienda|unica
 AEE2807D,Harpo Thermier,universo
-AEE4B0CF,Gus Martin,universo|cronica
+AEE4B0CF,Gus Martin,universo|cronica|temporada
 AF02F281,Spencer Duskplay,universo|cronica
 AF06B83B,Adele Lettante,archivo
 AF09A59A,Jacko Lantern,universo|cronica
@@ -3868,7 +3875,7 @@ B03A1A0F,Riggs Fornstrut,universo|cronica
 B03B307B,Woodrow Stake,universo|cronica
 B04826AB,Marvin Murdock,universo|cronica
 B0684468,Ivo Woodward,archivo
-B06B8EEA,Simeon Ayp,universo
+B06B8EEA,Simeon Ayp,universo|temporada
 B08EE7D4,Chief Kerr,universo
 B0A54447,Aspen Blewit,universo|cronica
 B0A9F05E,Kujira Torikawa,archivo
@@ -3893,7 +3900,7 @@ B171DB27,Kreaton Coco,universo|cronica
 B174A03A,Carrie Ogrova,universo
 B18A4C9C,Zachary Moore,universo|cronica
 B195F7E2,Icer,universo|cronica
-B1A9E4DD,Keenan Sharpe,universo|cronica
+B1A9E4DD,Keenan Sharpe,universo|cronica|temporada
 B1C06F99,Ciro Zealon,universo|cronica
 B1D65F12,Skie Blue,universo
 B1D6D05F,Winston Windfall,universo
@@ -3911,8 +3918,8 @@ B2370A90,Arion Matlock,universo|cronica
 B2420DAF,Wolfe,universo
 B248CA32,Felicia Felton,archivo
 B2520431,Ort Omaton,universo
-B2528B7C,Terry Archibald,universo
-B26DBEB6,Fada Prendi,universo
+B2528B7C,Terry Archibald,universo|temporada
+B26DBEB6,Fada Prendi,universo|temporada
 B26FDDB8,Nick Yergrub,universo
 B28E4258,Chester Horse padre,universo
 B2B6A7B9,Gyll Netters,universo
@@ -3927,13 +3934,14 @@ B337EA33,Peter Banker,universo|cronica
 B3588D1F,Pietro Olley,archivo
 B374CD8E,Siria Chattsley,universo
 B37D76D6,Dirk Eisberg,universo
-B380F082,Lucas Star,universo|cronica
+B380F082,Lucas Star,universo|cronica|temporada
 B3906E06,Victor Mancey,universo
 B390E14B,Falco Flashman,universo
 B3ADB78F,Sheldon Myrtle,universo
 B3AF5BCC,Arion Sherwind,universo
 B3AFD481,Lenton Gouger,universo
-B3BFE415,Wolfram Vulpeen,universo|cronica
+B3B71AB6,Fei Rune,temporada
+B3BFE415,Wolfram Vulpeen,universo|cronica|temporada
 B3D81EA0,Trump Loyal,universo|cronica
 B3E2ADA5,Mark Evans,universo
 B3E8BD4A,Jade Beor,basara
@@ -3941,7 +3949,7 @@ B3EF5A84,Skip Flashman,universo|cronica
 B3F47A7E,Xavier Schiller,universo|cronica
 B3FC2649,Rondula Flehl,universo|tienda|unica
 B4039B66,Millie Cheer,universo
-B409FE5E,Boone Wretman,universo|cronica
+B409FE5E,Boone Wretman,universo|cronica|temporada
 B411C8FC,Dave Quagmire,universo|cronica
 B4248CEC,Kye Sendon,cronica|archivo
 B432C5DF,Maxtor Lunde,universo
@@ -4012,7 +4020,7 @@ B71D9DF9,Octavius Parson,universo|cronica
 B720CB3D,Gus Tronom,universo
 B722277E,Mitchell Angelio,universo|cronica
 B722A833,Paddy Filler,universo
-B73298A7,Simeon Ayp,universo|cronica
+B73298A7,Simeon Ayp,universo|cronica|temporada
 B742A3A5,Menox Kessler,universo
 B7556212,Calder Elm,universo|cronica
 B76FD117,Niro Vannaburg,archivo
@@ -4028,7 +4036,7 @@ B7DFE34D,Tufton Frizzell,archivo
 B7F9B13C,August Dyers,universo
 B7FF818E,Herman Waldon,universo|cronica
 B801C563,Oceanus Worldstream,universo|cronica
-B8026CDB,Ted Autumn,universo
+B8026CDB,Ted Autumn,universo|temporada
 B8032920,Andy Kareem,universo|cronica
 B80A9278,Marshall Firsthand,universo|cronica
 B8117ABA,Mike,universo|cronica
@@ -4109,7 +4117,7 @@ BB8E4616,Robert Skipolson,universo|cronica
 BB95AED4,Romeo,universo|cronica
 BBB96108,Bracker Grippe,archivo
 BBBA24C7,Grant Mardy,universo
-BBBAAB8A,Arculus Orbes,universo|cronica
+BBBAAB8A,Arculus Orbes,universo|cronica|temporada
 BBD2A0E9,Frank Redmond,universo
 BBF25461,Bobby Bruce,universo|cronica
 BBF2DB2C,Lucien Brightside,universo
@@ -4133,7 +4141,7 @@ BCC12B9F,Mark Evans,basara
 BCC9C384,Ray Dark,universo|cronica
 BCDB9644,Jack Wallside,universo|tienda|unica
 BCDFC454,Gandares Baran,universo|tienda|unica
-BCE81249,Thierry Reyes,universo|cronica|archivo
+BCE81249,Thierry Reyes,universo|cronica|archivo|temporada
 BCEFBEC8,Hawke Al-Bazzar,universo|cronica
 BCFB73F0,Gracey Grapples,universo
 BCFBFCBD,Wenceslas Wales,universo|cronica
@@ -4187,9 +4195,9 @@ BF033AA4,Lee Dinglite,universo|cronica
 BF086DBF,Laban Lux,universo|cronica
 BF0A81FC,Taiga West,universo|cronica
 BF0BC407,Griff Hardcasel,universo
-BF18D266,Fei Rune,universo|correo|cronica
+BF18D266,Fei Rune,universo|correo|cronica|temporada
 BF21226F,Justin Cush,universo
-BF2768E1,Trevor Cook,universo|cronica
+BF2768E1,Trevor Cook,universo|cronica|temporada
 BF375875,Fingus Inky,universo
 BF45FFF1,Joseph King,basara
 BF4D17EA,Dean Rush,universo
@@ -4204,7 +4212,7 @@ BF7FA79E,Oz Tier,universo
 BF90530D,Ned Jovan,universo|cronica
 BF90DC40,Brody Gloom,universo|cronica
 BF93998F,Emil Tait,archivo
-BFA34FB2,Nikolaos Menandros,universo
+BFA34FB2,Nikolaos Menandros,universo|temporada
 BFD3FBFD,Ethan Swallow,universo
 BFD823AB,Maasa Sudou,universo
 BFEF678F,Carson Haynes,universo
@@ -4215,7 +4223,7 @@ C017AF3E,Tobin Harveston,universo|cronica
 C029987A,Shishimaru,universo|cronica
 C03A8E1B,Herbie Garnet,universo
 C03BCBE0,Chip Chisel,universo
-C04535D4,Dvalin,universo|cronica
+C04535D4,Dvalin,universo|cronica|temporada
 C04EED82,Bernadette Stoker,universo
 C05D8C3B,Lycus Foxworth,universo|cronica|archivo
 C0697545,Charlotte Graceslowe,archivo
@@ -4270,7 +4278,7 @@ C23AE3AF,Flammie Gonzalez,universo|cronica
 C240AC30,Conor Abley,universo
 C256D62A,Shay Diebold,universo
 C26999DC,Iggy Motte,universo|cronica
-C26F2623,Goldie Lemmon,universo|correo|cronica
+C26F2623,Goldie Lemmon,universo|correo|cronica|temporada
 C27C3042,Carys Chaparon,universo
 C27D75B9,Rihanna Lin,universo|cronica
 C28FAC2B,Saul Hermit,universo
@@ -4280,7 +4288,7 @@ C2D4BBF7,Hugo Severian,universo
 C2E5C446,Spike Clutcher,universo
 C2E72805,Peter Wells,universo|cronica
 C2E7A748,Seth Yinkley,universo|cronica
-C316D1C0,Saros Algebra,universo
+C316D1C0,Saros Algebra,universo|temporada
 C3254232,Toby Damian,universo|cronica
 C325CD7F,Thor Nado,universo
 C32607FD,Pillan Hallstead,archivo
@@ -4320,7 +4328,7 @@ C496CC97,Servilius Jeeves,universo|cronica
 C4A176E5,Jackie Mulligan,universo|cronica
 C4A4E4C8,Golf,universo|cronica
 C4B6B752,Ted Ledd,universo
-C4B7F2A9,Elinor Maven,universo
+C4B7F2A9,Elinor Maven,universo|temporada
 C4C39130,Campen Allerjee,universo
 C4C84966,Nero,universo|cronica
 C4DEBC31,Edana Naves,universo
@@ -4328,7 +4336,7 @@ C4E87832,Hopkins Foamcrest,universo|cronica
 C4FC2BB7,Kit Chapman,universo
 C501744A,Davy Jones,universo|cronica
 C501FB07,Percy Verens,universo
-C50A2351,Xene,universo|cronica
+C50A2351,Xene,universo|cronica|temporada
 C5193530,Van Yamano,universo
 C51CD606,Ares Zumish,universo
 C53E4180,Sean Trawler,universo
@@ -4350,16 +4358,16 @@ C5ADA764,Shadow Cimmerian,universo|cronica
 C5D35950,Wilbur Watkins,universo|cronica
 C5E73B81,Willow Proude,universo|cronica
 C5EC6C9A,Ryan Ferry,universo
-C5EE0F94,Tsum Jicker,universo
+C5EE0F94,Tsum Jicker,universo|temporada
 C5EE80D9,Kevin Castle,universo|cronica
 C5FE5C3A,Olan Ackroyd,archivo
 C615EF78,Sharkey Gobble,universo
 C6222411,Tyrian Purpel,universo|cronica
 C6284129,Milo Rankin,universo|cronica
 C629730A,Victor Hills,universo|cronica
-C62FEDA8,Raúl Parejo,universo|cronica
+C62FEDA8,Raúl Parejo,universo|cronica|temporada
 C63F0910,Zane Laughead,universo
-C65B6754,Aveline Morrin,universo|cronica
+C65B6754,Aveline Morrin,universo|cronica|temporada
 C668B8F4,Dick Turbin,universo
 C66A54B7,Ollie Webb,universo|cronica
 C66ADBFA,Kohen Moak,universo
@@ -4409,7 +4417,7 @@ C85E9B0B,Rina Eastvale,universo
 C864280E,Wolfe Whyte,universo|cronica
 C873E9B9,Keines Elvain,universo|cronica
 C879050F,Ned Yousef,universo|cronica
-C882C9D5,Lu Jiver,universo|cronica
+C882C9D5,Lu Jiver,universo|cronica|temporada
 C8889952,Batton Farrow,archivo
 C88B53D0,Unahr Giil,universo
 C88BDC9D,Edward Gladstone,universo|cronica
@@ -4426,7 +4434,7 @@ C90A9117,Bash Beaton,universo
 C9172A5D,Rynor Rushenfort,archivo
 C9213284,Calla de Wild,universo
 C934291E,Steve Grim,universo
-C940A3E2,Aster Roth,universo|cronica
+C940A3E2,Aster Roth,universo|cronica|temporada
 C94939E7,Derika Cachil,universo|cronica
 C95378A9,Foster Bracewell,archivo
 C9746F23,Shiv Allrie,universo
@@ -4448,7 +4456,7 @@ CA182552,Colm Dawdlin,archivo
 CA1DA39D,Reese Ickle,universo
 CA229657,Escott Aspen,universo|cronica
 CA29C14C,Ian Suffolk,universo
-CA3557E0,Xyron Madric,universo
+CA3557E0,Xyron Madric,universo|temporada
 CA444696,Partis Payton,universo|cronica
 CA456CE2,Lieva Snoshu,universo|cronica
 CA573F78,Spike Echidna,universo|cronica
@@ -4467,7 +4475,7 @@ CAF0BB4D,Bonza Barnett,universo
 CAFA26E0,Tommo Marrow,universo
 CB003CF9,Alzen Wasruff,universo
 CB00F04E,Aiden Froste,tienda|unica
-CB029A2B,Mehr,universo|cronica
+CB029A2B,Mehr,universo|cronica|temporada
 CB0F08F3,Kippy Jones,universo|cronica
 CB0F87BE,Nenban Slate,universo
 CB12AABF,Nat Meg,universo
@@ -4476,7 +4484,7 @@ CB2082E0,Chester Horse padre,universo
 CB2D1038,Ash Cloud,universo
 CB32D17A,Virgil Ante,universo
 CB384CD7,Asif Ecks,universo
-CB47F718,Archer Hawkins,universo|cronica
+CB47F718,Archer Hawkins,universo|cronica|temporada
 CB4A1FFC,Nathan Swift,universo|cronica
 CB4C2F4E,Archy Seago,universo
 CB8706D5,Sus Swihn,universo|cronica
@@ -4505,7 +4513,7 @@ CC8EAE09,Sid Viper,universo|cronica
 CC8F847D,Ruelle Neurivieu,universo|cronica
 CC9CFD93,Ken Haddow,universo
 CCA1241A,Armstrong Peck,universo
-CCA1AB57,Roleia Orbes,universo
+CCA1AB57,Roleia Orbes,universo|temporada
 CCB12D84,Konstantin Furyozov,universo|cronica
 CCB79BDC,Harald Monet,universo|cronica
 CCD66176,Monty Hillary,universo
@@ -4521,7 +4529,7 @@ CD5E97A4,Roque Blackside,universo
 CD600BE2,Lyra Nazar,archivo
 CD634E2D,Gaston Berry,universo
 CD7347B3,Oleg Animatov,universo|cronica
-CD75F1EB,Riza Nagivar,universo|cronica
+CD75F1EB,Riza Nagivar,universo|cronica|temporada
 CD87EDA5,Swithin Sainte,universo
 CD8C35F3,Talal Hamad,universo|cronica
 CD9197BF,Rip Airman,universo
@@ -4553,15 +4561,15 @@ CF0A7A67,Mona Selene,universo|cronica
 CF0ADDD0,Bren Techner,universo|cronica
 CF1829FD,Lynne Wildcat,universo|cronica
 CF2459F8,Marjorie Piperplume,archivo
-CF257F39,Zippy Lerner,universo|cronica
+CF257F39,Zippy Lerner,universo|cronica|temporada
 CF25F074,Florian Selles,universo
 CF52B518,Will Whist,universo
 CF5733D7,Colleen Evenholm,archivo
 CF5AC4F6,David Evans,universo|cronica
-CF6D80D2,Abram Cadabra,universo|cronica
+CF6D80D2,Abram Cadabra,universo|cronica|temporada
 CF6E296A,Doyle Palmer,universo
 CF827441,Leroy Rhymes,universo|cronica
-CF82FB0C,Norritz Ranhatch,universo
+CF82FB0C,Norritz Ranhatch,universo|temporada
 CF860DD2,Chesney Horse,universo
 CF98BA42,Elmer Trommel,archivo
 CFBFADC8,Carey Noakie,universo
@@ -4575,10 +4583,10 @@ D02F185F,William Glass,universo|cronica
 D03A03C5,Seb Rosa,universo|cronica
 D04849E8,Dreamer Havenridge,archivo
 D05208A6,Gupas Melaka,universo
-D05287EB,Bill Steakspear,universo|cronica
+D05287EB,Bill Steakspear,universo|cronica|temporada
 D05DE84C,Sonny Wright,universo|tienda|unica
 D05F14ED,Falco Flashman,basara
-D0653B5A,Clement Mariner,universo|cronica
+D0653B5A,Clement Mariner,universo|cronica|temporada
 D06F5E62,Teo Chaspet,universo
 D08246B2,Sayer Lemon,universo
 D082C9FF,Lucan Stag,universo|cronica
@@ -4617,7 +4625,7 @@ D2099BFE,Marty Oshker,universo
 D20EF7B1,Ordin Scriben,archivo
 D21439B2,Lizzy Squirrel,universo|cronica
 D214B6FF,Wacke Koshra,universo
-D219AB6A,Ghiris,universo|cronica
+D219AB6A,Ghiris,universo|cronica|temporada
 D2237D96,Gladius Swinger,universo
 D229E03B,Del Aket,universo
 D234534B,Tezcat,universo|tienda|unica
@@ -4626,7 +4634,7 @@ D23BB3A1,Charley Horse,universo
 D2512EBD,Grotley Bogwash,universo|cronica
 D2571E0F,Erhardt Knead,universo
 D25CC659,Isaac Glass,universo|cronica
-D28E640E,Plato Mail,universo
+D28E640E,Plato Mail,universo|temporada
 D29C3794,Ewa Mouton,universo|cronica
 D2B332CA,Clem Chowdry,universo|cronica
 D2B3BD87,Cam Broadsheet,universo
@@ -4660,7 +4668,7 @@ D3EB8A0C,Drew Serkell,universo
 D3F26B6C,Paolo Bianchi,universo|tienda|unica
 D3F44B4E,Manny Carbs,universo
 D404816C,Akela Portner,archivo
-D4074BEE,Ptumri,universo
+D4074BEE,Ptumri,universo|temporada
 D40F3A00,Herb Ivore,universo
 D424E3AF,Malcolm Night,universo|cronica
 D427CE7D,Boulder Vargan,universo
@@ -4708,7 +4716,7 @@ D60318BC,Shaun Asparr,universo
 D6114B26,Hunter O'Mann,universo|cronica
 D611EC91,Pradip Lurning,universo
 D6240F36,Olivier Gourmand,cronica|archivo
-D63E4E78,Frank Foreman,universo
+D63E4E78,Frank Foreman,universo|temporada
 D63EC135,Jack Pott,universo
 D63F68B9,Dizzy Fumbleton,archivo
 D6498459,Pascal Blaise,universo
@@ -4717,6 +4725,7 @@ D675182B,Gil Holden,universo
 D6838B03,Sadley Lonsom,archivo
 D6994500,Bruce Chaney,universo|cronica
 D699CA4D,Worren Mooram,universo
+D69CB150,Atlas Strongwater,tienda
 D6A49C89,Dave Dreem,universo
 D6D1BAEB,Doyo Hong,universo|cronica
 D6DA62BD,Jasmine Veile,universo
@@ -4731,7 +4740,7 @@ D766F6BE,Kik O'Round,universo
 D7839F80,William Toddsforth,universo|cronica
 D78BEE6E,Robin Catching,universo
 D78E68A1,Maeve Smith,universo|cronica
-D798BF7A,Bryce Whitingale,universo|cronica
+D798BF7A,Bryce Whitingale,universo|cronica|temporada
 D7A31A13,Boulder Vargan,universo|cronica
 D7A4647D,Denrai Ochimura,universo|cronica
 D7B4DBA4,Hocus Sesame,universo|cronica
@@ -4783,10 +4792,10 @@ D9F980A0,Dell Closeout,universo|cronica
 DA0DE081,Ash Barnes,universo
 DA3C9F30,Daley Switcher,universo
 DA3D36BC,Leander Courtman,archivo
-DA3E7373,York Nashmith,universo|cronica
+DA3E7373,York Nashmith,universo|cronica|temporada
 DA3EFC3E,Elu Suay,universo
 DA41C8BC,Josh Rogan,universo
-DA56F75D,Bolt Cagey,universo
+DA56F75D,Bolt Cagey,universo|temporada
 DA768C98,Chucky Cardaway,universo|cronica
 DA7D54CE,Thor Stoutberg,universo|cronica
 DA8F8D5C,Hilda Bronski,universo
@@ -4795,7 +4804,7 @@ DAA42ECF,Tez Beyan,universo
 DAA56B34,Mal Maroon,universo
 DAB0C2AA,Helena Harwood,universo|cronica
 DAB67D55,Chunky,universo
-DAC2FE0E,Iris Nightwood,universo
+DAC2FE0E,Iris Nightwood,universo|temporada
 DAD108AD,Snezhana White,universo
 DAD187E0,Aum Nirvana,universo|cronica
 DAE3B8D9,Bastiana Chateau,universo|cronica
@@ -4807,7 +4816,7 @@ DB009439,Rowland Brightwood,universo
 DB018EE0,Margie Frostveil,universo
 DB13629A,Bill Mallard,universo|cronica
 DB13EDD7,Infinity Beyond,universo|cronica
-DB18BACC,Janus,universo|cronica
+DB18BACC,Janus,universo|cronica|temporada
 DB214AC5,Toshihito Ishida,universo
 DB21D2EE,Jethro Mackin,universo|cronica
 DB2C5750,Mei Chaptri,universo|cronica
@@ -4827,7 +4836,7 @@ DBBF3EF9,Larry Pogue,universo|cronica
 DBFC9609,Hawky Turbay,universo|cronica
 DBFEF507,Bob Stretcher,universo
 DC07E747,Morr Fauche,universo
-DC111210,Bellatrix,universo|cronica
+DC111210,Bellatrix,universo|cronica|temporada
 DC1A450B,Calico Corsair,universo|cronica
 DC2570C1,Ken Sewer,universo
 DC25FF8C,K'al,universo|cronica
@@ -4887,11 +4896,11 @@ DE63CE98,Grant Slammer,universo
 DE7C0FDA,Drew Pii,universo
 DE919847,Despina Lux,universo|cronica
 DE973728,Hector Helio,universo|tienda|unica
-DEAE22C0,Sol Daystar,universo|cronica
+DEAE22C0,Sol Daystar,universo|cronica|temporada
 DEB1E382,John Coralli,universo
 DEB30FC1,Gaby Farmer,universo|cronica
 DEB3808C,Iwan Gahana,universo|cronica
-DEBB395A,Salvador Castell,universo|cronica
+DEBB395A,Salvador Castell,universo|cronica|temporada
 DEC5E321,Kurtz Armishaw,archivo
 DEC9405E,Jambo Reemoth,universo|cronica
 DECCB40E,Jonny Strutt,universo
@@ -4900,7 +4909,7 @@ DEE65266,Hugh Marble,universo
 DEF0287C,Gaston Cooley,universo|cronica
 DEF11A5F,Sentry Scarborough,universo|cronica
 DEFB7F67,Nixon Earlnight,universo|cronica
-DF0DD991,Baek Bull-wo,universo|cronica
+DF0DD991,Baek Bull-wo,universo|cronica|temporada
 DF0EDE39,Patsy Cornish,universo
 DF243851,Gauge Diven,universo
 DF32424B,Chad Taylor,universo|cronica
@@ -4909,8 +4918,8 @@ DF34DCE9,Marcos Canales,universo|cronica
 DF391550,Pike Pollack,universo|cronica
 DF405615,Therion Daywick,universo|cronica
 DF71EABB,Manny Armal,universo
-DF7389B5,Scot Enguard,universo
-DF79536D,Sergi Hernández,universo|cronica
+DF7389B5,Scot Enguard,universo|temporada
+DF79536D,Sergi Hernández,universo|cronica|temporada
 DF9E9165,Nobby Naga,universo|cronica
 DFA12BE2,Droplit Turkana,universo|cronica
 DFA1A4AF,Florian Hutter,universo
@@ -4921,7 +4930,7 @@ DFEA7DB1,Payne Outler,universo
 DFEB384A,Rob O'Meca,universo
 DFF96BD0,Quebec,universo|cronica
 E00DD123,Camellia Travis,universo|cronica
-E0151F14,Odo Riffeck,universo
+E0151F14,Odo Riffeck,universo|temporada
 E0188C12,Tezcat,basara
 E01F82B9,Preston Digitate,universo
 E0225B30,Louis Hillside,universo|cronica
@@ -4951,10 +4960,10 @@ E147B532,Frank Meyer,universo
 E1683F21,Russo Rosmarus,universo|cronica
 E17A6CBB,Bloomer Topp,universo|cronica
 E18544CB,Lysander Trimore,archivo
-E197746B,Sam Kincaid,universo|cronica
+E197746B,Sam Kincaid,universo|cronica|temporada
 E19C2370,Cygnus Starkey,universo|cronica
 E1A316BA,Marilyn Henshaw,universo
-E1A52608,Joseph King,universo|cronica
+E1A52608,Joseph King,universo|cronica|temporada
 E1D77523,Ugg LeMugg,universo
 E1DDE88E,Delia Sykes,universo
 E1E03107,Fred Crumb,universo|cronica
@@ -4971,7 +4980,7 @@ E22C1A82,Joe Dawes ,universo|cronica
 E23A799E,Margot Napier,archivo
 E24B6F7A,Maia,universo|cronica
 E25359D8,Zander Warmington,universo|cronica
-E254F559,Jimmy Wongfu,universo|cronica
+E254F559,Jimmy Wongfu,universo|cronica|temporada
 E2593CE0,Bowan Arras,universo
 E2646A24,Kudon Kanran,universo
 E264E569,Dom Foreman,universo|cronica
@@ -5003,7 +5012,7 @@ E35EBA7A,Vector Vernam,universo|cronica
 E373C8C8,Aniki,universo
 E37E3FE9,Ducksquiggan Carboyle,universo
 E389054D,Aslei Rune,universo|cronica
-E39133EF,Milan McGrath,universo|cronica
+E39133EF,Milan McGrath,universo|cronica|temporada
 E391CB7A,Nifty Throttler,universo
 E39B56D7,Dexter Poine,universo
 E39C587C,Bai Long,basara
@@ -5034,7 +5043,7 @@ E4B5E981,Jewelyn Plunkett,archivo
 E4E7D869,Jang Cho,universo|cronica
 E4EC003F,Harry Angue,universo
 E4F7E8FD,Kevin Dragonfly,universo|cronica
-E51A08D9,Bruce Monkey,universo|cronica
+E51A08D9,Bruce Monkey,universo|cronica|temporada
 E51A8794,Aquilina Schiller,universo|cronica
 E525B25E,Bryce Whitingale,universo|cronica
 E52E6A08,Nelson Levene,universo
@@ -5043,7 +5052,7 @@ E56D4DB5,Alan Most,universo|cronica
 E56DC2F8,Iyer Zuck,universo
 E57783B6,Montgomery Marchand,archivo
 E582B926,Pen Teller,universo|cronica
-E5AEDDF8,Dave Quagmire,universo|cronica
+E5AEDDF8,Dave Quagmire,universo|cronica|temporada
 E5B5FD02,Clark von Wunderbar,universo|cronica
 E5C75B58,Dijea Graffin,universo
 E5CAC980,Tim Mittus,universo
@@ -5085,7 +5094,7 @@ E7630C07,Nasir Mustafa,universo|cronica
 E768D451,Junior Cage,universo
 E77EAE4B,Carl Gnu,universo
 E78C77D9,Carey Vanpark,universo
-E79AC81F,Garci Stormdale,universo|cronica
+E79AC81F,Garci Stormdale,universo|cronica|temporada
 E79C7E47,Mikhail Vivachev,universo|cronica
 E7A2D7BE,Solan Brightmoor,universo|cronica
 E7A3FDCA,Dave Walker,universo|cronica
@@ -5098,7 +5107,7 @@ E8089EBC,Tippi y Tappa,universo
 E80B543E,Figgo Balpark,archivo
 E83B8203,Miles Euclid,universo
 E84810B9,Tribulus Galtrop,universo|cronica
-E84B364C,Canon Evans,universo|cronica
+E84B364C,Canon Evans,universo|cronica|temporada
 E850DE8E,Utamaro Kusuri,universo|cronica
 E86095DF,Fishel Bucket,universo
 E86F81E8,Acker Reese,universo|tienda|unica
@@ -5147,14 +5156,14 @@ EA1660D7,Konomi Kodawara,universo
 EA1B7D42,Nazim Nizar,universo|cronica
 EA311467,Butler Chambers,universo
 EA39EAC4,Rupert Spiers,universo
-EA4E20E5,Terryl Terrid,universo
+EA4E20E5,Terryl Terrid,universo|temporada
 EA4EAFA8,Luke Lively,universo|cronica
 EA4F0624,Actie Verran,archivo
 EA7D3C5A,Gilia Dandrel,universo|cronica
 EA936402,Celia Hills,universo|cronica
 EAA15B3B,Arthur Ascot,universo|cronica
 EAA1D476,Julia Mason,universo
-EAB2B5CF,Briar Bloomhurst,universo|cronica|archivo
+EAB2B5CF,Briar Bloomhurst,universo|cronica|archivo|temporada
 EAC6A18E,Soji Okita,universo|cronica
 EAD4F214,Moonir Stone,universo
 EAD5B7EF,Del Brighton,universo
@@ -5243,8 +5252,8 @@ EE7E992C,Pinn Persica,archivo
 EE83D252,Pasha Lomo,universo
 EE8B2CF1,Ichabod Stark,universo|cronica
 EE8BA3BC,Vivian Doosley,universo|cronica
-EE9B1C65,Phil English,universo
-EEACB436,Lester Bawlund,archivo
+EE9B1C65,Phil English,universo|temporada
+EEACB436,Lester Bawlund,archivo|temporada
 EEB49676,Balt Decker,universo
 EEB94E3F,Elric Spiech,universo
 EEBC68D5,Bob Dingnagian,universo
@@ -5257,14 +5266,14 @@ EEF90438,Samguk Han,basara
 EF013660,Micah Gin,universo
 EF01B92D,Finn Stoned,universo|cronica
 EF41B865,Chandler Spillane,universo
-EF429E90,Nathan Swift,universo|cronica
+EF429E90,Nathan Swift,universo|cronica|temporada
 EF49C98B,Elizabeth Buble,universo|cronica
 EF597652,Macha Green,universo
 EF6EDE01,Pina Propp,archivo
 EF76FC41,Edward Albion,universo
 EF7E02E2,Lyle O'Day,universo
 EF8425D3,Samuel Buster,universo|cronica
-EF89B70B,Bravo,universo|cronica
+EF89B70B,Bravo,universo|cronica|temporada
 EF9AA16A,Serena Besse,universo
 EF9BE491,Rhiannon Hoode,universo
 EFA63D18,Gene Bates,universo
@@ -5299,13 +5308,13 @@ F0AEF148,Fran Zimmer,universo
 F0B9CEA9,Freyer Monk,universo
 F0D14A87,Victor Talis,universo|cronica
 F0D1C5CA,Coby Redstone,universo
-F0E2D975,Pharos Radris,universo
+F0E2D975,Pharos Radris,universo|temporada
 F110657F,Laurence Stumbleton,archivo
 F11320B0,Dan Mirthful,universo|cronica
 F113AFFD,Tog Romack,universo
 F120B342,Rhea Loriandrin,universo
 F14BEFCF,Jinpei Ashiga,universo|cronica
-F150070D,Syon Blaze,universo
+F150070D,Syon Blaze,universo|temporada
 F15321F8,Graplen Hawk,universo|cronica
 F15BDF5B,Decker Pile,universo|cronica
 F16465DC,Carl Sacks,universo
@@ -5317,7 +5326,7 @@ F19B2E96,Tiny,universo
 F1A2DE9F,Owen Rage,universo
 F1B4A485,John Corder,universo
 F1CEEB1A,Percival Travis,universo|cronica
-F1D10434,Cobra,universo|cronica
+F1D10434,Cobra,universo|cronica|temporada
 F1D7B26C,Chilton Churner,universo|cronica
 F1EFADCD,Orin Wildwood,universo
 F1F78338,Gigs,universo|cronica
@@ -5344,7 +5353,7 @@ F2E84F11,Andy Sided,universo
 F3004C03,Khalil Haddaoui,universo|cronica
 F30D5196,An Tafuri,universo|cronica
 F3159FA1,Tori Torrence,universo
-F316B954,Daisy Fields,universo|cronica
+F316B954,Daisy Fields,universo|cronica|temporada
 F31D6102,Melisizwe Zamani,universo|cronica
 F322DB85,Joe Straiter,universo
 F32A2526,Pip Skinner,universo
@@ -5356,7 +5365,7 @@ F3660D1B,Pharos Radris,universo|cronica
 F3885543,Nelly Raimon,universo|cronica
 F38BEA43,Acker Reese,basara
 F39D7DF0,Misia Cheveuse,archivo
-F3A9848E,Alix La Fontaine,universo|cronica|archivo
+F3A9848E,Alix La Fontaine,universo|cronica|archivo|temporada
 F3BA6A7A,Fred Featherstonhaugh,universo|cronica
 F3BAE537,Ria Carnival,universo
 F3CE86AE,Jon Izumo,universo
@@ -5412,13 +5421,13 @@ F5E9196E,Heath Rower,universo
 F61A0721,Maxter Gin,universo
 F61A886C,Galen Thunderbird,universo|cronica
 F6205F4E,Victor Blade,basara
-F6424713,Matsuri Chai,universo
+F6424713,Matsuri Chai,universo|temporada
 F6527787,Lars Luceafăr,universo|cronica
 F652F8CA,Walt Riverside,universo|cronica
 F659AFD1,Kevin Dragonfly,universo|cronica
 F65A8924,Nishan Naudle,universo
 F6601549,Barney Snellman,universo
-F66533A3,Crane Clawson,universo
+F66533A3,Crane Clawson,universo|temporada
 F66DCD00,Doug Lee,universo
 F675EF40,Wentworth Wiggins,archivo
 F680D5D0,Bianca Snough,universo|cronica
@@ -5499,7 +5508,7 @@ F9A337CD,Ruben Lamp,universo
 F9B16457,Macah Psitta,universo|cronica
 F9C15F55,Nebula Raime,universo
 F9D69EE2,Bourne Birch,universo|cronica
-F9DDC9F9,Charles Island,universo
+F9DDC9F9,Charles Island,universo|temporada
 F9EAEEE7,Aria Fondue,archivo
 F9EC2DE7,Colette Brushmont,archivo
 F9F18968,Sabine Jellis,archivo
@@ -5527,7 +5536,7 @@ FAC70307,Torch,universo|tienda|unica
 FAD53A31,Olympe Haymes,universo
 FAE322E8,Stran Linemont,archivo
 FAFE99A2,Draco Scallon,universo
-FB089144,Daniel Hatch,universo|cronica
+FB089144,Daniel Hatch,universo|cronica|temporada
 FB175006,Val Cano,universo|cronica
 FB2148DF,Bowie Buffoon,archivo
 FB372BC3,Hamilton Reith ,universo|cronica
@@ -5567,7 +5576,7 @@ FCD1F8C1,Keenan Brainard,universo
 FCDC6A19,Zato Memmor,universo
 FCEC2148,Saul Durban,universo
 FCF3E00A,Francis Paine,universo
-FD131DBB,Buddy Fury,universo
+FD131DBB,Buddy Fury,universo|temporada
 FD1392F6,Bobby Constable,universo
 FD1E9805,Caldera Dawn,universo|cronica
 FD2E4B7F,Will Lusion,universo
@@ -5592,7 +5601,7 @@ FE4A8D32,Newton Thomas,universo|cronica
 FE590378,Gregg Deremer,universo
 FE659F0A,Tosh Coach,universo
 FE73E510,Scott Tickle,universo|cronica
-FE81F95E,Burke Forzane,universo|cronica
+FE81F95E,Burke Forzane,universo|cronica|temporada
 FE874F06,Igor Pitsikatov,universo|cronica
 FE974698,Garland Gathers,universo
 FEAA9F11,Rhonda House,universo
@@ -5604,7 +5613,7 @@ FEEBB898,Lior Morrissey,archivo
 FF09B06C,Trice Topper,universo|cronica
 FF2A182D,Axel Blaze,universo
 FF439369,Patrie Ambrosia,universo|cronica
-FF452531,Van Maanen,universo
+FF452531,Van Maanen,universo|temporada
 FF552CAF,Irv Washinton,universo
 FF566960,Ashe Connelly,archivo
 FF68F526,Alfio Blackside,universo

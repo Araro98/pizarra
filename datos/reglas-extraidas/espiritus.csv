@@ -16,6 +16,7 @@ id,familia,rango,icono,modelo,nombre_largo,descripcion,tecnica
 05FD76CF,kenshin,1,aura_fs/k000940_l.png,wkk00940,"Arges, cíclope colosal",Un espíritu de viento. Defiende su posición con sus brazos hercúleos.,D9D685E7
 0617924F,mixi,2,face/c11908150_l.png,wmm00241_h2,Miximax Trans: <FLC:KIRINO>,Un jugador tan bello y esbelto que da el pego como chica. Conoce bien a <FLC:SHINDO>.,5FE340A4
 06524E9B,kenshin,4,aura_fs/k000190_l.png,wks00190,Caballo blanco,Un espíritu de montaña. Nunca pierde de vista la portería.,4EF4D0D4
+06C8A583,armadura,3,aura_armed/c05028120_5000_l.png,wad00701,"Amaterasu, guerrera del amanecer",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
 073F662B,especial,5,,mode_change_c06030060,Modo Furia,"Tras superar un trauma del pasado, ahora controla su ira y la convierte en su fuerza.",073F662B
 07441C0A,kenshin,3,aura_fs/k000870_l.png,wks00870,"Metis, señora del ingenio",Un espíritu de fuego. Destruye sin piedad a todo rival que se le interpone.,F079A89D
 082A77B7,armadura,4,aura_armed/c05023510_5000_l.png,was00860,"Asura, cazador de gloria",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
@@ -97,6 +98,7 @@ id,familia,rango,icono,modelo,nombre_largo,descripcion,tecnica
 36AE742C,mixi,2,face/c11908150_l.png,wmm00241_b1,Miximax Trans: <FLC:KIRINO>,Un jugador tan bello y esbelto que da el pego como chica. Conoce bien a <FLC:SHINDO>.,5FE340A4
 382E47C3,armadura,1,aura_armed/c05020700_5000_l.png,was00630_b1,"Atenea, dueña del aire",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
 394C2003,especial,5,,mode_change_c03030430,Modo León Salvaje,"El fragor de la batalla despierta sus instintos primarios, y desata el feroz espíritu de un león salvaje.",394C2003
+3A0152B1,armadura,1,aura_armed/c05028130_5200_l.png,was00331,Archipegaso alado,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
 3A0B72EB,armadura,4,aura_armed/c04003230_5100_l.png,wad00210,"Torre blanca, centinela vigía",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
 3B5BAB76,alma,1,aura_soul/a000090_l.png,wsd000090,Tótem Dolfinus,Una criatura de Naiadi con aspecto de delfín que puede nadar a una velocidad de 200 nudos.,7BA1ACBF
 3D752B86,armadura,1,aura_armed/c04001700_5000_l.png,was00411,"Roc, ave mitológica",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
@@ -107,6 +109,7 @@ id,familia,rango,icono,modelo,nombre_largo,descripcion,tecnica
 3E80ACFA,especial,5,,wap09002,Espíritu Miximax,Descripción de Ghost Miximax.,
 3EB0F6EA,armadura,5,aura_armed/c04003700_5100_l.png,was00240_b1,"Arturo, paladín de la espada sagrada",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
 3EFB9A28,armadura,1,aura_armed/c05021840_5000_l.png,wad00722,"Sombra de plasma DF, guerrero artificial",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+3F4A95EC,armadura,1,aura_armed/c05028610_5000_l.png,wad00841,"Eris, bruja de la discordia",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
 3F82703C,armadura,3,aura_armed/c04000100_5100_l.png,was00303_h1,"Grifo, señor de las bestias",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
 3FCE53F3,kenshin,1,aura_fs/k000160_l.png,wkk00160,"Goliat, titán",Un espíritu de viento. Es un soldado gigante construido para la defensa.,1E40C4A8
 40A766FE,armadura,4,aura_armed/c05021500_5100_l.png,wad00670_b1,"Xuan-Wu, guerrero del norte",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
@@ -169,6 +172,7 @@ id,familia,rango,icono,modelo,nombre_largo,descripcion,tecnica
 600C1350,kenshin,4,aura_fs/k000310_l.png,wks00310,Cuervo alas negras,Un espíritu de montaña. Es más oscuro que la noche cerrada.,3C6A65A8
 60A7CBFB,armadura,1,aura_armed/c05021100_5000_l.png,wao00640,"Comadreja, garras de hoz",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
 61215228,kenshin,3,aura_fs/k000810_l.png,wko00810,"Huargo, can infernal",Un espíritu de fuego. Te seguirá hasta el infierno y más allá.,D534FA85
+63BF14B3,armadura,2,aura_armed/c05028040_5000_l.png,was00031,Director Magister,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
 63D55F1C,mixi,1,face/c05028140_l.png,wmm00055,Miximax Trans: Zhuge Liang,"La estratega más brillante de <FUL:RYUBI>. Hermosa, pero reservada y esquiva.",BD04D9AC
 6402DC94,alma,4,aura_soul/a000220_l.png,wso000220,Tótem Gusfi,"Una criatura nativa de Fertilia con frutas en los cuernos, en una mezcla de rasgos vegetales y animales.",3108917C
 646C30D1,armadura,4,aura_armed/c04003290_5100_l.png,was00192,Caballo blanco,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
@@ -176,6 +180,7 @@ id,familia,rango,icono,modelo,nombre_largo,descripcion,tecnica
 65C100A2,kenshin,3,aura_fs/k000500_l.png,wkk00500,"Kraon, guerrero dragón",Un espíritu de fuego. Sus poderes son un enigma de otra dimensión.,5BB4B3D5
 660A5B22,armadura,3,aura_armed/c04003270_5100_l.png,wao00185,Peón blanco,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
 66445235,mixi,1,face/c11908180_l.png,wmm00261_h2,Miximax Trans: <FUL:HAKURYU>,Un chico que confía plenamente en sus propias habilidades. Mantiene una gran rivalidad con <FLC:TSURUGI>.,96A9E089
+666C2A46,armadura,1,aura_armed/c05028130_5300_l.png,was00991,Archipegaso rojo alado,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
 667015F1,kenshin,2,aura_fs/k000260_l.png,wkk00260,"Demogorgo, duque destructor",Un espíritu de bosque. Puede parar prácticamente cualquier tiro.,D9D685E7
 69DE21EF,alma,4,aura_soul/a000470_l.png,wsd000470,Tótem búho,Un sagaz pájaro del bosque con una mirada penetrante que le permite desplazarse por el más oscuro de los bosques.,3E55DBC2
 6A866F3A,mixi,2,face/c05028030_l.png,wmm00030,Miximax Trans: <FUL:SYU>,Un jugador misterioso y fantasmagórico. Nadie sabe nada sobre su pasado.,F3DC3CB7
@@ -266,6 +271,7 @@ id,familia,rango,icono,modelo,nombre_largo,descripcion,tecnica
 974F4A89,alma,2,aura_soul/a000430_l.png,wso000430,Tótem Pamerio,Una criatura capaz de ver el futuro; es capaz de evitar el peligro con maestría.,93441C0C
 9784E929,kenshin,5,aura_fs/k000540_l.png,wks00540,"Pendragón, caballero misterioso",Un espíritu neutro. Pobre de aquel que se cruce en su camino.,CC96E6E6
 9786FB99,armadura,3,aura_armed/c04003080_5000_l.png,was00101,"Surtur, gigante de fuego",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
+98DF0633,armadura,3,aura_armed/c05028110_5000_l.png,was00022,Caballero Lancelot,Utiliza un keshin como armadura para liberar un poder inconmensurable.,
 9A53E851,armadura,4,aura_armed/c05022810_5000_l.png,wak00460,"Gargantúa, gigante metálico",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
 9A76D6BF,armadura,4,aura_armed/c05023310_5000_l.png,wao00930,"Jmet, adalid leonino",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
 9A7AEC74,mixi,1,face/c05028080_l.png,wmm00140,Miximax Trans: Papá,"Quetzalcoatlus, un majestuoso pterosaurio de la era Cretácica que crio al perdido <FUL:TORB>.",2E8150A9
@@ -277,6 +283,7 @@ id,familia,rango,icono,modelo,nombre_largo,descripcion,tecnica
 A0EE2B28,kenshin,4,aura_fs/k000440_l.png,wks00440,"Bufón, artista del engaño",Un espíritu de montaña. Deja a todos perplejos con sus increíbles trucos.,799E12D5
 A15F9BD9,mixi,4,face/c05028160_l.png,wmm00080,Miximax Trans: Zeta,Es el mayor huracán que se ha visto jamás. Desató vientos lo suficientemente fuertes como para arrasar todo a su paso.,685865AF
 A2727F03,kenshin,4,aura_fs/k000820_l.png,wko00820,"Glenr, portador del sol nocturno",Un espíritu de montaña. Su luz inundará tus momentos más oscuros.,9405E19C
+A35D2CCB,armadura,2,aura_armed/c05028090_5000_l.png,was00761,"Robin, caballero ultraveloz",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
 A42955FC,armadura,3,aura_armed/c05029850_5000_l.png,was00041,"Apolo, dios del sol",Utiliza un keshin como armadura para liberar un poder inconmensurable.,
 A42B474C,kenshin,3,aura_fs/k000400_l.png,wks00400,"Plumas ardientes, ave de fuego",Un espíritu de fuego. Deja una estela ígnea cuando recorre el campo.,38AF09CC
 A4809FE7,armadura,2,aura_armed/c05023490_5000_l.png,wao00150,"Garas, maestra de ilusiones",Utiliza un keshin como armadura para liberar un poder inconmensurable.,

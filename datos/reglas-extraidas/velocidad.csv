@@ -4158,7 +4158,6 @@ A9AD6367,432,Redd Hazzard,DEL,Fuego,nombre_en
 342F0679,396,Sol Daystar,DEL,Fuego,nombre_en
 AAAC2BF7,515,Sor,DEF,Viento,nombre_en
 B3B71AB6,477,Fei Rune,DEL,Bosque,nombre_en
-63B7CBC8,366,Ryoma Nishiki,MED,Montana,nombre_en
 5181A94A,435,Goldie Lemmon,DEF,Fuego,nombre_en
 489A980B,448,Arion Sherwind,MED,Viento,nombre_en
 1EC03F8D,381,Zanark Avalonic,DEL,Montana,nombre_en
@@ -4200,7 +4199,7 @@ EFF60CC4,412,Gabriel García,DEF,Bosque,nombre_en
 F6ED3D85,412,Gabriel García,DEF,Bosque,nombre_en
 B9ACAB42,382,Victor Blade,DEL,Fuego,nombre_en
 A0B79A03,416,Bai Long,DEL,Viento,nombre_en
-8B9AC9C0,384,Mark Evans,MED,Montana,nombre_en
+8B9AC9C0,384,Mark Evans,POR,Montana,nombre_en
 9281F881,462,Axel Blaze,DEL,Fuego,nombre_en
 1519E44E,490,Caleb Stonewall,MED,Fuego,nombre_en
 03A148DA,426,Steve Grim,MED,Viento,nombre_en
@@ -6153,3 +6152,14 @@ ECB341FC,291,Daisy Fields,POR,Fuego,nombre_en
 06E25622,384,Mark Evans,POR,Montana,nombre_en
 2DCF05E1,461,Jude Sharp,MED,Viento,nombre_en
 3CFE7E61,482,Shawn Froste,DEL,Viento,nombre_en
+5EFEFDBB,435,Heath Moore,DEL,Fuego,nombre_en
+47E5CCFA,300,Duske Grayling,POR,Bosque,nombre_en
+D69CB150,358,Atlas Strongwater,MED,Viento,mediana MED
+A86D7A3A,438,Riccardo Di Rigo,MED,Bosque,nombre_en
+36FF5503,382,Victor Blade,DEL,Fuego,nombre_en
+C9BA1BFA,477,Fei Rune,DEL,Bosque,nombre_en
+63B7CBC8,366,Ryoma Nishiki,MED,Montana,nombre_en
+07174F9E,435,Goldie Lemmon,DEF,Fuego,nombre_en
+A160442A,448,Arion Sherwind,MED,Viento,nombre_en
+A2E49044,448,Arion Sherwind,MED,Viento,nombre_en
+A326FA73,448,Arion Sherwind,MED,Viento,nombre_en

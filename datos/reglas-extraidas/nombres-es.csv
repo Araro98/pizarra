@@ -1101,7 +1101,9 @@ F2F35819,aura,Tirador,Trigger
 879F40FD,aura,Vritrá,Vritra
 B4BE08DD,aura,Lancelot,Lancelot
 228E0FAA,aura,Lancelot,Lancelot
+98DF0633,aura,Lancelot,Lancelot
 F58F13C4,aura,Magister,Maestro
+63BF14B3,aura,Magister,Maestro
 3219528B,aura,Apolo,Apollo
 A42955FC,aura,Apolo,Apollo
 73284992,aura,Musashi,Musashi
@@ -1112,6 +1114,7 @@ E5184EE5,aura,Musashi,Musashi
 BFCD8071,aura,Guiverno blanco,White Wyvern
 8F746612,aura,Guiverno blanco,White Wyvern
 AC3155C6,aura,Archipegaso,Arch Pegasus
+3A0152B1,aura,Archipegaso,Arch Pegasus
 D9DB998D,aura,Pendragón,Pendragon
 C591A8F2,aura,Fénix,Feng-Huang
 47F39EC0,aura,Atenea,Athene
@@ -1130,6 +1133,7 @@ A79840AF,aura,Sombra de plasma TI,Plasma Shadow SH
 1F73F030,aura,Sombra de plasma TI,Plasma Shadow SH
 8BF94E41,aura,Sombra de plasma TI,Plasma Shadow SH
 356D2BBC,aura,Robin,Sir Rabby
+A35D2CCB,aura,Robin,Sir Rabby
 8E8D2DE1,aura,Evera,Evera
 D16A53AC,aura,Sombra de plasma RE,Plasma Shadow AT
 15836018,aura,Sombra de plasma RE,Plasma Shadow AT
@@ -1149,6 +1153,7 @@ AA1C497E,aura,Brunilda,Brynhildr
 104D40E7,aura,Brunilda,Brynhildr
 20F4A684,aura,Brunilda,Brynhildr
 90F8A2F4,aura,Amaterasu,Amaterasu
+06C8A583,aura,Amaterasu,Amaterasu
 D1C9B9ED,aura,Jaguar,Jagwarrior
 129A94C6,aura,Sombra de plasma DF,Plasma Shadow DF
 439F0A45,aura,Sombra de plasma DF,Plasma Shadow DF
@@ -1159,6 +1164,7 @@ D1C9B9ED,aura,Jaguar,Jagwarrior
 A8CB9D5F,aura,Sombra de plasma DF,Plasma Shadow DF
 1A214C47,aura,Sombra de plasma DF,Plasma Shadow DF
 A97A929B,aura,Eris,Eris
+3F4A95EC,aura,Eris,Eris
 EB7C487E,aura,Atlas,Atlas
 C728C237,aura,Sombra de plasma PA,Plasma Shadow GK
 EF8D2A9C,aura,Sombra de plasma PA,Plasma Shadow GK
@@ -1166,6 +1172,7 @@ EF8D2A9C,aura,Sombra de plasma PA,Plasma Shadow GK
 D8E7E89D,aura,Sombra de plasma PA,Plasma Shadow GK
 972F3182,aura,Pegaso,Pegasus
 F05C2D31,aura,Archipegaso rojo,Arch Pegasus Red
+666C2A46,aura,Archipegaso rojo,Arch Pegasus Red
 6F6278ED,aura,Grifo,Griffin
 F9527F9A,aura,Grifo,Griffin
 43037603,aura,Grifo,Griffin
@@ -3750,7 +3757,8 @@ A57BEC7D,consumible,Caja de Elige a tu personaje,Choose-a-Character Crate
 8E375A74,consumible,Caja de la victoria (Ícono),Victory Crate (Hero)
 FD8E9A63,consumible,Caja de Elige tu recompensa,Choose-a-Reward Crate
 6BBE9D14,consumible,Semilla diamante,Fabled Seed
-FB29BF1A,consumible,Medalla de la victoria,Victory Medal
+FB29BF1A,consumible,Medalla de la victoria (beta),Victory Medal (Beta)
+4178B683,consumible,Medalla de la victoria (temporada),Victory Medal (Season)
 5B529B1C,consumible,デスソード,デスソード
 D7FC1B8D,consumible,エターナルブリザード,エターナルブリザード
 41CC1CFA,consumible,キングスランス,キングスランス
@@ -4012,12 +4020,18 @@ A3048683,escudo,Raimon Isla Remota A,Backwater Raimon A
 19558F1A,escudo,Raimon Isla Remota B,Backwater Raimon B
 76B6D072,escudo,Inazuma Japón Implacable,Inazuma National War God
 CCE7D9EB,escudo,Inazuma Japón Implacable,Inazuma National War God
-38B0A4F2,escudo,Emblema de eliminatorias,Top Qualifier Emblem
-82E1AD6B,escudo,Emblema de ronda principal,Main Round Emblem
-14D1AA1C,escudo,Emblema de finalista,Finalist Emblem
-B744CE82,escudo,Emblema de MEJORES 4,Top 4 Emblem
-2174C9F5,escudo,Emblema de subcampeón,Runner-Up Emblem
-9B25C06C,escudo,Emblema de campeón,Champion Emblem
+38B0A4F2,escudo,Mejor clasificado (beta),Top Qualifier (Beta)
+82E1AD6B,escudo,Clasificado (beta),Qualifier (Beta)
+14D1AA1C,escudo,MEJORES 16 (beta),Top 16 Finish (Beta)
+B744CE82,escudo,MEJORES 4 (beta),Top 4 Finish (Beta)
+2174C9F5,escudo,Subcampeón (beta),Runner-Up (Beta)
+9B25C06C,escudo,Campeón (beta),Champion (Beta)
+7981BFEB,escudo,Clasificado (temporada),Qualifier (Season)
+C3D0B672,escudo,Mejor de la ronda principal (temporada),Top Main Round Finisher (Season)
+55E0B105,escudo,MEJORES 16 (temporada),Top 16 Finish (Season)
+F675D59B,escudo,MEJORES 4 (temporada),Top 4 Finish (Season)
+6045D2EC,escudo,Subcampeón (temporada),Runner-Up (Season)
+DA14DB75,escudo,Campeón (temporada),Champion (Season)
 815AAF28,escudo,Raimon 1,Raimon 1
 4F9FDE41,escudo,Tarjeteros,The Card
 AFC911AA,escudo,Fase previa FF A,FF Regional Pick A
@@ -4395,11 +4409,22 @@ A954439C,equipacion-equipo,Eq. Unicornios con Estrellas,Star-Spangled Unicorns K
 2C420C99,equipacion-equipo,Equipación <MNT:KINUNS>,<MNT:KINUNS> Kit
 1B28CE98,equipacion-equipo,Equipación Orión Juvenil,Orion Juniors Kit
 F62D06F0,equipacion-equipo,Equipación Animador,Entertainer Kit
+DF8B5340,equipacion-equipo,E. visitante Raimon,Raimon Away Kit
 CE53782D,equipacion-equipo,E. visitante Zeus,Zeus Away Kit
 3C8CDCCE,equipacion-equipo,E. visitante Servicio Secreto,Secret Service Away Kit
+8F1D119E,equipacion-equipo,E. visitante Claustro Sagrado,Cloister Divinity Away Kit
+40D6A44F,equipacion-equipo,E. visitante Mar de Árboles,Forest Team Away Kit
+A28C7602,equipacion-equipo,E. visitante Inazuma Japón,Inazuma National Away Kit
+0CFEE284,equipacion-equipo,E. visitante Neo Japón,Neo National Away Kit
+1ABC731F,equipacion-equipo,E. visitante Knights of Queen,Queen's Knights Away Kit
+7B055248,equipacion-equipo,E. visitante Los Rojos,Red Matador Away Kit
+A49A8E47,equipacion-equipo,E. visitante Ultramegahiedra,Ivy Selective Away Kit
+87CCFFF9,equipacion-equipo,E. visitante Inazuma Japón Alterno,Inazuma Another National Away Kit
+7289E1EC,equipacion-equipo,E. visitante Fertilia,Fertilia Eleven Away Kit
 792829A1,equipacion-equipo,E. visitante Flota Ixar,Ixar Fleet Away Kit
-35006F6A,equipacion-equipo,E. visitante Alpino (Ares),Alpine Away Kit (Ares)
 58823C86,equipacion-equipo,E. visitante Raimon Isla Remota,Backwater Raimon Away Kit
+35006F6A,equipacion-equipo,E. visitante Alpino (Ares),Alpine Away Kit (Ares)
+54B94E3D,equipacion-equipo,E. visitante Barcelona Orb,Barcelona Orb Away Kit
 3229031D,tactica-objeto,Cuernos de toro,Bull Horns
 F17A2E36,tactica-objeto,Espadón,Claymore
 B04B352F,tactica-objeto,Monte Fuji,Mount Fuji
@@ -4612,12 +4637,18 @@ B7581D81,placa,Placa 50,Nameplate 50
 60432C3D,placa,Placa 52,Nameplate 52
 5729EE3C,placa,Placa 53,Nameplate 53
 D23FA139,placa,Placa 54,Nameplate 54
-E5556338,placa,Placa de mejor clasificado,Top Qualifier Nameplate
-5F046AA1,placa,Placa de ronda principal,Main Round Nameplate
-C9346DD6,placa,Placa de finalista,Finalist Nameplate
-6AA10948,placa,Placa de MEJORES 4,Top 4 Nameplate
-FC910E3F,placa,Placa de subcampeón,Runner-Up Nameplate
-46C007A6,placa,Placa de campeón,Champion Nameplate
+E5556338,placa,Mejor clasificado (beta),Top Qualifier (Beta)
+5F046AA1,placa,Clasificado (beta),Qualifier (Beta)
+C9346DD6,placa,MEJORES 16 (beta),Top 16 Finish (Beta)
+6AA10948,placa,MEJORES 4 (beta),Top 4 Finish (Beta)
+FC910E3F,placa,Subcampeón (beta),Runner-Up (Beta)
+46C007A6,placa,Campeón (beta),Champion (Beta)
+BCEB253A,placa,Clasificado (temporada),Qualifier (Season)
+06BA2CA3,placa,Mejor de la RP (temporada),Top Main Round Finisher (Season)
+908A2BD4,placa,MEJORES 16 (temporada),Top 16 Finish (Season)
+331F4F4A,placa,MEJORES 4 (temporada),Top 4 Finish (Season)
+A52F483D,placa,Subcampeón (temporada),Runner-Up (Season)
+1F7E41A4,placa,Campeón (temporada),Champion (Season)
 AE2C9F55,material,Poste transformador,Transformer Pole
 147D96CC,material,Poste eléctrico simple,Simple Utility Pole
 C79BA294,material,Portería,Goal
@@ -4725,6 +4756,9 @@ EE8E7508,material,Foto del Inazuma Japón campeón,Inazuma National Champs Photo
 9BE09A78,material,Trofeo de oro (beta),Beta Gold Trophy
 21B193E1,material,Trofeo de plata (beta),Beta Silver Trophy
 B7819496,material,Trofeo de bronce (beta),Beta Bronze Trophy
+ED600BE7,material,Trofeo de oro (temporada),Season Gold Trophy
+03CFBEF5,material,Trofeo de plata (temporada),Season Silver Trophy
+66A8024D,material,Trofeo de bronce (temporada),Season Bronze Trophy
 40A2FA61,material,Caravana Inazuma,Inazuma Caravan
 CB540307,material,Caravana Inazuma prestigiosa,Prestigious Inazuma Caravan
 D692FD16,material,Vehículo blindado de la Royal Academy,Royal Academy Armored Vehicle

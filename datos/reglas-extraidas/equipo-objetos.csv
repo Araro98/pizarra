@@ -255,12 +255,18 @@ escudo,A3048683,838604A3,Raimon Isla Remota A,01_icon_emblem/em070001a.png
 escudo,19558F1A,1A8F5519,Raimon Isla Remota B,01_icon_emblem/em070001b.png
 escudo,76B6D072,72D0B676,Inazuma Japón Implacable,01_icon_emblem/em080001a.png
 escudo,CCE7D9EB,EBD9E7CC,Inazuma Japón Implacable,01_icon_emblem/em080001b.png
-escudo,38B0A4F2,F2A4B038,Emblema de eliminatorias,01_icon_emblem/em910001.png
-escudo,82E1AD6B,6BADE182,Emblema de ronda principal,01_icon_emblem/em910002.png
-escudo,14D1AA1C,1CAAD114,Emblema de finalista,01_icon_emblem/em910003.png
-escudo,B744CE82,82CE44B7,Emblema de MEJORES 4,01_icon_emblem/em910004.png
-escudo,2174C9F5,F5C97421,Emblema de subcampeón,01_icon_emblem/em910005.png
-escudo,9B25C06C,6CC0259B,Emblema de campeón,01_icon_emblem/em910006.png
+escudo,38B0A4F2,F2A4B038,Mejor clasificado (beta),01_icon_emblem/em910001.png
+escudo,82E1AD6B,6BADE182,Clasificado (beta),01_icon_emblem/em910002.png
+escudo,14D1AA1C,1CAAD114,MEJORES 16 (beta),01_icon_emblem/em910003.png
+escudo,B744CE82,82CE44B7,MEJORES 4 (beta),01_icon_emblem/em910004.png
+escudo,2174C9F5,F5C97421,Subcampeón (beta),01_icon_emblem/em910005.png
+escudo,9B25C06C,6CC0259B,Campeón (beta),01_icon_emblem/em910006.png
+escudo,7981BFEB,EBBF8179,Clasificado (temporada),01_icon_emblem/em910011.png
+escudo,C3D0B672,72B6D0C3,Mejor de la ronda principal (temporada),01_icon_emblem/em910012.png
+escudo,55E0B105,05B1E055,MEJORES 16 (temporada),01_icon_emblem/em910013.png
+escudo,F675D59B,9BD575F6,MEJORES 4 (temporada),01_icon_emblem/em910014.png
+escudo,6045D2EC,ECD24560,Subcampeón (temporada),01_icon_emblem/em910015.png
+escudo,DA14DB75,75DB14DA,Campeón (temporada),01_icon_emblem/em910016.png
 escudo,815AAF28,28AF5A81,Raimon 1,01_icon_emblem/em530591.png
 escudo,4F9FDE41,41DE9F4F,Tarjeteros,01_icon_emblem/em530584.png
 escudo,AFC911AA,AA11C9AF,Fase previa FF A,01_icon_emblem/em520510.png
@@ -517,11 +523,22 @@ equipacion,A954439C,C8A267B9,Eq. Unicornios con Estrellas,10_icon_chr/uniform/u0
 equipacion,2C420C99,39BF0E54,Equipación <MNT:KINUNS>,10_icon_chr/uniform/u081401_10_00_l.png
 equipacion,1B28CE98,B4BA7736,Equipación Orión Juvenil,10_icon_chr/uniform/u081501_10_00_l.png
 equipacion,F62D06F0,420C60A0,Equipación Animador,10_icon_chr/uniform/u113301_10_00_l.png
+equipacion,DF8B5340,6B5D76A6,E. visitante Raimon,10_icon_chr/uniform/u010101_20_00_l.png
 equipacion,CE53782D,CF6F1698,E. visitante Zeus,10_icon_chr/uniform/u011001_20_00_l.png
 equipacion,3C8CDCCE,A976A971,E. visitante Servicio Secreto,10_icon_chr/uniform/u020101_20_00_l.png
+equipacion,8F1D119E,EFDC8693,E. visitante Claustro Sagrado,10_icon_chr/uniform/u020401_20_00_l.png
+equipacion,40D6A44F,5F48AA38,E. visitante Mar de Árboles,10_icon_chr/uniform/u021801_20_00_l.png
+equipacion,A28C7602,5AB3DB5D,E. visitante Inazuma Japón,10_icon_chr/uniform/u030101_20_00_l.png
+equipacion,0CFEE284,684C0D1B,E. visitante Neo Japón,10_icon_chr/uniform/u030201_20_00_l.png
+equipacion,1ABC731F,DC8FCC6B,E. visitante Knights of Queen,10_icon_chr/uniform/u030601_20_00_l.png
+equipacion,7B055248,F7E141C4,E. visitante Los Rojos,10_icon_chr/uniform/u031901_20_00_l.png
+equipacion,A49A8E47,8C8C33FD,E. visitante Ultramegahiedra,10_icon_chr/uniform/u045601_20_00_l.png
+equipacion,87CCFFF9,3DB4CAAE,E. visitante Inazuma Japón Alterno,10_icon_chr/uniform/u051501_20_00_l.png
+equipacion,7289E1EC,A5E268FB,E. visitante Fertilia,10_icon_chr/uniform/u061101_20_00_l.png
 equipacion,792829A1,04386FD4,E. visitante Flota Ixar,10_icon_chr/uniform/u061301_20_00_l.png
-equipacion,35006F6A,C470EFB8,E. visitante Alpino (Ares),10_icon_chr/uniform/u070901_20_00_l.png
 equipacion,58823C86,241A0FDB,E. visitante Raimon Isla Remota,10_icon_chr/uniform/u070101_20_00_l.png
+equipacion,35006F6A,C470EFB8,E. visitante Alpino (Ares),10_icon_chr/uniform/u070901_20_00_l.png
+equipacion,54B94E3D,AAB484ED,E. visitante Barcelona Orb,10_icon_chr/uniform/u071601_20_00_l.png
 tactica,3229031D,43D8B1AC,Cuernos de toro,
 tactica,F17A2E36,68F5E26F,Espadón,
 tactica,B04B352F,71EED32E,Monte Fuji,

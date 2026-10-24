@@ -20,6 +20,7 @@ Las vias, todas en tablas del juego:
 | correo   | `delivery_config` m_DeliveryContentsDataList: regalos por correo       |
 | cronica  | plantillas de los equipos rivales de la Cronica (`team_config`, equipos `tm_cro_*`): se fichan tras jugar contra ellos (Zanark con Cao Cao, la Beta del modo Reina que si se ficha) |
 | archivo  | `data_file_config` m_MenuDataFileConfigList: personajes del archivo de datos (los clubes del instituto y demas gente de la historia) |
+| temporada | `seasonal_chara_param` SEASONAL_CHARA_PARAM_DATA_LIST: los de la temporada; con la actualizacion del juego de 2026-10-20 entran las 6 formas mixi max que ahora se fichan (Arion, Flora, Goldie, Fei, Riccardo y Victor en su forma trans; dicho por Aaron) |
 
 Y se quitan siempre, salgan donde salgan, las formas a las que se llega en un
 partido: la segunda columna de CHARA_MODE_CHANGE_LIST (cambio de modo) y de
@@ -148,6 +149,8 @@ def main():
     anade("correo", identidades(volcar(unico(os.path.join(GD, "post"), "delivery_config"), "m_DeliveryContentsDataList"), conocidas))
     anade("cronica", equipos_de_cronica(conocidas))
     anade("archivo", identidades(volcar(unico(os.path.join(GD, "data_file"), "data_file_config"), "m_MenuDataFileConfigList"), conocidas))
+    # la temporada (actualizacion de 2026-10-20): solo la primera columna es el personaje
+    anade("temporada", identidades([f[:1] for f in volcar(unico(ch, "seasonal_chara_param"), "SEASONAL_CHARA_PARAM_DATA_LIST")], conocidas))
     cambio = unico(ch, "chara_change")
     transformadas = {}
     for tabla, nombre in (("CHARA_MODE_CHANGE_LIST", "cambio de modo"),
@@ -168,7 +171,7 @@ def main():
     legales = sorted(k for k in fuentes if k not in transformadas)
     with open(os.path.join(EXTRAIDAS, "fichables.csv"), "w", encoding="utf-8", newline="") as f:
         f.write("# Personajes que el juego da por alguna via (NOTAS O-205). Lo genera herramientas/construir_fichables.py.\n")
-        f.write("# fuentes: universo | basara | tienda | unica | correo | cronica | archivo\n")
+        f.write("# fuentes: universo | basara | tienda | unica | correo | cronica | archivo | temporada\n")
         w = csv.writer(f)
         w.writerow(["identidad", "nombre", "fuentes"])
         for k in legales:

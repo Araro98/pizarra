@@ -104,6 +104,11 @@ def cargar_nombres(idioma):
             for celda in fila[1:]:
                 t = texto_de(celda)
                 if t:
+                    # los premios de cada temporada (actualizacion de 2026-10-20) llevan el
+                    # numero de la temporada como hueco que rellena el juego: aqui, la palabra
+                    t = t.replace("T<VROAD_SEASON_NUMBER>", "temporada").replace(
+                        "Season <VROAD_SEASON_NUMBER>", "Season").replace(
+                        "S<VROAD_SEASON_NUMBER>", "Season").replace("<VROAD_SEASON_NUMBER>", "")
                     fuera.setdefault(ident, t)
                     break
     return fuera

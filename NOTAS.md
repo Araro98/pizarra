@@ -11273,6 +11273,43 @@ depende de partido-pruebas.txt) y sin tocar la partida. En el codigo los cambios
     el aura unidos), expresiones de cerca, la foto y las descargas guardadas en la carpeta elegida,
     y una cara suelta (c01009360) con su cuerpo de nino.
 
+### O-348 · La actualizacion del juego del 2026-10-20: lo nuevo, legal en Pizarra
+
+Aaron (2026-10-24): "Han actualizado el juego y han metido cosas nuevas ... revisa si hay alguna cosa
+mas que me he dejado y asi anadirlos a pizarra como cosas legales, en todos los sitios ... Revisa
+tambien que la actualizacion no rompa nada".
+
+- Como: los .cfg.bin se sacan ahora con el lector propio (ievr/cpk.py), cogiendo de cada ruta el
+  .cpk mas nuevo, a `datos/juego/extracted` (71.102 ficheros en 66 s; el de antes queda en
+  `extracted-2026-09`, y las tablas volcadas en `tablas-2026-09`). 225 cambian, 5 nuevos (con otro
+  numero de version en el nombre: item_config, delivery_config, soccer_tournament_config, y el nuevo
+  cpu_preset_team_config). Todas las herramientas construir_* pasadas dos veces.
+- Personajes que ahora se fichan (9):
+  - las 6 formas mixi max de la temporada: Arion (c05028130, Rey Arturo), Flora (c05028610),
+    Goldie (c05028120), Fei (c05028090), Riccardo (c05028040) y Victor (c05028110). Estan en
+    `seasonal_chara_param` (SEASONAL_CHARA_PARAM_DATA_LIST, la lista de la temporada: las otras 234
+    filas ya eran fichables) y en `change_aura_skill_config`. Nueva via "temporada" en
+    construir_fichables.py. En el juego, sus formas de partido son ahora otros personajes
+    (`c05028xxx_5000`, `_5200`, `_5300`), que siguen sin ficharse.
+  - por la tienda: Heath Moore y Duske Grayling de pequenos (c11907100, c11907110) y Atlas
+    Strongwater (c11808210).
+- Supertecnicas que ahora se consiguen (tienda): Combo cosmico y Parada de Asura.
+- 7 armaduras nuevas (las de esas formas: Lancelot, Magister, Archipegaso alado y rojo, Robin,
+  Amaterasu, Eris), con sus duenos en espiritus-duenos.csv.
+- 11 equipaciones de visitante nuevas (Raimon, Claustro Sagrado, Mar de Arboles, Inazuma Japon,
+  Neo Japon, Knights of Queen, Los Rojos, Ultramegahiedra, Inazuma Japon Alterno, Fertilia,
+  Barcelona Orb) y los escudos y la medalla de cada temporada del modo competitivo (sus nombres
+  traen el numero de temporada como hueco `<VROAD_SEASON_NUMBER>`: sale "temporada").
+- Iconos: 293 nuevos (las 3 caras, las armaduras, los escudos, los de temporada...) y 196 cambiados,
+  sacados solo los del menu con el lector propio (scratchpad actualizacion/iconos_nuevos.py).
+- Ademas el juego cambio tecnicas y stats de muchas formas mixi max de GO 2 (ahora con sus 6
+  tecnicas), y los nombres en romaji de nombre completo (marcadores.csv cambia mucho, pero resuelve
+  los mismos 187 marcadores de las tablas que antes).
+- Comprobado: pruebas/test_basico.py y test_escritura.py pasan con la partida de Aaron; crear cada
+  uno de los 9 en una copia de su partida funciona; salen como legales en el draft, en la tier list y
+  al fichar. La partida de Aaron es de antes de la actualizacion (2026-10-15): cuando guarde con el
+  juego nuevo hay que volver a pasar las pruebas con ella.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
