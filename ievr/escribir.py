@@ -1014,6 +1014,19 @@ def _catalogo_hermanos(id_hex):
     return categoria, hermanos
 
 
+def _es_armadura_o_mixi(id_hex):
+    from ievr import opciones as O
+    return (O._espiritus().get(id_hex) or {}).get("familia") in ("armadura", "mixi")
+
+
+def _plantilla_armadura(candidatos):
+    """La fila que copiar para una armadura o un mixi max: una de las que hizo el juego al
+    conseguirlos (sub 10, como la Amaterasu de Goldie, que se pone con la X). Las de sub 2
+    (montones) puede que no se activen al darle a la X (O-348). None si no hay."""
+    buenas = [f for f in candidatos if f.get("sub") == 10 and _es_armadura_o_mixi(f.get("id") or "")]
+    return buenas[0] if buenas else None
+
+
 def anadir_objeto(plain, nombre, cantidad=1):
     """Crea la fila de un objeto que no se tiene. Probado en el juego (NOTAS P-09).
 
@@ -1060,6 +1073,8 @@ def anadir_objeto(plain, nombre, cantidad=1):
     if categoria == "supertecnica":
         candidatos.sort(key=lambda f: 0 if f.get("sub") == 2 else 1)
     modelo = candidatos[0] if candidatos else None
+    if modelo is not None and categoria == "aura" and _es_armadura_o_mixi(id_hex):
+        modelo = _plantilla_armadura(candidatos) or modelo
     if modelo is None:
         raise Ilegal("no hay ninguna fila de %s que copiar como plantilla" % categoria)
 
@@ -3860,6 +3875,8 @@ def conseguir_todo(plain, categoria, cantidad):
     modelo = candidatos[0] if candidatos else None
     if modelo is None:
         raise Ilegal("no hay ninguna fila de %s que copiar como plantilla" % categoria)
+    # las armaduras y los mixi max, con la forma que les da el juego (O-348)
+    modelo_armadura = _plantilla_armadura(candidatos) if categoria == "aura" else None
 
     poseidas = inventario.filas_poseidas(plain)
     libres = [(i, f) for i, f in enumerate(bloque["filas"])
@@ -3893,7 +3910,8 @@ def conseguir_todo(plain, categoria, cantidad):
         buf[libre["id_off"]:libre["id_off"] + 4] = bytes.fromhex(id_hex)
         struct.pack_into("<I", buf, libre["serie_off"], serie)
         buf[libre["kind_off"]] = inventario.KIND_REAL
-        buf[libre["sub_off"]] = modelo.get("sub", inventario.SUB_EN_MOCHILA)
+        plantilla = modelo_armadura if modelo_armadura and _es_armadura_o_mixi(id_hex) else modelo
+        buf[libre["sub_off"]] = plantilla.get("sub", inventario.SUB_EN_MOCHILA)
         if "cantidad_off" in libre:
             struct.pack_into("<I", buf, libre["cantidad_off"], cantidad)
         if "equipada_off" in libre:

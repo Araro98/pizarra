@@ -11309,6 +11309,15 @@ tambien que la actualizacion no rompa nada".
   uno de los 9 en una copia de su partida funciona; salen como legales en el draft, en la tier list y
   al fichar. La partida de Aaron es de antes de la actualizacion (2026-10-15): cuando guarde con el
   juego nuevo hay que volver a pasar las pruebas con ella.
+- Pasadas ya con su partida de despues de la actualizacion (2026-10-24 12:38): todo bien.
+- Armaduras (Aaron: Flora mixi max Rosa negra y Goldie mixi max Reina de los dragones no se ponen
+  la armadura con la X): en `change_aura_skill_config` (ids con los bytes al reves) el keshin
+  Eris (E725E23F) da a Flora forma la armadura NUEVA 3F4A95EC, y Amaterasu (DEA7D250) a Goldie
+  forma la 06C8A583; la Flora y la Goldie de siempre, las de antes (A97A929B, 90F8A2F4). En la
+  partida de Aaron estan 189 de las 196 armaduras, todas menos las 7 nuevas: la X necesita tener
+  la armadura en la mochila. No era fallo del juego. Las armaduras y mixi max que crea Pizarra
+  copian ahora la forma de las que hace el juego (sub 10, cantidad 1; antes podian salir como
+  monton, sub 2). Hay que conseguir las 7 nuevas (Espiritus, conseguir todo, o una a una).
 
 ## SUPUESTO
 
