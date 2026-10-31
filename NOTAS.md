@@ -11350,6 +11350,15 @@ especificamente esos jugadores". En el codigo los cambios citan esta nota.
   padres que si este (antes, con la cabeza).
 - Visor de figuras: filtro "Modelo raro" (cualquier rareza o una, con cuantos hay) y lo raro en la
   linea de debajo del nombre.
+- Vuelta 2 (2026-10-31, Aaron: "hay alguno mas como nun chuck que tiene un tatoo"; "si, anadelo al
+  filtro"): el tatuaje de Nun Chuck no esta en su modelo sino en la piel de los brazos de su cuerpo
+  especial `_dam` (sk000701; las pieles de brazos de algunas equipaciones, sk081101..., lo llevan en
+  el mismo sitio para ese cuerpo). Solo el la usa. Otros 12 tienen ropa de un cuerpo especial sin
+  tatuaje: tripa al aire (Natalie Sunrise, Suzette Hartland), remangado (Subaru Honda), mangas
+  largas (Par Scal, Rex Remington, Wolfe Whyte, Ringo Saturn) y `_slv` (Gazelle, Thor Stoutberg,
+  Bryce Whitingale x2, Ade Kebe). Etiqueta nueva "piel" ("Piel especial" en el filtro). Los
+  tatuajes pintados en la textura de la cara o de la ropa propia no se pueden buscar: no hay nada en
+  las tablas que los marque.
 - Comprobado (servidor de pruebas y Chrome headless): Spencer con los guantes de gato, Pounding con
   los de boxeo, Veronica con la camara en el pecho, el filtro de cola (Mecha-Mark, Jethro Mackin,
   Kia Tanner, El Segundo...). Pruebas de siempre pasan.

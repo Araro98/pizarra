@@ -73,7 +73,9 @@ guantes de boxeo, mecha mark un cable en la espalda"):
   esqueleto comun. Esa columna trae tambien pelos del editor de avatares (`h0002...` de
   `_face/20_EDIT`), que no son de `_item/` y aqui no entran. Con armadura no se pone.
 - rareza: etiquetas (separadas por |) para buscarlos en el visor de figuras: pieza (la de
-  arriba), guantes (unos guantes que no son los de portero de siempre) y, por los huesos de los
+  arriba), guantes (unos guantes que no son los de portero de siempre), piel (su ropa de serie
+  es de un cuerpo especial, con su propia piel de brazos: el tatuaje de Nun Chuck `_dam`, la tripa
+  al aire `_bly`, mangas remangadas `_fld`, largas `_lse`/`_lsa`, `_slv`) y, por los huesos de los
   que cuelga el modelo de la cara (que suele ir solo de la cabeza y el pelo): cola (el cable de
   Mecha-Mark), capa, alas, brazos, mangas, piernas (y pies), cuerpo (camiseta, pantalon) y
   huesos (huesos que no estan en ningun esqueleto comun). El pecho, el cuello y los hombros no
@@ -115,7 +117,7 @@ GUANTES_NORMALES = ("g000201", "g000301", "g000401")
 HUESOS_RAROS = {"til": "cola", "mnt": "capa", "wng": "alas", "a": "brazos", "fa": "brazos",
                 "w": "brazos", "slv": "mangas", "l": "piernas", "foot": "piernas",
                 "sht": "cuerpo", "pnt": "cuerpo"}
-ORDEN_RAREZAS = ("pieza", "guantes", "cola", "capa", "alas", "brazos", "mangas", "piernas",
+ORDEN_RAREZAS = ("pieza", "guantes", "piel", "cola", "capa", "alas", "brazos", "mangas", "piernas",
                  "cuerpo", "huesos")
 TEX_ARMADURAS = "data/dx11/chr/_armd/"
 
@@ -406,6 +408,9 @@ def rarezas(filas, carpeta):
             etiquetas.add("pieza")
         if f["guantes"] and f["guantes"].split("/")[0] not in GUANTES_NORMALES:
             etiquetas.add("guantes")
+        # la ropa de un cuerpo especial (u040201_10_dam: el tatuaje de Nun Chuck)
+        if re.search(r"_\d\d_[A-Za-z]+$", f.get("ropa") or ""):
+            etiquetas.add("piel")
         if f["cara"] not in por_cara:
             de_cara = set()
             try:

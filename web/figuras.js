@@ -1132,6 +1132,7 @@ let MOSTRAR = 120;
 // del filtro "Modelo raro"
 const RAREZAS = {
   pieza: "Pieza aparte (guantes de gato, de boxeo...)", guantes: "Guantes propios",
+  piel: "Piel especial (tatuaje, tripa al aire, mangas...)",
   cola: "Cola o cable en la espalda", capa: "Capa", alas: "Alas", brazos: "Algo en los brazos",
   mangas: "Mangas propias", piernas: "Algo en las piernas o los pies",
   cuerpo: "Cuerpo propio (camiseta o pantalón)", huesos: "Huesos propios (monstruos y demás)",
