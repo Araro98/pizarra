@@ -653,13 +653,14 @@ def _material(g, mat, por_hash, tex_glb, piel, sombra, sin_luz, piel_aparte=Fals
 
 
 def armar(esqueleto, modelos, texturas, piel=None, sombra=SOMBRA, sin_luz=True, bancos=(), sin_avance=True,
-          informe=None, piel_aparte=False, dorsal=None, omitir=()):
+          informe=None, piel_aparte=False, dorsal=None, omitir=(), padres=None):
     """El .glb en memoria (un Glb) a partir de las piezas ya leidas:
     esqueleto: bytes del G4SK (o del .g4pkm que lo lleva); modelos: [(nombre, g4md, g4mg)];
     texturas: [bytes de G4TX]; piel: (r, g, b) o None (se saca de la cara);
     bancos: [(nombre del banco, [G4MT leidos], [clips])] (ver ievr/g4anim.py).
     La ropa de equipo (O-334): piel_aparte, dorsal (ver _material) y omitir (submallas que no
-    van). La piel usada queda en g.piel."""
+    van). padres: {crc32 de un hueso: crc32 de su padre} de otro esqueleto (el propio de la
+    cara), para los huesos que no estan en este (O-349). La piel usada queda en g.piel."""
     informe = informe or (lambda *_: None)
     g = Glb()
     sk = leer_g4sk(esqueleto)
@@ -673,6 +674,17 @@ def armar(esqueleto, modelos, texturas, piel=None, sombra=SOMBRA, sin_luz=True, 
     informe("color de piel: %s" % (piel,))
     reposo, nodo_hueso = _esqueleto(g, sk, informe)
     cabeza = nodo_hueso.get(crc("c_head_1_0"), 0)
+    # un hueso que no esta en este esqueleto pero si en el propio de la cara va con el primero de
+    # sus padres que si este (la camara de Veronica Camry cuelga del pecho; si no, iria con la
+    # cabeza, O-349)
+    if padres:
+        nodo_hueso = dict(nodo_hueso)
+        for h in padres:
+            p, vueltas = h, 0
+            while p not in nodo_hueso and p in padres and vueltas < 64:
+                p, vueltas = padres[p], vueltas + 1
+            if h not in nodo_hueso and p in nodo_hueso:
+                nodo_hueso[h] = nodo_hueso[p]
     tex_glb = {}
     for nombre, md_b, mg in modelos:
         md = leer_g4md(md_b)
@@ -855,6 +867,13 @@ def rutas_de(f, solo_cuerpo=False):
     cara = f["cara"]
     modelos.append((os.path.basename(cara), "common/chr/%s.g4md" % cara, "common/chr/%s.g4mg" % cara))
     texturas.append("dx11/chr/%s.g4tx" % cara)
+    # la pieza aparte que lleva puesta (los guantes de gato de Spencer Gates, O-349): un modelo de
+    # _item/ colgado de los huesos del esqueleto comun; tambien con la ropa del equipo
+    if f.get("pieza") and not f.get("armadura"):
+        m = "common/chr/_item/" + f["pieza"]
+        modelos.append((os.path.basename(f["pieza"]), m + ".g4md", m + ".g4mg"))
+        if f.get("pieza_tex"):
+            texturas.append("dx11/chr/_item/%s/%s.g4tx" % (f["pieza"].split("/")[0], f["pieza_tex"]))
     banco = "common/chr/{0}/{0}_{1}.g4pk".format(f["anim"], BANCO_PARTIDO) if f.get("anim") else None
     return "common/chr/" + f["esqueleto"], modelos, texturas, banco
 
@@ -872,21 +891,48 @@ def bancos_de_fila(f, banco=None):
     return out
 
 
-def version_de(ruta):
-    """La VERSION_MODELO con la que se hizo un .glb (0 si es de antes, si esta cortado o si no
-    se puede leer). Cortado: el JSON va al principio y se leeria bien aunque falte la geometria
-    (un apagon justo despues de escribirlo); la cabecera dice cuanto mide entero."""
+def extras_de(ruta):
+    """El asset.extras de un .glb ({} si no se puede leer o si esta cortado: el JSON va al
+    principio y se leeria bien aunque falte la geometria, por un apagon justo despues de
+    escribirlo; la cabecera dice cuanto mide entero)."""
     try:
         with open(ruta, "rb") as fh:
             cab = fh.read(20)
             if cab[:4] != b"glTF" or cab[16:20] != b"JSON":
-                return 0
+                return {}
             if struct.unpack_from("<I", cab, 8)[0] != os.fstat(fh.fileno()).st_size:
-                return 0
+                return {}
             j = json.loads(fh.read(struct.unpack_from("<I", cab, 12)[0]))
-        return int(j.get("asset", {}).get("extras", {}).get("version") or 0)
+        ex = j.get("asset", {}).get("extras", {})
+        return ex if isinstance(ex, dict) else {}
     except (OSError, ValueError, AttributeError, struct.error):
+        return {}
+
+
+def version_de(ruta):
+    """La VERSION_MODELO con la que se hizo un .glb (0 si es de antes, si esta cortado o si no
+    se puede leer)."""
+    try:
+        return int(extras_de(ruta).get("version") or 0)
+    except (TypeError, ValueError):
         return 0
+
+
+def al_dia(ruta, codigo):
+    """Si el .glb de `codigo` lo hizo esta version del conversor y lleva todas sus piezas. Los
+    pocos con pieza aparte (O-349) que se convirtieron antes de ponerla se rehacen solos, sin
+    subir VERSION_MODELO (que haria rehacer todos los modelos y las supertecnicas)."""
+    ex = extras_de(ruta)
+    try:
+        if int(ex.get("version") or 0) != VERSION_MODELO:
+            return False
+    except (TypeError, ValueError):
+        return False
+    base = codigo[:-len(SUFIJO_CUERPO)] if codigo.endswith(SUFIJO_CUERPO) else codigo
+    f = piezas(base) if not codigo.startswith(PREFIJO_ROPA) else None
+    if f and f.get("pieza") and not f.get("armadura"):
+        return "pieza" in (ex.get("piezas") or {})
+    return True
 
 
 def _leer_g4md(juego, ruta):
@@ -942,7 +988,15 @@ def convertir(codigo, carpeta_juego, destino, juego=None, informe=None):
             informe("  (el banco %s no trae %s)" % (ruta_banco, ", ".join(faltan)))
         bancos.append((os.path.splitext(os.path.basename(ruta_banco))[0], mts, [c for c in clips if c in hay]))
     piel = bytes.fromhex(f["piel"]) if f.get("piel") else None
-    g = armar(juego.leer(esqueleto), leidos, texs, piel=piel, bancos=bancos, informe=informe)
+    # el esqueleto propio de la cara, si lo trae en su .g4pkm y no es el que se usa (O-349)
+    padres = {}
+    pkm = "common/chr/%s.g4pkm" % f["cara"]
+    if juego.hay(pkm) and pkm != esqueleto:
+        sk_cara = next((x for _n, x in leer_g4pk(juego.leer(pkm)) if x[:4] == b"G4SK"), None)
+        if sk_cara:
+            s = leer_g4sk(sk_cara)
+            padres = {h: s["hashes"][p] for h, p in zip(s["hashes"], s["padres"]) if 0 <= p < len(s["hashes"])}
+    g = armar(juego.leer(esqueleto), leidos, texs, piel=piel, bancos=bancos, informe=informe, padres=padres)
     # (con la piel usada: la pagina tinta con ella la ropa de equipo, O-334)
     g.j["asset"]["extras"] = {"version": VERSION_MODELO, "codigo": codigo,
                               "piezas": {k: v for k, v in f.items() if v and k != "codigo"},

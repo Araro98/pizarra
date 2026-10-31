@@ -11319,6 +11319,41 @@ tambien que la actualizacion no rompa nada".
   copian ahora la forma de las que hace el juego (sub 10, cantidad 1; antes podian salir como
   monton, sub 2). Hay que conseguir las 7 nuevas (Espiritus, conseguir todo, o una a una).
 
+### O-349 · Las piezas raras de los modelos: que salgan y un filtro para buscarlas
+
+Lo que pidio Aaron (2026-10-31): "busca jugadores que tienen una particularidad rara dentro de su
+modelo, por ejemplo Spencer Gates tiene unos guantes de gato, Pounding guantes de boxeo, mecha mark
+un cable en la espalda"; y luego "arreglalo y haz un filtro en el visor 3d para buscar
+especificamente esos jugadores". En el codigo los cambios citan esta nota.
+- Donde esta cada rareza en el juego:
+  - Una pieza aparte: CHARA_MODEL_INFO col 18 es el crc32 del nombre de un modelo de
+    `common/chr/_item/` (`i01001050`: los guantes de gato de Spencer Gates, colgados de antebrazos
+    y munecas; `i03030960`: los de boxeo de Sean Pounding, con los dedos; `i03033400`: lo del pecho
+    de Karl Kappa; `i11700180`: la camara de Veronica Camry; `i000006`: algo que lleva la otra
+    version de Destin Billows, c11010012). Pizarra no la ponia: salian sin guantes ni camara. La
+    misma columna trae pelos del editor de avatares (`h0002...`, `_face/20_EDIT`), que no entran.
+  - Dentro del modelo de la cara, colgado de huesos del cuerpo: el cable de Mecha-Mark son los
+    huesos de cola (c_til) del esqueleto comun; capas (mnt: Jude Sharp de Royal Academy...), brazos,
+    mangas, piernas, alas. Esas ya salian.
+  - Guantes que no son los de portero de siempre (g000201/301/401): Anorel, Bhufa, Enimaux, Ash
+    Barnes.
+- herramientas/construir_modelos_personaje.py: columnas nuevas en modelos-personaje.csv: pieza y
+  pieza_tex (la de _item, sin armadura) y rareza (etiquetas: pieza, guantes, cola, capa, alas,
+  brazos, mangas, piernas, cuerpo, huesos; por los huesos de los que cuelga la cara, sin contar el
+  pecho, el cuello y los hombros, que usan cientos de pelos largos). 72 modelos con alguna. El resto
+  de la tabla, igual que antes (comparado fila a fila).
+- ievr/g4.py: rutas_de pone la pieza (tambien en `<codigo>_cuerpo`, con la ropa del equipo). Los
+  .glb ya convertidos de esos 5 se rehacen solos (g4.al_dia: les falta "pieza" en sus extras), sin
+  subir VERSION_MODELO, que haria rehacer todos los modelos y las supertecnicas. La camara de
+  Veronica cuelga de un hueso que solo esta en su esqueleto propio (c_cam_1_0, hijo del pecho, en su
+  .g4pkm): armar recibe los padres de ese esqueleto y un hueso que falta va con el primero de sus
+  padres que si este (antes, con la cabeza).
+- Visor de figuras: filtro "Modelo raro" (cualquier rareza o una, con cuantos hay) y lo raro en la
+  linea de debajo del nombre.
+- Comprobado (servidor de pruebas y Chrome headless): Spencer con los guantes de gato, Pounding con
+  los de boxeo, Veronica con la camara en el pecho, el filtro de cola (Mecha-Mark, Jethro Mackin,
+  Kia Tanner, El Segundo...). Pruebas de siempre pasan.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

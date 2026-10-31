@@ -87,7 +87,9 @@ def personajes():
                 # si se puede fichar en el juego (los de la historia, NPC, caras sin usar: no)
                 "jugable": bool(p) and p.get("fichable") == "si" and grupo == "personaje",
                 # su tipo de cuerpo (01..04: el de las animaciones de las supertecnicas)
-                "tc": "%02d" % int(f["anim"][4]) if re.fullmatch(r"c000\d01", f.get("anim") or "") else ""})
+                "tc": "%02d" % int(f["anim"][4]) if re.fullmatch(r"c000\d01", f.get("anim") or "") else "",
+                # lo raro de su modelo (guantes de gato, cable, capa...), para el filtro (O-349)
+                "rareza": [x for x in (f.get("rareza") or "").split("|") if x]})
             vistos.add(codigo)
         for c, p in por_cara.items():
             pon(c, p["nombre"], p)
@@ -675,7 +677,8 @@ def filas_extra():
             if not base:
                 continue
             f = dict(base)
-            f.update({"codigo": c, "cara": cara, "piel": ""})
+            # (lo raro y la pieza aparte son de la cara del otro, O-349)
+            f.update({"codigo": c, "cara": cara, "piel": "", "pieza": "", "pieza_tex": "", "rareza": ""})
             extra[c] = f
         # en la tabla de piezas (g4.piezas), para convertirlas
         g4.piezas("c01000010")

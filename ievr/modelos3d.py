@@ -101,7 +101,7 @@ def _al_dia(codigo):
     como los del script de pruebas con las tallas de ropa mal, se vuelven a convertir)."""
     from ievr import g4
     ruta = ruta_glb(codigo)
-    return os.path.isfile(ruta) and g4.version_de(ruta) == g4.VERSION_MODELO
+    return os.path.isfile(ruta) and g4.al_dia(ruta, codigo)
 
 
 def _sin_juego():

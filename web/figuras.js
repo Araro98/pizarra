@@ -1128,10 +1128,19 @@ function elegirOtro(x, r, i) {
 
 // --------------------------------------------------------------------------- la lista de personajes
 let MOSTRAR = 120;
+// lo raro del modelo de cada uno (columna rareza de modelos-personaje.csv, O-349), en el orden
+// del filtro "Modelo raro"
+const RAREZAS = {
+  pieza: "Pieza aparte (guantes de gato, de boxeo...)", guantes: "Guantes propios",
+  cola: "Cola o cable en la espalda", capa: "Capa", alas: "Alas", brazos: "Algo en los brazos",
+  mangas: "Mangas propias", piernas: "Algo en las piernas o los pies",
+  cuerpo: "Cuerpo propio (camiseta o pantalón)", huesos: "Huesos propios (monstruos y demás)",
+};
 function filtrados() {
-  const txt = $("#buscar").value.trim().toLowerCase(), g = $("#f-grupo").value, s = $("#f-saga").value;
+  const txt = $("#buscar").value.trim().toLowerCase(), g = $("#f-grupo").value, s = $("#f-saga").value, r = $("#f-rareza").value;
   const deTipo = p => !g || (g === "jugable" ? p.jugable : g === "nojugable" ? !p.jugable && !["armadura", "avatar"].includes(p.grupo) : p.grupo === g);
-  return PERSONAJES.filter(p => deTipo(p) && (!s || p.saga === s) &&
+  const raro = p => !r || (r === "*" ? (p.rareza || []).length > 0 : (p.rareza || []).includes(r));
+  return PERSONAJES.filter(p => deTipo(p) && (!s || p.saga === s) && raro(p) &&
     (!txt || p.nombre.toLowerCase().includes(txt) || (p.equipo || "").toLowerCase().includes(txt) || p.codigo.includes(txt)));
 }
 function pintarLista() {
@@ -1166,7 +1175,8 @@ function pintarEncabezado() {
   $("#nombre-fig").textContent = p ? p.nombre : "Figuras 3D";
   const eq = E.equipacion === "propia" || !p || !p.viste ? (p && p.viste ? "Con su ropa de siempre" : "Con lo suyo")
     : (EQUIPACIONES.find(x => x.id === E.equipacion) || {}).nombre || "";
-  $("#sub-fig").textContent = [p && p.saga, eq, p && p.viste && E.conDorsal ? "Dorsal " + E.dorsal : "", p && p.viste && E.capitan ? "Capitán" : ""]
+  $("#sub-fig").textContent = [p && p.saga, eq, p && p.viste && E.conDorsal ? "Dorsal " + E.dorsal : "", p && p.viste && E.capitan ? "Capitán" : "",
+    ...((p && p.rareza) || []).map(x => (RAREZAS[x] || x).replace(/ \(.*\)$/, ""))]
     .filter(Boolean).join(" · ");
 }
 
@@ -1761,7 +1771,7 @@ function hacerZip(ficheros) {
 
 // --------------------------------------------------------------------------- los mandos
 $("#buscar").oninput = () => { MOSTRAR = 120; pintarLista(); };
-$("#f-grupo").onchange = $("#f-saga").onchange = () => { MOSTRAR = 120; pintarLista(); };
+$("#f-grupo").onchange = $("#f-saga").onchange = $("#f-rareza").onchange = () => { MOSTRAR = 120; pintarLista(); };
 $("#b-equipacion").onclick = ventanaEquipaciones;
 document.querySelectorAll("#disenos button").forEach(b => { b.onclick = () => cambiar({ diseno: b.dataset.d }); });
 $("#c-portero").onchange = e => cambiar({ portero: e.target.checked });
@@ -1826,6 +1836,11 @@ $("#b-glb").onclick = e => conAviso(e.currentTarget, "Preparando...", descargarG
   const orden = Object.keys(CHAPA_SAGA);
   sagas.sort((a, b) => (orden.indexOf(a) + 1 || 99) - (orden.indexOf(b) + 1 || 99));
   for (const s of sagas) $("#f-saga").append(el("option", { value: s, text: s }));
+  // el filtro de los modelos raros, con cuantos hay de cada cosa (O-349)
+  const cuantos = r => PERSONAJES.filter(p => r === "*" ? (p.rareza || []).length : (p.rareza || []).includes(r)).length;
+  if (cuantos("*")) $("#f-rareza").append(el("option", { value: "*", text: "Cualquier rareza (" + cuantos("*") + ")" }));
+  for (const [r, nombre] of Object.entries(RAREZAS))
+    if (cuantos(r)) $("#f-rareza").append(el("option", { value: r, text: nombre + " (" + cuantos(r) + ")" }));
   const pedido = new URLSearchParams(location.search).get("p");
   if (E.equipacion !== "propia" && !EQUIPACIONES.some(x => x.id === E.equipacion)) E.equipacion = "propia";
   const p = PERSONAJES.find(x => x.codigo === (pedido || E.codigo)) || PERSONAJES.find(x => x.codigo === "c01000010") || PERSONAJES[0];

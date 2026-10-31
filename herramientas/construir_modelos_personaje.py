@@ -64,6 +64,20 @@ Salen `modelos-equipacion.csv` y `modelos-ropa.csv`, y en `modelos-personaje.csv
 columnas cuerpo, tipo, talla, ropa (su ropa de serie) y vestir (1 = en el partido lleva
 la equipacion del equipo; 0 = lo suyo: animales, armaduras, cuerpos que no son de
 persona, ropa de cuerpo entero `f`, y Layton y Luke, que en VR juegan siempre con su ropa).
+
+Las piezas raras del modelo (O-349, Aaron: "Spencer Gates tiene unos guantes de gato, Pounding
+guantes de boxeo, mecha mark un cable en la espalda"):
+- pieza/pieza_tex: CHARA_MODEL_INFO col 18 es el crc32 del nombre de un modelo aparte de
+  `_item/` que lleva puesto (`i01001050`, los guantes de gato de Spencer Gates; los de boxeo de
+  Pounding, lo del pecho de Karl Kappa y de Veronica Camry). Va colgado de los huesos del
+  esqueleto comun. Esa columna trae tambien pelos del editor de avatares (`h0002...` de
+  `_face/20_EDIT`), que no son de `_item/` y aqui no entran. Con armadura no se pone.
+- rareza: etiquetas (separadas por |) para buscarlos en el visor de figuras: pieza (la de
+  arriba), guantes (unos guantes que no son los de portero de siempre) y, por los huesos de los
+  que cuelga el modelo de la cara (que suele ir solo de la cabeza y el pelo): cola (el cable de
+  Mecha-Mark), capa, alas, brazos, mangas, piernas (y pies), cuerpo (camiseta, pantalon) y
+  huesos (huesos que no estan en ningun esqueleto comun). El pecho, el cuello y los hombros no
+  cuentan: los usan cientos de pelos largos y cuellos.
 """
 import csv
 import os
@@ -92,6 +106,17 @@ CFG = "data/common/gamedata/character/"
 UNIFORMES = "data/common/chr/_uniform/"
 TEXTURAS = "data/dx11/chr/_uniform/"
 ARMADURAS = "data/common/chr/_armd/"
+ITEMS = "data/common/chr/_item/"
+TEX_ITEMS = "data/dx11/chr/_item/"
+# los guantes de portero de siempre (uno por esqueleto); los demas son raros (O-349)
+GUANTES_NORMALES = ("g000201", "g000301", "g000401")
+# los huesos del modelo de la cara que hacen raro a un personaje (O-349): (prefijo del nombre del
+# hueso sin el lado, etiqueta). El pecho (c_c), el cuello (c_n) y los hombros (s) no: pelos largos
+HUESOS_RAROS = {"til": "cola", "mnt": "capa", "wng": "alas", "a": "brazos", "fa": "brazos",
+                "w": "brazos", "slv": "mangas", "l": "piernas", "foot": "piernas",
+                "sht": "cuerpo", "pnt": "cuerpo"}
+ORDEN_RAREZAS = ("pieza", "guantes", "cola", "capa", "alas", "brazos", "mangas", "piernas",
+                 "cuerpo", "huesos")
 TEX_ARMADURAS = "data/dx11/chr/_armd/"
 
 INDICE = {}            # el indice del juego, para rutas_de
@@ -347,6 +372,59 @@ def armaduras(indice):
     return out
 
 
+def items(indice):
+    """{crc32 del nombre: (carpeta/modelo, textura)} de los modelos de `_item/` (O-349). La
+    textura: la del mismo nombre en dx11/chr/_item/<carpeta>/ (o la primera que haya)."""
+    texs = {}
+    for r in indice:
+        if r.startswith(TEX_ITEMS) and r.endswith(".g4tx") and r.count("/") == 5:
+            carpeta, nombre = r[len(TEX_ITEMS):-5].split("/", 1)
+            texs.setdefault(carpeta, []).append(nombre)
+    out = {}
+    for r in indice:
+        if r.startswith(ITEMS) and r.endswith(".g4md") and r.count("/") == 5:
+            carpeta, nombre = r[len(ITEMS):-5].split("/", 1)
+            t = sorted(texs.get(carpeta, []))
+            tex = nombre if nombre in t else (t[0] if t else "")
+            out.setdefault(zlib.crc32(nombre.encode()), (carpeta + "/" + nombre, tex))
+    return out
+
+
+def rarezas(filas, carpeta):
+    """Pone la columna rareza de cada fila (O-349, ver arriba): mira de que huesos cuelga el
+    modelo de su cara en el juego instalado."""
+    from ievr import g4
+    juego = g4.Juego(carpeta)
+    nombre = {}
+    for t in ("c000101", "c000201", "c000301", "c000401"):
+        sk = g4.leer_g4sk(juego.leer("common/chr/%s/%s.g4sk" % (t, t)))
+        nombre.update(zip(sk["hashes"], sk["nombres"]))
+    por_cara = {}
+    for f in filas.values():
+        etiquetas = set()
+        if f["pieza"]:
+            etiquetas.add("pieza")
+        if f["guantes"] and f["guantes"].split("/")[0] not in GUANTES_NORMALES:
+            etiquetas.add("guantes")
+        if f["cara"] not in por_cara:
+            de_cara = set()
+            try:
+                md = g4.leer_g4md(g4._leer_g4md(juego, "common/chr/%s.g4md" % f["cara"]))
+                for h in {h for m in md["mallas"] for h in m["huesos"]}:
+                    n = nombre.get(h)
+                    if n is None:
+                        de_cara.add("huesos")
+                        continue
+                    k = re.match(r"[lrc]_([a-z]+?)\d*_", n)
+                    if k and k.group(1) in HUESOS_RAROS:
+                        de_cara.add(HUESOS_RAROS[k.group(1)])
+            except Exception:              # una cara que no se entiende (El Segundo): sin mirar
+                pass
+            por_cara[f["cara"]] = de_cara
+        etiquetas |= por_cara[f["cara"]]
+        f["rareza"] = "|".join(e for e in ORDEN_RAREZAS if e in etiquetas)
+
+
 def talla(carpeta, modelos, numero, ocho_tallas):
     """El modelo de la talla `numero` (01..08) de una carpeta con varias tallas
     (`u000101` -> `u0001NN`): esa, la otra del mismo esqueleto, la primera talla
@@ -488,6 +566,7 @@ def main():
 
     mds, txs, por_carpeta = piezas_de_uniforme(indice)
     armds = armaduras(indice)
+    piezas_item = items(indice)
     cuenta, filas, crcs, vistos = Counter(), {}, {}, {}
     for p in param:
         b = base.get(ent(p[1])) if len(p) > 1 else None
@@ -544,8 +623,16 @@ def main():
                      "vestir": 1 if (de_persona and anim and not fila["armadura"] and not entero
                                        and codigo not in ROPA_PROPIA) else 0})
         cuenta["se viste con la equipacion del equipo" if fila["vestir"] else "lleva lo suyo en el partido"] += 1
+        # la pieza aparte de _item/ (O-349); con armadura, no
+        fila["pieza"], fila["pieza_tex"] = ("", "") if fila["armadura"] else \
+            piezas_item.get((ent(m[18]) or 0) & 0xFFFFFFFF, ("", ""))
+        if fila["pieza"]:
+            cuenta["con pieza aparte de _item"] += 1
+        fila["rareza"] = ""
         filas[codigo] = fila
     completar(filas, crcs, mds, txs, por_carpeta, indice, cuenta)
+    rarezas(filas, carpeta)
+    cuenta["con alguna rareza en el modelo"] = sum(1 for f in filas.values() if f["rareza"])
     for f in filas.values():
         del f["_tallas"], f["_propio"]
         faltan = [r for r in rutas_de(f) if "data/" + r not in indice]
@@ -563,6 +650,8 @@ def main():
                  "# armadura: carpeta/modelo de common/chr/_armd/ y su textura (el cuerpo con armadura, O-323).\n"
                  "# cuerpo/tipo/talla: CHARA_BODY_INFO col 4/5/6; ropa: su ropa de serie (chara_parts); vestir:\n"
                  "# 1 = en el partido lleva la equipacion de su equipo (modelos-ropa.csv, O-334).\n"
+                 "# pieza: carpeta/modelo de common/chr/_item/ que lleva puesto y su textura (O-349).\n"
+                 "# rareza: lo raro de su modelo, para buscarlo en las figuras (O-349).\n"
                  "# Lo genera herramientas/construir_modelos_personaje.py (O-293).\n")
         w = csv.DictWriter(fh, fieldnames=list(filas[0]))
         w.writeheader()
@@ -589,6 +678,8 @@ def rutas_de(fila):
     for k in ("uniforme", "botas", "guantes"):
         if fila[k]:
             out += ["common/chr/_uniform/%s.g4md" % fila[k], "common/chr/_uniform/%s.g4mg" % fila[k]]
+    if fila.get("pieza"):
+        out += ["common/chr/_item/%s.g4md" % fila["pieza"], "common/chr/_item/%s.g4mg" % fila["pieza"]]
     return out
 
 
