@@ -1682,6 +1682,9 @@ class Manejador(BaseHTTPRequestHandler):
             if u.path == "/api/caras":
                 from ievr import caras as CA
                 return self._responder(200, CA.estado(RAIZ))
+            if u.path == "/api/no_borrables":       # para el borrado en masa (O-350)
+                with self.ses.lock:
+                    return self._responder(200, {"no_borrables": {str(k): v for k, v in E.no_borrables(self.ses.plain).items()}})
             if u.path == "/api/jugadores":
                 filtros = {c: (q.get(c) or [""])[0]
                            for c in ("elemento", "posicion", "rareza",
@@ -2174,6 +2177,8 @@ class Manejador(BaseHTTPRequestHandler):
                                   c.get("rareza") or None, c.get("arquetipo") or None)
         if t == "borrar_jugador":
             return self.ses.aplicar(E.borrar_jugador, fila)
+        if t == "borrar_jugadores":       # en masa (O-350)
+            return self.ses.aplicar(E.borrar_jugadores, [int(x) for x in c.get("filas") or []])
         raise E.Ilegal("no se que es %r" % t)
 
 

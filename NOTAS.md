@@ -11363,6 +11363,30 @@ especificamente esos jugadores". En el codigo los cambios citan esta nota.
   los de boxeo, Veronica con la camara en el pecho, el filtro de cola (Mecha-Mark, Jethro Mackin,
   Kia Tanner, El Segundo...). Pruebas de siempre pasan.
 
+### O-350 · Borrar varios jugadores de una vez
+
+Lo que pidio Aaron (2026-10-31): "haz una opcion que sea borrar personajes en masa, que le des ahi
+y puedas seleccionar varios y se borren, pero que no se puedan seleccionar si estan en algun
+equipo". En el codigo los cambios citan esta nota.
+- Editor, pestana Jugadores: boton "Borrar varios" encima de la lista (no en el draft). Mientras
+  se eligen, pulsar una tarjeta la marca (circulo rojo con la marca) en vez de abrirla; lo elegido
+  se mantiene al cambiar de pagina o de filtros y se olvida al irse de la pestana. "Elegir los de
+  esta pagina", "Quitar todos", "Borrar N" (pregunta antes, con los nombres) y "Cancelar".
+- No se pueden elegir (salen apagados; al pulsarlos dice por que): los que estan en algun equipo,
+  tambien los de la historia, como equipos_del_jugador; y los que llevan objetos puestos, que
+  borrar_jugador tampoco deja (la cuenta del objeto quedaria mal). escribir.no_borrables, en
+  /api/no_borrables.
+- escribir.borrar_jugadores: cada uno exactamente como borrar_jugador mas lo que hace el servidor
+  despues de un cambio de jugador (arbol y tablas de pasivas de esa fila): comprobado que la
+  partida sale igual byte a byte que borrandolos uno a uno (original y la de Aaron, 25 y 60
+  jugadores). Si alguno no se puede, no se borra ninguno. Un solo cambio, que se deshace de una vez.
+- Velocidad: cada borrado volvia a recorrer los 12 MB decenas de veces (0,4 s por jugador).
+  memoria.heredar_ocurrencias pasa a la partida nueva donde estaban las cabeceras (borrar no mueve
+  nada; se comprueba que cada una siga en su sitio): 60 jugadores en 3,4 s.
+- Probado en el editor (servidor de pruebas y Chrome headless, copia de la partida de Aaron): de
+  120 de la primera pagina 49 apagados, uno con objetos se niega con su motivo, tres borrados (la
+  plantilla pasa de 4.442 a 4.439, un cambio sin guardar).
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

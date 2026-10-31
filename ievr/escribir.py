@@ -3286,6 +3286,66 @@ def borrar_jugador(plain, fila):
     return bytes(buf), {"fila": fila, "nombre": nombre, "nivel": nivel}
 
 
+def no_borrables(plain):
+    """{fila: motivo} de los jugadores que borrar_jugador no deja borrar (O-350): los que estan en
+    algun equipo (cualquiera, tambien los de la historia, como equipos_del_jugador) y los que
+    llevan algo equipado. Todos de una vez, para el borrado en masa del editor."""
+    from ievr import equipos as EQ
+    slots = J.array(plain, EQ.ARRAY_SLOT)
+    fila_de = {s: i for i, s in enumerate(slots) if s}
+    fuera = {}
+    for t in EQ.todos(plain, solo_con_nombre=False):
+        try:
+            e = EQ.leer(plain, t["hueco"])
+        except EQ.Ilegal:
+            continue
+        nombre = t["nombre"] or "un equipo de la historia (hueco %d)" % t["hueco"]
+        for m in e["miembros"]:
+            i = fila_de.get(m["jugador"]) if m["jugador"] else None
+            if i is not None and nombre not in fuera.setdefault(i, []):
+                fuera[i].append(nombre)
+    motivos = {i: "esta en " + ", ".join(n) for i, n in fuera.items()}
+    ident = J.array(plain, J.ARRAY_IDENTIDAD)
+    equipos = J.ocurrencias(plain, *J.ANCLA_EQUIPO)
+    ranuras = {h for h, _ in J.RANURAS_EQUIPO}
+    for i in range(min(6000, len(ident), len(equipos))):
+        if ident[i] and i not in motivos:
+            puesto, _ = J._campos_de(plain, equipos[i], ranuras)
+            if any(int.from_bytes(v, "little") for v in puesto.values()):
+                motivos[i] = "lleva objetos puestos"
+    return motivos
+
+
+def borrar_jugadores(plain, filas):
+    """Borra varios jugadores de una vez (O-350, Aaron: "que puedas seleccionar varios y se
+    borren, pero que no se puedan seleccionar si estan en algun equipo"). Cada uno exactamente
+    como borrar_jugador y lo que hace despues el servidor al aplicar un cambio de un jugador (el
+    arbol y las tablas de pasivas de esa fila), asi que da lo mismo que borrarlos uno a uno. Si
+    alguno no se puede borrar no se borra ninguno."""
+    filas = sorted({int(f) for f in filas})
+    if not filas:
+        raise Ilegal("no hay ningun jugador elegido")
+    from ievr import memoria
+    nombres = []
+    for fila in filas:
+        try:
+            nuevo, info = borrar_jugador(plain, fila)
+        except Ilegal as e:
+            nombre = reglas.quien_es(J.array(plain, J.ARRAY_IDENTIDAD)[fila])[0] if fila < 6000 else ""
+            raise Ilegal("%s: %s No se ha borrado ninguno." % (nombre or "fila %d" % fila, e))
+        # borrar solo reescribe valores: las cabeceras siguen donde estaban (y se comprueba)
+        for paso in (lambda x: x, lambda x: abrir_arbol(x, fila),
+                     lambda x: sincronizar_tabla_pasivas(x, fila), lambda x: actualizar_pasivas_personal(x, fila)):
+            nuevo = paso(nuevo)
+            memoria.heredar_ocurrencias(plain, nuevo)
+            plain = nuevo
+        nombres.append(info["nombre"])
+    n = len(nombres)
+    return plain, {"cambio": "borrar jugadores", "cuantos": n,
+                   "jugadores": ", ".join(nombres[:30]) + (" y %d mas" % (n - 30) if n > 30 else ""),
+                   "aviso": "Borrado%s %d jugador%s. Se puede deshacer." % ("s" if n > 1 else "", n, "es" if n > 1 else "")}
+
+
 APARICIONES_DE_UN_JUGADOR_SUELTO = 3
 
 

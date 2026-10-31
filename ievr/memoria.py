@@ -43,6 +43,23 @@ def recordar(plain, clave, calcular):
     return datos[clave]
 
 
+def heredar_ocurrencias(viejo, nuevo):
+    """Pasa a `nuevo` donde estaban las cabeceras en `viejo` (jugador.ocurrencias), para
+    cambios que solo reescriben valores sin mover nada (borrar jugadores en masa, O-350: sin
+    esto cada borrado volvia a recorrer los 12 MB decenas de veces). Solo si miden lo mismo y cada
+    cabecera sigue en su sitio; si no, `nuevo` las buscara como siempre."""
+    if len(viejo) != len(nuevo) or viejo is nuevo:
+        return
+    import struct
+    antes = _hueco(viejo)
+    despues = _hueco(nuevo)
+    for clave, pos in list(antes.items()):
+        if isinstance(clave, tuple) and clave[0] == "ocurrencias" and clave not in despues:
+            sig = struct.pack("<II", clave[1], clave[2])
+            if all(nuevo[p:p + 8] == sig for p in pos):
+                despues[clave] = pos
+
+
 def olvidar():
     """Tira lo guardado. Solo hace falta en las pruebas."""
     _memoria.clear()

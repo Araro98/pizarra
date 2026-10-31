@@ -561,6 +561,19 @@
   .rol-ahora.entrenador { background:#c2761a; }
   .btn.vetado { opacity:.42; text-decoration:line-through; }
   .btn.rojo { background:#a8202e; border-color:#7a1622; color:#fff; }
+  /* borrar varios jugadores de una vez (O-350) */
+  #barra-borrar { margin:6px 0; }
+  #barra-borrar .btn.rojo::before { background:linear-gradient(180deg,#e2525f,#a8202e); }
+  .aviso-borrar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:8px 10px;
+    border-radius:8px; background:#fdecee; border:2px solid #a8202e; color:#5a0f17; }
+  .aviso-borrar .que { flex:1 1 220px; display:flex; flex-direction:column; gap:2px; }
+  .aviso-borrar .que span { font-size:var(--t-sm); }
+  .ficha-mini.no-borrable { opacity:.35; filter:grayscale(.9); cursor:not-allowed; }
+  .ficha-mini.no-borrable:hover { transform:none; box-shadow:0 3px 0 rgba(8,28,60,.45); filter:grayscale(.9); }
+  .ficha-mini.a-borrar { outline:3px solid #d0283a; outline-offset:-3px; }
+  .ficha-mini .marca-borrar { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    z-index:3; width:30px; height:30px; border-radius:50%; background:#d0283a; color:#fff;
+    font-weight:900; font-size:18px; display:grid; place-items:center; box-shadow:0 0 0 2px #fff; }
   .chapa-rol.gerente { background:#8a4fd0; }
   .chapa-rol.entrenador { background:#c2761a; }
   .ficha-mini.no-vale { opacity:.34; filter:grayscale(.75); cursor:not-allowed; }
@@ -970,6 +983,7 @@
           placeholder="Buscar por nombre, apodo, equipo, posicion..."></div>
         <div class="filtros" id="filtros"></div>
         <div id="bonif-jug"></div>
+        <div id="barra-borrar"></div>
         <div class="rejilla-jug" id="lista"></div>
         <div class="contador" id="contador"></div>
       </div>
@@ -1106,6 +1120,7 @@ function cambiaModo(id) {
   modo = id; pintaModos();
   history.replaceState(null, "", "#" + id);   // para poder enlazar cada pestana
   for (const m of MODOS) $("#p-" + m.id).classList.toggle("oculto", m.id !== id);
+  if (id !== "jugadores") borrado = null;   // lo elegido para borrar se olvida al irse (O-350)
   if (id === "jugadores") cargaLista();   // por si se ficho o se borro alguien
   if (id === "mochila") cargaInventario();
   if (id === "equipos") cargaEquipos();
@@ -1200,20 +1215,81 @@ async function cargaLista() {
     if (opc && opc.hueco !== undefined)
       panel.appendChild(panelBonificaciones(opc.hueco));
   }
+  pintaBarraBorrar();
+  pintaLista();
+  pintaPaginas(ultima);
+}
+function pintaLista() {
   const r = $("#lista"); r.textContent = "";
   for (const j of ultima.jugadores) r.appendChild(fichaMini(j));
   if (!ultima.jugadores.length)
     r.appendChild(el("div", {class:"vacio", text:"Ningun jugador encaja con esos filtros."}));
-  pintaPaginas(ultima);
+}
+
+/* Borrar varios jugadores de una vez (O-350). Aaron: "que le des ahi y puedas seleccionar
+   varios y se borren, pero que no se puedan seleccionar si estan en algun equipo". Tampoco los
+   que llevan objetos puestos: borrar_jugador no los deja (la cuenta del objeto quedaria mal).
+   Mientras se eligen, pulsar una tarjeta la marca en vez de abrirla. */
+let borrado = null;     // {sel: Map(fila -> nombre), no: {fila: motivo}} mientras se eligen
+async function empiezaBorrado() {
+  try {
+    const r = await pedir("/api/no_borrables");
+    borrado = {sel:new Map(), no:r.no_borrables || {}};
+  } catch (e) { aviso(e.message, "mal"); return; }
+  pintaBarraBorrar(); pintaLista();
+}
+function pintaBarraBorrar() {
+  const b = $("#barra-borrar"); b.textContent = "";
+  if (DRAFT) return;
+  if (!borrado) {
+    b.appendChild(el("button", {class:"btn chico rojo", text:"Borrar varios",
+      title:"Elegir varios jugadores y borrarlos de la partida de una vez", onclick:empiezaBorrado}));
+    return;
+  }
+  const n = borrado.sel.size;
+  b.appendChild(el("div", {class:"aviso-borrar"}, [
+    el("div", {class:"que"}, [
+      el("b", {text:n ? n + (n === 1 ? " jugador elegido" : " jugadores elegidos") : "Pulsa en los jugadores que quieras borrar"}),
+      el("span", {text:"Los que estan en algun equipo o llevan objetos puestos salen apagados y no se pueden elegir."})]),
+    el("button", {class:"btn chico", text:"Elegir los de esta pagina",
+      onclick:() => {
+        for (const j of ultima.jugadores) if (!borrado.no[j.fila]) borrado.sel.set(j.fila, j.nombre);
+        pintaBarraBorrar(); pintaLista();
+      }}),
+    n ? el("button", {class:"btn chico", text:"Quitar todos",
+      onclick:() => { borrado.sel.clear(); pintaBarraBorrar(); pintaLista(); }}) : null,
+    el("button", {class:"btn chico rojo", text:"Borrar " + (n || ""), disabled:!n, onclick:borraElegidos}),
+    el("button", {class:"btn chico", text:"Cancelar",
+      onclick:() => { borrado = null; pintaBarraBorrar(); pintaLista(); }})]));
+}
+function marcaBorrar(j, t) {
+  const motivo = borrado.no[j.fila];
+  if (motivo) { aviso(j.nombre + " no se puede borrar: " + motivo + ".", "mal"); return; }
+  if (borrado.sel.has(j.fila)) borrado.sel.delete(j.fila); else borrado.sel.set(j.fila, j.nombre);
+  t.replaceWith(fichaMini(j));
+  pintaBarraBorrar();
+}
+async function borraElegidos() {
+  const nombres = [...borrado.sel.values()], n = nombres.length;
+  const lista = nombres.slice(0, 15).join(", ") + (n > 15 ? " y " + (n - 15) + " mas" : "");
+  if (!await confirma("Borrar jugadores", "Se borra" + (n > 1 ? "n " + n + " jugadores" : " 1 jugador") +
+                      " de la partida: " + lista + ". Se puede deshacer.")) return;
+  const filas = [...borrado.sel.keys()];
+  borrado = null; pintaBarraBorrar();
+  await manda({tipo:"borrar_jugadores", filas});
 }
 
 
 
 function fichaMini(j) {
-  const t = el("button", {class:"ficha-mini",
-    "aria-current":String(jugadorAbierto === j.fila),
-    title:j.nombre + " — " + j.rareza + (j.equipo ? " — " + j.equipo : ""),
-    onclick:() => abreJugador(j.fila)});
+  // eligiendo a quien borrar (O-350): marcar en vez de abrir
+  const eligiendo = borrado && modo === "jugadores";
+  const noSe = eligiendo && borrado.no[j.fila];
+  const t = el("button", {class:"ficha-mini" + (noSe ? " no-borrable" : eligiendo && borrado.sel.has(j.fila) ? " a-borrar" : ""),
+    "aria-current":String(!eligiendo && jugadorAbierto === j.fila),
+    title:j.nombre + " — " + j.rareza + (j.equipo ? " — " + j.equipo : "") + (noSe ? " — no se puede borrar: " + noSe : ""),
+    onclick:() => eligiendo ? marcaBorrar(j, t) : abreJugador(j.fila)});
+  if (eligiendo && borrado.sel.has(j.fila)) t.appendChild(el("span", {class:"marca-borrar", text:"✓"}));
   t.style.background = FONDO_RAREZA[j.rareza_valor] || "#5d7590";
   if (j.cara) for (const c of capasRetrato(j, true)) t.appendChild(c);
   t.appendChild(el("div", {class:"nv", html:"<small>Nv.</small> " + j.nivel}));
@@ -2472,8 +2548,8 @@ async function manda(cambio) {
       pintaReservas();
       return r && r.hecho;      // lo que hizo el servidor (el dorsal movido, O-192)
     }
-    if (cambio.tipo === "jugador" || cambio.tipo === "borrar_jugador") reservas = null;
-    if (cambio.tipo === "borrar_jugador") {
+    if (cambio.tipo === "jugador" || cambio.tipo === "borrar_jugador" || cambio.tipo === "borrar_jugadores") reservas = null;
+    if (cambio.tipo === "borrar_jugador" || (cambio.tipo === "borrar_jugadores" && cambio.filas.includes(jugadorAbierto))) {
       // la ficha abierta ya no existe
       jugadorAbierto = null; detalle = null;
       $("#ficha").textContent = "";
