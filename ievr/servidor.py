@@ -256,6 +256,11 @@ class Sesion:
             plain, info = E.arreglar_tablas(self.plain)
             self._paso(plain, {"que": "tabla de pasivas puesta como la ficha", "jugadores": info["jugadores"]})
             fuera["tablas"] = info["jugadores"]
+        fuera["repetidos"] = 0
+        if E.montones_repetidos(self.plain):       # O-352: si no, el juego los junta y deja huecos
+            plain, info = E.juntar_montones_repetidos(self.plain)
+            self._paso(plain, {"que": info["que"], "objetos": info["objetos"]})
+            fuera["repetidos"] = info["objetos"]
         fuera["montones"] = 0
         if E.montones_cortos(self.plain):          # O-352: si no, el juego borra la fila
             plain, info = E.arreglar_montones_cortos(self.plain)

@@ -389,6 +389,89 @@ def arreglar_montones_cortos(plain):
                         "objetos": len(mal)}
 
 
+def redirigir_referencias(plain, viejo, nuevo):
+    """Los jugadores que apuntan a la fila `viejo` de la mochila pasan a apuntar a `nuevo`: sus
+    tecnicas (tambien las de la fila espejo), su equipacion y su pasiva personalizada (O-352).
+    Devuelve (plain, cuantas)."""
+    buf, n = None, 0
+    tecnicas = J.ocurrencias(plain, *J.ANCLA_TECNICAS)
+    for i in range(len(tecnicas)):
+        try:
+            ini, _ = tlv.inicio_registro(plain, tecnicas[i])
+        except Exception:
+            continue
+        for o, fh, ln, _ in tlv.campos_desde(plain, ini, maximo=12):
+            # (la pasiva personalizada va en el mismo registro que las tecnicas)
+            if ((fh in J.RANURAS_TECNICAS or fh == F_PERSONALIZADA) and ln == 4
+                    and struct.unpack_from("<I", plain, o + 8)[0] == viejo):
+                buf = buf or bytearray(plain)
+                struct.pack_into("<I", buf, o + 8, nuevo)
+                n += 1
+    equipos = J.ocurrencias(plain, *J.ANCLA_EQUIPO)
+    ident = J.array(plain, J.ARRAY_IDENTIDAD)
+    for i in range(min(6000, len(ident), len(equipos))):
+        if not ident[i]:
+            continue
+        for h, _e in J.RANURAS_EQUIPO:
+            try:
+                off = _campo_en(plain, equipos[i], h)[0]
+            except Ilegal:
+                continue
+            if struct.unpack_from("<I", plain, off)[0] == viejo:
+                buf = buf or bytearray(plain)
+                struct.pack_into("<I", buf, off, nuevo)
+                n += 1
+    return (bytes(buf) if buf is not None else plain), n
+
+
+def montones_repetidos(plain):
+    """[[filas]] de un mismo objeto con el mismo sub que son montones (O-352). El juego las JUNTA
+    al cargar y se queda una: los que apuntaban a las otras se quedan sin nada ("error"). Le paso a
+    Aaron con la personalizada 7E6E7F77, repetida al reparar a mano. Un monton (sub 2) y una fila de
+    tecnica aprendida (sub 9/10) del mismo id si conviven: 16 en su partida, que el juego no toca."""
+    grupos = {}
+    for f in inventario.todas_las_filas(plain):
+        if _es_monton(f):
+            grupos.setdefault((f["id"], f.get("sub")), []).append(f)
+    return [g for g in grupos.values() if len(g) > 1]
+
+
+def juntar_montones_repetidos(plain):
+    """Deja una sola fila de cada monton repetido, como haria el juego, pero llevandose a ella a los
+    jugadores que apuntaban a las otras (O-352). Se queda la que mas jugadores tiene."""
+    grupos = montones_repetidos(plain)
+    if not grupos:
+        raise Ilegal("no hay ningun objeto repetido en la mochila")
+    from ievr import memoria
+    movidas = 0
+    for g in grupos:
+        usos = slots_con_jugadores(plain)
+        g = sorted(g, key=lambda f: (f["slot"] not in usos, -f.get("equipada", 0)))
+        queda = g[0]
+        total, puestos = queda.get("cantidad", 0), queda.get("equipada", 0)
+        for f in g[1:]:
+            plain, n = redirigir_referencias(plain, f["slot"], queda["slot"])
+            movidas += n
+            total += f.get("cantidad", 0)
+            puestos += f.get("equipada", 0)
+            buf = bytearray(plain)
+            struct.pack_into("<I", buf, f["slot_off"] + 8, 0)
+            buf[f["id_off"]:f["id_off"] + 4] = b"\0\0\0\0"
+            struct.pack_into("<I", buf, f["serie_off"], 0)
+            buf[f["kind_off"]] = 0
+            buf[f["sub_off"]] = 0
+            struct.pack_into("<I", buf, f["cantidad_off"], 0)
+            struct.pack_into("<I", buf, f["equipada_off"], 0)
+            plain = bytes(buf)
+        buf = bytearray(plain)
+        struct.pack_into("<I", buf, queda["equipada_off"], puestos)
+        struct.pack_into("<I", buf, queda["cantidad_off"], min(TOPE_CANTIDAD, max(total, puestos)))
+        plain = bytes(buf)
+        memoria.olvidar()
+    return plain, {"que": "objetos repetidos de la mochila juntados", "objetos": len(grupos),
+                   "jugadores": movidas}
+
+
 def _minimo_del_monton(f, cantidad):
     """La cantidad que se le puede poner a esa fila: nunca menos que los jugadores que la llevan
     (O-352)."""

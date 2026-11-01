@@ -11462,6 +11462,23 @@ algunos slots de tecnicas y equipaciones vacias"; "pasa con varios del equipo de
   Justicia de gerente a 163 unidades (el juego la contaba 163 puesta: una por ranura). Sin el
   Raimon, que Aaron hace a mano. Quedan vacios ya el 24 de octubre o en jugadores creados despues:
   sin copia en la que mirar.
+- Vuelta 4 (Aaron: "todos los objetos estan hechos en base a los presets... las pasivas
+  personalizadas pasa lo mismo, revisa las 3 primeras pasivas... los heroe, diamante o entrenadores
+  gerente que no tengan personalizada dejala sin nada... y revisa bien que esto no vuelva a
+  ocurrir"): a los que llevan parte de un preset de equipacion (presets.PRESETS_EQUIPACION) y el
+  resto vacio, las piezas que faltan si solo encaja un preset: 220 objetos a 105 jugadores (todos los
+  de sus equipos, Raimon incluido, quedan con las cuatro); 11 con objetos fuera de presets, sin
+  tocar. Personalizada a los normales sin ella con al menos 2 de sus 3 primeras pasivas de la
+  heredada de un subpreset: 125 (ninguno en sus equipos). Hay 100 con lo de Delantero y la
+  Pegatina de Pegaso en vez del Brazalete Omega, fuera de sus equipos: sin tocar.
+- Y un fallo nuevo, del arreglo a mano: la 7E6E7F77 devuelta a su sitio quedo REPETIDA (ya habia
+  otra fila suya de 1 unidad, sub 2) y el juego al cargar las junto en la otra: los 222 otra vez
+  sin nada. El juego tolera un monton y una fila aprendida del mismo id (16 en su partida) e
+  incluso alguna pareja de montones (DD1DC90C), pero no siempre. Ahora al guardar
+  montones_repetidos / juntar_montones_repetidos deja una sola fila (la que mas jugadores tiene) y
+  lleva a ella a todos (redirigir_referencias: tecnicas, filas espejo, equipacion y personalizada,
+  que va en el registro de tecnicas). En la partida: 230 referencias llevadas a la fila que dejo el
+  juego; 0 rotas, 0 repetidos, 0 montones cortos.
 
 ## SUPUESTO
 
