@@ -11443,6 +11443,15 @@ algunos slots de tecnicas y equipaciones vacias"; "pasa con varios del equipo de
   referencias a filas que no existen y 0 personalizadas que apuntan a otra cosa.
 - Sin probar en el juego que subir las unidades evita el borrado: es lo que cuadra con las cinco
   filas borradas y las dos que no.
+- Vuelta 2 (Aaron: "las pasivas y tecnicas se han arreglado, pero hay muchas equipaciones que
+  les di desde pizarra y siguen sin estar"): Pizarra guarda directamente en la carpeta de Steam (el
+  .bak es la del juego de antes; para-editar es la copia que hace el lanzador al abrir), asi que la
+  que hizo Pizarra a las 16:46 ya no existe: el juego la cargo y guardo encima a las 16:56. Con los
+  OBJETOS el juego no borra la fila: deja el monton en 99 puestos de 99 y quita lo que sobra a
+  algunos jugadores (42 quitados a jugadores de fuera del Raimon, 101 cambios en 62 jugadores; diez
+  objetos quedaron justo a 99 de 99). Lo que se les quito a los del Raimon no se puede saber sin la
+  partida de las 16:46. En la partida original del juego hay objetos con mas de 99 unidades, asi que
+  subirlas (O-352) vale. "Conseguir todo" las habia bajado a 99.
 
 ## SUPUESTO
 
