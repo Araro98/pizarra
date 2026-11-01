@@ -198,4 +198,10 @@ def ajustar_equipada(plain, fila, delta):
     nuevo = max(0, fila["equipada"] + delta)
     buf = bytearray(plain)
     struct.pack_into("<I", buf, fila["equipada_off"], nuevo)
+    # un monton (no una tecnica aprendida ni una medalla) nunca con mas jugadores que unidades: el
+    # juego borra la fila y los que la llevaban se quedan con "error" (O-352)
+    aprendida = fila.get("sub") in (9, 10) and fila.get("cantidad") == 1
+    if (delta > 0 and "cantidad_off" in fila and fila.get("sub") != 5 and not aprendida
+            and nuevo > fila.get("cantidad", 0)):
+        struct.pack_into("<I", buf, fila["cantidad_off"], min(99999, nuevo))
     return bytes(buf)

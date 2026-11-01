@@ -11414,6 +11414,36 @@ cambios citan esta nota.
   filas aprendidas (Ave goleadora), botas, espiritu (Alfil negro) y sin Nuevas posibilidades;
   pruebas de siempre pasan.
 
+### O-352 · El juego borra el monton que llevan mas jugadores que unidades
+
+Lo que paso (2026-11-01, Aaron con foto de Rolland Bowlby): "en algunos jugadores les pongo pasivas
+personalizadas y me pone error en el juego, aunque salga la descripcion de la pasiva, me salen con
+algunos slots de tecnicas y equipaciones vacias"; "pasa con varios del equipo del raimon".
+- Comparando su partida de antes de instalar (.bak, la del juego) con la de despues de jugar: el
+  juego habia BORRADO tres filas de la mochila: la personalizada Valor de foco 269B0969 (99
+  unidades, 221 puestas), El muro (99 y 165) y Aceleron (99 y 150), los tres unicos montones con
+  mas puestas que unidades que se tocaron (los otros dos, AT de tiro, siguen). Los que las llevaban
+  se quedan apuntando a una fila que no existe: "error" y huecos vacios. Antes ya habia pasado con
+  la personalizada Valor de foco 7E6E7F77 (99 y 134 el 4 de octubre) y con el manual de gerente de
+  Conf. Justicia (99 y 152): por eso desaparecio (O-351). De donde salian: "Conseguir 99" ponia a
+  99 montones que tenian 99.999 y Pizarra subia los puestos sin mirar las unidades.
+- Y lo que hizo O-351 peor: el numero de una fila sale de su sitio en el tramo (O-62), asi que el
+  manual de Conf. Justicia creado en el hueco de la Valor de foco borrada se quedo con sus 222
+  jugadores, que pasaron a llevar de personalizada un manual de gerente.
+- Arreglos: inventario.ajustar_equipada sube las unidades de un monton si hay mas puestos (no las
+  tecnicas aprendidas, sub 9/10 con una unidad, ni las medallas, sub 5); "Conseguir 99", "Conseguir
+  todo" y cambiar la cantidad en la mochila no bajan de los puestos (_minimo_del_monton); al
+  guardar, montones_cortos / arreglar_montones_cortos; y las filas nuevas nunca van en un hueco al
+  que aun apunte algun jugador (slots_con_jugadores: tecnicas, tambien de las filas espejo,
+  equipacion y personalizada; _libre_de_verdad en las cinco que buscan fila libre).
+- Su partida, reparada a mano en partidas/reparada-2026-11-01 (desde la del juego de las 16:56 y su
+  .bak de las 16:46): Conf. Justicia de gerente a un hueco libre (la llevan 49), 7E6E7F77 de vuelta
+  en 0xC3D630E (222), 269B0969 en 0xFD603E (220), El muro en 0x33D60CE (167) y Aceleron en
+  0x441610F (149), cada una con tantas unidades como puestos, y los dos AT de tiro igual. Quedan 0
+  referencias a filas que no existen y 0 personalizadas que apuntan a otra cosa.
+- Sin probar en el juego que subir las unidades evita el borrado: es lo que cuadra con las cinco
+  filas borradas y las dos que no.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

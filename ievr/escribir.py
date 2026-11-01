@@ -357,6 +357,91 @@ def _reponer_monton(plain, id_hex):
     return plain
 
 
+# --- montones con mas jugadores que unidades (O-352) ---------------------------------------
+# El juego BORRA la fila de un monton (manuales de tecnica, pasivas personalizadas, de personal...)
+# que lleva puesto mas gente que unidades tiene: la personalizada Valor de foco de Aaron (99 y 221
+# puestas), El muro (99 y 165) y Aceleron (99 y 150) desaparecieron jugando, y antes la de gerente
+# Conf. Justicia (99 y 152) y otra Valor de foco (99 y 134). Los que la llevaban se quedan
+# apuntando a una fila que no existe: "error" en la pasiva y huecos vacios. Con "Conseguir 99" se
+# bajaban a 99 montones que tenian 99.999.
+
+def _es_monton(f):
+    """Una fila de mochila que se gasta por unidades (no una tecnica aprendida ni una medalla)."""
+    return (f.get("kind") == inventario.KIND_REAL and f.get("slot") and "cantidad_off" in f
+            and "equipada_off" in f and f.get("sub") != 5 and not _es_fila_aprendida(f))
+
+
+def montones_cortos(plain):
+    """Las filas de montones con mas jugadores que las llevan que unidades (O-352)."""
+    return [f for f in inventario.todas_las_filas(plain)
+            if _es_monton(f) and f.get("equipada", 0) > f.get("cantidad", 0)]
+
+
+def arreglar_montones_cortos(plain):
+    """Sube cada monton corto a tantas unidades como jugadores lo llevan (O-352)."""
+    mal = montones_cortos(plain)
+    if not mal:
+        raise Ilegal("ningun monton de la mochila lo llevan mas jugadores que unidades tiene")
+    buf = bytearray(plain)
+    for f in mal:
+        struct.pack_into("<I", buf, f["cantidad_off"], min(TOPE_CANTIDAD, f["equipada"]))
+    return bytes(buf), {"que": "montones de la mochila con tantas unidades como jugadores los llevan",
+                        "objetos": len(mal)}
+
+
+def _minimo_del_monton(f, cantidad):
+    """La cantidad que se le puede poner a esa fila: nunca menos que los jugadores que la llevan
+    (O-352)."""
+    if _es_monton(f):
+        return max(cantidad, min(TOPE_CANTIDAD, f.get("equipada", 0)))
+    return cantidad
+
+
+def slots_con_jugadores(plain):
+    """{slot de mochila} al que apunta algun jugador: sus tecnicas (y las de su fila espejo), su
+    equipacion y su pasiva personalizada (O-352)."""
+    from ievr import memoria
+
+    def construir():
+        fuera = set()
+        tecnicas = J.ocurrencias(plain, *J.ANCLA_TECNICAS)
+        for i in range(len(tecnicas)):
+            try:
+                ini, _ = tlv.inicio_registro(plain, tecnicas[i])
+            except Exception:
+                continue
+            for o, fh, n, _ in tlv.campos_desde(plain, ini, maximo=12):
+                if fh in J.RANURAS_TECNICAS and n == 4:
+                    s = struct.unpack_from("<I", plain, o + 8)[0]
+                    if s:
+                        fuera.add(s)
+        equipos = J.ocurrencias(plain, *J.ANCLA_EQUIPO)
+        ranuras = {h for h, _ in J.RANURAS_EQUIPO}
+        ident = J.array(plain, J.ARRAY_IDENTIDAD)
+        for i in range(min(6000, len(ident), len(equipos))):
+            if not ident[i]:
+                continue
+            puesto, _ = J._campos_de(plain, equipos[i], ranuras)
+            fuera.update(int.from_bytes(v, "little") for v in puesto.values())
+            try:
+                _pz, s = pasiva_personalizada(plain, i)
+            except Exception:
+                s = 0
+            if s:
+                fuera.add(s)
+        fuera.discard(0)
+        return fuera
+    return memoria.recordar(plain, "slots_con_jugadores", construir)
+
+
+def _libre_de_verdad(plain, bloque, pos):
+    """Si la fila libre `pos` de ese tramo se puede usar: que ningun jugador apunte aun a su
+    numero. El numero de una fila sale de su sitio, asi que una fila nueva en el hueco de una
+    borrada se quedaba con todos los que apuntaban a la vieja (O-352: los 222 que llevaban la
+    Valor de foco que borro el juego pasaron a llevar el manual de Conf. Justicia)."""
+    return inventario.componer_slot(bloque["clase"], bloque["tipo"], pos) not in slots_con_jugadores(plain)
+
+
 def _es_fila_aprendida(f):
     """Una fila de tecnica APRENDIDA: kind 3, sub 10 (o 9) y una sola unidad.
     Los montones de manuales (sub 1 y 2, o 99 unidades) no valen: si una
@@ -1013,6 +1098,8 @@ def poner_cantidad(plain, nombre, cantidad):
                      "no se tiene, y ya lo tienes")
     off = fila["cantidad_off"]
     antes = struct.unpack_from("<I", plain, off)[0]
+    # nunca menos que los jugadores que lo llevan: el juego borraria la fila (O-352)
+    cantidad = _minimo_del_monton(fila, cantidad)
     if antes == cantidad:
         raise Ilegal("ya tienes %d de eso" % cantidad)
     buf = bytearray(plain)
@@ -1127,7 +1214,7 @@ def anadir_objeto(plain, nombre, cantidad=1, aunque_lo_tengas=False):
 
     libre = pos = None
     for i, f in enumerate(bloque["filas"]):
-        if f["slot"] == 0 and f.get("id") == "00000000":
+        if f["slot"] == 0 and f.get("id") == "00000000" and _libre_de_verdad(plain, bloque, i):
             libre, pos = f, i
             break
     if libre is None:
@@ -2456,13 +2543,14 @@ def _dar_de_todo(plain, todas, cantidad, que, parientes=None, sub=None):
     creadas = subidas = 0
     buf = bytearray(plain)
     libres = [(i, f) for i, f in enumerate(bloque["filas"])
-              if f["slot"] == 0 and f.get("id") == "00000000"]
+              if f["slot"] == 0 and f.get("id") == "00000000" and _libre_de_verdad(plain, bloque, i)]
     serie = max((f.get("serie", 0) for f in inventario.todas_las_filas(plain)), default=0)
     for idh in todas:
         f = (poseidas.get(idh) or [None])[0]
         if f is not None and "cantidad_off" in f:
-            if f["cantidad"] != cantidad:
-                struct.pack_into("<I", buf, f["cantidad_off"], cantidad)
+            quiero = _minimo_del_monton(f, cantidad)       # O-352
+            if f["cantidad"] != quiero:
+                struct.pack_into("<I", buf, f["cantidad_off"], quiero)
                 subidas += 1
             continue
         if not libres:
@@ -2513,7 +2601,7 @@ def anadir_sinergia(plain, item_id):
         raise Ilegal("no encuentro el tramo de la mochila de las sinergias")
     libre = pos = None
     for i, f in enumerate(bloque["filas"]):
-        if f["slot"] == 0 and f.get("id") == "00000000":
+        if f["slot"] == 0 and f.get("id") == "00000000" and _libre_de_verdad(plain, bloque, i):
             libre, pos = f, i
             break
     if libre is None:
@@ -2874,7 +2962,7 @@ def _meter_en_biblioteca(plain, id_tec, modelo):
 
     libre = pos = None
     for i, f in enumerate(bloque["filas"]):
-        if f["slot"] == 0 and f.get("id") == "00000000":
+        if f["slot"] == 0 and f.get("id") == "00000000" and _libre_de_verdad(plain, bloque, i):
             libre, pos = f, i
             break
     if libre is None:
@@ -3987,7 +4075,7 @@ def conseguir_todo(plain, categoria, cantidad):
 
     poseidas = inventario.filas_poseidas(plain)
     libres = [(i, f) for i, f in enumerate(bloque["filas"])
-              if f["slot"] == 0 and f.get("id") == "00000000"]
+              if f["slot"] == 0 and f.get("id") == "00000000" and _libre_de_verdad(plain, bloque, i)]
     serie = max((f.get("serie", 0) for f in inventario.todas_las_filas(plain)),
                 default=0)
 
@@ -4001,8 +4089,9 @@ def conseguir_todo(plain, categoria, cantidad):
             if "cantidad_off" not in fila:
                 continue
             antes = struct.unpack_from("<I", buf, fila["cantidad_off"])[0]
-            if antes != cantidad:
-                struct.pack_into("<I", buf, fila["cantidad_off"], cantidad)
+            quiero = _minimo_del_monton(fila, cantidad)    # O-352
+            if antes != quiero:
+                struct.pack_into("<I", buf, fila["cantidad_off"], quiero)
                 ajustados += 1
             continue
         if not libres:

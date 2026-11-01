@@ -256,6 +256,11 @@ class Sesion:
             plain, info = E.arreglar_tablas(self.plain)
             self._paso(plain, {"que": "tabla de pasivas puesta como la ficha", "jugadores": info["jugadores"]})
             fuera["tablas"] = info["jugadores"]
+        fuera["montones"] = 0
+        if E.montones_cortos(self.plain):          # O-352: si no, el juego borra la fila
+            plain, info = E.arreglar_montones_cortos(self.plain)
+            self._paso(plain, {"que": info["que"], "objetos": info["objetos"]})
+            fuera["montones"] = info["objetos"]
         fuera["mochila"] = 0
         if E.pasivas_ilegales_en_mochila(self.plain):
             plain, info = E.quitar_pasivas_ilegales(self.plain)
