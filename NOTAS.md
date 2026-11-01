@@ -11452,6 +11452,16 @@ algunos slots de tecnicas y equipaciones vacias"; "pasa con varios del equipo de
   objetos quedaron justo a 99 de 99). Lo que se les quito a los del Raimon no se puede saber sin la
   partida de las 16:46. En la partida original del juego hay objetos con mas de 99 unidades, asi que
   subirlas (O-352) vale. "Conseguir todo" las habia bajado a 99.
+- Vuelta 3 ("devuelve los objetos a los personajes de fuera del raimon"; "aun les faltan objetos
+  a muchos jugadores de equipos que tengo hechos"): no era solo de hoy. El 4 de octubre (copia
+  arreglo-ramas) doce objetos tenian 99 unidades y hasta 332 puestos (Botas con tacos, Pulsera del
+  abismo y Bufanda del campeon 331-332, Guantes legendarios 234...); el juego los dejo en 99 y quito
+  ~1.540 objetos. En partidas/objetos-devueltos-2026-11-01 (desde la de las 17:09): los 42 de hoy,
+  1.535 de esos doce objetos a 521 jugadores que siguen siendo el mismo personaje y tienen ese hueco
+  vacio (120 en sus equipos), 17 mas que tenian el 24 de octubre (copias del scratchpad) y Conf.
+  Justicia de gerente a 163 unidades (el juego la contaba 163 puesta: una por ranura). Sin el
+  Raimon, que Aaron hace a mano. Quedan vacios ya el 24 de octubre o en jugadores creados despues:
+  sin copia en la que mirar.
 
 ## SUPUESTO
 
