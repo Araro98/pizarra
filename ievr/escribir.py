@@ -318,6 +318,45 @@ def _buscar_por_nombre(texto, categorias):
     return list(hallados)[0]
 
 
+# Lo que se pone a un jugador sin tenerlo en la mochila se mete solo (O-351, Aaron: "aunque no
+# tengas manuales de lo que sea en la mochila, ya sea de supertecnicas, pasivas etc, si en algun
+# equipo las pones, te las ponga automaticamente"). 99 de cada cosa; un espiritu, uno.
+CANTIDAD_AUTOMATICA = 99
+
+
+def _asegurar_en_mochila(plain, id_hex, que=""):
+    """La partida con una fila de `id_hex` en la mochila: la de siempre si ya se tiene; si no, se
+    crea como desde la mochila (anadir_objeto, o conseguir_personalizada para los manuales de
+    pasiva de personal y personalizadas), O-351."""
+    id_hex = (id_hex or "").upper()
+    if inventario.filas_poseidas(plain).get(id_hex):
+        return plain
+    if es_manual_de_pasiva(id_hex):
+        plain, _ = conseguir_personalizada(plain, id_hex, CANTIDAD_AUTOMATICA)
+    else:
+        categoria = next((f.get("categoria") for f in reglas._tabla("nombres-es.csv")
+                          if f["id"].upper() == id_hex), "")
+        plain, _ = anadir_objeto(plain, id_hex, 1 if categoria == "aura" else CANTIDAD_AUTOMATICA)
+    if not inventario.filas_poseidas(plain).get(id_hex):
+        raise Ilegal("no he podido meter %s en la mochila" % (que or id_hex))
+    return plain
+
+
+def _reponer_monton(plain, id_hex):
+    """La partida con un monton de `id_hex` con unidades (O-351): el que este a cero vuelve a
+    CANTIDAD_AUTOMATICA y, si no hay monton (aunque haya filas de tecnica aprendida, que no
+    valen como manual), se crea uno."""
+    id_hex = id_hex.upper()
+    for f in inventario.filas_poseidas(plain).get(id_hex) or []:
+        if ("cantidad_off" in f and f.get("cantidad", 0) == 0 and f.get("kind") == inventario.KIND_REAL
+                and f.get("sub") not in (9, 10)):
+            buf = bytearray(plain)
+            struct.pack_into("<I", buf, f["cantidad_off"], CANTIDAD_AUTOMATICA)
+            return bytes(buf)
+    plain, _ = anadir_objeto(plain, id_hex, CANTIDAD_AUTOMATICA, aunque_lo_tengas=True)
+    return plain
+
+
 def _es_fila_aprendida(f):
     """Una fila de tecnica APRENDIDA: kind 3, sub 10 (o 9) y una sola unidad.
     Los montones de manuales (sub 1 y 2, o 99 unidades) no valen: si una
@@ -336,11 +375,8 @@ def _fila_tecnica_aprendida(plain, id_hex, que):
     bib = _biblioteca_de_tecnicas(plain)
     if id_hex in bib:
         return plain, bib[id_hex][0], False
-    poseidas = inventario.filas_poseidas(plain).get(id_hex)
-    if not poseidas:
-        raise Ilegal("no tienes ningun/a %s en la mochila, asi que no se puede "
-                     "equipar: la partida guarda una referencia a TU copia, y sin "
-                     "copia no hay a que apuntar" % que)
+    # sin manual se mete solo en la mochila (O-351)
+    plain = _asegurar_en_mochila(plain, id_hex, que)
     modelo = next((f for _v, f in bib.values()), None)
     if modelo is None:
         raise Ilegal("no hay en la partida ninguna fila de tecnica aprendida de la "
@@ -350,12 +386,9 @@ def _fila_tecnica_aprendida(plain, id_hex, que):
 
 
 def _una_fila_poseida(plain, id_hex, que):
-    poseidas = inventario.filas_poseidas(plain).get(id_hex.upper())
-    if not poseidas:
-        raise Ilegal("no tienes ningun/a %s en la mochila, asi que no se puede "
-                     "equipar: la partida guarda una referencia a TU copia, y sin "
-                     "copia no hay a que apuntar" % que)
-    return poseidas[0]
+    """(plain, fila de mochila de `id_hex`); si no se tiene, se mete sola (O-351)."""
+    plain = _asegurar_en_mochila(plain, id_hex, que)
+    return plain, inventario.filas_poseidas(plain)[id_hex.upper()][0]
 
 
 def _campo_equipacion(plain, fila, ranura):
@@ -381,7 +414,7 @@ def poner_equipacion(plain, fila, ranura, nombre):
     if ranura not in CATEGORIA_RANURA:
         raise Ilegal("la ranura de equipacion tiene que ir de 1 a 4")
     id_hex = _buscar_por_nombre(nombre, {CATEGORIA_RANURA[ranura]})
-    nueva = _una_fila_poseida(plain, id_hex, nombre)
+    plain, nueva = _una_fila_poseida(plain, id_hex, nombre)
 
     off = _campo_equipacion(plain, fila, ranura)
     antes = struct.unpack_from("<I", plain, off)[0]
@@ -497,10 +530,22 @@ def poner_tecnica(plain, fila, ranura, nombre):
                     if f.get("kind") == inventario.KIND_REAL and f.get("cantidad", 0) > 0
                     and not (f.get("sub") in (9, 10) and f.get("cantidad", 0) == 1)]
         if not montones:
+            # sin manual: se mete solo en la mochila (O-351)
+            plain = _reponer_monton(plain, id_hex)
+            poseidas = inventario.filas_poseidas(plain)
+            montones = [f for f in poseidas.get(id_hex, [])
+                        if f.get("kind") == inventario.KIND_REAL and f.get("cantidad", 0) > 0
+                        and not (f.get("sub") in (9, 10) and f.get("cantidad", 0) == 1)]
+        if not montones:
             raise Ilegal("no tienes el manual de %s en la mochila: en el juego una tecnica "
                          "que no es del arbol se aprende con su manual y una \"Nuevas "
                          "posibilidades\". Consigue el manual primero (pestana Mochila)." % nombre)
         posibilidades = next((f for f in poseidas.get(POSIBILIDADES, []) if f.get("cantidad", 0) > 0), None)
+        if posibilidades is None:
+            # sin "Nuevas posibilidades": tambien se meten solas (O-351)
+            plain = _reponer_monton(plain, POSIBILIDADES)
+            poseidas = inventario.filas_poseidas(plain)
+            posibilidades = next((f for f in poseidas.get(POSIBILIDADES, []) if f.get("cantidad", 0) > 0), None)
         if posibilidades is None:
             raise Ilegal("no tienes ninguna \"Nuevas posibilidades\" en la mochila, y el juego "
                          "gasta una por cada tecnica que no es del arbol. Consigue alguna "
@@ -1027,7 +1072,7 @@ def _plantilla_armadura(candidatos):
     return buenas[0] if buenas else None
 
 
-def anadir_objeto(plain, nombre, cantidad=1):
+def anadir_objeto(plain, nombre, cantidad=1, aunque_lo_tengas=False):
     """Crea la fila de un objeto que no se tiene. Probado en el juego (NOTAS P-09).
 
     Lo delicado no es escribir el identificador, son las otras dos cosas:
@@ -1051,7 +1096,9 @@ def anadir_objeto(plain, nombre, cantidad=1):
     if not 1 <= cantidad <= TOPE_CANTIDAD:
         raise Ilegal("la cantidad va de 1 a %d" % TOPE_CANTIDAD)
     id_hex = _buscar_por_nombre(nombre, CATEGORIAS_QUE_SE_ANADEN)
-    if inventario.filas_poseidas(plain).get(id_hex):
+    # aunque_lo_tengas: el monton de manuales de una tecnica de la que solo hay filas de tecnica
+    # aprendida, que no valen como manual (O-351)
+    if inventario.filas_poseidas(plain).get(id_hex) and not aunque_lo_tengas:
         raise Ilegal("ya tienes %r; para cambiar cuantos usa --cantidad" % nombre)
 
     categoria, hermanos = _catalogo_hermanos(id_hex)
@@ -2103,11 +2150,9 @@ def poner_personalizada(plain, fila, nombre):
             raise Ilegal("no encuentro ninguna pasiva personalizada que se llame %r" % texto)
     if id_hex not in O.pasivas_personalizadas():
         raise Ilegal("%s no es una pasiva personalizada" % id_hex)
-    poseidas = inventario.filas_poseidas(plain).get(id_hex)
-    if not poseidas:
-        raise Ilegal("no tienes ningun manual de esa pasiva personalizada en la "
-                     "mochila, y la partida guarda una referencia a TU copia")
-    nueva = poseidas[0]
+    # sin manual se mete solo en la mochila (O-351)
+    plain = _asegurar_en_mochila(plain, id_hex, "esa pasiva personalizada")
+    nueva = inventario.filas_poseidas(plain)[id_hex][0]
     if antes == nueva["slot"]:
         raise Ilegal("ya lleva esa pasiva personalizada")
     buf = bytearray(plain)
@@ -2195,8 +2240,10 @@ def poner_pasiva_personal(plain, fila, ranura, nombre):
     # un Diamante lleva las suyas sin manual: en la partida original de Aaron
     # sus 4 Diamantes las tienen y en la mochila no hay ni una (O-227)
     es_diamante = J.array(plain, J.ARRAY_RAREZA)[fila] == 8
-    if not es_diamante and not inventario.filas_poseidas(plain).get(id_hex):
-        raise Ilegal("no tienes ningun manual de esa pasiva en la mochila")
+    if not es_diamante:
+        # sin manual se mete solo en la mochila (O-351: a Aaron se le acabaron los de Conf.
+        # Justicia de gerente y ya no le salia)
+        plain = _asegurar_en_mochila(plain, id_hex, "esa pasiva")
 
     pos = J.pos_tabla_pasivas(plain, fila, ranura - 1)
     if pos is None:

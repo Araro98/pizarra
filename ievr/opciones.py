@@ -269,11 +269,10 @@ def _bonus_de(id_hex):
 
 
 def equipacion(plain, ranura):
-    """Lo que se puede poner en esa ranura: solo objetos que se TENGAN.
+    """Lo que se puede poner en esa ranura: todos los objetos de su categoria.
 
-    La equipacion guarda el numero de fila del objeto, no el objeto (NOTAS O-19),
-    asi que lo que no se tiene no se puede equipar ni queriendo. Aqui se lista lo
-    que hay en la mochila de la categoria de esa ranura.
+    La equipacion guarda el numero de fila del objeto, no el objeto (NOTAS O-19);
+    lo que no se tiene se mete solo en la mochila al ponerlo (O-351, `falta`).
     """
     categoria = E.CATEGORIA_RANURA.get(ranura)
     if categoria is None:
@@ -282,10 +281,11 @@ def equipacion(plain, ranura):
     fuera = []
     for f in _nombres_por_categoria().get(categoria, []):
         idh = f["id"].upper()
-        if idh in poseidas:
+        if True:
             fuera.append({"id": idh,
                           "nombre": _limpio(f.get("nombre_es") or f.get("nombre_en")),
-                          "cantidad": poseidas[idh][0].get("cantidad", 0),
+                          "cantidad": poseidas[idh][0].get("cantidad", 0) if idh in poseidas else 0,
+                          "falta": idh not in poseidas,
                           # cada bota, brazalete, colgante y especial tiene su
                           # propio dibujo en el juego (NOTAS O-137)
                           "icono200": _iconos_de_objeto().get(idh, ""),
@@ -300,8 +300,8 @@ def tecnicas(plain, fila, ranura):
 
     Cada ranura tiene una categoria fija (Tiro, Parada, Regate, Defensa...) que
     viene del personaje, y solo admite tecnicas de esa categoria. Las marcadas
-    LIBRE admiten cualquier cosa, hipertecnicas incluidas. Y ademas hay que
-    tenerla.
+    LIBRE admiten cualquier cosa, hipertecnicas incluidas. Las que no se tienen
+    salen tambien (`falta`): al ponerlas se mete el manual solo (O-351).
     """
     ficha = _ficha_de_personaje(J.array(plain, J.ARRAY_IDENTIDAD)[fila])
     if ficha is None:
@@ -326,13 +326,13 @@ def tecnicas(plain, fila, ranura):
     for f in reglas._tabla("tecnicas.csv"):
         idh = f["id"].upper()
         repetida = idh in repetibles
-        if idh not in poseidas or (obtenibles and idh not in obtenibles and not repetida):
+        if obtenibles and idh not in obtenibles and not repetida:
             continue
         if admite != "LIBRE" and f.get("categoria") != admite and not repetida:
             continue
         n_jug, comb = jugadores_de_tecnica(f)
         fuera.append({"id": idh, "nombre": _limpio(f.get("nombre")),
-                      "repetida": repetida,
+                      "repetida": repetida, "falta": idh not in poseidas,
                       # individual o combinada, y de cuantos (O-237)
                       "jugadores": n_jug, "combinada": comb,
                       "categoria": f.get("categoria"),
@@ -350,9 +350,10 @@ def tecnicas(plain, fila, ranura):
         for f in _nombres_por_categoria().get("aura", []):
             idh = f["id"].upper()
             # las armaduras y los mixi max solo se ofrecen a su personaje (O-172)
-            if idh in poseidas and espiritu_permitido(idh, identidad_hex):
+            # los que no se tienen, solo si son espiritus de verdad (O-351)
+            if (idh in poseidas or idh in esp) and espiritu_permitido(idh, identidad_hex):
                 e = esp.get(idh) or {}
-                fuera.append({"id": idh,
+                fuera.append({"id": idh, "falta": idh not in poseidas,
                               "nombre": _limpio(f.get("nombre_es") or f.get("nombre_en")),
                               "categoria": "Hipertecnica",
                               "subtipo": e.get("familia") or "",
@@ -451,20 +452,18 @@ def numero_personalizada(id_hex):
 
 
 def personalizadas(plain, fila):
-    """Las pasivas personalizadas que se le pueden poner: las que tengas en la
-    mochila. Una por jugador (NOTAS O-179)."""
+    """Las pasivas personalizadas que se le pueden poner: las 37; las que no tengas
+    en la mochila se meten solas al ponerlas (O-351). Una por jugador (NOTAS O-179)."""
     from ievr import escribir as E
     poseidas = inventario.filas_poseidas(plain)
     puesta, _slot = E.pasiva_personalizada(plain, fila)
     fuera = []
     for idh in sorted(pasivas_personalizadas(), key=numero_personalizada):
-        if idh not in poseidas:
-            continue
-        fuera.append({"id": idh, "nombre": nombre_pasiva(idh, idh),
+        fuera.append({"id": idh, "nombre": nombre_pasiva(idh, idh), "falta": idh not in poseidas,
                       "numero": numero_personalizada(idh),
                       "extra": "Pasiva personalizada %d" % numero_personalizada(idh),
                       "icono200": iconos_de_pasiva().get(idh, ""),
-                      "cantidad": poseidas[idh][0].get("cantidad", 0)})
+                      "cantidad": poseidas[idh][0].get("cantidad", 0) if idh in poseidas else 0})
     fuera.sort(key=lambda x: x["numero"])
     return {"puede": bool(fuera), "puesta": puesta,
             "motivo": "" if fuera else "no tienes ningun manual de pasiva "
@@ -1225,7 +1224,8 @@ def valor_de_pasiva(id_hex):
 
 def personales(plain, fila):
     """Las pasivas de personal que se le pueden poner a ese gerente o
-    entrenador: las de SU rol que tengas en la mochila (NOTAS O-185)."""
+    entrenador: las de SU rol (NOTAS O-185); las que no tengas en la mochila se
+    meten solas al ponerlas (O-351)."""
     from ievr import escribir as E
     rol = E.rol_de_personal(plain, fila)
     if rol not in ("gerente", "entrenador"):
@@ -1241,11 +1241,10 @@ def personales(plain, fila):
     if es_diamante:
         legales = pasivas_solo_de_diamante(rol)
     for idh in sorted(legales) if legales else pasivas_de_personal_del_rol(rol):
-        if not es_diamante and idh not in poseidas:
-            continue
         # con el numero que tendra en ESTE gerente o entrenador (O-197)
         valor = E.valor_de_pasiva_personal(plain, fila, idh)
         fuera.append({"id": idh, "nombre": texto_con_valor(idh, valor, idh),
+                      "falta": not es_diamante and idh not in poseidas,
                       "icono200": iconos_de_pasiva().get(idh, ""),
                       "cantidad": poseidas[idh][0].get("cantidad", 0) if idh in poseidas else 0})
     fuera.sort(key=lambda x: x["nombre"])

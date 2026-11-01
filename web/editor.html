@@ -2183,6 +2183,8 @@ function tarjetaDeOpcion(o, alPulsar, puesta) {
     // individual o combinada, y de cuantos (O-237)
     if (o.jugadores > 1) chips.appendChild(chip("Combinada · " + o.jugadores + " jugadores", "comb"));
     else if (o.combinada) chips.appendChild(chip("Individual", "indiv"));
+    // la que no se tiene se mete sola en la mochila al ponerla (O-351)
+    if (o.falta) chips.appendChild(chip("No la tienes: se añade sola", "falta"));
     t.appendChild(chips);
     if (o.descripcion) t.appendChild(el("p", {class:"desc", text:o.descripcion}));
     return t;
@@ -2195,7 +2197,8 @@ function tarjetaDeOpcion(o, alPulsar, puesta) {
     : o.stat ? iconoStat(o.stat, 30) : null;
   t.appendChild(el("div", {class:"cab-obj"}, [dibujo,
     el("div", {class:"titulos"}, [el("b", {text:o.etiqueta}),
-      o.cantidad ? el("small", {text:"tienes " + o.cantidad}) : null])]));
+      o.cantidad ? el("small", {text:"tienes " + o.cantidad})
+        : o.falta ? el("small", {text:"no la tienes: se añade sola a la mochila"}) : null])]));
   if (Array.isArray(o.stats) && o.stats.some(v => v)) {
     const st = el("div", {class:"stats"});
     o.stats.forEach((v, i) => {

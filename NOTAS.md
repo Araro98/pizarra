@@ -11387,6 +11387,33 @@ equipo". En el codigo los cambios citan esta nota.
   120 de la primera pagina 49 apagados, uno con objetos se niega con su motivo, tres borrados (la
   plantilla pasa de 4.442 a 4.439, un cambio sin guardar).
 
+### O-351 · Lo que se pone sin tenerlo se mete solo en la mochila
+
+Lo que paso (2026-11-01): a Aaron no le salia Conf. Justicia para los gerentes del Raimon. No era
+fallo: la fila del manual de gerente (5493778C) habia desaparecido de su mochila (el 4 de octubre
+estaba, con 99 y 152 puestas; la de entrenador, 6681FD99, bajo de 99 a 93: el juego los gasta al
+ponerlos y al llegar a cero quita la fila). Faltaban tambien otras dos de gerente. Y lo que pidio:
+"aunque no tengas manuales de lo que sea en la mochila, ya sea de supertecnicas, pasivas etc, si en
+algun equipo las pones, te las ponga automaticamente, asi nunca pasara eso". En el codigo los
+cambios citan esta nota.
+- escribir._asegurar_en_mochila: si no se tiene, se crea como desde la mochila: 99 (un espiritu,
+  uno) con anadir_objeto, o con conseguir_personalizada los manuales de pasiva (personal y
+  personalizadas). Lo usan poner_equipacion (objetos), la tecnica propia del arbol y los
+  espiritus (_fila_tecnica_aprendida), poner_personalizada y poner_pasiva_personal (no a un
+  Diamante, que las lleva sin manual).
+- La tecnica que no es del arbol (O-215) apunta a un monton de manuales: _reponer_monton rellena a
+  99 el que este a cero o crea uno, aunque haya filas de tecnica aprendida (anadir_objeto con
+  aunque_lo_tengas). Y si no quedan "Nuevas posibilidades", lo mismo con ellas.
+- Las listas para elegir (opciones.equipacion, tecnicas con los espiritus, personalizadas,
+  personales) ensenan tambien lo que no se tiene, con `falta`: "No la tienes: se anade sola". Las
+  de siempre siguen fuera (tecnicas no obtenibles, armaduras y mixi max de otro, las de Diamante a
+  quien no lo es). Las medallas de gerente y entrenador no: no estan en las tablas de nombres y
+  Aaron tiene 99.999 de cada una.
+- Probado (partida original y la de Aaron de hoy): pasiva de gerente (Conf. Justicia en Rosie
+  Redd, tambien por el servidor de pruebas), personalizada, tecnica sin nada, tecnica con solo
+  filas aprendidas (Ave goleadora), botas, espiritu (Alfil negro) y sin Nuevas posibilidades;
+  pruebas de siempre pasan.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
