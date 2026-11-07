@@ -1173,6 +1173,8 @@ const CAMPOS_FILTRO = [["elemento","Afinidad"],["posicion","Posicion"],
   // que stats sube su arbol (O-244)
   ["arbol_sube","El arbol sube"],
   ["genero","Genero"],
+  // 1.er, 2.o y 3.er curso o sin curso, como en el juego (O-353)
+  ["curso","Curso"],
   // su tier en la tier list, con la rareza que tiene (O-269)
   ["tier","Tier"],
   // Estos cuatro no vienen del personaje sino de COMO esta el jugador, que es
@@ -2763,6 +2765,7 @@ const FILTROS_RES = [
   {campo:"mixi",     etiqueta:"Mixi max", siempre:true},
   {campo:"modo",     etiqueta:"Modo", siempre:true},
   {campo:"genero", etiqueta:"Genero"},                     // O-246
+  {campo:"curso", etiqueta:"Curso", orden:v => ["1.er curso", "2.º curso", "3.er curso", "Sin curso"].indexOf(v)},   // O-353
   // que stats sube su arbol, en Diamantes por el tablero (O-244)
   {campo:"arbol_sube", etiqueta:"El arbol sube", multi:true,
    valor:d => (familiaPer === "semilla" && d.arbol_sube_diamante) ? d.arbol_sube_diamante : (d.arbol_sube || []),
@@ -3584,6 +3587,7 @@ const FILTROS_PER = [
   {campo:"mixi",     etiqueta:"Mixi max", siempre:true},
   {campo:"modo",     etiqueta:"Modo", siempre:true},
   {campo:"genero", etiqueta:"Genero"},                     // O-246
+  {campo:"curso", etiqueta:"Curso", orden:v => ["1.er curso", "2.º curso", "3.er curso", "Sin curso"].indexOf(v)},   // O-353
   // que stats sube su arbol, en Diamantes por el tablero (O-244)
   {campo:"arbol_sube", etiqueta:"El arbol sube", multi:true,
    valor:d => (familiaPer === "semilla" && d.arbol_sube_diamante) ? d.arbol_sube_diamante : (d.arbol_sube || []),

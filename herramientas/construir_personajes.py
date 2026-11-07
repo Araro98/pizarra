@@ -98,6 +98,27 @@ def sagas_del_juego():
     return fuera
 
 
+# El curso, con el texto del juego (menu_text): 1.er, 2.o o 3.er curso; los que no tienen
+# (adultos, ninos, monstruos...) "Sin curso" (O-353)
+CURSOS = {1: "1.er curso", 2: "2.\u00ba curso", 3: "3.er curso"}
+SIN_CURSO = "Sin curso"
+
+
+def cursos_del_juego():
+    """{clave (u32): 1-3} de `academic_year_config` (clave, curso, clave de texto), O-353."""
+    ruta = os.path.join(GAMEDATA, "character", "academic_year_config.cfg.bin")
+    if not os.path.isfile(ruta):
+        return {}
+    r = subprocess.run([VOLCADO, ruta, "m_academicYearInfoList"], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
+    fuera = {}
+    for linea in r.stdout.splitlines():
+        c = linea.split("\t")
+        if len(c) >= 2 and entero(c[0]) is not None:
+            fuera[entero(c[0]) & 0xFFFFFFFF] = entero(c[1].replace("Byte(", "").rstrip(")")) or 0
+    return fuera
+
+
 def nombres_del_juego(lengua):
     """{clave: nombre} leyendo `chara_text.cfg.bin` del idioma que se pida."""
     ruta = os.path.join(JUEGO, "extracted", "data", "common", "text", lengua,
@@ -179,6 +200,7 @@ def main():
     # 15 = la saga (juego) de la que viene, clave de chara_series_config
     sagas = sagas_del_juego()
     print("sagas: %s" % ", ".join("%d %s" % v for v in sorted(sagas.values())))
+    cursos = cursos_del_juego()
     base = {}
     for c in filas(p_base):
         if len(c) < 4:
@@ -191,8 +213,11 @@ def main():
         # 11 = el genero: 1 chico, 2 chica, 5 sin genero (soldados de
         # terracota, robots...); 0 y 4 tambien sin genero (O-246)
         genero = {1: "Chico", 2: "Chica"}.get(entero(c[11]) if len(c) > 11 else None, "Sin genero")
+        # 13 = el curso: clave de academic_year_config (0 = sin curso), O-353
+        clave_curso = entero(c[13]) if len(c) > 13 else None
+        curso = CURSOS.get(cursos.get((clave_curso or 0) & 0xFFFFFFFF), SIN_CURSO)
         if base_id is not None:
-            base[base_id] = (indice, name_id, sagas.get(serie & 0xFFFFFFFF if serie is not None else -1, (0, "")), apodo_id, genero)
+            base[base_id] = (indice, name_id, sagas.get(serie & 0xFFFFFFFF if serie is not None else -1, (0, "")), apodo_id, genero, curso)
 
     # Los nombres se leen del PROPIO fichero de textos del juego. Antes se
     # cogian del volcado a sqlite, y ese volcado venia incompleto: 154
@@ -234,11 +259,11 @@ def main():
                     "nombre_es", "nombre_en", "apt_entrenador", "apt_gerente"]
                    + ["tec%d" % k for k in range(1, 10)]
                    + ["tec%d_nivel" % k for k in range(1, 10)]
-                   + ["arquetipo_valor", "clave_personal", "tablero", "saga", "saga_num", "apodo", "genero"])
+                   + ["arquetipo_valor", "clave_personal", "tablero", "saga", "saga_num", "apodo", "genero", "curso"])
         for ident, (base_id, rareza, apt_e, apt_g, tecnicas, arquetipo, clave_personal, tablero) in sorted(param.items()):
             if base_id not in base:
                 continue
-            indice, name_id, (saga_num, saga), apodo_id, genero = base[base_id]
+            indice, name_id, (saga_num, saga), apodo_id, genero, curso = base[base_id]
             genero = GENERO_A_MANO.get("%08X" % ident, genero)
             w.writerow(["%08X" % ident, base_id, indice,
                         RAREZAS.get(rareza, "desconocida(%s)" % rareza), rareza,
@@ -250,7 +275,7 @@ def main():
                           "" if clave_personal is None else clave_personal, tablero,
                           saga, saga_num or "",
                           idiomas.get("es", {}).get(apodo_id, "") or idiomas.get("en", {}).get(apodo_id, ""),
-                          genero])
+                          genero, curso])
             n += 1
     print("Escritos %d personajes en %s" % (n, SALIDA))
     return 0

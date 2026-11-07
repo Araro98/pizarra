@@ -458,6 +458,8 @@ def _ficha_corta(plain, fila, ident, nivel, rareza, arq, jugadores):
     return {
         # chico / chica / sin genero (O-246)
         "genero": (reglas.personajes().get(clave) or {}).get("genero") or "",
+        # 1.er / 2.o / 3.er curso o sin curso (O-353)
+        "curso": (reglas.personajes().get(clave) or {}).get("curso") or "",
         # que stats sube su arbol (O-244), para el filtro "El arbol sube"
         "arbol_sube": O.stats_que_sube_el_arbol_de(plain, fila),
         "nivel_grupo": "99" if nivel[fila] >= 99 else
@@ -1108,7 +1110,7 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
                ("elemento", "posicion", "rareza", "arquetipo", "equipo", "saga",
                 "armadura", "mixi", "modo",
                 "nivel_grupo", "judias", "heredadas", "equipacion", "rol",
-                "cuerpo_tipo", "mi_equipo", "arbol_sube", "genero", "tier")}
+                "cuerpo_tipo", "mi_equipo", "arbol_sube", "genero", "curso", "tier")}
     for d in todos:
         for c in cuentas:
             if c == "mi_equipo":
@@ -1166,6 +1168,8 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
                                            key=(lambda x: (O.orden_de_sagas().get(x[0], 99), x[0])) if c == "saga"
                                            # las tiers de mejor a peor (O-269)
                                            else (lambda x: (TL.ESCALERA.index(x[0]) if x[0] in TL.ESCALERA else 99, x[0])) if c == "tier"
+                                           # los cursos en orden y "Sin curso" al final (O-353)
+                                           else (lambda x: (x[0] == "Sin curso", x[0])) if c == "curso"
                                            else (lambda x: (-x[1], x[0])))]
                     for c in cuentas},
         "ordenes": sorted(ORDENES),
@@ -1700,7 +1704,7 @@ class Manejador(BaseHTTPRequestHandler):
                            for c in ("elemento", "posicion", "rareza",
                                      "arquetipo", "equipo", "saga", "armadura", "mixi", "modo", "nivel_grupo",
                                      "judias", "heredadas", "equipacion", "rol",
-                                     "cuerpo_tipo", "mi_equipo", "arbol_sube", "genero", "tier")}
+                                     "cuerpo_tipo", "mi_equipo", "arbol_sube", "genero", "curso", "tier")}
                 with self.ses.lock:
                     return self._responder(200, listar_jugadores(
                         self.ses.plain, (q.get("q") or [""])[0], filtros,

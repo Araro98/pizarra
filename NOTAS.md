@@ -11480,6 +11480,22 @@ algunos slots de tecnicas y equipaciones vacias"; "pasa con varios del equipo de
   que va en el registro de tecnicas). En la partida: 230 referencias llevadas a la fila que dejo el
   juego; 0 rotas, 0 repetidos, 0 montones cortos.
 
+### O-353 · Filtro de curso
+
+Aaron (2026-11-07): "no se si el juego tiene filtro por edad, al menos los anteriores si, creo que
+era 1r curso, 2o curso, 3r curso y adultos, mira si los tienen y anadelo". En el codigo los cambios
+citan esta nota.
+- Lo tiene: `academic_year_config` (m_academicYearInfoList: clave, curso 1-3, clave de texto) y la
+  columna 13 de CHARA_BASE_INFO_LIST, la clave del curso de cada personaje (0 = sin curso). De
+  6.161 personajes: 1.284 de 1.er curso, 2.664 de 2.o, 852 de 3.er y 1.361 sin curso. Comprobado:
+  Mark de IE1 2.o (de GO sin curso, de Ares 3.er), Arion y Destin 1.o, Raika 2.o, Layton sin curso.
+- Los textos, los del juego (menu_text): "1.er curso", "2.o curso", "3.er curso". El juego tiene
+  tambien "Adulto", "Nino" y "1.o primaria" a "6.o primaria", pero no se encontro de donde los saca
+  por personaje (ni en chara_base, ni chara_param, ni chara_details, que son los clubes de VR), asi
+  que los que no tienen curso van juntos como "Sin curso" (adultos, ninos, monstruos...).
+- `personajes.csv` columna `curso` (construir_personajes.py); filtro "Curso" en Jugadores, la
+  reserva, Fichar y la Base de datos, en orden y "Sin curso" al final.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo

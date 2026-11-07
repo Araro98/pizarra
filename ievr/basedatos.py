@@ -124,6 +124,7 @@ def personajes():
             r["saga"] = f.get("saga") or ""          # el juego de origen (O-208)
             r["apodo"] = f.get("apodo") or ""        # el apodo, para buscar (O-219)
             r["genero"] = f.get("genero") or ""      # chico / chica / sin genero (O-246)
+            r["curso"] = f.get("curso") or ""        # 1.er / 2.o / 3.er curso o sin curso (O-353)
             r.update(O.puede_llevar(ident))           # armadura / mixi / modo (O-222)
             r["arbol_sube"] = O.stats_que_sube_el_arbol(ident, r["rareza_valor"])   # O-244
             r["fichable"] = "si" if ident in fichables else "no"   # O-205
