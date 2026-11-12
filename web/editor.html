@@ -2545,15 +2545,21 @@ async function manda(cambio) {
     // Solo se recarga la pantalla en la que se esta. Antes se recargaba siempre
     // la lista de jugadores y **nunca el equipo**, asi que en Equipos el cambio
     // se hacia pero no se veia y parecia que no funcionaba nada.
+    // y la lista de Fichar (quien tienes ya), si el cambio no se hace desde alli (O-354)
+    if (modo !== "fichar") personajes = null;
     if (modo === "equipos") {
       marcado = null;
       equipos = await pedir("/api/equipos");
       pintaTabsEquipos();
       await abreEquipo();
-      pintaReservas();
+      // la reserva se vuelve a pedir: lo que se cambia desde aqui (hacer gerente a uno,
+      // autorrellenar, subirle partidos) no salia hasta salir y entrar del editor (O-354)
+      await cargaReservas(true);
       return r && r.hecho;      // lo que hizo el servidor (el dorsal movido, O-192)
     }
-    if (cambio.tipo === "jugador" || cambio.tipo === "borrar_jugador" || cambio.tipo === "borrar_jugadores") reservas = null;
+    // cualquier cambio deja vieja la reserva de Equipos (el rol, el nivel, un fichaje...): se
+    // pide de nuevo al volver alli. Antes solo al fichar o borrar (O-354)
+    reservas = null;
     if (cambio.tipo === "borrar_jugador" || (cambio.tipo === "borrar_jugadores" && cambio.filas.includes(jugadorAbierto))) {
       // la ficha abierta ya no existe
       jugadorAbierto = null; detalle = null;
@@ -2776,10 +2782,9 @@ const FILTROS_RES = [
 ];
 
 async function cargaEquipos(recargar) {
-  if (!equipos || recargar) {
-    trabajando(true);
-    try { equipos = await pedir("/api/equipos"); } finally { trabajando(false); }
-  }
+  // siempre se piden: son once nombres, y asi no se queda la lista vieja (O-354)
+  trabajando(true);
+  try { equipos = await pedir("/api/equipos"); } finally { trabajando(false); }
   if (equipoAbierto === null && equipos.length) equipoAbierto = equipos[0].hueco;
   pintaTabsEquipos();
   await abreEquipo();
@@ -2830,7 +2835,8 @@ async function abreEquipo() {
 async function cargaReservas(recargar) {
   if (!reservas || recargar) {
     trabajando(true);
-    try { reservas = await pedir("/api/jugadores?cuantos=0"); }
+    // (resumen=0: sin las comprobaciones del Resumen, que aqui no hacen falta, O-354)
+    try { reservas = await pedir("/api/jugadores?cuantos=0&resumen=0"); }
     finally { trabajando(false); }
   }
   montaFiltros($("#filtros-res"), reservas.jugadores, FILTROS_RES, estadoRes,
@@ -3757,10 +3763,23 @@ $("#deshacer").onclick = async () => {
     await pedir("/api/deshacer", {method:"POST",
       headers:{"Content-Type":"application/json"}, body:"{}"});
     await refrescaEstado();
+    reservas = null;
     if (jugadorAbierto !== null) {
-      detalle = await pedir("/api/jugador/" + jugadorAbierto); pintaFicha();
+      // (si lo deshecho era su fichaje, ya no existe)
+      try { detalle = await pedir("/api/jugador/" + jugadorAbierto); pintaFicha(); }
+      catch (e) {
+        jugadorAbierto = null; detalle = null;
+        $("#ficha").textContent = "";
+        $("#ficha").appendChild(el("div", {class:"vacio", text:"Elige un jugador."}));
+      }
     }
-    await cargaLista(); pintaCambios();
+    // se recarga la pantalla en la que se esta: antes solo la lista de Jugadores, y en
+    // Equipos, la mochila o Fichar lo deshecho seguia a la vista (O-354)
+    if (modo === "equipos") { marcado = null; await cargaEquipos(true); }
+    else if (modo === "mochila") await cargaInventario();
+    else if (modo === "fichar") await cargaPersonajes(true);
+    else await cargaLista();
+    pintaCambios();
     aviso("Deshecho.", "bien");
   } catch (e) { aviso(e.message, "mal"); }
 };
@@ -3769,6 +3788,7 @@ $("#abrir").onclick = () => elegirCarpeta("Abrir una partida", async ruta => {
     const d = await pedir("/api/abrir", {method:"POST",
       headers:{"Content-Type":"application/json"}, body:JSON.stringify({ruta})});
     jugadorAbierto = null; detalle = null; personajes = null; desde = 0;
+    reservas = null; equipos = null; equipoAbierto = null; detalleEq = null; marcado = null;   // O-354
     $("#ficha").textContent = "";
     $("#ficha").appendChild(el("div", {class:"vacio", text:"Elige un jugador."}));
     await refrescaEstado(); await cargaLista();

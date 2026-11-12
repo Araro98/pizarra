@@ -392,8 +392,7 @@ def _campos_ficha(plain, fila):
     """{hash: (offset de los datos, longitud)} de todos los campos de la ficha."""
     from ievr import tlv
     fichas = J.ocurrencias(plain, *J.ANCLA_FICHA)
-    ini, _ = tlv.inicio_registro(plain, fichas[fila])
-    return {fh: (off + 8, n) for off, fh, n, _ in tlv.campos_desde(plain, ini, maximo=20)}
+    return {fh: (off + 8, n) for off, fh, n in tlv.mapa_de_registro(plain, fichas[fila])[1]}
 
 
 def _estado_de(plain, fila, nivel):
@@ -504,6 +503,71 @@ def _ficha_corta(plain, fila, ident, nivel, rareza, arq, jugadores):
                                          medalla=EQ.medalla_de(plain, fila << 16, estado["medalla_valor"]),
                                          partidos=estado["partidos"])),
     }
+
+
+# Las fichas cortas ya hechas, por fila: {fila: (firma, ficha)}. La firma es todo aquello de lo
+# que sale la ficha (sus numeros y los bytes de sus registros): tras un cambio solo se rehacen
+# las de los jugadores que han cambiado (O-354: antes, las 4.000 en cada peticion de la lista).
+_FICHAS_CORTAS = {}
+
+
+def _tramo_de_registro(plain, ancla, fila):
+    """(principio, fin) del registro de esa fila (su ficha, su equipacion...)."""
+    from ievr import memoria, tlv
+    tramos = memoria.estructura(plain).setdefault(("tramos", ancla), {})
+    t = tramos.get(fila)
+    if t is None:
+        ini, _ = tlv.inicio_registro(plain, J.ocurrencias(plain, *ancla)[fila])
+        campos = tlv.campos_desde(plain, ini, maximo=20)
+        t = tramos[fila] = (ini, campos[-1][0] + 8 + campos[-1][2] if campos else ini)
+    return t
+
+
+def _ficha_corta_recordada(plain, fila, ident, nivel, rareza, arq, jugadores, serie, medallas):
+    """_ficha_corta, rehecha solo si ha cambiado algo de ese jugador. Los Idolos y Diamantes se
+    hacen siempre (su arbol sale tambien de su tablero y de su tabla de pasivas)."""
+    if rareza[fila] >= 5:
+        return _ficha_corta(plain, fila, ident, nivel, rareza, arq, jugadores)
+    try:
+        a, b = _tramo_de_registro(plain, J.ANCLA_FICHA, fila)
+        c, d = _tramo_de_registro(plain, J.ANCLA_EQUIPO, fila)
+        firma = (ident[fila], nivel[fila], rareza[fila], arq[fila], serie[fila],
+                 plain[a:b], plain[c:d], medallas)
+    except Exception:
+        return _ficha_corta(plain, fila, ident, nivel, rareza, arq, jugadores)
+    hecha = _FICHAS_CORTAS.get(fila)
+    if hecha is not None and hecha[0] == firma:
+        return dict(hecha[1])
+    ficha = _ficha_corta(plain, fila, ident, nivel, rareza, arq, jugadores)
+    _FICHAS_CORTAS[fila] = (firma, ficha)
+    return dict(ficha)
+
+
+def _fichas_de_la_plantilla(plain, solo=None):
+    """[ficha corta] de todos los jugadores, con sus equipos. Se recuerda por partida: buscar,
+    filtrar, ordenar y pasar de pagina no la rehacen (O-354)."""
+    from ievr import memoria
+
+    def construir():
+        ident = J.array(plain, J.ARRAY_IDENTIDAD)
+        nivel = J.array(plain, J.ARRAY_NIVEL)
+        rareza = J.array(plain, J.ARRAY_RAREZA)
+        arq = J.array(plain, (J.F_ARQUETIPO, 6000, "B", 1))
+        serie = J.array(plain, (0x90F47C83, 24000, "I", 4))
+        jugadores = O._por_identidad()
+        medallas = tuple(sorted(EQ.montones_de_medalla(plain).items()))
+        mios, huecos_equipo = equipos_por_fila(plain)
+        todos = []
+        for i in range(min(6000, len(ident))):
+            if ident[i]:
+                d = _ficha_corta_recordada(plain, i, ident, nivel, rareza, arq, jugadores, serie, medallas)
+                d["mis_equipos"] = mios.get(i, [])
+                todos.append(d)
+        return todos, huecos_equipo
+    todos, huecos_equipo = memoria.recordar(plain, "fichas_de_la_plantilla", construir)
+    if solo is not None:        # en el editor del draft, solo los del draft (O-248)
+        todos = [d for d in todos if d["fila"] in solo]
+    return todos, huecos_equipo
 
 
 ORDENES = {
@@ -1039,8 +1103,7 @@ def _nombre_de_valor(plain, cual, valor_hex):
     if dicho:
         return dicho
     al_reves = EQ._al_reves(valor_hex)
-    espanol = {f["id"].upper(): O._limpio(f.get("nombre_es") or f.get("nombre_en"))
-               for f in reglas._tabla("nombres-es.csv")}
+    espanol = EQ.nombres_en_espanol()
     for f in reglas._tabla("equipo-objetos.csv"):
         if f["tipo"] != cual:
             continue
@@ -1081,7 +1144,7 @@ def equipos_por_fila(plain):
 
 
 def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
-                     desde=0, cuantos=120, sentido="asc", solo=None):
+                     desde=0, cuantos=120, sentido="asc", solo=None, resumen=True):
     """La plantilla, filtrada y por paginas.
 
     Devuelve tambien **de que se puede filtrar y cuantos hay de cada cosa**,
@@ -1089,21 +1152,12 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
     si Aaron no tiene ningun jugador de Viento, "Viento" no sale como opcion.
     """
     filtros = filtros or {}
-    ident = J.array(plain, J.ARRAY_IDENTIDAD)
-    nivel = J.array(plain, J.ARRAY_NIVEL)
-    rareza = J.array(plain, J.ARRAY_RAREZA)
-    arq = J.array(plain, (J.F_ARQUETIPO, 6000, "B", 1))
-    jugadores = O._por_identidad()
     texto = (texto or "").strip().lower()
+    # `resumen`: las comprobaciones del Resumen (solo cuando se piden todos); la reserva de
+    # Equipos pide todos y no las quiere (O-354: eran mas de un segundo cada vez)
+    resumen = resumen and not cuantos
 
-    mios, huecos_equipo = equipos_por_fila(plain)
-    todos = []
-    for i in range(min(6000, len(ident))):
-        # `solo`: en el editor del draft, solo los del draft (O-248)
-        if ident[i] and (solo is None or i in solo):
-            d = _ficha_corta(plain, i, ident, nivel, rareza, arq, jugadores)
-            d["mis_equipos"] = mios.get(i, [])
-            todos.append(d)
+    todos, huecos_equipo = _fichas_de_la_plantilla(plain, solo)
 
     import collections
     cuentas = {c: collections.Counter() for c in
@@ -1148,15 +1202,15 @@ def listar_jugadores(plain, texto="", filtros=None, orden="nivel",
     return {
         "total": len(todos), "encajan": len(filtrados), "desde": desde,
         # para el Resumen (que pide todos): ranuras que apuntan a montones (O-171)
-        "tecnicas_rotas": len(E.tecnicas_rotas(plain)) if not cuantos else 0,
-        "arboles_rotos": len(E.arboles_rotos(plain)) if not cuantos else 0,
-        "dorsales_repetidos": len(EQ.dorsales_repetidos(plain)) if not cuantos else 0,
-        "piezas_desajustadas": len({i for i, _ in EQ.piezas_desajustadas(plain)}) if not cuantos else 0,
-        "cabeceras_desajustadas": len(EQ.cabeceras_desajustadas(plain)) if not cuantos else 0,
-        "pasivas_ilegales_mochila": len(E.pasivas_ilegales_en_mochila(plain)) if not cuantos else 0,
-        "tablas_desajustadas": len(E.tablas_desajustadas(plain)) if not cuantos else 0,
-        "diamantes_desajustados": len(E.diamantes_desajustados(plain)) if not cuantos else 0,
-        "personal_desajustado": len({f for f, _ in E.pasivas_personal_desajustadas(plain)}) if not cuantos else 0,
+        "tecnicas_rotas": len(E.tecnicas_rotas(plain)) if resumen else 0,
+        "arboles_rotos": len(E.arboles_rotos(plain)) if resumen else 0,
+        "dorsales_repetidos": len(EQ.dorsales_repetidos(plain)) if resumen else 0,
+        "piezas_desajustadas": len({i for i, _ in EQ.piezas_desajustadas(plain)}) if resumen else 0,
+        "cabeceras_desajustadas": len(EQ.cabeceras_desajustadas(plain)) if resumen else 0,
+        "pasivas_ilegales_mochila": len(E.pasivas_ilegales_en_mochila(plain)) if resumen else 0,
+        "tablas_desajustadas": len(E.tablas_desajustadas(plain)) if resumen else 0,
+        "diamantes_desajustados": len(E.diamantes_desajustados(plain)) if resumen else 0,
+        "personal_desajustado": len({f for f, _ in E.pasivas_personal_desajustadas(plain)}) if resumen else 0,
         "jugadores": trozo,
         # el hueco va con el nombre para poder ensenar las pasivas sumadas de
         # ese equipo en la propia lista de Jugadores (NOTAS O-183)
@@ -1712,7 +1766,8 @@ class Manejador(BaseHTTPRequestHandler):
                         int((q.get("desde") or ["0"])[0]),
                         int((q.get("cuantos") or ["120"])[0]),
                         (q.get("sentido") or ["asc"])[0],
-                        solo=set(self.ses.info["filas"]) if self.draft else None))
+                        solo=set(self.ses.info["filas"]) if self.draft else None,
+                        resumen=(q.get("resumen") or ["1"])[0] != "0"))
             if u.path.startswith("/api/jugador/"):
                 fila = int(u.path.rsplit("/", 1)[1])
                 with self.ses.lock:

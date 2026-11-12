@@ -184,7 +184,7 @@ def indice_por_slot(plain):
     referencia.
     """
     idx = {}
-    for off in ocurrencias(plain, F_SLOT, 4):
+    for off in ocurrencias(plain, F_SLOT, 4):   # (misma clave que inventario: se busca una vez)
         campos = tlv.campos_desde(plain, off, maximo=6)
         if not campos:
             continue
@@ -208,11 +208,11 @@ def _nombre(idx, valor):
 
 
 def _campos_de(plain, off, quiero):
-    ini, _ = tlv.inicio_registro(plain, off)
+    ini, campos = tlv.mapa_de_registro(plain, off)       # recordado (O-354)
     out = {}
-    for _, fh, _, datos in tlv.campos_desde(plain, ini, maximo=20):
+    for o, fh, n in campos:
         if fh in quiero:
-            out[fh] = datos
+            out[fh] = bytes(plain[o + 8:o + 8 + n])
     return out, ini
 
 

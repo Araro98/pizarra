@@ -732,6 +732,14 @@ def personajes_creables(plain):
     """
     ident = J.array(plain, J.ARRAY_IDENTIDAD)
     tengo = {ident[i] for i in range(min(6000, len(ident))) if ident[i]}
+    # todo sale de las tablas menos si ya lo tienes: lo de las tablas se monta una vez (O-354)
+    return [dict(o, tengo=int(o["identidad"], 16) in tengo)
+            for o in _indice("personajes_creables", _personajes_creables_fijos)]
+
+
+def _personajes_creables_fijos():
+    from ievr import tiers as TL
+    tengo = set()
     per = reglas.personajes()
     # solo los que el juego da por alguna via (NOTAS O-205): fuera las formas
     # a las que se llega en un partido (el Byron del modo Aphrody, el Buddy

@@ -244,8 +244,7 @@ def catalogo(plain, tipo):
     poseidas = inventario.filas_poseidas(plain)
     dichos = nombres_puestos()
     # el nombre en espanol, que es el que sale en la mochila
-    en_espanol = {f["id"].upper(): _O._limpio(f.get("nombre_es") or f.get("nombre_en"))
-                  for f in reglas._tabla("nombres-es.csv")}
+    en_espanol = nombres_en_espanol()
     fuera, vistos = [], set()
     for f in reglas._tabla("equipo-objetos.csv"):
         if f["tipo"] != tipo:
@@ -267,10 +266,26 @@ def catalogo(plain, tipo):
     return sorted(fuera, key=lambda x: x["nombre"])
 
 
+# Lo que sale de las tablas y no de la partida se monta una sola vez (O-354: abrir un equipo
+# rehacia el diccionario de iconos 600 veces y limpiaba 48.000 nombres)
+_FIJOS = {}
+
+
 def _iconos_por_objeto():
     """{id del objeto: ruta de su dibujo} de `iconos-objeto.csv` (NOTAS O-137)."""
-    return {f["id_objeto"].upper(): f["icono"]
-            for f in reglas._tabla("iconos-objeto.csv") if f.get("icono")}
+    if "iconos" not in _FIJOS:
+        _FIJOS["iconos"] = {f["id_objeto"].upper(): f["icono"]
+                            for f in reglas._tabla("iconos-objeto.csv") if f.get("icono")}
+    return _FIJOS["iconos"]
+
+
+def nombres_en_espanol():
+    """{id: nombre limpio en espanol} de `nombres-es.csv`, el que sale en la mochila."""
+    if "espanol" not in _FIJOS:
+        from ievr import opciones as _O
+        _FIJOS["espanol"] = {f["id"].upper(): _O._limpio(f.get("nombre_es") or f.get("nombre_en"))
+                             for f in reglas._tabla("nombres-es.csv")}
+    return _FIJOS["espanol"]
 
 
 def nombres_puestos():
@@ -280,10 +295,12 @@ def nombres_puestos():
     Los dijo Aaron mirando sus equipos, y estan en
     `datos/reglas-del-jugador/nombres-de-equipo.csv`.
     """
-    d = {}
-    for f in reglas._tabla("nombres-de-equipo.csv", reglas.DEL_JUGADOR):
-        d[(f["tipo"], f["id"].upper())] = f["nombre"]
-    return d
+    if "puestos" not in _FIJOS:
+        d = {}
+        for f in reglas._tabla("nombres-de-equipo.csv", reglas.DEL_JUGADOR):
+            d[(f["tipo"], f["id"].upper())] = f["nombre"]
+        _FIJOS["puestos"] = d
+    return _FIJOS["puestos"]
 
 
 def todos(plain, solo_con_nombre=True):

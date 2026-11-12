@@ -39,6 +39,11 @@ def todas_las_filas(plain):
     return memoria.recordar(plain, "filas", lambda: _todas_las_filas(plain))
 
 
+# Las filas ya leidas, por donde estan: {offset: (sus bytes, datos o None)}. Tras un cambio solo
+# se vuelven a leer las filas cuyos bytes han cambiado (O-354: antes, las ~30.000 cada vez).
+_FILAS_LEIDAS = {}
+
+
 def _todas_las_filas(plain):
     """[datos] de TODAS las filas con campo `slot`, se posean o no.
 
@@ -47,10 +52,19 @@ def _todas_las_filas(plain):
     solo se miran las poseidas esa referencia se lee como "vacia".
     """
     fuera = []
-    for off in _ocurrencias(plain, F_SLOT, 4):
+    fines = memoria.estructura(plain).setdefault("fin_de_fila", {})
+    for off in memoria.recordar(plain, ("ocurrencias", F_SLOT, 4), lambda: _ocurrencias(plain, F_SLOT, 4)):
+        fin = fines.get(off)
+        if fin is not None:
+            leida = _FILAS_LEIDAS.get(off)
+            if leida is not None and leida[0] == plain[off:fin]:
+                if leida[1] is not None:
+                    fuera.append(leida[1])
+                continue
         campos = tlv.campos_desde(plain, off, maximo=8)
         if not campos:
             continue
+        fin = fines[off] = campos[-1][0] + 8 + campos[-1][2]
         datos = {"slot_off": off, "slot": int.from_bytes(campos[0][3], "little")}
         for o, fh, n, d in campos:
             if fh == F_ID and n == 4:
@@ -73,6 +87,7 @@ def _todas_las_filas(plain):
                 datos["equipada"] = int.from_bytes(d, "little")
         if "id" in datos:
             fuera.append(datos)
+        _FILAS_LEIDAS[off] = (plain[off:fin], datos if "id" in datos else None)
     return fuera
 
 

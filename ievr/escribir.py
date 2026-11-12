@@ -74,8 +74,8 @@ def _campo(plain, fila, fhash):
     """(offset de los datos, longitud) de un campo de la ficha de un jugador."""
     from ievr import tlv
     fichas = J.ocurrencias(plain, *J.ANCLA_FICHA)
-    ini, _ = tlv.inicio_registro(plain, fichas[fila])
-    for off, fh, n, _ in tlv.campos_desde(plain, ini, maximo=20):
+    # (el mapa del registro se recuerda: esta es la funcion mas llamada del editor, O-354)
+    for off, fh, n in tlv.mapa_de_registro(plain, fichas[fila])[1]:
         if fh == fhash:
             return off + 8, n
     raise Ilegal("la ficha %d no tiene el campo %08X" % (fila, fhash))
@@ -1415,8 +1415,7 @@ RANURAS_NIVEL_1 = {"normal": "000204ffffffffffff", "hero": "000204080a0cffffff",
 def _campo_en(plain, ancla_off, fhash):
     """(offset de los datos, longitud) de un campo dentro del registro que contiene
     a `ancla_off`. Sirve para los registros que no son la ficha."""
-    ini, _ = tlv.inicio_registro(plain, ancla_off)
-    for off, fh, n, _ in tlv.campos_desde(plain, ini, maximo=25):
+    for off, fh, n in tlv.mapa_de_registro(plain, ancla_off, maximo=25)[1]:
         if fh == fhash:
             return off + 8, n
     raise Ilegal("ese registro no tiene el campo %08X" % fhash)

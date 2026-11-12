@@ -342,7 +342,7 @@ const NOMBRE_RAREZA = {0:"Futbolista comun", 1:"Futbolista emergente", 2:"Futbol
 
 async function cargaGuardados() {
   if (!guardados) {
-    try { guardados = (await pedir("/api/jugadores?cuantos=0")).jugadores; }
+    try { guardados = (await pedir("/api/jugadores?cuantos=0&resumen=0")).jugadores; }
     catch (e) { guardados = []; }
   }
   return guardados;

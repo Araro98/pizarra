@@ -12,6 +12,8 @@ plausible. Todo se direcciona por hash de campo, nunca por offset fijo.
 import os
 import struct
 
+from ievr import memoria
+
 MAX_FIELD_LEN = 64
 
 # Campos ya identificados. Fuente: referencia/editor-ref/NOTES.md.
@@ -110,7 +112,18 @@ def campo_anterior(plain, off):
 
 
 def inicio_registro(plain, off, maximo=64):
-    """Retrocede por la cadena de campos hasta donde deja de encadenar."""
+    """Retrocede por la cadena de campos hasta donde deja de encadenar. Se recuerda (O-354):
+    es lo mas caro de leer una ficha (prueba hasta MAX_FIELD_LEN longitudes por campo) y no
+    depende de lo que se edita, solo de donde estan las cabeceras."""
+    e = memoria.estructura(plain)
+    clave = ("inicio", off, maximo)
+    v = e.get(clave)
+    if v is None:
+        v = e[clave] = _inicio_registro(plain, off, maximo)
+    return v
+
+
+def _inicio_registro(plain, off, maximo=64):
     pasos = 0
     while pasos < maximo:
         p = campo_anterior(plain, off)
@@ -119,6 +132,28 @@ def inicio_registro(plain, off, maximo=64):
         off = p
         pasos += 1
     return off, pasos
+
+
+def mapa_de_registro(plain, off, maximo=20):
+    """(inicio, [(offset de la cabecera, hash, longitud)]) del registro que contiene a `off`:
+    donde esta cada campo, sin sus valores. Se recuerda (O-354): no cambia al editar. Cada vez
+    que se usa se comprueba que la primera y la ultima cabecera sigan ahi; si no (otra partida
+    con otra forma), se tira todo lo recordado de la estructura y se vuelve a leer."""
+    e = memoria.estructura(plain)
+    mapas = e.setdefault("mapas", {})
+    clave = (off, maximo)
+    m = mapas.get(clave)
+    if m is not None and m[1]:
+        for o, fh, n in (m[1][0], m[1][-1]):
+            if struct.unpack_from("<II", plain, o) != (fh, n):
+                e.clear()
+                mapas = e.setdefault("mapas", {})
+                m = None
+                break
+    if m is None:
+        ini, _ = inicio_registro(plain, off)
+        m = mapas[clave] = (ini, [(o, fh, n) for o, fh, n, _ in campos_desde(plain, ini, maximo=maximo)])
+    return m
 
 
 def localizar(plain, byte_off):

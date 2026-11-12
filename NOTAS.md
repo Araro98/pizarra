@@ -11496,6 +11496,35 @@ citan esta nota.
 - `personajes.csv` columna `curso` (construir_personajes.py); filtro "Curso" en Jugadores, la
   reserva, Fichar y la Base de datos, en orden y "Sin curso" al final.
 
+### O-354 · Rendimiento del editor y lo que no se veia hasta salir y entrar
+
+Aaron (2026-11-11): "mejorar el rendimiento de la app y ademas hay veces que algunas cosas no se
+guardan al momento... ficho a algun jugador, lo pongo de gerente y al intentar meterlo en el equipo
+aun me sale como jugador normal, tengo que salir y entrar del editor". En el codigo los cambios
+citan esta nota.
+- Lo que no se veia: la pestana Equipos guardaba la lista de jugadores (reserva) y solo la volvia a
+  pedir al fichar o borrar desde otra pestana. Ahora cualquier cambio la deja vieja y se pide de
+  nuevo (estando en Equipos, al momento; la lista de equipos, siempre; la de Fichar, igual).
+  Deshacer recarga la pantalla en la que se esta (antes solo Jugadores).
+- Rendimiento, medido con su partida (4.200 jugadores): la lista de jugadores se rehacia entera en
+  cada peticion (0,57 s al buscar, filtrar o pasar pagina; 2,2 s la reserva). Ahora:
+  - memoria: donde esta cada cabecera (ocurrencias) pasa a la partida siguiente comprobando que
+    siga en su sitio, y `estructura` (inicio de cada registro, mapa de campos: tlv.inicio_registro
+    y tlv.mapa_de_registro, que se comprueba en cada uso) se comparte entre las del mismo tamano;
+  - inventario: solo se releen las filas de mochila cuyos bytes cambian (_FILAS_LEIDAS);
+  - servidor: la ficha corta de cada jugador se rehace solo si cambia su firma (sus numeros y los
+    bytes de su ficha y su equipacion; Idolos y Diamantes siempre) y la lista se recuerda por
+    partida; `resumen=0` para la reserva y la calculadora (sin las comprobaciones del Resumen);
+  - equipos y Fichar: lo que sale de las tablas se monta una vez.
+  Queda: buscar 0,02 s, reserva tras un cambio 0,09 s, abrir un equipo 0,03 s (0,25), Fichar
+  0,01 s (0,42), fichar un jugador 0,3 s (0,8), un preset 0,05-0,08 s (0,25).
+- Comprobado: la lista, el resumen, los 11 equipos, Fichar y 5 fichas salen identicos a antes; una
+  tanda de 14 cambios (nivel, partidos, medalla, pasiva de gerente, presets, rareza, fichar, borrar,
+  Diamante, tecnica, objeto) da lo mismo con memoria que calculando todo de cero (la partida final
+  solo difiere en los numeros al azar de los fichajes, igual que dos pasadas en frio); y en el
+  editor (Chrome headless): gerente hecho en Jugadores o en Equipos se ve al momento en la
+  reserva, el fichado aparece y deshacer lo quita.
+
 ## SUPUESTO
 
 ### S-01 · Los 9 huecos de `0x45E2D879` son ranuras de algo
